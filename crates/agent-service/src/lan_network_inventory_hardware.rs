@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, LanPairingDeviceHardwareProfile};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceHardwareProfile;
 
 use crate::lan_network_inventory_command::{
     command_json_records, command_json_single, command_stdout, normalize_mac_address, record_text,
@@ -44,7 +45,7 @@ pub(crate) struct LocalNetworkIdentity {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct NvidiaGpu {
-    name: String,
+    adapter_name: String,
     driver: String,
     memory: String,
 }
@@ -96,7 +97,7 @@ pub(crate) fn local_network_identity() -> Option<LocalNetworkIdentity> {
     .map(|record| LocalNetworkIdentity {
         ip_address: record_text(&record, constants::lan_pairing::JSON_KEY_IP_ADDRESS),
         mac_address: record_text(&record, constants::lan_pairing::JSON_KEY_MAC_ADDRESS)
-            .and_then(normalize_mac_address),
+            .and_then(|value| normalize_mac_address(&value)),
         network_interface: record_text(&record, constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS),
     })
 }
@@ -117,7 +118,7 @@ fn nvidia_gpu_from_line(line: &str) -> Option<NvidiaGpu> {
     let parts: Vec<&str> = line.split(',').map(str::trim).collect();
     match parts.as_slice() {
         [name, driver, memory, ..] if !name.is_empty() => Some(NvidiaGpu {
-            name: (*name).to_string(),
+            adapter_name: (*name).to_string(),
             driver: (*driver).to_string(),
             memory: memory_mib_summary(memory),
         }),
@@ -169,7 +170,10 @@ fn gpu_names(nvidia_gpus: &[NvidiaGpu], windows_gpus: &[serde_json::Value]) -> O
             .filter_map(|gpu| record_text(gpu, constants::lan_pairing::JSON_KEY_NAME))
             .collect()
     } else {
-        nvidia_gpus.iter().map(|gpu| gpu.name.clone()).collect()
+        nvidia_gpus
+            .iter()
+            .map(|gpu| gpu.adapter_name.clone())
+            .collect()
     })
 }
 
@@ -202,7 +206,7 @@ fn nvidia_summary(nvidia_gpus: &[NvidiaGpu]) -> Option<String> {
         nvidia_gpus
             .iter()
             .map(|gpu| {
-                let mut summary = gpu.name.clone();
+                let mut summary = gpu.adapter_name.clone();
                 summary.push_str(constants::lan_pairing::NVIDIA_DRIVER_SEPARATOR);
                 summary.push_str(&gpu.driver);
                 summary.push(' ');

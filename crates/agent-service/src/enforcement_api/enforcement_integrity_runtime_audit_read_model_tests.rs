@@ -1,20 +1,30 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants::{
-        self, v08_enforcement_integrity_runtime_audit as proof,
-        v08_integrity_alert_status_bridge as bridge,
-        v08_notification_provider_status_boundary as boundary,
-    },
-    policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    V08EnforcementIntegrityRuntimeAuditEntry, V08EnforcementIntegrityRuntimeAuditIntegrityState,
-    V08EnforcementIntegrityRuntimeAuditReadModel, V08EnforcementIntegrityRuntimeAuditResult,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::v08_enforcement_integrity_runtime_audit as proof;
+use ocentra_parent_agent_protocol::constants::v08_integrity_alert_status_bridge as bridge;
+use ocentra_parent_agent_protocol::constants::v08_notification_provider_status_boundary as boundary;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditEntry;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditIntegrityState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditReadModel;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditResult;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use super::enforcement_integrity_runtime_audit_read_model::v08_enforcement_integrity_runtime_audit_read_model;
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
+
+type TestResult = Result<(), String>;
 
 #[test]
 fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
@@ -146,19 +156,21 @@ fn enforcement_integrity_runtime_audit_preserves_no_claim_flags() {
 }
 
 #[tokio::test]
-async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read_model() {
-    let event = send_supported_adapter_runtime_proof_command().await;
+async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read_model(
+) -> TestResult {
+    let event = send_supported_adapter_runtime_proof_command().await?;
 
     assert_eq!(
         event.event,
         AgentEventName::AgentEnforcementSupportedAdapterRuntimeProofReported
     );
-    let read_model: V08EnforcementIntegrityRuntimeAuditReadModel =
+    let read_model: V08EnforcementIntegrityRuntimeAuditReadModel = ok(
         serde_json::from_str(string_payload_field(
             &event,
             constants::field::ENFORCEMENT_INTEGRITY_RUNTIME_AUDIT_READ_MODEL,
-        ))
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        )?),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
 
     assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(read_model.entries.len(), 14);
@@ -203,12 +215,16 @@ async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read
         .entries
         .iter()
         .any(|entry| entry.status_entry_id == boundary::ENTRY_MANUAL_REQUIRED));
+
+    Ok(())
 }
 
-async fn send_supported_adapter_runtime_proof_command() -> AgentEventEnvelope {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await
+async fn send_supported_adapter_runtime_proof_command() -> Result<AgentEventEnvelope, String> {
+    let body = ok(
+        serde_json::to_string(&command_envelope()),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    Ok(handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await)
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -238,7 +254,7 @@ fn assert_entry_integrity(
     let entry = entries
         .iter()
         .find(|candidate| candidate.audit_entry_id == audit_entry_id)
-        .expect(proof::READ_MODEL_ID);
+        .unwrap_or_else(|| panic!("{}", proof::READ_MODEL_ID));
 
     assert_eq!(entry.integrity_state, integrity_state);
 }
@@ -316,9 +332,13 @@ fn integrity_count(counts: &BTreeMap<&'static str, usize>, state: &'static str) 
     *counts.get(state).unwrap_or(&0)
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> &'a str {
+fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> Result<&'a str, String> {
     match event.payload.get(field) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::String(value)) => Ok(value.as_str()),
+        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

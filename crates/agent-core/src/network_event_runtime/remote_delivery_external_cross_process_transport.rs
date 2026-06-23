@@ -208,6 +208,8 @@ fn has_unsupported_claims(report: &NetworkRuntimeRemoteDeliveryCrossProcessRepla
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
+
     use ocentra_parent_agent_protocol::constants;
 
     use crate::network_event_runtime::{
@@ -223,13 +225,20 @@ mod tests {
         },
     };
 
+    type TestResult = Result<(), String>;
+
+    fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> TestResultValue<T> {
+        result.map_err(|error| format!("{context}: {error:?}"))
+    }
+
+    type TestResultValue<T> = Result<T, String>;
+
     #[tokio::test]
-    async fn records_external_cross_process_transport_from_replay_records() {
-        let report = prove_network_runtime_remote_delivery_external_cross_process_transport()
-            .await
-            .expect(
-                constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EXTERNAL_CROSS_PROCESS_TRANSPORT,
-            );
+    async fn records_external_cross_process_transport_from_replay_records() -> TestResult {
+        let report = ok(
+            prove_network_runtime_remote_delivery_external_cross_process_transport().await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EXTERNAL_CROSS_PROCESS_TRANSPORT,
+        )?;
 
         assert_eq!(
             report.external_cross_process_transport_ref.as_str(),
@@ -260,13 +269,16 @@ mod tests {
         assert!(report.external_cross_process_transport_implemented);
         assert_external_transport_records(&report);
         assert_no_product_delivery_or_enforcement_claims(&report);
+
+        Ok(())
     }
 
     #[tokio::test]
-    async fn rejects_replay_source_that_claims_remote_delivery_ack() {
-        let mut replay = prove_network_runtime_remote_delivery_cross_process_replay()
-            .await
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY);
+    async fn rejects_replay_source_that_claims_remote_delivery_ack() -> TestResult {
+        let mut replay = ok(
+            prove_network_runtime_remote_delivery_cross_process_replay().await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY,
+        )?;
         replay.remote_delivery_ack_implemented = true;
 
         let proof_result =
@@ -278,13 +290,16 @@ mod tests {
             proof_result,
             Err(NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError::UnsupportedClaim)
         ));
+
+        Ok(())
     }
 
     #[tokio::test]
-    async fn rejects_replay_records_that_do_not_match_source_count() {
-        let mut replay = prove_network_runtime_remote_delivery_cross_process_replay()
-            .await
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY);
+    async fn rejects_replay_records_that_do_not_match_source_count() -> TestResult {
+        let mut replay = ok(
+            prove_network_runtime_remote_delivery_cross_process_replay().await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY,
+        )?;
         replay.cross_process_replay_record_count += 1;
 
         let proof_result =
@@ -296,6 +311,8 @@ mod tests {
             proof_result,
             Err(NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError::TransportRecordMismatch)
         ));
+
+        Ok(())
     }
 
     fn assert_external_transport_records(

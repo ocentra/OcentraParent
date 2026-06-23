@@ -61,14 +61,14 @@ async function main() {
     productDocState: 'updated-feature-expectation-checklist-for-store-handoff-proof',
     evidence: {
       productClaimStoreHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-store-handoff-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-store-handoff-proof.ts',
       sourceSafeParentWorkflowContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
       sourceManualEvidencePacketContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-store-handoff-proof.test.ts',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-handoff-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-product-claim-store-handoff-proof',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',

@@ -71,11 +71,12 @@ async function main() {
     commands,
     evidence: {
       packageSourceCaptureStatusContract:
-        'packages/app-game-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
       sourceChildArtifactDeliveryContract:
-        'packages/app-game-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
-      sourceStoreStatusHandoffContract: 'packages/app-game-domain/src/app-install-purchase-store-status-handoff-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-package-source-capture-status-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
+      sourceStoreStatusHandoffContract: 'packages/schema-domain/src/app-install-purchase-store-status-handoff-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-package-source-capture-status-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',

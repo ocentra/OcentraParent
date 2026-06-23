@@ -1,10 +1,13 @@
 use std::{fs, path::PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, ScreenAnalysisParentSetting, ScreenSettingsGetRequest,
-    ScreenSettingsRejectionReason, ScreenSettingsUpdateKind, ScreenSettingsUpdateRequest,
-    ScreenSettingsUpdateStatus, SCREEN_EVIDENCE_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_settings::ScreenAnalysisParentSetting;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsGetRequest;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsRejectionReason;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateKind;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateRequest;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateStatus;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 
 use crate::screen_settings_runtime::{default_disabled_setting, ScreenSettingsRuntime};
 
@@ -23,7 +26,7 @@ async fn screen_settings_runtime_reports_disabled_default_without_persistence() 
     assert_eq!(response.status, ScreenSettingsUpdateStatus::Accepted);
     let setting = response
         .setting
-        .expect(constants::screen_settings::TEST_SETTING_RETURNED);
+        .unwrap_or_else(|| panic!("{}", constants::screen_settings::TEST_SETTING_RETURNED));
     assert!(!setting.screen_analysis_enabled);
     assert!(!setting.cadence_capture_enabled);
     assert!(!setting.trigger_capture_enabled);
@@ -39,9 +42,7 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
     let runtime = ScreenSettingsRuntime::for_store_path(&path);
     let strict = strict_dry_run_setting(2);
 
-    let accepted = runtime
-        .handle_request(replace_request(None, strict.clone()))
-        .await;
+    let accepted = runtime.handle_request(replace_request(None, &strict)).await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
     assert_eq!(
@@ -56,14 +57,19 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
             kind: ScreenSettingsUpdateKind::Get,
         }))
         .await;
-    let persisted = reported
-        .setting
-        .expect(constants::screen_settings::TEST_PERSISTED_SETTING_RETURNED);
+    let persisted = reported.setting.unwrap_or_else(|| {
+        panic!(
+            "{}",
+            constants::screen_settings::TEST_PERSISTED_SETTING_RETURNED
+        )
+    });
 
     assert_eq!(reported.status, ScreenSettingsUpdateStatus::Accepted);
     assert_eq!(persisted, strict);
     assert!(fs::read_to_string(&path)
-        .expect(constants::screen_settings::TEST_STORE_READABLE)
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::screen_settings::TEST_STORE_READABLE)
+        })
         .contains(constants::screen_settings::AUDIT_PREFIX));
 }
 
@@ -76,7 +82,7 @@ async fn screen_settings_runtime_accepts_parent_approved_short_ttl_raw_retention
     setting.reason = Some(constants::screen_settings::RAW_RETENTION_LOCAL_TTL_REASON.to_string());
 
     let accepted = runtime
-        .handle_request(replace_request(None, setting.clone()))
+        .handle_request(replace_request(None, &setting))
         .await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
@@ -90,7 +96,9 @@ async fn screen_settings_runtime_rejects_unsafe_raw_image_retention() {
     setting.retain_raw_image = true;
     setting.temporary_image_ttl_seconds = constants::screen_settings::DEFAULT_TTL_SECONDS;
 
-    let rejected = runtime.handle_request(replace_request(None, setting)).await;
+    let rejected = runtime
+        .handle_request(replace_request(None, &setting))
+        .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
     assert_eq!(
@@ -106,7 +114,9 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
     let mut setting = strict_dry_run_setting(2);
     setting.analysis_mode = constants::screen_settings::ANALYSIS_MODE_OBSERVE_ONLY.to_string();
 
-    let rejected = runtime.handle_request(replace_request(None, setting)).await;
+    let rejected = runtime
+        .handle_request(replace_request(None, &setting))
+        .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
     assert_eq!(
@@ -119,12 +129,12 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
 async fn screen_settings_runtime_rejects_stale_base_setting_version() {
     let runtime = ScreenSettingsRuntime::in_memory();
     let accepted = runtime
-        .handle_request(replace_request(None, strict_dry_run_setting(2)))
+        .handle_request(replace_request(None, &strict_dry_run_setting(2)))
         .await;
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
 
     let rejected = runtime
-        .handle_request(replace_request(Some(1), strict_dry_run_setting(3)))
+        .handle_request(replace_request(Some(1), &strict_dry_run_setting(3)))
         .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
@@ -173,7 +183,7 @@ impl ScreenSettingTestValues for ScreenAnalysisParentSetting {
 
 fn replace_request(
     base_setting_version: Option<u64>,
-    setting: ScreenAnalysisParentSetting,
+    setting: &ScreenAnalysisParentSetting,
 ) -> ScreenSettingsUpdateRequest {
     serde_json::from_value(serde_json::json!({
         "schemaVersion": SCREEN_EVIDENCE_SCHEMA_VERSION,
@@ -182,14 +192,14 @@ fn replace_request(
         "baseSettingVersion": base_setting_version,
         "setting": setting,
     }))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
-fn test_store_path(name: &str) -> PathBuf {
+fn test_store_path(store_suffix: &str) -> PathBuf {
     let mut path = std::env::temp_dir();
     let mut file_name = String::from(constants::screen_settings::TEST_STORE_FILE_PREFIX);
     file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(name);
+    file_name.push_str(store_suffix);
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(&std::process::id().to_string());
     file_name.push(constants::delimiter::DOT);

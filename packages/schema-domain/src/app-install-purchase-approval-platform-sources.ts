@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const RequiredRequestKinds = ['install', 'purchase', 'subscription'] as const;
 const RequiredMetadataFields = [
@@ -69,11 +64,21 @@ const AppInstallPurchaseApprovalPlatformSourcePlatformAdapterClaimSchema = withP
 );
 const AppInstallPurchaseApprovalPlatformSourceInterceptionClaimSchema = withParser(Schema.Literal('not-claimed'));
 
-const AppInstallPurchaseApprovalPlatformSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPlatformSourceRowId');
-const AppInstallPurchaseApprovalPlatformSourceArtifactRequirementSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPlatformSourceArtifactRequirement');
-const AppInstallPurchaseApprovalPlatformSourceLimitationReasonSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPlatformSourceLimitationReason');
-const AppInstallPurchaseApprovalPlatformSourceReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPlatformSourceReportRef');
-const AppInstallPurchaseApprovalPlatformSourceClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPlatformSourceClaimBoundary');
+const AppInstallPurchaseApprovalPlatformSourceRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPlatformSourceRowId'
+);
+const AppInstallPurchaseApprovalPlatformSourceArtifactRequirementSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPlatformSourceArtifactRequirement'
+);
+const AppInstallPurchaseApprovalPlatformSourceLimitationReasonSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPlatformSourceLimitationReason'
+);
+const AppInstallPurchaseApprovalPlatformSourceReportRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPlatformSourceReportRef'
+);
+const AppInstallPurchaseApprovalPlatformSourceClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPlatformSourceClaimBoundary'
+);
 
 const AppInstallPurchaseApprovalPlatformSourceMetadataRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseApprovalPlatformSourceSchemaVersionSchema,
@@ -206,4 +211,3 @@ function platformSourceKey(input: {
 }): string {
   return `${input.platform}:${input.storeSurface}`;
 }
-

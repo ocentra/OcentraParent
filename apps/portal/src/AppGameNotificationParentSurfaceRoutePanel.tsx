@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
@@ -7,10 +8,7 @@ import {
   type AppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelRow,
 } from '@ocentra-parent/portal-domain/app-game-notification-parent-surface-panel';
-import {
-  isPortalAppGameParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 
 export function shouldRenderAppGameNotificationParentSurfaceRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);

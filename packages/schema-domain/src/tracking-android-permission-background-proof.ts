@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -12,8 +7,12 @@ import {
 import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from './family-references';
 const TrackingAndroidPermissionNonNegativeIntegerSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingAndroidPermissionBackgroundProofIdSchema = brandedNonEmptyStringSchema('TrackingAndroidPermissionBackgroundProofId');
-export const TrackingAndroidPermissionBackgroundProofReferenceSchema = brandedNonEmptyStringSchema('TrackingAndroidPermissionBackgroundProofReference');
+export const TrackingAndroidPermissionBackgroundProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidPermissionBackgroundProofId'
+);
+export const TrackingAndroidPermissionBackgroundProofReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidPermissionBackgroundProofReference'
+);
 
 export const TrackingAndroidPermissionBackgroundCaseSchema = withParser(
   Schema.Literal(
@@ -378,4 +377,3 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
-

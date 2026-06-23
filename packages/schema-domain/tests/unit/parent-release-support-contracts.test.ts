@@ -107,11 +107,7 @@ const IncidentHandoffFixture = {
     billingEscalationState: 'not-implemented',
     remoteControlState: 'not-implemented',
     productionSlaState: 'manual-required',
-    nonClaims: [
-      'no support backend upload',
-      'no Ocentra-hosted child data custody',
-      'no billing or public account',
-    ],
+    nonClaims: ['no support backend upload', 'no Ocentra-hosted child data custody', 'no billing or public account'],
   },
 } as const;
 

@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, LocalAiParentRuleContextRef};
+use ocentra_parent_agent_protocol::activity::policy_context::LocalAiParentRuleContextRef;
+use ocentra_parent_agent_protocol::constants;
 use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;

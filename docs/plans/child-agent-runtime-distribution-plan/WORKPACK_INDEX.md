@@ -14,6 +14,8 @@
 
 # Child Agent Runtime Distribution Workpack Index
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
 | open | [WP01 Child Agent Scope And Route Boundary](workpacks/01-child-agent-scope-and-route-boundary.md) | 0/10 | `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/` |
@@ -49,3 +51,5 @@ WP11 is last and consumes all previous proof roots.
 ## Do not select
 
 Do not reuse parent-client proof pointers. Do not implement parent setup journey, account identity, LAN protocol, policy logic, or data custody here.
+
+Do not raise status/counts from package-script presence, checksum presence, parent client proof, empty proof directories, stale legacy proof paths, or manual-required rows.

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidPhysicalDeviceProofSchemaVersionSchema = withParser(
@@ -117,17 +112,37 @@ export function summarizeAppGameAndroidPhysicalDeviceProof(proof: AppGameAndroid
 
 function androidPhysicalDeviceProofIsHonest(proof: AppGameAndroidPhysicalDeviceProofCandidate): boolean {
   return (
+    androidPhysicalDeviceIdentityIsHonest(proof) &&
+    androidPhysicalDeviceProofRefsArePresent(proof) &&
+    androidPhysicalDeviceRedactionIsHonest(proof) &&
+    androidUsageEventsProofIsHonest(proof) &&
+    androidPhysicalDeviceClaimsRemainScoped(proof)
+  );
+}
+
+function androidPhysicalDeviceIdentityIsHonest(proof: AppGameAndroidPhysicalDeviceProofCandidate): boolean {
+  return (
     proof.targetKind === 'physical-device' &&
     proof.connectionState === 'physical-device-connected' &&
-    proof.adbTargetRef === 'android-physical-adb-device-ref' &&
-    proof.proofRefs.includes('android-physical-adb-device-ref') &&
-    proof.proofRefs.includes('android-physical-build-prop-ref') &&
-    proof.proofRefs.includes('android-physical-package-manager-ref') &&
-    proof.proofRefs.includes('android-physical-device-policy-ref') &&
-    proof.packageNamesRedacted &&
-    proof.usageEventsPackageNamesRedacted &&
-    proof.rawDeviceSerialRedacted &&
-    androidUsageEventsProofIsHonest(proof) &&
+    proof.adbTargetRef === 'android-physical-adb-device-ref'
+  );
+}
+
+function androidPhysicalDeviceProofRefsArePresent(proof: AppGameAndroidPhysicalDeviceProofCandidate): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-physical-adb-device-ref',
+    'android-physical-build-prop-ref',
+    'android-physical-package-manager-ref',
+    'android-physical-device-policy-ref',
+  ] as const);
+}
+
+function androidPhysicalDeviceRedactionIsHonest(proof: AppGameAndroidPhysicalDeviceProofCandidate): boolean {
+  return proof.packageNamesRedacted && proof.usageEventsPackageNamesRedacted && proof.rawDeviceSerialRedacted;
+}
+
+function androidPhysicalDeviceClaimsRemainScoped(proof: AppGameAndroidPhysicalDeviceProofCandidate): boolean {
+  return (
     !proof.hideSuspendClaimed &&
     !proof.adapterDispatchClaimed &&
     !proof.broadBlockingClaimed &&
@@ -152,3 +167,6 @@ function androidUsageEventsProofIsHonest(proof: AppGameAndroidPhysicalDeviceProo
   );
 }
 
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

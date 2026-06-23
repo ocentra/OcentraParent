@@ -1,16 +1,10 @@
 import type { ReactElement } from 'react';
-import {
-  AgentCommand,
-  AgentEvent,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
 import type { PortalShellParentAccessState } from '@ocentra-parent/portal-domain/parent-portal-shell-status';
 import {
   createPolicyPreviewPanelIntent,
@@ -18,16 +12,12 @@ import {
   type PolicyPreviewPanelDetail,
   type PolicyPreviewPanelIntent,
 } from '@ocentra-parent/portal-domain/policy-preview-panel';
+import { isPortalPolicyPreviewRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function shouldRenderPolicyPreviewRoute(route: PortalRouteValue): boolean {
-  return (
-    route === PortalRoute.RuleManagement ||
-    route === PortalRoute.Schedules ||
-    route === PortalRoute.Approvals ||
-    route === PortalRoute.Enforcement
-  );
+  return isPortalPolicyPreviewRoute(route);
 }
 
 export function PolicyPreviewRoutePanel({
@@ -48,7 +38,7 @@ export function PolicyPreviewRoutePanel({
   );
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.PolicyPreview)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.PolicyPreview)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -65,7 +55,7 @@ export function PolicyPreviewRoutePanel({
               actions.sendCommand(AgentCommand.PolicyPreviewReadModelGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetPolicyPreviewReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetPolicyPreviewReadModel)}
           </button>
         </header>
         <div
@@ -77,9 +67,7 @@ export function PolicyPreviewRoutePanel({
           {intent.cards.length === 0 ? (
             <PolicyPreviewEmptyCard intent={intent} />
           ) : (
-            intent.cards.map((card, index) => (
-              <PolicyPreviewCard key={`${String(card.title)}:${index}`} card={card} />
-            ))
+            intent.cards.map((card, index) => <PolicyPreviewCard key={`${String(card.title)}:${index}`} card={card} />)
           )}
         </div>
       </div>
@@ -87,11 +75,7 @@ export function PolicyPreviewRoutePanel({
   );
 }
 
-function PolicyPreviewSummaryCard({
-  intent,
-}: {
-  readonly intent: PolicyPreviewPanelIntent;
-}): ReactElement {
+function PolicyPreviewSummaryCard({ intent }: { readonly intent: PolicyPreviewPanelIntent }): ReactElement {
   return (
     <article className={policyPreviewCardClassName()}>
       <h2>{PortalDetails.PolicyPreview}</h2>
@@ -101,11 +85,7 @@ function PolicyPreviewSummaryCard({
   );
 }
 
-function PolicyPreviewEmptyCard({
-  intent,
-}: {
-  readonly intent: PolicyPreviewPanelIntent;
-}): ReactElement {
+function PolicyPreviewEmptyCard({ intent }: { readonly intent: PolicyPreviewPanelIntent }): ReactElement {
   return (
     <article className={policyPreviewCardClassName()}>
       <h2>{PortalDetails.Status}</h2>
@@ -122,11 +102,7 @@ function PolicyPreviewEmptyCard({
   );
 }
 
-function PolicyPreviewCard({
-  card,
-}: {
-  readonly card: PolicyPreviewPanelCard;
-}): ReactElement {
+function PolicyPreviewCard({ card }: { readonly card: PolicyPreviewPanelCard }): ReactElement {
   return (
     <article className={policyPreviewCardClassName()}>
       <h2>{card.title}</h2>
@@ -136,11 +112,7 @@ function PolicyPreviewCard({
   );
 }
 
-function PolicyPreviewDetails({
-  details,
-}: {
-  readonly details: readonly PolicyPreviewPanelDetail[];
-}): ReactElement {
+function PolicyPreviewDetails({ details }: { readonly details: readonly PolicyPreviewPanelDetail[] }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
       {details.map((detail, index) => (
@@ -166,7 +138,5 @@ function PolicyPreviewDetail({
 }
 
 function policyPreviewCardClassName(): string {
-  return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
-    PortalDom.Classes.ClassNameSeparator
-  );
+  return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(PortalDom.Classes.ClassNameSeparator);
 }

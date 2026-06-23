@@ -312,9 +312,7 @@ function assertTrackingControlTemporaryLiveCompanionSettings(settings: TrackingC
     ({ settingId }) => !settingsById.has(settingId)
   ).map(({ purpose, settingId }) => `${purpose}=${settingId}`);
   if (missing.length > 0) {
-    throw new Error(
-      `Temporary live posture requires companion tracking control settings: ${missing.join(', ')}`
-    );
+    throw new Error(`Temporary live posture requires companion tracking control settings: ${missing.join(', ')}`);
   }
 }
 

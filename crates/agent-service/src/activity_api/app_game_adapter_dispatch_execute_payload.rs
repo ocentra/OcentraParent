@@ -1,10 +1,15 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
-    AgentEventName, AppGameAdapterDispatchResultRow, LogFieldValue, LogFields, LogLevel,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND,
+use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
+    AppGameAdapterDispatchResultRow, APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND,
     APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_EVENT,
     APP_GAME_ADAPTER_DISPATCH_RESULT_READBACK_COMMAND,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
 };
 
 use super::app_game_adapter_dispatch_result_payload::app_game_adapter_dispatch_result_read_model_with_execution;
@@ -63,18 +68,18 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
         &enforcement_event.payload,
     ) {
         Ok(execute_result) => build_dispatch_executed_event(
-            correlation_id,
+            &correlation_id,
             target,
             enforcement_event.payload,
             execute_result,
         ),
-        Err(reason) => dispatch_execute_rejected_from_parts(correlation_id, target, reason),
+        Err(reason) => dispatch_execute_rejected_from_parts(&correlation_id, target, reason),
     }
 }
 
 fn build_dispatch_executed_event(
-    correlation_id: String,
-    target: ocentra_parent_agent_protocol::AgentPeer,
+    correlation_id: &str,
+    target: ocentra_parent_agent_protocol::transport::AgentPeer,
     mut payload: LogFields,
     execute_result: String,
 ) -> AgentEventEnvelope {
@@ -84,7 +89,7 @@ fn build_dispatch_executed_event(
     );
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_ADAPTER_DISPATCH_EXECUTED,
-        &correlation_id,
+        correlation_id,
         target,
         AgentEventName::AgentActivityAppGameAdapterDispatchExecuted,
         LogLevel::Info,
@@ -175,7 +180,7 @@ fn dispatch_execute_result_payload(
     let mut result = fields_from_pairs(result_identity_pairs(command_id, generated_at, row));
     result.extend(fields_from_pairs(execution_pairs(enforcement_payload)?));
     result.extend(fields_from_pairs(no_claim_pairs()));
-    serde_json::to_string(&result).map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_string(&result).map_err(|_error| constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn result_identity_pairs(
@@ -287,17 +292,17 @@ fn dispatch_execute_rejected(
     command: AgentCommandEnvelope,
     reason: &'static str,
 ) -> AgentEventEnvelope {
-    dispatch_execute_rejected_from_parts(command.message_id, command.source, reason)
+    dispatch_execute_rejected_from_parts(&command.message_id, command.source, reason)
 }
 
 fn dispatch_execute_rejected_from_parts(
-    correlation_id: String,
-    target: ocentra_parent_agent_protocol::AgentPeer,
+    correlation_id: &str,
+    target: ocentra_parent_agent_protocol::transport::AgentPeer,
     reason: &'static str,
 ) -> AgentEventEnvelope {
     build_event(
         constants::event_id::COMMAND_REJECTED,
-        &correlation_id,
+        correlation_id,
         target,
         AgentEventName::AgentCommandRejected,
         LogLevel::Warn,

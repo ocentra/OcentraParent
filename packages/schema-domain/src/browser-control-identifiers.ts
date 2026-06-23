@@ -1,44 +1,18 @@
 import { withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
-export const BrowserControlManifestIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlManifestId')
-);
-export const BrowserControlSectionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlSectionId')
-);
-export const BrowserControlFieldIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlFieldId')
-);
-export const BrowserControlOptionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlOptionId')
-);
-export const BrowserControlPolicyIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlPolicyId')
-);
-export const BrowserControlRuleIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlRuleId')
-);
-export const BrowserControlScheduleIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlScheduleId')
-);
-export const BrowserControlBudgetIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlBudgetId')
-);
-export const BrowserControlCapabilityIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlCapabilityId')
-);
-export const BrowserControlRevisionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlRevisionId')
-);
-export const BrowserControlHashIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlHashId')
-);
-export const BrowserControlAuditEventIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlAuditEventId')
-);
-export const BrowserControlRequestIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserControlRequestId')
-);
+export const BrowserControlManifestIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlManifestId'));
+export const BrowserControlSectionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlSectionId'));
+export const BrowserControlFieldIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlFieldId'));
+export const BrowserControlOptionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlOptionId'));
+export const BrowserControlPolicyIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlPolicyId'));
+export const BrowserControlRuleIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlRuleId'));
+export const BrowserControlScheduleIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlScheduleId'));
+export const BrowserControlBudgetIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlBudgetId'));
+export const BrowserControlCapabilityIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlCapabilityId'));
+export const BrowserControlRevisionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlRevisionId'));
+export const BrowserControlHashIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlHashId'));
+export const BrowserControlAuditEventIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlAuditEventId'));
+export const BrowserControlRequestIdSchema = withParser(brandedNonEmptyStringSchema('BrowserControlRequestId'));
 
 export type BrowserControlManifestId = typeof BrowserControlManifestIdSchema.Type;
 export type BrowserControlSectionId = typeof BrowserControlSectionIdSchema.Type;

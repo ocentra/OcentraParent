@@ -1,29 +1,27 @@
 use serde_json::{json, Value};
 
-use ocentra_parent_agent_protocol::{
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_AUDIT_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_EVIDENCE_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_EXTERNAL_RUNTIME,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_FINAL_POLICY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PARENT_NOTIFICATION_UI,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_DELIVERY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_RECEIPT,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_POLICY_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_READINESS_ID,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
-};
 use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::{
-    SocialParentNotificationDeliveryReadinessRow,
-    SocialParentNotificationDeliveryReadinessSnapshot,
+    SocialParentNotificationDeliveryReadinessRow, SocialParentNotificationDeliveryReadinessSnapshot,
 };
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_AUDIT_REF;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_EVIDENCE_REF;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_EXTERNAL_RUNTIME;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_FINAL_POLICY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PARENT_NOTIFICATION_UI;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_DELIVERY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_RECEIPT;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_POLICY_REF;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_READINESS_ID;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY;
 
 #[test]
 fn social_parent_notification_delivery_snapshot_serializes_claim_boundaries() {
     let snapshot = snapshot();
-    let value = serde_json::to_value(snapshot).expect("snapshot serializes");
+    let value = serde_json::to_value(snapshot)
+        .unwrap_or_else(|error| unreachable!("snapshot serializes: {error:?}"));
 
     assert_eq!(
         value["schemaVersion"],
@@ -43,7 +41,7 @@ fn social_parent_notification_delivery_snapshot_serializes_claim_boundaries() {
 }
 
 fn assert_ready_row(row: Option<&Value>) {
-    let row = row.expect("ready row exists");
+    let row = row.unwrap_or_else(|| unreachable!("ready row exists"));
     assert_eq!(
         row["notificationDeliveryReadinessState"],
         json!(SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY)

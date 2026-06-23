@@ -1,13 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, AppGameBoundaryReadModel,
-    AppGameBoundaryReadModelRow, AppGameServiceReadModel, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
+use ocentra_parent_agent_protocol::app_game_boundary_read_model::{
+    AppGameBoundaryReadModel, AppGameBoundaryReadModelRow,
     APP_GAME_BOUNDARY_KIND_AI_CLASSIFIER_RESULT, APP_GAME_BOUNDARY_KIND_APPROVAL_ACTION_RESULT,
     APP_GAME_BOUNDARY_KIND_APPROVAL_AUTHORITY, APP_GAME_BOUNDARY_KIND_EVIDENCE_CLAIM,
     APP_GAME_BOUNDARY_KIND_IDENTITY, APP_GAME_BOUNDARY_KIND_PLATFORM_AUTHORITY_MATRIX,
     APP_GAME_BOUNDARY_KIND_PLATFORM_AUTHORITY_ROW,
     APP_GAME_BOUNDARY_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    APP_GAME_BOUNDARY_READ_MODEL_STATUS_NO_ROWS, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_BOUNDARY_READ_MODEL_STATUS_NO_ROWS,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
 
@@ -66,9 +69,7 @@ fn read_model_pairs(read_model: &AppGameBoundaryReadModel) -> Vec<FieldPair> {
         ),
         (
             constants::field::APP_GAME_BOUNDARY_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ]
 }

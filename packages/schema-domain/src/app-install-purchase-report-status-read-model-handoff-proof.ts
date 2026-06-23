@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovalReportDomainProofReadModel } from './app-install-purchase-approval-report-domain-proof';
 import { AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel } from './app-install-purchase-runtime-report-writer-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -64,7 +59,9 @@ const ReportStatusReadModelNonClaimSchema = withParser(Schema.Literal(...ReportS
 
 const ReportStatusReadModelRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportStatusReadModelRowId');
 const ReportStatusReadModelRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportStatusReadModelRef');
-const ReportStatusReadModelBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportStatusReadModelBoundary');
+const ReportStatusReadModelBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseReportStatusReadModelBoundary'
+);
 
 const ReportStatusReadModelRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseReportStatusReadModelHandoffProofSchemaVersionSchema,
@@ -265,4 +262,3 @@ function reportStatusReadModelProofIsHonest(proof: AppInstallPurchaseReportStatu
     proof.knownGaps.length > 0
   );
 }
-

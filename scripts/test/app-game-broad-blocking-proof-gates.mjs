@@ -30,7 +30,7 @@ async function main() {
   );
 
   const { AppGameBroadBlockingGateMatrix } =
-    await import('../../packages/app-game-domain/dist/app-game-broad-blocking-proof-gate-data.js');
+    await import('../../packages/schema-domain/dist/app-game-broad-blocking-proof-gate-data.js');
   const summary = summarizeMatrix(AppGameBroadBlockingGateMatrix);
   assertMatrix(AppGameBroadBlockingGateMatrix, summary);
 
@@ -42,9 +42,9 @@ async function main() {
     commands,
     counts: summary,
     evidence: {
-      tsContract: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gates.ts',
-      tsContractData: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts',
-      tsContractRules: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts',
+      tsContract: 'packages/schema-domain/src/app-game-broad-blocking-proof-gates.ts',
+      tsContractData: 'packages/schema-domain/src/app-game-broad-blocking-proof-gate-data.ts',
+      tsContractRules: 'packages/schema-domain/src/app-game-broad-blocking-proof-gate-rules.ts',
       tsContractTest: 'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts',
       proofHarness: 'scripts/test/app-game-broad-blocking-proof-gates.mjs',
       appGameProofPack: 'output/app-game-plan-proof/23-broad-blocking-proof-gates',

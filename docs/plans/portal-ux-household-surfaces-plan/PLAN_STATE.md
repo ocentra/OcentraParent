@@ -18,16 +18,63 @@ Generated from the existing `portal-ux-household-surfaces-plan` docs. This is th
 
 ## Scope
 
-This folder is the single working plan location for the C lane: coherent parent-facing household UX across setup, devices, policy, activity, LAN state, assistant/report surfaces, degraded states, and proof.
+This folder is the single working plan location for coherent parent-facing household UX across setup, devices, policy, activity, LAN state, assistant/report surfaces, degraded states, and proof.
+
+## Current ownership interpretation
+
+```text
+apps/portal:
+  React/Tauri parent portal runtime, route composition, local interaction state, and focused UI/e2e proof.
+
+portal-domain:
+  Public portal route, DOM, panel, projection, proof-artifact, and presentation contract package.
+
+schema-domain and domain packages:
+  Canonical source/read-model contracts consumed by portal; they own source truth, not portal presentation.
+
+agent-protocol-domain and agent-protocol/service surfaces:
+  Service/read-model seams consumed by portal when selected.
+
+policy-control-plane-plan:
+  Policy source truth, compiler, delivery, approval, and ask-parent semantics. Portal renders selected policy states only.
+
+Sibling domain/runtime plans:
+  Setup, account, device-trust, LAN, browser, app/game, network, screen, tracking, AI, payment, custody, notification, and enforcement plans own their domain truth and runtime behavior.
+```
+
+## Current proof interpretation
+
+```text
+output/portal-ux-household-surfaces-plan-proof/<workpack>/ is the deterministic proof root.
+docs/proof/portal-ux-household-surfaces-plan/ remains compatibility/reference for old slice proof names.
+Checked workpacks prove selected UX slices only and do not close open policy/assistant/reports/degraded/accessibility/no-fake-data/screenshot/mobile/manual-review work.
+Screenshot proof supports review; it does not replace service-backed validation.
+Portal projection proof is not domain runtime proof.
+```
+
+## Current coupling risks
+
+```text
+- Portal route existence is not product readiness.
+- Visual screenshot proof is not runtime/service proof.
+- Service parser proof is not rendered UX proof.
+- Fixture/demo data is not runtime state.
+- Portal-local replacement read models are not product truth.
+- UI preview is not applied policy.
+- Delivered/acknowledged status is not active enforcement.
+- Assistant output is not parent-approved action.
+- Portal projection is not capture, transport, billing, custody, policy, or enforcement proof.
+```
 
 ## Resume route
 
 1. Read this file.
 2. Read `NEXT_ACTIONS.md` when starting/resuming.
 3. Read `WORKPACK_INDEX.md`.
-4. Open only the assigned workpack.
-5. Use `CHECKLIST_INDEX.md` for exact checklist sections.
-6. Use `PROOF_INDEX.md` for proof artifacts.
+4. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+5. Open only the assigned workpack.
+6. Use `CHECKLIST_INDEX.md` for exact checklist sections.
+7. Use `PROOF_INDEX.md` for proof artifacts.
 
 ## Current snapshot source
 
@@ -35,11 +82,16 @@ This folder is the single working plan location for the C lane: coherent parent-
 
 ## What is already present / proved
 
-- No concise existing/proved bullet section was detected in the current snapshot.
+- `portal-domain` is a real public contract package with many route, panel, presentation, and proof exports.
+- `apps/portal` is the actual React/Tauri portal runtime surface and consumes domain packages as projection inputs.
+- Checked workpacks currently cover selected shell/navigation, first-run/profiles, device inventory/source states, selected-device context, and LAN pairing consumption slices.
+- WP05 has substantial policy preview/read-model/current-seam proof recorded, but remains open because parent-triggered confirm action wiring, request-envelope projection, co-parent authZ, rollback execution, and unsupported target handling remain open.
 
 ## Open gaps / missing product runtime
 
-- No concise missing/gaps bullet section was detected in the current snapshot.
+- No concise current snapshot file exists.
+- Policy authoring, schedules, approvals, activity diagnostics, browser/app/network surfaces, assistant action preview, reports/notifications/custody, degraded states, audit/debug, accessibility, no-fake-data, screenshot, mobile shell, docs sync, and manual review workpacks remain open.
+- The portal must not claim domain/runtime completion for any sibling plan from UI projection alone.
 
 ## Checklist summary
 
@@ -77,6 +129,7 @@ This folder is the single working plan location for the C lane: coherent parent-
 - `README_FULL_ORIGINAL.md` unless you need historical full README context.
 - Full 20-step/test-blueprint files unless `DOC_INDEX.md` or the hub assignment names them.
 - All workpacks; use `WORKPACK_INDEX.md`.
+- `WORKPACK_FAMILIES.md` unless selected workpack owner/proof family is unclear.
 - Source inventories and pasted-content audits unless source ownership is unclear.
 - Historical checkpoint/proof docs unless `PROOF_INDEX.md` or the assigned workpack names them.
 
@@ -90,15 +143,10 @@ This folder is the single working plan location for the C lane: coherent parent-
   - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/portal-ux-household-surfaces-plan/.
-- Required proof manifest names:
-  - docs/proof/portal-ux-household-surfaces-plan/slice-01-\*.md
-  - docs/proof/portal-ux-household-surfaces-plan/slice-02-\*.md
-  - docs/proof/portal-ux-household-surfaces-plan/slice-03-\*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
+  - a real test run log or explicit known blocker from the assigned implementation boundary,
+  - a proof manifest under `output/portal-ux-household-surfaces-plan-proof/<workpack>/`.
+- Required proof must include commands, pass/fail, negative cases, and manual-required notes.
+- Failure rule: no PR-ready claim until authZ/replay, stale/error/degraded, no-fake-data, screenshot/manual-review, and rollback/teardown proofs are present for the assigned slice.
 
 ## HID execution blueprint
 

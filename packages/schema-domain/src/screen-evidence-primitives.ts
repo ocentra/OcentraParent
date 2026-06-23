@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema,
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 
 export const ScreenEvidenceSchemaVersion = 1;
 const BoundedSummaryText = NonEmptyStringSchema.pipe(

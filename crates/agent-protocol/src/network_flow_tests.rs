@@ -62,8 +62,9 @@ fn network_flow_observation_serializes_to_contract_shape() {
         evidence: Vec::new(),
     };
 
-    let serialized =
-        serde_json::to_value(observation).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(observation).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["schemaVersion"], NETWORK_FLOW_SCHEMA_VERSION);
     assert_eq!(
@@ -111,8 +112,9 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
         rows: Vec::new(),
     };
 
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["custody"],
@@ -133,8 +135,10 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 #[test]
 fn network_remote_delivery_status_serializes_row10t_external_transport_status_without_product_claims(
 ) {
-    let serialized = serde_json::to_value(remote_delivery_status_fixture())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(remote_delivery_status_fixture()).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
 
     assert_remote_delivery_status_refs(&serialized);
     assert_remote_delivery_status_counts(&serialized);
@@ -659,7 +663,7 @@ fn enforcement_command_contract_rejects_missing_policy_decision_ref() {
 
     let parsed = serde_json::from_value::<NetworkEnforcementCommandIssuedEvent>(command);
 
-    assert!(parsed.is_err());
+    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
 }
 
 #[test]
@@ -677,7 +681,9 @@ fn manual_required_enforcement_result_keeps_adapter_action_false() {
         ),
     };
 
-    let serialized = serde_json::to_value(result).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(result).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["resultStatus"], "manual-required");
     assert_eq!(serialized["adapterActionExecuted"], false);
@@ -691,7 +697,9 @@ fn serialized_field<T>(value: &T, field: &str, nested: &str) -> serde_json::Valu
 where
     T: serde::Serialize,
 {
-    let serialized = serde_json::to_value(value).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(value).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     if nested.is_empty() {
         return serialized[field].clone();
     }

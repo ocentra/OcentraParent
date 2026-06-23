@@ -1,12 +1,18 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimePhase,
+};
 
-use super::{
+use crate::screen_event_runtime::{
     publish_screen_capture_queue_events_for_input, publish_screen_degraded_event_chain_for_input,
     publish_screen_deletion_event_for_input, publish_screen_runtime_chain_for_input,
-    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
-    ScreenPolicyState, ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput,
-    ScreenRuntimeDeletionInput, ScreenRuntimeEventPayload, ScreenRuntimeInput, ScreenRuntimePhase,
-    ScreenRuntimeReport,
+    ScreenRuntimeEventPayload, ScreenRuntimeReport,
+};
+use crate::screen_event_runtime_input::{
+    ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput, ScreenRuntimeDeletionInput,
+    ScreenRuntimeInput,
 };
 
 #[tokio::test]
@@ -16,7 +22,7 @@ async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     assert_eq!(
@@ -56,7 +62,7 @@ async fn screen_capture_queue_events_publish_without_ai_policy_or_action_refs() 
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     assert_eq!(report.publish_reports.len(), 2);
@@ -90,7 +96,7 @@ async fn screen_deletion_event_publishes_without_policy_or_action_claims() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     assert_eq!(report.publish_reports.len(), 1);
@@ -126,7 +132,7 @@ async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims()
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
     let phases = payloads
         .iter()
@@ -175,7 +181,7 @@ async fn screen_runtime_chain_carries_refs_without_direct_ai_to_policy_shortcut(
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     let ai_request = payload_for_phase(&payloads, ScreenRuntimePhase::AiAnalysisRequested);
@@ -227,7 +233,7 @@ async fn screen_runtime_chain_keeps_raw_image_out_of_policy_portal_and_provider(
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     assert!(payloads.iter().all(|payload| {
@@ -270,7 +276,7 @@ fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayloa
             let envelope: ocentra_eventing::envelope::EventEnvelope<ScreenRuntimeEventPayload> =
                 event
                     .decode()
-                    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
+                    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
             envelope.payload
         })
         .collect()
@@ -291,5 +297,5 @@ fn payload_for_phase(
     payloads
         .iter()
         .find(|payload| payload.phase == phase)
-        .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+        .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
 }

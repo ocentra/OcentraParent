@@ -41,7 +41,7 @@ pub(super) fn normalize_expected(
 }
 
 pub(super) fn normalize_observed(
-    observed: NetworkAndroidPhysicalTargetObserved,
+    observed: &NetworkAndroidPhysicalTargetObserved,
 ) -> Result<NetworkAndroidPhysicalTargetObserved, NetworkAndroidPhysicalTargetError> {
     Ok(NetworkAndroidPhysicalTargetObserved {
         serial: observed_text(&observed.serial, NetworkAndroidPhysicalTargetField::Serial)?,

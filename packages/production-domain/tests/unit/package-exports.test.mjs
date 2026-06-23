@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const packageJson = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+const packageJson = JSON.parse(readFileSync(new globalThis.URL('../../package.json', import.meta.url), 'utf8'));
 
 describe('production domain package exports', () => {
   it('keeps the surviving export surface explicit', () => {

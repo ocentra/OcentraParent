@@ -1,6 +1,4 @@
-import {
-  evaluateAppGameSourceFreshnessPolicyReadiness,
-} from './app-game-source-freshness-policy-consumption';
+import { evaluateAppGameSourceFreshnessPolicyReadiness } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceFreshnessPolicyConsumptionMatrixSchema as SchemaDomainAppGameSourceFreshnessPolicyConsumptionMatrixSchema } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
 import {
   AppGameSourceFreshnessCapabilityStatus as CapabilityStatus,
@@ -141,15 +139,16 @@ export const AppGameSourceFreshnessPolicyConsumptionRequests = [
   },
 ] as const;
 
-export const AppGameSourceFreshnessPolicyConsumptionMatrix = SchemaDomainAppGameSourceFreshnessPolicyConsumptionMatrixSchema.parse({
-  schemaVersion: ParentContractSchemaVersion.V0_6,
-  matrixId: AppGameSourceFreshnessPolicyConsumptionMatrixId,
-  generatedAt: GeneratedAt,
-  readiness: AppGameSourceFreshnessPolicyConsumptionRequests.map((request, index) =>
-    evaluateAppGameSourceFreshnessPolicyReadiness(
-      request,
-      `source-freshness-policy-readiness-${index + 1}`,
-      GeneratedAt
-    )
-  ),
-});
+export const AppGameSourceFreshnessPolicyConsumptionMatrix =
+  SchemaDomainAppGameSourceFreshnessPolicyConsumptionMatrixSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    matrixId: AppGameSourceFreshnessPolicyConsumptionMatrixId,
+    generatedAt: GeneratedAt,
+    readiness: AppGameSourceFreshnessPolicyConsumptionRequests.map((request, index) =>
+      evaluateAppGameSourceFreshnessPolicyReadiness(
+        request,
+        `source-freshness-policy-readiness-${index + 1}`,
+        GeneratedAt
+      )
+    ),
+  });

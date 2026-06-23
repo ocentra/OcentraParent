@@ -1,7 +1,27 @@
-import * as Shared from './notification-local-outbox';
+import {
+  NotificationLocalOutboxProviderChannels,
+  NotificationLocalOutboxSchedulerEntryIdSchema,
+  NotificationLocalOutboxSchedulerKnownGaps,
+  NotificationLocalOutboxSchedulerNonClaimSchema,
+  NotificationLocalOutboxSchedulerProofReadModel,
+  NotificationLocalOutboxSchedulerProofSchema,
+  NotificationLocalOutboxSchedulerProofSchemaVersionSchema,
+  NotificationLocalOutboxSchedulerReadModelIdSchema,
+  NotificationLocalOutboxSchedulerRecordSchema,
+  NotificationLocalOutboxSchedulerStateSchema,
+  RequiredNotificationLocalOutboxSchedulerStates,
+  decodeNotificationLocalOutboxSchedulerProof,
+  decodeNotificationLocalOutboxSchedulerRecord,
+} from './notification-local-outbox';
+import type {
+  NotificationLocalOutboxSchedulerNonClaim,
+  NotificationLocalOutboxSchedulerProof,
+  NotificationLocalOutboxSchedulerRecord,
+  NotificationLocalOutboxSchedulerState,
+} from './notification-local-outbox';
 import type { V3NotificationProviderChannel } from './notification-v3-provider-retry';
 
-export const {
+export {
   NotificationLocalOutboxProviderChannels,
   NotificationLocalOutboxSchedulerKnownGaps,
   NotificationLocalOutboxSchedulerProofReadModel,
@@ -15,12 +35,14 @@ export const {
   NotificationLocalOutboxSchedulerReadModelIdSchema,
   decodeNotificationLocalOutboxSchedulerProof,
   decodeNotificationLocalOutboxSchedulerRecord,
-} = Shared;
+};
 
-export type NotificationLocalOutboxSchedulerNonClaim = Shared.NotificationLocalOutboxSchedulerNonClaim;
-export type NotificationLocalOutboxSchedulerProof = Shared.NotificationLocalOutboxSchedulerProof;
-export type NotificationLocalOutboxSchedulerRecord = Shared.NotificationLocalOutboxSchedulerRecord;
-export type NotificationLocalOutboxSchedulerState = Shared.NotificationLocalOutboxSchedulerState;
+export type {
+  NotificationLocalOutboxSchedulerNonClaim,
+  NotificationLocalOutboxSchedulerProof,
+  NotificationLocalOutboxSchedulerRecord,
+  NotificationLocalOutboxSchedulerState,
+};
 
 export function summarizeNotificationLocalOutboxSchedulerStates(
   records: ReadonlyArray<NotificationLocalOutboxSchedulerRecord>

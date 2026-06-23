@@ -3,7 +3,7 @@ import {
   AppGameAndroidPhysicalDeviceProofSchema,
   decodeAppGameAndroidPhysicalDeviceProof,
   summarizeAppGameAndroidPhysicalDeviceProof,
-} from '../../src/app-game-android-physical-device-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-physical-device-proof';
 
 describe('app-game Android physical device proof', () => {
   registerAcceptedProofTest();

@@ -1,12 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_supported_adapter_runtime_proof as proof},
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, AppGamePlatformProofStatusReadModel,
-    AppGamePlatformProofStatusRow, LogFieldValue, LogFields, LogLevel,
+use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
     APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME, APP_GAME_PARENT_PLATFORM_ANDROID,
-    APP_GAME_PARENT_PLATFORM_IOS, APP_GAME_PARENT_PLATFORM_LINUX, APP_GAME_PARENT_PLATFORM_MACOS,
-    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_PLATFORM_AUTHORITY_NOT_LOCALLY_PROVABLE,
+    APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME, APP_GAME_PARENT_PLATFORM_IOS,
+    APP_GAME_PARENT_PLATFORM_MACOS,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
+    APP_GAME_PARENT_PLATFORM_WINDOWS,
+};
+use ocentra_parent_agent_protocol::app_game_platform_proof_status::{
+    APP_GAME_PLATFORM_AUTHORITY_NOT_LOCALLY_PROVABLE,
     APP_GAME_PLATFORM_AUTHORITY_SCOPED_EXECUTION_ONLY, APP_GAME_PLATFORM_AUTHORITY_VISIBILITY_ONLY,
     APP_GAME_PLATFORM_GAP_ANDROID_DEVICE_OWNER, APP_GAME_PLATFORM_GAP_ANDROID_DURABLE_USAGE_REPLAY,
     APP_GAME_PLATFORM_GAP_BROAD_BLOCKING, APP_GAME_PLATFORM_GAP_CHILD_DELIVERY,
@@ -20,8 +24,17 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_PLATFORM_PROOF_SCOPED_WINDOWS_EXECUTION,
     APP_GAME_PLATFORM_PROOF_STATUS_CAPABILITY_PARTIAL,
     APP_GAME_PLATFORM_PROOF_STATUS_CUSTODY_LABEL, APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_ID,
-    APP_GAME_PLATFORM_PROOF_STATUS_ROW_ID_PREFIX, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_PLATFORM_PROOF_STATUS_ROW_ID_PREFIX,
 };
+use ocentra_parent_agent_protocol::constants::{
+    self, v08_supported_adapter_runtime_proof as proof,
+};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+};
+use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
+use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
 
 use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
@@ -103,9 +116,7 @@ pub fn app_game_platform_proof_status_payload(
         ),
         (
             constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialized_read_model(read_model)),
         ),
     ])
 }
@@ -132,7 +143,7 @@ fn platform_status_rows(
 }
 
 fn windows_status_row(generated_at: &str) -> AppGamePlatformProofStatusRow {
-    platform_status_row(PlatformStatusSpec {
+    platform_status_row(&PlatformStatusSpec {
         generated_at,
         platform: APP_GAME_PARENT_PLATFORM_WINDOWS,
         proof_state: APP_GAME_PLATFORM_PROOF_SCOPED_WINDOWS_EXECUTION,
@@ -154,7 +165,7 @@ fn android_status_row(
     host_capabilities: &HostCapabilitySignals,
 ) -> AppGamePlatformProofStatusRow {
     let host_state = host_capabilities.android_state();
-    platform_status_row(PlatformStatusSpec {
+    platform_status_row(&PlatformStatusSpec {
         generated_at,
         platform: APP_GAME_PARENT_PLATFORM_ANDROID,
         proof_state: if host_state == APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE {
@@ -185,7 +196,7 @@ fn linux_status_row(
     host_capabilities: &HostCapabilitySignals,
 ) -> AppGamePlatformProofStatusRow {
     let host_state = host_capabilities.linux_state();
-    platform_status_row(PlatformStatusSpec {
+    platform_status_row(&PlatformStatusSpec {
         generated_at,
         platform: APP_GAME_PARENT_PLATFORM_LINUX,
         proof_state: if host_state == APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE {
@@ -218,7 +229,7 @@ fn platform_not_applicable_status_row(
     platform: &'static str,
     platform_gap: &'static str,
 ) -> AppGamePlatformProofStatusRow {
-    platform_status_row(PlatformStatusSpec {
+    platform_status_row(&PlatformStatusSpec {
         generated_at,
         platform,
         proof_state: APP_GAME_PLATFORM_PROOF_LOCAL_RUNTIME_NOT_APPLICABLE,
@@ -247,7 +258,7 @@ struct PlatformStatusSpec<'a> {
     open_gaps: Vec<&'static str>,
 }
 
-fn platform_status_row(spec: PlatformStatusSpec<'_>) -> AppGamePlatformProofStatusRow {
+fn platform_status_row(spec: &PlatformStatusSpec<'_>) -> AppGamePlatformProofStatusRow {
     let mut row_id = String::from(APP_GAME_PLATFORM_PROOF_STATUS_ROW_ID_PREFIX);
     row_id.push_str(spec.platform);
 
@@ -273,6 +284,13 @@ fn platform_status_row(spec: PlatformStatusSpec<'_>) -> AppGamePlatformProofStat
         child_device_delivery_claimed: false,
         private_diagnostics_claimed: false,
         last_checked_at: spec.generated_at.to_string(),
+    }
+}
+
+fn serialized_read_model(read_model: &AppGamePlatformProofStatusReadModel) -> String {
+    match serde_json::to_string(read_model) {
+        Ok(json) => json,
+        Err(_error) => constants::value::EMPTY.to_string(),
     }
 }
 

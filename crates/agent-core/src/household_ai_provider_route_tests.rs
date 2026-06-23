@@ -61,7 +61,8 @@ fn household_ai_provider_route_rejects_stale_offline_revoked_and_custody_mismatc
 }
 
 #[test]
-fn household_ai_provider_route_keeps_mobile_dormant_when_desktop_is_available() {
+fn household_ai_provider_route_keeps_mobile_dormant_when_desktop_is_available() -> Result<(), String>
+{
     let selection = select_household_ai_provider_route(
         &HouseholdAiRouteRequest::heavy_screen_job(),
         &[
@@ -73,7 +74,7 @@ fn household_ai_provider_route_keeps_mobile_dormant_when_desktop_is_available() 
         .candidate_decisions
         .iter()
         .find(|decision| decision.provider_class == HouseholdAiProviderClass::MobileDormant)
-        .expect(constants::household_mesh::ERROR_ROUTE_SELECTS_PROVIDER);
+        .ok_or_else(|| constants::household_mesh::ERROR_ROUTE_SELECTS_PROVIDER.to_string())?;
 
     assert_eq!(
         selection.selected_provider_peer_id,
@@ -84,6 +85,8 @@ fn household_ai_provider_route_keeps_mobile_dormant_when_desktop_is_available() 
         mobile.rejection_reason,
         Some(HouseholdAiRouteRejectionReason::MobileDormantDesktopAvailable)
     );
+
+    Ok(())
 }
 
 #[test]

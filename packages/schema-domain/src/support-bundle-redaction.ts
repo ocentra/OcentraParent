@@ -1,16 +1,7 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
-const supportBundleText = <Brand extends string>(brand: Brand) =>
-  NonEmptyStringSchema.pipe(Schema.brand(brand));
+const supportBundleText = <Brand extends string>(brand: Brand) => NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const SupportBundleRedactionReadModelIdSchema = supportBundleText('SupportBundleRedactionReadModelId');
 export const SupportBundleRedactionIncidentIdSchema = supportBundleText('SupportBundleRedactionIncidentId');
@@ -339,4 +330,3 @@ export type SupportBundleRedactionReadModel = Infer<typeof SupportBundleRedactio
 
 export const decodeSupportBundleRedactionEntry = Schema.decodeUnknownSync(SupportBundleRedactionEntrySchema);
 export const decodeSupportBundleRedactionReadModel = Schema.decodeUnknownSync(SupportBundleRedactionReadModelSchema);
-

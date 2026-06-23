@@ -3,7 +3,11 @@ import {
   AgentAppGameAdapterDispatchPreflightReadModelSchema,
   type AgentAppGameAdapterDispatchPreflightReadModel,
 } from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-preflight';
-import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export type AgentAppGameAdapterDispatchPreflightFailureReason =
   | 'wrong-event'

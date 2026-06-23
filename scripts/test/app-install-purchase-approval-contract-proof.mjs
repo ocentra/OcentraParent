@@ -102,9 +102,9 @@ async function main() {
     proofMode: 'app-install-purchase-approval-contract-proof',
     commands,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-install-purchase-approval.ts',
-      platformSourceContract: 'packages/app-game-domain/src/app-install-purchase-approval-platform-sources.ts',
-      packageSourceContract: 'packages/app-game-domain/src/app-install-purchase-approval-package-sources.ts',
+      contract: 'packages/schema-domain/src/app-install-purchase-approval.ts',
+      platformSourceContract: 'packages/schema-domain/src/app-install-purchase-approval-platform-sources.ts',
+      packageSourceContract: 'packages/schema-domain/src/app-install-purchase-approval-package-sources.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approval.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),

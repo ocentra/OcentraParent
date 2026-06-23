@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameChildDeviceRuntimeWriterReadModelSchema,
   AppGameChildDeviceRuntimeWriterState,
@@ -49,8 +44,12 @@ export const RequiredAppGameChildRuntimeTransportReceiptBoundaryNonClaims = [
   'no-raw-private-source-rows',
 ] as const;
 
-const ChildRuntimeTransportReceiptBoundaryIdSchema = brandedNonEmptyStringSchema('AppGameChildRuntimeTransportReceiptBoundaryId');
-const ChildRuntimeTransportReceiptBoundaryRefSchema = brandedNonEmptyStringSchema('AppGameChildRuntimeTransportReceiptBoundaryReference');
+const ChildRuntimeTransportReceiptBoundaryIdSchema = brandedNonEmptyStringSchema(
+  'AppGameChildRuntimeTransportReceiptBoundaryId'
+);
+const ChildRuntimeTransportReceiptBoundaryRefSchema = brandedNonEmptyStringSchema(
+  'AppGameChildRuntimeTransportReceiptBoundaryReference'
+);
 
 const AppGameChildRuntimeTransportReceiptBoundaryRowBaseSchema = Schema.Struct({
   boundaryRowId: ChildRuntimeTransportReceiptBoundaryRefSchema,
@@ -257,4 +256,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.boundaryState === state).length;
 }
-

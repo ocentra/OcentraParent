@@ -2,6 +2,10 @@ use ocentra_child_policy_core::policy_control_delivery_handoff::{
     apply_policy_control_delivery_handoff, queue_policy_control_delivery_handoff,
 };
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence,
     PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
@@ -15,54 +19,54 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
 fn audit_ref(value: &str) -> PolicyAuditReferenceId {
-    PolicyAuditReferenceId::parse(value).expect("policy audit ref")
+    PolicyAuditReferenceId::parse(value).expect_value("policy audit ref")
 }
 
 fn reason(value: &str) -> PolicyReasonCode {
-    PolicyReasonCode::parse(value).expect("policy reason code")
+    PolicyReasonCode::parse(value).expect_value("policy reason code")
 }
 
 fn sample_policy_source_document() -> ParentPolicySourceDocument {
     ParentPolicySourceDocument {
         schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
+            .expect_value("policy source schema version"),
         document_id: ParentPolicyDocumentId::parse("policy-source-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(7).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+            .expect_value("policy source document id"),
+        household_id: PolicyHouseholdId::parse("household-default").expect_value("household id"),
+        policy_version: PolicyVersion::new(7).expect_value("policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: PolicyActorId::parse("actor-parent").expect_value("policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
+        status: PolicySourceStatus::Confirmed,
         child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
+            PolicyChildProfileId::parse("child-primary").expect_value("child profile id")
         ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect_value("policy device id")],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: PolicyRuleId::parse("rule-school-night-block").expect_value("policy rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
                 reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                    .expect_value("policy target reference"),
             },
             action: PolicyRuleAction::Block,
             schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
+                PolicyScheduleId::parse("schedule-school-night").expect_value("policy schedule id"),
             ),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: PolicyReasonCode::parse("school-night").expect_value("policy reason code"),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
             schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
+                .expect_value("policy schedule id"),
             timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+                .expect_value("policy timezone name"),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -97,8 +101,9 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
 
 fn sample_delivery_target() -> PolicyDeliveryTarget {
     PolicyDeliveryTarget {
-        child_profile_id: PolicyChildProfileId::parse("child-primary").expect("child profile id"),
-        device_id: PolicyDeviceId::parse("device-laptop").expect("policy device id"),
+        child_profile_id: PolicyChildProfileId::parse("child-primary")
+            .expect_value("child profile id"),
+        device_id: PolicyDeviceId::parse("device-laptop").expect_value("policy device id"),
         domain: PolicyConsumerDomain::Tracking,
     }
 }
@@ -107,16 +112,17 @@ fn queued_delivery_from_source(
     source: &ParentPolicySourceDocument,
 ) -> ocentra_policy_control_core::policy_delivery::PolicyDeliveryRecord {
     let compiled = compile_domain_policy_artifact(source, PolicyConsumerDomain::Tracking)
-        .expect("compiled domain policy artifact");
+        .expect_value("compiled domain policy artifact");
 
     queue_policy_control_delivery_handoff(
         &compiled,
         sample_delivery_target(),
-        PolicyDeliveryId::parse("delivery-policy-household-default").expect("policy delivery id"),
-        PolicyDeliveryAttemptId::parse("attempt-queued").expect("policy attempt id"),
+        PolicyDeliveryId::parse("delivery-policy-household-default")
+            .expect_value("policy delivery id"),
+        PolicyDeliveryAttemptId::parse("attempt-queued").expect_value("policy attempt id"),
         vec![audit_ref("audit-policy-queued")],
     )
-    .expect("queued delivery handoff")
+    .expect_value("queued delivery handoff")
     .delivery
 }
 
@@ -130,8 +136,8 @@ fn transition(
     state: PolicyDeliveryState,
 ) -> PolicyDeliveryTransition {
     PolicyDeliveryTransition {
-        attempt_id: PolicyDeliveryAttemptId::parse(attempt_id).expect("policy attempt id"),
-        sequence: PolicyDeliverySequence::new(sequence).expect("policy delivery sequence"),
+        attempt_id: PolicyDeliveryAttemptId::parse(attempt_id).expect_value("policy attempt id"),
+        sequence: PolicyDeliverySequence::new(sequence).expect_value("policy delivery sequence"),
         state,
         audit_reference_ids: vec![audit_ref(&format!("audit-{attempt_id}-{sequence}"))],
         reason_code: None,
@@ -159,10 +165,10 @@ fn delivery_queue_starts_pending_per_child_device_domain() {
 fn delivery_queue_preserves_source_artifact_metadata() {
     let source = supersede_parent_policy_source_document(
         &sample_policy_source_document(),
-        PolicyVersion::new(8).expect("policy version"),
+        PolicyVersion::new(8).expect_value("policy version"),
         audit_ref("audit-policy-superseded"),
     )
-    .expect("superseded policy source document");
+    .expect_value("superseded policy source document");
 
     let queued = queued_delivery_from_source(&source);
 
@@ -173,7 +179,7 @@ fn delivery_queue_preserves_source_artifact_metadata() {
     assert_eq!(
         queued
             .source_superseded_by_policy_version
-            .expect("replacement policy version")
+            .expect_value("replacement policy version")
             .value(),
         8
     );
@@ -192,13 +198,13 @@ fn delivery_duplicate_and_stale_transitions_are_noops() {
         &queued,
         transition(2, "attempt-delivered", PolicyDeliveryState::Delivered),
     )
-    .expect("delivered transition");
+    .expect_value("delivered transition");
 
     let duplicate = apply_policy_control_delivery_handoff(
         &delivered.delivery,
         transition(2, "attempt-delivered", PolicyDeliveryState::Delivered),
     )
-    .expect("duplicate transition");
+    .expect_value("duplicate transition");
     assert!(matches!(
         duplicate.outcome,
         PolicyDeliveryApplyOutcome::Duplicate(_)
@@ -208,7 +214,7 @@ fn delivery_duplicate_and_stale_transitions_are_noops() {
         &delivered.delivery,
         transition(1, "attempt-queued", PolicyDeliveryState::Queued),
     )
-    .expect("stale transition");
+    .expect_value("stale transition");
     assert!(matches!(
         stale.outcome,
         PolicyDeliveryApplyOutcome::Stale(_)
@@ -222,7 +228,7 @@ fn delivery_offline_and_expired_before_delivery_stay_degraded_or_fail_closed() {
     offline_transition.reason_code = Some(reason("child-offline"));
 
     let offline = apply_policy_control_delivery_handoff(&queued, offline_transition)
-        .expect("offline transition");
+        .expect_value("offline transition");
     assert_eq!(offline.delivery.state, PolicyDeliveryState::Offline);
     assert_eq!(
         offline.delivery.parent_visible_state(),
@@ -232,7 +238,7 @@ fn delivery_offline_and_expired_before_delivery_stay_degraded_or_fail_closed() {
     let mut invalid_queued_reason = transition(2, "attempt-expired", PolicyDeliveryState::Queued);
     invalid_queued_reason.reason_code = Some(reason("expired-before-delivery"));
     let invalid_error = apply_policy_control_delivery_handoff(&queued, invalid_queued_reason)
-        .expect_err("queued transition with reason must fail");
+        .expect_err_value("queued transition with reason must fail");
     assert_eq!(
         invalid_error,
         EventingError::InvalidValue {
@@ -249,7 +255,7 @@ fn delivery_rollback_requires_reason_and_reference_state() {
         &queued,
         transition(2, "attempt-rolled-back", PolicyDeliveryState::RolledBack),
     )
-    .expect_err("rollback without context must fail");
+    .expect_err_value("rollback without context must fail");
 
     assert_eq!(
         error,
@@ -264,10 +270,11 @@ fn delivery_rollback_requires_reason_and_reference_state() {
 fn delivery_supersede_requires_newer_policy_version() {
     let queued = queued_delivery();
     let mut superseded = transition(2, "attempt-superseded", PolicyDeliveryState::Superseded);
-    superseded.superseded_by_policy_version = Some(PolicyVersion::new(7).expect("policy version"));
+    superseded.superseded_by_policy_version =
+        Some(PolicyVersion::new(7).expect_value("policy version"));
 
     let error = apply_policy_control_delivery_handoff(&queued, superseded)
-        .expect_err("same-version supersede must fail");
+        .expect_err_value("same-version supersede must fail");
 
     assert_eq!(
         error,
@@ -285,7 +292,7 @@ fn request_override_and_delivery_audit_refs_are_preserved_without_duplication() 
         &queued,
         transition(2, "attempt-delivered", PolicyDeliveryState::Delivered),
     )
-    .expect("delivered transition");
+    .expect_value("delivered transition");
 
     assert_eq!(
         delivered.delivery.audit_reference_ids,

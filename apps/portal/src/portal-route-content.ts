@@ -1,4 +1,4 @@
-import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { renderDevLogPanel } from './dev-log-panel';
 import { renderEvents } from './event-list';
 import { renderCommands } from './portal-command-controls';

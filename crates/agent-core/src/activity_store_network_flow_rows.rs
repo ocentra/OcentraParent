@@ -1,4 +1,6 @@
-use ocentra_parent_agent_protocol::{constants, ActivityEvidenceRef, LogFields};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;

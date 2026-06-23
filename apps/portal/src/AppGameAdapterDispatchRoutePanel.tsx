@@ -4,17 +4,11 @@ import type {
   AgentAppGameAdapterDispatchExecute,
   AgentAppGameAdapterDispatchResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
-import {
-  AgentCommand,
-  AgentEvent
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
-import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   createAppGameAdapterDispatchPreflightPanelIntent,
   type AppGameAdapterDispatchPreflightPanelDetail,
@@ -28,10 +22,8 @@ import {
   type AppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelRow,
 } from '@ocentra-parent/portal-domain/app-game-adapter-dispatch-result-panel';
-import {
-  isPortalAppGameParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderAppGameAdapterDispatchRoute(route: PortalRouteValue): boolean {
@@ -55,7 +47,7 @@ export function AppGameAdapterDispatchRoutePanel({
   const resultIntent = createAppGameAdapterDispatchResultPanelIntent(resultReadModel, executeResult);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.ExecuteActivityAppGameAdapterDispatch)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.ExecuteActivityAppGameAdapterDispatch)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -72,7 +64,7 @@ export function AppGameAdapterDispatchRoutePanel({
               actions.sendCommand(AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel)}
           </button>
           <button
             className={PortalDom.Classes.CommandResultTab}
@@ -83,7 +75,7 @@ export function AppGameAdapterDispatchRoutePanel({
               actions.sendCommand(AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGameAdapterDispatchResultReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchResultReadModel)}
           </button>
           {resultIntent.executeAction === null ? null : (
             <button

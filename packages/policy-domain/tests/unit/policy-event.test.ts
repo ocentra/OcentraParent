@@ -59,13 +59,11 @@ function sampleEnvelope(payload: PolicyEvent) {
   });
 }
 
-describe('policy event contracts', () => {
+describe('policy event contracts: registry and replay helpers', () => {
   it('policyEventFamilyRegistry: keeps the registry and variants aligned with the explicit policy event kinds', () => {
     const expectedKinds = Object.values(PolicyEventKind) as PolicyEvent['kind'][];
 
-    expect(policyEventFamilyRegistry()).toEqual(
-      expectedKinds.map((kind) => policyEventContractForKind(kind))
-    );
+    expect(policyEventFamilyRegistry()).toEqual(expectedKinds.map((kind) => policyEventContractForKind(kind)));
     expect(policyEventFamilyVariants()).toEqual(
       expectedKinds.map((kind) => ({
         family: PolicyEventFamilyNamespace.Policy,
@@ -111,14 +109,14 @@ describe('policy event contracts', () => {
     };
 
     expect(applyPolicyEventReplay(current, sampleEvent()).state).toBe('duplicate');
-    expect(applyPolicyEventReplay(current, sampleEvent({ sequence: currentEvent.sequence - 1 })).state).toBe(
-      'stale'
+    expect(applyPolicyEventReplay(current, sampleEvent({ sequence: currentEvent.sequence - 1 })).state).toBe('stale');
+    expect(() => applyPolicyEventReplay(current, sampleEvent({ kind: PolicyEventKind.DeliveryAcknowledged }))).toThrow(
+      'conflicting replay for sequence 7 on policy.delivery.sent'
     );
-    expect(() =>
-      applyPolicyEventReplay(current, sampleEvent({ kind: PolicyEventKind.DeliveryAcknowledged }))
-    ).toThrow('conflicting replay for sequence 7 on policy.delivery.sent');
   });
+});
 
+describe('policy event contracts: visibility and linkage', () => {
   it('PolicyEventSchema: keeps rollback linkage and dead-letter/manual-required visibility explicit', () => {
     const rollback = sampleEvent({
       kind: PolicyEventKind.RollbackApplied,

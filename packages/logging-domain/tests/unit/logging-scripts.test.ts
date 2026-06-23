@@ -82,7 +82,11 @@ function createProofInventoryFixture(rootDir: string): void {
   );
 }
 
-function runScript(scriptPath: string, args: readonly string[], env: NodeJS.ProcessEnv): { stdout: string; stderr: string; status: number | null } {
+function runScript(
+  scriptPath: string,
+  args: readonly string[],
+  env: NodeJS.ProcessEnv
+): { stdout: string; stderr: string; status: number | null } {
   const result = spawnSync(process.execPath, [TSX_CLI, scriptPath, ...args], {
     cwd: workspaceRoot(),
     env,
@@ -135,18 +139,18 @@ async function runBridgeScript(scriptPath: string, env: NodeJS.ProcessEnv): Prom
   });
 }
 
-describe('logging scripts', () => {
-  const tempDirs: string[] = [];
+const loggingScriptTempDirs: string[] = [];
 
-  afterEach(async () => {
-    for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      fs.rmSync(tempDir, { force: true, recursive: true });
-    }
-  });
+afterEach(() => {
+  for (const tempDir of loggingScriptTempDirs.splice(0, loggingScriptTempDirs.length)) {
+    fs.rmSync(tempDir, { force: true, recursive: true });
+  }
+});
 
+describe('logging scripts bridge and query flow', () => {
   it('runs the bridge and query scripts against a temp root', async () => {
     const tempDir = makeTempDir();
-    tempDirs.push(tempDir);
+    loggingScriptTempDirs.push(tempDir);
     const env = {
       ...process.env,
       OCENTRA_PARENT_LOG_DIR: tempDir,
@@ -175,10 +179,12 @@ describe('logging scripts', () => {
     expect(query.status).toBe(0);
     expect(query.stdout).toContain('totalLogs');
   });
+});
 
+describe('logging scripts proof inventory query', () => {
   it('reports missing and stale logging proof inventory through agent-query', () => {
     const tempDir = makeTempDir();
-    tempDirs.push(tempDir);
+    loggingScriptTempDirs.push(tempDir);
     createProofInventoryFixture(tempDir);
 
     const result = spawnSync(

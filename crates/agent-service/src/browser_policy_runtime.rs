@@ -6,10 +6,12 @@ use std::{
 #[cfg(test)]
 use std::sync::Mutex;
 
-use ocentra_parent_agent_protocol::{
-    constants, BrowserPolicyRejectionReason, BrowserPolicyUpdateKind, BrowserPolicyUpdateRequest,
-    BrowserPolicyUpdateResponse, BrowserPolicyValue,
-};
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason;
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateRequest;
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateResponse;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue;
+use ocentra_parent_agent_protocol::constants;
 use tokio::sync::Mutex as AsyncMutex;
 
 use crate::{
@@ -218,7 +220,7 @@ impl BrowserPolicyRuntime {
         request_id: String,
         policy_id: String,
         base_revision_id: String,
-        patches: Vec<ocentra_parent_agent_protocol::BrowserPolicyPatch>,
+        patches: Vec<ocentra_parent_agent_protocol::browser_policy::BrowserPolicyPatch>,
     ) -> BrowserPolicyUpdateResponse {
         let generated_at = timestamp_now();
         let state = match self.read_state().await {
@@ -399,10 +401,12 @@ impl BrowserPolicyRuntime {
     async fn read_state(&self) -> Result<BrowserPolicyStoredState, BrowserPolicyStoreError> {
         match &self.persistence {
             #[cfg(test)]
-            BrowserPolicyPersistence::InMemory(state) => state
-                .lock()
-                .map(|state| state.clone())
-                .map_err(|_| BrowserPolicyStoreError::Unavailable),
+            BrowserPolicyPersistence::InMemory(state) => {
+                state.lock().map(|state| state.clone()).map_err(|error| {
+                    let _ = error;
+                    BrowserPolicyStoreError::Unavailable
+                })
+            }
             BrowserPolicyPersistence::LocalJson(path) => read_browser_policy_state(path).await,
         }
     }
@@ -418,7 +422,10 @@ impl BrowserPolicyRuntime {
                 .map(|mut current| {
                     *current = state.clone();
                 })
-                .map_err(|_| BrowserPolicyStoreError::Unavailable),
+                .map_err(|error| {
+                    let _ = error;
+                    BrowserPolicyStoreError::Unavailable
+                }),
             BrowserPolicyPersistence::LocalJson(path) => {
                 write_browser_policy_state(path, state).await
             }

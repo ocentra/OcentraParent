@@ -1,11 +1,10 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { EnforcementCapabilityStateSchema, EnforcementModeSchema } from '@ocentra-parent/schema-domain/enforcement';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPlatformSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { platformAuthorityRowIsConsistent } from '@ocentra-parent/schema-domain/app-game-control-platform-authority-rules';
 
 export const AppGamePlatformAuthorityTierSchema = withParser(
@@ -129,15 +128,9 @@ const AppGamePlatformAuthorityRowBaseSchema = Schema.Struct({
   supportedModes: Schema.Array(EnforcementModeSchema),
   proofReferences: Schema.Array(AppGamePlatformProofReferenceSchema),
   proofNeededToClaim: Schema.Array(AppGamePlatformProofKindSchema),
-  linuxMechanism: Schema.Union(
-    brandedNonEmptyStringSchema('LinuxAppGameControlMechanism'),
-    Schema.Null
-  ),
+  linuxMechanism: Schema.Union(brandedNonEmptyStringSchema('LinuxAppGameControlMechanism'), Schema.Null),
   linuxDistro: Schema.Union(brandedNonEmptyStringSchema('LinuxAppGameControlDistro'), Schema.Null),
-  linuxSession: Schema.Union(
-    brandedNonEmptyStringSchema('LinuxAppGameControlSession'),
-    Schema.Null
-  ),
+  linuxSession: Schema.Union(brandedNonEmptyStringSchema('LinuxAppGameControlSession'), Schema.Null),
   lastCheckedAt: ParentTimestampSchema,
 });
 
@@ -222,4 +215,3 @@ export const AppGamePlatformAction = {
   BlockLaunch: AppGamePlatformActionSchema.parse('block-launch'),
   EnforceAllowlist: AppGamePlatformActionSchema.parse('enforce-allowlist'),
 } as const;
-

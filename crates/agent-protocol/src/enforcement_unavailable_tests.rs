@@ -57,8 +57,9 @@ fn manual_required_capability_serializes_as_unavailable_proof_state() {
         checked_at: policy::TEST_EVALUATED_AT.to_string(),
     };
 
-    let serialized =
-        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(unavailable).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["capability"]["capabilityState"],
@@ -81,8 +82,12 @@ fn serialized_degraded_unavailable_events() -> (serde_json::Value, serde_json::V
     let timer = enforcement_timer(action);
 
     (
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(audit).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        serde_json::to_value(timer).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
     )
 }
 

@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimPlatformPreclaimProofSchema,
   AppInstallPurchaseProductClaimPlatformPreclaimRowSchema,
   summarizeAppInstallPurchaseProductClaimPlatformPreclaimProof,
-} from '../../src/app-install-purchase-product-claim-platform-preclaim-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-platform-preclaim-proof';
 
 describe('app install purchase product claim platform preclaim proof', () => {
   acceptsPlatformPreclaimRowsWithoutProductClaimApproval();

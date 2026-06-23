@@ -63,7 +63,7 @@ function proof() {
     proofLabels,
     evidence: {
       canonicalContract: 'packages/schema-domain/src/agent-lan-add-device.ts',
-      agentProtocolContract: 'packages/agent-protocol-domain/src/contracts.ts',
+      agentProtocolContract: 'packages/schema-domain/src/agent-command-event-contracts.ts',
       agentProtocolTest: 'packages/agent-protocol-domain/tests/unit/lan-pairing-browser-add-device-state.test.ts',
       rustProtocolContract: 'crates/agent-protocol/src/lan_pairing_browser_add_device_state.rs',
       rustServiceAdapter: 'crates/agent-service/src/lan_pairing_browser_add_device_state.rs',

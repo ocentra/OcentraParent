@@ -1,19 +1,11 @@
-﻿import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+﻿import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameNotificationDeliveryClaimState,
   AppGameNotificationIntentSchema,
   AppGameNotificationIntentStatus,
   type AppGameNotificationIntent,
 } from './app-game-notification-intent';
-import {
-  NotificationLocalOutboxRecordSchema,
-  type NotificationLocalOutboxRecord,
-} from './notification-local-outbox';
+import { NotificationLocalOutboxRecordSchema, type NotificationLocalOutboxRecord } from './notification-local-outbox';
 import { FamilyReferenceSchema, type FamilyReference, type ParentActionReference } from './family-references';
 import {
   ParentContractSchemaVersion,
@@ -29,8 +21,12 @@ export const AppGameNotificationLocalOutboxBridgeStatus = {
 export const AppGameNotificationLocalOutboxBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameNotificationLocalOutboxBridgeStatus))
 );
-export const AppGameNotificationLocalOutboxBridgeIdSchema = brandedNonEmptyStringSchema('AppGameNotificationLocalOutboxBridgeId');
-export const AppGameNotificationLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationLocalOutboxBridgeReference');
+export const AppGameNotificationLocalOutboxBridgeIdSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationLocalOutboxBridgeId'
+);
+export const AppGameNotificationLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationLocalOutboxBridgeReference'
+);
 const AppGameNotificationLocalOutboxBridgeRowBaseSchema = Schema.Struct({
   bridgeRecordId: AppGameNotificationLocalOutboxBridgeReferenceSchema,
   status: AppGameNotificationLocalOutboxBridgeStatusSchema,
@@ -238,4 +234,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

@@ -12,8 +12,7 @@ runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen
 
 const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
   await import('../../packages/schema-domain/dist/screen-evidence-result.js');
-const { ScreenEvidenceSchemaVersion } =
-  await import('../../packages/schema-domain/dist/screen-evidence-primitives.js');
+const { ScreenEvidenceSchemaVersion } = await import('../../packages/schema-domain/dist/screen-evidence-primitives.js');
 
 const validModelOutput = {
   primary_category: 'school',

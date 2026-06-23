@@ -184,55 +184,7 @@ export const AgentAppGameAdapterDispatchResultReadModelSchema = withParser(
   AgentAppGameAdapterDispatchResultReadModelBaseSchema.pipe(
     Schema.filter(
       (readModel: AgentAppGameAdapterDispatchResultReadModelCandidate) =>
-        (readModel.returned === readModel.rows.length &&
-          readModel.commandAcceptedCount ===
-            readModel.rows.filter(
-              (row) =>
-                row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted
-            ).length &&
-          readModel.blockedBeforeCommandCount ===
-            readModel.rows.filter(
-              (row) =>
-                row.dispatchCommandResultDecision ===
-                AgentAppGameAdapterDispatchCommandResultDecision.BlockedBeforeCommand
-            ).length &&
-          readModel.executionAuditRecordedCount ===
-            readModel.rows.filter(
-              (row) =>
-                row.dispatchExecutionAuditDecision ===
-                AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded
-            ).length &&
-          readModel.blockedBeforeExecutionAuditCount ===
-            readModel.rows.filter(
-              (row) =>
-                row.dispatchExecutionAuditDecision ===
-                AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit
-            ).length &&
-          readModel.adapterExecutionReportedCount ===
-            readModel.rows.filter(
-              (row) =>
-                row.dispatchAdapterExecutionDecision ===
-                AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported
-            ).length &&
-          readModel.adapterExecutionEvidenceMissingCount ===
-            readModel.rows.filter(
-              (row) =>
-                row.dispatchAdapterExecutionDecision ===
-                AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionEvidenceMissing
-            ).length &&
-          readModel.blockedBeforeAdapterExecutionCount ===
-            readModel.rows.filter(
-              (row) =>
-                row.dispatchAdapterExecutionDecision ===
-                AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution
-            ).length &&
-          readModel.adapterDispatchCommandResultClaimedCount ===
-            readModel.rows.filter((row) => row.adapterDispatchCommandResultClaimed).length &&
-          readModel.serviceLocalExecutionAuditClaimedCount ===
-            readModel.rows.filter((row) => row.serviceLocalExecutionAuditClaimed).length &&
-          readModel.adapterDispatchExecutedClaimedCount ===
-            readModel.rows.filter((row) => row.adapterDispatchExecutedClaimed).length &&
-          new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length) ||
+        dispatchResultReadModelIsConsistent(readModel) ||
         'Expected app/game adapter dispatch result counts and row ids to match the rows'
     )
   )
@@ -280,76 +232,125 @@ export type AgentAppGameAdapterDispatchResultReadModel = Infer<typeof AgentAppGa
 export type AgentAppGameAdapterDispatchExecuteResult = Infer<typeof AgentAppGameAdapterDispatchExecuteResultSchema>;
 
 function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
-  if (row.dispatchCommandResultState === AgentAppGameAdapterDispatchCommandResultState.CommandAccepted) {
-    return (
-      row.platform === 'windows' &&
-      row.sourceProofEntryId === 'windows-app-game-owned-process-time-limit' &&
-      row.dispatchPreflightState === AgentAppGameAdapterDispatchPreflightState.DispatchEligible &&
-      row.dispatchDecision === AgentAppGameAdapterDispatchDecision.DispatchEligible &&
-      row.dispatchOutcomeState === AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
-      row.dispatchIntentId !== null &&
-      row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted &&
-      row.enforcementCommandName === AgentEnforcementExecuteCommand &&
-      row.enforcementEventName === AgentEnforcementAuditReportedEvent &&
-      row.enforcementActionMode === 'terminate-process' &&
-      row.dispatchCommandResultId !== null &&
-      row.dispatchCommandAuditRefs.length > 0 &&
-      row.dispatchCommandTimerRefs.length > 0 &&
-      row.dispatchExecutionAuditState === AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded &&
-      row.dispatchExecutionAuditDecision ===
-        AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded &&
-      row.dispatchExecutionAuditId !== null &&
-      row.dispatchExecutionAuditRefs.length > 0 &&
-      row.manualProofRequirements.length === 0 &&
-      row.adapterDispatchCommandResultClaimed &&
-      row.serviceLocalExecutionAuditClaimed &&
-      acceptedExecutionEvidenceIsHonest(row)
-    );
-  }
-
-  return (
-    row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.BlockedBeforeCommand &&
-    row.enforcementCommandName === null &&
-    row.enforcementEventName === null &&
-    row.enforcementActionMode === null &&
-    row.dispatchCommandResultId === null &&
-    row.dispatchExecutionAuditState === AgentAppGameAdapterDispatchExecutionAuditState.BlockedBeforeExecutionAudit &&
-    row.dispatchExecutionAuditDecision ===
-      AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit &&
-    row.dispatchExecutionAuditId === null &&
-    row.dispatchExecutionAuditRefs.length === 0 &&
-    row.dispatchAdapterExecutionState ===
-      AgentAppGameAdapterDispatchAdapterExecutionState.BlockedBeforeAdapterExecution &&
-    row.dispatchAdapterExecutionDecision ===
-      AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution &&
-    row.dispatchAdapterExecutionResultId === null &&
-    row.dispatchAdapterExecutionStatus === null &&
-    row.dispatchAdapterExecutionAdapterResultCode === null &&
-    row.dispatchAdapterExecutionAuditEventId === null &&
-    row.dispatchAdapterExecutionRefs.length === 0 &&
-    row.manualProofRequirements.length > 0 &&
-    !row.adapterDispatchCommandResultClaimed &&
-    !row.adapterDispatchExecutedClaimed &&
-    !row.serviceLocalExecutionAuditClaimed
-  );
+  return row.dispatchCommandResultState === AgentAppGameAdapterDispatchCommandResultState.CommandAccepted
+    ? acceptedDispatchResultRowIsHonest(row)
+    : blockedDispatchResultRowIsHonest(row);
 }
 
 function acceptedExecutionEvidenceIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
-  if (
-    row.dispatchAdapterExecutionDecision ===
+  return row.dispatchAdapterExecutionDecision ===
     AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported
-  ) {
-    return (
-      row.dispatchAdapterExecutionState === AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported &&
-      row.dispatchAdapterExecutionResultId !== null &&
-      row.dispatchAdapterExecutionStatus === 'actually-enforced' &&
-      row.dispatchAdapterExecutionAdapterResultCode !== null &&
-      row.dispatchAdapterExecutionAuditEventId !== null &&
-      row.dispatchAdapterExecutionRefs.length > 0 &&
-      row.adapterDispatchExecutedClaimed
-    );
-  }
+    ? reportedExecutionEvidenceIsHonest(row)
+    : missingExecutionEvidenceIsHonest(row);
+}
 
+function dispatchResultReadModelIsConsistent(readModel: AgentAppGameAdapterDispatchResultReadModelCandidate): boolean {
+  const countExpectations = [
+    {
+      expected: readModel.commandAcceptedCount,
+      actual: readModel.rows.filter(
+        (row) => row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted
+      ).length,
+    },
+    {
+      expected: readModel.blockedBeforeCommandCount,
+      actual: readModel.rows.filter(
+        (row) =>
+          row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.BlockedBeforeCommand
+      ).length,
+    },
+    {
+      expected: readModel.executionAuditRecordedCount,
+      actual: readModel.rows.filter(
+        (row) =>
+          row.dispatchExecutionAuditDecision ===
+          AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded
+      ).length,
+    },
+    {
+      expected: readModel.blockedBeforeExecutionAuditCount,
+      actual: readModel.rows.filter(
+        (row) =>
+          row.dispatchExecutionAuditDecision ===
+          AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit
+      ).length,
+    },
+    {
+      expected: readModel.adapterExecutionReportedCount,
+      actual: readModel.rows.filter(
+        (row) =>
+          row.dispatchAdapterExecutionDecision ===
+          AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported
+      ).length,
+    },
+    {
+      expected: readModel.adapterExecutionEvidenceMissingCount,
+      actual: readModel.rows.filter(
+        (row) =>
+          row.dispatchAdapterExecutionDecision ===
+          AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionEvidenceMissing
+      ).length,
+    },
+    {
+      expected: readModel.blockedBeforeAdapterExecutionCount,
+      actual: readModel.rows.filter(
+        (row) =>
+          row.dispatchAdapterExecutionDecision ===
+          AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution
+      ).length,
+    },
+    {
+      expected: readModel.adapterDispatchCommandResultClaimedCount,
+      actual: readModel.rows.filter((row) => row.adapterDispatchCommandResultClaimed).length,
+    },
+    {
+      expected: readModel.serviceLocalExecutionAuditClaimedCount,
+      actual: readModel.rows.filter((row) => row.serviceLocalExecutionAuditClaimed).length,
+    },
+    {
+      expected: readModel.adapterDispatchExecutedClaimedCount,
+      actual: readModel.rows.filter((row) => row.adapterDispatchExecutedClaimed).length,
+    },
+  ] as const;
+
+  return (
+    readModel.returned === readModel.rows.length &&
+    countExpectations.every(({ expected, actual }) => expected === actual) &&
+    new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length
+  );
+}
+
+function acceptedDispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    acceptedDispatchResultMatchesBoundary(row) &&
+    acceptedDispatchResultTracksCommand(row) &&
+    acceptedDispatchResultTracksExecutionAudit(row) &&
+    acceptedDispatchResultKeepsClaimsScoped(row)
+  );
+}
+
+function blockedDispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    blockedDispatchResultTracksCommand(row) &&
+    blockedDispatchResultTracksExecutionAudit(row) &&
+    blockedDispatchResultTracksAdapterExecution(row) &&
+    blockedDispatchResultKeepsClaimsScoped(row)
+  );
+}
+
+function reportedExecutionEvidenceIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.dispatchAdapterExecutionState === AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported &&
+    row.dispatchAdapterExecutionResultId !== null &&
+    row.dispatchAdapterExecutionStatus === 'actually-enforced' &&
+    row.dispatchAdapterExecutionAdapterResultCode !== null &&
+    row.dispatchAdapterExecutionAuditEventId !== null &&
+    row.dispatchAdapterExecutionRefs.length > 0 &&
+    row.adapterDispatchExecutedClaimed
+  );
+}
+
+function missingExecutionEvidenceIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
   return (
     row.dispatchAdapterExecutionState ===
       AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionEvidenceMissing &&
@@ -361,5 +362,90 @@ function acceptedExecutionEvidenceIsHonest(row: AgentAppGameAdapterDispatchResul
     row.dispatchAdapterExecutionAuditEventId === null &&
     row.dispatchAdapterExecutionRefs.length === 0 &&
     !row.adapterDispatchExecutedClaimed
+  );
+}
+
+function acceptedDispatchResultMatchesBoundary(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.platform === 'windows' &&
+    row.sourceProofEntryId === 'windows-app-game-owned-process-time-limit' &&
+    row.dispatchPreflightState === AgentAppGameAdapterDispatchPreflightState.DispatchEligible &&
+    row.dispatchDecision === AgentAppGameAdapterDispatchDecision.DispatchEligible &&
+    row.dispatchOutcomeState === AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
+    row.dispatchIntentId !== null
+  );
+}
+
+function acceptedDispatchResultTracksCommand(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted &&
+    row.enforcementCommandName === AgentEnforcementExecuteCommand &&
+    row.enforcementEventName === AgentEnforcementAuditReportedEvent &&
+    row.enforcementActionMode === 'terminate-process' &&
+    row.dispatchCommandResultId !== null &&
+    row.dispatchCommandAuditRefs.length > 0 &&
+    row.dispatchCommandTimerRefs.length > 0
+  );
+}
+
+function acceptedDispatchResultTracksExecutionAudit(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.dispatchExecutionAuditState === AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded &&
+    row.dispatchExecutionAuditDecision ===
+      AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded &&
+    row.dispatchExecutionAuditId !== null &&
+    row.dispatchExecutionAuditRefs.length > 0
+  );
+}
+
+function acceptedDispatchResultKeepsClaimsScoped(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.manualProofRequirements.length === 0 &&
+    row.adapterDispatchCommandResultClaimed &&
+    row.serviceLocalExecutionAuditClaimed &&
+    acceptedExecutionEvidenceIsHonest(row)
+  );
+}
+
+function blockedDispatchResultTracksCommand(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.BlockedBeforeCommand &&
+    row.enforcementCommandName === null &&
+    row.enforcementEventName === null &&
+    row.enforcementActionMode === null &&
+    row.dispatchCommandResultId === null
+  );
+}
+
+function blockedDispatchResultTracksExecutionAudit(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.dispatchExecutionAuditState === AgentAppGameAdapterDispatchExecutionAuditState.BlockedBeforeExecutionAudit &&
+    row.dispatchExecutionAuditDecision ===
+      AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit &&
+    row.dispatchExecutionAuditId === null &&
+    row.dispatchExecutionAuditRefs.length === 0
+  );
+}
+
+function blockedDispatchResultTracksAdapterExecution(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.dispatchAdapterExecutionState ===
+      AgentAppGameAdapterDispatchAdapterExecutionState.BlockedBeforeAdapterExecution &&
+    row.dispatchAdapterExecutionDecision ===
+      AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution &&
+    row.dispatchAdapterExecutionResultId === null &&
+    row.dispatchAdapterExecutionStatus === null &&
+    row.dispatchAdapterExecutionAdapterResultCode === null &&
+    row.dispatchAdapterExecutionAuditEventId === null &&
+    row.dispatchAdapterExecutionRefs.length === 0
+  );
+}
+
+function blockedDispatchResultKeepsClaimsScoped(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  return (
+    row.manualProofRequirements.length > 0 &&
+    !row.adapterDispatchCommandResultClaimed &&
+    !row.adapterDispatchExecutedClaimed &&
+    !row.serviceLocalExecutionAuditClaimed
   );
 }

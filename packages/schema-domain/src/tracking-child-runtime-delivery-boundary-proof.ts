@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   TrackingChildCheckInTimeoutReadModelSchema,
   type TrackingChildCheckInTimeoutRow,
@@ -28,8 +22,12 @@ export const TrackingChildRuntimeDeliveryBoundaryNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingChildRuntimeDeliveryBoundaryNonClaims)
 );
 
-export const TrackingChildRuntimeDeliveryBoundaryReadinessIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeDeliveryBoundaryReadinessId');
-export const TrackingChildRuntimeDeliveryBoundaryRowIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeDeliveryBoundaryRowId');
+export const TrackingChildRuntimeDeliveryBoundaryReadinessIdSchema = brandedNonEmptyStringSchema(
+  'TrackingChildRuntimeDeliveryBoundaryReadinessId'
+);
+export const TrackingChildRuntimeDeliveryBoundaryRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingChildRuntimeDeliveryBoundaryRowId'
+);
 export const TrackingChildRuntimeDeliveryBoundaryStateSchema = withParser(
   Schema.Literal(
     'hosted-copy-only-waiting',
@@ -315,4 +313,3 @@ function trackingChildRuntimeDeliveryBoundaryReadModelNonClaimsAreHonest(
     readModel.productReadyClaimed === false
   );
 }
-

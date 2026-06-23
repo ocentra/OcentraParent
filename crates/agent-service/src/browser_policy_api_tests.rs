@@ -3,21 +3,46 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
-    AgentEventEnvelope, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    BrowserPolicyApprovalState, BrowserPolicyApprovals, BrowserPolicyAudit,
-    BrowserPolicyAuditState, BrowserPolicyBrowserGames, BrowserPolicyBudgets,
-    BrowserPolicyDefaultPosture, BrowserPolicyDiscovery, BrowserPolicyDownloadState,
-    BrowserPolicyDownloads, BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
-    BrowserPolicyExecutionMode, BrowserPolicyManagedBrowser, BrowserPolicyManagedBrowserMode,
-    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyProofFallback,
-    BrowserPolicyRejectionReason, BrowserPolicyReportState, BrowserPolicyReports,
-    BrowserPolicyRetention, BrowserPolicyRetentionState, BrowserPolicyRule, BrowserPolicyRules,
-    BrowserPolicyUnmanagedBrowser, BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind,
-    BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType,
-    BrowserPolicyValue, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::BrowserPolicyApprovalState;
+use ocentra_parent_agent_protocol::BrowserPolicyApprovals;
+use ocentra_parent_agent_protocol::BrowserPolicyAudit;
+use ocentra_parent_agent_protocol::BrowserPolicyAuditState;
+use ocentra_parent_agent_protocol::BrowserPolicyBrowserGames;
+use ocentra_parent_agent_protocol::BrowserPolicyBudgets;
+use ocentra_parent_agent_protocol::BrowserPolicyDefaultPosture;
+use ocentra_parent_agent_protocol::BrowserPolicyDiscovery;
+use ocentra_parent_agent_protocol::BrowserPolicyDownloadState;
+use ocentra_parent_agent_protocol::BrowserPolicyDownloads;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceProofLevel;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceRequirement;
+use ocentra_parent_agent_protocol::BrowserPolicyExecutionMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowser;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagementMode;
+use ocentra_parent_agent_protocol::BrowserPolicyPatch;
+use ocentra_parent_agent_protocol::BrowserPolicyProofFallback;
+use ocentra_parent_agent_protocol::BrowserPolicyRejectionReason;
+use ocentra_parent_agent_protocol::BrowserPolicyReportState;
+use ocentra_parent_agent_protocol::BrowserPolicyReports;
+use ocentra_parent_agent_protocol::BrowserPolicyRetention;
+use ocentra_parent_agent_protocol::BrowserPolicyRetentionState;
+use ocentra_parent_agent_protocol::BrowserPolicyRule;
+use ocentra_parent_agent_protocol::BrowserPolicyRules;
+use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowser;
+use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserMode;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateKind;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateResponse;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateStatus;
+use ocentra_parent_agent_protocol::BrowserPolicyUrlTargetType;
+use ocentra_parent_agent_protocol::BrowserPolicyValue;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, lan_pairing::LanPairingRuntime,
@@ -30,7 +55,7 @@ async fn browser_policy_replace_persists_and_get_reports_after_runtime_restart()
     let runtime = BrowserPolicyRuntime::for_store_path(&path);
     let replace = replace_command(
         None,
-        valid_policy(BrowserPolicyDefaultPosture::Limit, Some(60)),
+        &valid_policy(BrowserPolicyDefaultPosture::Limit, Some(60)),
     );
 
     let replace_event = send_browser_policy_command(runtime.clone(), replace).await;
@@ -77,7 +102,7 @@ async fn browser_policy_replace_persists_and_get_reports_after_runtime_restart()
 async fn browser_policy_preview_compiles_without_persisting_policy_state() {
     let path = temp_policy_store_path(constants::browser_policy::UPDATE_KIND_PREVIEW);
     let runtime = BrowserPolicyRuntime::for_store_path(&path);
-    let preview = preview_command(valid_policy(BrowserPolicyDefaultPosture::Allow, None));
+    let preview = preview_command(&valid_policy(BrowserPolicyDefaultPosture::Allow, None));
 
     let preview_event = send_browser_policy_command(runtime.clone(), preview).await;
     let preview_response = response_from_event(&preview_event);
@@ -119,7 +144,7 @@ async fn browser_policy_patch_rejects_stale_revision_before_persisting() {
     let runtime = BrowserPolicyRuntime::for_store_path(&path);
     let replace = replace_command(
         None,
-        valid_policy(BrowserPolicyDefaultPosture::Limit, Some(60)),
+        &valid_policy(BrowserPolicyDefaultPosture::Limit, Some(60)),
     );
     let replace_event = send_browser_policy_command(runtime.clone(), replace).await;
     assert_eq!(
@@ -127,7 +152,9 @@ async fn browser_policy_patch_rejects_stale_revision_before_persisting() {
         BrowserPolicyUpdateStatus::Accepted
     );
 
-    let patch = patch_command(stale_revision_id(), vec![daily_budget_patch(30)]);
+    let stale_revision_id = stale_revision_id();
+    let patches = [daily_budget_patch(30)];
+    let patch = patch_command(&stale_revision_id, &patches);
     let patch_event = send_browser_policy_command(runtime, patch).await;
     let patch_response = response_from_event(&patch_event);
 
@@ -148,17 +175,15 @@ async fn browser_policy_rollback_restores_earlier_persisted_revision() {
     let runtime = BrowserPolicyRuntime::for_store_path(&path);
     let replace = replace_command(
         None,
-        valid_policy(BrowserPolicyDefaultPosture::Limit, Some(60)),
+        &valid_policy(BrowserPolicyDefaultPosture::Limit, Some(60)),
     );
     let replace_event = send_browser_policy_command(runtime.clone(), replace).await;
     assert_eq!(
         response_from_event(&replace_event).status,
         BrowserPolicyUpdateStatus::Accepted
     );
-    let patch = patch_command(
-        constants::browser_policy::REVISION_ID.to_string(),
-        vec![daily_budget_patch(30)],
-    );
+    let patches = [daily_budget_patch(30)];
+    let patch = patch_command(constants::browser_policy::REVISION_ID, &patches);
     let patch_event = send_browser_policy_command(runtime.clone(), patch).await;
     assert_eq!(
         response_from_event(&patch_event)
@@ -205,7 +230,7 @@ async fn browser_policy_preview_rejects_exact_url_without_managed_proof_or_fallb
     policy.evidence.required_proof = BrowserPolicyEvidenceProofLevel::NetworkDomain;
     policy.evidence.proof_fallback = None;
     policy.evidence.when_proof_unavailable = BrowserPolicyProofFallback::MarkUnavailable;
-    let preview = preview_command(policy);
+    let preview = preview_command(&policy);
 
     let event = send_browser_policy_command(runtime, preview).await;
     let response = response_from_event(&event);
@@ -223,7 +248,7 @@ async fn send_browser_policy_command(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     handle_command_text_with_browser_policy_for_test(
-        &serde_json::to_string(&command).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        &serialize_test_json(&command),
         LanPairingRuntime::empty(),
         runtime,
         None,
@@ -233,10 +258,8 @@ async fn send_browser_policy_command(
 
 fn response_from_event(event: &AgentEventEnvelope) -> BrowserPolicyUpdateResponse {
     match event.payload.get(constants::field::BROWSER_POLICY_RESPONSE) {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => unreachable!(),
+        Some(LogFieldValue::String(text)) => parse_test_json(text),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
@@ -252,7 +275,7 @@ fn get_command() -> AgentCommandEnvelope {
     )
 }
 
-fn preview_command(policy_value: BrowserPolicyValue) -> AgentCommandEnvelope {
+fn preview_command(policy_value: &BrowserPolicyValue) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPreview,
         serde_json::json!({
@@ -265,8 +288,8 @@ fn preview_command(policy_value: BrowserPolicyValue) -> AgentCommandEnvelope {
 }
 
 fn replace_command(
-    base_revision_id: Option<String>,
-    policy_value: BrowserPolicyValue,
+    base_revision_id: Option<&str>,
+    policy_value: &BrowserPolicyValue,
 ) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyReplace,
@@ -280,10 +303,7 @@ fn replace_command(
     )
 }
 
-fn patch_command(
-    base_revision_id: String,
-    patches: Vec<BrowserPolicyPatch>,
-) -> AgentCommandEnvelope {
+fn patch_command(base_revision_id: &str, patches: &[BrowserPolicyPatch]) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPatch,
         serde_json::json!({
@@ -317,9 +337,7 @@ where
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::BROWSER_POLICY_REQUEST.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&request).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_test_json(&request)),
     );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -471,19 +489,39 @@ fn stale_revision_id() -> String {
     revision_id
 }
 
-fn temp_policy_store_path(label: &str) -> PathBuf {
+fn temp_policy_store_path(store_path_suffix: &str) -> PathBuf {
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })
         .as_nanos();
     let mut path = std::env::temp_dir();
     let mut file_name = constants::browser_policy::TEST_STORE_FILE_PREFIX.to_string();
     file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(label);
+    file_name.push_str(store_path_suffix);
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(&stamp.to_string());
     file_name.push(constants::delimiter::DOT);
     file_name.push_str(constants::browser_policy::STORE_FILE_EXTENSION);
     path.push(file_name);
     path
+}
+
+fn serialize_test_json<T>(value: &T) -> String
+where
+    T: serde::Serialize + ?Sized,
+{
+    serde_json::to_string(value).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
+}
+
+fn parse_test_json<T>(text: &str) -> T
+where
+    T: serde::de::DeserializeOwned,
+{
+    serde_json::from_str(text).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }

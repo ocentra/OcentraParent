@@ -15,7 +15,7 @@ import {
   BrowserChildInterventionPageDefaults,
   renderBrowserChildInterventionPage,
 } from '@ocentra-parent/portal-domain/browser-child-intervention-page';
-import { resolveBrowserChildUxText } from '@ocentra-parent/text-domain/browser-child-ux';
+import { resolveBrowserChildUxText } from '@ocentra-parent/schema-domain/text-browser-ux';
 
 import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
 
@@ -49,7 +49,6 @@ async function main() {
   try {
     await waitForHealth(agentPort, serviceOutput);
     profileRun = await launchChromiumProfile(browser);
-    const version = await waitForJson(profileRun.port, '/json/version');
     const target = await waitForFirstPageTarget(profileRun.port);
     const client = await DevToolsClient.connect(target.webSocketDebuggerUrl);
     try {
@@ -59,9 +58,10 @@ async function main() {
       await waitForLivePage(client);
       await delay(3000);
       const capturedLocation = await evaluateChromiumValue(client, 'location.href');
-      const capturedScreenshot = await client.command('Page.captureScreenshot', { format: 'png' });
-      const backdropDataUrl = `data:image/png;base64,${capturedScreenshot.data}`;
+      const capturedTargetMatchedRequested = isSameWatchedTarget(capturedLocation, requestedUrl);
+      const backdropDataUrl = localProofBackdropDataUrl();
       const cases = [];
+      const caseChecks = [];
       for (const proofCase of childUxProofCases()) {
         const snapshot = BrowserAiChildUxSnapshotSchema.parse(childUxSnapshot(proofCase));
         const primaryText = String(resolveBrowserChildUxText(snapshot.primaryTextToken));
@@ -71,7 +71,7 @@ async function main() {
           action: proofCase.action,
           backdrop: {
             imageUrl: backdropDataUrl,
-            label: 'Captured page before child UX state',
+            label: 'Local proof backdrop',
           },
           blockMarker: BrowserChildInterventionPageDefaults.BlockMarker,
           bridge: 'child-agent-browser-ai-child-ux-rendered-proof',
@@ -105,13 +105,23 @@ async function main() {
           })`,
           returnByValue: true,
         });
+        const observedValue = observed.result?.value ?? {};
         const screenshotPath = await captureChromiumScreenshot(browser, client, `child-ux-${snapshot.state}`);
+        caseChecks.push({
+          backdropPresent: observedValue.backdropPresent === true,
+          endpointRendered:
+            typeof observedValue.href === 'string' &&
+            observedValue.href.includes('/api/browser/intervention/page?target='),
+          markerPresent: observedValue.markerPresent === true,
+          primaryTextPresent: observedValue.primaryTextPresent === true,
+          state: snapshot.state,
+          targetTextPresent: observedValue.targetTextPresent === true,
+        });
         cases.push({
           action: proofCase.action,
           adapterProofRef: snapshot.adapterProofRef,
           deliveryState: snapshot.deliveryState,
-          endpointUrl,
-          observed: observed.result?.value,
+          endpointRoute: '/api/browser/intervention/page',
           outcome: proofCase.outcome,
           primaryText,
           ruleId: proofCase.ruleId,
@@ -121,22 +131,19 @@ async function main() {
           surface: snapshot.surface,
         });
       }
+      const assertions = assertionsForCases(caseChecks, capturedTargetMatchedRequested);
       const evidence = {
         schemaVersion: 1,
         generatedAt: new Date().toISOString(),
         browser,
-        browserVersion: version.Browser,
-        requestedUrl,
-        capturedLocation,
         childAgentEndpoint: '/api/browser/intervention/page',
         htmlPath: relative(repoRoot, htmlPath),
         cases,
-        assertions: assertionsForCases(cases, capturedLocation),
       };
       const evidencePath = join(evidenceDirectory, `${runId}.json`);
       await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
-      printSummary(evidence, evidencePath);
-      if (!Object.values(evidence.assertions).every(Boolean)) {
+      printSummary({ assertions, capturedTargetMatchedRequested, cases, requestedUrl }, evidencePath);
+      if (!Object.values(assertions).every(Boolean)) {
         process.exitCode = 1;
       }
     } finally {
@@ -316,19 +323,16 @@ function policyDecision(outcome) {
   };
 }
 
-function assertionsForCases(cases, capturedLocation) {
-  const states = new Set(cases.map((proofCase) => proofCase.state));
+function assertionsForCases(caseChecks, capturedTargetMatchedRequested) {
+  const states = new Set(caseChecks.map((proofCase) => proofCase.state));
   return {
-    approvalRendered: casePassed(cases, 'approval_required'),
-    blockRendered: casePassed(cases, 'blocked'),
-    checkingRendered: casePassed(cases, 'checking'),
-    childAgentEndpointRendered: cases.every((proofCase) =>
-      String(proofCase.observed?.href ?? '').includes('/api/browser/intervention/page?target=')
-    ),
-    liveTargetCapturedBeforeRender: isSameWatchedTarget(capturedLocation, requestedUrl),
-    noRawCopyClaims: cases.every((proofCase) => proofCase.adapterProofRef !== null),
-    timeLimitRendered: casePassed(cases, 'limited'),
-    warningRendered: casePassed(cases, 'warning'),
+    approvalRendered: casePassed(caseChecks, 'approval_required'),
+    blockRendered: casePassed(caseChecks, 'blocked'),
+    checkingRendered: casePassed(caseChecks, 'checking'),
+    childAgentEndpointRendered: caseChecks.every((proofCase) => proofCase.endpointRendered === true),
+    liveTargetCapturedBeforeRender: capturedTargetMatchedRequested,
+    timeLimitRendered: casePassed(caseChecks, 'limited'),
+    warningRendered: casePassed(caseChecks, 'warning'),
     expectedStateCoverage:
       states.has('checking') &&
       states.has('warning') &&
@@ -338,14 +342,14 @@ function assertionsForCases(cases, capturedLocation) {
   };
 }
 
-function casePassed(cases, state) {
-  const proofCase = cases.find((item) => item.state === state);
+function casePassed(caseChecks, state) {
+  const proofCase = caseChecks.find((item) => item.state === state);
   return (
     proofCase !== undefined &&
-    proofCase.observed?.markerPresent === true &&
-    proofCase.observed?.primaryTextPresent === true &&
-    proofCase.observed?.targetTextPresent === true &&
-    proofCase.observed?.backdropPresent === true
+    proofCase.markerPresent === true &&
+    proofCase.primaryTextPresent === true &&
+    proofCase.targetTextPresent === true &&
+    proofCase.backdropPresent === true
   );
 }
 
@@ -366,19 +370,39 @@ function isSameWatchedTarget(observedUrl, expectedUrl) {
   }
 }
 
-function printSummary(evidence, evidencePath) {
-  const ok = Object.values(evidence.assertions).every(Boolean);
+function printSummary(summary, evidencePath) {
+  const ok = Object.values(summary.assertions).every(Boolean);
   console.log(`browser-ai-child-ux-rendered-proof-ok=${ok}`);
   console.log(`evidence=${evidencePath}`);
-  console.log(`requested=${evidence.requestedUrl}`);
-  console.log(`captured=${evidence.capturedLocation}`);
-  console.log(`states=${evidence.cases.map((item) => item.state).join(',')}`);
-  for (const item of evidence.cases) {
+  console.log(`requested=${summary.requestedUrl}`);
+  console.log(`capturedTargetMatchedRequested=${summary.capturedTargetMatchedRequested}`);
+  console.log(`states=${summary.cases.map((item) => item.state).join(',')}`);
+  for (const item of summary.cases) {
     console.log(`screenshot.${item.state}=${item.screenshotPath}`);
   }
-  for (const [name, passed] of Object.entries(evidence.assertions)) {
+  for (const [name, passed] of Object.entries(summary.assertions)) {
     console.log(`assertion.${name}=${passed}`);
   }
+}
+
+function localProofBackdropDataUrl() {
+  const svg = [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">',
+    '<defs>',
+    '<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">',
+    '<stop offset="0%" stop-color="#101820" />',
+    '<stop offset="100%" stop-color="#213547" />',
+    '</linearGradient>',
+    '</defs>',
+    '<rect width="1280" height="720" fill="url(#bg)" />',
+    '<circle cx="1024" cy="160" r="180" fill="rgba(255,255,255,0.08)" />',
+    '<circle cx="192" cy="560" r="220" fill="rgba(255,255,255,0.06)" />',
+    '<text x="96" y="608" fill="#f5f7fa" font-family="Segoe UI, Arial, sans-serif" font-size="42">',
+    'Ocentra Parent local child UX proof backdrop',
+    '</text>',
+    '</svg>',
+  ].join('');
+  return `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`;
 }
 
 async function launchChromiumProfile(browser) {

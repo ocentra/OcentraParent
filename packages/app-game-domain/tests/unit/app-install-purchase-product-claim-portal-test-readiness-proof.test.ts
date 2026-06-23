@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimPortalTestReadinessProofSchema,
   AppInstallPurchaseProductClaimPortalTestReadinessRowSchema,
   summarizeAppInstallPurchaseProductClaimPortalTestReadinessProof,
-} from '../../src/app-install-purchase-product-claim-portal-test-readiness-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-portal-test-readiness-proof';
 
 describe('app install purchase product claim portal test readiness proof', () => {
   acceptsPortalTestReadinessRows();

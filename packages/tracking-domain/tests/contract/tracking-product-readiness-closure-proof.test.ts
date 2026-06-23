@@ -4,7 +4,7 @@ import {
   RequiredTrackingProductReadinessClosureCoverageTags,
   TrackingProductReadinessClosureRowSchema,
   buildTrackingProductReadinessClosureProof,
-} from '../../src/tracking-product-readiness-closure-proof';
+} from '@ocentra-parent/schema-domain/tracking-product-readiness-closure-proof';
 
 const GeneratedAt = '2026-06-07T16:30:00.000Z';
 

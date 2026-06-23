@@ -16,11 +16,11 @@
 
 Use this file to select exactly one eventing slice. Do not read all eventing plan docs, the full checklist, or all workpacks.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 Source truth for detailed historical scope is [05-implementation-workpacks.md](05-implementation-workpacks.md). The files below are token-efficient execution routes split from that source; they do not replace proof.
 
-Status key: `done` means this checkout contains focused local proof for the
-slice. `historical` means source/tests are present but the cited proof bundle is
-absent in this checkout. `open` means current route work still remains.
+Status key: `done` means this checkout contains focused local proof for the slice. `historical` means source/tests are present but the cited proof bundle is absent in this checkout. `open` means current route work still remains.
 
 | Status | Workpack                                                                                      | Source rows  | Expected proof tier            | Open condition                                                                                      |
 | ------ | --------------------------------------------------------------------------------------------- | ------------ | ------------------------------ | --------------------------------------------------------------------------------------------------- |
@@ -42,5 +42,8 @@ absent in this checkout. `open` means current route work still remains.
 
 - If the task names a numbered row from `05-implementation-workpacks.md`, choose the workpack whose source-row range contains it.
 - If the task is consumer-specific, choose the consumer eventing workpack only long enough to identify eventing obligations, then route to the owning consumer plan for product behavior.
+- If the selected workpack owner/proof family is unclear, classify it through `WORKPACK_FAMILIES.md`; do not scan every family.
 - If no workpack owns the task, update this index before implementation claims.
 - If a selected workpack expects a crate/test folder that does not exist, record the missing location and keep the workpack open.
+- Do not use crate-local proof to claim consumer transport or product behavior.
+- Do not use WP12 or WP13 proof to close WP10.

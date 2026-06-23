@@ -12,7 +12,10 @@ import {
   BrowserPolicyQuestionnaireCompactOrder,
   BrowserPolicyQuestions,
 } from '@ocentra-parent/schema-domain/browser-policy-questionnaire-forest-data';
-import { browserPolicyForestSourceSettingIds, browserPolicyVisibleQuestions } from '../../src/browser-policy-questionnaire-forest';
+import {
+  browserPolicyForestSourceSettingIds,
+  browserPolicyVisibleQuestions,
+} from '../../src/browser-policy-questionnaire-forest';
 
 describe('browser policy questionnaire forest', () => {
   registerForestShapeCases();

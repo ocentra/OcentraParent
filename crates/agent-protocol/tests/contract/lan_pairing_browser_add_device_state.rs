@@ -1,15 +1,28 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanBrowserAddDeviceDiscoveryDevice, LanBrowserAddDeviceScanSummary,
-    LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
-    LanCanonicalHouseholdDeviceConfidence, LanCanonicalHouseholdDeviceRole,
-    LanCanonicalHouseholdDeviceSource, LanCanonicalHouseholdNetworkIdentity,
-    LanCanonicalHouseholdRoleState, LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface,
-    LanChildAgentInventoryPacket, LanDiscoveryEvidenceConfidence, LanDiscoveryEvidenceKind,
-    LanDiscoveryEvidenceRecord, LanDiscoveryEvidenceSource, LanPairingDeviceHardwareProfile,
-    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus,
-    LanPairingNetworkMode, LanPairingProductionDiscoveryState, LanPairingTrustState,
-    LAN_PAIRING_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::LanBrowserAddDeviceDiscoveryDevice;
+use ocentra_parent_agent_protocol::LanBrowserAddDeviceScanSummary;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdDevice;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdDeviceClassification;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdDeviceConfidence;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdDeviceRole;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdDeviceSource;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdNetworkIdentity;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdRoleState;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdRouteState;
+use ocentra_parent_agent_protocol::LanCanonicalHouseholdSurface;
+use ocentra_parent_agent_protocol::LanChildAgentInventoryPacket;
+use ocentra_parent_agent_protocol::LanDiscoveryEvidenceConfidence;
+use ocentra_parent_agent_protocol::LanDiscoveryEvidenceKind;
+use ocentra_parent_agent_protocol::LanDiscoveryEvidenceRecord;
+use ocentra_parent_agent_protocol::LanDiscoveryEvidenceSource;
+use ocentra_parent_agent_protocol::LanPairingDeviceHardwareProfile;
+use ocentra_parent_agent_protocol::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::LanPairingDiscoveryRuntimeStatus;
+use ocentra_parent_agent_protocol::LanPairingNetworkMode;
+use ocentra_parent_agent_protocol::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::LanPairingTrustState;
+use ocentra_parent_agent_protocol::LAN_PAIRING_SCHEMA_VERSION;
 
 #[path = "lan_pairing_browser_add_device_state/production_household_proof_test_support.rs"]
 mod production_household_proof_test_support;
@@ -22,8 +35,10 @@ mod source_matrix_test_support;
 fn browser_add_device_read_model_serializes_honest_states() {
     let model = production_household_proof_test_support::browser_add_device_read_model_fixture();
 
-    let json = serde_json::to_string(&model).expect("read model serializes");
-    let value: serde_json::Value = serde_json::from_str(&json).expect("read model parses");
+    let json = serde_json::to_string(&model)
+        .unwrap_or_else(|error| unreachable!("read model serializes: {error:?}"));
+    let value: serde_json::Value = serde_json::from_str(&json)
+        .unwrap_or_else(|error| unreachable!("read model parses: {error:?}"));
     production_household_proof_test_support::assert_browser_add_device_read_model_json(&value);
 }
 
@@ -31,7 +46,8 @@ fn browser_add_device_read_model_serializes_honest_states() {
 fn signed_discovery_relay_spine_serializes_adapter_rejection_and_relay_boundaries() {
     let spine = signed_discovery_relay_spine_test_support::signed_discovery_relay_spine_fixture();
 
-    let json = serde_json::to_value(&spine).expect("signed discovery relay spine serializes");
+    let json = serde_json::to_value(&spine)
+        .unwrap_or_else(|error| unreachable!("signed discovery relay spine serializes: {error:?}"));
     signed_discovery_relay_spine_test_support::assert_signed_discovery_relay_spine_json(&json);
 }
 
@@ -39,7 +55,8 @@ fn signed_discovery_relay_spine_serializes_adapter_rejection_and_relay_boundarie
 fn lan_discovery_source_matrix_serializes_workpack_and_source_boundaries() {
     let matrix = source_matrix_test_support::source_matrix_fixture();
 
-    let json = serde_json::to_value(&matrix).expect("LAN source matrix serializes");
+    let json = serde_json::to_value(&matrix)
+        .unwrap_or_else(|error| unreachable!("LAN source matrix serializes: {error:?}"));
     source_matrix_test_support::assert_source_matrix_json(&json);
 }
 
@@ -81,7 +98,8 @@ fn discovered_device_serializes_network_and_hardware_details() {
         discovery_state: LanPairingProductionDiscoveryState::Discovered,
     };
 
-    let json = serde_json::to_value(&device).expect("device serializes");
+    let json = serde_json::to_value(&device)
+        .unwrap_or_else(|error| unreachable!("device serializes: {error:?}"));
     assert_eq!(
         json["childDevice"]["ipAddress"],
         serde_json::json!("192.168.2.42")

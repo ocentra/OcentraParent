@@ -2,11 +2,7 @@ import fs from 'node:fs';
 import { getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
-export function pruneTestLogRuns(
-  scope: TestLogScope,
-  keepNewest: number,
-  rootDir?: string
-): number {
+export function pruneTestLogRuns(scope: TestLogScope, keepNewest: number, rootDir?: string): number {
   const files = listNdjsonFiles(getTestLogScopeDir(scope, rootDir))
     .map((filePath) => ({
       filePath,

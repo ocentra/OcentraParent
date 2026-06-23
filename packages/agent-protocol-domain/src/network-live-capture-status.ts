@@ -2,8 +2,12 @@ import {
   AgentNetworkLiveCaptureStatusSchema,
   type AgentNetworkLiveCaptureStatus,
 } from '@ocentra-parent/schema-domain/network-live-capture-status';
-import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
-import { AgentProtocolDefaults } from './defaults';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type AgentNetworkLiveCaptureStatusParseResult =
   | {

@@ -50,13 +50,25 @@ async function main() {
   const productionWorkerRuntimeArtifactGateProof = await readJson(productionWorkerRuntimeArtifactGateProofRef);
   const trackingProductionModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-production-durable-workers-readiness-blocker-proof.ts')
+      join(
+        repoRoot,
+        'packages',
+        'tracking-domain',
+        'src',
+        'tracking-production-durable-workers-readiness-blocker-proof.ts'
+      )
     ).href,
     import.meta.url
   );
   const productionSupportReadModelModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'schema-domain', 'src', 'production-support-status-backend-durable-queue-runtime-read-model.ts')
+      join(
+        repoRoot,
+        'packages',
+        'schema-domain',
+        'src',
+        'production-support-status-backend-durable-queue-runtime-read-model.ts'
+      )
     ).href,
     import.meta.url
   );

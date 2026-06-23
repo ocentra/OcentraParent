@@ -10,7 +10,4 @@ export const ScreenLiveViewOptionalProofRefSchema = Schema.Union(
   ScreenOptionalVisibilityPlatformProofRefSchema,
   Schema.Null
 );
-export const ScreenLiveViewOptionalAuditRefSchema = Schema.Union(
-  ScreenOptionalVisibilityAuditRefSchema,
-  Schema.Null
-);
+export const ScreenLiveViewOptionalAuditRefSchema = Schema.Union(ScreenOptionalVisibilityAuditRefSchema, Schema.Null);

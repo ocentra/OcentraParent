@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeTransportDispatchPreflightProofSchema,
   AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeTransportDispatchPreflightProof,
-} from '../../src/app-install-purchase-external-runtime-transport-dispatch-preflight-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-transport-dispatch-preflight-proof';
 
 describe('app install and purchase external runtime transport dispatch preflight proof', () => {
   acceptsWithheldDispatchPreflightRows();

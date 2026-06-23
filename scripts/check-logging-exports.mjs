@@ -14,9 +14,7 @@ const REQUIRED_LOGGING_EXPORTS = [
   './app-log/createAppLogStorage',
 ];
 
-const REQUIRED_PRODUCTION_EXPORTS = [
-  './package-info',
-];
+const REQUIRED_PRODUCTION_EXPORTS = ['./package-info'];
 
 function parseRepoRoot(argv) {
   const flag = argv.find((value) => value.startsWith('--root='));
@@ -39,7 +37,10 @@ function main() {
 
   ensure(exportsMap['./contracts'] == null, 'unexpected packages/logging-domain export ./contracts');
   ensure(exportsMap['./test-log/types'] == null, 'unexpected packages/logging-domain export ./test-log/types');
-  ensure(exportsMap['./test-log/ndjsonBrands'] == null, 'unexpected packages/logging-domain export ./test-log/ndjsonBrands');
+  ensure(
+    exportsMap['./test-log/ndjsonBrands'] == null,
+    'unexpected packages/logging-domain export ./test-log/ndjsonBrands'
+  );
   ensure(
     !fs.existsSync(path.join(repoRoot, 'packages', 'logging-domain', 'src', 'contracts.ts')),
     'unexpected packages/logging-domain/src/contracts.ts'

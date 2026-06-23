@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import {
   RequiredTrackingAuthorityRuntimeReadinessBlockers,
@@ -19,9 +14,13 @@ export const TrackingAuthorityRuntimeArtifactGateStatusSchema = Schema.Literal(
   'artifact-set-present'
 );
 
-export const TrackingAuthorityRuntimeArtifactGatePathSchema = brandedNonEmptyStringSchema('TrackingAuthorityRuntimeArtifactGatePath');
+export const TrackingAuthorityRuntimeArtifactGatePathSchema = brandedNonEmptyStringSchema(
+  'TrackingAuthorityRuntimeArtifactGatePath'
+);
 
-export const TrackingAuthorityRuntimeArtifactGateRowIdSchema = brandedNonEmptyStringSchema('TrackingAuthorityRuntimeArtifactGateRowId');
+export const TrackingAuthorityRuntimeArtifactGateRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingAuthorityRuntimeArtifactGateRowId'
+);
 
 export const TrackingAuthorityRuntimeArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -204,4 +203,3 @@ function authorityRuntimeArtifactRow(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
-

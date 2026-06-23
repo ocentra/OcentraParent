@@ -114,10 +114,17 @@ fn topology_manifest_renders_deterministic_markdown() {
     );
 
     let markdown = manifest.render_markdown();
-    assert!(markdown.starts_with("# Event Topology Manifest"));
-    assert!(markdown.contains("| Event Type | Schema Version | Publishers | Subscribers | Families | Status | Rust Type |"));
-    assert!(markdown.contains("| eventing.test.observed | 1 | covered-publisher | covered-subscriber -> topology-target | eventing.topology.family | covered |"));
-    assert!(markdown.contains("| eventing.test.other | 1 | none | none | none | no-publisher |"));
+    let lines = markdown.lines().collect::<Vec<_>>();
+    assert_eq!(lines.first().copied(), Some("# Event Topology Manifest"));
+    assert!(lines.iter().any(|line| {
+        *line == "| Event Type | Schema Version | Publishers | Subscribers | Families | Status | Rust Type |"
+    }));
+    assert!(lines.iter().any(|line| {
+        *line == "| eventing.test.observed | 1 | covered-publisher | covered-subscriber -> topology-target | eventing.topology.family | covered | TestEvent |"
+    }));
+    assert!(lines.iter().any(|line| {
+        *line == "| eventing.test.other | 1 | none | none | none | no-publisher | TestEvent |"
+    }));
 }
 
 #[test]
@@ -131,11 +138,11 @@ fn topology_manifest_serializes_canonical_eventing_entry_keys() {
         &[],
     );
 
-    let manifest_json = serde_json::to_value(&manifest).expect("manifest serializes");
+    let manifest_json = serde_json::to_value(&manifest).expect_value("manifest serializes");
     let entry = manifest_entry(&manifest_json, TEST_EVENT_TYPE);
     let subscriber_target = entry["subscribers"][0]
         .as_object()
-        .expect("subscriber target object");
+        .expect_value("subscriber target object");
 
     assert_eq!(entry["contract"]["eventType"], Value::from(TEST_EVENT_TYPE));
     assert_eq!(entry["contract"]["schemaVersion"], Value::from(1));
@@ -211,11 +218,11 @@ fn manifest_entry<'a>(
 ) -> &'a serde_json::Map<String, Value> {
     manifest_json["entries"]
         .as_array()
-        .expect("entries array")
+        .expect_value("entries array")
         .iter()
         .find_map(|entry| {
             let entry = entry.as_object()?;
-            (entry["contract"]["eventType"] == Value::from(event_type)).then_some(entry)
+            (entry["contract"]["eventType"] == event_type).then_some(entry)
         })
-        .expect("manifest entry exists")
+        .expect_value("manifest entry exists")
 }

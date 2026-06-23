@@ -12,9 +12,10 @@ use ocentra_parent_agent_core::{
         ScreenRuntimeInput,
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityScreenReadModelRow, SCREEN_DELETION_DELETED, SCREEN_DELETION_EXPIRED_DELETED,
-};
+use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_DELETED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_EXPIRED_DELETED;
 
 use crate::{
     activity_capture::ActivityCaptureError,
@@ -45,7 +46,7 @@ pub(crate) async fn publish_screen_service_row_event_chain(
     let input = screen_runtime_input_from_service_row(row, refs)?;
     publish_screen_runtime_chain_for_input(input, observed_at)
         .await
-        .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
+        .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
 
 pub(crate) async fn publish_screen_capture_queue_event_chain(
@@ -55,7 +56,7 @@ pub(crate) async fn publish_screen_capture_queue_event_chain(
     let input = screen_runtime_capture_input_from_service_row(row)?;
     publish_screen_capture_queue_events_for_input(input, observed_at)
         .await
-        .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
+        .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
 
 pub(crate) async fn publish_screen_deletion_event_chain(
@@ -65,7 +66,7 @@ pub(crate) async fn publish_screen_deletion_event_chain(
     let input = screen_runtime_deletion_input_from_service_row(row)?;
     publish_screen_deletion_event_for_input(input, observed_at)
         .await
-        .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
+        .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
 
 pub(crate) async fn publish_screen_degraded_event_chain(
@@ -75,7 +76,7 @@ pub(crate) async fn publish_screen_degraded_event_chain(
     let input = screen_runtime_degraded_input_from_service_row(row)?;
     publish_screen_degraded_event_chain_for_input(input, observed_at)
         .await
-        .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
+        .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
 
 pub(crate) async fn publish_screen_capture_queue_events_for_queue_job(

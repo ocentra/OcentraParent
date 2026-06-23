@@ -1,12 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_supported_adapter_runtime_proof as proof},
-    AppGamePlatformProofStatusReadModel, AppGamePlatformProofStatusRow, LogFieldValue,
-    APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE, APP_GAME_PARENT_PLATFORM_ANDROID,
-    APP_GAME_PARENT_PLATFORM_LINUX, APP_GAME_PARENT_PLATFORM_WINDOWS,
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE;
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
+    APP_GAME_PARENT_PLATFORM_WINDOWS,
+};
+use ocentra_parent_agent_protocol::app_game_platform_proof_status::{
     APP_GAME_PLATFORM_GAP_ANDROID_DURABLE_USAGE_REPLAY,
     APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE,
     APP_GAME_PLATFORM_PROOF_SCOPED_WINDOWS_EXECUTION, APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_ID,
 };
+use ocentra_parent_agent_protocol::constants::{
+    self, v08_supported_adapter_runtime_proof as proof,
+};
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
+use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
 
 use super::app_game_platform_proof_status_payload::{
     app_game_platform_proof_status_payload, app_game_platform_proof_status_read_model,
@@ -19,11 +26,15 @@ fn platform_proof_status_payload_serializes_parent_safe_status_model() {
     let read_model = app_game_platform_proof_status_read_model(GENERATED_AT);
     let payload = app_game_platform_proof_status_payload(&read_model);
 
-    let reparsed = serde_json::from_str::<AppGamePlatformProofStatusReadModel>(string_payload(
+    let Ok(reparsed) = serde_json::from_str::<AppGamePlatformProofStatusReadModel>(string_payload(
         &payload,
         constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL,
-    ))
-    .expect(constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_REPARSES);
+    )) else {
+        panic!(
+            "{}",
+            constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_REPARSES
+        );
+    };
 
     assert_eq!(
         reparsed.read_model_id,
@@ -61,22 +72,29 @@ fn platform_proof_status_payload_serializes_parent_safe_status_model() {
     );
 }
 
-fn string_payload<'a>(payload: &'a ocentra_parent_agent_protocol::LogFields, key: &str) -> &'a str {
-    match payload.get(key) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
-    }
+fn string_payload<'a>(
+    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
+    field_name: &str,
+) -> &'a str {
+    let Some(LogFieldValue::String(value)) = payload.get(field_name) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    value.as_str()
 }
 
 fn platform_row<'a>(
     read_model: &'a AppGamePlatformProofStatusReadModel,
     platform: &str,
 ) -> &'a AppGamePlatformProofStatusRow {
-    read_model
-        .rows
-        .iter()
-        .find(|row| row.platform == platform)
-        .expect(constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_ROW_EXISTS)
+    let Some(row) = read_model.rows.iter().find(|row| row.platform == platform) else {
+        panic!(
+            "{}",
+            constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_ROW_EXISTS
+        );
+    };
+
+    row
 }
 
 fn assert_refs(row: &AppGamePlatformProofStatusRow, proof_refs: &[&str], open_gaps: &[&str]) {

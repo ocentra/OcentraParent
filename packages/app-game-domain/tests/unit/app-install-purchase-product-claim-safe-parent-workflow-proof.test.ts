@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimSafeParentWorkflowProofSchema,
   AppInstallPurchaseProductClaimSafeParentWorkflowRowSchema,
   summarizeAppInstallPurchaseProductClaimSafeParentWorkflowProof,
-} from '../../src/app-install-purchase-product-claim-safe-parent-workflow-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-safe-parent-workflow-proof';
 
 describe('app install purchase product claim safe parent workflow proof', () => {
   acceptsSafeParentWorkflowRows();

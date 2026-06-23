@@ -1,5 +1,19 @@
 # WP35 Parent Tracking Config Command Event Flow
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `WP35 Parent Tracking Config Command Event Flow`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: config command/event flow proof only.
+> Does not prove: physical mobile runtime behavior, provider delivery, production readiness, or product-ready tracking.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Purpose
 
 Make parent tracking config changes travel through validated Rust service and
@@ -21,6 +35,35 @@ intent, publishes tracking config events, applies parent policy, forwards
 approved child-agent commands, records audit state, and projects portal read
 models from service/event state.
 
+## Central schema boundary
+
+```text
+schema-domain owns canonical parent tracking config command/event payloads.
+tracking-domain may provide helpers/proof adapters only.
+tracking-core may mirror canonical payloads for runtime validation and projection.
+portal sends typed intents only and must not own event payload schemas.
+```
+
+## Required proof fields
+
+```text
+canonical_schema_owner_state
+portal_intent_state
+request_validation_state
+policy_decision_state
+approved_rejected_event_state
+runtime_command_handoff_state
+audit_state
+portal_projection_state
+idempotency_state
+invalid_intent_rejection_state
+portal_direct_publish_rejection_state
+local_schema_rejection_state
+no_platform_runtime_claim
+no_product_ready_claim
+no_claim
+```
+
 ## Required Source Behavior
 
 Canonical tracking config event owners for this flow live in
@@ -32,7 +75,7 @@ under `AgentTrackingConfigCommandFlowEventType` and
 portal parent changes tracking config
   -> local API validates request
   -> parent_controller.parent_action.received
-  -> AgentTrackingConfigCommandFlowEventType.ChangeRequested
+  -> tracking.config.change_requested
   -> policy.evaluation.requested
   -> policy.decision.completed
   -> AgentTrackingConfigCommandFlowEventType.ChangeApproved or AgentTrackingConfigCommandFlowEventType.ChangeRejected
@@ -93,7 +136,8 @@ output/tracking-plan-proof/35-parent-tracking-config-event-flow/
 ```
 
 The proof must cite real source behavior, real tests, focused command output,
-the observed event chain, and no-claim boundaries.
+the observed event chain, schema owner for each cross-boundary shape, and
+no-claim boundaries.
 
 ## Manual-Required Gaps
 

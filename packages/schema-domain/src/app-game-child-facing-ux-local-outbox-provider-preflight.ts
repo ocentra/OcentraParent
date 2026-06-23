@@ -1,9 +1,6 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { FamilyReferenceSchema } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
 export const AppGameChildUxLocalOutboxProviderPreflightStatus = {
   ProviderAdapterRequired: 'provider-adapter-required',
@@ -151,15 +148,37 @@ function childUxProviderPreflightReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxProviderPreflightReadModelBaseSchema>
 ): boolean {
   return (
+    childUxProviderPreflightCountsAreHonest(readModel) &&
+    childUxProviderPreflightNonClaimsArePresent(readModel) &&
+    childUxProviderPreflightClaimsRemainScoped(readModel)
+  );
+}
+
+function childUxProviderPreflightCountsAreHonest(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxProviderPreflightReadModelBaseSchema>
+): boolean {
+  return (
     readModel.providerAdapterRequiredCount ===
       countRows(readModel.rows, AppGameChildUxLocalOutboxProviderPreflightStatus.ProviderAdapterRequired) &&
     readModel.manualRequiredCount ===
       countRows(readModel.rows, AppGameChildUxLocalOutboxProviderPreflightStatus.ManualRequired) &&
     readModel.unavailableCount ===
-      countRows(readModel.rows, AppGameChildUxLocalOutboxProviderPreflightStatus.Unavailable) &&
-    RequiredAppGameChildUxLocalOutboxProviderPreflightNonClaims.every((claim) =>
-      readModel.preflightNonClaims.includes(claim)
-    ) &&
+      countRows(readModel.rows, AppGameChildUxLocalOutboxProviderPreflightStatus.Unavailable)
+  );
+}
+
+function childUxProviderPreflightNonClaimsArePresent(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxProviderPreflightReadModelBaseSchema>
+): boolean {
+  return RequiredAppGameChildUxLocalOutboxProviderPreflightNonClaims.every((claim) =>
+    readModel.preflightNonClaims.includes(claim)
+  );
+}
+
+function childUxProviderPreflightClaimsRemainScoped(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxProviderPreflightReadModelBaseSchema>
+): boolean {
+  return (
     !readModel.childDeliveryRuntimeClaimed &&
     !readModel.providerDeliveryRuntimeClaimed &&
     !readModel.providerReceiptIngestionClaimed &&

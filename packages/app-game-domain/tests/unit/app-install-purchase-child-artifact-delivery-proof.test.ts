@@ -5,7 +5,7 @@ import {
   AppInstallPurchaseChildDeliveryBoundaryRowSchema,
   AppInstallPurchaseChildPackageArtifactRowSchema,
   summarizeAppInstallPurchaseChildArtifactDeliveryProof,
-} from '../../src/app-install-purchase-child-artifact-delivery-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-child-artifact-delivery-proof';
 
 describe('app install and purchase child artifact delivery proof', () => {
   acceptsChildArtifactAndDeliveryBoundaryRefs();

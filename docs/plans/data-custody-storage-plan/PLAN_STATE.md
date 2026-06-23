@@ -20,6 +20,57 @@ This plan owns data custody guarantees, encrypted storage, evidence retention, e
 
 Route status: execution-grade architecture, UI docs, and test/proof inventory now exist. Implementation and proof remain open until the selected workpacks close their required slices and proof artifacts.
 
+## Current ownership interpretation
+
+```text
+schema-domain:
+  Canonical shared custody/export/sync/restore/report/query/assistant-citation/provider/retention/tombstone/parent-storage-setting shapes when they cross package, crate, app, or plan boundaries.
+
+storage-custody-core:
+  Rust generic custody/delete/export decision logic and custody action-plan events.
+
+ocentra-evidence:
+  Evidence references, evidence identity, and evidence custody ref semantics.
+
+ocentra-eventing:
+  Event journal/replay/idempotency spine. This plan consumes eventing contracts; it does not re-own bus implementation.
+
+production-domain:
+  Legacy package identity unless a selected public export is named. Current parent-owned sync/export contract proof routes through schema-domain.
+
+portal-domain and apps/portal:
+  Parent-visible custody projection, storage settings, preview, confirmation, and status UI only.
+
+Account, device-trust, Cloudflare, payment, setup, remote, LAN, notification, report producers, and AI plans:
+  Adjacent sibling owners or handoff consumers. They must not re-own data custody truth.
+```
+
+## Current coupling risks
+
+```text
+- Active proof roots are under output/data-custody-storage-plan-proof/<workpack>/; legacy docs/proof/data-custody-storage-plan references are stale and must not raise status.
+- `packages/production-domain/src/parent-owned-sync-export.ts` is stale as a source-of-truth path; current contract proof points at `packages/schema-domain/src/parent-owned-sync-export.ts` and `@ocentra-parent/schema-domain/parent-owned-sync-export`.
+- Contract/schema proof is not runtime custody proof.
+- Sync manifest proof is not provider OAuth/upload/delete runtime proof.
+- Export proof is not restore/apply proof.
+- Report/query proof is not assistant-safe citation proof.
+- Parent storage settings UI proof is not applied custody state.
+- Eventing internals, portal UI internals, account authority, device trust material, Cloudflare runtime, payment semantics, setup journey, remote transport, notification delivery, report rendering, and AI runtime must stay in owning plans unless a selected handoff explicitly touches them.
+```
+
+## Current proof interpretation
+
+```text
+Source presence is not custody readiness.
+Schema/domain contract proof is not storage runtime proof.
+Provider status proof is not readable-payload or key-access proof.
+Delete proof is not tombstone propagation, idempotency, or offline replay proof unless selected proof root proves it.
+Import preview is non-mutating and cannot claim restore/apply.
+Restore/apply proof must prove tombstone preservation and reject resurrection.
+Report/query proof must prove source refs, citation allowlists, redaction, deletion/expiry behavior, and rate-limit/misuse boundaries before assistant/report safety claims.
+WP07 can aggregate only accepted proof roots plus exact carried blockers.
+```
+
 ## Current Route Status
 
 - Status: execution-grade route established; no product completion claim is made.
@@ -31,7 +82,7 @@ Route status: execution-grade architecture, UI docs, and test/proof inventory no
 - `crates/storage-custody-core` already owns generic custody/delete/export decision logic.
 - `crates/ocentra-evidence` already carries custody-scoped evidence reference semantics.
 - `crates/ocentra-eventing` already provides the journal/replay building blocks this plan must not duplicate.
-- `packages/production-domain/src/parent-owned-sync-export.ts` and `scripts/test/parent-owned-sync-export-manifest-proof.mjs` already establish the current manifest/connector/status contract boundary.
+- `packages/schema-domain/src/parent-owned-sync-export.ts` and `scripts/test/parent-owned-sync-export-manifest-proof.mjs` establish the current manifest/connector/status contract boundary.
 
 ## Open Product Gaps
 
@@ -46,76 +97,21 @@ Route status: execution-grade architecture, UI docs, and test/proof inventory no
 
 Do not read adjacent plans or source trees until a workpack names the exact handoff.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear; do not use it as permission to scan a whole family.
+
 ## HID Execution Guard (added 2026-06-12)
 
 - Scope and completion source:
   - follow [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md) execution slices, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
   - do not mark this plan complete from checklist deltas alone.
+- Active proof-root route:
+  - use `output/data-custody-storage-plan-proof/<workpack-file-stem>/` plus the selected workpack's required artifacts from [PROOF_INDEX.md](PROOF_INDEX.md).
+  - legacy `docs/proof/data-custody-storage-plan/` references are stale for new proof and should be removed as touched rather than treated as current proof truth.
 - Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/data-custody-storage-plan/.
-- Required proof manifest names:
-  - docs/proof/data-custody-storage-plan/00-route-consistency-proof.md
-  - docs/proof/data-custody-storage-plan/00-no-overclaim-proof.md
-  - docs/proof/data-custody-storage-plan/01-data-classification-matrix-proof.md
-  - docs/proof/data-custody-storage-plan/01-source-of-truth-proof.md
-  - docs/proof/data-custody-storage-plan/01-no-default-ocentra-child-data-negative-proof.md
-  - docs/proof/data-custody-storage-plan/01-account-control-plane-separation-proof.md
-  - docs/proof/data-custody-storage-plan/02-key-custody-model-proof.md
-  - docs/proof/data-custody-storage-plan/02-platform-key-wrapper-matrix-proof.md
-  - docs/proof/data-custody-storage-plan/02-wrong-key-negative-proof.md
-  - docs/proof/data-custody-storage-plan/02-revoked-device-negative-proof.md
-  - docs/proof/data-custody-storage-plan/02-no-ocentra-universal-key-proof.md
-  - docs/proof/data-custody-storage-plan/03-provider-capability-matrix-proof.md
-  - docs/proof/data-custody-storage-plan/03-encrypted-before-upload-proof.md
-  - docs/proof/data-custody-storage-plan/03-provider-revoked-negative-proof.md
-  - docs/proof/data-custody-storage-plan/03-quota-conflict-corruption-proof.md
-  - docs/proof/data-custody-storage-plan/03-offline-retry-partial-outage-proof.md
-  - docs/proof/data-custody-storage-plan/03-tombstone-propagation-proof.md
-  - docs/proof/data-custody-storage-plan/03-no-ocentra-fallback-proof.md
-  - docs/proof/data-custody-storage-plan/04-retention-matrix-proof.md
-  - docs/proof/data-custody-storage-plan/04-delete-state-machine-proof.md
-  - docs/proof/data-custody-storage-plan/04-tombstone-idempotency-proof.md
-  - docs/proof/data-custody-storage-plan/04-offline-replay-protection-proof.md
-  - docs/proof/data-custody-storage-plan/04-report-export-ai-no-leak-proof.md
-  - docs/proof/data-custody-storage-plan/04-wrong-role-denied-proof.md
-  - docs/proof/data-custody-storage-plan/04-retention-expiry-boundary-proof.md
-  - docs/proof/data-custody-storage-plan/04-restore-cannot-resurrect-proof.md
-  - docs/proof/data-custody-storage-plan/05-export-bundle-contract-proof.md
-  - docs/proof/data-custody-storage-plan/05-encrypted-payload-proof.md
-  - docs/proof/data-custody-storage-plan/05-import-preview-non-mutating-proof.md
-  - docs/proof/data-custody-storage-plan/05-wrong-household-negative-proof.md
-  - docs/proof/data-custody-storage-plan/05-wrong-key-negative-proof.md
-  - docs/proof/data-custody-storage-plan/05-corrupt-bundle-negative-proof.md
-  - docs/proof/data-custody-storage-plan/05-tombstone-preserved-proof.md
-  - docs/proof/data-custody-storage-plan/05-restore-apply-idempotent-proof.md
-  - docs/proof/data-custody-storage-plan/05-partial-restore-proof.md
-  - docs/proof/data-custody-storage-plan/06-report-derived-source-matrix-proof.md
-  - docs/proof/data-custody-storage-plan/06-deleted-expired-no-leak-proof.md
-  - docs/proof/data-custody-storage-plan/06-query-cursor-pagination-proof.md
-  - docs/proof/data-custody-storage-plan/06-query-rate-limit-abuse-proof.md
-  - docs/proof/data-custody-storage-plan/06-notification-payload-allow-deny-proof.md
-  - docs/proof/data-custody-storage-plan/06-portal-cache-custody-proof.md
-  - docs/proof/data-custody-storage-plan/06-assistant-allowed-citation-proof.md
-  - docs/proof/data-custody-storage-plan/06-stale-conflict-state-proof.md
-  - docs/proof/data-custody-storage-plan/07-rollout-proof-pack.md
-  - docs/proof/data-custody-storage-plan/07-route-index-sync-proof.md
-  - docs/proof/data-custody-storage-plan/07-privacy-language-review-proof.md
-  - docs/proof/data-custody-storage-plan/07-manual-required-gap-register.md
-  - docs/proof/data-custody-storage-plan/08-parent-storage-choice-state-machine-proof.md
-  - docs/proof/data-custody-storage-plan/08-export-status-proof.md
-  - docs/proof/data-custody-storage-plan/08-import-preview-proof.md
-  - docs/proof/data-custody-storage-plan/08-apply-confirmation-proof.md
-  - docs/proof/data-custody-storage-plan/08-provider-disconnect-proof.md
-  - docs/proof/data-custody-storage-plan/08-provider-delete-proof.md
-  - docs/proof/data-custody-storage-plan/08-no-ocentra-fallback-proof.md
-  - docs/proof/data-custody-storage-plan/08-portal-cache-status-proof.md
-  - docs/proof/data-custody-storage-plan/transport-auth-replay-proof.md
-  - docs/proof/data-custody-storage-plan/event-idempotency-ordering-proof.md
-  - docs/proof/data-custody-storage-plan/event-sensitive-log-redaction-proof.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
+  - a real test run log or explicit blocker from the assigned implementation boundary,
+  - a proof artifact under the selected output proof root,
+  - negative cases, no-claim language, and manual-required notes where applicable.
+- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, deletion/tombstone, and rollback/teardown proofs are present or carried as exact blockers for the assigned slice.
 
 ## Execution Blueprint
 

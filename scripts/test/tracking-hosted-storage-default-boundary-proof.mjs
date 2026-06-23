@@ -44,7 +44,7 @@ const proof = {
   summary: summarize(proofModel.rows),
   productClaims: proofModel.productClaims,
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-hosted-storage-default-boundary-proof.ts',
+    source: 'packages/schema-domain/src/tracking-hosted-storage-default-boundary-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-hosted-storage-default-boundary-proof.test.ts',
     harness: 'scripts/test/tracking-hosted-storage-default-boundary-proof.mjs',
     evidence: 'test-results/tracking-hosted-storage-default-boundary-proof/proof.json',
@@ -66,7 +66,7 @@ console.log('tracking-hosted-storage-default-boundary-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-hosted-storage-default-boundary-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function summarize(rows) {

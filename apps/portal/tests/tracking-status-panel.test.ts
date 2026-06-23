@@ -5,9 +5,10 @@ import {
   AgentEventEnvelopeSchema,
   type AgentEventEnvelope,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { ActivityEventKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { TrackingStatusProofArtifacts } from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
 import {
   trackingFamilyDashboardHostedRollupProof,
@@ -16,12 +17,8 @@ import {
   trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/tracking-status-panel';
-import {
-  trackingEvidenceDrawerHostedUiProof,
-} from '@ocentra-parent/portal-domain/tracking-evidence-drawer-hosted-ui-proof';
-import {
-  trackingRetentionSettingsHostedUiProof,
-} from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
+import { trackingEvidenceDrawerHostedUiProof } from '@ocentra-parent/portal-domain/tracking-evidence-drawer-hosted-ui-proof';
+import { trackingRetentionSettingsHostedUiProof } from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
 import {
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,
@@ -32,7 +29,6 @@ import { trackingParentActionReadinessHostedUiProof } from '@ocentra-parent/port
 import { trackingReportExportHostedUiProof } from '@ocentra-parent/portal-domain/tracking-report-export-hosted-ui-proof';
 import { trackingReportPolicyConsumerHostedUiProof } from '@ocentra-parent/portal-domain/tracking-report-policy-consumer-hosted-ui-proof';
 import { resolveLiveActivityState } from '../src/live-activity-state';
-import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 
 const ExpectedTrackingStateTitles = [
   'Tracking off',
@@ -123,7 +119,7 @@ const TrackingReadModel = {
       deviceId: 'child-device-1',
       platform: 'android',
       observer: 'tracking-retention',
-      kind: 'activity.tracking.retention.deleted',
+      kind: ActivityEventKind.TrackingRetentionDeleted,
       subjectKind: 'location-evidence',
       subjectId: 'location-evidence-1',
       subjectDisplayName: null,
@@ -165,13 +161,13 @@ const ExpectedTrackingLiveSummary = {
       productClaim: 'No product claim',
     },
     {
-      title: 'activity.tracking.retention.deleted',
+      title: ActivityEventKind.TrackingRetentionDeleted,
       eventId: 'tracking-retention-delete-1',
       observedAt: '2026-06-03T07:26:00Z',
       device: 'child-device-1',
       platform: 'android',
       observer: 'tracking-retention',
-      activityKind: 'activity.tracking.retention.deleted',
+      activityKind: ActivityEventKind.TrackingRetentionDeleted,
       subject: 'location-evidence | location-evidence-1',
       status: 'tombstone | recent',
       evidenceReferences: 'location-evidence-1',
@@ -541,25 +537,21 @@ const ExpectedMissingDeviceRows = [
 
 const TrackingRetentionSettingsWriteResult = {
   schemaVersion: AgentProtocolSchemaVersion,
-  commandId: 'tracking-retention-settings-write-command',
-  settingsKind: 'retention-window-setting',
-  writeState: 'service-write-command-accepted',
+  commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
+  settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
+  writeState: AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
   acceptedAt: '2026-06-06T19:40:00.000Z',
-  sourceWriterIntentRefs: ['tracking-retention-settings-write-retention-window'],
-  sourceReadModelProofRefs: [
-    'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
-  ],
-  sourceMutationProofRefs: [
-    'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
-  ],
+  sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
+  sourceReadModelProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[0]],
+  sourceMutationProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef],
   appliedRetentionWindowHours: 168,
   appliedDeleteAfterAlertResolutionState: 'retain-after-alert-resolved',
   parentExportState: 'not-prepared',
   remoteSyncState: 'disabled',
   remoteAiState: 'disabled',
   localServiceStateRevision: 1,
-  localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
-  durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+  localServiceStateSnapshotRef: AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
+  durableSettingsStoreRef: AgentTrackingRetentionSettingsWriteDefaults.DurableSettingsStoreRef,
   durableSettingsPersistenceState: 'persisted',
   commandTransportClaimState: 'claimed',
   serviceWritePreflightClaimState: 'claimed',
@@ -586,11 +578,6 @@ describe('tracking status proof surface', () => {
     expect(rows.filter((row) => row.missingProof === 'Physical device proof required').map((row) => row.title)).toEqual(
       ['Permission required', 'Temporary live', 'Missing device']
     );
-  });
-
-  it('only attaches the proof surface to the live tracking product route', () => {
-    expect(shouldRenderTrackingStatusRoute(PortalRoute.PolicyTracking)).toBe(true);
-    expect(shouldRenderTrackingStatusRoute(PortalRoute.Overview)).toBe(false);
   });
 
   it('marks deleted location history as hidden without rendering deleted evidence ids', () => {
@@ -661,22 +648,20 @@ describe('tracking retention settings hosted proof surface', () => {
       localStateProofArtifact: TrackingStatusProofArtifacts.RetentionLocalServiceState,
       writePreflight: {
         title: 'Retention local service write result',
-        commandId: 'tracking-retention-settings-write-command',
-        settingsKind: 'retention-window-setting',
-        writeState: 'service-write-command-accepted',
+        commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
+        settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
+        writeState: AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
         acceptedAt: '2026-06-06T19:40:00.000Z',
-        sourceMutationProofRefs:
-          'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
-        sourceWriterIntentRefs: 'tracking-retention-settings-write-retention-window',
-        sourceReadModelProofRefs:
-          'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
+        sourceMutationProofRefs: AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef,
+        sourceWriterIntentRefs: AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef,
+        sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[0],
         appliedRetentionWindowHours: '168',
         appliedDeleteAfterAlertResolved: '1',
         parentExportPrepared: '0',
         remoteSyncEnabled: '0',
         remoteAiEnabled: '0',
         localServiceStateRevision: '1',
-        localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+        localServiceStateSnapshotRef: AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
         durableSettingsPersistedRows: '1',
         commandTransportClaimedRows: '1',
         serviceWritePreflightClaimedRows: '1',
@@ -949,7 +934,7 @@ function trackingRetentionSettingsWriteEvent(serializedResult: string): AgentEve
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: AgentProtocolSchemaVersion,
     eventId: 'tracking-retention-settings-write-result-event',
-    correlationId: 'tracking-retention-settings-write-command',
+    correlationId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
     sentAt: '2026-06-06T19:40:01Z',
     source: {
       peerId: 'agent-service',

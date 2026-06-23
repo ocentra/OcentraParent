@@ -26,7 +26,7 @@ function createBoundary() {
   } as const;
 }
 
-describe('policy schedule boundary contracts', () => {
+describe('policy schedule boundary contracts: DST and clock integrity', () => {
   it('parsePolicyScheduleBoundary: accepts fall-back overlap boundaries with an explicit occurrence choice', () => {
     const parsed = parsePolicyScheduleBoundary({
       ...createBoundary(),
@@ -73,7 +73,9 @@ describe('policy schedule boundary contracts', () => {
       })
     ).toThrow('clock-skew boundaries require skew beyond the allowed tolerance');
   });
+});
 
+describe('policy schedule boundary contracts: exceptions and budget parsing', () => {
   it('parsePolicyScheduleBoundary: accepts active exception windows only while they are still live', () => {
     const parsed = parsePolicyScheduleBoundary({
       ...createBoundary(),
@@ -134,7 +136,9 @@ describe('policy schedule boundary contracts', () => {
     expect(parsed.timeBudget?.bonusTimeMinutes).toBe(15);
     expect(parsed.timeBudget?.bonusTimeRemainingMinutes).toBe(8);
   });
+});
 
+describe('policy schedule boundary contracts: budget rejection rules', () => {
   it('parsePolicyScheduleBoundary: rejects active bonus time without an explicit expiry timestamp', () => {
     expect(() =>
       parsePolicyScheduleBoundary({
@@ -212,7 +216,9 @@ describe('policy schedule boundary contracts', () => {
       })
     ).toThrow('offline recovery state not-needed cannot include recoveredAt');
   });
+});
 
+describe('policy schedule boundary contracts: preview budget resolution', () => {
   it('resolvePolicyPreviewBudgetBoundaryState: marks active bonus time with shrinking minutes as expiring', () => {
     const boundary = parsePolicyScheduleBoundary({
       ...createBoundary(),
@@ -236,9 +242,7 @@ describe('policy schedule boundary contracts', () => {
       },
     });
 
-    expect(resolvePolicyPreviewBudgetBoundaryState(boundary)).toBe(
-      PolicyPreviewBudgetBoundaryState.BonusTimeExpiring
-    );
+    expect(resolvePolicyPreviewBudgetBoundaryState(boundary)).toBe(PolicyPreviewBudgetBoundaryState.BonusTimeExpiring);
   });
 
   it('resolvePolicyPreviewBudgetBoundaryState: marks manual clock-source preview boundaries as manual-required', () => {

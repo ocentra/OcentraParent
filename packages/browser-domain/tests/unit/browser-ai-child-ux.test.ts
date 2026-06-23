@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiChildUxSnapshotSchema, BrowserAiChildUxSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-child-ux-schemas';
+import {
+  BrowserAiChildUxSnapshotSchema,
+  BrowserAiChildUxSchemaVersion,
+} from '@ocentra-parent/schema-domain/browser-ai-child-ux-schemas';
 import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-policy-evaluator-schemas';
 import { BrowserAiPostAnalysisActionSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-post-analysis-action-schemas';
 

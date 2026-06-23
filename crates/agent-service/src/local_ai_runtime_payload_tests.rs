@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::{
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,

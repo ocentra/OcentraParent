@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import { BaselineScreenControlCatalog, screenControlCatalogSettings } from './screen-control-catalog';
 import {
@@ -145,4 +140,3 @@ function settingBySourceText(settings: readonly ScreenControlCatalogSetting[], s
   }
   return setting;
 }
-

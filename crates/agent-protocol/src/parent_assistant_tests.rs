@@ -20,9 +20,9 @@ use super::{
 #[test]
 fn parent_assistant_command_and_event_names_match_typescript_contracts() {
     let command = serde_json::to_value(AgentCommandName::AgentParentAssistantAnswerGenerate)
-        .expect("command serializes");
+        .unwrap_or_else(|error| unreachable!("command serializes: {error:?}"));
     let event = serde_json::to_value(AgentEventName::AgentParentAssistantAnswerReported)
-        .expect("event serializes");
+        .unwrap_or_else(|error| unreachable!("event serializes: {error:?}"));
 
     assert_eq!(command, "agent.parent-assistant.answer.generate");
     assert_eq!(event, "agent.parent-assistant.answer.reported");
@@ -31,7 +31,8 @@ fn parent_assistant_command_and_event_names_match_typescript_contracts() {
 #[test]
 fn parent_assistant_request_serializes_cited_evidence_context() {
     let request = sample_request();
-    let serialized = serde_json::to_value(&request).expect("request serializes");
+    let serialized = serde_json::to_value(&request)
+        .unwrap_or_else(|error| unreachable!("request serializes: {error:?}"));
 
     assert_eq!(serialized["schemaVersion"], "v0.6");
     assert_eq!(serialized["question"], "Why did app use increase today?");
@@ -76,7 +77,8 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
         provider_route: sample_provider_route(ParentAssistantProviderState::Configured),
         prompt_version: "parent-assistant-local-v1".to_string(),
     };
-    let serialized = serde_json::to_value(&answer).expect("answer serializes");
+    let serialized = serde_json::to_value(&answer)
+        .unwrap_or_else(|error| unreachable!("answer serializes: {error:?}"));
 
     assert_eq!(serialized["answerState"], "answered");
     assert_eq!(serialized["runState"], "completed");
@@ -124,7 +126,8 @@ fn parent_assistant_action_preview_result_serializes_draft_without_enforcement()
         policy_written: false,
         reason: "action preview draft requires confirmation".to_string(),
     };
-    let serialized = serde_json::to_value(&result).expect("preview result serializes");
+    let serialized = serde_json::to_value(&result)
+        .unwrap_or_else(|error| unreachable!("preview result serializes: {error:?}"));
 
     assert_eq!(serialized["previewState"], "draft");
     assert_eq!(serialized["preview"]["enforcementApplied"], false);
@@ -179,7 +182,8 @@ fn parent_assistant_unavailable_answer_serializes_typed_provider_state() {
         provider_route: sample_provider_route(ParentAssistantProviderState::Unavailable),
         prompt_version: "parent-assistant-local-v1".to_string(),
     };
-    let serialized = serde_json::to_value(&answer).expect("answer serializes");
+    let serialized = serde_json::to_value(&answer)
+        .unwrap_or_else(|error| unreachable!("answer serializes: {error:?}"));
 
     assert_eq!(serialized["providerState"], "unavailable");
     assert_eq!(
@@ -192,7 +196,8 @@ fn parent_assistant_unavailable_answer_serializes_typed_provider_state() {
 #[test]
 fn parent_assistant_api_provider_boundary_serializes_parent_authorization_and_custody() {
     let boundary = sample_api_provider_boundary();
-    let serialized = serde_json::to_value(&boundary).expect("boundary serializes");
+    let serialized = serde_json::to_value(&boundary)
+        .unwrap_or_else(|error| unreachable!("boundary serializes: {error:?}"));
 
     assert_eq!(serialized["authorizationState"], "not-authorized");
     assert_eq!(serialized["accessState"], "not-authorized");
@@ -224,7 +229,8 @@ fn parent_assistant_thread_response_serializes_durable_local_state() {
         threads: vec![sample_thread(ParentAssistantThreadState::Open)],
         reason: Some("durable local thread state".to_string()),
     };
-    let serialized = serde_json::to_value(&response).expect("thread response serializes");
+    let serialized = serde_json::to_value(&response)
+        .unwrap_or_else(|error| unreachable!("thread response serializes: {error:?}"));
 
     assert_eq!(serialized["backendState"], "durable-local");
     assert_eq!(serialized["activeThread"]["state"], "open");
@@ -248,7 +254,8 @@ fn parent_assistant_provider_status_serializes_scheduler_and_api_boundaries() {
         api_provider_boundary: sample_api_provider_boundary(),
         provider_route: sample_provider_route(ParentAssistantProviderState::Unavailable),
     };
-    let serialized = serde_json::to_value(&status).expect("provider status serializes");
+    let serialized = serde_json::to_value(&status)
+        .unwrap_or_else(|error| unreachable!("provider status serializes: {error:?}"));
 
     assert_eq!(serialized["backendState"], "runtime-backed");
     assert_eq!(serialized["schedulerJobStatus"], "unavailable");
@@ -302,8 +309,10 @@ fn parent_assistant_cancel_and_confirm_results_do_not_claim_enforcement() {
         policy_written: false,
         reason: "controller lease and child-agent policy contract are required".to_string(),
     };
-    let cancel_json = serde_json::to_value(&cancel).expect("cancel result serializes");
-    let confirm_json = serde_json::to_value(&confirm).expect("confirm result serializes");
+    let cancel_json = serde_json::to_value(&cancel)
+        .unwrap_or_else(|error| unreachable!("cancel result serializes: {error:?}"));
+    let confirm_json = serde_json::to_value(&confirm)
+        .unwrap_or_else(|error| unreachable!("confirm result serializes: {error:?}"));
 
     assert_eq!(cancel_json["cancelState"], "not-running");
     assert_eq!(confirm_json["confirmState"], "contract-required");
@@ -433,7 +442,7 @@ fn sample_action_preview(enforcement_applied: bool) -> ParentAssistantActionPrev
         summary: Some("Preview a shorter evening game window.".to_string()),
         action_reference: Some(ParentActionReference {
             action_reference_id: "action-preview-1".to_string(),
-            actor: sample_actor().into(),
+            actor: sample_actor(),
             policy_version: "policy-v1".to_string(),
             created_at: "2026-05-27T06:31:02Z".to_string(),
         }),

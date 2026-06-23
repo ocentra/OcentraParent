@@ -1,15 +1,18 @@
 use std::{env, fs, path::PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND_ENV,
-    SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS_ENV,
-    SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
-    SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN, SCREEN_SERVICE_ANALYSIS_DEFAULT_POLL_SECONDS,
-    SCREEN_SERVICE_ANALYSIS_ENABLED_ENV, SCREEN_SERVICE_ANALYSIS_MAX_JOBS_ENV,
-    SCREEN_SERVICE_ANALYSIS_MAX_TICKS_ENV, SCREEN_SERVICE_ANALYSIS_POLL_SECONDS_ENV,
-    SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV, SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME,
-    SCREEN_SERVICE_QUEUE_DIR_ENV,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_DEFAULT_POLL_SECONDS;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_ENABLED_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MAX_JOBS_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MAX_TICKS_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_POLL_SECONDS_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_QUEUE_DIR_ENV;
 use serde_json::Value;
 
 use crate::{
@@ -205,30 +208,30 @@ impl ScreenAiAnalysisCycleClock {
     }
 }
 
-fn env_flag(name: &str, default_value: bool) -> bool {
-    env::var(name)
+fn env_flag(env_var_name: &str, default_value: bool) -> bool {
+    env::var(env_var_name)
         .ok()
         .map(|value| value == constants::value::TRUE)
         .unwrap_or(default_value)
 }
 
-fn env_u64(name: &str, default_value: u64) -> u64 {
-    env::var(name)
+fn env_u64(env_var_name: &str, default_value: u64) -> u64 {
+    env::var(env_var_name)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
         .unwrap_or(default_value)
 }
 
-fn env_optional_u64(name: &str) -> Option<u64> {
-    env::var(name)
+fn env_optional_u64(env_var_name: &str) -> Option<u64> {
+    env::var(env_var_name)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
 }
 
-fn env_path(name: &str) -> Option<PathBuf> {
-    env::var(name)
+fn env_path(env_var_name: &str) -> Option<PathBuf> {
+    env::var(env_var_name)
         .ok()
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)

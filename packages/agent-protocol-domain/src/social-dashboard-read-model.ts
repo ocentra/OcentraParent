@@ -2,7 +2,12 @@ import {
   SocialDashboardUxSnapshotSchema,
   type SocialDashboardUxSnapshot,
 } from '@ocentra-parent/schema-domain/social-dashboard-ux';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type AgentSocialDashboardReadModelFailureReason =
   | 'wrong-event'

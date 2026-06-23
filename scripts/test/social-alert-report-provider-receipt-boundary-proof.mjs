@@ -28,7 +28,9 @@ async function main() {
   ]);
 
   const source = await readText('packages/schema-domain/src/social-alert-report-provider-receipt-boundary-proof.ts');
-  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-provider-dispatch-execution.test.ts');
+  const test = await readText(
+    'packages/browser-domain/tests/unit/social-alert-report-provider-dispatch-execution.test.ts'
+  );
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/README.md');
   const checklist = await readText('docs/plans/browser-plan/implementation-checklist.md');
   const preflightModule = await importDist('social-alert-report-provider-preflight-proof.js');

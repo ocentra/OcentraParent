@@ -1,5 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanPairingAuthenticationState, LanPairingDeviceReachability, LanPairingNetworkMode,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingAuthenticationState, LanPairingDeviceReachability, LanPairingNetworkMode,
     LanPairingRejectionReason, LanPairingTrustState, LanSelectedRouteTarget,
     LanTrustedDeviceRegistryEntry,
 };

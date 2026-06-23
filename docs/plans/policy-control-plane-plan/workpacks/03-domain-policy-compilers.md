@@ -6,6 +6,14 @@ Owns: domain compiler inputs and outputs, target coverage, unsupported/manualReq
 
 Handoff: domain plans own runtime effects. This workpack defines the policy compiler contract matrix only.
 
+## Ownership boundary
+
+```text
+policy-control-plane-plan owns compiler contract matrix, versioning, deterministic output, unsupported/manual-required state, rollback refs, and no-claim boundaries.
+domain plans own app/game, browser, network, tracking, screen, AI, notification, and enforcement runtime effects.
+enforcement-control plan owns action authority and execution.
+```
+
 ## Required compiler outputs
 
 ```text
@@ -21,6 +29,30 @@ rollback/supersede ref
 audit refs
 no-claim flags
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+source_policy_version
+domain_target
+compiler_output_version
+supported_capability_state
+manual_required_state
+schedule_metadata_state
+evidence_custody_requirement_state
+delivery_target_state
+rollback_ref_state
+audit_ref_state
+version_compat_state
+deterministic_output_state
+runtime_mutation_state
+source_truth_boundary_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required domain coverage
 
@@ -88,4 +120,4 @@ docs/proof/policy-control-plane-plan/03-deterministic-output-proof.md
 
 ## Failure
 
-Do not let parent policy directly manipulate domain runtime state without a compiler and audit boundary.
+Do not let parent policy directly manipulate domain runtime state without a compiler and audit boundary. Do not claim domain runtime effects from compiler proof.

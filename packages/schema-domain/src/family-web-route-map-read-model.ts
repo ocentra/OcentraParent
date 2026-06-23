@@ -47,11 +47,7 @@ export const FamilyWebRouteMapReadModel = FamilyWebRouteMapSchema.parse({
       'family-web-register-login-handoff-only',
       'account-identity-family-plan-handoff'
     ),
-    collectionPolicy(
-      'forbidden-child-data',
-      'family-web-child-data-never-collected',
-      'data-custody-expectation'
-    ),
+    collectionPolicy('forbidden-child-data', 'family-web-child-data-never-collected', 'data-custody-expectation'),
   ],
   deployment: {
     schemaVersion: 'family-web-route-map-proof',
@@ -86,10 +82,7 @@ export const FamilyWebRouteMapKnownGaps = [
   'Anonymous operational telemetry stays disabled by default until a separate disclosed data-custody slice proves it.',
 ] as const;
 
-function page(
-  pageName: FamilyWebPage,
-  sourceProof: FamilyWebPageRoute['sourceProof']
-): FamilyWebPageRoute {
+function page(pageName: FamilyWebPage, sourceProof: FamilyWebPageRoute['sourceProof']): FamilyWebPageRoute {
   return {
     schemaVersion: 'family-web-route-map-proof',
     page: pageName,

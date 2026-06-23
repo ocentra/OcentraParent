@@ -3,11 +3,12 @@ use crate::{
     parse_http_host, parse_tls_client_hello_sni, quic_initial_payload_fixture,
     tls_client_hello_no_sni_fixture, tls_client_hello_sni_fixture, EncryptedDnsProtocol,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn tls_parser_extracts_visible_sni_without_content_claims() {
     let visibility = parse_tls_client_hello_sni(&tls_client_hello_sni_fixture())
-        .expect("client hello should parse");
+        .expect_value("client hello should parse");
 
     assert_eq!(visibility.sni, Some("video.example.test".to_owned()));
     assert!(!visibility.exact_url_available);
@@ -17,7 +18,7 @@ fn tls_parser_extracts_visible_sni_without_content_claims() {
 #[test]
 fn tls_parser_keeps_hidden_sni_as_no_claim() {
     let visibility = parse_tls_client_hello_sni(&tls_client_hello_no_sni_fixture())
-        .expect("client hello without sni should parse");
+        .expect_value("client hello without sni should parse");
 
     assert_eq!(visibility.sni, None);
     assert!(!visibility.exact_url_available);
@@ -27,8 +28,8 @@ fn tls_parser_keeps_hidden_sni_as_no_claim() {
 #[test]
 fn http_host_parser_extracts_plain_host_without_exact_url_claim() {
     let observation = parse_http_host(&http_host_request_fixture())
-        .expect("http payload should parse")
-        .expect("host should be visible");
+        .expect_value("http payload should parse")
+        .expect_value("host should be visible");
 
     assert_eq!(observation.host, "video.example.test");
     assert!(!observation.exact_url_available);
@@ -37,8 +38,8 @@ fn http_host_parser_extracts_plain_host_without_exact_url_claim() {
 
 #[test]
 fn http_host_parser_does_not_claim_https_payload() {
-    let observation =
-        parse_http_host(&tls_client_hello_sni_fixture()).expect("non-http payload is no claim");
+    let observation = parse_http_host(&tls_client_hello_sni_fixture())
+        .expect_value("non-http payload is no claim");
 
     assert_eq!(observation, None);
 }
@@ -55,7 +56,7 @@ fn quic_limitation_detector_marks_domain_visibility_unavailable() {
 #[test]
 fn encrypted_dns_detector_flags_dot_without_visited_domain_claim() {
     let candidate = detect_encrypted_dns_candidate(853, Some("dns.quad9.net"))
-        .expect("dot port should be a candidate");
+        .expect_value("dot port should be a candidate");
 
     assert_eq!(candidate.protocol, EncryptedDnsProtocol::DnsOverTls);
     assert_eq!(candidate.resolver_host, Some("dns.quad9.net".to_owned()));
@@ -66,7 +67,7 @@ fn encrypted_dns_detector_flags_dot_without_visited_domain_claim() {
 #[test]
 fn encrypted_dns_detector_flags_doh_resolver_without_visited_domain_claim() {
     let candidate = detect_encrypted_dns_candidate(443, Some("DNS.Google"))
-        .expect("known doh resolver should be a candidate");
+        .expect_value("known doh resolver should be a candidate");
 
     assert_eq!(candidate.protocol, EncryptedDnsProtocol::DnsOverHttps);
     assert_eq!(candidate.resolver_host, Some("dns.google".to_owned()));

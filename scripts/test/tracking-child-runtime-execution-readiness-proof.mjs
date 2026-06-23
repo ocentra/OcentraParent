@@ -33,7 +33,9 @@ async function main() {
     'tests/contract/tracking-child-runtime-delivery-boundary-proof.test.ts',
   ]);
 
-  const readinessProof = await importSource('packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts');
+  const readinessProof = await importSource(
+    'packages/schema-domain/src/tracking-child-runtime-execution-readiness-proof.ts'
+  );
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
   const sourceBoundaryProof = JSON.parse(await readFile(sourceBoundaryProofPath, 'utf8'));
@@ -42,8 +44,8 @@ async function main() {
       generatedAt: '2026-06-07T14:45:00.000Z',
       readinessId: 'tracking-child-runtime-execution-readiness-proof',
       sourceContractRefs: [
-        'packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
-        'packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
+        'packages/schema-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
+        'packages/schema-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
         'docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md',
       ],
     },
@@ -158,7 +160,7 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- status: proved',
     '- consumes: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/26-child-runtime-delivery-boundary-proof.json',
     '- proves delivery-envelope, execution-result, visible-snapshot, parent-receipt, and runtime-observation requirement refs',
-    '- proof module: packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-execution-readiness-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-execution-readiness-proof.mjs',
     '',

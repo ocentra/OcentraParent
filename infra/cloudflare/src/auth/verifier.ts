@@ -1,24 +1,22 @@
-import type { Env } from "../env.js";
-import type { AuthState } from "../routes.js";
+import type { Env } from '../env.js';
+import type { AuthState } from '../routes.js';
 
 export interface VerifiedIdentity {
   subject: string;
   state: AuthState;
-  role: "public" | "parent" | "support" | "admin" | "internal" | "provider-webhook";
+  role: 'public' | 'parent' | 'support' | 'admin' | 'internal' | 'provider-webhook';
   trustedDevice: boolean;
 }
 
-export type AuthResult =
-  | { ok: true; identity: VerifiedIdentity }
-  | { ok: false; response: Response };
+export type AuthResult = { ok: true; identity: VerifiedIdentity } | { ok: false; response: Response };
 
-export const INTERNAL_SECRET_HEADER = "x-ocentra-internal-secret";
+export const INTERNAL_SECRET_HEADER = 'x-ocentra-internal-secret';
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body, null, 2), {
     status,
     headers: {
-      "content-type": "application/json; charset=utf-8",
+      'content-type': 'application/json; charset=utf-8',
     },
   });
 }
@@ -27,7 +25,7 @@ function missingHeader(headerName: string, state: AuthState): AuthResult {
   return {
     ok: false,
     response: json(401, {
-      error: "authentication-required",
+      error: 'authentication-required',
       authState: state,
       missingHeader: headerName,
     }),
@@ -38,7 +36,7 @@ function forbidden(reason: string, state: AuthState): AuthResult {
   return {
     ok: false,
     response: json(403, {
-      error: "forbidden",
+      error: 'forbidden',
       authState: state,
       reason,
     }),
@@ -46,19 +44,19 @@ function forbidden(reason: string, state: AuthState): AuthResult {
 }
 
 export function signatureHeaderName(pathname: string): string {
-  if (pathname.endsWith("/stripe")) {
-    return "stripe-signature";
+  if (pathname.endsWith('/stripe')) {
+    return 'stripe-signature';
   }
-  if (pathname.endsWith("/paypal")) {
-    return "paypal-transmission-id";
+  if (pathname.endsWith('/paypal')) {
+    return 'paypal-transmission-id';
   }
-  if (pathname.endsWith("/razorpay")) {
-    return "x-razorpay-signature";
+  if (pathname.endsWith('/razorpay')) {
+    return 'x-razorpay-signature';
   }
-  if (pathname.endsWith("/apple")) {
-    return "authorization";
+  if (pathname.endsWith('/apple')) {
+    return 'authorization';
   }
-  return "x-goog-signature";
+  return 'x-goog-signature';
 }
 
 function parseBearerToken(headerValue: string | null): string | null {
@@ -66,22 +64,22 @@ function parseBearerToken(headerValue: string | null): string | null {
     return null;
   }
   const [scheme, value] = headerValue.split(/\s+/, 2);
-  if (scheme?.toLowerCase() !== "bearer" || !value) {
+  if (scheme?.toLowerCase() !== 'bearer' || !value) {
     return null;
   }
   return value.trim();
 }
 
 function normalizeSubject(token: string): string {
-  const sanitized = token.replace(/[^A-Za-z0-9:_-]/g, "-").slice(0, 64);
+  const sanitized = token.replace(/[^A-Za-z0-9:_-]/g, '-').slice(0, 64);
   if (sanitized.length === 0) {
-    return "parent:unknown";
+    return 'parent:unknown';
   }
   if (
-    sanitized.startsWith("parent:") ||
-    sanitized.startsWith("guardian:") ||
-    sanitized.startsWith("child:") ||
-    sanitized.startsWith("member:")
+    sanitized.startsWith('parent:') ||
+    sanitized.startsWith('guardian:') ||
+    sanitized.startsWith('child:') ||
+    sanitized.startsWith('member:')
   ) {
     return sanitized;
   }
@@ -92,10 +90,10 @@ function parseStripeSignatureHeader(signatureHeader: string): {
   timestamp: string;
   signatures: ReadonlyArray<string>;
 } | null {
-  const parts = signatureHeader.split(",").map((entry) => entry.trim());
-  const timestamp = parts.find((entry) => entry.startsWith("t="))?.slice(2);
+  const parts = signatureHeader.split(',').map((entry) => entry.trim());
+  const timestamp = parts.find((entry) => entry.startsWith('t='))?.slice(2);
   const signatures = parts
-    .filter((entry) => entry.startsWith("v1="))
+    .filter((entry) => entry.startsWith('v1='))
     .map((entry) => entry.slice(3))
     .filter((entry) => /^[a-f0-9]{64}$/i.test(entry));
 
@@ -121,14 +119,14 @@ function safeEqualHex(left: string, right: string): boolean {
 }
 
 function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
 }
 
 export function hasWebhookSignatureSyntax(pathname: string, signatureValue: string | null): boolean {
   if (!signatureValue || signatureValue.trim().length === 0) {
     return false;
   }
-  if (pathname.endsWith("/stripe")) {
+  if (pathname.endsWith('/stripe')) {
     return parseStripeSignatureHeader(signatureValue) !== null;
   }
   return true;
@@ -137,7 +135,7 @@ export function hasWebhookSignatureSyntax(pathname: string, signatureValue: stri
 export async function verifyStripeWebhookSignature(
   payload: string,
   signatureHeader: string,
-  secret: string,
+  secret: string
 ): Promise<boolean> {
   const parsed = parseStripeSignatureHeader(signatureHeader);
   if (!parsed) {
@@ -145,118 +143,110 @@ export async function verifyStripeWebhookSignature(
   }
 
   const key = await crypto.subtle.importKey(
-    "raw",
+    'raw',
     new TextEncoder().encode(secret),
     {
-      name: "HMAC",
-      hash: "SHA-256",
+      name: 'HMAC',
+      hash: 'SHA-256',
     },
     false,
-    ["sign"],
+    ['sign']
   );
-  const signed = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(`${parsed.timestamp}.${payload}`),
-  );
+  const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${parsed.timestamp}.${payload}`));
   const actualSignature = bytesToHex(new Uint8Array(signed));
   return parsed.signatures.some((expected) => safeEqualHex(expected, actualSignature));
 }
 
-export async function verifyAuthState(
-  authState: AuthState,
-  request: Request,
-  env: Env,
-): Promise<AuthResult> {
-  if (authState === "public") {
+export async function verifyAuthState(authState: AuthState, request: Request, env: Env): Promise<AuthResult> {
+  if (authState === 'public') {
     return {
       ok: true,
       identity: {
-        subject: "public",
+        subject: 'public',
         state: authState,
-        role: "public",
+        role: 'public',
         trustedDevice: false,
       },
     };
   }
 
-  if (authState === "internal-queue-only") {
-    if (request.headers.get("x-ocentra-internal-call") !== "true") {
-      return forbidden("missing-internal-queue-signal", authState);
+  if (authState === 'internal-queue-only') {
+    if (request.headers.get('x-ocentra-internal-call') !== 'true') {
+      return forbidden('missing-internal-queue-signal', authState);
     }
     if (
       env.INTERNAL_QUEUE_SHARED_SECRET &&
       request.headers.get(INTERNAL_SECRET_HEADER) !== env.INTERNAL_QUEUE_SHARED_SECRET
     ) {
-      return forbidden("internal-queue-secret-mismatch", authState);
+      return forbidden('internal-queue-secret-mismatch', authState);
     }
     return {
       ok: true,
       identity: {
-        subject: "internal-queue",
+        subject: 'internal-queue',
         state: authState,
-        role: "internal",
+        role: 'internal',
         trustedDevice: false,
       },
     };
   }
 
-  if (authState === "provider-webhook-signature-required") {
+  if (authState === 'provider-webhook-signature-required') {
     const headerName = signatureHeaderName(new URL(request.url).pathname);
     const headerValue = request.headers.get(headerName);
     if (!headerValue) {
       return missingHeader(headerName, authState);
     }
     if (!hasWebhookSignatureSyntax(new URL(request.url).pathname, headerValue)) {
-      return forbidden("invalid-provider-webhook-signature-header", authState);
+      return forbidden('invalid-provider-webhook-signature-header', authState);
     }
     return {
       ok: true,
       identity: {
-        subject: "provider-webhook",
+        subject: 'provider-webhook',
         state: authState,
-        role: "provider-webhook",
+        role: 'provider-webhook',
         trustedDevice: false,
       },
     };
   }
 
-  const token = parseBearerToken(request.headers.get("authorization"));
+  const token = parseBearerToken(request.headers.get('authorization'));
   if (!token) {
-    return missingHeader("authorization", authState);
+    return missingHeader('authorization', authState);
   }
 
-  const trustedDevice = request.headers.get("x-ocentra-trusted-device") === "true";
-  if (authState === "trusted-parent-device-required" && !trustedDevice) {
-    return forbidden("trusted-parent-device-required", authState);
+  const trustedDevice = request.headers.get('x-ocentra-trusted-device') === 'true';
+  if (authState === 'trusted-parent-device-required' && !trustedDevice) {
+    return forbidden('trusted-parent-device-required', authState);
   }
 
-  if (authState === "admin-required") {
-    if (request.headers.get("x-ocentra-role") !== "admin") {
-      return forbidden("admin-role-required", authState);
+  if (authState === 'admin-required') {
+    if (request.headers.get('x-ocentra-role') !== 'admin') {
+      return forbidden('admin-role-required', authState);
     }
     return {
       ok: true,
       identity: {
         subject: normalizeSubject(token),
         state: authState,
-        role: "admin",
+        role: 'admin',
         trustedDevice,
       },
     };
   }
 
-  if (authState === "support-required") {
-    const roleHeader = request.headers.get("x-ocentra-role");
-    if (roleHeader !== "support" && roleHeader !== "admin") {
-      return forbidden("support-role-required", authState);
+  if (authState === 'support-required') {
+    const roleHeader = request.headers.get('x-ocentra-role');
+    if (roleHeader !== 'support' && roleHeader !== 'admin') {
+      return forbidden('support-role-required', authState);
     }
     return {
       ok: true,
       identity: {
         subject: normalizeSubject(token),
         state: authState,
-        role: roleHeader === "admin" ? "admin" : "support",
+        role: roleHeader === 'admin' ? 'admin' : 'support',
         trustedDevice,
       },
     };
@@ -267,7 +257,7 @@ export async function verifyAuthState(
     identity: {
       subject: normalizeSubject(token),
       state: authState,
-      role: "parent",
+      role: 'parent',
       trustedDevice,
     },
   };

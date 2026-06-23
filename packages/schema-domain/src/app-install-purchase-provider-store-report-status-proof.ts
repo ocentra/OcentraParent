@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovalReportDomainProofReadModel } from './app-install-purchase-approval-report-domain-proof';
 import { AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel } from './app-install-purchase-provider-store-execution-readiness-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -70,9 +65,15 @@ const AppInstallPurchaseProviderStoreReportStatusNonClaimSchema = withParser(
   Schema.Literal(...ProviderStoreReportStatusNonClaims)
 );
 
-const ProviderStoreReportStatusRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRowId');
-const ProviderStoreReportStatusRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRef');
-const ProviderStoreReportStatusBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusBoundary');
+const ProviderStoreReportStatusRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreReportStatusRowId'
+);
+const ProviderStoreReportStatusRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreReportStatusRef'
+);
+const ProviderStoreReportStatusBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreReportStatusBoundary'
+);
 
 const ProviderStoreReportStatusRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreReportStatusProofSchemaVersionSchema,
@@ -285,4 +286,3 @@ function providerStoreReportStatusProofIsHonest(proof: AppInstallPurchaseProvide
     proof.knownGaps.length > 0
   );
 }
-

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -15,11 +10,21 @@ import {
   enforcementProofRequiredValuesAreCovered,
 } from '@ocentra-parent/schema-domain/enforcement-proof-shape';
 
-export const V08IntegrityAlertStatusBridgeReadModelIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeReadModelId');
-export const V08IntegrityAlertStatusBridgeEntryIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeEntryId');
-export const V08IntegrityAlertStatusBridgeReferenceSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeReference');
-export const V08IntegrityAlertStatusBridgeRequirementSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeRequirement');
-export const V08IntegrityAlertStatusBridgeBoundarySchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeBoundary');
+export const V08IntegrityAlertStatusBridgeReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08IntegrityAlertStatusBridgeReadModelId'
+);
+export const V08IntegrityAlertStatusBridgeEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08IntegrityAlertStatusBridgeEntryId'
+);
+export const V08IntegrityAlertStatusBridgeReferenceSchema = brandedNonEmptyStringSchema(
+  'V08IntegrityAlertStatusBridgeReference'
+);
+export const V08IntegrityAlertStatusBridgeRequirementSchema = brandedNonEmptyStringSchema(
+  'V08IntegrityAlertStatusBridgeRequirement'
+);
+export const V08IntegrityAlertStatusBridgeBoundarySchema = brandedNonEmptyStringSchema(
+  'V08IntegrityAlertStatusBridgeBoundary'
+);
 
 export const V08IntegrityAlertStateSchema = withParser(
   Schema.Literal('permission-loss', 'stale-heartbeat', 'stopped-or-removed', 'tamper-manual-required')
@@ -294,4 +299,3 @@ export const decodeV08IntegrityAlertStatusBridgeEntry = Schema.decodeUnknownSync
 export const decodeV08IntegrityAlertStatusBridgeReadModel = Schema.decodeUnknownSync(
   V08IntegrityAlertStatusBridgeReadModelSchema
 );
-

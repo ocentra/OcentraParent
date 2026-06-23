@@ -3,11 +3,8 @@ import {
   AppGameTimerParentPreferenceSetupRequestResultSchema,
   AppGameTimerParentPreferenceSetupRequestSchema,
 } from '@ocentra-parent/schema-domain/app-game-timer-parent-preference-setup-request';
-import {
-  AgentEvent,
-  AgentProtocolDefaults,
-  type AgentEventEnvelope,
-} from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { parseAgentAppGameTimerParentPreferenceSetupRequestEvent } from '../../src/app-game-timer-parent-preference-setup-request';
 
 it('AppGameTimerParentPreferenceSetupRequestSchema: accepts parent-safe request references', () => {

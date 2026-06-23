@@ -1,8 +1,8 @@
 use std::{path::Path, process::Stdio, time::Duration};
 
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiChatGenerationResult, LocalAiGenerationState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
 use tokio::{process::Command, time::Instant};
 
 use crate::{
@@ -22,14 +22,14 @@ pub(crate) async fn run_local_ai_chat_generation(
     config: &LocalAiRuntimeConfigSnapshot,
 ) -> LocalAiChatGenerationResult {
     if let Some(reason) = requested_model_unavailable_reason(config, &request.model_id) {
-        return unavailable_result(message_id, config, request, reason);
+        return unavailable_result(message_id, config, &request, reason);
     }
 
     if !local_ai_runtime_is_executable(config) {
         return unavailable_result(
             message_id,
             config,
-            request,
+            &request,
             constants::local_ai_runtime::UNAVAILABLE_REASON_EXECUTION_DISABLED,
         );
     }
@@ -38,7 +38,7 @@ pub(crate) async fn run_local_ai_chat_generation(
         return unavailable_result(
             message_id,
             config,
-            request,
+            &request,
             constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_MISSING,
         );
     };
@@ -46,7 +46,7 @@ pub(crate) async fn run_local_ai_chat_generation(
         return unavailable_result(
             message_id,
             config,
-            request,
+            &request,
             constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_FILE_MISSING,
         );
     };
@@ -65,7 +65,7 @@ pub(crate) fn unavailable_result_for_command(
         max_output_tokens: config.generation_max_tokens(),
         timeout_ms: config.generation_timeout_ms(),
     };
-    unavailable_result(message_id, config, request, reason)
+    unavailable_result(message_id, config, &request, reason)
 }
 
 async fn execute_llama_cli(
@@ -100,7 +100,7 @@ async fn execute_llama_cli(
                 return failed_result(
                     message_id,
                     config,
-                    request,
+                    &request,
                     LocalAiFailedGeneration {
                         duration_ms: elapsed_ms(started_at),
                         exit_code: None,
@@ -115,7 +115,7 @@ async fn execute_llama_cli(
                 return failed_result(
                     message_id,
                     config,
-                    request,
+                    &request,
                     LocalAiFailedGeneration {
                         duration_ms: elapsed_ms(started_at),
                         exit_code: None,
@@ -128,15 +128,15 @@ async fn execute_llama_cli(
             }
         };
 
-    complete_or_failed_result(message_id, request, config, started_at, output)
+    complete_or_failed_result(message_id, &request, config, started_at, &output)
 }
 
 fn complete_or_failed_result(
     message_id: &str,
-    request: LocalAiChatGenerationRequest,
+    request: &LocalAiChatGenerationRequest,
     config: &LocalAiRuntimeConfigSnapshot,
     started_at: Instant,
-    output: std::process::Output,
+    output: &std::process::Output,
 ) -> LocalAiChatGenerationResult {
     let exit_code = output.status.code();
     let stderr_byte_size = output.stderr.len() as u64;

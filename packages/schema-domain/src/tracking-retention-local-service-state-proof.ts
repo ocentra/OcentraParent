@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AgentTrackingDeleteAfterAlertResolutionState,
   AgentTrackingDurableSettingsPersistenceState,
@@ -19,15 +14,23 @@ import {
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
 
-export const TrackingRetentionLocalServiceStateProofIdSchema = brandedNonEmptyStringSchema('TrackingRetentionLocalServiceStateProofId');
+export const TrackingRetentionLocalServiceStateProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionLocalServiceStateProofId'
+);
 
-export const TrackingRetentionLocalServiceStateSnapshotRefSchema = brandedNonEmptyStringSchema('TrackingRetentionLocalServiceStateSnapshotRef');
+export const TrackingRetentionLocalServiceStateSnapshotRefSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionLocalServiceStateSnapshotRef'
+);
 
 export const TrackingRetentionLocalServiceStateWriteResultSchema = withParser(
   AgentTrackingRetentionSettingsWriteResultSchema.pipe(
     Schema.filter((result) => result.commandId.length > 0 || 'Local state proof needs a command id'),
-    Schema.filter((result) => result.sourceReadModelProofRefs.length > 0 || 'Local state proof needs source read-model refs'),
-    Schema.filter((result) => result.sourceMutationProofRefs.length > 0 || 'Local state proof needs source mutation refs'),
+    Schema.filter(
+      (result) => result.sourceReadModelProofRefs.length > 0 || 'Local state proof needs source read-model refs'
+    ),
+    Schema.filter(
+      (result) => result.sourceMutationProofRefs.length > 0 || 'Local state proof needs source mutation refs'
+    ),
     Schema.filter(
       (result) =>
         result.durableSettingsPersistenceState === AgentTrackingDurableSettingsPersistenceState.Persisted ||
@@ -190,4 +193,3 @@ function localStateRow(
     productClaimReady: false,
   });
 }
-

@@ -3,7 +3,7 @@ import {
   TrackingChildRuntimeExecutionReadinessReadModelSchema,
   TrackingChildRuntimeExecutionReadinessRowSchema,
   buildTrackingChildRuntimeExecutionReadinessReadModel,
-} from '../../src/tracking-child-runtime-execution-readiness-proof';
+} from '@ocentra-parent/schema-domain/tracking-child-runtime-execution-readiness-proof';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 describe('tracking child runtime execution readiness proof', () => {

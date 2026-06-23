@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { type TrackingFullProductUiRuntimeArtifactGateProof } from './tracking-full-product-ui-runtime-artifact-gate-proof';
@@ -17,14 +12,21 @@ export const TrackingFullProductUiRuntimePreflightAreaSchema = Schema.Literal(
 
 export const TrackingFullProductUiRuntimePreflightStatusSchema = Schema.Literal('manual-required');
 
-export const TrackingFullProductUiRuntimePreflightRowIdSchema = brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightRowId');
+export const TrackingFullProductUiRuntimePreflightRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiRuntimePreflightRowId'
+);
 
-export const TrackingFullProductUiRuntimePreflightPathSchema = brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightPath');
+export const TrackingFullProductUiRuntimePreflightPathSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiRuntimePreflightPath'
+);
 
-export const TrackingFullProductUiRuntimePreflightCommandSchema = brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightCommand');
+export const TrackingFullProductUiRuntimePreflightCommandSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiRuntimePreflightCommand'
+);
 
-export const TrackingFullProductUiRuntimePreflightCriterionSchema =
-  brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightCriterion');
+export const TrackingFullProductUiRuntimePreflightCriterionSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiRuntimePreflightCriterion'
+);
 
 const RequiredTrackingFullProductUiRuntimePreflightRows = [
   {
@@ -308,4 +310,3 @@ function preflightRow(
     productClaimReady: false,
   });
 }
-

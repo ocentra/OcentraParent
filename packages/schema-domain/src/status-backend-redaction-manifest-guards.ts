@@ -4,10 +4,7 @@ import type {
   StatusBackendRedactionManifestEntryCandidate,
   StatusBackendRedactionManifestState,
 } from './status-backend-redaction-manifest.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function statusBackendRedactionManifestEntryIsSafe(
   entry: StatusBackendRedactionManifestEntryCandidate,

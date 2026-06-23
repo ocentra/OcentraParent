@@ -1,24 +1,23 @@
 #!/usr/bin/env node
 
-import { spawnSync } from "node:child_process";
-import fs from "node:fs";
-import path from "node:path";
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 
-const typeArg = process.argv.find((arg) => arg.startsWith("--type="));
-const selectedType = typeArg?.slice("--type=".length);
+const typeArg = process.argv.find((arg) => arg.startsWith('--type='));
+const selectedType = typeArg?.slice('--type='.length);
 
 const testTargetsByType = new Map<string, ReadonlyArray<string>>([
-  ["unit", ["tests/unit"]],
-  ["integration", ["tests/integration"]],
-  ["e2e", ["tests/e2e"]],
-  ["contract", ["tests/contract"]],
-  ["security", ["tests/security"]],
-  ["property", ["tests/property"]],
-  ["fuzz", ["tests/fuzz"]],
+  ['unit', ['tests/unit']],
+  ['integration', ['tests/integration']],
+  ['e2e', ['tests/e2e']],
+  ['contract', ['tests/contract']],
+  ['security', ['tests/security']],
+  ['property', ['tests/property']],
+  ['fuzz', ['tests/fuzz']],
 ]);
 
-const selectedTargets =
-  selectedType === undefined ? ["tests"] : testTargetsByType.get(selectedType) ?? null;
+const selectedTargets = selectedType === undefined ? ['tests'] : (testTargetsByType.get(selectedType) ?? null);
 
 if (selectedTargets === null) {
   console.error(`Unknown cloudflare test type: ${selectedType}`);
@@ -34,7 +33,7 @@ function collectTestFiles(targetPath: string, files: string[]): void {
     return;
   }
 
-  if (targetPath.endsWith(".test.ts")) {
+  if (targetPath.endsWith('.test.ts')) {
     files.push(targetPath);
   }
 }
@@ -47,22 +46,13 @@ for (const target of selectedTargets) {
 selectedFiles.sort();
 
 if (selectedFiles.length === 0) {
-  console.error(`No cloudflare test files found for type: ${selectedType ?? "all"}`);
+  console.error(`No cloudflare test files found for type: ${selectedType ?? 'all'}`);
   process.exit(1);
 }
 
-const result = spawnSync(
-  process.execPath,
-  [
-    "--import",
-    "tsx",
-    "--test",
-    ...selectedFiles,
-  ],
-  {
-    cwd: process.cwd(),
-    stdio: "inherit",
-  },
-);
+const result = spawnSync(process.execPath, ['--import', 'tsx', '--test', ...selectedFiles], {
+  cwd: process.cwd(),
+  stdio: 'inherit',
+});
 
 process.exit(result.status ?? 1);

@@ -22,7 +22,7 @@ import {
   type SetupFirstRunState,
   type SetupFirstRunStateId as SetupFirstRunStateIdValue,
 } from '@ocentra-parent/schema-domain/setup-state-machine';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 
 const SetupRequiredLabels = [
@@ -131,81 +131,144 @@ export type SetupFirstRunPanelIntent = {
   readonly productClaim: DisplayText;
 };
 
+type SetupFirstRunReports = {
+  readonly readyReport: SetupReadinessReport;
+  readonly pendingTrustReport: SetupReadinessReport;
+  readonly degradedReport: SetupReadinessReport;
+  readonly manualReport: SetupReadinessReport;
+  readonly blockedReport: SetupReadinessReport;
+  readonly wrongAccountReport: SetupReadinessReport;
+  readonly recoveryRequiredReport: SetupReadinessReport;
+  readonly revokedChildReport: SetupReadinessReport;
+  readonly staleParentReport: SetupReadinessReport;
+  readonly directEntryReport: SetupReadinessReport;
+};
+
+type SetupFirstRunDerivedStates = {
+  readonly emptyStartState: SetupFirstRunState;
+  readonly degradedState: SetupFirstRunState;
+  readonly manualState: SetupFirstRunState;
+  readonly blockedCompletionState: SetupFirstRunState;
+  readonly readyCompletionState: SetupFirstRunState;
+};
+
+type SetupFirstRunChecklists = {
+  readonly readyChecklist: readonly SetupReadinessChecklistItem[];
+  readonly pendingTrustChecklist: readonly SetupReadinessChecklistItem[];
+  readonly degradedChecklist: readonly SetupReadinessChecklistItem[];
+  readonly blockedChecklist: readonly SetupReadinessChecklistItem[];
+  readonly wrongAccountChecklist: readonly SetupReadinessChecklistItem[];
+  readonly recoveryRequiredChecklist: readonly SetupReadinessChecklistItem[];
+  readonly revokedChildChecklist: readonly SetupReadinessChecklistItem[];
+  readonly staleParentChecklist: readonly SetupReadinessChecklistItem[];
+  readonly directEntryChecklist: readonly SetupReadinessChecklistItem[];
+};
+
 export function createSetupFirstRunPanelIntent(): SetupFirstRunPanelIntent {
-  const readyReport = createSetupReadinessReport();
-  const pendingTrustReport = createSetupReadinessReport({
-    pairingState: SetupPairingState.Accepted,
-  });
-  const degradedReport = createSetupReadinessReport({
-    childAppState: SetupChildAppReadinessState.Offline,
-    networkReachabilityState: SetupNetworkReachabilityState.OfflineChild,
-  });
-  const manualReport = createSetupReadinessReport({
-    pairingState: SetupPairingState.Accepted,
-    recoveryState: SetupRecoveryState.Required,
-  });
-  const blockedReport = createSetupReadinessReport({
-    accountState: SetupAccountReadinessState.WrongAccount,
-    pairingState: SetupPairingState.Accepted,
-    dataCustodySyncState: SetupDataCustodySyncState.Blocked,
-    networkReachabilityState: SetupNetworkReachabilityState.LanUnavailable,
-  });
-  const wrongAccountReport = createSetupReadinessReport({
-    accountState: SetupAccountReadinessState.WrongAccount,
-    pairingState: SetupPairingState.Accepted,
-  });
-  const recoveryRequiredReport = createSetupReadinessReport({
-    accountState: SetupAccountReadinessState.RecoveryRequired,
-    pairingState: SetupPairingState.Accepted,
-    recoveryState: SetupRecoveryState.Required,
-  });
-  const revokedChildReport = createSetupReadinessReport({
-    childAppState: SetupChildAppReadinessState.Revoked,
-    pairingState: SetupPairingState.Accepted,
-  });
-  const staleParentReport = createSetupReadinessReport({
-    parentAppState: SetupParentAppReadinessState.Stale,
-    pairingState: SetupPairingState.Accepted,
-  });
-  const directEntryReport = createSetupReadinessReport({
-    networkReachabilityState: SetupNetworkReachabilityState.DirectEntryRequired,
-    pairingState: SetupPairingState.Accepted,
-  });
+  const reports = createSetupFirstRunReports();
+  const derivedStates = createSetupFirstRunDerivedStates(reports);
+  const checklists = createSetupFirstRunChecklists(reports);
 
-  const emptyStartState = resolveSetupFirstRunState({
-    stateId: SetupFirstRunStateId.Welcome,
-    readinessReport: null,
-  });
-  const degradedState = resolveSetupFirstRunState({
-    stateId: SetupFirstRunStateId.WaitingForChildDevice,
-    readinessReport: degradedReport,
-  });
-  const manualState = resolveSetupFirstRunState({
-    stateId: SetupFirstRunStateId.PermissionReadiness,
-    readinessReport: manualReport,
-  });
-  const blockedCompletionState = transitionSetupFirstRunState({
-    fromStateId: SetupFirstRunStateId.DataCustody,
-    toStateId: SetupFirstRunStateId.SetupComplete,
-    readinessReport: blockedReport,
-  });
-  const readyCompletionState = transitionSetupFirstRunState({
-    fromStateId: SetupFirstRunStateId.DataCustody,
-    toStateId: SetupFirstRunStateId.SetupComplete,
-    readinessReport: readyReport,
-  });
+  return {
+    eyebrow: decodeDisplayText('Setup route'),
+    title: decodeDisplayText('First-run family setup'),
+    body: decodeDisplayText(
+      'Parent-visible projection of the typed setup-domain first-run state machine, with explicit degraded, blocked, manual-required, and no premature-ready boundaries.'
+    ),
+    summary: decodeDisplayText(
+      'The Start route maps public entry, parent install, child bootstrap, and readiness gates without collapsing sibling-owner handoffs into an artificial complete state.'
+    ),
+    summaryDetails: createSetupFirstRunSummaryDetails(ParentEntryPhaseStates.length + ChildReadinessPhaseStates.length),
+    cards: createSetupFirstRunPhaseCards(derivedStates, checklists),
+    productClaim: ProductClaim,
+  };
+}
 
-  const readyChecklist = createSetupReadinessChecklist(readyReport);
-  const pendingTrustChecklist = createSetupReadinessChecklist(pendingTrustReport);
-  const degradedChecklist = createSetupReadinessChecklist(degradedReport);
-  const blockedChecklist = createSetupReadinessChecklist(blockedReport);
-  const wrongAccountChecklist = createSetupReadinessChecklist(wrongAccountReport);
-  const recoveryRequiredChecklist = createSetupReadinessChecklist(recoveryRequiredReport);
-  const revokedChildChecklist = createSetupReadinessChecklist(revokedChildReport);
-  const staleParentChecklist = createSetupReadinessChecklist(staleParentReport);
-  const directEntryChecklist = createSetupReadinessChecklist(directEntryReport);
+function createSetupFirstRunReports(): SetupFirstRunReports {
+  return {
+    readyReport: createSetupReadinessReport(),
+    pendingTrustReport: createSetupReadinessReport({ pairingState: SetupPairingState.Accepted }),
+    degradedReport: createSetupReadinessReport({
+      childAppState: SetupChildAppReadinessState.Offline,
+      networkReachabilityState: SetupNetworkReachabilityState.OfflineChild,
+    }),
+    manualReport: createSetupReadinessReport({
+      pairingState: SetupPairingState.Accepted,
+      recoveryState: SetupRecoveryState.Required,
+    }),
+    blockedReport: createSetupReadinessReport({
+      accountState: SetupAccountReadinessState.WrongAccount,
+      pairingState: SetupPairingState.Accepted,
+      dataCustodySyncState: SetupDataCustodySyncState.Blocked,
+      networkReachabilityState: SetupNetworkReachabilityState.LanUnavailable,
+    }),
+    wrongAccountReport: createSetupReadinessReport({
+      accountState: SetupAccountReadinessState.WrongAccount,
+      pairingState: SetupPairingState.Accepted,
+    }),
+    recoveryRequiredReport: createSetupReadinessReport({
+      accountState: SetupAccountReadinessState.RecoveryRequired,
+      pairingState: SetupPairingState.Accepted,
+      recoveryState: SetupRecoveryState.Required,
+    }),
+    revokedChildReport: createSetupReadinessReport({
+      childAppState: SetupChildAppReadinessState.Revoked,
+      pairingState: SetupPairingState.Accepted,
+    }),
+    staleParentReport: createSetupReadinessReport({
+      parentAppState: SetupParentAppReadinessState.Stale,
+      pairingState: SetupPairingState.Accepted,
+    }),
+    directEntryReport: createSetupReadinessReport({
+      networkReachabilityState: SetupNetworkReachabilityState.DirectEntryRequired,
+      pairingState: SetupPairingState.Accepted,
+    }),
+  };
+}
 
-  const phaseCards = [
+function createSetupFirstRunDerivedStates(reports: SetupFirstRunReports): SetupFirstRunDerivedStates {
+  return {
+    emptyStartState: resolveSetupFirstRunState({ stateId: SetupFirstRunStateId.Welcome, readinessReport: null }),
+    degradedState: resolveSetupFirstRunState({
+      stateId: SetupFirstRunStateId.WaitingForChildDevice,
+      readinessReport: reports.degradedReport,
+    }),
+    manualState: resolveSetupFirstRunState({
+      stateId: SetupFirstRunStateId.PermissionReadiness,
+      readinessReport: reports.manualReport,
+    }),
+    blockedCompletionState: transitionSetupFirstRunState({
+      fromStateId: SetupFirstRunStateId.DataCustody,
+      toStateId: SetupFirstRunStateId.SetupComplete,
+      readinessReport: reports.blockedReport,
+    }),
+    readyCompletionState: transitionSetupFirstRunState({
+      fromStateId: SetupFirstRunStateId.DataCustody,
+      toStateId: SetupFirstRunStateId.SetupComplete,
+      readinessReport: reports.readyReport,
+    }),
+  };
+}
+
+function createSetupFirstRunChecklists(reports: SetupFirstRunReports): SetupFirstRunChecklists {
+  return {
+    readyChecklist: createSetupReadinessChecklist(reports.readyReport),
+    pendingTrustChecklist: createSetupReadinessChecklist(reports.pendingTrustReport),
+    degradedChecklist: createSetupReadinessChecklist(reports.degradedReport),
+    blockedChecklist: createSetupReadinessChecklist(reports.blockedReport),
+    wrongAccountChecklist: createSetupReadinessChecklist(reports.wrongAccountReport),
+    recoveryRequiredChecklist: createSetupReadinessChecklist(reports.recoveryRequiredReport),
+    revokedChildChecklist: createSetupReadinessChecklist(reports.revokedChildReport),
+    staleParentChecklist: createSetupReadinessChecklist(reports.staleParentReport),
+    directEntryChecklist: createSetupReadinessChecklist(reports.directEntryReport),
+  };
+}
+
+function createSetupFirstRunPhaseCards(
+  states: SetupFirstRunDerivedStates,
+  checklists: SetupFirstRunChecklists
+): readonly SetupFirstRunPanelCard[] {
+  return [
     createPhaseCard(
       'Parent entry and install',
       'Public entry stays separate from parent bootstrap, install progress, and guided-start handoff.',
@@ -219,52 +282,40 @@ export function createSetupFirstRunPanelIntent(): SetupFirstRunPanelIntent {
       'Waiting, trust, permission, policy, and custody states may degrade, block, or route to manual-required instead of pretending setup succeeded.'
     ),
     createRecoveryCard(
-      emptyStartState,
-      degradedState,
-      manualState,
-      blockedCompletionState,
-      readyCompletionState
+      states.emptyStartState,
+      states.degradedState,
+      states.manualState,
+      states.blockedCompletionState,
+      states.readyCompletionState
     ),
     createInviteAndRoleCard(),
     createTrustAndSessionCard(
-      readyChecklist,
-      pendingTrustChecklist,
-      wrongAccountChecklist,
-      recoveryRequiredChecklist,
-      revokedChildChecklist,
-      staleParentChecklist,
-      directEntryChecklist
+      checklists.readyChecklist,
+      checklists.pendingTrustChecklist,
+      checklists.wrongAccountChecklist,
+      checklists.recoveryRequiredChecklist,
+      checklists.revokedChildChecklist,
+      checklists.staleParentChecklist,
+      checklists.directEntryChecklist
     ),
-    createChecklistAndLabelCard(readyChecklist, degradedChecklist, blockedChecklist),
+    createChecklistAndLabelCard(checklists.readyChecklist, checklists.degradedChecklist, checklists.blockedChecklist),
     createHandoffCard(),
   ] as const;
+}
 
-  const mappedStates = [...ParentEntryPhaseStates, ...ChildReadinessPhaseStates];
-
-  return {
-    eyebrow: decodeDisplayText('Setup route'),
-    title: decodeDisplayText('First-run family setup'),
-    body: decodeDisplayText(
-      'Parent-visible projection of the typed setup-domain first-run state machine, with explicit degraded, blocked, manual-required, and no-fake-ready boundaries.'
+function createSetupFirstRunSummaryDetails(mappedStateCount: number): readonly SetupFirstRunPanelDetail[] {
+  return [
+    detail(SetupDetailLabels.ScreensMapped, literalValue(String(mappedStateCount + 4))),
+    detail(
+      SetupDetailLabels.ReadyGate,
+      decodeDisplayText('setup-complete requires overall readiness = ready after data-custody')
     ),
-    summary: decodeDisplayText(
-      'The Start route maps public entry, parent install, child bootstrap, and readiness gates without collapsing sibling-owner handoffs into a fake complete state.'
+    detail(
+      SetupDetailLabels.RecoveryProjection,
+      literalValue('setup-degraded | manual-required | setup-blocked stay visible')
     ),
-    summaryDetails: [
-      detail(SetupDetailLabels.ScreensMapped, literalValue(String(mappedStates.length + 4))),
-      detail(
-        SetupDetailLabels.ReadyGate,
-        decodeDisplayText('setup-complete requires overall readiness = ready after data-custody')
-      ),
-      detail(
-        SetupDetailLabels.RecoveryProjection,
-        literalValue('setup-degraded | manual-required | setup-blocked stay visible')
-      ),
-      detail(PortalDetails.ProductClaim, ProductClaim),
-    ],
-    cards: phaseCards,
-    productClaim: ProductClaim,
-  };
+    detail(PortalDetails.ProductClaim, ProductClaim),
+  ];
 }
 
 function createPhaseCard(
@@ -290,9 +341,7 @@ function createPhaseCard(
       detail(
         SetupDetailLabels.NextStates,
         literalValue(
-          lastState === undefined
-            ? ''
-            : joinLiteralValues(getAllowedSetupFirstRunTransitions(lastState.stateId))
+          lastState === undefined ? '' : joinLiteralValues(getAllowedSetupFirstRunTransitions(lastState.stateId))
         )
       ),
       detail(SetupDetailLabels.HandoffBoundary, decodeDisplayText(handoffBoundary)),
@@ -319,9 +368,7 @@ function createRecoveryCard(
       ),
       detail(
         SetupDetailLabels.DegradedState,
-        literalValue(
-          `${degradedState.stateId} -> ${degradedState.screenId} | ${String(degradedState.readinessState)}`
-        )
+        literalValue(`${degradedState.stateId} -> ${degradedState.screenId} | ${String(degradedState.readinessState)}`)
       ),
       detail(
         SetupDetailLabels.ManualRequiredState,
@@ -397,15 +444,10 @@ function createTrustAndSessionCard(
           `${checklistItemSummary(pendingTrustChecklist, 'Pairing')} | ${checklistItemSummary(readyChecklist, 'Pairing')}`
         )
       ),
-      detail(
-        SetupDetailLabels.WrongAccountState,
-        literalValue(checklistItemSummary(wrongAccountChecklist, 'Account'))
-      ),
+      detail(SetupDetailLabels.WrongAccountState, literalValue(checklistItemSummary(wrongAccountChecklist, 'Account'))),
       detail(
         SetupDetailLabels.ReauthState,
-        literalValue(
-          `${checklistItemSummary(recoveryRequiredChecklist, 'Account')} | manual-required-screen`
-        )
+        literalValue(`${checklistItemSummary(recoveryRequiredChecklist, 'Account')} | manual-required-screen`)
       ),
       detail(
         SetupDetailLabels.RevokedChildState,

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -24,12 +19,15 @@ import {
 } from './app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffId');
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowId');
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRef');
+export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRef'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState))
@@ -261,5 +259,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff = Sc
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState };
-
-

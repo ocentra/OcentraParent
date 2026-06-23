@@ -62,13 +62,11 @@ async function main() {
     commands,
     packageExportState: 'not-claimed-new-public-export-deferred',
     evidence: {
-      runtimeWriterDeliveryContract: 'packages/app-game-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts',
+      runtimeWriterDeliveryContract: 'packages/schema-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts',
       sourceParentActionRuntimeHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
-      sourceStoreStatusHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-store-status-handoff-proof.ts',
-      contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-runtime-writer-delivery-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
+      sourceStoreStatusHandoffContract: 'packages/schema-domain/src/app-install-purchase-store-status-handoff-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-runtime-writer-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',

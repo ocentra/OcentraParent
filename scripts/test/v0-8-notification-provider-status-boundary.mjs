@@ -86,8 +86,7 @@ async function main() {
     evidence: {
       tsContract: 'packages/schema-domain/src/v0-8-notification-provider-status-boundary.ts',
       tsContractTest: 'packages/notification-domain/tests/unit/v0-8-notification-provider-status-boundary.test.ts',
-      tsV3NotificationRuleProviderRetryContract:
-        'packages/schema-domain/src/notification-v3-provider-retry.ts',
+      tsV3NotificationRuleProviderRetryContract: 'packages/schema-domain/src/notification-v3-provider-retry.ts',
       tsV3NotificationRuleProviderRetryContractTest:
         'packages/notification-domain/tests/unit/v3-notification-rule-provider-retry-contract.test.ts',
       tsNestedAuditContract: 'packages/schema-domain/src/v0-8-enforcement-integrity-runtime-audit.ts',

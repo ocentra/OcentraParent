@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidUsageEventsGrantedSampleProofSchemaVersionSchema = withParser(
@@ -133,19 +128,40 @@ export function summarizeAppGameAndroidUsageEventsGrantedSampleProof(
 
 function grantedSampleProofIsHonest(readModel: GrantedSampleCandidate): boolean {
   return (
+    grantedSampleStateIsHonest(readModel) &&
+    grantedSampleProofRefsArePresent(readModel) &&
+    grantedSampleOpenGapsArePresent(readModel)
+  );
+}
+
+function grantedSampleStateIsHonest(readModel: GrantedSampleCandidate): boolean {
+  return (
     readModel.packageId === 'ca.ocentra.parent.agent' &&
     readModel.permissionCheckState === 'usage-stats-granted' &&
     readModel.sampleState === 'sample-observed' &&
     readModel.sampleEventCount > 0 &&
-    readModel.foregroundEventCount >= 0 &&
-    readModel.proofRefs.includes('android-physical-adb-device-ref') &&
-    readModel.proofRefs.includes('android-usage-stats-appops-grant-ref') &&
-    readModel.proofRefs.includes('android-package-launch-ui-ref') &&
-    readModel.proofRefs.includes('android-usage-events-count-only-sample-ref') &&
-    readModel.openGaps.includes('android-device-owner-authority-not-proved') &&
-    readModel.openGaps.includes('android-play-policy-not-proved') &&
-    readModel.openGaps.includes('android-child-runtime-delivery-not-proved') &&
-    readModel.openGaps.includes('android-platform-enforcement-not-proved')
+    readModel.foregroundEventCount >= 0
   );
 }
 
+function grantedSampleProofRefsArePresent(readModel: GrantedSampleCandidate): boolean {
+  return includesAll(readModel.proofRefs, [
+    'android-physical-adb-device-ref',
+    'android-usage-stats-appops-grant-ref',
+    'android-package-launch-ui-ref',
+    'android-usage-events-count-only-sample-ref',
+  ] as const);
+}
+
+function grantedSampleOpenGapsArePresent(readModel: GrantedSampleCandidate): boolean {
+  return includesAll(readModel.openGaps, [
+    'android-device-owner-authority-not-proved',
+    'android-play-policy-not-proved',
+    'android-child-runtime-delivery-not-proved',
+    'android-platform-enforcement-not-proved',
+  ] as const);
+}
+
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

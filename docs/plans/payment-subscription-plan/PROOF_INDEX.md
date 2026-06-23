@@ -64,6 +64,43 @@ why this does not prove completion:
 next command:
 ```
 
+## Structured proof metadata
+
+For new proof artifacts and command-log entries, include structured metadata when available:
+
+```text
+plan: payment-subscription-plan
+workpack: <workpack id and name>
+owner: billing-domain | billing-core | cloudflare-handoff | schema-domain | account-handoff | device-trust-handoff | data-custody-handoff | portal-parent-surface | policy-handoff | support-admin | docs-only
+provider: stripe | razorpay | paypal | apple | google | manual | multi-provider | n/a
+mode: test | live | mixed-blocked | n/a
+region: <region/country/currency or n/a>
+account_ref: <account/household ref or n/a>
+provider_event_state: not-tested | verified | missing-signature | invalid-signature | duplicate | replayed | out-of-order | unknown | n/a
+idempotency_state: not-tested | fresh | duplicate-rejected | replay-rejected | conflict | n/a
+ledger_state: not-tested | app-owned-entry-written | provider-only-blocked | reconciled | drift-detected | n/a
+entitlement_state: not-tested | granted | grace | limited | revoked | held-for-review | no-write | n/a
+snapshot_state: not-tested | signed | invalid-signature-rejected | stale-rejected | wrong-household-rejected | wrong-device-rejected | n/a
+device_trust_state: not-tested | required | accepted | missing | rejected | handoff-required | n/a
+invoice_refund_dispute_state: not-tested | invoiced | refunded | disputed | cancelled | grace | tax-required | legal-required | n/a
+referral_state: not-tested | qualified | rejected | review-required | credit-issued | credit-revoked | n/a
+provider_availability_state: available | unavailable | manual-required | blocked | not-tested | n/a
+dashboard_visibility_state: not-tested | billing-only | wrong-household-denied | child-data-blocked | parent-proof-blocked | n/a
+support_admin_state: not-tested | authorized | denied | audited | redacted | blocked | n/a
+rollback_teardown_state: not-tested | proved | blocked | manual-required | n/a
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <stdout/stderr artifact pointer, proof file, test result path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+manual_required_note: <manual-required gap or n/a>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store long command output, provider fixtures, test reports, dashboard screenshots, or failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
 ## No-claim language
 
 Do not claim:

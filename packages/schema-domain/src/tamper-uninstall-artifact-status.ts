@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 import {
   ParentControlCapabilityNameSchema,
   ParentControlCapabilityStatusSchema,

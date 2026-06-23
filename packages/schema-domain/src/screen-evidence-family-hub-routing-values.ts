@@ -1,21 +1,12 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ActivityEvidenceIdSchema } from './evidence-primitives';
 import { ScreenEvidenceModelRuntimeRefSchema } from './screen-evidence-primitives';
 
 export const ScreenFamilyAiHubRouteSchemaVersion = 1;
 
-export const ScreenFamilyAiHubRouteIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenFamilyAiHubRouteId')
-);
+export const ScreenFamilyAiHubRouteIdSchema = withParser(brandedNonEmptyStringSchema('ScreenFamilyAiHubRouteId'));
 export const ScreenFamilyAiHubIdSchema = withParser(brandedNonEmptyStringSchema('ScreenFamilyAiHubId'));
-export const ScreenFamilyAiHubRouteRefSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenFamilyAiHubRouteRef')
-);
+export const ScreenFamilyAiHubRouteRefSchema = withParser(brandedNonEmptyStringSchema('ScreenFamilyAiHubRouteRef'));
 
 export const ScreenFamilyAiHubRequestedTaskSchema = withParser(
   Schema.Literal('guidedVisionClassification', 'guidedMultimodalClassification', 'ocrTextFallback')

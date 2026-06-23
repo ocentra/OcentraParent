@@ -1,18 +1,6 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  LocalAiEvidenceContextBuildResultSchema,
-  type LocalAiEvidenceContextBuildResult,
-} from './ai-context';
-import {
-  LocalAiContextReasonCodeSchema,
-  LocalAiEvidenceContextRefIdSchema,
-} from './ai-context-primitives';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
+import { LocalAiEvidenceContextBuildResultSchema, type LocalAiEvidenceContextBuildResult } from './ai-context';
+import { LocalAiContextReasonCodeSchema, LocalAiEvidenceContextRefIdSchema } from './ai-context-primitives';
 import { LocalAiRuntimeReferenceIdSchema } from './ai-primitives';
 import {
   PolicyActionSchema,

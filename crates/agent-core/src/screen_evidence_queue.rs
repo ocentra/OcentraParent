@@ -6,7 +6,10 @@ use std::{
 };
 
 use chrono::{DateTime, Utc};
-use ocentra_parent_agent_protocol::{constants, ScreenAnalysisQueueJob};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenAnalysisQueueJob, SCREEN_DELETION_REQUIRED, SCREEN_QUEUE_STATUS_QUEUED,
+};
 use serde_json::{json, Value};
 
 use crate::{
@@ -220,15 +223,12 @@ impl EncryptedScreenEvidenceQueueRecord {
             queue_job_id: required_string(&value, constants::field::SCREEN_QUEUE_JOB_ID)?,
             created_at: optional_string(&value, constants::field::CREATED_AT)?,
             expires_at: optional_string(&value, constants::field::EXPIRES_AT)?,
-            status: optional_string(&value, constants::field::STATUS)?.unwrap_or_else(|| {
-                ocentra_parent_agent_protocol::SCREEN_QUEUE_STATUS_QUEUED.to_string()
-            }),
+            status: optional_string(&value, constants::field::STATUS)?
+                .unwrap_or_else(|| SCREEN_QUEUE_STATUS_QUEUED.to_string()),
             deletion_required: optional_bool(&value, constants::field::SCREEN_DELETION_REQUIRED)?
                 .unwrap_or(true),
             deletion_status: optional_string(&value, constants::field::SCREEN_DELETION_STATUS)?
-                .unwrap_or_else(|| {
-                    ocentra_parent_agent_protocol::SCREEN_DELETION_REQUIRED.to_string()
-                }),
+                .unwrap_or_else(|| SCREEN_DELETION_REQUIRED.to_string()),
             deletion_proof_ref: optional_string(
                 &value,
                 constants::field::SCREEN_DELETION_PROOF_REF,

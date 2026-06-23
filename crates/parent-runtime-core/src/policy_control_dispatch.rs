@@ -230,7 +230,9 @@ pub fn parent_runtime_policy_control_dispatch_evaluated_event_from_origin(
         dispatch_id: ParentRuntimePolicyControlDispatchId::parse(
             parent_runtime_policy_control_dispatch_ref(delivery, decision_event),
         )
-        .expect(PARENT_RUNTIME_POLICY_CONTROL_DISPATCH_PREFIX),
+        .unwrap_or_else(|error| {
+            unreachable!("{PARENT_RUNTIME_POLICY_CONTROL_DISPATCH_PREFIX}: {error:?}")
+        }),
         source_delivery: delivery.clone(),
         source_decision: decision_event.clone(),
         child_acknowledgement_state,

@@ -4,10 +4,7 @@ import type {
   SupportIncidentWorkflowEntryCandidate,
   SupportIncidentWorkflowState,
 } from './support-incident-workflow.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function supportIncidentWorkflowEntryIsSafe(
   entry: SupportIncidentWorkflowEntryCandidate,

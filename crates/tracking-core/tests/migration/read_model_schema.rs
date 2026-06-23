@@ -1,8 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants::tracking_runtime::{
-        READ_MODEL_SCHEMA_COMPATIBLE, READ_MODEL_SCHEMA_MIGRATION_REQUIRED,
-    },
-    ACTIVITY_QUERY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity_query::ACTIVITY_QUERY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::constants::tracking_runtime::{
+    READ_MODEL_SCHEMA_COMPATIBLE, READ_MODEL_SCHEMA_MIGRATION_REQUIRED,
 };
 use ocentra_tracking_core::read_model_guard::{
     evaluate_tracking_read_model_schema, TrackingReadModelMigrationState,

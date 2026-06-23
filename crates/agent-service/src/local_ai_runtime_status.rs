@@ -1,10 +1,21 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LocalAiAdapterBoundary,
-    LocalAiAdapterProbeState, LocalAiAdapterReadinessState, LocalAiDegradedState,
-    LocalAiExecutionState, LocalAiModelCacheStatus, LocalAiModelLoadState,
-    LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode, LocalAiProviderSource,
-    LocalAiResourceClass, LocalModelRuntimeStatus, LocalProviderAdapterProbe, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiModelLoadState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalAiModelCacheStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalProviderAdapterProbe;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterBoundary;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterProbeState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterReadinessState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiExecutionState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderConfigurationState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderPrivacyMode;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderSource;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
@@ -151,7 +162,9 @@ pub async fn build_local_ai_runtime_status_report(
 
 fn requested_model_id_from_command(command: &AgentCommandEnvelope) -> Option<&str> {
     match command.payload.get(constants::field::LOCAL_AI_MODEL_ID) {
-        Some(ocentra_parent_agent_protocol::LogFieldValue::String(value)) => Some(value.trim()),
+        Some(ocentra_parent_agent_protocol::logging::LogFieldValue::String(value)) => {
+            Some(value.trim())
+        }
         _ => None,
     }
 }

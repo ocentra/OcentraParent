@@ -27,7 +27,11 @@ function makeTempDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-wipe-'));
 }
 
-function runScript(scriptPath: string, env: NodeJS.ProcessEnv, args: readonly string[]): { stdout: string; stderr: string; status: number | null } {
+function runScript(
+  scriptPath: string,
+  env: NodeJS.ProcessEnv,
+  args: readonly string[]
+): { stdout: string; stderr: string; status: number | null } {
   const result = spawnSync(process.execPath, [TSX_CLI, scriptPath, ...args], {
     cwd: workspaceRoot(),
     env,
@@ -75,11 +79,10 @@ it('wipe-logs removes the scoped NDJSON tree', () => {
       ...process.env,
       OCENTRA_PARENT_LOG_DIR: tempDir,
     };
-    const result = runScript(
-      path.join(workspaceRoot(), 'packages/logging-domain/scripts/wipe-logs.ts'),
-      env,
-      ['--scope=parent-test', '--wipe']
-    );
+    const result = runScript(path.join(workspaceRoot(), 'packages/logging-domain/scripts/wipe-logs.ts'), env, [
+      '--scope=parent-test',
+      '--wipe',
+    ]);
     expect(result.status).toBe(0);
     expect(JSON.parse(result.stdout.trim())).toMatchObject({
       deletedEntries: 1,

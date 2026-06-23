@@ -1,8 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
     ActivityNetworkReadModel, ActivityReadModelState, ActivityScreenReadModel,
-    ActivitySurfaceRequest, ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivitySurfaceRequest, ActivitySurfaceScopeKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::time::timestamp_now;
 

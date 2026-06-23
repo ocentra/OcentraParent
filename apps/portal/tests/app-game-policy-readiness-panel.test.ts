@@ -10,10 +10,8 @@ import {
   AgentAppGamePolicyReadinessKind,
   AgentAppGamePolicyReadinessState,
 } from '@ocentra-parent/schema-domain/app-game-policy-readiness';
-import {
-  createAppGamePolicyReadinessPanelIntent,
-} from '@ocentra-parent/portal-domain/app-game-policy-readiness-panel';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { createAppGamePolicyReadinessPanelIntent } from '@ocentra-parent/portal-domain/app-game-policy-readiness-panel';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { shouldRenderAppGamePolicyReadinessRoute } from '../src/AppGamePolicyReadinessRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 

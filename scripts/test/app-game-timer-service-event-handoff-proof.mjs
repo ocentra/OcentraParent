@@ -54,7 +54,8 @@ runNpm([
 ]);
 
 const contract = await import('@ocentra-parent/schema-domain/app-game-timer-service-event-handoff');
-const serviceReadModelHandoffContract = await import('@ocentra-parent/schema-domain/app-game-timer-service-read-model-handoff');
+const serviceReadModelHandoffContract =
+  await import('@ocentra-parent/schema-domain/app-game-timer-service-read-model-handoff');
 const sourceServiceReadModelHandoff =
   serviceReadModelHandoffContract.AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadModelHandoffSchema.parse(
     await readJson(join(repoRoot, 'test-results', 'app-game-timer-service-read-model-handoff-proof', 'handoff.json'))

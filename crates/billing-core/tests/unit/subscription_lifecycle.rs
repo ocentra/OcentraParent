@@ -10,6 +10,7 @@ use ocentra_billing_core::billing_subscription::{
     BillingProviderWebhookReceivedEvent, BillingRefundLifecycleState, BillingSubscriptionStatus,
 };
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 
 const BILLING_AGGREGATE_ID: &str = "billing-household-default";
 const BILLING_PROVIDER_EVENT_ID: &str = "billing-provider-event-default";
@@ -26,7 +27,7 @@ fn provider_event(
 ) -> BillingProviderWebhookEvent {
     BillingProviderWebhookEvent {
         event_id: BillingProviderEventId::parse(BILLING_PROVIDER_EVENT_ID)
-            .expect("billing provider event id"),
+            .expect_value("billing provider event id"),
         event_kind: BillingProviderEventKind::SubscriptionUpdated,
         signature_state,
         duplicate_state: BillingProviderDuplicateState::Fresh,
@@ -388,7 +389,7 @@ fn invalid_signature_blocks_entitlement_write_and_requires_manual_review() {
 fn webhook_decision_projects_typed_entitlement_transition_event() {
     let received = BillingProviderWebhookReceivedEvent {
         aggregate_id: BillingAggregateId::parse(BILLING_AGGREGATE_ID)
-            .expect("billing aggregate id"),
+            .expect_value("billing aggregate id"),
         provider_event: provider_event(
             BillingSubscriptionStatus::PastDue,
             BillingCollectionRecoveryState::PastDue,
@@ -407,7 +408,7 @@ fn webhook_decision_projects_typed_entitlement_transition_event() {
     assert_eq!(
         received
             .contract()
-            .expect("billing webhook contract")
+            .expect_value("billing webhook contract")
             .event_type
             .as_str(),
         BILLING_WEBHOOK_EVENT_TYPE
@@ -415,7 +416,7 @@ fn webhook_decision_projects_typed_entitlement_transition_event() {
     assert_eq!(
         decision_event
             .contract()
-            .expect("billing decision contract")
+            .expect_value("billing decision contract")
             .event_type
             .as_str(),
         BILLING_DECISION_EVENT_TYPE
@@ -423,7 +424,7 @@ fn webhook_decision_projects_typed_entitlement_transition_event() {
     assert_eq!(
         transition_event
             .contract()
-            .expect("billing transition contract")
+            .expect_value("billing transition contract")
             .event_type
             .as_str(),
         BILLING_TRANSITION_EVENT_TYPE

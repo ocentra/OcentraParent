@@ -1,4 +1,4 @@
-import type { DurableObjectState } from "@cloudflare/workers-types";
+import type { DurableObjectState } from '@cloudflare/workers-types';
 import {
   buildAdminRefundResult,
   buildBillingCancellationSummaryFromStatus,
@@ -6,7 +6,7 @@ import {
   buildManualInvoiceResult,
   buildReconciliationSummary,
   buildReferralInviteResult,
-} from "./fixtures.js";
+} from './fixtures.js';
 import {
   applyBillingStateMutation,
   findBillingInvoiceSubject,
@@ -23,27 +23,27 @@ import {
   loadLocalSeedSummary,
   loadPricingPlans,
   type BillingStateMutation,
-} from "./billing-binding-read-model.js";
+} from './billing-binding-read-model.js';
 import {
   BillingCheckoutSessionRequestSchema,
   BillingCheckoutSessionResponseSchema,
   BillingHostedReturnRoute,
   BillingPortalSessionRequestSchema,
   BillingPortalSessionResponseSchema,
-} from "../../../packages/billing-domain/src/billing-checkout-portal-boundary.js";
+} from '../../../packages/billing-domain/src/billing-checkout-portal-boundary.js';
 import {
   BillingSupportAdminAccountsResponseSchema,
   BillingSupportAdminAuditEventsResponseSchema,
   BillingSupportAdminDisputesResponseSchema,
   BillingSupportAdminInvoicesResponseSchema,
   BillingSupportAdminReferralsResponseSchema,
-} from "../../../packages/billing-domain/src/billing-support-admin-api-boundary.js";
+} from '../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
 import {
   signatureHeaderName,
   verifyAuthState,
   verifyStripeWebhookSignature,
   type VerifiedIdentity,
-} from "./auth/verifier.js";
+} from './auth/verifier.js';
 import {
   getMissingBindings,
   isRouteKillSwitchEnabled,
@@ -52,40 +52,40 @@ import {
   resolveAuthAdapterMode,
   validateEnv,
   type Env,
-} from "./env.js";
-import { findRoute, ROUTE_MANIFEST, type RouteManifestEntry } from "./routes.js";
-import { redactHeaders } from "./security/redaction.js";
+} from './env.js';
+import { findRoute, ROUTE_MANIFEST, type RouteManifestEntry } from './routes.js';
+import { redactHeaders } from './security/redaction.js';
 
-const STATE_CHANGING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-const INTERACTIVE_CSRF_HEADER = "x-ocentra-csrf";
-const INTERACTIVE_CSRF_TOKEN = "interactive-parent-session";
+const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
+const INTERACTIVE_CSRF_TOKEN = 'interactive-parent-session';
 
 export const IMPLEMENTED_HANDLER_KEYS = [
-  "health",
-  "pricing-public",
-  "billing-status",
-  "billing-checkout",
-  "billing-portal",
-  "billing-invoices",
-  "billing-change-plan",
-  "billing-cancel",
-  "billing-referrals",
-  "billing-referral-invite",
-  "billing-entitlement-snapshot",
-  "billing-license-check",
-  "billing-manual-invoice",
-  "stripe-webhook",
-  "razorpay-webhook",
-  "paypal-webhook",
-  "apple-webhook",
-  "google-webhook",
-  "admin-billing-accounts",
-  "admin-billing-invoices",
-  "admin-billing-refunds",
-  "admin-billing-disputes",
-  "admin-billing-referrals",
-  "admin-billing-reconciliation",
-  "admin-billing-audit",
+  'health',
+  'pricing-public',
+  'billing-status',
+  'billing-checkout',
+  'billing-portal',
+  'billing-invoices',
+  'billing-change-plan',
+  'billing-cancel',
+  'billing-referrals',
+  'billing-referral-invite',
+  'billing-entitlement-snapshot',
+  'billing-license-check',
+  'billing-manual-invoice',
+  'stripe-webhook',
+  'razorpay-webhook',
+  'paypal-webhook',
+  'apple-webhook',
+  'google-webhook',
+  'admin-billing-accounts',
+  'admin-billing-invoices',
+  'admin-billing-refunds',
+  'admin-billing-disputes',
+  'admin-billing-referrals',
+  'admin-billing-reconciliation',
+  'admin-billing-audit',
 ] as const;
 
 type HandlerContext = {
@@ -96,14 +96,14 @@ type HandlerContext = {
 };
 
 type RouteHandler = (context: HandlerContext) => Promise<Response>;
-type HostedSessionKind = "checkout-session-create" | "billing-portal-session-create";
+type HostedSessionKind = 'checkout-session-create' | 'billing-portal-session-create';
 type HostedSessionRejectionReason =
-  | "auth-required"
-  | "unauthorized-role"
-  | "invalid-plan"
-  | "redirect-not-allowlisted"
-  | "abuse-gate-required"
-  | "provider-unavailable";
+  | 'auth-required'
+  | 'unauthorized-role'
+  | 'invalid-plan'
+  | 'redirect-not-allowlisted'
+  | 'abuse-gate-required'
+  | 'provider-unavailable';
 type CheckoutRequestBody = {
   requestId?: unknown;
   planId?: unknown;
@@ -165,36 +165,27 @@ type IdempotentWriteResult = {
   responseBody: unknown;
   queued: boolean;
 };
-type QueueFailureReason =
-  | "reconciliation-queue-missing"
-  | "reconciliation-queue-send-failed";
+type QueueFailureReason = 'reconciliation-queue-missing' | 'reconciliation-queue-send-failed';
 
 const CHECKOUT_SUCCESS_PATH = BillingHostedReturnRoute.CheckoutSuccess.relativePath;
 const CHECKOUT_CANCEL_PATH = BillingHostedReturnRoute.CheckoutCancel.relativePath;
 const PORTAL_RETURN_PATH = BillingHostedReturnRoute.PortalReturn.relativePath;
-const ALLOWLISTED_RETURN_PATHS = new Set([
-  CHECKOUT_SUCCESS_PATH,
-  CHECKOUT_CANCEL_PATH,
-  PORTAL_RETURN_PATH,
-]);
-const ACCEPTED_ABUSE_GATE_STATES = new Set([
-  "passed-turnstile",
-  "trusted-authenticated-session",
-]);
+const ALLOWLISTED_RETURN_PATHS = new Set([CHECKOUT_SUCCESS_PATH, CHECKOUT_CANCEL_PATH, PORTAL_RETURN_PATH]);
+const ACCEPTED_ABUSE_GATE_STATES = new Set(['passed-turnstile', 'trusted-authenticated-session']);
 
 function json(status: number, body: unknown, headers: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body, null, 2), {
     status,
     headers: {
-      "content-type": "application/json; charset=utf-8",
+      'content-type': 'application/json; charset=utf-8',
       ...headers,
     },
   });
 }
 
 function requireSupportAdminReadIdentity(identity: VerifiedIdentity | undefined): VerifiedIdentity {
-  if (!identity || (identity.role !== "support" && identity.role !== "admin")) {
-    throw new Error("support-admin-read-identity-required");
+  if (!identity || (identity.role !== 'support' && identity.role !== 'admin')) {
+    throw new Error('support-admin-read-identity-required');
   }
 
   return identity;
@@ -202,15 +193,15 @@ function requireSupportAdminReadIdentity(identity: VerifiedIdentity | undefined)
 
 function withCors(response: Response, request: Request, env: Env): Response {
   const headers = new Headers(response.headers);
-  const origin = request.headers.get("origin");
-  headers.set("access-control-allow-methods", "GET,POST,OPTIONS");
+  const origin = request.headers.get('origin');
+  headers.set('access-control-allow-methods', 'GET,POST,OPTIONS');
   headers.set(
-    "access-control-allow-headers",
-    "authorization,content-type,stripe-signature,paypal-transmission-id,paypal-transmission-sig,x-razorpay-signature,x-goog-signature,x-ocentra-role,x-ocentra-trusted-device,x-ocentra-internal-call,x-ocentra-internal-secret,x-ocentra-csrf",
+    'access-control-allow-headers',
+    'authorization,content-type,stripe-signature,paypal-transmission-id,paypal-transmission-sig,x-razorpay-signature,x-goog-signature,x-ocentra-role,x-ocentra-trusted-device,x-ocentra-internal-call,x-ocentra-internal-secret,x-ocentra-csrf'
   );
-  headers.set("access-control-max-age", "86400");
-  headers.set("vary", "origin");
-  headers.set("access-control-allow-origin", resolveResponseOrigin(origin, env));
+  headers.set('access-control-max-age', '86400');
+  headers.set('vary', 'origin');
+  headers.set('access-control-allow-origin', resolveResponseOrigin(origin, env));
 
   return new Response(response.body, {
     status: response.status,
@@ -234,26 +225,24 @@ function isAllowedOrigin(origin: string | null, env: Env): boolean {
   return parseAllowedOrigins(env).includes(origin);
 }
 
-function parseContentLengthHeader(
-  request: Request,
-): { ok: true; value: number } | { ok: false; response: Response } {
-  const transferEncoding = request.headers.get("transfer-encoding");
+function parseContentLengthHeader(request: Request): { ok: true; value: number } | { ok: false; response: Response } {
+  const transferEncoding = request.headers.get('transfer-encoding');
   if (transferEncoding && transferEncoding.trim().length > 0) {
     return {
       ok: false,
       response: json(400, {
-        error: "unsupported-transfer-encoding",
+        error: 'unsupported-transfer-encoding',
       }),
     };
   }
 
-  const headerValue = request.headers.get("content-length");
+  const headerValue = request.headers.get('content-length');
   if (!headerValue) {
     if (request.body !== null && STATE_CHANGING_METHODS.has(request.method)) {
       return {
         ok: false,
         response: json(400, {
-          error: "missing-content-length",
+          error: 'missing-content-length',
         }),
       };
     }
@@ -265,11 +254,11 @@ function parseContentLengthHeader(
   }
 
   const trimmed = headerValue.trim();
-  if (trimmed.includes(",")) {
+  if (trimmed.includes(',')) {
     return {
       ok: false,
       response: json(400, {
-        error: "ambiguous-content-length",
+        error: 'ambiguous-content-length',
       }),
     };
   }
@@ -278,7 +267,7 @@ function parseContentLengthHeader(
     return {
       ok: false,
       response: json(400, {
-        error: "invalid-content-length",
+        error: 'invalid-content-length',
       }),
     };
   }
@@ -291,23 +280,23 @@ function parseContentLengthHeader(
 
 function manualRequiredResponse(route: RouteManifestEntry, identity?: VerifiedIdentity): Response {
   return json(501, {
-    status: "manual-required",
+    status: 'manual-required',
     handlerKey: route.handlerKey,
     authState: route.authState,
     proofIdFamily: route.proofIdFamily,
     actorRole: identity?.role ?? null,
     message:
-      "This route is contract-shaped, but provider-backed behavior is still owned by the active payment workpacks.",
+      'This route is contract-shaped, but provider-backed behavior is still owned by the active payment workpacks.',
     nextStep: `Implement ${route.handlerKey} behind the shared billing contract before calling this route production-ready.`,
   });
 }
 
 function sanitizeIdFragment(value: string): string {
-  return value.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 48);
+  return value.replace(/[^A-Za-z0-9_-]/g, '-').slice(0, 48);
 }
 
 function requestIdFor(kind: string, subject: string, providedRequestId: unknown): string {
-  if (typeof providedRequestId === "string" && providedRequestId.trim().length > 0) {
+  if (typeof providedRequestId === 'string' && providedRequestId.trim().length > 0) {
     return sanitizeIdFragment(providedRequestId.trim());
   }
   return `${sanitizeIdFragment(kind)}-${sanitizeIdFragment(subject)}`;
@@ -316,41 +305,41 @@ function requestIdFor(kind: string, subject: string, providedRequestId: unknown)
 function rejectionResponse(
   kind: HostedSessionKind,
   requestId: string,
-  rejectionReason: HostedSessionRejectionReason,
+  rejectionReason: HostedSessionRejectionReason
 ): Response {
-  if (kind === "checkout-session-create") {
+  if (kind === 'checkout-session-create') {
     return json(
       200,
       BillingCheckoutSessionResponseSchema.parse({
-        schemaVersion: "billing-checkout-portal-boundary",
+        schemaVersion: 'billing-checkout-portal-boundary',
         requestId,
         kind,
-        status: "rejected",
+        status: 'rejected',
         hostedSessionId: null,
         hostedUrl: null,
         expiresAt: null,
         rejectionReason,
-      }),
+      })
     );
   }
 
   return json(
     200,
     BillingPortalSessionResponseSchema.parse({
-      schemaVersion: "billing-checkout-portal-boundary",
+      schemaVersion: 'billing-checkout-portal-boundary',
       requestId,
       kind,
-      status: "rejected",
+      status: 'rejected',
       hostedSessionId: null,
       hostedUrl: null,
       expiresAt: null,
       rejectionReason,
-    }),
+    })
   );
 }
 
-function hostedSessionPrefix(kind: HostedSessionKind): "checkout-session" | "portal-session" {
-  return kind === "checkout-session-create" ? "checkout-session" : "portal-session";
+function hostedSessionPrefix(kind: HostedSessionKind): 'checkout-session' | 'portal-session' {
+  return kind === 'checkout-session-create' ? 'checkout-session' : 'portal-session';
 }
 
 function hostedSessionIdFor(kind: HostedSessionKind, requestId: string): string {
@@ -358,53 +347,45 @@ function hostedSessionIdFor(kind: HostedSessionKind, requestId: string): string 
 }
 
 function hostedSessionUrlFor(kind: HostedSessionKind, requestId: string): string {
-  return kind === "checkout-session-create"
+  return kind === 'checkout-session-create'
     ? `https://checkout.stripe.com/c/pay/${sanitizeIdFragment(requestId)}`
     : `https://billing.stripe.com/p/session/${sanitizeIdFragment(requestId)}`;
 }
 
-function hostedSessionAuditReference(
-  kind: HostedSessionKind,
-  subject: string,
-  requestId: string,
-): string {
+function hostedSessionAuditReference(kind: HostedSessionKind, subject: string, requestId: string): string {
   return `audit:${hostedSessionPrefix(kind)}:${sanitizeIdFragment(subject)}:${sanitizeIdFragment(requestId)}`;
 }
 
-function acceptedResponseBody(
-  kind: HostedSessionKind,
-  requestId: string,
-  subject: string,
-): Record<string, unknown> {
+function acceptedResponseBody(kind: HostedSessionKind, requestId: string, subject: string): Record<string, unknown> {
   const hostedUrl = hostedSessionUrlFor(kind, requestId);
   const contractResponse =
-    kind === "checkout-session-create"
+    kind === 'checkout-session-create'
       ? BillingCheckoutSessionResponseSchema.parse({
-          schemaVersion: "billing-checkout-portal-boundary",
+          schemaVersion: 'billing-checkout-portal-boundary',
           requestId,
           kind,
-          status: "accepted",
+          status: 'accepted',
           hostedSessionId: hostedSessionIdFor(kind, requestId),
           hostedUrl,
-          expiresAt: "2026-06-14T01:00:00.000Z",
+          expiresAt: '2026-06-14T01:00:00.000Z',
           rejectionReason: null,
         })
       : BillingPortalSessionResponseSchema.parse({
-          schemaVersion: "billing-checkout-portal-boundary",
+          schemaVersion: 'billing-checkout-portal-boundary',
           requestId,
           kind,
-          status: "accepted",
+          status: 'accepted',
           hostedSessionId: hostedSessionIdFor(kind, requestId),
           hostedUrl,
-          expiresAt: "2026-06-14T01:00:00.000Z",
+          expiresAt: '2026-06-14T01:00:00.000Z',
           rejectionReason: null,
         });
 
   return {
     ...contractResponse,
-    provider: "stripe",
+    provider: 'stripe',
     ownerSubject: subject,
-    pendingEntitlementConfirmation: kind === "checkout-session-create",
+    pendingEntitlementConfirmation: kind === 'checkout-session-create',
   };
 }
 
@@ -416,7 +397,7 @@ async function readJsonObject<T extends Record<string, unknown>>(request: Reques
 
   try {
     const parsed = JSON.parse(body) as unknown;
-    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
       return parsed as T;
     }
   } catch {
@@ -427,15 +408,15 @@ async function readJsonObject<T extends Record<string, unknown>>(request: Reques
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && value.constructor === Object;
+  return typeof value === 'object' && value !== null && value.constructor === Object;
 }
 
 function stringOrNull(value: unknown): string | null {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
 function numberOrNull(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 function booleanFromUnknown(value: unknown): boolean {
@@ -443,7 +424,7 @@ function booleanFromUnknown(value: unknown): boolean {
 }
 
 function extractAbuseGateState(value: unknown): string {
-  return typeof value === "string" ? value : "trusted-authenticated-session";
+  return typeof value === 'string' ? value : 'trusted-authenticated-session';
 }
 
 function cloneJsonValue<T>(value: T): T {
@@ -451,7 +432,7 @@ function cloneJsonValue<T>(value: T): T {
 }
 
 function withQueuedFlag(responseBody: unknown, queued: boolean): unknown {
-  if (!isPlainObject(responseBody) || !Object.prototype.hasOwnProperty.call(responseBody, "queued")) {
+  if (!isPlainObject(responseBody) || !Object.prototype.hasOwnProperty.call(responseBody, 'queued')) {
     return responseBody;
   }
 
@@ -466,17 +447,17 @@ function queueFailureMessage(error: unknown): string | null {
     return null;
   }
 
-  return error.message.replace(/\s+/gu, " ").trim().slice(0, 160) || null;
+  return error.message.replace(/\s+/gu, ' ').trim().slice(0, 160) || null;
 }
 
 function deadLetterPayload(
   payload: Record<string, unknown>,
   reason: QueueFailureReason,
-  error: unknown,
+  error: unknown
 ): Record<string, unknown> {
   return {
-    disposition: "dead-letter",
-    sourceQueue: "BILLING_RECONCILIATION_QUEUE",
+    disposition: 'dead-letter',
+    sourceQueue: 'BILLING_RECONCILIATION_QUEUE',
     reason,
     payload: cloneJsonValue(payload),
     failedAt: new Date().toISOString(),
@@ -490,18 +471,14 @@ function explicitProviderHint(payload: unknown): string | null {
   }
 
   const directHint =
-    stringOrNull(payload.provider) ??
-    stringOrNull(payload.providerName) ??
-    stringOrNull(payload.providerRoute);
+    stringOrNull(payload.provider) ?? stringOrNull(payload.providerName) ?? stringOrNull(payload.providerRoute);
   if (directHint) {
     return directHint;
   }
 
   const metadata = isPlainObject(payload.metadata) ? payload.metadata : null;
   const metadataHint =
-    stringOrNull(metadata?.provider) ??
-    stringOrNull(metadata?.providerName) ??
-    stringOrNull(metadata?.providerRoute);
+    stringOrNull(metadata?.provider) ?? stringOrNull(metadata?.providerName) ?? stringOrNull(metadata?.providerRoute);
   if (metadataHint) {
     return metadataHint;
   }
@@ -528,7 +505,7 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     return null;
   }
 
-  if (kind === "hosted-session") {
+  if (kind === 'hosted-session') {
     const requestId = stringOrNull(value.requestId);
     const sessionKind = stringOrNull(value.sessionKind);
     const auditReference = stringOrNull(value.auditReference);
@@ -536,9 +513,8 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     if (
       !requestId ||
       !auditReference ||
-      (sessionKind !== "checkout-session-create" &&
-        sessionKind !== "billing-portal-session-create") ||
-      (actorRole !== "parent" && actorRole !== "guardian")
+      (sessionKind !== 'checkout-session-create' && sessionKind !== 'billing-portal-session-create') ||
+      (actorRole !== 'parent' && actorRole !== 'guardian')
     ) {
       return null;
     }
@@ -552,7 +528,7 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === "change-plan") {
+  if (kind === 'change-plan') {
     const requestId = stringOrNull(value.requestId);
     const auditReference = stringOrNull(value.auditReference);
     const targetPlanId = stringOrNull(value.targetPlanId);
@@ -568,16 +544,16 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === "cancel") {
+  if (kind === 'cancel') {
     const requestId = stringOrNull(value.requestId);
     const auditReference = stringOrNull(value.auditReference);
     const cancellationState = stringOrNull(value.cancellationState);
     if (
       !requestId ||
       !auditReference ||
-      cancellationState !== "scheduled-period-end" &&
-      cancellationState !== "already-in-grace" &&
-      cancellationState !== "manual-review-required"
+      (cancellationState !== 'scheduled-period-end' &&
+        cancellationState !== 'already-in-grace' &&
+        cancellationState !== 'manual-review-required')
     ) {
       return null;
     }
@@ -590,7 +566,7 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === "referral-invite") {
+  if (kind === 'referral-invite') {
     const requestId = stringOrNull(value.requestId);
     const invitedIdentifier = stringOrNull(value.invitedIdentifier);
     const referralCode = stringOrNull(value.referralCode);
@@ -601,7 +577,7 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
       !invitedIdentifier ||
       !referralCode ||
       !auditReference ||
-      (actorRole !== "parent" && actorRole !== "guardian")
+      (actorRole !== 'parent' && actorRole !== 'guardian')
     ) {
       return null;
     }
@@ -616,17 +592,12 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === "manual-invoice") {
+  if (kind === 'manual-invoice') {
     const requestId = stringOrNull(value.requestId);
     const auditReference = stringOrNull(value.auditReference);
     const region = stringOrNull(value.region);
     const actorRole = stringOrNull(value.actorRole);
-    if (
-      !requestId ||
-      !auditReference ||
-      !region ||
-      (actorRole !== "support" && actorRole !== "admin")
-    ) {
+    if (!requestId || !auditReference || !region || (actorRole !== 'support' && actorRole !== 'admin')) {
       return null;
     }
     return {
@@ -639,7 +610,7 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === "admin-refund") {
+  if (kind === 'admin-refund') {
     const requestId = stringOrNull(value.requestId);
     const invoiceId = stringOrNull(value.invoiceId);
     const auditReference = stringOrNull(value.auditReference);
@@ -651,8 +622,8 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
       !invoiceId ||
       !auditReference ||
       amountCents === null ||
-      (refundState !== "refund-requested" && refundState !== "refund-settled") ||
-      (actorRole !== "support" && actorRole !== "admin")
+      (refundState !== 'refund-requested' && refundState !== 'refund-settled') ||
+      (actorRole !== 'support' && actorRole !== 'admin')
     ) {
       return null;
     }
@@ -668,15 +639,11 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === "reconciliation") {
+  if (kind === 'reconciliation') {
     const requestId = stringOrNull(value.requestId);
     const auditReference = stringOrNull(value.auditReference);
     const actorRole = stringOrNull(value.actorRole);
-    if (
-      !requestId ||
-      !auditReference ||
-      (actorRole !== "support" && actorRole !== "admin" && actorRole !== "system")
-    ) {
+    if (!requestId || !auditReference || (actorRole !== 'support' && actorRole !== 'admin' && actorRole !== 'system')) {
       return null;
     }
     return {
@@ -688,7 +655,7 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === "provider-webhook") {
+  if (kind === 'provider-webhook') {
     const provider = stringOrNull(value.provider);
     const eventId = stringOrNull(value.eventId);
     const eventType = stringOrNull(value.eventType);
@@ -714,7 +681,7 @@ function durableWriteKey(action: string, subject: string, requestId: string): st
 }
 
 function webhookIdempotencyKey(provider: string, eventId: string): string {
-  return durableWriteKey("provider-webhook", provider, eventId);
+  return durableWriteKey('provider-webhook', provider, eventId);
 }
 
 function webhookRequestFingerprint(provider: string, body: string): string {
@@ -724,9 +691,9 @@ function webhookRequestFingerprint(provider: string, body: string): string {
 function acceptedWebhookResponse(
   provider: string,
   proofIdFamily: string,
-  event: { eventId: string; eventType: string },
+  event: { eventId: string; eventType: string }
 ): {
-  status: "accepted";
+  status: 'accepted';
   provider: string;
   queued: boolean;
   proofIdFamily: string;
@@ -734,7 +701,7 @@ function acceptedWebhookResponse(
   eventType: string;
 } {
   return {
-    status: "accepted",
+    status: 'accepted',
     provider,
     queued: true,
     proofIdFamily,
@@ -745,28 +712,28 @@ function acceptedWebhookResponse(
 function conflictingWebhookResponse(
   provider: string,
   proofIdFamily: string,
-  event: { eventId: string; eventType: string },
+  event: { eventId: string; eventType: string }
 ): {
-  status: "manual-review";
+  status: 'manual-review';
   provider: string;
   queued: boolean;
   proofIdFamily: string;
   eventId: string;
   eventType: string;
-  conflictReason: "event-id-payload-mismatch";
+  conflictReason: 'event-id-payload-mismatch';
 } {
   return {
-    status: "manual-review",
+    status: 'manual-review',
     provider,
     queued: false,
     proofIdFamily,
     ...event,
-    conflictReason: "event-id-payload-mismatch",
+    conflictReason: 'event-id-payload-mismatch',
   };
 }
 
 async function executeIdempotentWrite(
-  namespace: Env["BILLING_DO"] | Env["REFERRAL_DO"],
+  namespace: Env['BILLING_DO'] | Env['REFERRAL_DO'],
   objectName: string,
   envelope: {
     requestKey: string;
@@ -778,15 +745,13 @@ async function executeIdempotentWrite(
     conflictResponseStatus?: number;
     conflictResponseBody?: unknown;
   },
-  env: Env,
+  env: Env
 ): Promise<Response> {
   if (!namespace) {
     if (envelope.stateMutation) {
       await applyBillingStateMutation(env, envelope.stateMutation);
     }
-    const queued = envelope.queueMessage
-      ? await queueReconciliationEvent(env, envelope.queueMessage)
-      : false;
+    const queued = envelope.queueMessage ? await queueReconciliationEvent(env, envelope.queueMessage) : false;
     const responseBody = envelope.queueMessage
       ? withQueuedFlag(cloneJsonValue(envelope.responseBody), queued)
       : envelope.responseBody;
@@ -795,48 +760,49 @@ async function executeIdempotentWrite(
 
   const stub = namespace.get(namespace.idFromName(objectName));
   const doResponse = await stub.fetch(
-    new Request("https://durable-object.local/idempotency/execute", {
-      method: "POST",
+    new Request('https://durable-object.local/idempotency/execute', {
+      method: 'POST',
       headers: {
-        "content-type": "application/json",
+        'content-type': 'application/json',
       },
       body: JSON.stringify(envelope),
-    }),
+    })
   );
   const result = (await doResponse.json()) as IdempotentWriteResult;
   return json(result.responseStatus, result.responseBody);
 }
 
-function householdRoleForSubject(
-  subject: string,
-): "parent" | "guardian" | "child" | "member" | "unknown" {
-  if (subject.startsWith("parent:")) {
-    return "parent";
+function householdRoleForSubject(subject: string): 'parent' | 'guardian' | 'child' | 'member' | 'unknown' {
+  if (subject.startsWith('parent:')) {
+    return 'parent';
   }
-  if (subject.startsWith("guardian:")) {
-    return "guardian";
+  if (subject.startsWith('guardian:')) {
+    return 'guardian';
   }
-  if (subject.startsWith("child:")) {
-    return "child";
+  if (subject.startsWith('child:')) {
+    return 'child';
   }
-  if (subject.startsWith("member:")) {
-    return "member";
+  if (subject.startsWith('member:')) {
+    return 'member';
   }
-  return "unknown";
+  return 'unknown';
 }
 
-function billingActorRoleForSubject(subject: string): "parent" | "guardian" | null {
+function billingActorRoleForSubject(subject: string): 'parent' | 'guardian' | null {
   const householdRole = householdRoleForSubject(subject);
-  if (householdRole === "parent" || householdRole === "guardian") {
+  if (householdRole === 'parent' || householdRole === 'guardian') {
     return householdRole;
   }
   return null;
 }
 
-async function billingHostedRouteContext(subject: string, env: Env): Promise<{
+async function billingHostedRouteContext(
+  subject: string,
+  env: Env
+): Promise<{
   actor: {
     actorId: string;
-    role: "parent" | "guardian";
+    role: 'parent' | 'guardian';
   };
   parentAccount: {
     parentAccountId: string;
@@ -880,27 +846,27 @@ function requireInteractiveRequestBoundary(
   env: Env,
   identity: VerifiedIdentity,
   requestId: string,
-  kind: HostedSessionKind | null,
+  kind: HostedSessionKind | null
 ): Response | null {
   const householdRole = householdRoleForSubject(identity.subject);
-  if (householdRole !== "parent" && householdRole !== "guardian") {
+  if (householdRole !== 'parent' && householdRole !== 'guardian') {
     return kind
-      ? rejectionResponse(kind, requestId, "unauthorized-role")
+      ? rejectionResponse(kind, requestId, 'unauthorized-role')
       : json(403, {
-          error: "household-role-required",
+          error: 'household-role-required',
         });
   }
 
-  const origin = request.headers.get("origin");
+  const origin = request.headers.get('origin');
   if (!origin || !parseAllowedOrigins(env).includes(origin)) {
     return json(403, {
-      error: "origin-validation-failed",
+      error: 'origin-validation-failed',
     });
   }
 
   if (request.headers.get(INTERACTIVE_CSRF_HEADER) !== INTERACTIVE_CSRF_TOKEN) {
     return json(403, {
-      error: "csrf-validation-failed",
+      error: 'csrf-validation-failed',
     });
   }
 
@@ -909,17 +875,17 @@ function requireInteractiveRequestBoundary(
 
 async function computeHexHmac(payload: string, secret: string): Promise<string> {
   const key = await crypto.subtle.importKey(
-    "raw",
+    'raw',
     new TextEncoder().encode(secret),
     {
-      name: "HMAC",
-      hash: "SHA-256",
+      name: 'HMAC',
+      hash: 'SHA-256',
     },
     false,
-    ["sign"],
+    ['sign']
   );
-  const signed = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
-  return Array.from(new Uint8Array(signed), (value) => value.toString(16).padStart(2, "0")).join("");
+  const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
+  return Array.from(new Uint8Array(signed), (value) => value.toString(16).padStart(2, '0')).join('');
 }
 
 function safeEqual(left: string, right: string): boolean {
@@ -941,7 +907,7 @@ async function verifyHexHmac(payload: string, signature: string, secret: string)
 function providerEventDetails(provider: string, payload: unknown): { eventId: string; eventType: string } {
   const fallbackId = `${provider}_evt_local_unknown`;
   const fallbackType = `${provider}.unknown`;
-  if (typeof payload !== "object" || payload === null) {
+  if (typeof payload !== 'object' || payload === null) {
     return {
       eventId: fallbackId,
       eventType: fallbackType,
@@ -950,8 +916,8 @@ function providerEventDetails(provider: string, payload: unknown): { eventId: st
 
   const payloadRecord = payload as Record<string, unknown>;
   return {
-    eventId: typeof payloadRecord.id === "string" ? payloadRecord.id : fallbackId,
-    eventType: typeof payloadRecord.type === "string" ? payloadRecord.type : fallbackType,
+    eventId: typeof payloadRecord.id === 'string' ? payloadRecord.id : fallbackId,
+    eventType: typeof payloadRecord.type === 'string' ? payloadRecord.type : fallbackType,
   };
 }
 
@@ -961,9 +927,7 @@ function providerWebhookSubject(payload: unknown): string | null {
   }
 
   const directSubject =
-    stringOrNull(payload.subject) ??
-    stringOrNull(payload.ownerSubject) ??
-    stringOrNull(payload.parentSubject);
+    stringOrNull(payload.subject) ?? stringOrNull(payload.ownerSubject) ?? stringOrNull(payload.parentSubject);
   if (directSubject) {
     return directSubject;
   }
@@ -993,9 +957,7 @@ function providerWebhookInvoiceId(payload: unknown): string | null {
     return null;
   }
 
-  const directInvoiceId =
-    stringOrNull(payload.invoiceId) ??
-    stringOrNull(payload.invoice_id);
+  const directInvoiceId = stringOrNull(payload.invoiceId) ?? stringOrNull(payload.invoice_id);
   if (directInvoiceId) {
     return directInvoiceId;
   }
@@ -1005,21 +967,15 @@ function providerWebhookInvoiceId(payload: unknown): string | null {
   return stringOrNull(object?.invoice) ?? stringOrNull(object?.invoiceId) ?? stringOrNull(object?.invoice_id);
 }
 
-function providerWebhookDisputeId(
-  payload: unknown,
-  eventType: string,
-  fallbackDisputeId: string,
-): string | null {
-  if (!eventType.includes("dispute")) {
+function providerWebhookDisputeId(payload: unknown, eventType: string, fallbackDisputeId: string): string | null {
+  if (!eventType.includes('dispute')) {
     return null;
   }
   if (!isPlainObject(payload)) {
     return fallbackDisputeId;
   }
 
-  const directDisputeId =
-    stringOrNull(payload.disputeId) ??
-    stringOrNull(payload.dispute_id);
+  const directDisputeId = stringOrNull(payload.disputeId) ?? stringOrNull(payload.dispute_id);
   if (directDisputeId) {
     return directDisputeId;
   }
@@ -1033,21 +989,21 @@ async function acceptProviderWebhook(
   provider: string,
   body: string,
   proofIdFamily: string,
-  env: Env,
+  env: Env
 ): Promise<Response> {
   let payload: unknown;
   try {
     payload = body.length > 0 ? JSON.parse(body) : {};
   } catch {
     return json(400, {
-      error: "invalid-webhook-payload",
+      error: 'invalid-webhook-payload',
       provider,
     });
   }
 
   if (!isPlainObject(payload)) {
     return json(400, {
-      error: "invalid-webhook-payload",
+      error: 'invalid-webhook-payload',
       provider,
     });
   }
@@ -1055,7 +1011,7 @@ async function acceptProviderWebhook(
   const providerHint = explicitProviderHint(payload);
   if (providerHint && providerHint !== provider) {
     return json(400, {
-      error: "provider-route-mismatch",
+      error: 'provider-route-mismatch',
       provider,
     });
   }
@@ -1063,11 +1019,7 @@ async function acceptProviderWebhook(
   const event = providerEventDetails(provider, payload);
   const subject = providerWebhookSubject(payload);
   const invoiceId = providerWebhookInvoiceId(payload);
-  const disputeId = providerWebhookDisputeId(
-    payload,
-    event.eventType,
-    `dispute-${provider}-${event.eventId}`,
-  );
+  const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
   return executeIdempotentWrite(
     env.BILLING_DO,
     `billing-control:webhook:${provider}`,
@@ -1084,7 +1036,7 @@ async function acceptProviderWebhook(
       },
       stateMutation: subject
         ? {
-            kind: "provider-webhook",
+            kind: 'provider-webhook',
             provider,
             subject,
             eventId: event.eventId,
@@ -1096,16 +1048,14 @@ async function acceptProviderWebhook(
       conflictResponseStatus: 409,
       conflictResponseBody: conflictingWebhookResponse(provider, proofIdFamily, event),
     },
-    env,
+    env
   );
 }
 
 async function queueReconciliationEvent(env: Env, payload: Record<string, unknown>): Promise<boolean> {
   if (!env.BILLING_RECONCILIATION_QUEUE) {
     try {
-      await env.BILLING_DEAD_LETTER_QUEUE?.send(
-        deadLetterPayload(payload, "reconciliation-queue-missing", null),
-      );
+      await env.BILLING_DEAD_LETTER_QUEUE?.send(deadLetterPayload(payload, 'reconciliation-queue-missing', null));
     } catch {
       return false;
     }
@@ -1117,9 +1067,7 @@ async function queueReconciliationEvent(env: Env, payload: Record<string, unknow
     return true;
   } catch (error) {
     try {
-      await env.BILLING_DEAD_LETTER_QUEUE?.send(
-        deadLetterPayload(payload, "reconciliation-queue-send-failed", error),
-      );
+      await env.BILLING_DEAD_LETTER_QUEUE?.send(deadLetterPayload(payload, 'reconciliation-queue-send-failed', error));
     } catch {
       return false;
     }
@@ -1133,57 +1081,57 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
     async health({ env }): Promise<Response> {
       const missingBindings = getMissingBindings(env);
       return json(200, {
-        status: "ok",
-        service: "cloudflare-control-plane",
+        status: 'ok',
+        service: 'cloudflare-control-plane',
         environment: env.ENVIRONMENT,
         authAdapterMode: resolveAuthAdapterMode(env),
         routeCount: ROUTE_MANIFEST.length,
         implementedHandlerCount: IMPLEMENTED_HANDLER_KEYS.length,
-        bindingStatus: missingBindings.length === 0 ? "ready" : "degraded",
+        bindingStatus: missingBindings.length === 0 ? 'ready' : 'degraded',
         missingBindingCount: missingBindings.length,
         seedSummary: await loadLocalSeedSummary(env),
       });
     },
 
-    async "pricing-public"({ env }): Promise<Response> {
+    async 'pricing-public'({ env }): Promise<Response> {
       return json(200, {
-        status: "ok",
+        status: 'ok',
         plans: await loadPricingPlans(env),
-        updatedAt: "2026-06-14T00:00:00.000Z",
+        updatedAt: '2026-06-14T00:00:00.000Z',
       });
     },
 
-    async "billing-status"({ env, identity }): Promise<Response> {
+    async 'billing-status'({ env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       return json(200, await loadBillingStatusSummary(env, identity.subject));
     },
 
-    async "billing-checkout"({ request, env, identity }): Promise<Response> {
+    async 'billing-checkout'({ request, env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const body = await readJsonObject<CheckoutRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("checkout", identity.subject, body.requestId);
+      const requestId = requestIdFor('checkout', identity.subject, body.requestId);
       const boundaryFailure = requireInteractiveRequestBoundary(
         request,
         env,
         identity,
         requestId,
-        "checkout-session-create",
+        'checkout-session-create'
       );
       if (boundaryFailure) {
         return boundaryFailure;
@@ -1192,24 +1140,24 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const planId = stringOrNull(body.planId);
       const pricingPlans = await loadPricingPlans(env);
       if (!planId || !pricingPlans.some((plan) => plan.planId === planId && plan.priceCents > 0)) {
-        return rejectionResponse("checkout-session-create", requestId, "invalid-plan");
+        return rejectionResponse('checkout-session-create', requestId, 'invalid-plan');
       }
 
       const successPath = stringOrNull(body.successPath) ?? CHECKOUT_SUCCESS_PATH;
       const cancelPath = stringOrNull(body.cancelPath) ?? CHECKOUT_CANCEL_PATH;
       if (successPath !== CHECKOUT_SUCCESS_PATH || cancelPath !== CHECKOUT_CANCEL_PATH) {
-        return rejectionResponse("checkout-session-create", requestId, "redirect-not-allowlisted");
+        return rejectionResponse('checkout-session-create', requestId, 'redirect-not-allowlisted');
       }
 
       const abuseGateState = extractAbuseGateState(body.abuseGateState);
       if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
-        return rejectionResponse("checkout-session-create", requestId, "abuse-gate-required");
+        return rejectionResponse('checkout-session-create', requestId, 'abuse-gate-required');
       }
 
       BillingCheckoutSessionRequestSchema.parse({
-        schemaVersion: "billing-checkout-portal-boundary",
+        schemaVersion: 'billing-checkout-portal-boundary',
         requestId,
-        kind: "checkout-session-create",
+        kind: 'checkout-session-create',
         ...(await billingHostedRouteContext(identity.subject, env)),
         planId,
         successRoute: checkoutHostedRouteForPath(successPath),
@@ -1222,51 +1170,47 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         env.BILLING_DO,
         `billing-control:${identity.subject}`,
         {
-          requestKey: durableWriteKey("checkout-session-create", identity.subject, requestId),
+          requestKey: durableWriteKey('checkout-session-create', identity.subject, requestId),
           requestFingerprint: `checkout-session-create:${planId}:${successPath}:${cancelPath}`,
           responseStatus: 200,
-          responseBody: acceptedResponseBody("checkout-session-create", requestId, identity.subject),
+          responseBody: acceptedResponseBody('checkout-session-create', requestId, identity.subject),
           queueMessage: null,
           stateMutation: actorRole
             ? {
-                kind: "hosted-session",
+                kind: 'hosted-session',
                 subject: identity.subject,
                 requestId,
-                sessionKind: "checkout-session-create",
-                auditReference: hostedSessionAuditReference(
-                  "checkout-session-create",
-                  identity.subject,
-                  requestId,
-                ),
+                sessionKind: 'checkout-session-create',
+                auditReference: hostedSessionAuditReference('checkout-session-create', identity.subject, requestId),
                 actorRole,
               }
             : null,
         },
-        env,
+        env
       );
     },
 
-    async "billing-portal"({ request, env, identity }): Promise<Response> {
+    async 'billing-portal'({ request, env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const body = await readJsonObject<PortalRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("portal", identity.subject, body.requestId);
+      const requestId = requestIdFor('portal', identity.subject, body.requestId);
       const boundaryFailure = requireInteractiveRequestBoundary(
         request,
         env,
         identity,
         requestId,
-        "billing-portal-session-create",
+        'billing-portal-session-create'
       );
       if (boundaryFailure) {
         return boundaryFailure;
@@ -1274,18 +1218,18 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
 
       const returnPath = stringOrNull(body.returnPath) ?? PORTAL_RETURN_PATH;
       if (!ALLOWLISTED_RETURN_PATHS.has(returnPath) || returnPath !== PORTAL_RETURN_PATH) {
-        return rejectionResponse("billing-portal-session-create", requestId, "redirect-not-allowlisted");
+        return rejectionResponse('billing-portal-session-create', requestId, 'redirect-not-allowlisted');
       }
 
       const abuseGateState = extractAbuseGateState(body.abuseGateState);
       if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
-        return rejectionResponse("billing-portal-session-create", requestId, "abuse-gate-required");
+        return rejectionResponse('billing-portal-session-create', requestId, 'abuse-gate-required');
       }
 
       BillingPortalSessionRequestSchema.parse({
-        schemaVersion: "billing-checkout-portal-boundary",
+        schemaVersion: 'billing-checkout-portal-boundary',
         requestId,
-        kind: "billing-portal-session-create",
+        kind: 'billing-portal-session-create',
         ...(await billingHostedRouteContext(identity.subject, env)),
         returnRoute: BillingHostedReturnRoute.PortalReturn,
         abuseGateState,
@@ -1296,61 +1240,61 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         env.BILLING_DO,
         `billing-control:${identity.subject}`,
         {
-          requestKey: durableWriteKey("billing-portal-session-create", identity.subject, requestId),
+          requestKey: durableWriteKey('billing-portal-session-create', identity.subject, requestId),
           requestFingerprint: `billing-portal-session-create:${returnPath}`,
           responseStatus: 200,
-          responseBody: acceptedResponseBody("billing-portal-session-create", requestId, identity.subject),
+          responseBody: acceptedResponseBody('billing-portal-session-create', requestId, identity.subject),
           queueMessage: null,
           stateMutation: actorRole
             ? {
-                kind: "hosted-session",
+                kind: 'hosted-session',
                 subject: identity.subject,
                 requestId,
-                sessionKind: "billing-portal-session-create",
+                sessionKind: 'billing-portal-session-create',
                 auditReference: hostedSessionAuditReference(
-                  "billing-portal-session-create",
+                  'billing-portal-session-create',
                   identity.subject,
-                  requestId,
+                  requestId
                 ),
                 actorRole,
               }
             : null,
         },
-        env,
+        env
       );
     },
 
-    async "billing-invoices"({ env, identity }): Promise<Response> {
+    async 'billing-invoices'({ env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const invoices = await loadBillingInvoices(env, identity.subject);
       return json(200, {
-        status: "ok",
+        status: 'ok',
         subject: identity.subject,
         invoiceCount: invoices.length,
         invoices,
       });
     },
 
-    async "billing-change-plan"({ request, env, identity }): Promise<Response> {
+    async 'billing-change-plan'({ request, env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const body = await readJsonObject<ChangePlanRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("change-plan", identity.subject, body.requestId);
+      const requestId = requestIdFor('change-plan', identity.subject, body.requestId);
       const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId, null);
       if (boundaryFailure) {
         return boundaryFailure;
@@ -1359,7 +1303,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const abuseGateState = extractAbuseGateState(body.abuseGateState);
       if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
         return json(403, {
-          error: "abuse-gate-required",
+          error: 'abuse-gate-required',
         });
       }
 
@@ -1367,30 +1311,30 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         await loadBillingStatusSummary(env, identity.subject),
         requestId,
         stringOrNull(body.planId),
-        await loadPricingPlans(env),
+        await loadPricingPlans(env)
       );
       const targetPlanId = summary.targetPlanId;
       return executeIdempotentWrite(
         env.BILLING_DO,
         `billing-control:${identity.subject}`,
         {
-          requestKey: durableWriteKey("change-plan", identity.subject, requestId),
-          requestFingerprint: `change-plan:${targetPlanId ?? "invalid"}`,
+          requestKey: durableWriteKey('change-plan', identity.subject, requestId),
+          requestFingerprint: `change-plan:${targetPlanId ?? 'invalid'}`,
           responseStatus: 200,
           responseBody: summary,
           queueMessage:
-            summary.status === "accepted"
+            summary.status === 'accepted'
               ? {
-                  action: "change-plan",
+                  action: 'change-plan',
                   requestId,
                   subject: identity.subject,
                   targetPlanId,
                 }
               : null,
           stateMutation:
-            summary.status === "accepted" && targetPlanId !== null
+            summary.status === 'accepted' && targetPlanId !== null
               ? {
-                  kind: "change-plan",
+                  kind: 'change-plan',
                   subject: identity.subject,
                   requestId,
                   targetPlanId,
@@ -1398,25 +1342,25 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
                 }
               : null,
         },
-        env,
+        env
       );
     },
 
-    async "billing-cancel"({ request, env, identity }): Promise<Response> {
+    async 'billing-cancel'({ request, env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const body = await readJsonObject<CancelRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("cancel", identity.subject, body.requestId);
+      const requestId = requestIdFor('cancel', identity.subject, body.requestId);
       const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId, null);
       if (boundaryFailure) {
         return boundaryFailure;
@@ -1425,68 +1369,68 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const abuseGateState = extractAbuseGateState(body.abuseGateState);
       if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
         return json(403, {
-          error: "abuse-gate-required",
+          error: 'abuse-gate-required',
         });
       }
 
       const summary = buildBillingCancellationSummaryFromStatus(
         await loadBillingStatusSummary(env, identity.subject),
-        requestId,
+        requestId
       );
       return executeIdempotentWrite(
         env.BILLING_DO,
         `billing-control:${identity.subject}`,
         {
-          requestKey: durableWriteKey("cancel", identity.subject, requestId),
+          requestKey: durableWriteKey('cancel', identity.subject, requestId),
           requestFingerprint: `cancel:${summary.cancellationState}`,
           responseStatus: 200,
           responseBody: summary,
           queueMessage: {
-            action: "cancel",
+            action: 'cancel',
             requestId,
             subject: identity.subject,
             cancellationState: summary.cancellationState,
           },
           stateMutation: {
-            kind: "cancel",
+            kind: 'cancel',
             subject: identity.subject,
             requestId,
             cancellationState: summary.cancellationState,
             auditReference: summary.auditReference,
           },
         },
-        env,
+        env
       );
     },
 
-    async "billing-referrals"({ env, identity }): Promise<Response> {
+    async 'billing-referrals'({ env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       return json(200, {
-        status: "ok",
+        status: 'ok',
         ...(await loadBillingReferralSummary(env, identity.subject)),
       });
     },
 
-    async "billing-referral-invite"({ request, env, identity }): Promise<Response> {
+    async 'billing-referral-invite'({ request, env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const body = await readJsonObject<ReferralInviteRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("referral-invite", identity.subject, body.requestId);
+      const requestId = requestIdFor('referral-invite', identity.subject, body.requestId);
       const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId, null);
       if (boundaryFailure) {
         return boundaryFailure;
@@ -1495,23 +1439,23 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const abuseGateState = extractAbuseGateState(body.abuseGateState);
       if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
         return json(403, {
-          error: "abuse-gate-required",
+          error: 'abuse-gate-required',
         });
       }
 
       const result = buildReferralInviteResult(identity.subject, requestId, stringOrNull(body.invitee));
-      if (result.status === "accepted") {
+      if (result.status === 'accepted') {
         const invitedIdentifier = stringOrNull(body.invitee)?.trim().toLowerCase();
         const actorRole = billingActorRoleForSubject(identity.subject);
         return executeIdempotentWrite(
           env.REFERRAL_DO,
           `referral-control:${identity.subject}`,
           {
-            requestKey: durableWriteKey("referral-invite", identity.subject, requestId),
+            requestKey: durableWriteKey('referral-invite', identity.subject, requestId),
             responseStatus: 200,
             responseBody: result,
             queueMessage: {
-              action: "referral-invite",
+              action: 'referral-invite',
               requestId,
               subject: identity.subject,
               referralCode: result.referralCode,
@@ -1519,7 +1463,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
             stateMutation:
               invitedIdentifier && result.referralCode && actorRole
                 ? {
-                    kind: "referral-invite",
+                    kind: 'referral-invite',
                     subject: identity.subject,
                     requestId,
                     invitedIdentifier,
@@ -1529,40 +1473,40 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
                   }
                 : null,
           },
-          env,
+          env
         );
       }
       return json(200, result);
     },
 
-    async "billing-entitlement-snapshot"({ env, identity }): Promise<Response> {
+    async 'billing-entitlement-snapshot'({ env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       return json(200, {
-        status: "ok",
+        status: 'ok',
         snapshot: await loadBillingEntitlementSnapshot(env, identity.subject),
       });
     },
 
-    async "billing-license-check"({ request, env, identity }): Promise<Response> {
+    async 'billing-license-check'({ request, env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const body = await readJsonObject<LicenseCheckRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("license-check", identity.subject, body.requestId);
+      const requestId = requestIdFor('license-check', identity.subject, body.requestId);
       const deviceId = stringOrNull(body.deviceId) ?? `device-${sanitizeIdFragment(identity.subject)}`;
       return json(
         200,
@@ -1571,204 +1515,204 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           identity.subject,
           requestId,
           deviceId,
-          booleanFromUnknown(body.requestedNewDevice),
-        ),
+          booleanFromUnknown(body.requestedNewDevice)
+        )
       );
     },
 
-    async "billing-manual-invoice"({ request, env, identity }): Promise<Response> {
+    async 'billing-manual-invoice'({ request, env, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
-          error: "identity-missing",
+          error: 'identity-missing',
         });
       }
 
       const body = await readJsonObject<ManualInvoiceRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("manual-invoice", identity.subject, body.requestId);
+      const requestId = requestIdFor('manual-invoice', identity.subject, body.requestId);
       const result = buildManualInvoiceResult(identity.subject, requestId, stringOrNull(body.region));
       return executeIdempotentWrite(
         env.BILLING_DO,
         `billing-control:${identity.subject}`,
         {
-          requestKey: durableWriteKey("manual-invoice", identity.subject, requestId),
+          requestKey: durableWriteKey('manual-invoice', identity.subject, requestId),
           responseStatus: 202,
           responseBody: {
             ...result,
             queued: true,
           },
           queueMessage: {
-            action: "manual-invoice",
+            action: 'manual-invoice',
             requestId,
             subject: identity.subject,
             region: result.region,
             actorRole: identity.role,
           },
           stateMutation: {
-            kind: "manual-invoice",
+            kind: 'manual-invoice',
             subject: identity.subject,
             requestId,
             region: result.region,
             auditReference: result.auditReference,
-            actorRole: identity.role === "admin" ? "admin" : "support",
+            actorRole: identity.role === 'admin' ? 'admin' : 'support',
           },
         },
-        env,
+        env
       );
     },
 
-    async "stripe-webhook"({ request, env, route }): Promise<Response> {
+    async 'stripe-webhook'({ request, env, route }): Promise<Response> {
       const signatureHeader = request.headers.get(signatureHeaderName(new URL(request.url).pathname));
       if (!signatureHeader) {
         return json(401, {
-          error: "authentication-required",
+          error: 'authentication-required',
           authState: route.authState,
-          missingHeader: "stripe-signature",
+          missingHeader: 'stripe-signature',
         });
       }
 
       if (!env.STRIPE_WEBHOOK_SECRET) {
         return json(503, {
-          error: "manual-required",
+          error: 'manual-required',
           authState: route.authState,
-          blocker: "stripe-webhook-secret-missing",
+          blocker: 'stripe-webhook-secret-missing',
         });
       }
 
       const body = await request.text();
       if (!(await verifyStripeWebhookSignature(body, signatureHeader, env.STRIPE_WEBHOOK_SECRET))) {
         return json(400, {
-          error: "invalid-stripe-signature",
+          error: 'invalid-stripe-signature',
         });
       }
 
-      return acceptProviderWebhook("stripe", body, route.proofIdFamily, env);
+      return acceptProviderWebhook('stripe', body, route.proofIdFamily, env);
     },
 
-    async "razorpay-webhook"({ request, env, route }): Promise<Response> {
+    async 'razorpay-webhook'({ request, env, route }): Promise<Response> {
       if (!env.RAZORPAY_KEY_SECRET) {
         return json(503, {
-          error: "manual-required",
+          error: 'manual-required',
           authState: route.authState,
-          blocker: "razorpay-webhook-secret-missing",
+          blocker: 'razorpay-webhook-secret-missing',
         });
       }
 
-      const signature = request.headers.get("x-razorpay-signature");
+      const signature = request.headers.get('x-razorpay-signature');
       if (!signature) {
         return json(401, {
-          error: "authentication-required",
+          error: 'authentication-required',
           authState: route.authState,
-          missingHeader: "x-razorpay-signature",
+          missingHeader: 'x-razorpay-signature',
         });
       }
 
       const body = await request.text();
       if (!(await verifyHexHmac(body, signature, env.RAZORPAY_KEY_SECRET))) {
         return json(400, {
-          error: "invalid-razorpay-signature",
+          error: 'invalid-razorpay-signature',
         });
       }
 
-      return acceptProviderWebhook("razorpay", body, route.proofIdFamily, env);
+      return acceptProviderWebhook('razorpay', body, route.proofIdFamily, env);
     },
 
-    async "paypal-webhook"({ request, env, route }): Promise<Response> {
+    async 'paypal-webhook'({ request, env, route }): Promise<Response> {
       if (!env.PAYPAL_CLIENT_SECRET) {
         return json(503, {
-          error: "manual-required",
+          error: 'manual-required',
           authState: route.authState,
-          blocker: "paypal-webhook-secret-missing",
+          blocker: 'paypal-webhook-secret-missing',
         });
       }
 
-      const transmissionId = request.headers.get("paypal-transmission-id");
-      const transmissionSig = request.headers.get("paypal-transmission-sig");
+      const transmissionId = request.headers.get('paypal-transmission-id');
+      const transmissionSig = request.headers.get('paypal-transmission-sig');
       if (!transmissionId || !transmissionSig) {
         return json(401, {
-          error: "authentication-required",
+          error: 'authentication-required',
           authState: route.authState,
-          missingHeader: !transmissionId ? "paypal-transmission-id" : "paypal-transmission-sig",
+          missingHeader: !transmissionId ? 'paypal-transmission-id' : 'paypal-transmission-sig',
         });
       }
 
       const body = await request.text();
       if (!(await verifyHexHmac(`${transmissionId}.${body}`, transmissionSig, env.PAYPAL_CLIENT_SECRET))) {
         return json(400, {
-          error: "invalid-paypal-signature",
+          error: 'invalid-paypal-signature',
         });
       }
 
-      return acceptProviderWebhook("paypal", body, route.proofIdFamily, env);
+      return acceptProviderWebhook('paypal', body, route.proofIdFamily, env);
     },
 
-    async "apple-webhook"({ request, env, route }): Promise<Response> {
+    async 'apple-webhook'({ request, env, route }): Promise<Response> {
       if (!env.APPLE_STORE_KEY_REF) {
         return json(503, {
-          error: "manual-required",
+          error: 'manual-required',
           authState: route.authState,
-          blocker: "apple-store-key-ref-missing",
+          blocker: 'apple-store-key-ref-missing',
         });
       }
 
-      const authorization = request.headers.get("authorization");
+      const authorization = request.headers.get('authorization');
       if (authorization !== `Bearer ${env.APPLE_STORE_KEY_REF}`) {
         return json(400, {
-          error: "invalid-apple-authorization",
+          error: 'invalid-apple-authorization',
         });
       }
 
-      const body = (await request.text()) || "";
-      return acceptProviderWebhook("apple", body, route.proofIdFamily, env);
+      const body = (await request.text()) || '';
+      return acceptProviderWebhook('apple', body, route.proofIdFamily, env);
     },
 
-    async "google-webhook"({ request, env, route }): Promise<Response> {
+    async 'google-webhook'({ request, env, route }): Promise<Response> {
       if (!env.GOOGLE_PLAY_SERVICE_ACCOUNT_REF) {
         return json(503, {
-          error: "manual-required",
+          error: 'manual-required',
           authState: route.authState,
-          blocker: "google-play-service-account-ref-missing",
+          blocker: 'google-play-service-account-ref-missing',
         });
       }
 
-      const signature = request.headers.get("x-goog-signature");
+      const signature = request.headers.get('x-goog-signature');
       if (!signature) {
         return json(401, {
-          error: "authentication-required",
+          error: 'authentication-required',
           authState: route.authState,
-          missingHeader: "x-goog-signature",
+          missingHeader: 'x-goog-signature',
         });
       }
 
       const body = await request.text();
       if (!(await verifyHexHmac(body, signature, env.GOOGLE_PLAY_SERVICE_ACCOUNT_REF))) {
         return json(400, {
-          error: "invalid-google-signature",
+          error: 'invalid-google-signature',
         });
       }
 
-      return acceptProviderWebhook("google", body, route.proofIdFamily, env);
+      return acceptProviderWebhook('google', body, route.proofIdFamily, env);
     },
 
-    async "admin-billing-accounts"({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-accounts'({ request, env, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
-      const query = new URL(request.url).searchParams.get("q");
+      const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingAccounts(env, query);
       const response = BillingSupportAdminAccountsResponseSchema.parse({
-        status: "ok",
+        status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         manualActionsPending: results.filter((row) => row.manualRequired).length,
         nonClaims: [
-          "no-provider-secrets",
-          "no-child-activity-custody",
-          "no-billing-provider-contact",
-          "no-support-backend-upload",
+          'no-provider-secrets',
+          'no-child-activity-custody',
+          'no-billing-provider-contact',
+          'no-support-backend-upload',
         ],
         results,
       });
@@ -1776,12 +1720,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       return json(200, response);
     },
 
-    async "admin-billing-invoices"({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-invoices'({ request, env, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
-      const query = new URL(request.url).searchParams.get("q");
+      const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingInvoices(env, query);
       const response = BillingSupportAdminInvoicesResponseSchema.parse({
-        status: "ok",
+        status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
@@ -1790,37 +1734,27 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       return json(200, response);
     },
 
-    async "admin-billing-refunds"({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-refunds'({ request, env, identity }): Promise<Response> {
       const body = await readJsonObject<AdminRefundRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("admin-refund", identity?.subject ?? "admin", body.requestId);
-      const result = buildAdminRefundResult(
-        requestId,
-        stringOrNull(body.invoiceId),
-        numberOrNull(body.amountCents),
-      );
-      if (result.status === "accepted") {
-        const refundSubject = result.invoiceId
-          ? await findBillingInvoiceSubject(env, result.invoiceId)
-          : null;
+      const requestId = requestIdFor('admin-refund', identity?.subject ?? 'admin', body.requestId);
+      const result = buildAdminRefundResult(requestId, stringOrNull(body.invoiceId), numberOrNull(body.amountCents));
+      if (result.status === 'accepted') {
+        const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
         return executeIdempotentWrite(
           env.BILLING_DO,
-          `billing-control:${identity?.subject ?? "admin"}`,
+          `billing-control:${identity?.subject ?? 'admin'}`,
           {
-            requestKey: durableWriteKey(
-              "admin-refund",
-              identity?.subject ?? "admin",
-              requestId,
-            ),
+            requestKey: durableWriteKey('admin-refund', identity?.subject ?? 'admin', requestId),
             responseStatus: 200,
             responseBody: result,
             queueMessage: {
-              action: "admin-refund",
+              action: 'admin-refund',
               requestId,
               invoiceId: result.invoiceId,
               amountCents: result.amountCents,
@@ -1829,32 +1763,32 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
             stateMutation:
               refundSubject &&
               result.invoiceId &&
-              result.refundState !== "manual-review-required" &&
+              result.refundState !== 'manual-review-required' &&
               result.amountCents !== null
                 ? {
-                    kind: "admin-refund",
+                    kind: 'admin-refund',
                     subject: refundSubject,
                     requestId,
                     invoiceId: result.invoiceId,
                     refundState: result.refundState,
                     amountCents: result.amountCents,
                     auditReference: result.auditReference,
-                    actorRole: identity?.role === "support" ? "support" : "admin",
+                    actorRole: identity?.role === 'support' ? 'support' : 'admin',
                   }
                 : null,
           },
-          env,
+          env
         );
       }
       return json(200, result);
     },
 
-    async "admin-billing-disputes"({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-disputes'({ request, env, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
-      const query = new URL(request.url).searchParams.get("q");
+      const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingDisputes(env, query);
       const response = BillingSupportAdminDisputesResponseSchema.parse({
-        status: "ok",
+        status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
@@ -1863,12 +1797,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       return json(200, response);
     },
 
-    async "admin-billing-referrals"({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-referrals'({ request, env, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
-      const query = new URL(request.url).searchParams.get("q");
+      const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingReferrals(env, query);
       const response = BillingSupportAdminReferralsResponseSchema.parse({
-        status: "ok",
+        status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
@@ -1877,56 +1811,47 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       return json(200, response);
     },
 
-    async "admin-billing-reconciliation"({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-reconciliation'({ request, env, identity }): Promise<Response> {
       const body = await readJsonObject<ReconciliationRequestBody>(request);
       if (!body) {
         return json(400, {
-          error: "invalid-json",
+          error: 'invalid-json',
         });
       }
 
-      const requestId = requestIdFor("reconciliation", identity?.subject ?? "internal", body.requestId);
+      const requestId = requestIdFor('reconciliation', identity?.subject ?? 'internal', body.requestId);
       const summary = buildReconciliationSummary(requestId, true);
-      const actorRole =
-        identity?.role === "support"
-          ? "support"
-          : identity?.role === "admin"
-            ? "admin"
-            : "system";
+      const actorRole = identity?.role === 'support' ? 'support' : identity?.role === 'admin' ? 'admin' : 'system';
       return executeIdempotentWrite(
         env.BILLING_DO,
-        `billing-control:${identity?.subject ?? "internal"}`,
+        `billing-control:${identity?.subject ?? 'internal'}`,
         {
-          requestKey: durableWriteKey(
-            "reconciliation",
-            identity?.subject ?? "internal",
-            requestId,
-          ),
+          requestKey: durableWriteKey('reconciliation', identity?.subject ?? 'internal', requestId),
           responseStatus: 202,
           responseBody: summary,
           queueMessage: {
-            action: "reconciliation",
+            action: 'reconciliation',
             requestId,
             actorRole: identity?.role ?? null,
           },
           stateMutation: {
-            kind: "reconciliation",
-            subject: identity?.subject ?? "internal",
+            kind: 'reconciliation',
+            subject: identity?.subject ?? 'internal',
             requestId,
             auditReference: summary.auditReference,
             actorRole,
           },
         },
-        env,
+        env
       );
     },
 
-    async "admin-billing-audit"({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-audit'({ request, env, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
-      const query = new URL(request.url).searchParams.get("q");
+      const query = new URL(request.url).searchParams.get('q');
       const results = await loadBillingAuditEvents(env, query);
       const response = BillingSupportAdminAuditEventsResponseSchema.parse({
-        status: "ok",
+        status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
@@ -1941,18 +1866,18 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   const validationErrors = validateEnv(env);
   if (validationErrors.length > 0) {
     return json(500, {
-      error: "environment-validation-failed",
+      error: 'environment-validation-failed',
       validationErrors,
     });
   }
 
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204 });
   }
 
-  if (!isAllowedOrigin(request.headers.get("origin"), env)) {
+  if (!isAllowedOrigin(request.headers.get('origin'), env)) {
     return json(403, {
-      error: "cors-origin-rejected",
+      error: 'cors-origin-rejected',
       allowedOrigins: parseAllowedOrigins(env),
     });
   }
@@ -1965,29 +1890,29 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   const contentLength = contentLengthResult.value;
   if (contentLength > parseRequestMaxBytes(env)) {
     return json(413, {
-      error: "payload-too-large",
+      error: 'payload-too-large',
       maxBytes: parseRequestMaxBytes(env),
     });
   }
 
   if (isRouteKillSwitchEnabled(env) && STATE_CHANGING_METHODS.has(request.method)) {
     return json(503, {
-      error: "billing-route-kill-switch-enabled",
-      status: "manual-required",
+      error: 'billing-route-kill-switch-enabled',
+      status: 'manual-required',
     });
   }
 
   const route = findRoute(new URL(request.url).pathname, request.method);
   if (!route) {
     return json(404, {
-      error: "route-not-found",
+      error: 'route-not-found',
     });
   }
 
   const handlers = await routeHandlerMap();
   const handler = handlers[route.handlerKey];
 
-  if (route.authState === "public") {
+  if (route.authState === 'public') {
     if (!handler) {
       return manualRequiredResponse(route);
     }
@@ -1999,9 +1924,9 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       });
     } catch (error) {
       return json(500, {
-        error: "worker-unhandled-error",
+        error: 'worker-unhandled-error',
         handlerKey: route.handlerKey,
-        message: error instanceof Error ? error.message : "unknown-error",
+        message: error instanceof Error ? error.message : 'unknown-error',
         requestHeaders: redactHeaders(request.headers),
       });
     }
@@ -2025,9 +1950,9 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     });
   } catch (error) {
     return json(500, {
-      error: "worker-unhandled-error",
+      error: 'worker-unhandled-error',
       handlerKey: route.handlerKey,
-      message: error instanceof Error ? error.message : "unknown-error",
+      message: error instanceof Error ? error.message : 'unknown-error',
       requestHeaders: redactHeaders(request.headers),
     });
   }
@@ -2036,18 +1961,17 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 class BasePlaceholderDO {
   constructor(
     protected readonly state: DurableObjectState,
-    protected readonly env: Env,
+    protected readonly env: Env
   ) {}
 
   async fetch(_request?: Request): Promise<Response> {
     void _request;
     void this.state;
     return json(200, {
-      status: "not-wired",
+      status: 'not-wired',
       durableObject: this.constructor.name,
       missingBindings: getMissingBindings(this.env),
-      message:
-        "Durable Object contracts exist, but stateful runtime behavior is still deferred to later workpacks.",
+      message: 'Durable Object contracts exist, but stateful runtime behavior is still deferred to later workpacks.',
     });
   }
 }
@@ -2060,14 +1984,14 @@ class IdempotentWriteDO extends BasePlaceholderDO {
 
   override async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
-    if (request.method !== "POST" || url.pathname !== "/idempotency/execute") {
+    if (request.method !== 'POST' || url.pathname !== '/idempotency/execute') {
       return super.fetch();
     }
 
     const envelope = await readJsonObject<IdempotentWriteEnvelope>(request);
     if (!envelope) {
       return json(400, {
-        error: "invalid-json",
+        error: 'invalid-json',
       });
     }
 
@@ -2076,7 +2000,7 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     const responseStatus = numberOrNull(envelope.responseStatus);
     if (requestKey === null || responseStatus === null) {
       return json(400, {
-        error: "invalid-idempotency-envelope",
+        error: 'invalid-idempotency-envelope',
       });
     }
 
@@ -2089,7 +2013,7 @@ class IdempotentWriteDO extends BasePlaceholderDO {
       ) {
         const conflictResponseStatus = numberOrNull(envelope.conflictResponseStatus) ?? 409;
         const conflictResponseBody = envelope.conflictResponseBody ?? {
-          error: "idempotency-conflict",
+          error: 'idempotency-conflict',
         };
         return json(200, {
           replayed: true,
@@ -2112,12 +2036,8 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     if (stateMutation) {
       await applyBillingStateMutation(this.env, stateMutation);
     }
-    const queued = queueMessage
-      ? await queueReconciliationEvent(this.env, queueMessage)
-      : false;
-    const responseBody = queueMessage
-      ? withQueuedFlag(envelope.responseBody, queued)
-      : envelope.responseBody;
+    const queued = queueMessage ? await queueReconciliationEvent(this.env, queueMessage) : false;
+    const responseBody = queueMessage ? withQueuedFlag(envelope.responseBody, queued) : envelope.responseBody;
     const stored = {
       requestFingerprint,
       responseStatus,

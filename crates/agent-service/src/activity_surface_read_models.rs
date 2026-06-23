@@ -1,9 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityBrowserReadModel, ActivityBrowserReadModelRow, ActivityNetworkReadModel,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityBrowserReadModel, ActivityBrowserReadModelRow, ActivityNetworkReadModel,
     ActivityNetworkReadModelRow, ActivityReadModelState, ActivityScreenReadModel,
-    ActivityScreenReadModelRow, ActivitySurfaceRequest, BrowserEvidenceReadModel,
-    ScreenEvidenceRecentSummary, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityScreenReadModelRow, ActivitySurfaceRequest,
 };
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenEvidenceRecentSummary;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::activity_surface_read_model_states::{
     empty_screen_read_model, offline_browser_read_model, offline_network_read_model,
@@ -19,8 +22,6 @@ pub(crate) mod app_use;
 pub(crate) mod games;
 mod shared;
 
-use app_use::app_use_read_model;
-use games::games_read_model;
 use shared::row_device_id;
 
 pub(crate) fn screen_read_model(
@@ -82,7 +83,7 @@ pub(crate) fn browser_read_model(
 
 pub(crate) fn network_read_model(
     request: ActivitySurfaceRequest,
-    model: Option<ocentra_parent_agent_protocol::ActivityNetworkFlowReadModel>,
+    model: Option<ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel>,
 ) -> ActivityNetworkReadModel {
     if request_targets_remote_device(&request) {
         return offline_network_read_model(request);
@@ -117,7 +118,7 @@ pub(crate) fn network_read_model(
 }
 
 pub(crate) fn activity_screen_row_from_result(
-    result: ocentra_parent_agent_protocol::ScreenAnalysisResult,
+    result: ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisResult,
 ) -> ActivityScreenReadModelRow {
     ActivityScreenReadModelRow {
         row_id: result.screen_analysis_result_id,
@@ -157,7 +158,7 @@ pub(crate) fn activity_screen_row_from_result(
 }
 
 fn browser_row(
-    row: ocentra_parent_agent_protocol::BrowserTabEvidence,
+    row: ocentra_parent_agent_protocol::browser_read_model::BrowserTabEvidence,
 ) -> ActivityBrowserReadModelRow {
     ActivityBrowserReadModelRow {
         row_id: row.browser_evidence_id,
@@ -172,7 +173,7 @@ fn browser_row(
 
 fn network_row(
     request: &ActivitySurfaceRequest,
-    row: ocentra_parent_agent_protocol::ActivityNetworkFlowObservation,
+    row: ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation,
 ) -> ActivityNetworkReadModelRow {
     ActivityNetworkReadModelRow {
         row_id: row.event_id,

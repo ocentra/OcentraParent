@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentDeviceIdSchema } from './family-reference-primitives';
 import { LanPairingSchemaVersionSchema, LanPairingTimestampSchema } from './lan-pairing-values';
 
@@ -65,4 +59,3 @@ export type LanDiscoveryEvidenceSource = Infer<typeof LanDiscoveryEvidenceSource
 export type LanDiscoveryEvidenceKind = Infer<typeof LanDiscoveryEvidenceKindSchema>;
 export type LanDiscoveryEvidenceConfidence = Infer<typeof LanDiscoveryEvidenceConfidenceSchema>;
 export type LanDiscoveryEvidenceRecord = Infer<typeof LanDiscoveryEvidenceRecordSchema>;
-

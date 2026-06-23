@@ -2,14 +2,49 @@
 
 Goal: define remote input/control as a separate high-risk capability deferred from the current live-view pass.
 
-Expected shape:
+## Ownership boundary
+
+```text
+WP03 is a future control slice and is not part of the current live-view pass.
+remote-access-plan will own remote-control capability semantics only when this workpack is explicitly opened.
+account/device-trust plans own parent authority and fresh confirmation/step-up.
+enforcement/platform plans own action authority, platform permission, stop paths, and adapter execution.
+screen/portal plans may provide visible context, but not control authority.
+```
+
+## Expected shape
 
 - Remote input is off by default.
 - Parent confirmation and session freshness are required when this workpack is opened.
 - Input scope, stop/escape behavior, blocked surfaces, and child disclosure are explicit.
 - Control cannot bypass policy, OS permission, or child safety constraints.
 
-Expected proof:
+## Required proof fields for future control slice
+
+When this deferred workpack is explicitly opened, the selected proof must name, at minimum:
+
+```text
+control_capability_state
+fresh_confirmation_state
+parent_authority_state
+session_freshness_state
+input_scope_state
+blocked_surface_state
+child_disclosure_state
+stop_escape_state
+revocation_state
+policy_constraint_state
+platform_permission_state
+replay_input_state
+privilege_escalation_state
+manual_required_state
+no_live_view_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
+## Expected proof
 
 - Privilege escalation negative tests.
 - Stop/revoke proof.
@@ -50,3 +85,7 @@ Proof artifact expectations:
 - Abuse/privilege escalation tests.
 - Child disclosure artifact.
 - Logs/traces with no sensitive screen payload.
+
+## Current-pass no-claim
+
+Current live-view work must record `control_state: deferred` or equivalent no-claim. No current-pass READY claim may imply keyboard, pointer, app focus, admin, filesystem, shell, or child-device control.

@@ -1,17 +1,8 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
-const tamperIntegrityAuditText = <Brand extends string>(brand: Brand) =>
-  NonEmptyStringSchema.pipe(Schema.brand(brand));
+const tamperIntegrityAuditText = <Brand extends string>(brand: Brand) => NonEmptyStringSchema.pipe(Schema.brand(brand));
 export const TamperIntegrityAuditReadModelIdSchema = tamperIntegrityAuditText('TamperIntegrityAuditReadModelId');
 export const TamperIntegrityAuditEntryIdSchema = tamperIntegrityAuditText('TamperIntegrityAuditEntryId');
 export const TamperIntegrityAuditReferenceSchema = tamperIntegrityAuditText('TamperIntegrityAuditReference');
@@ -290,4 +281,3 @@ export type TamperIntegrityAuditReadModel = Infer<typeof TamperIntegrityAuditRea
 
 export const decodeTamperIntegrityAuditEntry = Schema.decodeUnknownSync(TamperIntegrityAuditEntrySchema);
 export const decodeTamperIntegrityAuditReadModel = Schema.decodeUnknownSync(TamperIntegrityAuditReadModelSchema);
-

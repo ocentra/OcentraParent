@@ -1,9 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, AppGameAdapterDispatchPreflightReadModel, LogFieldValue,
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::{
     APP_GAME_ADAPTER_DISPATCH_DECISION_BLOCKED, APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE,
     APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY, APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
-    APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
 };
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::app_game_adapter_dispatch_preflight_payload::{
     app_game_adapter_dispatch_preflight_payload, app_game_adapter_dispatch_preflight_read_model,
@@ -15,11 +17,14 @@ const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 fn app_game_adapter_dispatch_preflight_reports_one_scoped_dispatch_eligible_row() {
     let read_model = app_game_adapter_dispatch_preflight_read_model(APP_GAME_TEST_TIMESTAMP);
     let payload = app_game_adapter_dispatch_preflight_payload(&read_model);
-    let decoded: AppGameAdapterDispatchPreflightReadModel = serde_json::from_str(string_payload(
-        &payload,
-        constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL,
-    ))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let Ok(decoded) =
+        serde_json::from_str::<AppGameAdapterDispatchPreflightReadModel>(string_payload(
+            &payload,
+            constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL,
+        ))
+    else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
 
     assert_eq!(decoded.returned, 8);
     assert_eq!(decoded.dispatch_eligible_count, 1);
@@ -82,9 +87,13 @@ fn app_game_adapter_dispatch_preflight_reports_one_scoped_dispatch_eligible_row(
         .all(|row| !row.adapter_dispatch_executed_claimed));
 }
 
-fn string_payload<'a>(payload: &'a ocentra_parent_agent_protocol::LogFields, key: &str) -> &'a str {
-    match payload.get(key) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
-    }
+fn string_payload<'a>(
+    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
+    field_name: &str,
+) -> &'a str {
+    let Some(LogFieldValue::String(value)) = payload.get(field_name) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    value.as_str()
 }

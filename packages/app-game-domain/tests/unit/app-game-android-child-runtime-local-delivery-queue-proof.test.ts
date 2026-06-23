@@ -3,7 +3,7 @@ import {
   AppGameAndroidChildRuntimeLocalDeliveryQueueProofSchema,
   createAppGameAndroidChildRuntimeLocalDeliveryQueueProof,
   summarizeAppGameAndroidChildRuntimeLocalDeliveryQueueProof,
-} from '../../src/app-game-android-child-runtime-local-delivery-queue-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-child-runtime-local-delivery-queue-proof';
 
 const Timestamp = '2026-06-08T23:40:00.000Z';
 

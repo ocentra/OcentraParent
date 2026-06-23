@@ -1,8 +1,8 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::TrackingEvidenceRef;
 use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingAiAnalysisRequestedEvent, TrackingNearbyPlaceClassifiedEvent,
 };
-use ocentra_parent_agent_protocol::TrackingEvidenceRef;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackingAiBoundaryDecision {

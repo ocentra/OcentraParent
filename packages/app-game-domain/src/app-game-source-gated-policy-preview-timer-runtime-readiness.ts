@@ -101,4 +101,3 @@ function requiredProofRefsForReadiness(
   }
   return timerStatusRow.requiredProofRefs;
 }
-

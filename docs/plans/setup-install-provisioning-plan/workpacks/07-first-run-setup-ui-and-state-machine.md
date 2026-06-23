@@ -35,6 +35,15 @@ docs/plans/setup-install-provisioning-plan/SETUP_STATE_MACHINE.md
 docs/plans/setup-install-provisioning-plan/PAIRING_READINESS_MODEL.md
 ```
 
+## Ownership boundary
+
+```text
+setup-install-provisioning-plan owns selected first-run route state-machine projection, readiness cards, source/custody labels, and adjacent handoff visibility.
+portal-domain/apps/portal own only the selected setup route/panel proof when named here.
+portal-ux-household-surfaces-plan owns broader portal shell and visual completion.
+sibling plans own account, package, runtime, LAN, device trust, custody, policy, and entitlement readiness.
+```
+
 ## Required screens/states
 
 ```text
@@ -82,6 +91,42 @@ Never claim setup complete until the readiness matrix is visible.
 Render adjacent handoff blockers instead of hiding them.
 Use source/custody labels for live local, LAN, parent cache, parent-owned storage, stale, degraded, unavailable, and manual-required.
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+first_run_state_machine_state
+screen_map_state
+welcome_state
+sign_in_state
+household_state
+parent_install_state
+child_profile_state
+child_install_state
+pairing_state
+permission_readiness_state
+policy_baseline_state
+data_custody_state
+setup_complete_state
+setup_blocked_state
+manual_required_state
+empty_error_degraded_state
+adjacent_handoff_state
+source_custody_label_state
+no_fake_ready_state
+account_owner_state
+package_owner_state
+child_runtime_owner_state
+lan_device_trust_owner_state
+custody_policy_owner_state
+payment_owner_state
+no_product_onboarding_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Expected source changes
 

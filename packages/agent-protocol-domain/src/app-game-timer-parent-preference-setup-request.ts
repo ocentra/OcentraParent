@@ -2,7 +2,12 @@ import {
   AppGameTimerParentPreferenceSetupRequestResultSchema,
   type AppGameTimerParentPreferenceSetupRequestResult,
 } from '@ocentra-parent/schema-domain/app-game-timer-parent-preference-setup-request';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type AgentAppGameTimerParentPreferenceSetupRequestFailureReason =
   | 'wrong-event'

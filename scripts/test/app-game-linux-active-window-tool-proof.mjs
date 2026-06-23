@@ -26,11 +26,12 @@ async function main() {
       'app-game-linux-active-window-tool-proof',
     ])
   );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const sourceState = await readWslActiveWindowState();
   const contractModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-active-window-tool-proof.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-linux-active-window-tool-proof.js'))
       .href
   );
   const readModel = contractModule.createAppGameLinuxActiveWindowToolProof({
@@ -51,7 +52,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-linux-active-window-tool-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-linux-active-window-tool-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-linux-active-window-tool-proof.test.ts',
       wslRuntime: 'wsl.exe Ubuntu-22.04 shell probe',
       activeWindowTool:

@@ -1,20 +1,12 @@
 import type { ReactElement } from 'react';
-import type { AgentAppGameChildRuntimeTransportReceiptResult } from '@ocentra-parent/agent-protocol-domain/app-game-child-runtime-transport-receipt';
-import {
-  AgentCommand,
-  AgentEvent
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import type { AgentAppGameChildRuntimeTransportReceiptResult } from '@ocentra-parent/agent-protocol-domain/app-game-child-runtime-transport-receipt-event-parser';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import {
-  isPortalAppGameParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import {
   createAppGameChildRuntimeTransportReceiptPanelIntent,
@@ -40,7 +32,7 @@ export function AppGameChildRuntimeTransportReceiptRoutePanel({
   const intent = createAppGameChildRuntimeTransportReceiptPanelIntent(readModel);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -57,7 +49,7 @@ export function AppGameChildRuntimeTransportReceiptRoutePanel({
               actions.sendCommand(AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
           </button>
         </header>
         <div

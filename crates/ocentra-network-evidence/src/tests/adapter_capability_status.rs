@@ -4,6 +4,7 @@ use crate::{
     NetworkPlatformClaimManifestProof, NetworkPlatformClaimManualFollowup,
     NetworkPlatformClaimState, NetworkPlatformClaimTarget,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn adapter_capability_status_derives_specific_states_from_platform_manifest() {
@@ -28,7 +29,7 @@ fn adapter_capability_status_derives_specific_states_from_platform_manifest() {
     let proof = build_network_adapter_capability_status(input_with_manifest(
         manifest_with_entries(entries, Vec::new()),
     ))
-    .expect("complete platform manifest should produce adapter status");
+    .expect_value("complete platform manifest should produce adapter status");
 
     let statuses: Vec<NetworkAdapterCapabilityStatusState> = proof
         .entries
@@ -87,7 +88,7 @@ fn adapter_capability_status_preserves_manual_followups_and_unavailable_rows() {
                 ),
             ],
         )))
-        .expect("manual and unavailable rows should stay reportable");
+        .expect_value("manual and unavailable rows should stay reportable");
 
     assert_eq!(proof.manual_required_count, 1);
     assert_eq!(proof.unavailable_count, 1);

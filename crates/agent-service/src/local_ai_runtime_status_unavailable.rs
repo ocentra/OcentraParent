@@ -1,6 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiResourceClass, LocalModelRuntimeStatus, LocalProviderAdapterProbe,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalProviderAdapterProbe;
 
 use crate::{
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,

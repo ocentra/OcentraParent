@@ -1,9 +1,12 @@
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 use ocentra_parent_agent_protocol::local_ai_runtime_provider_proof::{
     LocalAiRuntimeProviderProofEntry, LocalAiRuntimeProviderProofReadModel,
-};
-use ocentra_parent_agent_protocol::{
-    constants, DeviceRuntimeRole, LocalAiDegradedState, LocalAiProviderSchedulerJobClass,
-    LocalAiProviderSchedulerLifecycle, LocalAiResourceClass, LocalModelRuntimeStatus,
 };
 
 use crate::{
@@ -131,8 +134,8 @@ fn local_ai_runtime_provider_proof_serializes_for_protocol_parity() {
         &scheduler.status_snapshot(),
     );
 
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model)
+        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         serialized[constants::field::ENTRIES][3]
@@ -159,7 +162,12 @@ fn entry<'a>(
         .entries
         .iter()
         .find(|candidate| candidate.proof_entry_id == proof_entry_id)
-        .expect(constants::local_ai_runtime_provider_proof::READ_MODEL_ID)
+        .unwrap_or_else(|| {
+            panic!(
+                "{}",
+                constants::local_ai_runtime_provider_proof::READ_MODEL_ID
+            )
+        })
 }
 
 fn shared_roles() -> Vec<DeviceRuntimeRole> {
@@ -177,13 +185,13 @@ fn ready_runtime() -> LocalModelRuntimeStatus {
         provider_id: constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI.to_string(),
         model_id: constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string(),
         model_reference: constants::local_ai_runtime::MODEL_REFERENCE_DEFAULT_GEMMA_4.to_string(),
-        privacy_mode: ocentra_parent_agent_protocol::LocalAiProviderPrivacyMode::LocalOnly,
-        adapter_boundary: ocentra_parent_agent_protocol::LocalAiAdapterBoundary::LocalAdapterReady,
-        execution_state: ocentra_parent_agent_protocol::LocalAiExecutionState::DryRunReady,
-        provider_source: ocentra_parent_agent_protocol::LocalAiProviderSource::LocalModelCache,
-        load_state: ocentra_parent_agent_protocol::LocalAiModelLoadState::Loaded,
+        privacy_mode: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderPrivacyMode::LocalOnly,
+        adapter_boundary: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterBoundary::LocalAdapterReady,
+        execution_state: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiExecutionState::DryRunReady,
+        provider_source: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderSource::LocalModelCache,
+        load_state: ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiModelLoadState::Loaded,
         capability_flags: vec![
-            ocentra_parent_agent_protocol::LocalAiCapabilityFlag::ChatCompletion,
+            ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiCapabilityFlag::ChatCompletion,
         ],
         resource_class: LocalAiResourceClass::Cpu,
         degraded_state: LocalAiDegradedState::None,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { AgentNetworkWindowsWfpGateStatusSchema } from '@ocentra-parent/schema-domain/agent-network-windows-wfp-status';
 import { parseAgentNetworkWindowsWfpGateStatusEvent } from '../../src/network-windows-wfp-gate-status';
 

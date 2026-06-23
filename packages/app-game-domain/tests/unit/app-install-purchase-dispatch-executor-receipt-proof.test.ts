@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseDispatchExecutorReceiptProofSchema,
   AppInstallPurchaseDispatchExecutorReceiptRowSchema,
   summarizeAppInstallPurchaseDispatchExecutorReceiptProof,
-} from '../../src/app-install-purchase-dispatch-executor-receipt-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-dispatch-executor-receipt-proof';
 
 describe('app install and purchase dispatch executor receipt proof', () => {
   acceptsDispatchExecutorReceiptRowsWithoutExecutionClaims();

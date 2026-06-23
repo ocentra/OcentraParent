@@ -4,6 +4,14 @@ Goal: define the proof package required before policy control plane can be descr
 
 Owns: route/index sync, proof manifest, exact test IDs, proof artifact inventory, skipped-risk notes, manual-required gap register, and product-status wording.
 
+## Ownership boundary
+
+```text
+WP06 aggregates policy-control-plane-plan proof roots only.
+Portal, account, device-trust, data-custody, eventing, domain, AI, notification, and enforcement owners remain separate unless their handoff proof is explicitly accepted.
+Proof manifest presence supports routing only; it does not replace workpack closeout artifacts.
+```
+
 ## Required proof pack
 
 ```text
@@ -19,6 +27,34 @@ rollback proof
 route/index sync
 manual-required gap register
 ```
+
+## Required rollout fields
+
+The selected rollout proof must name, at minimum:
+
+```text
+rollout_gate_id
+accepted_proof_roots
+missing_proof_roots
+carried_blockers
+source_truth_state
+authoring_preview_state
+schedule_conflict_state
+compiler_state
+delivery_ack_state
+ask_parent_override_state
+event_replay_state
+account_authority_state
+device_trust_state
+data_custody_state
+enforcement_handoff_state
+claims_allowed
+claims_blocked
+manual_required_gaps
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required proof IDs
 
@@ -52,6 +88,8 @@ no offline child or device state
 no rollback or audit proof
 route/index out of sync
 policy ready claimed from compiler-only proof
+proof manifest used as workpack proof
+WP02/WP05 omitted without carried blockers
 ```
 
 ## Route rules
@@ -74,4 +112,5 @@ delivery/ack state
 ask-parent/override state if touched
 enforcement/audit handoff
 unresolved Sujan decisions
+remaining WP02/WP05 state
 ```

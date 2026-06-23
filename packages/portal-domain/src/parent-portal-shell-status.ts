@@ -4,14 +4,19 @@ import {
   type AgentProtocolLogFields,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { PARENT_PORTAL_CONTENT, parentPortalRouteContext, type ParentPortalRow, type ParentPortalTone } from './parent-portal-data';
+import {
+  PARENT_PORTAL_CONTENT,
+  parentPortalRouteContext,
+  type ParentPortalRow,
+  type ParentPortalTone,
+} from './parent-portal-data';
 import { resolveLiveActivityState } from './live-activity-state';
 import PARENT_PORTAL_SERVICE_STATE from './parent-portal-service-state-constants';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
   resolveParentPortalServiceState,
   type ParentPortalServiceConnectionState,
 } from './parent-portal-service-state';
-import { PortalRoute, type PortalRoute as PortalRouteValue } from './routes';
 
 export type PortalShellGlobalConnectionState =
   | 'online'
@@ -109,11 +114,81 @@ const ParentCacheRoutes = new Set<PortalRouteValue>([
   PortalRoute.NotificationChannels,
   PortalRoute.AuditHistory,
   PortalRoute.Diagnostics,
+  PortalRoute.ProofPanels,
 ]);
+const OverviewRoutes = new Set<PortalRouteValue>([PortalRoute.Overview, PortalRoute.Start]);
+const BrowserEvidenceRoutes = new Set<PortalRouteValue>([PortalRoute.Browser, PortalRoute.BrowserSettings]);
+const ActivityEvidenceRoutes = new Set<PortalRouteValue>([
+  PortalRoute.Activity,
+  PortalRoute.ReportsGuide,
+  PortalRoute.ReportCompiler,
+  PortalRoute.ScreenAnalysis,
+  PortalRoute.NetworkActivity,
+  PortalRoute.AppGameSessions,
+]);
+const PolicyEvidenceRoutes = new Set<PortalRouteValue>([
+  PortalRoute.Policy,
+  PortalRoute.PolicyApps,
+  PortalRoute.PolicyGames,
+  PortalRoute.PolicyScreen,
+  PortalRoute.PolicyNetwork,
+  PortalRoute.PolicyTracking,
+  PortalRoute.PolicyRemoteScreen,
+  PortalRoute.RuleManagement,
+  PortalRoute.Schedules,
+  PortalRoute.Approvals,
+  PortalRoute.Enforcement,
+  PortalRoute.SettingsRules,
+]);
+const AssistantEvidenceRoutes = new Set<PortalRouteValue>([
+  PortalRoute.Assistant,
+  PortalRoute.AiGuide,
+  PortalRoute.AiRuntime,
+  PortalRoute.ApiProviders,
+  PortalRoute.Memory,
+  PortalRoute.MemorySettings,
+]);
+const ROUTE_CAPABILITY_TREND_STATE_RULES: readonly {
+  readonly state: Exclude<PortalShellRouteCapabilityState, 'available'>;
+  readonly tokens: readonly string[];
+}[] = [
+  { state: 'platform-unsupported', tokens: ['unsupported'] },
+  { state: 'permission-missing', tokens: ['permission', 'observer', 'authority'] },
+  {
+    state: 'proof-missing',
+    tokens: ['not-claimed', 'report-only', 'target-list-only', 'bridge-missing', 'proof-missing'],
+  },
+  { state: 'not-configured', tokens: ['manual-required', 'unpaired', 'not-configured'] },
+  { state: 'unavailable', tokens: ['offline', 'unavailable', 'backend-not-connected', 'adapter-error', 'stale'] },
+] as const;
+
+type ResolvedLiveActivityState = ReturnType<typeof resolveLiveActivityState>;
+type RouteSelectionState = {
+  readonly routeLabel: string;
+  readonly routeRow: ParentPortalRow | null;
+  readonly selectedControl: SelectableControl | null;
+};
 
 type SelectableControl = {
   readonly id: string;
   readonly name: string;
+};
+
+type ParentPortalShellStatusCardsInput = {
+  readonly routeLabel: string;
+  readonly parentAccessState: PortalShellParentAccessState;
+  readonly globalConnectionState: PortalShellGlobalConnectionState;
+  readonly householdState: PortalShellHouseholdState;
+  readonly childDevice: ReturnType<typeof resolveChildDeviceState>;
+  readonly routeCapabilityState: PortalShellRouteCapabilityState;
+  readonly dataSourceLabel: PortalShellDataSourceLabel;
+  readonly liveActivity: ReturnType<typeof resolveLiveActivityState>;
+  readonly lanPayload: AgentProtocolLogFields | null;
+  readonly hasLanProof: boolean;
+  readonly householdDetail: string;
+  readonly childDeviceDetail: string;
+  readonly routeCapabilityDetail: string;
+  readonly dataSourceDetail: string;
 };
 
 export function resolveParentPortalShellStatus(input: ParentPortalShellStatusInput): ParentPortalShellStatus {
@@ -122,10 +197,10 @@ export function resolveParentPortalShellStatus(input: ParentPortalShellStatusInp
     events: input.events,
   });
   const liveActivity = resolveLiveActivityState(input.events);
-  const routeContext = parentPortalRouteContext(input.route);
-  const selectedControl = selectableControl(routeContext.selectedControlId);
-  const routeLabel = selectedControl?.name ?? String(routeContext.navLabel);
-  const routeRow = selectedControl === null ? null : rowByPrimaryArea(serviceState.parentPortalRows, selectedControl.name);
+  const { routeLabel, routeRow, selectedControl } = resolveRouteSelectionState(
+    input.route,
+    serviceState.parentPortalRows
+  );
   const latestLanEvent = latestLanPairingEvent(input.events);
   const lanPayload = latestLanEvent?.payload ?? null;
   const hasLanProof = liveActivity.lanAddDeviceReadModel !== null || latestLanEvent !== null;
@@ -149,16 +224,10 @@ export function resolveParentPortalShellStatus(input: ParentPortalShellStatusInp
     routeCapabilityState,
     selectedDeviceReachability: childDevice.reachability,
   });
-  const householdSources = liveActivity.lanAddDeviceReadModel?.scanSummary.sourceLabels ?? [];
-  const householdDetail = hasLanProof
-    ? `visible devices: ${householdVisibleDeviceCount(liveActivity, lanPayload)} | sources: ${joinLabels(householdSources)}`
-    : 'service read-model proof is missing';
-  const childDeviceDetail =
-    childDevice.reachability === null
-      ? `route: ${routeLabel}`
-      : `reachability: ${childDevice.reachability} | route: ${routeLabel}`;
-  const routeCapabilityDetail = `route: ${routeLabel}${routeRow === null ? '' : ` | trend: ${routeRow.trend ?? 'not-reported'}`}`;
-  const dataSourceDetail = `route: ${routeLabel}${selectedControl === null ? '' : ` | control: ${selectedControl.id}`}`;
+  const householdDetail = buildHouseholdDetail(liveActivity, lanPayload, hasLanProof);
+  const childDeviceDetail = buildChildDeviceDetail(routeLabel, childDevice.reachability);
+  const routeCapabilityDetail = buildRouteCapabilityDetail(routeLabel, routeRow);
+  const dataSourceDetail = buildDataSourceDetail(routeLabel, selectedControl);
 
   return {
     routeLabel,
@@ -166,51 +235,116 @@ export function resolveParentPortalShellStatus(input: ParentPortalShellStatusInp
     globalConnectionState,
     routeCapabilityState,
     dataSourceLabel,
-    cards: [
-      {
-        id: 'parent-access',
-        label: PARENT_PORTAL_SHELL_STATUS_COPY.ParentAccess,
-        value: parentAccessState,
-        detail: parentAccessDetail(liveActivity, lanPayload, hasLanProof),
-        tone: parentAccessTone(parentAccessState),
-      },
-      {
-        id: 'connection',
-        label: PARENT_PORTAL_SHELL_STATUS_COPY.Connection,
-        value: globalConnectionState,
-        detail: `route: ${routeLabel}`,
-        tone: connectionTone(globalConnectionState),
-      },
-      {
-        id: 'household',
-        label: PARENT_PORTAL_SHELL_STATUS_COPY.Household,
-        value: householdState,
-        detail: householdDetail,
-        tone: householdTone(householdState),
-      },
-      {
-        id: 'child-device',
-        label: PARENT_PORTAL_SHELL_STATUS_COPY.ChildDevice,
-        value: childDevice.value,
-        detail: childDeviceDetail,
-        tone: childDevice.tone,
-      },
-      {
-        id: 'route-capability',
-        label: PARENT_PORTAL_SHELL_STATUS_COPY.RouteCapability,
-        value: routeCapabilityState,
-        detail: routeCapabilityDetail,
-        tone: routeCapabilityTone(routeCapabilityState),
-      },
-      {
-        id: 'data-source',
-        label: PARENT_PORTAL_SHELL_STATUS_COPY.DataSource,
-        value: dataSourceLabel,
-        detail: dataSourceDetail,
-        tone: dataSourceTone(dataSourceLabel),
-      },
-    ],
+    cards: buildParentPortalShellStatusCards({
+      routeLabel,
+      parentAccessState,
+      globalConnectionState,
+      householdState,
+      childDevice,
+      routeCapabilityState,
+      dataSourceLabel,
+      liveActivity,
+      lanPayload,
+      hasLanProof,
+      householdDetail,
+      childDeviceDetail,
+      routeCapabilityDetail,
+      dataSourceDetail,
+    }),
   };
+}
+
+function resolveRouteSelectionState(route: PortalRouteValue, rows: readonly ParentPortalRow[]): RouteSelectionState {
+  const routeContext = parentPortalRouteContext(route);
+  const selectedControl = selectableControl(routeContext.selectedControlId);
+  const routeLabel = selectedControl?.name ?? String(routeContext.navLabel);
+  return {
+    routeLabel,
+    routeRow: selectedControl === null ? null : rowByPrimaryArea(rows, selectedControl.name),
+    selectedControl,
+  };
+}
+
+function buildHouseholdDetail(
+  liveActivity: ResolvedLiveActivityState,
+  lanPayload: AgentProtocolLogFields | null,
+  hasLanProof: boolean
+): string {
+  if (!hasLanProof) {
+    return 'service read-model proof is missing';
+  }
+  const householdSources = liveActivity.lanAddDeviceReadModel?.scanSummary.sourceLabels ?? [];
+  return `visible devices: ${householdVisibleDeviceCount(liveActivity, lanPayload)} | sources: ${joinLabels(householdSources)}`;
+}
+
+function buildChildDeviceDetail(routeLabel: string, reachability: string | null): string {
+  if (reachability === null) {
+    return `route: ${routeLabel}`;
+  }
+  return `reachability: ${reachability} | route: ${routeLabel}`;
+}
+
+function buildRouteCapabilityDetail(routeLabel: string, routeRow: ParentPortalRow | null): string {
+  if (routeRow === null) {
+    return `route: ${routeLabel}`;
+  }
+  return `route: ${routeLabel} | trend: ${routeRow.trend ?? 'not-reported'}`;
+}
+
+function buildDataSourceDetail(routeLabel: string, selectedControl: SelectableControl | null): string {
+  if (selectedControl === null) {
+    return `route: ${routeLabel}`;
+  }
+  return `route: ${routeLabel} | control: ${selectedControl.id}`;
+}
+
+function buildParentPortalShellStatusCards(
+  input: ParentPortalShellStatusCardsInput
+): readonly ParentPortalShellStatusCard[] {
+  return [
+    {
+      id: 'parent-access',
+      label: PARENT_PORTAL_SHELL_STATUS_COPY.ParentAccess,
+      value: input.parentAccessState,
+      detail: parentAccessDetail(input.liveActivity, input.lanPayload, input.hasLanProof),
+      tone: parentAccessTone(input.parentAccessState),
+    },
+    {
+      id: 'connection',
+      label: PARENT_PORTAL_SHELL_STATUS_COPY.Connection,
+      value: input.globalConnectionState,
+      detail: `route: ${input.routeLabel}`,
+      tone: connectionTone(input.globalConnectionState),
+    },
+    {
+      id: 'household',
+      label: PARENT_PORTAL_SHELL_STATUS_COPY.Household,
+      value: input.householdState,
+      detail: input.householdDetail,
+      tone: householdTone(input.householdState),
+    },
+    {
+      id: 'child-device',
+      label: PARENT_PORTAL_SHELL_STATUS_COPY.ChildDevice,
+      value: input.childDevice.value,
+      detail: input.childDeviceDetail,
+      tone: input.childDevice.tone,
+    },
+    {
+      id: 'route-capability',
+      label: PARENT_PORTAL_SHELL_STATUS_COPY.RouteCapability,
+      value: input.routeCapabilityState,
+      detail: input.routeCapabilityDetail,
+      tone: routeCapabilityTone(input.routeCapabilityState),
+    },
+    {
+      id: 'data-source',
+      label: PARENT_PORTAL_SHELL_STATUS_COPY.DataSource,
+      value: input.dataSourceLabel,
+      detail: input.dataSourceDetail,
+      tone: dataSourceTone(input.dataSourceLabel),
+    },
+  ];
 }
 
 function resolveParentAccessState(
@@ -314,7 +448,10 @@ function resolveDataSourceLabel(input: {
   if (input.route === PortalRoute.RemoteAccess && input.liveActivity.networkRemoteDeliveryStatusEvent !== null) {
     return 'relay';
   }
-  if (LocalProtocolRoutes.has(input.route) && input.connectionState === PARENT_PORTAL_SERVICE_STATE.Connection.Connected) {
+  if (
+    LocalProtocolRoutes.has(input.route) &&
+    input.connectionState === PARENT_PORTAL_SERVICE_STATE.Connection.Connected
+  ) {
     return 'live local';
   }
   if (hasRouteLocalServiceEvidence(input.route, input.liveActivity, input.routeRow)) {
@@ -344,37 +481,21 @@ function resolveRouteCapabilityState(input: {
     return input.dataSourceLabel === 'unavailable' ? 'proof-missing' : 'available';
   }
   const trend = (input.routeRow.trend ?? '').toLowerCase();
-  if (trend.includes('unsupported')) {
-    return 'platform-unsupported';
-  }
-  if (trend.includes('permission') || trend.includes('observer') || trend.includes('authority')) {
-    return 'permission-missing';
-  }
-  if (
-    trend.includes('not-claimed') ||
-    trend.includes('report-only') ||
-    trend.includes('target-list-only') ||
-    trend.includes('bridge-missing') ||
-    trend.includes('proof-missing')
-  ) {
-    return 'proof-missing';
-  }
-  if (trend.includes('manual-required') || trend.includes('unpaired') || trend.includes('not-configured')) {
-    return 'not-configured';
-  }
-  if (
-    trend.includes('offline') ||
-    trend.includes('unavailable') ||
-    trend.includes('backend-not-connected') ||
-    trend.includes('adapter-error') ||
-    trend.includes('stale')
-  ) {
-    return 'unavailable';
+  const trendState = trendCapabilityState(trend);
+  if (trendState !== null) {
+    return trendState;
   }
   if (input.routeRow.readyCount === undefined || input.routeRow.readyCount < 1) {
     return input.dataSourceLabel === 'unavailable' ? 'not-configured' : 'proof-missing';
   }
   return 'available';
+}
+
+function trendCapabilityState(trend: string): Exclude<PortalShellRouteCapabilityState, 'available'> | null {
+  const matchingRule = ROUTE_CAPABILITY_TREND_STATE_RULES.find(({ tokens }) =>
+    tokens.some((token) => trend.includes(token))
+  );
+  return matchingRule?.state ?? null;
 }
 
 function resolveGlobalConnectionState(input: {
@@ -500,67 +621,66 @@ function hasLanSource(liveActivity: ReturnType<typeof resolveLiveActivityState>)
 
 function hasRouteLocalServiceEvidence(
   route: PortalRouteValue,
-  liveActivity: ReturnType<typeof resolveLiveActivityState>,
+  liveActivity: ResolvedLiveActivityState,
   routeRow: ParentPortalRow | null
 ): boolean {
   if (routeRow !== null && (routeRow.readyCount ?? 0) > 0) {
     return true;
   }
-  switch (route) {
-    case PortalRoute.Browser:
-    case PortalRoute.BrowserSettings:
-      return (
-        liveActivity.browserEvidenceEvent !== null ||
-        liveActivity.browserInventoryEvent !== null ||
-        liveActivity.browserManagedEvent !== null ||
-        liveActivity.browserInterventionEvent !== null
-      );
-    case PortalRoute.Activity:
-    case PortalRoute.ReportsGuide:
-    case PortalRoute.ReportCompiler:
-    case PortalRoute.ScreenAnalysis:
-    case PortalRoute.NetworkActivity:
-    case PortalRoute.AppGameSessions:
-      return (
-        liveActivity.recentSummaryEvent !== null ||
-        liveActivity.activityReportEvent !== null ||
-        liveActivity.activityScreenReadModelEvent !== null ||
-        liveActivity.activityAppUseReadModelEvent !== null ||
-        liveActivity.activityBrowserReadModelEvent !== null ||
-        liveActivity.activityGamesReadModelEvent !== null ||
-        liveActivity.activityNetworkReadModelEvent !== null ||
-        liveActivity.networkFlowEvent !== null
-      );
-    case PortalRoute.Policy:
-    case PortalRoute.PolicyApps:
-    case PortalRoute.PolicyGames:
-    case PortalRoute.PolicyScreen:
-    case PortalRoute.PolicyNetwork:
-    case PortalRoute.PolicyTracking:
-    case PortalRoute.PolicyRemoteScreen:
-    case PortalRoute.RuleManagement:
-    case PortalRoute.Schedules:
-    case PortalRoute.Approvals:
-    case PortalRoute.Enforcement:
-    case PortalRoute.SettingsRules:
-      return liveActivity.policyPreviewEvent !== null || liveActivity.appGamePolicyReadinessEvent !== null;
-    case PortalRoute.Overview:
-    case PortalRoute.Start:
-      return routeRow !== null;
-    case PortalRoute.Assistant:
-    case PortalRoute.AiGuide:
-    case PortalRoute.AiRuntime:
-    case PortalRoute.ApiProviders:
-    case PortalRoute.Memory:
-    case PortalRoute.MemorySettings:
-      return (
-        liveActivity.localAiRuntimeStatusEvent !== null ||
-        liveActivity.parentAssistantBoundaryEvent !== null ||
-        liveActivity.activityMemoryGraphEvent !== null
-      );
-    default:
-      return false;
+  if (BrowserEvidenceRoutes.has(route)) {
+    return hasBrowserRouteEvidence(liveActivity);
   }
+  if (ActivityEvidenceRoutes.has(route)) {
+    return hasActivityRouteEvidence(liveActivity);
+  }
+  if (PolicyEvidenceRoutes.has(route)) {
+    return hasPolicyRouteEvidence(liveActivity);
+  }
+  if (OverviewRoutes.has(route)) {
+    return routeRow !== null;
+  }
+  if (AssistantEvidenceRoutes.has(route)) {
+    return hasAssistantRouteEvidence(liveActivity);
+  }
+  return false;
+}
+
+function hasBrowserRouteEvidence(liveActivity: ResolvedLiveActivityState): boolean {
+  return hasAnyProof([
+    liveActivity.browserEvidenceEvent,
+    liveActivity.browserInventoryEvent,
+    liveActivity.browserManagedEvent,
+    liveActivity.browserInterventionEvent,
+  ]);
+}
+
+function hasActivityRouteEvidence(liveActivity: ResolvedLiveActivityState): boolean {
+  return hasAnyProof([
+    liveActivity.recentSummaryEvent,
+    liveActivity.activityReportEvent,
+    liveActivity.activityScreenReadModelEvent,
+    liveActivity.activityAppUseReadModelEvent,
+    liveActivity.activityBrowserReadModelEvent,
+    liveActivity.activityGamesReadModelEvent,
+    liveActivity.activityNetworkReadModelEvent,
+    liveActivity.networkFlowEvent,
+  ]);
+}
+
+function hasPolicyRouteEvidence(liveActivity: ResolvedLiveActivityState): boolean {
+  return hasAnyProof([liveActivity.policyPreviewEvent, liveActivity.appGamePolicyReadinessEvent]);
+}
+
+function hasAssistantRouteEvidence(liveActivity: ResolvedLiveActivityState): boolean {
+  return hasAnyProof([
+    liveActivity.localAiRuntimeStatusEvent,
+    liveActivity.parentAssistantBoundaryEvent,
+    liveActivity.activityMemoryGraphEvent,
+  ]);
+}
+
+function hasAnyProof(values: readonly unknown[]): boolean {
+  return values.some((value) => value !== null);
 }
 
 function latestLanPairingEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
@@ -612,8 +732,9 @@ function selectableControl(controlId: string): SelectableControl | null {
 function rowByPrimaryArea(rows: readonly ParentPortalRow[], primaryArea: string): ParentPortalRow | null {
   const normalized = normalizedLabel(primaryArea);
   return (
-    rows.find((row) => normalizedLabel(row.primaryArea ?? '') === normalized || normalizedLabel(row.label) === normalized) ??
-    null
+    rows.find(
+      (row) => normalizedLabel(row.primaryArea ?? '') === normalized || normalizedLabel(row.label) === normalized
+    ) ?? null
   );
 }
 

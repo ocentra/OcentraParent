@@ -1,8 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, AppGamePlatformProofStatusReadModel, LogFieldValue,
-    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_ID,
+use ocentra_parent_agent_protocol::app_game_platform_proof_status::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_ID;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
 
@@ -10,8 +14,9 @@ const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 
 #[tokio::test]
 async fn platform_proof_status_command_reports_live_read_model() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let Ok(body) = serde_json::to_string(&command_envelope()) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
 
     assert_eq!(
@@ -54,10 +59,12 @@ fn command_envelope() -> AgentCommandEnvelope {
 }
 
 fn platform_proof_status_payload(value: &LogFieldValue) -> AppGamePlatformProofStatusReadModel {
-    match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
-    }
+    let LogFieldValue::String(text) = value else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+    let Ok(read_model) = serde_json::from_str(text) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    read_model
 }

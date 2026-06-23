@@ -1,18 +1,15 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 const TrackingChildRuntimeAndroidEmulatorBridgeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingChildRuntimeAndroidEmulatorBridgeRefSchema =
-  brandedNonEmptyStringSchema('TrackingChildRuntimeAndroidEmulatorBridgeRef');
+export const TrackingChildRuntimeAndroidEmulatorBridgeRefSchema = brandedNonEmptyStringSchema(
+  'TrackingChildRuntimeAndroidEmulatorBridgeRef'
+);
 
-export const TrackingChildRuntimeAndroidEmulatorBridgeRowIdSchema =
-  brandedNonEmptyStringSchema('TrackingChildRuntimeAndroidEmulatorBridgeRowId');
+export const TrackingChildRuntimeAndroidEmulatorBridgeRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingChildRuntimeAndroidEmulatorBridgeRowId'
+);
 
 export const TrackingChildRuntimeAndroidEmulatorBridgeStatusSchema = Schema.Literal(
   'emulator-prerequisites-observed-manual-runtime-required'
@@ -277,4 +274,3 @@ function trackingChildRuntimeAndroidEmulatorBridgeNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
-

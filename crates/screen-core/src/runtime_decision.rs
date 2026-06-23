@@ -169,7 +169,7 @@ pub fn screen_runtime_input_from_capture(
     }
 }
 
-pub fn evaluate_screen_runtime(input: ScreenRuntimeInput) -> ScreenRuntimeDecision {
+pub fn evaluate_screen_runtime(input: &ScreenRuntimeInput) -> ScreenRuntimeDecision {
     if input.capture_schedule_state == ScreenCaptureScheduleState::CaptureSuppressed {
         return ScreenRuntimeDecision {
             observation_intent: ScreenObservationIntent::IdleObservationOnly,
@@ -210,14 +210,14 @@ pub fn evaluate_screen_runtime(input: ScreenRuntimeInput) -> ScreenRuntimeDecisi
     }
 }
 
-pub fn screen_runtime_observed_event(input: ScreenRuntimeInput) -> ChildDomainObservedEvent {
+pub fn screen_runtime_observed_event(input: &ScreenRuntimeInput) -> ChildDomainObservedEvent {
     screen_observed_event(evaluate_screen_runtime(input).observation_intent)
 }
 
 pub fn screen_runtime_decision_recorded_event(
     aggregate_id: ScreenAggregateId,
     decision_id: ScreenRuntimeDecisionId,
-    input: ScreenRuntimeInput,
+    input: &ScreenRuntimeInput,
 ) -> ScreenRuntimeDecisionRecordedEvent {
     ScreenRuntimeDecisionRecordedEvent {
         aggregate_id,

@@ -8,6 +8,7 @@ use crate::{
     NetworkRiskBudgetSignal, NetworkRiskBudgetState, NetworkRiskBudgetThresholdError,
     NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn risk_budget_threshold_maps_profile_prior_events_and_adapter_proof_to_block() {
@@ -23,7 +24,7 @@ fn risk_budget_threshold_maps_profile_prior_events_and_adapter_proof_to_block() 
         default_policy(),
         NetworkRiskBudgetAdapterProofState::Ready,
     ))
-    .expect("adapter-ready high score should map to a block recommendation");
+    .expect_value("adapter-ready high score should map to a block recommendation");
 
     assert_eq!(
         evaluation.risk_budget_state,
@@ -71,7 +72,7 @@ fn risk_budget_threshold_requires_manual_review_without_adapter_proof() {
         default_policy(),
         NetworkRiskBudgetAdapterProofState::Missing,
     ))
-    .expect("missing adapter proof should stay manual-required");
+    .expect_value("missing adapter proof should stay manual-required");
 
     assert_eq!(
         evaluation.risk_budget_state,
@@ -107,7 +108,7 @@ fn risk_budget_threshold_applies_safe_behavior_credit_only_with_policy_proof() {
         default_policy(),
         NetworkRiskBudgetAdapterProofState::NotNeeded,
     ))
-    .expect("safe behavior credit with policy proof should reduce pressure");
+    .expect_value("safe behavior credit with policy proof should reduce pressure");
 
     assert_eq!(evaluation.total_risk_points, 15);
     assert_eq!(evaluation.safe_behavior_credit_applied_points, 25);
@@ -167,7 +168,7 @@ fn risk_budget_threshold_keeps_signature_only_hits_manual_required() {
         default_policy(),
         NetworkRiskBudgetAdapterProofState::Ready,
     ))
-    .expect("signature-only hit should not auto-map to control");
+    .expect_value("signature-only hit should not auto-map to control");
 
     assert_eq!(evaluation.prior_event_points, 0);
     assert!(evaluation.cited_prior_event_refs.is_empty());
@@ -361,7 +362,7 @@ fn audit_report(
     audit_report_ref: &str,
     detection_case: NetworkAiDetectionFixtureCase,
 ) -> NetworkAiAuditReport {
-    build_network_ai_audit_report(NetworkAiAuditReportInput {
+    build_network_ai_audit_report(&NetworkAiAuditReportInput {
         audit_report_ref: audit_report_ref.to_owned(),
         narrative_template_ref: "network-ai-audit-template-row48".to_owned(),
         model_version_ref: "local-ai-model-version-fixture-row48".to_owned(),
@@ -379,11 +380,11 @@ fn audit_report(
         adapter_authority_claimed: false,
         enforcement_command_claimed: false,
     })
-    .expect("AI audit report should build from detection fixture")
+    .expect_value("AI audit report should build from detection fixture")
 }
 
 fn detection_results(cases: Vec<NetworkAiDetectionFixtureCase>) -> Vec<NetworkAiDetectionResult> {
-    evaluate_network_ai_detection_fixtures(NetworkAiDetectionEvaluationInput {
+    evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
         evaluation_run_ref: "ai-detection-eval-row48".to_owned(),
         fixture_set_ref: "network-ai-fixtures-row48".to_owned(),
         model_card_ref: "local-ai-model-card-network-row48".to_owned(),
@@ -403,7 +404,7 @@ fn detection_results(cases: Vec<NetworkAiDetectionFixtureCase>) -> Vec<NetworkAi
         adapter_authority_claimed: false,
         enforcement_command_claimed: false,
     })
-    .expect("detection fixture should evaluate")
+    .expect_value("detection fixture should evaluate")
     .results
 }
 

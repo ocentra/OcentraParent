@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import {
   supportBackendUploadExecutionRuntimeCoversRequiredStates,
@@ -203,4 +198,3 @@ export const decodeSupportBackendUploadExecutionRuntimeEntry = Schema.decodeUnkn
 export const decodeSupportBackendUploadExecutionRuntimeReadModel = Schema.decodeUnknownSync(
   SupportBackendUploadExecutionRuntimeReadModelSchema
 );
-

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import {
@@ -25,14 +20,18 @@ import {
 } from './app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelId');
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelRowId');
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelContractRef');
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelSummaryRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelSummaryRef');
+export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelRowId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelContractRef'
+);
+export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelSummaryRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelSummaryRef'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState))
@@ -241,5 +240,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModel = 
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState };
-
-

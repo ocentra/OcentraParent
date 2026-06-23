@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalReceiptChannelProofSchemaVersionSchema = withParser(
@@ -35,7 +30,9 @@ export const AppGameAndroidChildRuntimeLocalReceiptChannelGapSchema = withParser
   )
 );
 
-const AndroidChildRuntimeLocalReceiptChannelProofIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalReceiptChannelProofId');
+const AndroidChildRuntimeLocalReceiptChannelProofIdSchema = brandedNonEmptyStringSchema(
+  'AppGameAndroidChildRuntimeLocalReceiptChannelProofId'
+);
 
 const AppGameAndroidChildRuntimeLocalReceiptChannelProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalReceiptChannelProofSchemaVersionSchema,
@@ -165,6 +162,17 @@ function androidChildRuntimeLocalReceiptChannelProofIsHonest(
   proof: AndroidChildRuntimeLocalReceiptChannelCandidate
 ): boolean {
   return (
+    androidChildRuntimeLocalReceiptChannelStateIsHonest(proof) &&
+    androidChildRuntimeLocalReceiptChannelProofRefsArePresent(proof) &&
+    androidChildRuntimeLocalReceiptChannelOpenGapsArePresent(proof) &&
+    androidChildRuntimeLocalReceiptChannelClaimsRemainScoped(proof)
+  );
+}
+
+function androidChildRuntimeLocalReceiptChannelStateIsHonest(
+  proof: AndroidChildRuntimeLocalReceiptChannelCandidate
+): boolean {
+  return (
     proof.receiptChannelState === 'package-local-receipt-channel-recorded' &&
     proof.receiptAppendState === 'local-receipt-append-recorded' &&
     proof.receiptLocalAckState === 'local-receipt-ack-recorded' &&
@@ -173,18 +181,39 @@ function androidChildRuntimeLocalReceiptChannelProofIsHonest(
     proof.packageLocalChannelRecordCount === 1 &&
     proof.localReceiptRecordCount === 1 &&
     proof.localReceiptAckRecordCount === 1 &&
-    proof.proofRefs.includes('android-child-runtime-package-local-receipt-channel-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-write-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-ack-write-ref') &&
-    proof.proofRefs.includes('android-child-runtime-manifest-receiver-ref') &&
-    proof.proofRefs.includes('android-child-runtime-activity-trigger-ref') &&
-    proof.openGaps.includes('android-child-runtime-service-receipt-ingestion-not-proved') &&
-    proof.openGaps.includes('android-provider-delivery-not-executed') &&
-    proof.openGaps.includes('android-platform-delivery-channel-not-proved-outside-package') &&
-    proof.openGaps.includes('android-adapter-dispatch-not-proved') &&
-    proof.openGaps.includes('android-platform-enforcement-not-proved') &&
-    proof.openGaps.includes('android-raw-private-source-rows-not-included') &&
-    proof.packageLocalChannelExecuted &&
+    proof.packageLocalChannelExecuted
+  );
+}
+
+function androidChildRuntimeLocalReceiptChannelProofRefsArePresent(
+  proof: AndroidChildRuntimeLocalReceiptChannelCandidate
+): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-child-runtime-package-local-receipt-channel-ref',
+    'android-child-runtime-local-receipt-write-ref',
+    'android-child-runtime-local-receipt-ack-write-ref',
+    'android-child-runtime-manifest-receiver-ref',
+    'android-child-runtime-activity-trigger-ref',
+  ] as const);
+}
+
+function androidChildRuntimeLocalReceiptChannelOpenGapsArePresent(
+  proof: AndroidChildRuntimeLocalReceiptChannelCandidate
+): boolean {
+  return includesAll(proof.openGaps, [
+    'android-child-runtime-service-receipt-ingestion-not-proved',
+    'android-provider-delivery-not-executed',
+    'android-platform-delivery-channel-not-proved-outside-package',
+    'android-adapter-dispatch-not-proved',
+    'android-platform-enforcement-not-proved',
+    'android-raw-private-source-rows-not-included',
+  ] as const);
+}
+
+function androidChildRuntimeLocalReceiptChannelClaimsRemainScoped(
+  proof: AndroidChildRuntimeLocalReceiptChannelCandidate
+): boolean {
+  return (
     !proof.runtimeTransportExecutedOutsidePackage &&
     !proof.serviceReceiptIngested &&
     !proof.providerDeliveryExecuted &&
@@ -195,3 +224,6 @@ function androidChildRuntimeLocalReceiptChannelProofIsHonest(
   );
 }
 
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

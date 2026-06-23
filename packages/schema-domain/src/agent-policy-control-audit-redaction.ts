@@ -8,8 +8,7 @@ const PolicyControlAuditCountSchema = Schema.Number.pipe(Schema.nonNegative(), S
 const NullablePolicyControlAuditTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const PolicyControlAuditPayloadSchemaVersion = 'policy-control-audit.v1' as const;
-export const PolicyControlRedactedAuditPayloadSchemaVersion =
-  'policy-control-audit-redacted.v1' as const;
+export const PolicyControlRedactedAuditPayloadSchemaVersion = 'policy-control-audit-redacted.v1' as const;
 
 export const PolicyControlAuditEventKindSchema = withParser(
   Schema.Literal(
@@ -61,9 +60,7 @@ export const PolicyControlAuditPayloadSchema = withParser(
     actorRole: PolicyControlAuditActorRoleSchema,
     reasonCodes: Schema.Array(NonEmptyStringSchema),
     auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
-      Schema.filter(
-        (value) => value.length > 0 || 'Expected audit refs for policy control audit payload'
-      )
+      Schema.filter((value) => value.length > 0 || 'Expected audit refs for policy control audit payload')
     ),
     manualProofRequirements: Schema.Array(NonEmptyStringSchema),
     retryScheduleRefs: Schema.Array(NonEmptyStringSchema),
@@ -88,66 +85,41 @@ const PolicyControlRedactedAuditPayloadBaseSchema = Schema.Struct({
   actorRole: PolicyControlAuditActorRoleSchema,
   reasonCodes: Schema.Array(NonEmptyStringSchema),
   auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
-    Schema.filter(
-      (value) =>
-        value.length > 0 || 'Expected audit refs for redacted policy control audit payload'
-    )
+    Schema.filter((value) => value.length > 0 || 'Expected audit refs for redacted policy control audit payload')
   ),
   manualProofRequirements: Schema.Array(NonEmptyStringSchema),
   retryScheduleRefs: Schema.Array(NonEmptyStringSchema),
-  childDisplayName: Schema.Union(
-    Schema.Literal(PolicyControlAuditRedactionPlaceholder.ChildIdentity),
-    Schema.Null
-  ),
-  accountLocator: Schema.Union(
-    Schema.Literal(PolicyControlAuditRedactionPlaceholder.AccountIdentity),
-    Schema.Null
-  ),
-  policyTargetValue: Schema.Union(
-    Schema.Literal(PolicyControlAuditRedactionPlaceholder.PolicyTarget),
-    Schema.Null
-  ),
+  childDisplayName: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.ChildIdentity), Schema.Null),
+  accountLocator: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.AccountIdentity), Schema.Null),
+  policyTargetValue: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.PolicyTarget), Schema.Null),
   rawUrl: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.RawUrl), Schema.Null),
-  secretToken: Schema.Union(
-    Schema.Literal(PolicyControlAuditRedactionPlaceholder.Secret),
-    Schema.Null
-  ),
-  providerDetail: Schema.Union(
-    Schema.Literal(PolicyControlAuditRedactionPlaceholder.ProviderDetail),
-    Schema.Null
-  ),
+  secretToken: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.Secret), Schema.Null),
+  providerDetail: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.ProviderDetail), Schema.Null),
   protectedFieldKinds: Schema.Array(PolicyControlAuditSensitiveFieldKindSchema),
   redactedSensitiveFieldCount: PolicyControlAuditCountSchema,
   redactionApplied: Schema.Boolean,
 });
 
-type PolicyControlRedactedAuditPayloadCandidate = Infer<
-  typeof PolicyControlRedactedAuditPayloadBaseSchema
->;
+type PolicyControlRedactedAuditPayloadCandidate = Infer<typeof PolicyControlRedactedAuditPayloadBaseSchema>;
 
 export const PolicyControlRedactedAuditPayloadSchema = withParser(
   PolicyControlRedactedAuditPayloadBaseSchema.pipe(
-    Schema.filter(
-      (payload: PolicyControlRedactedAuditPayloadCandidate) =>
-        validateRedactedAuditPayload(payload) ||
-        'Expected redacted policy control audit payloads to keep sensitive fields redacted and counts aligned'
-    )
+    Schema.filter((payload: PolicyControlRedactedAuditPayloadCandidate) => {
+      const validation = validateRedactedAuditPayload(payload);
+      return validation === true
+        ? true
+        : 'Expected redacted policy control audit payloads to keep sensitive fields redacted and counts aligned';
+    })
   )
 );
 
 export type PolicyControlAuditEventKind = Infer<typeof PolicyControlAuditEventKindSchema>;
 export type PolicyControlAuditActorRole = Infer<typeof PolicyControlAuditActorRoleSchema>;
-export type PolicyControlAuditSensitiveFieldKind = Infer<
-  typeof PolicyControlAuditSensitiveFieldKindSchema
->;
+export type PolicyControlAuditSensitiveFieldKind = Infer<typeof PolicyControlAuditSensitiveFieldKindSchema>;
 export type PolicyControlAuditPayload = Infer<typeof PolicyControlAuditPayloadSchema>;
-export type PolicyControlRedactedAuditPayload = Infer<
-  typeof PolicyControlRedactedAuditPayloadSchema
->;
+export type PolicyControlRedactedAuditPayload = Infer<typeof PolicyControlRedactedAuditPayloadSchema>;
 
-export function redactPolicyControlAuditPayload(
-  payload: PolicyControlAuditPayload
-): PolicyControlRedactedAuditPayload {
+export function redactPolicyControlAuditPayload(payload: PolicyControlAuditPayload): PolicyControlRedactedAuditPayload {
   const parsed = PolicyControlAuditPayloadSchema.parse(payload);
   const protectedFieldKinds: PolicyControlAuditSensitiveFieldKind[] = [];
 
@@ -183,12 +155,7 @@ export function redactPolicyControlAuditPayload(
       PolicyControlAuditRedactionPlaceholder.PolicyTarget,
       protectedFieldKinds
     ),
-    rawUrl: redactField(
-      parsed.rawUrl,
-      'raw-url',
-      PolicyControlAuditRedactionPlaceholder.RawUrl,
-      protectedFieldKinds
-    ),
+    rawUrl: redactField(parsed.rawUrl, 'raw-url', PolicyControlAuditRedactionPlaceholder.RawUrl, protectedFieldKinds),
     secretToken: redactField(
       parsed.secretToken,
       'secret-token',
@@ -222,10 +189,9 @@ function redactField<TPlaceholder extends string>(
   return placeholder;
 }
 
-function validateRedactedAuditPayload(
-  payload: PolicyControlRedactedAuditPayloadCandidate
-): true | string {
-  if (payload.redactionApplied !== (payload.redactedSensitiveFieldCount > 0)) {
+function validateRedactedAuditPayload(payload: PolicyControlRedactedAuditPayloadCandidate): true | string {
+  const hasProtectedFields = payload.redactedSensitiveFieldCount > 0;
+  if (payload.redactionApplied !== hasProtectedFields) {
     return 'Redaction applied flag must match sensitive field count';
   }
   if (payload.redactedSensitiveFieldCount !== payload.protectedFieldKinds.length) {

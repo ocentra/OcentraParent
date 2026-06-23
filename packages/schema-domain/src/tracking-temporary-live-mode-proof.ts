@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
 import {
   TrackingLiveTrackingGrantStateSchema,
@@ -30,7 +25,9 @@ export const TrackingTemporaryLiveModeNonClaimSchema = withParser(
 );
 
 export const TrackingTemporaryLiveModeProofIdSchema = brandedNonEmptyStringSchema('TrackingTemporaryLiveModeProofId');
-export const TrackingTemporaryLiveModeReferenceSchema = brandedNonEmptyStringSchema('TrackingTemporaryLiveModeReference');
+export const TrackingTemporaryLiveModeReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingTemporaryLiveModeReference'
+);
 export const TrackingTemporaryLiveModeSessionStateSchema = withParser(
   Schema.Literal(
     'active-authorized',
@@ -336,4 +333,3 @@ function countRows(
 ) {
   return rows.filter((row) => states.includes(row.sessionState)).length;
 }
-

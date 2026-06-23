@@ -3,7 +3,7 @@ import {
   TrackingDesktopPresenceHintRowSchema,
   buildTrackingDesktopPresenceHintRows,
   summarizeTrackingDesktopPresenceHintProof,
-} from '../../src/tracking-desktop-presence-hint-proof';
+} from '@ocentra-parent/schema-domain/tracking-desktop-presence-hint-proof';
 
 describe('tracking desktop presence hint proof', () => {
   it('keeps LAN, Wi-Fi, and IP rows as hint-only with no precise location claim', () => {

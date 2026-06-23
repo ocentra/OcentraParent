@@ -1,8 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, TrackingAlertSeverity, TrackingChildDeviceId, TrackingChildProfileId,
-    TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicySeverity,
-    TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingTimestamp,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    TrackingAlertSeverity, TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef,
+    TrackingPolicyRuleRef, TrackingPolicySeverity, TrackingPolicyViolationId, TrackingTimestamp,
 };
+use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingPolicyViolationDetectedEvent;
 use ocentra_tracking_core::alerting::{
     evaluate_tracking_alert, TrackingParentNotificationDecisionState,
 };
@@ -13,29 +14,47 @@ fn alert_decision_rate_limits_duplicate_parent_notifications_without_lowering_se
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        }),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID)
+        }),
         violation_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        .unwrap_or_else(|_| {
+            unreachable!(
+                "{}",
+                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+            )
+        }),
         policy_rule_ref: TrackingPolicyRuleRef::parse(
             constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
         )
-        .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE),
+        .unwrap_or_else(|_| {
+            unreachable!(
+                "{}",
+                constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+            )
+        }),
         severity: TrackingPolicySeverity::parse(
             constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
         )
-        .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::POLICY_SEVERITY_REVIEW)
+        }),
         detected_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+            .unwrap_or_else(|_| {
+                unreachable!("{}", constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            }),
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        .unwrap_or_else(|_| unreachable!("{}", constants::tracking_runtime::DEFAULT_EVIDENCE_REF))],
     };
 
     let decision = evaluate_tracking_alert(&violation, 1);
@@ -43,7 +62,10 @@ fn alert_decision_rate_limits_duplicate_parent_notifications_without_lowering_se
     assert_eq!(
         decision.severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
-            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .unwrap_or_else(|_| unreachable!(
+                "{}",
+                constants::tracking_runtime::ALERT_SEVERITY_WATCH
+            ))
     );
     assert_eq!(
         decision.parent_notification_state,

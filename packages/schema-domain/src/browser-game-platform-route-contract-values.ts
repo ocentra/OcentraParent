@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGamePlatformRouteCatalogSchemaVersionSchema = withParser(
@@ -18,9 +13,7 @@ export const BrowserGamePlatformRouteContractIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGamePlatformRouteContractId')
 );
 
-export const BrowserGameRoutePatternRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserGameRoutePatternRef')
-);
+export const BrowserGameRoutePatternRefSchema = withParser(brandedNonEmptyStringSchema('BrowserGameRoutePatternRef'));
 
 export const BrowserGamePlatformKindSchema = withParser(
   Schema.Literal(
@@ -82,4 +75,3 @@ export type BrowserGamePlatformRouteStatus = Infer<typeof BrowserGamePlatformRou
 export type BrowserGameRouteCustodyLabel = Infer<typeof BrowserGameRouteCustodyLabelSchema>;
 export type BrowserGameRouteSourceKind = Infer<typeof BrowserGameRouteSourceKindSchema>;
 export type BrowserGameRouteSurfaceKind = Infer<typeof BrowserGameRouteSurfaceKindSchema>;
-

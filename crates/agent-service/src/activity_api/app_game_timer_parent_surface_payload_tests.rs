@@ -1,26 +1,34 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, AppGameControlActionResult,
-    AppGameControlApprovalAuthority, AppGameControlApprovalDecision, AppGameControlApprovalRequest,
-    AppGameEnforcementCapabilityStatus, AppGameEvidenceClaim, AppGameIdentity,
-    AppGameParentActorReference, AppGameParentDeviceReference, AppGameParentEvidenceReference,
-    AppGamePlatformAuthorityMatrix, AppGamePolicyTarget, AppGameServiceReadModel,
-    AppGameTimerParentSurfaceReadModel, LogFieldValue, APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED,
-    APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_GAME,
-    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_CONTROL_AUTHORITY_ACTIVE,
-    APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED, APP_GAME_CONTROL_DECISION_APPROVED,
-    APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY, APP_GAME_CONTROL_PARENT_RESPONSE_ALLOW_ONCE,
-    APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE, APP_GAME_CONTROL_POLICY_KIND_APP,
-    APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY, APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL,
-    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED, APP_GAME_FOREGROUND_NOT_CLAIMED,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameEvidenceClaim, AppGameIdentity, AppGameServiceReadModel,
+    APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED, APP_GAME_CATALOG_READY,
+    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_FOREGROUND_NOT_CLAIMED,
     APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
+    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_TEST_DISPLAY_LABEL,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    AppGameControlActionResult, AppGameControlApprovalAuthority, AppGameControlApprovalDecision,
+    AppGameControlApprovalRequest, AppGameEnforcementCapabilityStatus, AppGameParentActorReference,
+    AppGameParentDeviceReference, AppGameParentEvidenceReference, AppGamePlatformAuthorityMatrix,
+    AppGamePolicyTarget, APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
+    APP_GAME_CONTROL_AUTHORITY_ACTIVE, APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED,
+    APP_GAME_CONTROL_DECISION_APPROVED, APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY,
+    APP_GAME_CONTROL_PARENT_RESPONSE_ALLOW_ONCE, APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
+    APP_GAME_CONTROL_POLICY_KIND_APP, APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY,
+    APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
     APP_GAME_PARENT_ACTOR_ROLE_PARENT, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
     APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT, APP_GAME_PARENT_PLATFORM_WINDOWS,
     APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
-    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
+};
+use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::{
+    AppGameTimerParentSurfaceReadModel,
+    APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
     APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::app_game_timer_parent_surface_payload::{
     app_game_timer_parent_surface_from_service_model_with_timer_state,
@@ -68,10 +76,12 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
     let read_model_json =
         match payload.get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL) {
             Some(LogFieldValue::String(value)) => value.as_str(),
-            _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+            _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
         };
-    let decoded: AppGameTimerParentSurfaceReadModel =
-        serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let decoded: AppGameTimerParentSurfaceReadModel = serde_json::from_str(read_model_json)
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
 
     assert_parent_surface_counts_and_claim_boundaries(&decoded);
     assert_control_action_result_visibility(&decoded);
@@ -339,7 +349,7 @@ fn control_action_result() -> AppGameControlActionResult {
         "decision": approval_decision(),
         "approvalState": APP_GAME_CONTROL_APPROVAL_STATE_APPROVED,
         "capabilityState": APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED,
-        "capability": capability.clone(),
+        "capability": &capability,
         "evidenceProofKind": APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY,
         "resultStatus": APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
         "enforcementResult": {
@@ -360,7 +370,7 @@ fn control_action_result() -> AppGameControlActionResult {
         },
         "recordedAt": APP_GAME_TEST_TIMESTAMP
     }))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn approval_request() -> AppGameControlApprovalRequest {
@@ -529,7 +539,7 @@ fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
             "authorityTier": APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
             "setupState": APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED,
             "proofState": APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED,
-            "capabilityState": ocentra_parent_agent_protocol::APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
+            "capabilityState": ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
             "parentVisibleState": APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED,
             "parentVisibleLimitation": APP_GAME_TEST_WINDOWS_LIMITATION,
             "canExecuteAdapter": false,
@@ -543,5 +553,5 @@ fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
         }],
         "generatedAt": APP_GAME_TEST_TIMESTAMP
     }))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }

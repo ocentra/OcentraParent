@@ -70,9 +70,9 @@ fn append_cpu_moe_args(args: &mut Vec<String>, config: &LocalAiRuntimeConfigSnap
     );
 }
 
-fn append_arg_value(args: &mut Vec<String>, name: &str, value: Option<&str>) {
+fn append_arg_value(args: &mut Vec<String>, arg_flag: &str, value: Option<&str>) {
     if let Some(value) = value {
-        args.push(name.to_string());
+        args.push(arg_flag.to_string());
         args.push(value.to_string());
     }
 }

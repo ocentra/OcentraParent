@@ -1,35 +1,36 @@
 # @ocentra-parent/text-domain
 
-Schema-backed display text tokens and shared copy values.
+Thin package boundary for text-domain metadata and focused proof coverage.
 
-## Owns
+## Public Surface
 
-- Shared text values that runtime surfaces need to render consistently.
-- Dev portal copy tokens that should not live as loose app strings.
-- Text schemas for copy that crosses packages or tests.
+- `./package-info` via [src/package-info.ts](C:\Users\sujan.codex\worktrees\ocentra-parent-codex-a\OcentraParent\packages\text-domain\src\package-info.ts)
 
-## Must Not Own
+## What Stays Here
 
-- Arbitrary page prose that is local to documentation.
-- Policy ids, route ids, event names, or protocol values.
-- Product decisions hidden inside wording.
+- package identity metadata
+- focused unit proofs that exercise canonical text contracts in `@ocentra-parent/schema-domain`
 
-## Flow
+## What Does Not Stay Here
 
-```mermaid
-flowchart LR
-  Text["text-domain token"]
-  PortalDomain["portal-domain descriptors"]
-  Portal["portal UI"]
-  Text --> PortalDomain --> Portal
-```
+- shared display text token ownership
+- cross-package text schemas, decode helpers, or token catalogs
+- local pass-through wrappers for browser, portal, or social text contracts once a canonical schema-domain owner exists
 
-## Connected Docs
+## Current Contract Shape
 
-- [Contract expectations](../../docs/expectations/contracts.md)
-- [Portal expectations](../../docs/expectations/portal.md)
+The live tests in this package import canonical text contracts directly from `@ocentra-parent/schema-domain/*`. This package no longer publishes local schema wrapper leaves for:
 
-## Gaps To Fill
+- browser child UX text
+- browser parent explanation text
+- portal dev text
+- social child approval block UX text
+- social dashboard UX text
 
-- Expand only when text is reused or contract-visible.
-- Keep parent-facing product language aligned with the README and constitution.
+## Validation Intent
+
+Keep validation focused on:
+
+- building this package
+- proving the local tests still parse or resolve the canonical central text contracts
+- architecture lint for this package boundary

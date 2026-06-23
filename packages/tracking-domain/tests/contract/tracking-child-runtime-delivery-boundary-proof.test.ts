@@ -3,9 +3,9 @@ import {
   TrackingChildRuntimeDeliveryBoundaryReadModelSchema,
   TrackingChildRuntimeDeliveryBoundaryRowSchema,
   buildTrackingChildRuntimeDeliveryBoundaryReadModel,
-} from '../../src/tracking-child-runtime-delivery-boundary-proof';
+} from '@ocentra-parent/schema-domain/tracking-child-runtime-delivery-boundary-proof';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
-import { buildTrackingChildCheckInTimeoutReadModel } from '../../src/tracking-child-check-in-timeout-escalation-proof';
+import { buildTrackingChildCheckInTimeoutReadModel } from '@ocentra-parent/schema-domain/tracking-child-check-in-timeout-escalation-proof';
 
 const EvidenceTrace = {
   evidenceReferenceId: 'tracking-child-runtime-evidence-1',

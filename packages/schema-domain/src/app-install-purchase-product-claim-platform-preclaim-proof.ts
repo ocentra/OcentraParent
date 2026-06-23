@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProductClaimPortalTestReadinessProofReadModel } from './app-install-purchase-product-claim-portal-test-readiness-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -361,4 +356,3 @@ function platformPreclaimProofIsHonest(proof: AppInstallPurchaseProductClaimPlat
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
-

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from '../effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '../effect';
 import { LogLevelSchema } from '../logging-contracts';
 import {
   NullableIntegerSchema,

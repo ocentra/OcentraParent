@@ -1,12 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityMemoryGraphEdge, ActivityMemoryGraphEdgeKind,
-    ActivityMemoryGraphEntryStatus, ActivityMemoryGraphNode, ActivityMemoryGraphNodeKind,
-    ActivityMemoryGraphQuery, ActivityMemoryGraphQueryKind, ActivityMemoryGraphReadModel,
-    ActivityMemoryGraphTimeRange, ActivityMemoryGraphTrace, LogFieldValue, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY,
-    ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE, ACTIVITY_MEMORY_GRAPH_INDEX_VERSION,
-    ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::{
+    policy::ParentEvidenceReference, policy::ParentEvidenceReferenceKind,
+    policy_context::ParentDeviceReference,
 };
+use ocentra_parent_agent_protocol::activity_memory_graph::{
+    ActivityMemoryGraphEdge, ActivityMemoryGraphEdgeKind, ActivityMemoryGraphEntryStatus,
+    ActivityMemoryGraphNode, ActivityMemoryGraphNodeKind, ActivityMemoryGraphQuery,
+    ActivityMemoryGraphQueryKind, ActivityMemoryGraphReadModel, ActivityMemoryGraphTimeRange,
+    ActivityMemoryGraphTrace,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY;
+use ocentra_parent_agent_protocol::ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE;
+use ocentra_parent_agent_protocol::ACTIVITY_MEMORY_GRAPH_INDEX_VERSION;
+use ocentra_parent_agent_protocol::ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION;
 
 use super::activity_memory_graph_payload::activity_memory_graph_payload;
 
@@ -21,9 +28,11 @@ fn activity_memory_graph_payload_contains_contract_digest_json() {
             LogFieldValue::String(text) => Some(text),
             _ => None,
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let digest: ActivityMemoryGraphReadModel =
-        serde_json::from_str(digest_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::from_str(digest_json).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
 
     assert_eq!(
         payload.get(constants::field::RETURNED),

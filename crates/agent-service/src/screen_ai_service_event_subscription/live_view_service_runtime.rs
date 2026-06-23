@@ -130,6 +130,6 @@ fn live_view_permission_from_environment() -> ScreenLiveViewRuntimePermission {
     }
 }
 
-fn env_flag(name: &str) -> bool {
-    env::var(name).is_ok_and(|value| value == constants::screen_flow::ENV_TRUE)
+fn env_flag(env_var_name: &str) -> bool {
+    env::var(env_var_name).is_ok_and(|value| value == constants::screen_flow::ENV_TRUE)
 }

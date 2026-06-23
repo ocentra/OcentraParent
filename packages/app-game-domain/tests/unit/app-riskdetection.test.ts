@@ -3,11 +3,8 @@ import {
   AppGamePolicyTargetKind,
   appGamePolicyTargetRequiresCategory,
 } from '@ocentra-parent/schema-domain/app-game-policy-target-compiler-rules';
-import {
-  AppRiskDetectionCandidateSchema,
-  AppRiskDetectionMatrixSchema,
-} from '@ocentra-parent/schema-domain/app-game';
-import { AppRiskDetectionMatrix } from '../../src/app-riskdetection-data';
+import { AppRiskDetectionCandidateSchema, AppRiskDetectionMatrixSchema } from '@ocentra-parent/schema-domain/app-game';
+import { AppRiskDetectionMatrix } from '@ocentra-parent/schema-domain/app-riskdetection-data';
 
 const candidateFor = (candidateId: string) => {
   const candidate = AppRiskDetectionMatrix.candidates.find((entry) => entry.candidateId === candidateId);

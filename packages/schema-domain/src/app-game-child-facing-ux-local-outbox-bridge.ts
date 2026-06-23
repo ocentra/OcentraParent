@@ -1,9 +1,4 @@
-﻿import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+﻿import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameChildUxLocalHandoffArtifactReadModelSchema,
   AppGameChildUxLocalHandoffArtifactRecordSchema,
@@ -11,10 +6,7 @@ import {
   type AppGameChildUxLocalHandoffArtifactRecord,
 } from './app-game-child-facing-ux-local-handoff';
 import { AppGameChildUxSurfaceState } from './app-game-child-facing-ux-rules';
-import {
-  NotificationLocalOutboxRecordSchema,
-  type NotificationLocalOutboxRecord,
-} from './notification-local-outbox';
+import { NotificationLocalOutboxRecordSchema, type NotificationLocalOutboxRecord } from './notification-local-outbox';
 import { FamilyReferenceSchema, type FamilyReference, type ParentActionReference } from './family-references';
 import {
   ParentContractSchemaVersion,
@@ -33,7 +25,9 @@ export const AppGameChildUxLocalOutboxBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxLocalOutboxBridgeStatus))
 );
 export const AppGameChildUxLocalOutboxBridgeIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxBridgeId');
-export const AppGameChildUxLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxBridgeReference');
+export const AppGameChildUxLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameChildUxLocalOutboxBridgeReference'
+);
 
 const AppGameChildUxLocalOutboxBridgeRowBaseSchema = Schema.Struct({
   bridgeRecordId: AppGameChildUxLocalOutboxBridgeReferenceSchema,
@@ -290,4 +284,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

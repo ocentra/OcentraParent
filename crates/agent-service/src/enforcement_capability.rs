@@ -5,7 +5,9 @@ use ocentra_parent_agent_core::{
     },
     enforcement_app_time_limit::app_time_limit_capability,
 };
-use ocentra_parent_agent_protocol::{EnforcementCapabilityStatus, PolicyAction, PolicyTargetType};
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityStatus;
 
 pub(crate) fn enforcement_capability_for_policy(
     action: PolicyAction,

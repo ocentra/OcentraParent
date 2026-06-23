@@ -17,7 +17,7 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -29,7 +29,7 @@ async function main() {
     ])
   );
 
-  const runtime = await import('../../packages/app-game-domain/dist/app-game-time-budget-policy-runtime.js');
+  const runtime = await import('../../packages/schema-domain/dist/app-game-time-budget-policy-runtime.js');
   const rules = await import('../../packages/schema-domain/dist/app-game-time-budget-policy-rules.js');
   const refs = await import('../../packages/schema-domain/dist/family-reference-primitives.js');
 
@@ -129,7 +129,7 @@ async function main() {
       rejectedCrossDevice,
     },
     claimsProved: [
-      'app-game-domain runtime helper builds app/game time-budget dry-run decisions from stored policy and session inputs',
+      'schema-domain runtime helper builds app/game time-budget dry-run decisions from stored policy and session inputs',
       'target matching counts only native app sessions for an all-native-app policy and excludes native game sessions',
       'running and foreground duration modes are delegated through the existing time-budget policy rules',
       'exceeded budget decisions can resolve to dry-run timer, warn-only, ask-parent, or manual-required states without adapter dispatch',
@@ -144,8 +144,8 @@ async function main() {
       'live classifier/provider execution or category quality',
     ],
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-time-budget-policy-runtime.ts',
-      existingContract: 'packages/app-game-domain/src/app-game-time-budget-policy.ts',
+      contract: 'packages/schema-domain/src/app-game-time-budget-policy-runtime.ts',
+      existingContract: 'packages/schema-domain/src/app-game-time-budget-policy.ts',
       existingRules: 'packages/schema-domain/src/app-game-time-budget-policy-rules.ts',
       test: 'packages/app-game-domain/tests/unit/app-game-time-budget-policy-runtime.test.ts',
       harness: 'scripts/test/app-game-policy-evaluator-runtime-proof.mjs',

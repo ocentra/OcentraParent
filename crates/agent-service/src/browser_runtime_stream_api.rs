@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     activity_api::{activity_store_error_event, load_browser_evidence_read_model},

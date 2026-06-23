@@ -1,5 +1,6 @@
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalCommandButtons } from '@ocentra-parent/portal-domain/commands';
-import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { renderCommandResultPanel } from './command-result-panel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
@@ -9,7 +10,7 @@ export function renderCommands(container: HTMLElement, state: PortalRuntimeState
   panel.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.AgentCommands);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.AgentCommands);
 
   const commandGrid = document.createElement(PortalDom.Tags.Division);
   commandGrid.className = PortalDom.Classes.CommandGrid;

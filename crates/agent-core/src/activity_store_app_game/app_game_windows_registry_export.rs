@@ -4,10 +4,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, APP_GAME_WINDOWS_REGISTRY_DWORD_PREFIX, APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION,
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_WINDOWS_REGISTRY_DWORD_PREFIX, APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION,
     APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH, APP_GAME_WINDOWS_REGISTRY_WOW6432_UNINSTALL_PATH,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use super::{
     app_game_windows_inventory::WindowsInstalledAppInventoryRecord,

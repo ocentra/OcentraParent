@@ -1,7 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, EnforcementPolicyDispatchReadModel, LogFieldValue, LogFields,
-    V08EnforcementProductControlSpineReadModel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchReadModel;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineReadModel;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::fields::fields_from_pairs;
 
@@ -29,7 +30,8 @@ pub(crate) fn enforcement_product_control_spine_payload(
 }
 
 fn read_model_json(read_model: &V08EnforcementProductControlSpineReadModel) -> String {
-    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_string(read_model)
+        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 pub(crate) fn enforcement_policy_dispatch_payload(
@@ -52,5 +54,6 @@ pub(crate) fn enforcement_policy_dispatch_payload(
 }
 
 fn policy_dispatch_read_model_json(read_model: &EnforcementPolicyDispatchReadModel) -> String {
-    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_string(read_model)
+        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }

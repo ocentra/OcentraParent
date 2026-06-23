@@ -97,7 +97,7 @@ console.log('eventing-network-service-event-chain-stream-proof-ok:service,protoc
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
-  const contracts = readText('packages/agent-protocol-domain/src/contracts.ts');
+  const contracts = readText('packages/schema-domain/src/agent-command-event-contracts.ts');
   const tsRuntimeEvents = readText('packages/agent-protocol-domain/src/network-runtime-events.ts');
   const rustTransport = readText('crates/agent-protocol/src/transport.rs');
   const fieldConstants = readText('crates/agent-protocol/src/constants/field.rs');

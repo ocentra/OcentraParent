@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from './policy-contracts';
 import { ParentEvidenceReferenceSchema } from './family-references';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from './family-reference-primitives';
@@ -309,4 +304,3 @@ function countSqliteRows(
 ): number {
   return rows.filter((row) => row.ingestState === ingestState).length;
 }
-

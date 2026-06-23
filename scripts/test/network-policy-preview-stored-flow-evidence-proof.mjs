@@ -30,8 +30,8 @@ const sourceFiles = [
   'crates/agent-service/README.md',
   'crates/agent-protocol/src/policy_preview.rs',
   'crates/agent-protocol/README.md',
-  'packages/agent-protocol-domain/src/contracts.ts',
-  'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/agent-command-event-contracts.ts',
+  'packages/schema-domain/src/agent-protocol-defaults.ts',
   'packages/agent-protocol-domain/tests/unit/policy-preview-contracts.test.ts',
   'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
   'packages/agent-protocol-domain/README.md',
@@ -282,7 +282,9 @@ function assertSourceContracts() {
   const protocolReadme = readText('crates/agent-protocol/README.md');
   const tsReadme = readText('packages/agent-protocol-domain/README.md');
   const tsContracts = readText('packages/agent-protocol-domain/tests/unit/policy-preview-contracts.test.ts');
-  const remoteDeliveryTsTest = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
+  const remoteDeliveryTsTest = readText(
+    'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts'
+  );
   const portalLiveActivityState = readText('apps/portal/src/live-activity-state.ts');
   const portalDetailView = readText('apps/portal/src/policy-preview-details.ts');
   const portalPolicyPreviewTest = readText('apps/portal/tests/policy-preview-live-activity-state.test.ts');
@@ -375,14 +377,6 @@ function runCommand(entry) {
     status: result.status,
     log: entry.log,
   };
-}
-
-function runText(command, args) {
-  const result = spawnSync(command, args, { encoding: 'utf8', shell: false });
-  if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
-  }
-  return `${result.stdout ?? ''}${result.stderr ?? ''}`;
 }
 
 function sourceFingerprint() {

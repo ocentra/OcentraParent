@@ -37,34 +37,11 @@ describe('browser control coverage matrix', () => {
     );
     const docsOnly = matrix.filter((entry) => entry.coverageStatus === 'documentation-only');
 
-    expect(implemented.every((entry) => entry.manifestFieldIds.length > 0 && entry.writesTo.length > 0)).toBe(true);
-    expect(capability.every((entry) => entry.capabilityState !== null)).toBe(true);
-    expect(matrix.every((entry) => entry.compilerCapabilityState !== null)).toBe(true);
-    expect(implemented.every((entry) => entry.compilerCapabilityState === PolicyCompilerCapabilityState.Supported)).toBe(
-      true
-    );
-    expect(
-      capability.every(
-        (entry) =>
-          entry.compilerCapabilityState ===
-          (entry.capabilityState === 'manual-required'
-            ? PolicyCompilerCapabilityState.ManualRequired
-            : PolicyCompilerCapabilityState.Supported)
-      )
-    ).toBe(true);
-    expect(unsupported.every((entry) => entry.compilerCapabilityState === PolicyCompilerCapabilityState.Unsupported)).toBe(
-      true
-    );
-    expect(
-      docsOnly.every(
-        (entry) =>
-          entry.manifestFieldIds.length === 0 &&
-          entry.writesTo.length === 0 &&
-          entry.policyShape === null &&
-          entry.capabilityState === null &&
-          entry.compilerCapabilityState === PolicyCompilerCapabilityState.Unsupported
-      )
-    ).toBe(true);
+    expectImplementedRows(implemented);
+    expectCapabilityRows(capability);
+    expectCompilerCapabilityStateCoverage(matrix);
+    expectUnsupportedRows(unsupported);
+    expectDocsOnlyRows(docsOnly);
   });
 
   it('stays aligned with catalog sections and questionnaire source coverage', () => {
@@ -136,4 +113,47 @@ function coverageSectionByName(catalogSection: string): BrowserControlCoverageEn
     throw new Error(`Missing coverage section ${catalogSection}`);
   }
   return entry;
+}
+
+function expectImplementedRows(entries: readonly BrowserControlCoverageEntry[]) {
+  expect(entries.every((entry) => entry.manifestFieldIds.length > 0 && entry.writesTo.length > 0)).toBe(true);
+  expect(entries.every((entry) => entry.compilerCapabilityState === PolicyCompilerCapabilityState.Supported)).toBe(
+    true
+  );
+}
+
+function expectCapabilityRows(entries: readonly BrowserControlCoverageEntry[]) {
+  expect(entries.every((entry) => entry.capabilityState !== null)).toBe(true);
+  expect(
+    entries.every(
+      (entry) =>
+        entry.compilerCapabilityState ===
+        (entry.capabilityState === 'manual-required'
+          ? PolicyCompilerCapabilityState.ManualRequired
+          : PolicyCompilerCapabilityState.Supported)
+    )
+  ).toBe(true);
+}
+
+function expectCompilerCapabilityStateCoverage(entries: readonly BrowserControlCoverageEntry[]) {
+  expect(entries.every((entry) => entry.compilerCapabilityState !== null)).toBe(true);
+}
+
+function expectUnsupportedRows(entries: readonly BrowserControlCoverageEntry[]) {
+  expect(entries.every((entry) => entry.compilerCapabilityState === PolicyCompilerCapabilityState.Unsupported)).toBe(
+    true
+  );
+}
+
+function expectDocsOnlyRows(entries: readonly BrowserControlCoverageEntry[]) {
+  expect(
+    entries.every(
+      (entry) =>
+        entry.manifestFieldIds.length === 0 &&
+        entry.writesTo.length === 0 &&
+        entry.policyShape === null &&
+        entry.capabilityState === null &&
+        entry.compilerCapabilityState === PolicyCompilerCapabilityState.Unsupported
+    )
+  ).toBe(true);
 }

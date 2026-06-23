@@ -19,8 +19,9 @@ fn browser_evidence_read_model_serializes_tab_list_only_rows() {
         rows: vec![browser_tab_evidence()],
     };
 
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["schemaVersion"], BROWSER_EVIDENCE_SCHEMA_VERSION);
     assert_eq!(serialized["returned"], 1);

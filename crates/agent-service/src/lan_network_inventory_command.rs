@@ -55,8 +55,8 @@ fn command_output(program: &str, args: &[&str]) -> Option<Output> {
     }
 }
 
-pub(crate) fn record_text(record: &serde_json::Value, key: &str) -> Option<String> {
-    record.get(key).and_then(value_text)
+pub(crate) fn record_text(record: &serde_json::Value, field_name: &str) -> Option<String> {
+    record.get(field_name).and_then(value_text)
 }
 
 pub(crate) fn value_text(value: &serde_json::Value) -> Option<String> {
@@ -67,8 +67,8 @@ pub(crate) fn value_text(value: &serde_json::Value) -> Option<String> {
     }
 }
 
-pub(crate) fn record_u64(record: &serde_json::Value, key: &str) -> Option<u64> {
-    record.get(key).and_then(|value| match value {
+pub(crate) fn record_u64(record: &serde_json::Value, field_name: &str) -> Option<u64> {
+    record.get(field_name).and_then(|value| match value {
         serde_json::Value::Number(value) => value.as_u64(),
         serde_json::Value::String(value) => value.parse().ok(),
         _ => None,
@@ -81,7 +81,7 @@ fn clean_string(value: Option<String>) -> Option<String> {
         .filter(|value| !value.is_empty())
 }
 
-pub(crate) fn normalize_mac_address(value: String) -> Option<String> {
+pub(crate) fn normalize_mac_address(value: &str) -> Option<String> {
     let normalized = value
         .trim()
         .replace(':', constants::lan_pairing::MAC_DASH)

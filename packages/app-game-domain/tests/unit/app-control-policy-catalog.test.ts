@@ -20,7 +20,7 @@ import {
   decodeAppControlEffectivePolicy,
   decodeAppControlPolicyValueForCatalog,
   decodeAppControlUpdateCommandForCatalog,
-} from '../../src/app-control-catalog';
+} from '@ocentra-parent/schema-domain/app-control-catalog';
 import { AppControlAuthoringCatalogSchema } from '@ocentra-parent/schema-domain/app-control-catalog-schema';
 
 interface SourceProposal {

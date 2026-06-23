@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameChildCheckingBlockUxSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-child-checking-block-ux-contract')
@@ -86,4 +81,3 @@ export const BrowserGameChildCheckingBlockTextToken = {
   Manual: BrowserGameChildCheckingBlockTextTokenSchema.parse('browser-game.child.manual.title'),
   Unavailable: BrowserGameChildCheckingBlockTextTokenSchema.parse('browser-game.child.unavailable.title'),
 } as const;
-

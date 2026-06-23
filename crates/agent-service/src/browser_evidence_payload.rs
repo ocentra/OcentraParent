@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserEvidenceReadModel, BrowserTabEvidence, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::browser_read_model::{
+    BrowserEvidenceReadModel, BrowserTabEvidence,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
 
@@ -175,11 +177,12 @@ fn optional_u32(value: Option<u32>) -> LogFieldValue {
 
 #[cfg(test)]
 mod tests {
-    use ocentra_parent_agent_protocol::{
+    use ocentra_parent_agent_protocol::browser::{
         BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
-        BrowserCustodyLabel, BrowserFamily, BrowserQueryVisibilityLabel,
-        BROWSER_EVIDENCE_SCHEMA_VERSION,
+        BrowserCustodyLabel, BrowserFamily,
     };
+    use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+    use ocentra_parent_agent_protocol::BROWSER_EVIDENCE_SCHEMA_VERSION;
 
     use super::*;
 

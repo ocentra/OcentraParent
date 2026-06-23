@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { BrowserDomainSchema, BrowserPageTitleSchema, BrowserUrlSchema } from './browser-schemas';
@@ -364,4 +364,3 @@ function browserUrlIntelligenceMemoryHitHasDecisionSource(
   }
   return value.analysisRef !== null || value.parentActionRef !== null;
 }
-

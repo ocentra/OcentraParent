@@ -1,14 +1,19 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_enforcement_product_control_spine as spine},
-    policy_constants, V08EnforcementProductControlClaimState,
-    V08EnforcementProductControlDevicePolicyState, V08EnforcementProductControlExecutionState,
-    V08EnforcementProductControlParentAction, V08EnforcementProductControlSpineEntry,
-    V08EnforcementProductControlSpineReadModel, V08EnforcementProductControlSurface,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlClaimState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlDevicePolicyState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlExecutionState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlParentAction;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineEntry;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineReadModel;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSurface;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_os_adapter_product_proof_read_model::product_control_spine::v08_enforcement_product_control_spine_read_model;
+
+type TestResult = Result<(), String>;
 
 #[test]
 fn product_control_service_read_model_wires_runtime_sources() {
@@ -159,13 +164,17 @@ fn product_control_service_read_model_refuses_unproved_claim_upgrades() {
 }
 
 #[test]
-fn product_control_service_read_model_serializes_for_runtime_consumers() {
+fn product_control_service_read_model_serializes_for_runtime_consumers() -> TestResult {
     let read_model =
         v08_enforcement_product_control_spine_read_model(policy_constants::TEST_EVALUATED_AT);
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let reparsed = serde_json::from_value::<V08EnforcementProductControlSpineReadModel>(serialized)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = ok(
+        serde_json::to_value(read_model),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    let reparsed = ok(
+        serde_json::from_value::<V08EnforcementProductControlSpineReadModel>(serialized),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
     let permission = entry_for(
         &reparsed,
         V08EnforcementProductControlSurface::WindowsPermissionLossAlerts,
@@ -179,6 +188,8 @@ fn product_control_service_read_model_serializes_for_runtime_consumers() {
     assert!(permission
         .manual_proof_requirements
         .contains(&spine::REQUIREMENT_DELIVERY_RECEIPT.to_string()));
+
+    Ok(())
 }
 
 fn entry_for(
@@ -189,7 +200,7 @@ fn entry_for(
         .entries
         .iter()
         .find(|entry| entry.surface == surface)
-        .expect(spine::READ_MODEL_ID)
+        .unwrap_or_else(|| panic!("{}", spine::READ_MODEL_ID))
 }
 
 fn count_claims(
@@ -220,4 +231,8 @@ fn claim_count(counts: &BTreeMap<&'static str, usize>, claim: &'static str) -> u
 
 fn policy_count(counts: &BTreeMap<&'static str, usize>, state: &'static str) -> usize {
     *counts.get(state).unwrap_or(&0)
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

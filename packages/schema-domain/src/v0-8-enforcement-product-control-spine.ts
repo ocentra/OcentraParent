@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
@@ -18,12 +13,24 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-export const V08EnforcementProductControlSpineReadModelIdSchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineReadModelId');
-export const V08EnforcementProductControlSpineEntryIdSchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineEntryId');
-export const V08EnforcementProductControlSpineReferenceSchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineReference');
-export const V08EnforcementProductControlSpineRequirementSchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineRequirement');
-export const V08EnforcementProductControlSpineClaimBoundarySchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineClaimBoundary');
-export const V08EnforcementProductControlSpineFallbackSchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineFallback');
+export const V08EnforcementProductControlSpineReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementProductControlSpineReadModelId'
+);
+export const V08EnforcementProductControlSpineEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementProductControlSpineEntryId'
+);
+export const V08EnforcementProductControlSpineReferenceSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementProductControlSpineReference'
+);
+export const V08EnforcementProductControlSpineRequirementSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementProductControlSpineRequirement'
+);
+export const V08EnforcementProductControlSpineClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'V08EnforcementProductControlSpineClaimBoundary'
+);
+export const V08EnforcementProductControlSpineFallbackSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementProductControlSpineFallback'
+);
 
 export const V08EnforcementProductControlSurfaceSchema = withParser(
   Schema.Literal(
@@ -684,4 +691,3 @@ function productControlEntry(entry: ProductControlEntryInput): V08EnforcementPro
     lastCheckedAt: observedAt,
   });
 }
-

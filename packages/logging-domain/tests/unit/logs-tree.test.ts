@@ -30,9 +30,7 @@ describe('logsTree', () => {
       expect(listFileKeysInScope({ scope: 'parent-test', runType: 'single', suiteType: 'unit' }, root)).toEqual([
         'sample',
       ]);
-      expect(
-        tryGet(tree, { scope: 'parent-test', runType: 'single', suiteType: 'unit' }, 'sample')
-      ).toBe(filePath);
+      expect(tryGet(tree, { scope: 'parent-test', runType: 'single', suiteType: 'unit' }, 'sample')).toBe(filePath);
       expect(getDirPath({ scope: 'parent-test', runType: 'single', suiteType: 'unit' }, 'sample', root)).toBe(
         scopePath
       );

@@ -1,6 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityMemoryGraphReadModel, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
 
@@ -28,9 +28,7 @@ pub fn activity_memory_graph_payload(read_model: &ActivityMemoryGraphReadModel) 
         ),
         (
             constants::field::ACTIVITY_DIGEST,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ];
     fields_from_pairs(pairs)

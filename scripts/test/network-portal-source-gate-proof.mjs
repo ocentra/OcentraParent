@@ -205,11 +205,7 @@ async function assertNetworkPortalSourceGate() {
     'PortalDetails.EvidenceReferences',
     'network drawer route renders service evidence refs'
   );
-  assertIncludes(
-    drawerRoutePanel,
-    'PortalDetails.Custody',
-    'network drawer route renders service custody details'
-  );
+  assertIncludes(drawerRoutePanel, 'PortalDetails.Custody', 'network drawer route renders service custody details');
   proofLabels.push('portal.route.renders-network-surface-details');
 
   assertIncludes(
@@ -300,12 +296,6 @@ async function readText(path) {
 function assertIncludes(text, expected, label) {
   if (!text.includes(expected)) {
     throw new Error(`${label}: missing ${expected}`);
-  }
-}
-
-function assertDoesNotInclude(text, unexpected, label) {
-  if (text.includes(unexpected)) {
-    throw new Error(`${label}: found ${unexpected}`);
   }
 }
 

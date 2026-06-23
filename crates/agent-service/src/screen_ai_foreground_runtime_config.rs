@@ -4,18 +4,25 @@ use std::{
 };
 
 use ocentra_parent_agent_core::window_capture::ForegroundWindowObservation;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, SCREEN_SERVICE_ANALYSIS_ENABLED_ENV,
-    SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME, SCREEN_SERVICE_FOREGROUND_ENABLED_ENV,
-    SCREEN_SERVICE_FOREGROUND_KEY_APP_PREFIX, SCREEN_SERVICE_FOREGROUND_KEY_PID_PREFIX,
-    SCREEN_SERVICE_FOREGROUND_KEY_TITLE_PREFIX, SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX,
-    SCREEN_SERVICE_FOREGROUND_MAX_CAPTURES_ENV, SCREEN_SERVICE_FOREGROUND_MAX_TICKS_ENV,
-    SCREEN_SERVICE_FOREGROUND_MIN_GAP_SECONDS_ENV, SCREEN_SERVICE_FOREGROUND_POLL_SECONDS_ENV,
-    SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV, SCREEN_SERVICE_QUEUE_DIR_ENV,
-    SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT, SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV,
-    SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
-    SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV,
-};
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_ENABLED_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_ENABLED_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_KEY_APP_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_KEY_PID_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_KEY_TITLE_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_MAX_CAPTURES_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_MAX_TICKS_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_MIN_GAP_SECONDS_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_POLL_SECONDS_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_QUEUE_DIR_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV;
 use ocentra_parent_screen_capture_adapter::{
     trigger_scheduler::{ScreenCaptureScheduleTrigger, ScreenCaptureSchedulerSettings},
     ScreenCaptureScope,
@@ -148,30 +155,30 @@ fn prefixed_key(prefix: &str, value: &str) -> String {
     key
 }
 
-fn env_flag(name: &str, default_value: bool) -> bool {
-    env::var(name)
+fn env_flag(env_var_name: &str, default_value: bool) -> bool {
+    env::var(env_var_name)
         .ok()
         .map(|value| value == constants::value::TRUE)
         .unwrap_or(default_value)
 }
 
-fn env_u64(name: &str, default_value: u64) -> u64 {
-    env::var(name)
+fn env_u64(env_var_name: &str, default_value: u64) -> u64 {
+    env::var(env_var_name)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
         .unwrap_or(default_value)
 }
 
-fn env_optional_u64(name: &str) -> Option<u64> {
-    env::var(name)
+fn env_optional_u64(env_var_name: &str) -> Option<u64> {
+    env::var(env_var_name)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
 }
 
-fn env_path(name: &str) -> Option<PathBuf> {
-    env::var(name)
+fn env_path(env_var_name: &str) -> Option<PathBuf> {
+    env::var(env_var_name)
         .ok()
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)

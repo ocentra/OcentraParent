@@ -127,9 +127,9 @@ async function main() {
     'packages/schema-domain/src/tracking-evidence-quality-gate.ts',
     'packages/schema-domain/src/tracking-read-model.ts',
     'packages/schema-domain/src/tracking-location-policy.ts',
+    'packages/schema-domain/src/tracking-location-policy-runtime.ts',
     'packages/tracking-domain/src/tracking-runtime.ts',
     'packages/tracking-domain/src/tracking-retention-runtime.ts',
-    'packages/tracking-domain/src/tracking-location-policy-runtime.ts',
     'packages/tracking-domain/src/tracking-local-place-store.ts',
     'packages/tracking-domain/src/tracking-policy-compiler-runtime-proof.ts',
   ]);
@@ -181,9 +181,9 @@ function sourceSnapshot(pack, commit, checkedAt) {
     '- central helper: packages/schema-domain/src/tracking-evidence-quality-gate.ts',
     '- central schemas: packages/schema-domain/src/tracking-read-model.ts',
     '- central schemas: packages/schema-domain/src/tracking-location-policy.ts',
+    '- central runtime helper: packages/schema-domain/src/tracking-location-policy-runtime.ts',
     '- local runtime helper: packages/tracking-domain/src/tracking-runtime.ts',
     '- local runtime helper: packages/tracking-domain/src/tracking-retention-runtime.ts',
-    '- local runtime helper: packages/tracking-domain/src/tracking-location-policy-runtime.ts',
     '- local runtime helper: packages/tracking-domain/src/tracking-local-place-store.ts',
     '- local runtime helper: packages/tracking-domain/src/tracking-policy-compiler-runtime-proof.ts',
     '- focused tests: packages/tracking-domain/tests/unit/tracking.test.ts',
@@ -280,10 +280,6 @@ function minimumSeriousMvpAuditSummary() {
       'production/root-gate proof',
     ],
   };
-}
-
-async function runNpmWorkspace(workspaceName, args) {
-  await runNpm(['--workspace', workspaceName, ...args]);
 }
 
 async function runNpm(args, ...rest) {

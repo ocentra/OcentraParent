@@ -64,11 +64,11 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       providerStoreExecutionPreflightContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
       sourceProviderStoreExecutionReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
       sourceRuntimeWriterExecutionDeliveryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-execution-preflight-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

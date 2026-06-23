@@ -21,6 +21,7 @@ Define and, when assigned, implement the first-run parent account and family set
 ## Required inputs
 
 ```text
+workpacks/00-owner-boundary-proof-gate.md
 workpacks/02-identity-household-role-model.md
 workpacks/03-session-token-lifecycle.md
 workpacks/04-invites-recovery-lifecycle.md
@@ -29,6 +30,7 @@ docs/features/family-setup-device-roles.md
 docs/expectations/family-setup.md
 docs/expectations/portal.md
 docs/expectations/platforms.md
+packages/schema-domain account/family/setup read-model exports when shared shape changes are required
 packages/family-domain/src/**
 packages/portal-domain/src/**
 apps/portal/src/** selected route only
@@ -87,6 +89,7 @@ UI uses domain-owned route text/DOM ids where available.
 Likely paths:
 
 ```text
+packages/schema-domain/** only when canonical shared account/family/setup UI state shapes change
 packages/family-domain/src/**
 packages/portal-domain/src/**
 apps/portal/src/** selected setup route/components only
@@ -95,6 +98,21 @@ apps/portal/e2e/** account/family setup proof only if e2e is assigned
 ```
 
 Do not edit setup-install-provisioning-plan unless the user explicitly assigns route-sync.
+
+## Current owner/import/proof constraints
+
+This workpack owns parent-visible setup UI state/projection proof. It does not own provider runtime, physical trusted-device bootstrap, LAN pairing, Cloudflare account runtime, data custody execution, payment runtime, or broader portal shell UX.
+
+```text
+schema-domain: canonical shared setup/read-model shapes when cross-boundary.
+family-domain/setup-domain: typed source/helper surfaces only.
+portal-domain/apps/portal: parent-visible projection/rendering proof only.
+device-trust/LAN/setup-install/data-custody/payment/cloudflare: adjacent owners only.
+```
+
+Allowed direct imports are limited to `schema-domain`, neutral protocol/evidence/logging/capability primitives, approved domain helper/projection exports, selected portal route components, and pure common helpers. Do not import device-trust, LAN, Cloudflare, data-custody, payment, or setup-install runtime internals to make UI look ready.
+
+Proof must separate UI-visible state from actual runtime readiness. A rendered state can prove honest status display, not trusted-device, LAN pairing, Cloudflare account runtime, custody execution, or payment readiness.
 
 ## Required proof root
 
@@ -143,6 +161,13 @@ npm run lint:architecture -- --files packages/family-domain packages/portal-doma
 
 If UI/e2e tests do not exist yet, record the exact missing test path and keep relevant rows open.
 
+If canonical schema changes:
+
+```bash
+npm run build --workspace @ocentra-parent/schema-domain
+npm run test --workspace @ocentra-parent/schema-domain -- family
+```
+
 ## Negative cases
 
 - Logged-in user with no household sees no policy/payment/remote authority.
@@ -160,6 +185,7 @@ Real child-device pairing proof remains gated by device-trust/LAN plans. Hosted 
 
 ```text
 Workpack id and branch: WP07 Parent Account Family Setup UI / codex/tracking-plan-full-continuation-a
+Current branch note: this historical completion record predates the plan-harness branch. On codex/plan-harness-update, treat it as prior proof evidence only; new edits must follow workpacks/00-owner-boundary-proof-gate.md, TEST_PROOF_EXPECTATIONS.md, and PROOF_INDEX.md.
 Current status: complete for the local contract/proof slice. `00-first-run-ui-state-machine.md`, `01-household-setup-ui-proof.md`, `02-device-role-ui-proof.md`, `03-observer-read-only-ui-proof.md`, `04-recovery-ui-proof.md`, `05-mobile-parent-child-claim-split-proof.md`, `06-source-custody-label-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/`.
 UI/contract changes: the existing portal-domain Start-route projection now renders explicit invite-role-support visibility and trust/session distinction rows over the typed setup-domain first-run and readiness surfaces. `apps/portal/src/SetupFirstRunRoutePanel.tsx` remained a thin renderer over that projection.
 Touched files:
@@ -194,7 +220,7 @@ Validation commands and results:
 - `exit: 1`
 - `result: blocked`
 - `artifact: n/a`
-- `notes: the workspace test script expands to `vitest run tests ...` and pulled unrelated `tests/live-activity-surface-adapter.test.ts` failures outside the WP07 scope; focused route validation used `npx vitest run tests/setup-first-run-route-panel.test.ts` instead`
+- `notes: the workspace test script expands to vitest run tests ... and pulled unrelated tests/live-activity-surface-adapter.test.ts failures outside the WP07 scope; focused route validation used npx vitest run tests/setup-first-run-route-panel.test.ts instead`
 - `command: npx vitest run tests/setup-first-run-route-panel.test.ts`
 - `exit: 0`
 - `result: pass`

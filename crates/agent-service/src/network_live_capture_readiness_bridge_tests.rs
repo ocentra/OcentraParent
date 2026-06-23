@@ -1,9 +1,18 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkLiveCaptureExecutionStatusState, NetworkLiveCaptureProofStatusState,
-    NetworkLiveCaptureStatus, NetworkRawCaptureStorageStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureExecutionStatusState;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureProofStatusState;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureStatus;
+use ocentra_parent_agent_protocol::network_flow::NetworkRawCaptureStorageStatusState;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use serde::de::DeserializeOwned;
 
 use crate::{
@@ -14,8 +23,9 @@ use crate::{
 
 #[test]
 fn network_live_capture_status_payload_reports_row13_and_row03a_readiness_without_live_claims() {
-    let payload =
-        network_live_capture_status_payload().expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let payload = network_live_capture_status_payload().unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let status: NetworkLiveCaptureStatus = status_value(
         &payload,
         constants::network_flow::FIELD_NETWORK_LIVE_CAPTURE_STATUS,
@@ -26,8 +36,9 @@ fn network_live_capture_status_payload_reports_row13_and_row03a_readiness_withou
 
 #[tokio::test]
 async fn websocket_network_live_capture_status_command_reports_payload() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let status: NetworkLiveCaptureStatus = status_value(
         &event.payload,
@@ -193,13 +204,16 @@ fn command_envelope() -> AgentCommandEnvelope {
 }
 
 fn status_value<TStatus: DeserializeOwned>(
-    payload: &ocentra_parent_agent_protocol::LogFields,
+    payload: &ocentra_parent_agent_protocol::logging::LogFields,
     field: &str,
 ) -> TStatus {
     match payload.get(field) {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::String(text)) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        other => panic!(
+            "{}: missing or non-string payload field {field}: {other:?}",
+            constants::error::AGENT_EVENT_SERIALIZES
+        ),
     }
 }

@@ -1,16 +1,24 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_browser_domain_adapter_proof as proof},
-    policy_constants, ParentPlatform, V08BrowserDomainAdapterExecutionState,
-    V08BrowserDomainAdapterProofCapabilityName, V08BrowserDomainAdapterProofCapabilityStatus,
-    V08BrowserDomainAdapterProofClaimState, V08BrowserDomainAdapterProofEntry,
-    V08BrowserDomainAdapterProofEvidenceKind, V08BrowserDomainAdapterProofReadModel,
-    V08BrowserDomainAdapterProofSurface, V08WindowsAppControlProofState,
-    V08WindowsAppControlReadinessState, V08WindowsAppControlRuleIdentityKind,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterExecutionState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofCapabilityName;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofCapabilityStatus;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofClaimState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofEntry;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofEvidenceKind;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofSurface;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlProofState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlReadinessState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlRuleIdentityKind;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_browser_domain_adapter_proof_read_model::v08_browser_domain_adapter_proof_read_model;
+
+type TestResult = Result<(), String>;
 
 #[test]
 fn browser_domain_read_model_preserves_honest_adapter_states() {
@@ -152,13 +160,17 @@ fn browser_domain_read_model_does_not_upgrade_exact_or_domain_claims() {
 }
 
 #[test]
-fn browser_domain_read_model_serializes_for_service_preview() {
+fn browser_domain_read_model_serializes_for_service_preview() -> TestResult {
     let read_model =
         v08_browser_domain_adapter_proof_read_model(policy_constants::TEST_EVALUATED_AT);
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let reparsed = serde_json::from_value::<V08BrowserDomainAdapterProofReadModel>(serialized)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = ok(
+        serde_json::to_value(read_model),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    let reparsed = ok(
+        serde_json::from_value::<V08BrowserDomainAdapterProofReadModel>(serialized),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
     let linux = entry_for(
         &reparsed.entries,
         V08BrowserDomainAdapterProofSurface::LinuxBrowserDomainAdapterUnavailable,
@@ -189,6 +201,8 @@ fn browser_domain_read_model_serializes_for_service_preview() {
         .iter()
         .any(|state| state.as_protocol_str() == proof::APP_CONTROL_EVENT_AUDIT_VISIBLE));
     assert!(!app_control_audit.app_control_prevention_claimed);
+
+    Ok(())
 }
 
 fn entry_for(
@@ -198,7 +212,7 @@ fn entry_for(
     entries
         .iter()
         .find(|entry| entry.surface == surface)
-        .expect(proof::READ_MODEL_ID)
+        .unwrap_or_else(|| panic!("{}", proof::READ_MODEL_ID))
 }
 
 fn assert_surface_state(
@@ -282,7 +296,7 @@ fn app_control_state_for(
     states
         .iter()
         .find(|state| state.readiness_state == readiness_state)
-        .expect(proof::READ_MODEL_ID)
+        .unwrap_or_else(|| panic!("{}", proof::READ_MODEL_ID))
 }
 
 fn count_claims(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<&'static str, usize> {
@@ -307,4 +321,8 @@ fn count_platforms(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<&'
 
 fn platform_count(counts: &BTreeMap<&'static str, usize>, platform: ParentPlatform) -> usize {
     *counts.get(platform.as_protocol_str()).unwrap_or(&0)
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

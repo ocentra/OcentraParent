@@ -29,7 +29,8 @@ pub enum DiagnosticSeverity {
 #[serde(rename_all = "camelCase")]
 pub struct AgentDiagnostic {
     pub schema_version: u16,
-    pub event_type: String,
+    #[serde(rename = "eventType")]
+    pub record_type: String,
     pub diagnostic_id: String,
     pub run_id: String,
     pub command_id: String,

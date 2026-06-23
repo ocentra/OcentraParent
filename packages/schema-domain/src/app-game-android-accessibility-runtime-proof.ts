@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidAccessibilityRuntimeProofSchemaVersionSchema = withParser(
@@ -189,17 +184,41 @@ function accessibilityRuntimeSummary(
 
 function accessibilityRuntimeProofIsHonest(proof: AccessibilityRuntimeCandidate): boolean {
   return (
+    accessibilityRuntimeStateIsHonest(proof) &&
+    accessibilityRuntimeProofRefsArePresent(proof) &&
+    accessibilityRuntimeOpenGapsArePresent(proof) &&
+    accessibilityRuntimeClaimsRemainScoped(proof)
+  );
+}
+
+function accessibilityRuntimeStateIsHonest(proof: AccessibilityRuntimeCandidate): boolean {
+  return (
     proof.declarationState === 'accessibility-service-declared' &&
     proof.manifestServiceDeclared &&
     proof.serviceConfigDeclared &&
     proof.uiRuntimeStateObserved &&
-    proof.proofRefs.includes('android-accessibility-service-manifest-ref') &&
-    proof.proofRefs.includes('android-accessibility-service-config-ref') &&
-    proof.proofRefs.includes('android-accessibility-service-ui-ref') &&
-    proof.openGaps.includes('android-accessibility-overlay-runtime-not-proved') &&
-    proof.openGaps.includes('android-child-device-delivery-not-proved') &&
-    proof.openGaps.includes('android-platform-enforcement-not-proved') &&
-    !proof.canDispatchOverlayAdapter &&
+    !proof.canDispatchOverlayAdapter
+  );
+}
+
+function accessibilityRuntimeProofRefsArePresent(proof: AccessibilityRuntimeCandidate): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-accessibility-service-manifest-ref',
+    'android-accessibility-service-config-ref',
+    'android-accessibility-service-ui-ref',
+  ] as const);
+}
+
+function accessibilityRuntimeOpenGapsArePresent(proof: AccessibilityRuntimeCandidate): boolean {
+  return includesAll(proof.openGaps, [
+    'android-accessibility-overlay-runtime-not-proved',
+    'android-child-device-delivery-not-proved',
+    'android-platform-enforcement-not-proved',
+  ] as const);
+}
+
+function accessibilityRuntimeClaimsRemainScoped(proof: AccessibilityRuntimeCandidate): boolean {
+  return (
     !proof.rawAccessibilityEventRowsStored &&
     !proof.rawAccessibilityServiceNamesStored &&
     !proof.rawOverlayContentStored &&
@@ -210,3 +229,6 @@ function accessibilityRuntimeProofIsHonest(proof: AccessibilityRuntimeCandidate)
   );
 }
 
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

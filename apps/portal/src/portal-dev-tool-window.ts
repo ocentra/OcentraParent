@@ -1,10 +1,7 @@
-import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
-import {
-  PortalDevToolWindow,
-  PortalRoute,
-  portalDevToolUrl,
-  type PortalDevToolUrl,
-} from '@ocentra-parent/portal-domain/routes';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDevToolWindow, portalDevToolUrl } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute, type PortalDevToolUrl } from '@ocentra-parent/schema-domain/portal-contracts';
 import { WebviewWindow, getAllWebviewWindows } from '@tauri-apps/api/webviewWindow';
 
 export async function openPortalFrameTunerWindow(): Promise<void> {
@@ -27,7 +24,7 @@ export async function openPortalFrameTunerWindow(): Promise<void> {
       decorations: true,
       height: PortalDevToolWindow.FrameTunerHeight,
       resizable: true,
-      title: PortalText.Resolve(PortalTextToken.FrameTuner),
+      title: resolvePortalDevText(PortalDevTextToken.FrameTuner),
       url,
       width: PortalDevToolWindow.FrameTunerWidth,
     });

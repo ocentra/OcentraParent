@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
@@ -163,21 +158,11 @@ export const BrowserInterventionDeliveryStateSchema = withParser(
   )
 );
 
-export const BrowserInterventionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserInterventionId')
-);
-export const BrowserInterventionActionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserInterventionActionId')
-);
-export const BrowserInterventionAuditIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserInterventionAuditId')
-);
-export const BrowserPolicyDecisionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserPolicyDecisionId')
-);
-export const BrowserTargetValueSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserTargetValue')
-);
+export const BrowserInterventionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserInterventionId'));
+export const BrowserInterventionActionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserInterventionActionId'));
+export const BrowserInterventionAuditIdSchema = withParser(brandedNonEmptyStringSchema('BrowserInterventionAuditId'));
+export const BrowserPolicyDecisionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserPolicyDecisionId'));
+export const BrowserTargetValueSchema = withParser(brandedNonEmptyStringSchema('BrowserTargetValue'));
 
 export const BrowserInterventionRowSchema = withParser(
   Schema.Struct({

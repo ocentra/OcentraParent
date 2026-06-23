@@ -1,7 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+use ocentra_parent_agent_protocol::browser_policy::{
     BrowserPolicyRejectionReason, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
-    BrowserPolicyUpdateStatus, LogLevel,
+    BrowserPolicyUpdateStatus,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::{

@@ -29,13 +29,10 @@ import {
   AppGameSourceFreshnessPreviewGateStatus,
   countAppGameSourceFreshnessPreviewGateReadModelRows,
 } from '@ocentra-parent/schema-domain/app-game-source-freshness-preview-gate-rules';
-const AppGameSourceFreshnessPreviewGateOptionsSchema =
-  SchemaDomainAppGameSourceFreshnessPreviewGateOptionsSchema;
-const AppGameSourceFreshnessPreviewGateEntrySchema =
-  SchemaDomainAppGameSourceFreshnessPreviewGateEntrySchema;
+const AppGameSourceFreshnessPreviewGateOptionsSchema = SchemaDomainAppGameSourceFreshnessPreviewGateOptionsSchema;
+const AppGameSourceFreshnessPreviewGateEntrySchema = SchemaDomainAppGameSourceFreshnessPreviewGateEntrySchema;
 const AppGameSourceFreshnessPreviewGateRowSchema = SchemaDomainAppGameSourceFreshnessPreviewGateRowSchema;
-const AppGameSourceFreshnessPreviewGateReadModelSchema =
-  SchemaDomainAppGameSourceFreshnessPreviewGateReadModelSchema;
+const AppGameSourceFreshnessPreviewGateReadModelSchema = SchemaDomainAppGameSourceFreshnessPreviewGateReadModelSchema;
 
 type AppGameSourceFreshnessPreviewGateRow = SchemaDomainAppGameSourceFreshnessPreviewGateRow;
 type AppGameSourceFreshnessPreviewGateReadModel = SchemaDomainAppGameSourceFreshnessPreviewGateReadModel;
@@ -136,4 +133,3 @@ export const appGameSourceFreshnessPreviewGateCompiledDecisionDomain = (decision
   const decision = AppGamePolicyCompiledDecisionSchema.parse(decisionInput);
   return appGamePolicyPreviewTargetDomainForKind(decision.request.target.targetKind);
 };
-

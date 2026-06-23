@@ -124,4 +124,3 @@ export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessMatchesStatus =
     runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.BlockedBySourceFreshness) ||
   (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.CompilerDecisionProofRequired &&
     runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.BlockedByCompilerDecision);
-

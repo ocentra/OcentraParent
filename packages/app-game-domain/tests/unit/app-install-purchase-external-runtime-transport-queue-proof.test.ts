@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeTransportQueueProofSchema,
   AppInstallPurchaseExternalRuntimeTransportQueueRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeTransportQueueProof,
-} from '../../src/app-install-purchase-external-runtime-transport-queue-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-transport-queue-proof';
 
 describe('app install and purchase external runtime transport queue proof', () => {
   acceptsQueueRowsThatBlockDispatch();

@@ -143,13 +143,7 @@ export function formatArtifact(artifact, rawContent = null) {
 }
 
 export function formatProofTrace(trace) {
-  const lines = [
-    `proof_id: ${trace.proofId}`,
-    `scope: ${trace.scope}`,
-    `row_count: ${trace.rows.length}`,
-    '',
-    'rows:',
-  ];
+  const lines = [`proof_id: ${trace.proofId}`, `scope: ${trace.scope}`, `row_count: ${trace.rows.length}`, '', 'rows:'];
 
   if (trace.rows.length === 0) {
     lines.push('- none');

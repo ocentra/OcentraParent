@@ -27,9 +27,8 @@ const optionalVisibilityModeValuesModule = await import(
   pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-mode-values.js')).href
 );
 const optionalVisibilityRuntimeSettingsModule = await import(
-  pathToFileURL(
-    join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-runtime-settings.js')
-  ).href
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-runtime-settings.js'))
+    .href
 );
 
 const screenEvidence = {
@@ -41,7 +40,8 @@ const screenEvidence = {
     optionalVisibilityRuntimeSettingsModule.ScreenOptionalVisibilityRuntimeUpdateRequestSchema,
   ScreenOptionalVisibilityRuntimeSettingsSchemaVersion:
     optionalVisibilityRuntimeSettingsModule.ScreenOptionalVisibilityRuntimeSettingsSchemaVersion,
-  ScreenOptionalVisibilityModeSchemaVersion: optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
+  ScreenOptionalVisibilityModeSchemaVersion:
+    optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
   ScreenRawScreenshotRetentionOptInSettingSchema:
     optionalVisibilityModeModule.ScreenRawScreenshotRetentionOptInSettingSchema,
   ScreenLiveViewOptInSettingSchema: optionalVisibilityModeModule.ScreenLiveViewOptInSettingSchema,

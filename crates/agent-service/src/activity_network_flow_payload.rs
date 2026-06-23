@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel, LogFieldValue,
-    LogFields, NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::network_flow::{
+    ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
+    NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
     NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
     NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
     NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
@@ -93,10 +95,7 @@ fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair>
         ),
         (
             constants::field::ACTIVITY_DIGEST,
-            LogFieldValue::String(
-                serde_json::to_string(&network_flow_digest(read_model))
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialized_json(&network_flow_digest(read_model))),
         ),
     ]
 }
@@ -384,4 +383,13 @@ fn joined_refs(value: Option<&[String]>) -> LogFieldValue {
         }
         None => LogFieldValue::Null(()),
     }
+}
+
+fn serialized_json<T>(value: &T) -> String
+where
+    T: serde::Serialize,
+{
+    serde_json::to_string(value).unwrap_or_else(|_| {
+        serde_json::Value::String(constants::error::AGENT_EVENT_SERIALIZES.to_string()).to_string()
+    })
 }

@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
@@ -297,4 +297,3 @@ function emulatorRoutingRowsStayEmulatorScoped(row: BrowserAndroidOwnedShellRunt
       row.emulatorBrowserRoleRoutingOnly)
   );
 }
-

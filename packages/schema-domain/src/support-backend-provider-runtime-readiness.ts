@@ -1,13 +1,5 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 const supportBackendProviderRuntimeReadinessText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
@@ -273,4 +265,3 @@ function supportBackendProviderRuntimeReadinessManualStatesAreCoherent(
     entry.productionSlaState,
   ].includes('manual-required');
 }
-

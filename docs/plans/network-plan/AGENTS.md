@@ -28,15 +28,59 @@ Proof rule: proof must contain command log, negative case, artifact path, update
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
 
+## Ownership, Import, And Boundary Contract
+
+This plan owns network metadata evidence, DNS/domain/flow classification, network-specific correlation signals, network evidence cascade routing, network policy handoff shape, network adapter proof gates, network read-model proof, and network no-claim boundaries. It does not own exact browser URL truth, decrypted/private content truth, AI runtime, policy authority, enforcement execution, LAN/family-hub delivery, data custody policy, or portal UI ownership.
+
+Module roles:
+
+```text
+schema-domain: canonical shared TypeScript network contracts when shapes cross package, app, crate, or plan boundaries.
+network-domain: package metadata and proof-consumer surface unless a selected public export explicitly exists. It is not the canonical owner for shared network schemas.
+ocentra-network-evidence: Rust network evidence/proof crate for packet, DNS, domain, flow, classifier, cascade, policy-handoff, platform-gate, adapter, risk, and AI-audit proof helpers.
+agent-protocol, agent-core, and agent-service: protocol, runtime-chain, capture, delivery, service read-model, and bridge proof only when the selected workpack names those surfaces.
+apps/portal and portal-domain: projection/UI only; portal renders service-backed network state and must not invent network truth.
+eventing-plan: reusable local event bus semantics only; network consumes typed eventing handoffs and must not create a private bus.
+browser-plan, screen-plan, ai-plan, policy-control-plane-plan, v0-8-enforcement-control-plan, lan-plan, data-custody-storage-plan, device-trust-bootstrap-plan, and notification plans: sibling owners for exact URL/page evidence, screen fallback, AI runtime/provider behavior, policy decisions, enforcement actions, LAN delivery, custody, device authority, and notifications.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+schema-domain canonical network contracts and evidence/read-model shapes
+ocentra-network-evidence public Rust proof helpers when the workpack selects Rust evidence proof
+agent-protocol/agent-core/agent-service public surfaces only when the selected workpack owns protocol/runtime/service proof
+eventing public contracts only for reusable event bus semantics and handoff shape
+portal public projection contracts only when the selected workpack names portal proof
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports and claims:
+
+```text
+browser, screen, AI, policy, enforcement, LAN, portal, data-custody, device-trust, or notification internals imported to bypass typed network handoffs
+network metadata upgraded into exact URL, exact video, exact message, search text, or private content truth
+network evidence upgraded into AI runtime/provider proof
+policy mapping upgraded into enforcement authority
+adapter contract upgraded into production intervention proof
+PCAP replay upgraded into live capture proof
+Windows lab proof upgraded into production firewall readiness
+control catalog or settings inventory upgraded into implementation proof
+checklist count upgraded into completion proof
+```
+
+If network work needs browser, screen, AI, policy, enforcement, LAN, portal, data custody, device trust, eventing, notification, or runtime behavior, it must use typed evidence refs, commands, events, requests, read models, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
+
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when owner/proof family is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 

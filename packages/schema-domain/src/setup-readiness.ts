@@ -4,10 +4,7 @@ import {
   ParentAccountReferenceSchema,
   ParentDeviceReferenceSchema,
 } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import { type Infer, Schema, withParser } from './effect';
 import { SetupPairingIntentIdSchema, SetupPairingState, SetupPairingStateSchema } from './setup-pairing-intent';
 
@@ -461,6 +458,142 @@ function resolvedSetupChildServiceState(report: SetupReadinessReport): SetupChil
   return report.childServiceState ?? deriveSetupChildServiceStateFromAppState(report.childAppState);
 }
 
+function setupChecklistStateForRequiredValue(actual: string, expected: string): SetupReadinessChecklistItemState {
+  return actual === expected
+    ? SetupReadinessChecklistItemState.Complete
+    : SetupReadinessChecklistItemState.ActionRequired;
+}
+
+function isSetupPairingReady(state: SetupPairingState): boolean {
+  return state === SetupPairingState.Trusted || state === SetupPairingState.Recovered;
+}
+
+function setupChildServiceChecklistState(state: SetupChildServiceState): SetupReadinessChecklistItemState {
+  if (state === SetupChildServiceState.ServiceStarted) {
+    return SetupReadinessChecklistItemState.Complete;
+  }
+  return state === SetupChildServiceState.Offline
+    ? SetupReadinessChecklistItemState.Degraded
+    : SetupReadinessChecklistItemState.ActionRequired;
+}
+
+function setupCustodySyncChecklistState(state: SetupDataCustodySyncState): SetupReadinessChecklistItemState {
+  if (state === SetupDataCustodySyncState.Synced) {
+    return SetupReadinessChecklistItemState.Complete;
+  }
+  return state === SetupDataCustodySyncState.SyncPending
+    ? SetupReadinessChecklistItemState.Degraded
+    : SetupReadinessChecklistItemState.ActionRequired;
+}
+
+function setupNetworkChecklistState(state: SetupNetworkReachabilityState): SetupReadinessChecklistItemState {
+  if (state === SetupNetworkReachabilityState.Reachable) {
+    return SetupReadinessChecklistItemState.Complete;
+  }
+  return state === SetupNetworkReachabilityState.OfflineChild
+    ? SetupReadinessChecklistItemState.Degraded
+    : SetupReadinessChecklistItemState.ActionRequired;
+}
+
+function setupOverallChecklistState(state: SetupReadinessOverallState): SetupReadinessChecklistItemState {
+  if (state === SetupReadinessOverallState.Ready) {
+    return SetupReadinessChecklistItemState.Complete;
+  }
+  return state === SetupReadinessOverallState.Degraded
+    ? SetupReadinessChecklistItemState.Degraded
+    : SetupReadinessChecklistItemState.ActionRequired;
+}
+
+function createSetupReadinessCoreChecklistItems(
+  report: SetupReadinessReport,
+  childInstallState: SetupChildInstallState,
+  childServiceState: SetupChildServiceState
+): readonly SetupReadinessChecklistItem[] {
+  return [
+    readinessChecklistItem(
+      'setup-account-state',
+      'Account',
+      setupChecklistStateForRequiredValue(report.accountState, SetupAccountReadinessState.Ready),
+      report.accountState !== SetupAccountReadinessState.Ready,
+      report.accountState
+    ),
+    readinessChecklistItem(
+      'setup-parent-app-state',
+      'Parent app',
+      setupChecklistStateForRequiredValue(report.parentAppState, SetupParentAppReadinessState.Ready),
+      report.parentAppState !== SetupParentAppReadinessState.Ready,
+      report.parentAppState
+    ),
+    readinessChecklistItem(
+      'setup-child-install-state',
+      'Child install',
+      setupChecklistStateForRequiredValue(childInstallState, SetupChildInstallState.Installed),
+      childInstallState !== SetupChildInstallState.Installed,
+      childInstallState
+    ),
+    readinessChecklistItem(
+      'setup-child-service-state',
+      'Child service',
+      setupChildServiceChecklistState(childServiceState),
+      childServiceState !== SetupChildServiceState.ServiceStarted,
+      childServiceState
+    ),
+    readinessChecklistItem(
+      'setup-permission-state',
+      'Permissions',
+      setupChecklistStateForRequiredValue(report.permissionState, SetupPermissionReadinessState.Granted),
+      report.permissionState !== SetupPermissionReadinessState.Granted,
+      report.permissionState
+    ),
+  ];
+}
+
+function createSetupReadinessStatusChecklistItems(
+  report: SetupReadinessReport,
+  overallState: SetupReadinessOverallState
+): readonly SetupReadinessChecklistItem[] {
+  return [
+    readinessChecklistItem(
+      'setup-pairing-state',
+      'Pairing',
+      isSetupPairingReady(report.pairingState)
+        ? SetupReadinessChecklistItemState.Complete
+        : SetupReadinessChecklistItemState.ActionRequired,
+      !isSetupPairingReady(report.pairingState),
+      report.pairingState
+    ),
+    readinessChecklistItem(
+      'setup-policy-baseline-state',
+      'Policy baseline',
+      setupChecklistStateForRequiredValue(report.policyBaselineState, SetupPolicyBaselineState.Applied),
+      report.policyBaselineState !== SetupPolicyBaselineState.Applied,
+      report.policyBaselineState
+    ),
+    readinessChecklistItem(
+      'setup-custody-sync-state',
+      'Custody sync',
+      setupCustodySyncChecklistState(report.dataCustodySyncState),
+      report.dataCustodySyncState === SetupDataCustodySyncState.Blocked,
+      report.dataCustodySyncState
+    ),
+    readinessChecklistItem(
+      'setup-network-state',
+      'Network reachability',
+      setupNetworkChecklistState(report.networkReachabilityState),
+      report.networkReachabilityState !== SetupNetworkReachabilityState.Reachable &&
+        report.networkReachabilityState !== SetupNetworkReachabilityState.OfflineChild,
+      report.networkReachabilityState
+    ),
+    readinessChecklistItem(
+      'setup-overall-state',
+      'Overall readiness',
+      setupOverallChecklistState(overallState),
+      overallState === SetupReadinessOverallState.Blocked,
+      overallState
+    ),
+  ];
+}
+
 export function resolveSetupChildInstallState(input: SetupReadinessReport): SetupChildInstallState {
   return resolvedSetupChildInstallState(SetupReadinessReportSchema.parse(input));
 }
@@ -495,33 +628,45 @@ export function deriveSetupChildInstallJourneyStage(input: SetupReadinessReport)
   return SetupChildInstallJourneyStage.Paired;
 }
 
+function setupReadinessIsFullyReady(
+  report: SetupReadinessReport,
+  childInstallState: SetupChildInstallState,
+  childServiceState: SetupChildServiceState
+): boolean {
+  return [
+    report.accountState === SetupAccountReadinessState.Ready,
+    report.parentAppState === SetupParentAppReadinessState.Ready,
+    childInstallState === SetupChildInstallState.Installed,
+    childServiceState === SetupChildServiceState.ServiceStarted,
+    report.permissionState === SetupPermissionReadinessState.Granted,
+    [SetupPairingState.Trusted, SetupPairingState.Recovered].includes(report.pairingState),
+    report.policyBaselineState === SetupPolicyBaselineState.Applied,
+    report.dataCustodySyncState === SetupDataCustodySyncState.Synced,
+    report.networkReachabilityState === SetupNetworkReachabilityState.Reachable,
+    [SetupRecoveryState.Normal, SetupRecoveryState.Recovered].includes(report.recoveryState),
+  ].every(Boolean);
+}
+
+function setupReadinessIsDegraded(report: SetupReadinessReport, childServiceState: SetupChildServiceState): boolean {
+  return [
+    childServiceState === SetupChildServiceState.Offline,
+    report.networkReachabilityState === SetupNetworkReachabilityState.OfflineChild,
+    report.dataCustodySyncState === SetupDataCustodySyncState.SyncPending,
+  ].some(Boolean);
+}
+
 export function deriveSetupReadinessOverallState(input: SetupReadinessReport): SetupReadinessOverallState {
   const report = SetupReadinessReportSchema.parse(input);
   const childInstallState = resolvedSetupChildInstallState(report);
   const childServiceState = resolvedSetupChildServiceState(report);
 
-  const fullyReady =
-    report.accountState === SetupAccountReadinessState.Ready &&
-    report.parentAppState === SetupParentAppReadinessState.Ready &&
-    childInstallState === SetupChildInstallState.Installed &&
-    childServiceState === SetupChildServiceState.ServiceStarted &&
-    report.permissionState === SetupPermissionReadinessState.Granted &&
-    (report.pairingState === SetupPairingState.Trusted || report.pairingState === SetupPairingState.Recovered) &&
-    report.policyBaselineState === SetupPolicyBaselineState.Applied &&
-    report.dataCustodySyncState === SetupDataCustodySyncState.Synced &&
-    report.networkReachabilityState === SetupNetworkReachabilityState.Reachable &&
-    (report.recoveryState === SetupRecoveryState.Normal || report.recoveryState === SetupRecoveryState.Recovered);
-
-  if (fullyReady) {
+  if (setupReadinessIsFullyReady(report, childInstallState, childServiceState)) {
     return SetupReadinessOverallState.Ready;
   }
 
-  const degraded =
-    childServiceState === SetupChildServiceState.Offline ||
-    report.networkReachabilityState === SetupNetworkReachabilityState.OfflineChild ||
-    report.dataCustodySyncState === SetupDataCustodySyncState.SyncPending;
-
-  return degraded ? SetupReadinessOverallState.Degraded : SetupReadinessOverallState.Blocked;
+  return setupReadinessIsDegraded(report, childServiceState)
+    ? SetupReadinessOverallState.Degraded
+    : SetupReadinessOverallState.Blocked;
 }
 
 export function isSetupReadinessReady(input: SetupReadinessReport): boolean {
@@ -541,104 +686,7 @@ export function createSetupReadinessChecklist(input: SetupReadinessReport): read
   const childServiceState = resolvedSetupChildServiceState(report);
 
   return [
-    readinessChecklistItem(
-      'setup-account-state',
-      'Account',
-      report.accountState === SetupAccountReadinessState.Ready
-        ? SetupReadinessChecklistItemState.Complete
-        : SetupReadinessChecklistItemState.ActionRequired,
-      report.accountState !== SetupAccountReadinessState.Ready,
-      report.accountState
-    ),
-    readinessChecklistItem(
-      'setup-parent-app-state',
-      'Parent app',
-      report.parentAppState === SetupParentAppReadinessState.Ready
-        ? SetupReadinessChecklistItemState.Complete
-        : SetupReadinessChecklistItemState.ActionRequired,
-      report.parentAppState !== SetupParentAppReadinessState.Ready,
-      report.parentAppState
-    ),
-    readinessChecklistItem(
-      'setup-child-install-state',
-      'Child install',
-      childInstallState === SetupChildInstallState.Installed
-        ? SetupReadinessChecklistItemState.Complete
-        : SetupReadinessChecklistItemState.ActionRequired,
-      childInstallState !== SetupChildInstallState.Installed,
-      childInstallState
-    ),
-    readinessChecklistItem(
-      'setup-child-service-state',
-      'Child service',
-      childServiceState === SetupChildServiceState.ServiceStarted
-        ? SetupReadinessChecklistItemState.Complete
-        : childServiceState === SetupChildServiceState.Offline
-          ? SetupReadinessChecklistItemState.Degraded
-          : SetupReadinessChecklistItemState.ActionRequired,
-      childServiceState !== SetupChildServiceState.ServiceStarted,
-      childServiceState
-    ),
-    readinessChecklistItem(
-      'setup-permission-state',
-      'Permissions',
-      report.permissionState === SetupPermissionReadinessState.Granted
-        ? SetupReadinessChecklistItemState.Complete
-        : SetupReadinessChecklistItemState.ActionRequired,
-      report.permissionState !== SetupPermissionReadinessState.Granted,
-      report.permissionState
-    ),
-    readinessChecklistItem(
-      'setup-pairing-state',
-      'Pairing',
-      report.pairingState === SetupPairingState.Trusted || report.pairingState === SetupPairingState.Recovered
-        ? SetupReadinessChecklistItemState.Complete
-        : SetupReadinessChecklistItemState.ActionRequired,
-      report.pairingState !== SetupPairingState.Trusted && report.pairingState !== SetupPairingState.Recovered,
-      report.pairingState
-    ),
-    readinessChecklistItem(
-      'setup-policy-baseline-state',
-      'Policy baseline',
-      report.policyBaselineState === SetupPolicyBaselineState.Applied
-        ? SetupReadinessChecklistItemState.Complete
-        : SetupReadinessChecklistItemState.ActionRequired,
-      report.policyBaselineState !== SetupPolicyBaselineState.Applied,
-      report.policyBaselineState
-    ),
-    readinessChecklistItem(
-      'setup-custody-sync-state',
-      'Custody sync',
-      report.dataCustodySyncState === SetupDataCustodySyncState.Synced
-        ? SetupReadinessChecklistItemState.Complete
-        : report.dataCustodySyncState === SetupDataCustodySyncState.SyncPending
-          ? SetupReadinessChecklistItemState.Degraded
-          : SetupReadinessChecklistItemState.ActionRequired,
-      report.dataCustodySyncState === SetupDataCustodySyncState.Blocked,
-      report.dataCustodySyncState
-    ),
-    readinessChecklistItem(
-      'setup-network-state',
-      'Network reachability',
-      report.networkReachabilityState === SetupNetworkReachabilityState.Reachable
-        ? SetupReadinessChecklistItemState.Complete
-        : report.networkReachabilityState === SetupNetworkReachabilityState.OfflineChild
-          ? SetupReadinessChecklistItemState.Degraded
-          : SetupReadinessChecklistItemState.ActionRequired,
-      report.networkReachabilityState !== SetupNetworkReachabilityState.Reachable &&
-        report.networkReachabilityState !== SetupNetworkReachabilityState.OfflineChild,
-      report.networkReachabilityState
-    ),
-    readinessChecklistItem(
-      'setup-overall-state',
-      'Overall readiness',
-      overallState === SetupReadinessOverallState.Ready
-        ? SetupReadinessChecklistItemState.Complete
-        : overallState === SetupReadinessOverallState.Degraded
-          ? SetupReadinessChecklistItemState.Degraded
-          : SetupReadinessChecklistItemState.ActionRequired,
-      overallState === SetupReadinessOverallState.Blocked,
-      overallState
-    ),
+    ...createSetupReadinessCoreChecklistItems(report, childInstallState, childServiceState),
+    ...createSetupReadinessStatusChecklistItems(report, overallState),
   ];
 }

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { LanBrowserAddDeviceReadModelSchema, type LanBrowserAddDeviceReadModel } from './lan-pairing-device';
 import {
   type LanPairingProductionDiscoveryStateSchema,
@@ -331,4 +326,3 @@ export type V09HouseholdLanPairingRouteSecurityEvidence = Infer<
 export type V09HouseholdLanPairingManualGateEvidence = Infer<typeof V09HouseholdLanPairingManualGateEvidenceSchema>;
 export type V09HouseholdLanPairingBoundarySummary = Infer<typeof V09HouseholdLanPairingBoundarySummarySchema>;
 export type V09HouseholdLanPairingProofReadModel = Infer<typeof V09HouseholdLanPairingProofReadModelSchema>;
-

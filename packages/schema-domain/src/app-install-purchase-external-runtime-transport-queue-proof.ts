@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel } from './app-install-purchase-external-runtime-writer-delivery-blocker-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ExternalRuntimeTransportQueueProofVersion = 'app-install-purchase-external-runtime-transport-queue-proof';
@@ -84,10 +79,18 @@ const ExternalRuntimeTransportQueueRequiredBlockerSchema = withParser(
   Schema.Literal(...ExternalRuntimeTransportQueueRequiredBlockers)
 );
 
-const ExternalRuntimeTransportQueueRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueRowId');
-const ExternalRuntimeTransportQueueRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueRef');
-const ExternalRuntimeTransportQueueAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueAuditRef');
-const ExternalRuntimeTransportQueueBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueBoundary');
+const ExternalRuntimeTransportQueueRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportQueueRowId'
+);
+const ExternalRuntimeTransportQueueRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportQueueRef'
+);
+const ExternalRuntimeTransportQueueAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportQueueAuditRef'
+);
+const ExternalRuntimeTransportQueueBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportQueueBoundary'
+);
 
 const ExternalRuntimeTransportQueueRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeTransportQueueProofSchemaVersionSchema,
@@ -341,4 +344,3 @@ function externalRuntimeTransportQueueBoundaryIsExplicit(
 ): boolean {
   return ExternalRuntimeTransportQueueBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

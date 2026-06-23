@@ -30,8 +30,9 @@ async function main() {
   ]);
 
   const proofModule = await tsImport(
-    pathToFileURL(path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-child-runtime-artifact-gate-proof.ts'))
-      .href,
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-child-runtime-artifact-gate-proof.ts')
+    ).href,
     import.meta.url
   );
   const generatedAt = '2026-06-07T18:55:00.000Z';

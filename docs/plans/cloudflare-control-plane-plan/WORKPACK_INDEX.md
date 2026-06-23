@@ -16,6 +16,8 @@
 
 Choose one workpack. Do not open all workpacks.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | open | [WP00 Games Infra Parity Extraction](workpacks/00-games-infra-parity-extraction.md) | 0/8 | `GAMES_INFRA_PARITY_MAP.md` | `output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/` |
@@ -58,4 +60,6 @@ WP12 is last and gates payment runtime assumptions.
 
 ## Do not select
 
-Do not implement payment semantics, account provider decisions, device trust, setup UI, or portal shell UX in this plan.
+Do not implement payment semantics, account provider decisions, device trust, setup UI, portal shell UX, or data custody policy in this plan.
+
+Do not raise status/counts from source presence, scaffold directories, route manifest presence, wrangler placeholder IDs, local dev proof, empty proof directories, stale legacy proof paths, or payment-domain handler presence.

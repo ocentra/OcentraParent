@@ -3,7 +3,4 @@ import {
   notificationOutboxSchedulerRecordIsSafe,
 } from './notification-local-outbox';
 
-export {
-  notificationOutboxSchedulerProofIsSafe,
-  notificationOutboxSchedulerRecordIsSafe,
-};
+export { notificationOutboxSchedulerProofIsSafe, notificationOutboxSchedulerRecordIsSafe };

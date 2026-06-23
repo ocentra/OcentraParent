@@ -11,7 +11,11 @@ use ocentra_parent_agent_core::{
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
     screen_evidence_queue::ScreenEvidenceQueue,
 };
-use ocentra_parent_agent_protocol::{constants, ActivityCaptureCapabilityStatus};
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
+};
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureScope, ScreenCaptureWindowTitleQuery,
 };
@@ -21,17 +25,19 @@ use serde_json::json;
 pub(crate) const DEFAULT_DIR: &str =
     "output/screen-plan-proof/real-capture/manual-parent-test-active-window";
 
+type ProofResult<T = ()> = Result<T, String>;
+
 pub(crate) fn write_run_metadata(
     output_dir: &Path,
     run_id: &str,
-    status: ActivityCaptureCapabilityStatus,
+    status: &ActivityCaptureCapabilityStatus,
     target_title: Option<&ScreenCaptureWindowTitleQuery>,
     requested_scope: &'static str,
     keep_raw_until_analysis: bool,
-) {
+) -> ProofResult {
     write_json(
         &output_dir.join("00-run-metadata.json"),
-        json!({
+        &json!({
             "proofTier": "P3_LOCAL_DEV_MACHINE",
             "proofClaim": "real-active-window-capture-custody",
             "runId": run_id,
@@ -43,27 +49,27 @@ pub(crate) fn write_run_metadata(
             "requestedScope": requested_scope,
             "keepRawUntilAnalysis": keep_raw_until_analysis,
         }),
-    );
+    )
 }
 
-pub(crate) fn write_trigger_input(output_dir: &Path, requested_scope: &'static str) {
+pub(crate) fn write_trigger_input(output_dir: &Path, requested_scope: &'static str) -> ProofResult {
     write_json(
         &output_dir.join("01-trigger-input.json"),
-        json!({
-            "trigger": ocentra_parent_agent_protocol::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
+        &json!({
+            "trigger": SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
             "scope": requested_scope,
             "source": "parent-manual-test-proof-command",
         }),
-    );
+    )
 }
 
 pub(crate) fn write_captured_artifacts(
     output_dir: &Path,
     run_id: &str,
-    image: CapturedScreenImage,
+    image: &CapturedScreenImage,
     requested_scope: &'static str,
     keep_raw_until_analysis: bool,
-) {
+) -> ProofResult {
     let image_digest = digest_hex(&image.png_bytes);
     let title_digest = image
         .metadata
@@ -76,14 +82,18 @@ pub(crate) fn write_captured_artifacts(
         .as_ref()
         .map(|app_name| digest_hex(app_name.as_bytes()));
     let raw_temp_path = output_dir.join("capture.png.tmp");
-    write(&raw_temp_path, &image.png_bytes).expect(constants::error::JOURNAL_APPENDS);
+    ok(
+        write(&raw_temp_path, &image.png_bytes),
+        constants::error::JOURNAL_APPENDS,
+    )?;
     let existed_before_encryption = raw_temp_path.exists();
     let queue_dir = output_dir.join("queue");
-    let queue =
-        ScreenEvidenceQueue::open(&queue_dir, JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]))
-            .expect(constants::error::JOURNAL_OPENS);
-    queue
-        .append_encrypted_image(
+    let queue = ok(
+        ScreenEvidenceQueue::open(&queue_dir, JournalKey::from_bytes([7; JOURNAL_KEY_BYTES])),
+        constants::error::JOURNAL_OPENS,
+    )?;
+    ok(
+        queue.append_encrypted_image(
             &screen_queue_job(
                 run_id,
                 requested_scope,
@@ -91,56 +101,79 @@ pub(crate) fn write_captured_artifacts(
                 image.png_bytes.len(),
             ),
             &image.png_bytes,
-        )
-        .expect(constants::error::JOURNAL_APPENDS);
-    let encrypted_queue = read_to_string(queue.path()).expect(constants::error::JOURNAL_READS);
+        ),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+    let encrypted_queue = ok(
+        read_to_string(queue.path()),
+        constants::error::JOURNAL_READS,
+    )?;
     if !keep_raw_until_analysis {
-        remove_file(&raw_temp_path).expect(constants::error::JOURNAL_APPENDS);
+        ok(
+            remove_file(&raw_temp_path),
+            constants::error::JOURNAL_APPENDS,
+        )?;
     }
 
     write_capture_metadata(
         output_dir,
-        &image,
-        CaptureMetadataContext {
+        image,
+        &CaptureMetadataContext {
             requested_scope,
-            image_digest: image_digest.clone(),
+            image_digest,
             title_digest,
             app_name_digest,
             raw_temp_path: &raw_temp_path,
             keep_raw_until_analysis,
         },
-    );
-    write(
-        output_dir.join("03-encrypted-queue.ndjson"),
-        encrypted_queue,
-    )
-    .expect(constants::error::JOURNAL_APPENDS);
+    )?;
+    ok(
+        write(
+            output_dir.join("03-encrypted-queue.ndjson"),
+            encrypted_queue,
+        ),
+        constants::error::JOURNAL_APPENDS,
+    )?;
     write_deletion_proof(
         output_dir,
         &raw_temp_path,
         existed_before_encryption,
         queue.path(),
         keep_raw_until_analysis,
-    );
-    write(output_dir.join("05-result-summary.md"), "# Real Screen Capture Proof\n\nCaptured active-window pixels, wrote encrypted queue custody, and deleted the temporary raw PNG.\n")
-        .expect(constants::error::JOURNAL_APPENDS);
+    )?;
+    ok(
+        write(
+            output_dir.join("05-result-summary.md"),
+            "# Real Screen Capture Proof\n\nCaptured active-window pixels, wrote encrypted queue custody, and deleted the temporary raw PNG.\n",
+        ),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+
+    Ok(())
 }
 
-pub(crate) fn write_degraded_artifacts(output_dir: &Path, status: ActivityCaptureCapabilityStatus) {
+pub(crate) fn write_degraded_artifacts(
+    output_dir: &Path,
+    status: &ActivityCaptureCapabilityStatus,
+) -> ProofResult {
     write_json(
         &output_dir.join("02-capture-metadata.json"),
-        json!({
+        &json!({
             "status": status.as_protocol_str(),
             "captured": false,
             "degradedIsCaptureProof": false,
-            "missingProofReason": degraded_reason(status.clone()),
+            "missingProofReason": degraded_reason(status),
         }),
-    );
-    write(
-        output_dir.join("05-result-summary.md"),
-        degraded_summary(status),
-    )
-    .expect(constants::error::JOURNAL_APPENDS);
+    )?;
+    ok(
+        write(
+            output_dir.join("05-result-summary.md"),
+            degraded_summary(status),
+        ),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+
+    Ok(())
 }
 
 struct CaptureMetadataContext<'a> {
@@ -155,11 +188,11 @@ struct CaptureMetadataContext<'a> {
 fn write_capture_metadata(
     output_dir: &Path,
     image: &CapturedScreenImage,
-    context: CaptureMetadataContext<'_>,
-) {
+    context: &CaptureMetadataContext<'_>,
+) -> ProofResult {
     write_json(
         &output_dir.join("02-capture-metadata.json"),
-        json!({
+        &json!({
             "status": ActivityCaptureCapabilityStatus::Available.as_protocol_str(),
             "captured": true,
             "requestedScope": context.requested_scope,
@@ -180,14 +213,12 @@ fn write_capture_metadata(
             "rawImagePersistedInProof": false,
             "analysisTempPath": context.keep_raw_until_analysis.then_some(context.raw_temp_path),
         }),
-    );
+    )
 }
 
 pub(crate) fn proof_scope_label(scope: ScreenCaptureScope) -> &'static str {
     match scope {
-        ScreenCaptureScope::ActiveWindow => {
-            ocentra_parent_agent_protocol::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW
-        }
+        ScreenCaptureScope::ActiveWindow => SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
         ScreenCaptureScope::SelectedWindow => "selectedWindow",
         ScreenCaptureScope::PrimaryDisplay => "primaryDisplay",
     }
@@ -199,10 +230,10 @@ fn write_deletion_proof(
     existed_before_encryption: bool,
     encrypted_queue_path: &Path,
     keep_raw_until_analysis: bool,
-) {
+) -> ProofResult {
     write_json(
         &output_dir.join("04-deletion-proof.json"),
-        json!({
+        &json!({
             "rawTempPath": raw_temp_path,
             "existedBeforeEncryption": existed_before_encryption,
             "existsAfterDelete": raw_temp_path.exists(),
@@ -211,23 +242,27 @@ fn write_deletion_proof(
             "rawImageDeleted": !raw_temp_path.exists(),
             "deletionPendingForAnalysis": keep_raw_until_analysis && raw_temp_path.exists(),
         }),
-    );
+    )
 }
 
-fn write_json(path: &Path, value: serde_json::Value) {
-    let bytes = serde_json::to_vec_pretty(&value).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    write(path, bytes).expect(constants::error::JOURNAL_APPENDS);
+fn write_json(path: &Path, value: &serde_json::Value) -> ProofResult {
+    let bytes = ok(
+        serde_json::to_vec_pretty(value),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    ok(write(path, bytes), constants::error::JOURNAL_APPENDS)
 }
 
-pub(crate) fn run_id() -> String {
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+pub(crate) fn run_id() -> ProofResult<String> {
+    let now = ok(
+        SystemTime::now().duration_since(UNIX_EPOCH),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
     let digest = STANDARD.encode(now.as_nanos().to_le_bytes());
-    digest.replace(['/', '+', '='], "")
+    Ok(digest.replace(['/', '+', '='], ""))
 }
 
-fn degraded_reason(status: ActivityCaptureCapabilityStatus) -> &'static str {
+fn degraded_reason(status: &ActivityCaptureCapabilityStatus) -> &'static str {
     match status {
         ActivityCaptureCapabilityStatus::Unavailable => "platform-adapter-not-enabled",
         ActivityCaptureCapabilityStatus::AccessDenied => "screen-capture-access-denied",
@@ -238,9 +273,13 @@ fn degraded_reason(status: ActivityCaptureCapabilityStatus) -> &'static str {
     }
 }
 
-fn degraded_summary(status: ActivityCaptureCapabilityStatus) -> String {
+fn degraded_summary(status: &ActivityCaptureCapabilityStatus) -> String {
     format!(
         "# Screen Capture Proof Not Claimed\n\nStatus: `{}`. Degraded evidence only.\n",
         status.as_protocol_str()
     )
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> ProofResult<T> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

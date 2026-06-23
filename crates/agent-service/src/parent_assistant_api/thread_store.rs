@@ -4,28 +4,32 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName, LogFieldValue,
-    ParentAssistantBackendState, ParentAssistantThreadRecord, ParentAssistantThreadResponse,
-    ParentAssistantThreadState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantBackendState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantThreadRecord;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantThreadResponse;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantThreadState;
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
 
 use crate::time::timestamp_now;
 
 pub(crate) fn thread_response_for_command(
     command: &AgentCommandEnvelope,
 ) -> ParentAssistantThreadResponse {
-    thread_response_for_command_in_dir(command, thread_storage_dir())
+    thread_response_for_command_in_dir(command, &thread_storage_dir())
 }
 
 pub(crate) fn record_message_for_thread(thread_id: &str) {
-    let _ = record_message_for_thread_in_dir(thread_id, thread_storage_dir());
+    let _ = record_message_for_thread_in_dir(thread_id, &thread_storage_dir());
 }
 
 #[cfg(test)]
 pub(crate) fn thread_response_for_command_in_dir(
     command: &AgentCommandEnvelope,
-    directory: PathBuf,
+    directory: &Path,
 ) -> ParentAssistantThreadResponse {
     thread_response_for_command_in_dir_impl(command, directory)
 }
@@ -33,18 +37,18 @@ pub(crate) fn thread_response_for_command_in_dir(
 #[cfg(not(test))]
 fn thread_response_for_command_in_dir(
     command: &AgentCommandEnvelope,
-    directory: PathBuf,
+    directory: &Path,
 ) -> ParentAssistantThreadResponse {
     thread_response_for_command_in_dir_impl(command, directory)
 }
 
 fn thread_response_for_command_in_dir_impl(
     command: &AgentCommandEnvelope,
-    directory: PathBuf,
+    directory: &Path,
 ) -> ParentAssistantThreadResponse {
     let thread_id = thread_id_from_command(command);
     let now = timestamp_now();
-    let mut threads = match load_threads(&directory) {
+    let mut threads = match load_threads(directory) {
         Ok(threads) => threads,
         Err(()) => return unavailable_response(),
     };
@@ -62,7 +66,7 @@ fn thread_response_for_command_in_dir_impl(
                 &now,
                 false,
             );
-            if save_threads(&directory, &threads).is_err() {
+            if save_threads(directory, &threads).is_err() {
                 return unavailable_response();
             }
             Some(thread)
@@ -75,7 +79,7 @@ fn thread_response_for_command_in_dir_impl(
                 &now,
                 false,
             );
-            if save_threads(&directory, &threads).is_err() {
+            if save_threads(directory, &threads).is_err() {
                 return unavailable_response();
             }
             Some(thread)
@@ -85,13 +89,13 @@ fn thread_response_for_command_in_dir_impl(
     durable_response(active_thread, threads, thread_reason(command))
 }
 
-fn record_message_for_thread_in_dir(thread_id: &str, directory: PathBuf) -> Result<(), ()> {
+fn record_message_for_thread_in_dir(thread_id: &str, directory: &Path) -> Result<(), ()> {
     record_message_for_thread_in_dir_impl(thread_id, directory)
 }
 
-fn record_message_for_thread_in_dir_impl(thread_id: &str, directory: PathBuf) -> Result<(), ()> {
+fn record_message_for_thread_in_dir_impl(thread_id: &str, directory: &Path) -> Result<(), ()> {
     let now = timestamp_now();
-    let mut threads = load_threads(&directory)?;
+    let mut threads = load_threads(directory)?;
     upsert_thread(
         &mut threads,
         thread_id.to_string(),
@@ -99,7 +103,7 @@ fn record_message_for_thread_in_dir_impl(thread_id: &str, directory: PathBuf) ->
         &now,
         true,
     );
-    save_threads(&directory, &threads)
+    save_threads(directory, &threads)
 }
 
 fn durable_response(
@@ -165,14 +169,14 @@ fn load_threads(directory: &Path) -> Result<Vec<ParentAssistantThreadRecord>, ()
     if !path.exists() {
         return Ok(Vec::new());
     }
-    let body = read_to_string(path).map_err(|_| ())?;
-    serde_json::from_str(&body).map_err(|_| ())
+    let body = read_to_string(path).map_err(|_error| ())?;
+    serde_json::from_str(&body).map_err(|_error| ())
 }
 
 fn save_threads(directory: &Path, threads: &[ParentAssistantThreadRecord]) -> Result<(), ()> {
-    create_dir_all(directory).map_err(|_| ())?;
-    let body = serde_json::to_string_pretty(threads).map_err(|_| ())?;
-    write(thread_storage_file(directory), body).map_err(|_| ())
+    create_dir_all(directory).map_err(|_error| ())?;
+    let body = serde_json::to_string_pretty(threads).map_err(|_error| ())?;
+    write(thread_storage_file(directory), body).map_err(|_error| ())
 }
 
 fn thread_storage_file(directory: &Path) -> PathBuf {
@@ -201,8 +205,11 @@ fn thread_reason(command: &AgentCommandEnvelope) -> &'static str {
     constants::parent_assistant::THREAD_DURABLE_REASON
 }
 
-fn string_payload_field(command: &AgentCommandEnvelope, key: &str) -> Option<String> {
-    match command.payload.get(key) {
+fn string_payload_field(
+    command: &AgentCommandEnvelope,
+    payload_field_name: &str,
+) -> Option<String> {
+    match command.payload.get(payload_field_name) {
         Some(LogFieldValue::String(value)) if !value.trim().is_empty() => {
             Some(value.trim().to_string())
         }

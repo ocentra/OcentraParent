@@ -19,7 +19,9 @@ await main();
 async function main() {
   await assertProofBuildsAreFresh();
   const { parseBrowserUrlShape } = await importDistModule('packages/browser-domain/dist/browser-url-intelligence.js');
-  const { buildYouTubeMetadataEvidence } = await importDistModule('packages/schema-domain/dist/browser-youtube-metadata.js');
+  const { buildYouTubeMetadataEvidence } = await importDistModule(
+    'packages/schema-domain/dist/browser-youtube-metadata.js'
+  );
 
   await mkdir(resultDirectory, { recursive: true });
   await mkdir(proofDirectory, { recursive: true });
@@ -316,11 +318,11 @@ function decodeHtml(value) {
     return null;
   }
   return value
-    .replaceAll('&amp;', '&')
     .replaceAll('&quot;', '"')
     .replaceAll('&#39;', "'")
     .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>');
+    .replaceAll('&gt;', '>')
+    .replaceAll('&amp;', '&');
 }
 
 function redactedText(value) {

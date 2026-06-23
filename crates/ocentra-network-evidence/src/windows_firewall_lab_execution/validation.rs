@@ -3,15 +3,11 @@ use super::types::{
     NetworkWindowsFirewallLabExecutionError, NetworkWindowsFirewallLabExecutionInput,
     NetworkWindowsFirewallLabExecutionState, NetworkWindowsFirewallLabUnsupportedClaims,
 };
+use crate::lab_execution_common::{is_test_net_remote_address, normalize_ref};
 use crate::{
     NetworkWindowsFirewallAdapterProof, NetworkWindowsFirewallProofState,
     NetworkWindowsFirewallTargetKind,
 };
-
-#[path = "../lab_execution_common.rs"]
-mod lab_execution_common;
-
-use lab_execution_common::{is_test_net_remote_address, normalize_ref};
 
 pub struct NormalizedLabExecutionInput {
     pub lab_ref: String,

@@ -40,7 +40,7 @@ async function main() {
   const dockerState = dockerCliVisible() ? 'docker-visible' : 'docker-cli-unavailable';
 
   const module = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-wsl-runtime-proof.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-linux-wsl-runtime-proof.js')).href
   );
   const readModel = module.decodeAppGameLinuxWslRuntimeProof({
     schemaVersion: proofMode,
@@ -100,7 +100,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-linux-wsl-runtime-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-linux-wsl-runtime-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-linux-wsl-runtime-proof.test.ts',
       wslRuntime:
         'wsl.exe observed a WSL2 Ubuntu runtime with Linux kernel, package manager, process snapshot, and session facts.',
@@ -257,11 +257,11 @@ function parseOsRelease(output) {
 
 async function assertSourceBoundaries() {
   const gateData = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const gateRules = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   assertIncludes(gateData, "gateId: 'linux-hard-block-mechanism-unavailable'", 'Linux hard-block gate');

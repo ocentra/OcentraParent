@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createPolicyPreviewPanelIntent,
-  type PolicyPreviewPanelReadModel,
-} from '../../src/policy-preview-panel';
+import { createPolicyPreviewPanelIntent, type PolicyPreviewPanelReadModel } from '../../src/policy-preview-panel';
 
 describe('policy preview panel intent', () => {
+  registerPreviewOnlyPanelTests();
+  registerBlockedTargetPanelTests();
+  registerReadOnlyAccessPanelTests();
+  registerReplayRejectionPanelTests();
+});
+
+function registerPreviewOnlyPanelTests(): void {
   it('keeps assistant drafts preview-only until parent confirmation', () => {
     const intent = createPolicyPreviewPanelIntent(
       { payload: {} },
@@ -39,7 +43,9 @@ describe('policy preview panel intent', () => {
     expect(String(intent.cards[2]?.summary)).toContain('parent confirmation');
     expect(accessDetails.get('Write authority')).toBe('Parent confirmation is required before any write.');
   });
+}
 
+function registerBlockedTargetPanelTests(): void {
   it('keeps blocked and manual preview states visibly not ready', () => {
     const intent = createPolicyPreviewPanelIntent(
       { payload: {} },
@@ -85,7 +91,9 @@ describe('policy preview panel intent', () => {
     expect(previewDetails.get('Target state')).toBe('Unsupported');
     expect(previewDetails.get('Finding kinds')).toBe('unsupported-target');
   });
+}
 
+function registerReadOnlyAccessPanelTests(): void {
   it('keeps observer-only roles visibly read-only even when preview data exists', () => {
     const intent = createPolicyPreviewPanelIntent(
       { payload: {} },
@@ -120,7 +128,9 @@ describe('policy preview panel intent', () => {
       'Observer scope is read-only and cannot confirm or save policy writes.'
     );
   });
+}
 
+function registerReplayRejectionPanelTests(): void {
   it('surfaces replay-rejected approval attempts without inventing a new override', () => {
     const intent = createPolicyPreviewPanelIntent(
       { payload: {} },
@@ -147,11 +157,9 @@ describe('policy preview panel intent', () => {
     expect(accessDetails.get('Replay of approval')).toBe('approval-1');
     expect(accessDetails.get('Override ID')).toBe('Not reported');
   });
-});
+}
 
-function readModel(
-  overrides: Partial<PolicyPreviewPanelReadModel>
-): PolicyPreviewPanelReadModel {
+function readModel(overrides: Partial<PolicyPreviewPanelReadModel>): PolicyPreviewPanelReadModel {
   return {
     returned: 1,
     previewId: 'policy-preview-1',
@@ -172,8 +180,6 @@ function readModel(
   };
 }
 
-function detailMap(
-  details: readonly { readonly label: unknown; readonly value: unknown }[]
-): Map<string, string> {
+function detailMap(details: readonly { readonly label: unknown; readonly value: unknown }[]): Map<string, string> {
   return new Map(details.map((detail) => [String(detail.label), String(detail.value)]));
 }

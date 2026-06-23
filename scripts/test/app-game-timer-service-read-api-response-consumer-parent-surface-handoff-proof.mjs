@@ -45,7 +45,8 @@ runNpm([
   'app-game-timer-service-read-api-response-consumer-handoff',
 ]);
 
-const contract = await import('@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-consumer-parent-surface-handoff');
+const contract =
+  await import('@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-consumer-parent-surface-handoff');
 const responseConsumerContract =
   await import('@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-consumer-handoff');
 const sourceResponseConsumerHandoff =
@@ -76,8 +77,7 @@ const proof = {
     source: 'packages/schema-domain/src/app-game-timer-service-read-api-response-consumer-parent-surface-handoff.ts',
     rules:
       'packages/schema-domain/src/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules.ts',
-    test:
-      'packages/app-game-domain/tests/unit/app-game-timer-service-read-api-response-consumer-parent-surface-handoff.test.ts',
+    test: 'packages/app-game-domain/tests/unit/app-game-timer-service-read-api-response-consumer-parent-surface-handoff.test.ts',
     harness: 'scripts/test/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-proof.mjs',
     evidence: 'test-results/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,

@@ -1,9 +1,10 @@
 import type { AgentLogEntry, AgentLogSnapshot } from '@ocentra-parent/schema-domain/logging-contracts';
-import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { decodePortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { PortalDiagnostics } from '@ocentra-parent/portal-domain/diagnostics';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
-import { decodePortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 
 export function renderDevLogPanel(container: HTMLElement, snapshot: AgentLogSnapshot | null): void {
@@ -11,7 +12,7 @@ export function renderDevLogPanel(container: HTMLElement, snapshot: AgentLogSnap
   panel.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.DevLog);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.DevLog);
   panel.append(title);
 
   if (snapshot === null || snapshot.entries.length === 0) {
@@ -57,6 +58,6 @@ function renderLogEntry(entry: AgentLogEntry): HTMLLIElement {
 function emptyMessage(): HTMLElement {
   const message = document.createElement(PortalDom.Tags.Paragraph);
   message.className = PortalDom.Classes.CommandResultEmpty;
-  message.textContent = PortalText.Resolve(PortalTextToken.NoDevLog);
+  message.textContent = resolvePortalDevText(PortalDevTextToken.NoDevLog);
   return message;
 }

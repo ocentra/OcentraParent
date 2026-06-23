@@ -126,4 +126,3 @@ function serviceReadinessStateForParentSurfaceIntent(
   return AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState.BlockedByCompilerDecision;
 }
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState };
-

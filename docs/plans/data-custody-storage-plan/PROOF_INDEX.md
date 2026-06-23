@@ -152,6 +152,51 @@ why this does not prove completion:
 next command:
 ```
 
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: data-custody-storage-plan
+workpack: <workpack id and name>
+owner: schema-domain | storage-custody-core | ocentra-evidence | ocentra-eventing | production-domain | portal | account-handoff | device-trust-handoff | provider-handoff | cloudflare-handoff | payment-handoff | ai-handoff | docs-only
+data_class: <custody data class or n/a>
+source_of_truth: <source owner/ref or n/a>
+custody_location: child-device-local | parent-device-local | parent-owned-remote | ocentra-hosted-non-activity-metadata | n/a
+key_owner: child-device | parent-device | parent-owned-provider | device-trust | manual-required | not-applicable | unknown
+encryption_state: encrypted-at-rest | encrypted-before-upload | human-readable-parent-authorized | not-applicable | unknown
+retention_state: active | expired | delete-requested | delete-confirmed | parent-retained | retention-window | n/a
+tombstone_state: write | do-not-write | propagated | replayed | blocked | manual-required | n/a
+provider_state: ready | revoked | wrong-account | folder-unavailable | partial-upload | disabled | not-configured | n/a
+export_state: requested | created | not-created | blocked | manual-required | n/a
+import_preview_state: accepted-preview | rejected-schema-version | rejected-scope | not-applied | n/a
+restore_apply_state: not-tested | apply-pending | applied | wrong-household | wrong-key | corrupt | partial | blocked | manual-required | n/a
+report_query_boundary: allowed-refs-only | deleted-expired-filtered | redacted | rate-limited | blocked | n/a
+assistant_citation_state: allowed-citation | disallowed-payload-blocked | not-tested | manual-required | n/a
+actor_role_state: parent-authorized | wrong-role-denied | account-handoff | not-tested | n/a
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+correlation_id: <event/proof/export/delete/restore/query correlation id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <stdout/stderr artifact pointer, proof file, test result path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+manual_required_note: <explicit manual-required gap or n/a>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store command output, test reports, proof JSON, bundle samples, redaction reports, provider mock outputs, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
+## Runtime and local harness split
+
+Runtime/product-safe proof must show source, custody, redaction, retention, tombstone, key owner, provider, actor-role, rollback/teardown, and handoff boundaries. Local harness proof may include richer diagnostics, but it still stores logs by pointer and keeps plan docs compact.
+
+```text
+runtime-safe: no private custody payloads, private report contents, provider account identifiers beyond opaque refs, protected credential material, assistant private payloads, or unredacted support diagnostics unless a selected expectation explicitly allows the field.
+local harness: enough file/line/command/artifact/custody/key/provider/retention/handoff context for Codex/MCP/humans to debug without reading terminal walls.
+```
+
 ## No-claim language
 
 Do not claim:
@@ -162,10 +207,15 @@ sync ready
 export ready
 restore ready
 delete ready
+tombstone propagation ready
 report/query custody ready
 assistant custody ready
 parent storage settings ready
+provider runtime ready
 PR_READY
 ```
 
 unless the selected workpack proof root proves the claim and WP07 aggregates it when broad readiness is claimed.
+
+Active proof routing for this plan is `output/data-custody-storage-plan-proof/`.
+Legacy `docs/proof/data-custody-storage-plan/` references should be removed as touched rather than treated as current proof truth.

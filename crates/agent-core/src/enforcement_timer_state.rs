@@ -1,7 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, EnforcementAction,
-    EnforcementActiveTimerState, EnforcementAdapterResultCode, EnforcementAuditEvent,
-    EnforcementAuditEventKind, EnforcementResult, EnforcementResultStatus,
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAction, EnforcementActiveTimerState, EnforcementAdapterResultCode,
+    EnforcementAuditEvent, EnforcementAuditEventKind, EnforcementResult, EnforcementResultStatus,
     EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
     EnforcementUnavailableReason, EnforcementUnavailableStatus, ParentActionReference,
 };
@@ -321,7 +321,7 @@ fn transition_audit_event(
         evidence_references: action.evidence_references.clone(),
         actor: parent_override
             .as_ref()
-            .map(|reference| reference.actor.clone().into()),
+            .map(|reference| reference.actor.clone()),
         parent_override,
         journal_sequence: None,
         observed_at: ids.observed_at.clone(),

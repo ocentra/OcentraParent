@@ -3,8 +3,8 @@ import {
   BrowserParentExplanationText,
   BrowserParentExplanationTextToken,
   resolveBrowserParentExplanationText,
-} from '../../src/browser-parent-explanation';
-import { decodeDisplayText } from '../../src/contracts';
+} from '@ocentra-parent/schema-domain/text-browser-ux';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 
 describe('browser parent explanation text', () => {
   it('exposes schema-backed parent explanation text tokens', exposesParentExplanationText);

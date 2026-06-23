@@ -29,13 +29,14 @@ fn product_control_surfaces_have_stable_protocol_strings() {
         V08EnforcementProductControlSurface::WindowsPermissionLossAlerts,
         V08EnforcementProductControlSurface::WindowsTamperUninstallAlerts,
     ];
-    let serialized =
-        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized
             .as_array()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .len(),
         15
     );
@@ -128,10 +129,13 @@ fn product_control_read_model_serializes_parent_visible_action_states() {
             }),
         ],
     };
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let reparsed = serde_json::from_value::<V08EnforcementProductControlSpineReadModel>(serialized)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     let claim_counts = count_claim_states(&reparsed.entries);
 
     assert_eq!(reparsed.read_model_id, spine::READ_MODEL_ID);

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const SocialAlertReportIntentKind = {
   HighRiskSignal: 'high-risk-signal',
@@ -74,12 +69,8 @@ export const SocialAlertReportAdapterDispatchState = {
   NotDispatched: 'not-dispatched',
 } as const;
 
-export const SocialAlertReportIntentIdSchema = withParser(
-  brandedNonEmptyStringSchema('SocialAlertReportIntentId')
-);
-export const SocialAlertReportReferenceSchema = withParser(
-  brandedNonEmptyStringSchema('SocialAlertReportReference')
-);
+export const SocialAlertReportIntentIdSchema = withParser(brandedNonEmptyStringSchema('SocialAlertReportIntentId'));
+export const SocialAlertReportReferenceSchema = withParser(brandedNonEmptyStringSchema('SocialAlertReportReference'));
 export const SocialAlertReportIntentKindSchema = withParser(
   Schema.Literal(...Object.values(SocialAlertReportIntentKind))
 );

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameLinuxDockerHostPreflightSchemaVersionSchema = withParser(
@@ -191,13 +186,27 @@ function linuxDockerHostPreflightIsHonest(readModel: AppGameLinuxDockerHostPrefl
   return (
     linuxDockerStateIsConsistent(readModel) &&
     linuxDockerInventoriesAreConsistent(readModel) &&
-    readModel.contextNamesRedacted &&
-    readModel.imageNamesRedacted &&
-    readModel.containerIdsRedacted &&
+    linuxDockerRedactionIsHonest(readModel) &&
+    linuxDockerClaimsRemainScoped(readModel) &&
+    linuxDockerRequiredProofsArePresent(readModel)
+  );
+}
+
+function linuxDockerRedactionIsHonest(readModel: AppGameLinuxDockerHostPreflightCandidate): boolean {
+  return readModel.contextNamesRedacted && readModel.imageNamesRedacted && readModel.containerIdsRedacted;
+}
+
+function linuxDockerClaimsRemainScoped(readModel: AppGameLinuxDockerHostPreflightCandidate): boolean {
+  return (
     !readModel.adapterDispatchClaimed &&
     !readModel.containerPolicyClaimed &&
     !readModel.platformEnforcementClaimed &&
-    !readModel.childDeviceDeliveryClaimed &&
+    !readModel.childDeviceDeliveryClaimed
+  );
+}
+
+function linuxDockerRequiredProofsArePresent(readModel: AppGameLinuxDockerHostPreflightCandidate): boolean {
+  return (
     readModel.proofRefs.includes('linux-docker-host-preflight-ref') &&
     readModel.openGaps.includes('linux-container-policy-not-proved') &&
     readModel.openGaps.includes('linux-platform-enforcement-not-proved') &&
@@ -224,4 +233,3 @@ function linuxDockerInventoriesAreConsistent(readModel: AppGameLinuxDockerHostPr
       linuxDockerInventoryState(readModel.dockerDaemonObserved, readModel.containerCount)
   );
 }
-

@@ -4,11 +4,11 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
 };
 
 #[test]
-fn screen_observation_records_evidence_and_requests_ai_boundary() {
+fn screen_observation_records_evidence_and_requests_ai_boundary() -> Result<(), String> {
     let observed = ocentra_screen_core::default_screen_observed_event();
     let evidence = ocentra_screen_core::screen_evidence_recorded_event(&observed);
     let ai = ocentra_screen_core::screen_ai_analysis_requested_event(&evidence)
-        .expect("screen AI request is expected");
+        .ok_or_else(|| String::from("screen AI request is expected"))?;
     let policy = ocentra_screen_core::screen_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(
@@ -34,17 +34,18 @@ fn screen_observation_records_evidence_and_requests_ai_boundary() {
     assert_eq!(ai.evidence_refs, vec![evidence.evidence_ref]);
     assert_eq!(ai.private_payload_state, PrivatePayloadState::Excluded);
     assert!(policy.is_none());
+    Ok(())
 }
 
 #[test]
-fn screen_known_policy_state_bypasses_ai_boundary() {
+fn screen_known_policy_state_bypasses_ai_boundary() -> Result<(), String> {
     let observed = ocentra_screen_core::screen_observed_event(
         ocentra_screen_core::ScreenObservationIntent::KnownPolicyStateRequiresPolicy,
     );
     let evidence = ocentra_screen_core::screen_evidence_recorded_event(&observed);
     let ai = ocentra_screen_core::screen_ai_analysis_requested_event(&evidence);
     let policy = ocentra_screen_core::screen_policy_evaluation_requested_event(&evidence)
-        .expect("known screen policy state requests policy directly");
+        .ok_or_else(|| String::from("known screen policy state requests policy directly"))?;
 
     assert_eq!(
         evidence.ai_analysis_requirement,
@@ -60,6 +61,7 @@ fn screen_known_policy_state_bypasses_ai_boundary() {
         ChildRuntimeDomain::Screen.policy_evaluation_requested_event_type()
     );
     assert_eq!(policy.evidence_refs, vec![evidence.evidence_ref]);
+    Ok(())
 }
 
 #[test]

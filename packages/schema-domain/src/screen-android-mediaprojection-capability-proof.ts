@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ActivityTimestampSchema } from './evidence-primitives';
 import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
 import { ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
@@ -308,4 +303,3 @@ export type ScreenAndroidMediaProjectionCapabilityRow = Infer<typeof ScreenAndro
 export type ScreenAndroidMediaProjectionCapabilityProof = Infer<
   typeof ScreenAndroidMediaProjectionCapabilityProofSchema
 >;
-

@@ -1,14 +1,26 @@
-use ocentra_parent_agent_protocol::{
-    policy_constants as policy, LocalAiAdapterBoundary, LocalAiCapabilityFlag,
-    LocalAiDegradedState, LocalAiExecutionState, LocalAiGraphReference, LocalAiGraphReferenceKind,
-    LocalAiMemoryReference, LocalAiMemoryReferenceKind, LocalAiModelLoadState,
-    LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass, LocalAiSafetyResult,
-    LocalAiUnknownState, LocalModelRuntimeStatus, ParentActorReference, ParentActorRole,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction, PolicyRule, PolicyTarget,
-    PolicyTargetType,
-};
-
 use super::policy_dry_run_evaluator::PolicyDryRunEvaluationInput;
+use ocentra_parent_agent_protocol::activity::local_ai::{
+    LocalAiGraphReference, LocalAiGraphReferenceKind, LocalAiMemoryReference,
+    LocalAiMemoryReferenceKind, LocalAiSafetyResult, LocalAiUnknownState,
+};
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyRule;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiCapabilityFlag;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiModelLoadState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::{
+    LocalAiAdapterBoundary, LocalAiExecutionState, LocalAiProviderPrivacyMode,
+    LocalAiProviderSource,
+};
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 pub(crate) fn input_with_rules(
     parent_rules: Vec<PolicyRule>,

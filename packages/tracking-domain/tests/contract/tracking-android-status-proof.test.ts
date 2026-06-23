@@ -4,7 +4,7 @@ import {
   TrackingAndroidStatusProofRowSchema,
   buildTrackingAndroidStatusProofReadModel,
   type TrackingAndroidStatusInputRow,
-} from '../../src/tracking-android-status-proof';
+} from '@ocentra-parent/schema-domain/tracking-android-status-proof';
 
 const Timestamp = '2026-06-05T22:36:00.000Z';
 

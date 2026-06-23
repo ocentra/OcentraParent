@@ -1,11 +1,9 @@
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
-import { ParentActionReferenceSchema, ParentActorReferenceSchema, ParentEvidenceReferenceSchema } from './family-references';
+  ParentActionReferenceSchema,
+  ParentActorReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from './family-references';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from './family-reference-primitives';
 import { PolicyAction, PolicyDecisionSchema, PolicyReasonCodeSchema } from './policy-contracts';
 import { LocalAiSafetyResultSchema } from './local-ai';
@@ -27,7 +25,9 @@ export const RemoteAssistantReportBundleRefSchema = brandedNonEmptyStringSchema(
 export const RemoteAssistantAnswerRefSchema = brandedNonEmptyStringSchema('RemoteAssistantAnswerRef');
 export const RemoteAssistantUncertaintyCodeSchema = brandedNonEmptyStringSchema('RemoteAssistantUncertaintyCode');
 export const RemoteAssistantFailureReasonSchema = brandedNonEmptyStringSchema('RemoteAssistantFailureReason');
-export const LocalAiRemoteAssistantBoundaryProofIdSchema = brandedNonEmptyStringSchema('LocalAiRemoteAssistantBoundaryProofId');
+export const LocalAiRemoteAssistantBoundaryProofIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiRemoteAssistantBoundaryProofId'
+);
 
 export const RemoteAssistantCustodyBoundarySchema = withParser(
   Schema.Literal('parent-authorized-report-bundle', 'parent-owned-local-storage')
@@ -342,4 +342,3 @@ function comparePolicyActionStrictness(
   const rightRank = PolicyActionStrictnessRank[right] ?? 0;
   return leftRank - rightRank;
 }
-

@@ -21,7 +21,6 @@
     "@ocentra-parent/ai-domain": "file:../ai-domain",
     "@ocentra-parent/app-game-domain": "file:../app-game-domain",
     "@ocentra-parent/billing-domain": "file:../billing-domain",
-    "@ocentra-parent/browser-domain": "file:../browser-domain",
     "@ocentra-parent/child-runtime-domain": "file:../child-runtime-domain",
     "@ocentra-parent/enforcement-domain": "file:../enforcement-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",

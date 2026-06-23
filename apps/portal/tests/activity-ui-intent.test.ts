@@ -37,8 +37,7 @@ const ActivityRequest = {
   rangeEnd: '2026-06-01T15:00:00Z',
 } as const;
 
-const LongLanSelectedLabel =
-  'Media Room Tablet With An Intentionally Long Hostname That Should Still Render As Text';
+const LongLanSelectedLabel = 'Media Room Tablet With An Intentionally Long Hostname That Should Still Render As Text';
 
 describe('parent portal Activity UI intent', () => {
   parentPortalActivityIntentTests();
@@ -199,6 +198,13 @@ function parentPortalRuntimeNeighborTests(): void {
 }
 
 function parentPortalRuntimeCanonicalTargetTests(): void {
+  parentPortalRuntimeCanonicalSpineTests();
+  parentPortalRuntimeCanonicalVisibilityTests();
+  parentPortalRuntimeCanonicalPassiveNeighborTests();
+  parentPortalRuntimeCanonicalRendererTests();
+}
+
+function parentPortalRuntimeCanonicalSpineTests(): void {
   it('uses the canonical household spine to keep LAN neighbors out of controlled-device scopes', () => {
     expectCanonicalHouseholdSpineTargetSlots();
   });
@@ -238,7 +244,9 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
       },
     });
   });
+}
 
+function parentPortalRuntimeCanonicalVisibilityTests(): void {
   it('keeps ignored passive LAN neighbors visible but outside canonical policy-target scopes', () => {
     const baseModel = canonicalRuntimeLanAddDeviceReadModel();
     const slots = createParentPortalLanPairingUiSlots([], {
@@ -303,7 +311,9 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
       expect.objectContaining({ value: 'lan-physical-mac-54271e97c331' })
     );
   });
+}
 
+function parentPortalRuntimeCanonicalPassiveNeighborTests(): void {
   it('keeps stale and offline passive LAN neighbor reachability distinct', () => {
     const staleSlots = createPassiveNeighborStateSlots('stale');
     const offlineSlots = createPassiveNeighborStateSlots('offline');
@@ -334,7 +344,9 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
     expect(markup).not.toContain('AMD Ryzen 9 3900X 12-Core Processor');
     expect(markup).not.toContain('GeForce RTX 2070 SUPER');
   });
+}
 
+function parentPortalRuntimeCanonicalRendererTests(): void {
   it('keeps missing LAN hardware rows on the Not reported fallback instead of inventing values', () => {
     const rendererSource = readFileSync(
       new URL(
@@ -344,13 +356,17 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
       'utf8'
     );
 
-    expect(rendererSource).toContain("function lanPairingMissingDeviceValue(value?: string): string {");
+    expect(rendererSource).toContain('function lanPairingMissingDeviceValue(value?: string): string {');
     expect(rendererSource).toContain("return trimmed ? trimmed : 'Not reported';");
-    expect(rendererSource).toContain("{ label: 'CPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuModel), tone: 'purple' }");
+    expect(rendererSource).toContain(
+      "{ label: 'CPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuModel), tone: 'purple' }"
+    );
     expect(rendererSource).toContain(
       "{ label: 'Memory', value: lanPairingMissingDeviceValue(selectedDevice.device?.memoryTotal), tone: 'gold' }"
     );
-    expect(rendererSource).toContain("{ label: 'GPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuModel), tone: 'purple' }");
+    expect(rendererSource).toContain(
+      "{ label: 'GPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuModel), tone: 'purple' }"
+    );
   });
 
   it('routes service-backed source and custody labels into the selected-device LAN surface helpers', () => {
@@ -362,9 +378,15 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
       'utf8'
     );
 
-    expect(rendererSource).toContain("{ label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' }");
-    expect(rendererSource).toContain("{ label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'cyan' }");
-    expect(rendererSource).toContain("{ label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'purple' }");
+    expect(rendererSource).toContain(
+      "{ label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' }"
+    );
+    expect(rendererSource).toContain(
+      "{ label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'cyan' }"
+    );
+    expect(rendererSource).toContain(
+      "{ label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'purple' }"
+    );
   });
 
   it('keeps dedicated LAN control-state labels for ignored revoked stale and offline surfaces', () => {

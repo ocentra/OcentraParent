@@ -66,7 +66,7 @@ async function buildProof(
 ) {
   const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-child-runtime-product-readiness-blocker-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-child-runtime-product-readiness-blocker-proof.ts')
     ).href,
     import.meta.url
   );
@@ -181,7 +181,7 @@ function sourceSnapshot(proof) {
     `- childRuntimePresentArtifactCount: ${proof.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.childRuntimeMissingArtifactCount}`,
     `- androidBridgeChildRuntimeMissingArtifactCount: ${proof.androidEmulatorBridgeAccounting.childRuntimeMissingArtifactCount}`,
-    '- proof module: packages/tracking-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-product-readiness-blocker-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-product-readiness-blocker-proof.mjs',
     '',

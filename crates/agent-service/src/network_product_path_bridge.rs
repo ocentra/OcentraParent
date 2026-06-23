@@ -11,9 +11,9 @@ use ocentra_network_evidence::{
     },
     policy::NetworkEvidencePolicyAction,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct NetworkProductPathServiceProofReport {

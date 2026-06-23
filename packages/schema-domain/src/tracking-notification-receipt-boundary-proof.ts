@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -36,8 +31,12 @@ export const TrackingNotificationReceiptBoundaryNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationReceiptBoundaryNonClaims)
 );
 
-export const TrackingNotificationReceiptBoundaryProofIdSchema = brandedNonEmptyStringSchema('TrackingNotificationReceiptBoundaryProofId');
-export const TrackingNotificationReceiptBoundaryReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationReceiptBoundaryReference');
+export const TrackingNotificationReceiptBoundaryProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationReceiptBoundaryProofId'
+);
+export const TrackingNotificationReceiptBoundaryReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationReceiptBoundaryReference'
+);
 
 export const TrackingNotificationReceiptBoundaryStateSchema = withParser(
   Schema.Literal('receipt-ingestion-required', 'manual-receipt-required', 'provider-unavailable')
@@ -278,4 +277,3 @@ const countReceiptState = (
 export const decodeTrackingNotificationReceiptBoundaryReadModel = Schema.decodeUnknownSync(
   TrackingNotificationReceiptBoundaryReadModelSchema
 );
-

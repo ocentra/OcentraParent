@@ -15,7 +15,9 @@ use super::{
 fn windows_adapter_artifact_ingestion_record_serializes_custody_and_subjects() {
     let record = ingestion_record();
 
-    let serialized = serde_json::to_value(record).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(record).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["ingestionRecordId"],
@@ -53,7 +55,9 @@ fn windows_adapter_artifact_ingestion_proof_serializes_gate_boundary() {
         product_claim_boundary: artifact_ingestion::CLAIM_BOUNDARY.to_string(),
     };
 
-    let serialized = serde_json::to_value(proof).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(proof).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized[constants::field::READ_MODEL_ID],

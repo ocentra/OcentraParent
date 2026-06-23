@@ -40,7 +40,9 @@ fn host_identity_read_model_serializes_evidence_boundaries() {
         ],
     };
 
-    let serialized = serde_json::to_value(model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(model).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["readModelId"], host_identity::READ_MODEL_ID_V0_8);
     assert_eq!(
@@ -82,7 +84,7 @@ fn host_identity_rejects_unknown_evidence_kind() {
 
     let parsed = serde_json::from_value::<HostIdentityReadModelEntry>(payload);
 
-    assert!(parsed.is_err());
+    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
 }
 
 fn read_model_entry(

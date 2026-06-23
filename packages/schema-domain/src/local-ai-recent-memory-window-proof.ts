@@ -16,7 +16,11 @@ import {
 import { buildLocalAiEvidenceContext } from './local-ai-context-builder';
 import { LocalAiMemoryReferenceSchema, type LocalAiMemoryReference } from './ai-references';
 import { LocalAiEvaluationRequestIdSchema, LocalAiTimestampSchema } from './ai-primitives';
-import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from './family-references';
+import {
+  ChildProfileReferenceSchema,
+  ParentDeviceReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from './family-references';
 
 export const LocalAiRecentMemoryWindowSchema = withParser(
   Schema.Struct({
@@ -200,8 +204,9 @@ function memoryIsGroundedInWindow(
   reference: LocalAiMemoryReference,
   selectedRecentEvidenceIds: ReadonlySet<string>
 ): boolean {
-  return reference.sourceEvidenceReferences.every((sourceReference: LocalAiMemoryReference['sourceEvidenceReferences'][number]) =>
-    selectedRecentEvidenceIds.has(sourceReference.evidenceReferenceId)
+  return reference.sourceEvidenceReferences.every(
+    (sourceReference: LocalAiMemoryReference['sourceEvidenceReferences'][number]) =>
+      selectedRecentEvidenceIds.has(sourceReference.evidenceReferenceId)
   );
 }
 

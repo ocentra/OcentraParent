@@ -1,93 +1,51 @@
-use ocentra_parent_agent_protocol::{constants, TrackingCapabilityStatus};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::TrackingCapabilityStatus;
+use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingGeofenceTransitionDetectedEvent;
 use ocentra_tracking_core::geofence::TrackingGeofenceInsideState;
 
 #[test]
 fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_ordering() {
-    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
-
-    let enter = ocentra_tracking_core::geofence::detect_geofence_transition(
-        &observed,
-        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
-            current_inside_state: TrackingGeofenceInsideState::Inside,
-            capability_status: TrackingCapabilityStatus::parse(
-                constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
-            )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
-            distance_meters: Some(0),
-            low_accuracy_near_boundary: false,
-            grace_period_active: false,
-        },
+    let enter = detect_transition(
+        TrackingGeofenceInsideState::Outside,
+        TrackingGeofenceInsideState::Inside,
+        constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
+        Some(0),
+        false,
     );
-    let exit = ocentra_tracking_core::geofence::detect_geofence_transition(
-        &observed,
-        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
-            current_inside_state: TrackingGeofenceInsideState::Outside,
-            capability_status: TrackingCapabilityStatus::parse(
-                constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
-            )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
-            distance_meters: Some(120),
-            low_accuracy_near_boundary: false,
-            grace_period_active: false,
-        },
+    let exit = detect_transition(
+        TrackingGeofenceInsideState::Inside,
+        TrackingGeofenceInsideState::Outside,
+        constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
+        Some(120),
+        false,
     );
-    let dwell = ocentra_tracking_core::geofence::detect_geofence_transition(
-        &observed,
-        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
-            current_inside_state: TrackingGeofenceInsideState::Inside,
-            capability_status: TrackingCapabilityStatus::parse(
-                constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
-            )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
-            distance_meters: Some(0),
-            low_accuracy_near_boundary: false,
-            grace_period_active: false,
-        },
+    let dwell = detect_transition(
+        TrackingGeofenceInsideState::Inside,
+        TrackingGeofenceInsideState::Inside,
+        constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
+        Some(0),
+        false,
     );
-    let unchanged = ocentra_tracking_core::geofence::detect_geofence_transition(
-        &observed,
-        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
-            current_inside_state: TrackingGeofenceInsideState::Outside,
-            capability_status: TrackingCapabilityStatus::parse(
-                constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
-            )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
-            distance_meters: Some(420),
-            low_accuracy_near_boundary: false,
-            grace_period_active: false,
-        },
+    let unchanged = detect_transition(
+        TrackingGeofenceInsideState::Outside,
+        TrackingGeofenceInsideState::Outside,
+        constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
+        Some(420),
+        false,
     );
-    let ambiguous = ocentra_tracking_core::geofence::detect_geofence_transition(
-        &observed,
-        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
-            current_inside_state: TrackingGeofenceInsideState::Inside,
-            capability_status: TrackingCapabilityStatus::parse(
-                constants::tracking_runtime::CAPABILITY_STATUS_RECENT,
-            )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_RECENT),
-            distance_meters: Some(35),
-            low_accuracy_near_boundary: true,
-            grace_period_active: false,
-        },
+    let ambiguous = detect_transition(
+        TrackingGeofenceInsideState::Outside,
+        TrackingGeofenceInsideState::Inside,
+        constants::tracking_runtime::CAPABILITY_STATUS_RECENT,
+        Some(35),
+        true,
     );
-    let stale = ocentra_tracking_core::geofence::detect_geofence_transition(
-        &observed,
-        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
-            current_inside_state: TrackingGeofenceInsideState::Inside,
-            capability_status: TrackingCapabilityStatus::parse(
-                constants::tracking_runtime::CAPABILITY_STATUS_STALE,
-            )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_STALE),
-            distance_meters: Some(0),
-            low_accuracy_near_boundary: false,
-            grace_period_active: false,
-        },
+    let stale = detect_transition(
+        TrackingGeofenceInsideState::Inside,
+        TrackingGeofenceInsideState::Inside,
+        constants::tracking_runtime::CAPABILITY_STATUS_STALE,
+        Some(0),
+        false,
     );
 
     assert_eq!(
@@ -114,4 +72,26 @@ fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_or
         stale.transition_kind,
         constants::tracking_runtime::GEOFENCE_TRANSITION_STALE_AT_PLACE
     );
+}
+
+fn detect_transition(
+    previous_inside_state: TrackingGeofenceInsideState,
+    current_inside_state: TrackingGeofenceInsideState,
+    capability_status: &'static str,
+    distance_meters: Option<u32>,
+    low_accuracy_near_boundary: bool,
+) -> TrackingGeofenceTransitionDetectedEvent {
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    ocentra_tracking_core::geofence::detect_geofence_transition(
+        &observed,
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
+            previous_inside_state: Some(previous_inside_state),
+            current_inside_state,
+            capability_status: TrackingCapabilityStatus::parse(capability_status)
+                .unwrap_or_else(|_| unreachable!("{}", capability_status)),
+            distance_meters,
+            low_accuracy_near_boundary,
+            grace_period_active: false,
+        },
+    )
 }

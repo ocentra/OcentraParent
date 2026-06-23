@@ -3,7 +3,7 @@ use ocentra_eventing::{
     bus::EventBus, envelope::EventMetadata, error::EventingError, request::RequestCompletionReport,
     request::RequestReport,
 };
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingChildCheckInRequestReceipt, TrackingChildCheckInRequestedEvent,
 };
 

@@ -1,7 +1,4 @@
-import * as Shared from './notification-local-outbox';
-import type { V3NotificationProviderChannel } from './notification-v3-provider-retry';
-
-export const {
+import {
   NotificationLocalOutboxAdapterProofReadModel,
   NotificationLocalOutboxAdapterProofSchema,
   NotificationLocalOutboxAdapterProofSchemaVersionSchema,
@@ -21,15 +18,49 @@ export const {
   RequiredNotificationLocalOutboxStates,
   decodeNotificationLocalOutboxAdapterProof,
   decodeNotificationLocalOutboxRecord,
-} = Shared;
+} from './notification-local-outbox';
+import type {
+  NotificationLocalOutboxAdapterProof,
+  NotificationLocalOutboxDeliveryClaimState,
+  NotificationLocalOutboxMinimalAlertEnvelope,
+  NotificationLocalOutboxNonClaim,
+  NotificationLocalOutboxRecord,
+  NotificationLocalOutboxSeverity,
+  NotificationLocalOutboxState,
+} from './notification-local-outbox';
+import type { V3NotificationProviderChannel } from './notification-v3-provider-retry';
 
-export type NotificationLocalOutboxAdapterProof = Shared.NotificationLocalOutboxAdapterProof;
-export type NotificationLocalOutboxDeliveryClaimState = Shared.NotificationLocalOutboxDeliveryClaimState;
-export type NotificationLocalOutboxMinimalAlertEnvelope = Shared.NotificationLocalOutboxMinimalAlertEnvelope;
-export type NotificationLocalOutboxNonClaim = Shared.NotificationLocalOutboxNonClaim;
-export type NotificationLocalOutboxRecord = Shared.NotificationLocalOutboxRecord;
-export type NotificationLocalOutboxSeverity = Shared.NotificationLocalOutboxSeverity;
-export type NotificationLocalOutboxState = Shared.NotificationLocalOutboxState;
+export {
+  NotificationLocalOutboxAdapterProofReadModel,
+  NotificationLocalOutboxAdapterProofSchema,
+  NotificationLocalOutboxAdapterProofSchemaVersionSchema,
+  NotificationLocalOutboxDeliveryClaimStateSchema,
+  NotificationLocalOutboxEntryIdSchema,
+  NotificationLocalOutboxForbiddenDetailFragments,
+  NotificationLocalOutboxKnownGaps,
+  NotificationLocalOutboxMinimalAlertEnvelopeSchema,
+  NotificationLocalOutboxNonClaimSchema,
+  NotificationLocalOutboxPayloadPreviewSchema,
+  NotificationLocalOutboxProviderChannels,
+  NotificationLocalOutboxReadModelIdSchema,
+  NotificationLocalOutboxRecordSchema,
+  NotificationLocalOutboxReferenceSchema,
+  NotificationLocalOutboxSeveritySchema,
+  NotificationLocalOutboxStateSchema,
+  RequiredNotificationLocalOutboxStates,
+  decodeNotificationLocalOutboxAdapterProof,
+  decodeNotificationLocalOutboxRecord,
+};
+
+export type {
+  NotificationLocalOutboxAdapterProof,
+  NotificationLocalOutboxDeliveryClaimState,
+  NotificationLocalOutboxMinimalAlertEnvelope,
+  NotificationLocalOutboxNonClaim,
+  NotificationLocalOutboxRecord,
+  NotificationLocalOutboxSeverity,
+  NotificationLocalOutboxState,
+};
 
 export function summarizeNotificationLocalOutboxStates(
   records: ReadonlyArray<NotificationLocalOutboxRecord>

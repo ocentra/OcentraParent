@@ -5,11 +5,12 @@ use crate::{
     NetworkWindowsWfpGateError, NetworkWindowsWfpGateInput, NetworkWindowsWfpGateState,
     NetworkWindowsWfpRequiredArtifact,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn windows_wfp_gate_allows_lab_proof_ready_with_signed_permissioned_artifacts() {
     let proof = plan_network_windows_wfp_gate(lab_ready_input())
-        .expect("complete WFP gate proof should become lab-proof ready");
+        .expect_value("complete WFP gate proof should become lab-proof ready");
 
     assert_eq!(proof.gate_state, NetworkWindowsWfpGateState::LabProofReady);
     assert_eq!(proof.target_ref, "network-target-ref-39");
@@ -78,7 +79,7 @@ fn windows_wfp_gate_research_only_is_non_executable_without_artifacts() {
         audit_event_ref: None,
         ..lab_ready_input()
     })
-    .expect("research-only WFP gate should be allowed without authority artifacts");
+    .expect_value("research-only WFP gate should be allowed without authority artifacts");
 
     assert_eq!(proof.gate_state, NetworkWindowsWfpGateState::ResearchOnly);
     assert_eq!(
@@ -118,7 +119,7 @@ fn windows_wfp_gate_requires_signed_permissioned_artifacts_before_lab_readiness(
         audit_event_ref: None,
         ..lab_ready_input()
     })
-    .expect("missing WFP authority artifacts should stay manual-required");
+    .expect_value("missing WFP authority artifacts should stay manual-required");
 
     assert_eq!(proof.gate_state, NetworkWindowsWfpGateState::ManualRequired);
     assert_eq!(
@@ -136,7 +137,7 @@ fn windows_wfp_gate_routes_weak_or_non_block_policy_to_manual_required() {
         policy_mapping: policy_mapping(NetworkEvidenceGrade::B, NetworkEvidencePolicyAction::Block),
         ..lab_ready_input()
     })
-    .expect("grade B block policy handoff should not become WFP lab-ready");
+    .expect_value("grade B block policy handoff should not become WFP lab-ready");
 
     assert_eq!(weak.gate_state, NetworkWindowsWfpGateState::ManualRequired);
     assert_eq!(
@@ -151,7 +152,7 @@ fn windows_wfp_gate_routes_weak_or_non_block_policy_to_manual_required() {
         policy_mapping: policy_mapping(NetworkEvidenceGrade::A, NetworkEvidencePolicyAction::Limit),
         ..lab_ready_input()
     })
-    .expect("non-block mapped actions should stay outside the WFP proof-ready boundary");
+    .expect_value("non-block mapped actions should stay outside the WFP proof-ready boundary");
     assert_eq!(limit.gate_state, NetworkWindowsWfpGateState::ManualRequired);
     assert_eq!(
         limit.boundary_reasons,
@@ -165,7 +166,7 @@ fn windows_wfp_gate_marks_manual_required_or_unavailable_capability_without_comm
         capability_state: NetworkWindowsWfpGateCapabilityState::ManualRequired,
         ..lab_ready_input()
     })
-    .expect("manual-required WFP capability should stay reportable");
+    .expect_value("manual-required WFP capability should stay reportable");
     assert_eq!(
         manual.gate_state,
         NetworkWindowsWfpGateState::ManualRequired
@@ -180,7 +181,7 @@ fn windows_wfp_gate_marks_manual_required_or_unavailable_capability_without_comm
         capability_state: NetworkWindowsWfpGateCapabilityState::Unavailable,
         ..lab_ready_input()
     })
-    .expect("unavailable WFP capability should stay reportable");
+    .expect_value("unavailable WFP capability should stay reportable");
     assert_eq!(
         unavailable.gate_state,
         NetworkWindowsWfpGateState::Unavailable
@@ -346,5 +347,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

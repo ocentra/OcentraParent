@@ -1,10 +1,12 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants::{self, enforcement, field, host_identity},
-    policy_constants as policy, EnforcementCapabilityState, EnforcementReadinessProofLevel,
-    EnforcementReadinessRuntimeOwner, EnforcementReadinessState, HostIdentityEvidenceKind,
+use ocentra_parent_agent_protocol::constants::{self, enforcement, field, host_identity};
+use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
+use ocentra_parent_agent_protocol::enforcement_readiness::{
+    EnforcementReadinessProofLevel, EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
 };
+use ocentra_parent_agent_protocol::host_identity::HostIdentityEvidenceKind;
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 use crate::host_identity_read_model::host_identity_read_model;
 
@@ -79,7 +81,9 @@ fn host_identity_read_model_keeps_unsupported_and_rollback_states_honest() {
 #[test]
 fn host_identity_read_model_serializes_for_runtime_preview_without_claiming_blocking() {
     let model = host_identity_read_model(policy::TEST_EVALUATED_AT);
-    let serialized = serde_json::to_value(model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(model).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized[field::READ_MODEL_ID],
@@ -104,17 +108,17 @@ fn host_identity_read_model_serializes_for_runtime_preview_without_claiming_bloc
 }
 
 fn entry_for(
-    entries: &[ocentra_parent_agent_protocol::HostIdentityReadModelEntry],
+    entries: &[ocentra_parent_agent_protocol::host_identity::HostIdentityReadModelEntry],
     evidence_kind: HostIdentityEvidenceKind,
-) -> &ocentra_parent_agent_protocol::HostIdentityReadModelEntry {
+) -> &ocentra_parent_agent_protocol::host_identity::HostIdentityReadModelEntry {
     entries
         .iter()
         .find(|entry| entry.evidence_kind == evidence_kind)
-        .expect(host_identity::READ_MODEL_ID_V0_8)
+        .unwrap_or_else(|| panic!("{}", host_identity::READ_MODEL_ID_V0_8))
 }
 
 fn count_readiness(
-    entries: &[ocentra_parent_agent_protocol::HostIdentityReadModelEntry],
+    entries: &[ocentra_parent_agent_protocol::host_identity::HostIdentityReadModelEntry],
 ) -> BTreeMap<&'static str, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
@@ -125,7 +129,7 @@ fn count_readiness(
 }
 
 fn count_evidence_classes(
-    entries: &[ocentra_parent_agent_protocol::HostIdentityReadModelEntry],
+    entries: &[ocentra_parent_agent_protocol::host_identity::HostIdentityReadModelEntry],
 ) -> BTreeMap<&'static str, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts

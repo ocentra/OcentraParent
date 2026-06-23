@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  authorizeSessionTokenAction,
-} from '../../src/session-lifecycle';
+import { authorizeSessionTokenAction } from '../../src/session-lifecycle';
 import {
   SessionActivityState,
   SessionCredentialKind,
@@ -13,10 +11,7 @@ import {
   TokenReplayState,
   TokenValidityWindowState,
 } from '@ocentra-parent/schema-domain/family-session-lifecycle';
-import {
-  AuditRequirementState,
-  SessionFreshnessState,
-} from '@ocentra-parent/schema-domain/family-household-authority';
+import { AuditRequirementState, SessionFreshnessState } from '@ocentra-parent/schema-domain/family-household-authority';
 
 describe('session token lifecycle contracts', () => {
   it('rejects replayed and invalid token windows', () => {
@@ -65,9 +60,7 @@ describe('session token lifecycle contracts', () => {
   });
 });
 
-function activeBrowserToken(
-  action: typeof SessionLifecycleAction[keyof typeof SessionLifecycleAction]
-) {
+function activeBrowserToken(action: (typeof SessionLifecycleAction)[keyof typeof SessionLifecycleAction]) {
   return SessionTokenInputSchema.parse({
     credentialKind: SessionCredentialKind.BrowserUserSession,
     action,

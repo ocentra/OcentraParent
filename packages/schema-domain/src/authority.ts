@@ -23,7 +23,7 @@ export const PolicyAuthoritySourceLiteral = {
   ActivityEvidence: 'activity-evidence',
 } as const;
 
-export const PolicyAuthorityStateLiteral = {
+const PolicyAuthorityStateLiteral = {
   Authorized: 'authorized',
   EvidenceOnly: 'evidence-only',
   DryRun: 'dry-run',
@@ -278,10 +278,7 @@ function validatePolicyOverrideGrant(
   }
 }
 
-function assertResolutionHasNoReviewOrOverrideArtifacts(
-  resolution: PolicyApprovalResolution,
-  message: string
-): void {
+function assertResolutionHasNoReviewOrOverrideArtifacts(resolution: PolicyApprovalResolution, message: string): void {
   assertAuthorityContract(
     resolution.reviewedBy === null &&
       resolution.reviewedAt === null &&
@@ -297,6 +294,80 @@ function assertResolutionHasNoReviewOverrideOrReplayArtifacts(
 ): void {
   assertResolutionHasNoReviewOrOverrideArtifacts(resolution, message);
   assertAuthorityContract(resolution.replayOfApprovalId === null, message);
+}
+
+function validatePolicyApprovalResolutionState(resolution: PolicyApprovalResolution, evaluatedAt: number): void {
+  switch (resolution.state) {
+    case PolicyApprovalState.Pending:
+      assertAuthorityContract(resolution.reviewedBy === null, 'pending approvals cannot have reviewedBy');
+      assertAuthorityContract(resolution.reviewedAt === null, 'pending approvals cannot have reviewedAt');
+      assertAuthorityContract(resolution.auditReferenceId === null, 'pending approvals cannot have auditReferenceId');
+      assertAuthorityContract(resolution.override === null, 'pending approvals cannot create overrides');
+      assertAuthorityContract(
+        resolution.replayOfApprovalId === null,
+        'pending approvals cannot point at replayOfApprovalId'
+      );
+      return;
+    case PolicyApprovalState.PreviewOnly:
+      assertAuthorityContract(
+        resolution.approval.origin === PolicyApprovalOrigin.AssistantDraft,
+        'preview-only approvals require assistant-draft origin'
+      );
+      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
+        resolution,
+        'preview-only approvals must remain unconfirmed and override-free'
+      );
+      return;
+    case PolicyApprovalState.ExpiredRequest:
+      assertAuthorityContract(
+        evaluatedAt >= parseTimestampMillis(resolution.approval.expiresAt, 'approval.expiresAt'),
+        'expired-request state requires evaluatedAt on or after approval.expiresAt'
+      );
+      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
+        resolution,
+        'expired-request state cannot include review or override artifacts'
+      );
+      return;
+    case PolicyApprovalState.ReplayRejected:
+      assertAuthorityContract(
+        resolution.replayOfApprovalId !== null,
+        'replay-rejected state requires replayOfApprovalId'
+      );
+      assertResolutionHasNoReviewOrOverrideArtifacts(
+        resolution,
+        'replay-rejected state cannot include review or override artifacts'
+      );
+      return;
+    case PolicyApprovalState.Denied:
+      assertAuthorityContract(resolution.reviewedBy !== null, 'denied approvals require reviewedBy');
+      assertAuthorityContract(resolution.reviewedAt !== null, 'denied approvals require reviewedAt');
+      assertAuthorityContract(resolution.auditReferenceId !== null, 'denied approvals require auditReferenceId');
+      assertAuthorityContract(resolution.override === null, 'denied approvals cannot create overrides');
+      assertAuthorityContract(
+        resolution.replayOfApprovalId === null,
+        'denied approvals cannot point at replayOfApprovalId'
+      );
+      return;
+    case PolicyApprovalState.Approved:
+    case PolicyApprovalState.Modified:
+      assertAuthorityContract(resolution.reviewedBy !== null, `${resolution.state} approvals require reviewedBy`);
+      assertAuthorityContract(resolution.reviewedAt !== null, `${resolution.state} approvals require reviewedAt`);
+      assertAuthorityContract(
+        resolution.auditReferenceId !== null,
+        `${resolution.state} approvals require auditReferenceId`
+      );
+      assertAuthorityContract(resolution.override !== null, `${resolution.state} approvals require an override grant`);
+      assertAuthorityContract(
+        resolution.replayOfApprovalId === null,
+        `${resolution.state} approvals cannot point at replayOfApprovalId`
+      );
+      assertAuthorityContract(
+        String(resolution.reviewedBy.actorId) !== String(resolution.approval.childProfile.childProfileId),
+        'child requests cannot self-approve or self-modify'
+      );
+      validatePolicyOverrideGrant(resolution.override, resolution.approval, evaluatedAt);
+      return;
+  }
 }
 
 export function resolvePolicyAuthority(input: PolicyAuthorityRequest): PolicyAuthorityDecision {
@@ -325,77 +396,7 @@ export function resolvePolicyApprovalLifecycle(input: unknown): PolicyApprovalRe
     assertAuthorityContract(reviewedAt <= evaluatedAt, 'reviewedAt cannot be after evaluatedAt');
   }
 
-  switch (resolution.state) {
-    case PolicyApprovalState.Pending:
-      assertAuthorityContract(resolution.reviewedBy === null, 'pending approvals cannot have reviewedBy');
-      assertAuthorityContract(resolution.reviewedAt === null, 'pending approvals cannot have reviewedAt');
-      assertAuthorityContract(resolution.auditReferenceId === null, 'pending approvals cannot have auditReferenceId');
-      assertAuthorityContract(resolution.override === null, 'pending approvals cannot create overrides');
-      assertAuthorityContract(
-        resolution.replayOfApprovalId === null,
-        'pending approvals cannot point at replayOfApprovalId'
-      );
-      break;
-    case PolicyApprovalState.PreviewOnly:
-      assertAuthorityContract(
-        resolution.approval.origin === PolicyApprovalOrigin.AssistantDraft,
-        'preview-only approvals require assistant-draft origin'
-      );
-      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
-        resolution,
-        'preview-only approvals must remain unconfirmed and override-free'
-      );
-      break;
-    case PolicyApprovalState.ExpiredRequest:
-      assertAuthorityContract(
-        evaluatedAt >= parseTimestampMillis(resolution.approval.expiresAt, 'approval.expiresAt'),
-        'expired-request state requires evaluatedAt on or after approval.expiresAt'
-      );
-      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
-        resolution,
-        'expired-request state cannot include review or override artifacts'
-      );
-      break;
-    case PolicyApprovalState.ReplayRejected:
-      assertAuthorityContract(
-        resolution.replayOfApprovalId !== null,
-        'replay-rejected state requires replayOfApprovalId'
-      );
-      assertResolutionHasNoReviewOrOverrideArtifacts(
-        resolution,
-        'replay-rejected state cannot include review or override artifacts'
-      );
-      break;
-    case PolicyApprovalState.Denied:
-      assertAuthorityContract(resolution.reviewedBy !== null, 'denied approvals require reviewedBy');
-      assertAuthorityContract(resolution.reviewedAt !== null, 'denied approvals require reviewedAt');
-      assertAuthorityContract(resolution.auditReferenceId !== null, 'denied approvals require auditReferenceId');
-      assertAuthorityContract(resolution.override === null, 'denied approvals cannot create overrides');
-      assertAuthorityContract(
-        resolution.replayOfApprovalId === null,
-        'denied approvals cannot point at replayOfApprovalId'
-      );
-      break;
-    case PolicyApprovalState.Approved:
-    case PolicyApprovalState.Modified:
-      assertAuthorityContract(resolution.reviewedBy !== null, `${resolution.state} approvals require reviewedBy`);
-      assertAuthorityContract(resolution.reviewedAt !== null, `${resolution.state} approvals require reviewedAt`);
-      assertAuthorityContract(
-        resolution.auditReferenceId !== null,
-        `${resolution.state} approvals require auditReferenceId`
-      );
-      assertAuthorityContract(resolution.override !== null, `${resolution.state} approvals require an override grant`);
-      assertAuthorityContract(
-        resolution.replayOfApprovalId === null,
-        `${resolution.state} approvals cannot point at replayOfApprovalId`
-      );
-      assertAuthorityContract(
-        String(resolution.reviewedBy.actorId) !== String(resolution.approval.childProfile.childProfileId),
-        'child requests cannot self-approve or self-modify'
-      );
-      validatePolicyOverrideGrant(resolution.override, resolution.approval, evaluatedAt);
-      break;
-  }
+  validatePolicyApprovalResolutionState(resolution, evaluatedAt);
 
   return resolution;
 }

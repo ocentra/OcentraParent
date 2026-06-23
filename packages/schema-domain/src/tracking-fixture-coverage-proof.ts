@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import {
   TrackingFixtureCoverageRequiredStates,
@@ -185,4 +180,3 @@ export type TrackingFixtureCoverageStateStatus = Infer<typeof TrackingFixtureCov
 export type TrackingFixtureCoverageRow = Infer<typeof TrackingFixtureCoverageRowSchema>;
 export type TrackingFixtureCoverageSummary = Infer<typeof TrackingFixtureCoverageSummarySchema>;
 export type TrackingFixtureCoverageReadModel = Infer<typeof TrackingFixtureCoverageReadModelSchema>;
-

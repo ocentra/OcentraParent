@@ -1,8 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, tracking_violation_id_from_ai_request_and_rule_ref,
-    tracking_violation_id_from_evaluation_and_rule_ref, TrackingExpectedPlaceStateEvaluatedEvent,
-    TrackingNearbyPlaceClassifiedEvent, TrackingParentActionRequirement, TrackingPolicyRuleRef,
-    TrackingPolicySeverity, TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId,
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_violation_id_from_ai_request_and_rule_ref,
+    tracking_violation_id_from_evaluation_and_rule_ref, TrackingChildDeviceId,
+    TrackingChildProfileId, TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicySeverity,
+    TrackingPolicyViolationId, TrackingTimestamp,
+};
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingExpectedPlaceStateEvaluatedEvent, TrackingNearbyPlaceClassifiedEvent,
+    TrackingParentActionRequirement, TrackingPolicyViolationDetectedEvent,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -80,12 +86,12 @@ fn tracking_expected_place_not_detected() -> TrackingExpectedPlacePolicyDecision
 }
 
 fn tracking_policy_violation_detected(
-    child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId,
-    child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId,
+    child_device_id: TrackingChildDeviceId,
+    child_profile_id: TrackingChildProfileId,
     violation_id: TrackingPolicyViolationId,
     policy_rule_ref: TrackingPolicyRuleRef,
-    detected_at: ocentra_parent_agent_protocol::TrackingTimestamp,
-    evidence_refs: Vec<ocentra_parent_agent_protocol::TrackingEvidenceRef>,
+    detected_at: TrackingTimestamp,
+    evidence_refs: Vec<TrackingEvidenceRef>,
 ) -> TrackingPolicyViolationDetectedEvent {
     TrackingPolicyViolationDetectedEvent {
         child_device_id,
@@ -95,7 +101,7 @@ fn tracking_policy_violation_detected(
         severity: TrackingPolicySeverity::parse(
             constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
         )
-        .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        .expect_value(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
         detected_at,
         evidence_refs,
     }
@@ -106,7 +112,7 @@ fn tracking_nearby_place_policy_violation_detected(
 ) -> TrackingPolicyViolationDetectedEvent {
     let policy_rule_ref =
         TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
-            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+            .expect_value(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     tracking_policy_violation_detected(
         event.child_device_id.clone(),
@@ -126,7 +132,7 @@ fn tracking_expected_place_policy_violation_detected(
 ) -> TrackingPolicyViolationDetectedEvent {
     let policy_rule_ref =
         TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
-            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+            .expect_value(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     tracking_policy_violation_detected(
         event.child_device_id.clone(),

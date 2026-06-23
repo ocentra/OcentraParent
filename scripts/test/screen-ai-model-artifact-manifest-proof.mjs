@@ -11,9 +11,8 @@ const generatedAt = new Date().toISOString();
 
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-const { buildScreenAiModelArtifactManifestProof } = await import(
-  '@ocentra-parent/schema-domain/screen-ai-model-artifact-manifest-proof'
-);
+const { buildScreenAiModelArtifactManifestProof } =
+  await import('@ocentra-parent/schema-domain/screen-ai-model-artifact-manifest-proof');
 
 const manifest = buildScreenAiModelArtifactManifestProof({
   schemaVersion: 'v0.6',

@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } from './local-ai';
 import { LocalAiEvidenceContextBuildRequestSchema } from './ai-context';
 import {
@@ -182,4 +176,3 @@ export function buildLocalAiPromptTemplateVersionProof(input: unknown): LocalAiP
     claimBoundaries: parsed.claimBoundaries,
   });
 }
-

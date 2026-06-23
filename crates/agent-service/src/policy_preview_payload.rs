@@ -1,7 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, LogFieldValue, LogFields, PolicyPreviewReadModel,
-    PolicyPreviewReadModelRow,
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyPreviewReadModel, PolicyPreviewReadModelRow,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 use crate::fields::fields_from_pairs;
 
@@ -46,6 +48,13 @@ fn read_model_pairs(read_model: &PolicyPreviewReadModel) -> Vec<FieldPair> {
 }
 
 fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
+    let mut pairs = row_identity_pairs(row);
+    pairs.extend(row_state_pairs(row));
+    pairs.extend(row_review_pairs(row));
+    pairs
+}
+
+fn row_identity_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
     vec![
         (
             constants::field::POLICY_PREVIEW_ID,
@@ -71,6 +80,23 @@ fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
             constants::field::POLICY_TARGET_VALUE,
             optional_string(row.map(|value| &value.target.target_value)),
         ),
+        (
+            constants::field::POLICY_EVIDENCE_REFERENCE_COUNT,
+            optional_u64(row.map(|value| value.evidence_references.len() as u64)),
+        ),
+        (
+            policy::PARENT_RULE_CONTEXT_REFERENCE_COUNT_FIELD,
+            optional_u64(row.map(|value| value.parent_rule_context_references.len() as u64)),
+        ),
+        (
+            policy::PARENT_RULE_CONTEXT_REF_IDS_FIELD,
+            optional_parent_rule_context_ref_ids(row),
+        ),
+    ]
+}
+
+fn row_state_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
+    vec![
         (
             constants::field::POLICY_PREVIEW_SAVE_STATE,
             optional_protocol_string(row.and_then(|value| {
@@ -145,6 +171,11 @@ fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
                     .map(|state| state.as_protocol_str())
             })),
         ),
+    ]
+}
+
+fn row_review_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
+    vec![
         (
             constants::field::POLICY_APPROVAL_ID,
             optional_string(row.and_then(|value| value.policy_approval_id.as_ref())),
@@ -172,18 +203,6 @@ fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
         (
             constants::field::POLICY_AUDIT_REFERENCE_ID,
             optional_string(row.and_then(|value| value.policy_audit_reference_id.as_ref())),
-        ),
-        (
-            constants::field::POLICY_EVIDENCE_REFERENCE_COUNT,
-            optional_u64(row.map(|value| value.evidence_references.len() as u64)),
-        ),
-        (
-            policy::PARENT_RULE_CONTEXT_REFERENCE_COUNT_FIELD,
-            optional_u64(row.map(|value| value.parent_rule_context_references.len() as u64)),
-        ),
-        (
-            policy::PARENT_RULE_CONTEXT_REF_IDS_FIELD,
-            optional_parent_rule_context_ref_ids(row),
         ),
     ]
 }

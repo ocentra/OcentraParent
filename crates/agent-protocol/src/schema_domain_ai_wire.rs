@@ -10,77 +10,17 @@ pub type LocalAiEvidenceContextId = String;
 pub type LocalAiEvidenceContextSummary = String;
 pub type LocalAiRejectedField = String;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiProviderPrivacyMode {
-    LocalOnly,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiAdapterBoundary {
-    StatusOnly,
-    LocalAdapterUnavailable,
-    LocalAdapterReady,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiExecutionState {
-    Disabled,
-    DryRunReady,
-    Running,
-    Failed,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiProviderSource {
-    Unavailable,
-    LocalConfig,
-    LocalModelCache,
-    OsCapabilityProbe,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiAdapterProbeState {
-    ProbeUnavailable,
-    ProbeReady,
-    ProbeFailed,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiProviderConfigurationState {
-    LocalProviderUnconfigured,
-    LocalProviderConfigured,
-    LocalProviderConfigInvalid,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiAdapterReadinessState {
-    AdapterNotReady,
-    AdapterReady,
-    AdapterReadinessInvalid,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiMemoryReferenceKind {
-    EvidenceMemory,
-    RecentActivity,
-    PolicyMemory,
-    SemanticMemory,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum LocalAiGraphReferenceKind {
-    GraphEntity,
-    GraphEdge,
-}
+pub type LocalAiProviderPrivacyMode = crate::local_ai_runtime_boundary::LocalAiProviderPrivacyMode;
+pub type LocalAiAdapterBoundary = crate::local_ai_runtime_boundary::LocalAiAdapterBoundary;
+pub type LocalAiExecutionState = crate::local_ai_runtime_boundary::LocalAiExecutionState;
+pub type LocalAiProviderSource = crate::local_ai_runtime_boundary::LocalAiProviderSource;
+pub type LocalAiAdapterProbeState = crate::local_ai_runtime_boundary::LocalAiAdapterProbeState;
+pub type LocalAiProviderConfigurationState =
+    crate::local_ai_runtime_boundary::LocalAiProviderConfigurationState;
+pub type LocalAiAdapterReadinessState =
+    crate::local_ai_runtime_boundary::LocalAiAdapterReadinessState;
+pub type LocalAiMemoryReferenceKind = crate::activity::local_ai::LocalAiMemoryReferenceKind;
+pub type LocalAiGraphReferenceKind = crate::activity::local_ai::LocalAiGraphReferenceKind;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

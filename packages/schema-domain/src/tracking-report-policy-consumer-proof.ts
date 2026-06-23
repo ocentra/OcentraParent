@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingEvidenceTraceSchema, TrackingPolicyDecisionSchema } from './tracking-location-policy';
 import {
@@ -14,11 +9,17 @@ import {
 
 export const TrackingReportPolicyConsumerRowIdSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerRowId');
 
-export const TrackingReportPolicyConsumerProofRefSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerProofRef');
+export const TrackingReportPolicyConsumerProofRefSchema = brandedNonEmptyStringSchema(
+  'TrackingReportPolicyConsumerProofRef'
+);
 
-export const TrackingReportPolicyConsumerJournalRefSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerJournalRef');
+export const TrackingReportPolicyConsumerJournalRefSchema = brandedNonEmptyStringSchema(
+  'TrackingReportPolicyConsumerJournalRef'
+);
 
-export const TrackingReportPolicyConsumerReadModelRowRefSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerReadModelRowRef');
+export const TrackingReportPolicyConsumerReadModelRowRefSchema = brandedNonEmptyStringSchema(
+  'TrackingReportPolicyConsumerReadModelRowRef'
+);
 
 export const TrackingReportPolicyConsumerKindSchema = withParser(
   Schema.Literal('parent-report-summary', 'policy-evidence-drill-in', 'retention-audit-export')
@@ -248,4 +249,3 @@ function evidence(
     observedAt,
   });
 }
-

@@ -3,7 +3,10 @@ use std::net::Ipv4Addr;
 use std::process::{Command, Stdio};
 use std::sync::{Mutex, OnceLock};
 
-use ocentra_parent_agent_protocol::{constants, LanPairingDeviceReachability, LanPairingDeviceRef};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingDeviceReachability, LanPairingDeviceRef,
+};
 
 use crate::lan_network_inventory_command::{
     command_json_records, command_stdout, normalize_mac_address, record_text, value_text,
@@ -20,10 +23,13 @@ struct LanNeighborIdentityCacheEntry {
     platform: Option<String>,
 }
 
+pub(crate) type LanNetworkInventoryDeviceIdentifier = String;
+pub(crate) type LanNetworkInventoryDisplayLabel = String;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LanNetworkInventoryDevice {
-    pub(crate) device_id: String,
-    pub(crate) label: String,
+    pub(crate) device_id: LanNetworkInventoryDeviceIdentifier,
+    pub(crate) label: LanNetworkInventoryDisplayLabel,
     pub(crate) platform: String,
     pub(crate) ip_address: String,
     pub(crate) mac_address: String,
@@ -36,14 +42,17 @@ pub(crate) fn discover_lan_network_devices() -> Vec<LanNetworkInventoryDevice> {
     windows_lan_neighbors()
 }
 
-pub(crate) fn local_agent_device_ref(device_id: String, platform: String) -> LanPairingDeviceRef {
+pub(crate) fn local_agent_device_ref(
+    local_device_id: String,
+    platform: String,
+) -> LanPairingDeviceRef {
     let hardware_profile = local_hardware_profile();
     let network_identity = local_network_identity();
     let hostname = hardware_profile.hostname.clone();
     let label = hostname
         .clone()
         .unwrap_or_else(|| constants::lan_pairing::LOCAL_AGENT_LABEL.to_string());
-    let mut device = LanPairingDeviceRef::new(device_id, None, label, platform);
+    let mut device = LanPairingDeviceRef::new(local_device_id, None, label, platform);
     device.hostname = hostname;
     if let Some(identity) = network_identity {
         device.ip_address = identity.ip_address;
@@ -68,17 +77,17 @@ fn windows_lan_neighbors() -> Vec<LanNetworkInventoryDevice> {
         ],
     )
     .into_iter()
-    .filter_map(|record| network_device_from_windows_neighbor(record, &netbios_names))
+    .filter_map(|record| network_device_from_windows_neighbor(&record, &netbios_names))
     .collect()
 }
 
 fn network_device_from_windows_neighbor(
-    record: serde_json::Value,
+    record: &serde_json::Value,
     netbios_names: &HashMap<String, String>,
 ) -> Option<LanNetworkInventoryDevice> {
-    let ip_address = record_text(&record, constants::lan_pairing::JSON_KEY_IP_ADDRESS)?;
-    let mac_address = normalize_mac_address(record_text(
-        &record,
+    let ip_address = record_text(record, constants::lan_pairing::JSON_KEY_IP_ADDRESS)?;
+    let mac_address = normalize_mac_address(&record_text(
+        record,
         constants::lan_pairing::JSON_KEY_LINK_LAYER_ADDRESS,
     )?)?;
     let ip = ip_address.parse::<Ipv4Addr>().ok()?;
@@ -101,7 +110,7 @@ fn network_device_from_windows_neighbor(
     );
     let reachability =
         reachability_from_windows_state(record.get(constants::lan_pairing::JSON_KEY_STATE));
-    let dns_hostname = record_text(&record, constants::lan_pairing::JSON_KEY_HOSTNAME)
+    let dns_hostname = record_text(record, constants::lan_pairing::JSON_KEY_HOSTNAME)
         .map(|value| value.trim_end_matches('.').to_string())
         .filter(|value| !value.is_empty());
     let netbios_cache_hostname = netbios_names.get(&ip_address).cloned();
@@ -145,7 +154,7 @@ fn network_device_from_windows_neighbor(
         ip_address,
         mac_address,
         hostname,
-        network_interface: record_text(&record, constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS),
+        network_interface: record_text(record, constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS),
         reachability,
     })
 }
@@ -317,14 +326,24 @@ mod tests {
         if let Some(cache) = NEIGHBOR_HOSTNAME_CACHE.get() {
             cache
                 .lock()
-                .expect(constants::lan_pairing::TEST_NEIGHBOR_CACHE_LOCK_EXPECT)
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "{}",
+                        constants::lan_pairing::TEST_NEIGHBOR_CACHE_LOCK_EXPECT
+                    )
+                })
                 .clear();
         }
         let named = network_device_from_windows_neighbor(
-            neighbor_record(Some(constants::lan_pairing::TEST_HOSTNAME)),
+            &neighbor_record(Some(constants::lan_pairing::TEST_HOSTNAME)),
             &HashMap::new(),
         )
-        .expect(constants::lan_pairing::TEST_NAMED_NEIGHBOR_ROW_PARSE_EXPECT);
+        .unwrap_or_else(|| {
+            panic!(
+                "{}",
+                constants::lan_pairing::TEST_NAMED_NEIGHBOR_ROW_PARSE_EXPECT
+            )
+        });
 
         assert_eq!(
             named.hostname,
@@ -332,8 +351,13 @@ mod tests {
         );
         assert_eq!(named.label, constants::lan_pairing::TEST_HOSTNAME);
 
-        let unnamed = network_device_from_windows_neighbor(neighbor_record(None), &HashMap::new())
-            .expect(constants::lan_pairing::TEST_UNNAMED_NEIGHBOR_ROW_PARSE_EXPECT);
+        let unnamed = network_device_from_windows_neighbor(&neighbor_record(None), &HashMap::new())
+            .unwrap_or_else(|| {
+                panic!(
+                    "{}",
+                    constants::lan_pairing::TEST_UNNAMED_NEIGHBOR_ROW_PARSE_EXPECT
+                )
+            });
 
         assert_eq!(
             unnamed.hostname,

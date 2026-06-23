@@ -1,11 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, AppGameSessionSummary, LogFieldValue, LogFields,
-    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameSessionSummary, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
     APP_GAME_CLASSIFICATION_PERMISSION_LIMITED, APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
     APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE,
     APP_GAME_CONFIDENCE_UNKNOWN, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_SESSION_END_REASON_PROCESS_EXIT, APP_GAME_SESSION_ID_PREFIX,
+    APP_GAME_OBSERVATION_MODE_PROCESS_EXIT, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_SESSION_END_REASON_PROCESS_EXIT, APP_GAME_SESSION_ID_PREFIX,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::activity_store_app_game_rows::AppGameStoreRow;
 
@@ -87,8 +90,7 @@ impl AppGameObservation {
     }
 
     pub(crate) fn is_process_exit(&self) -> bool {
-        self.observation_mode.as_deref()
-            == Some(ocentra_parent_agent_protocol::APP_GAME_OBSERVATION_MODE_PROCESS_EXIT)
+        self.observation_mode.as_deref() == Some(APP_GAME_OBSERVATION_MODE_PROCESS_EXIT)
     }
 }
 

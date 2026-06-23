@@ -42,7 +42,7 @@ fn schema_domain_mirrors_family_policy_set_serializes_to_typescript_shape() {
         rules: vec![],
         schedules: vec![],
     })
-    .expect("schema domain mirror serializes");
+    .unwrap_or_else(|error| unreachable!("schema domain mirror serializes: {error:?}"));
 
     assert_eq!(value["schemaVersion"], "v0.6");
     assert_eq!(value["family"]["familyId"], "family-1");
@@ -60,7 +60,7 @@ fn schema_domain_mirrors_parent_references_use_current_typescript_literals() {
         kind: ParentEvidenceReferenceKind::QueryStoreSummary,
         observed_at: "2026-06-20T18:00:00.000Z".to_string(),
     })
-    .expect("parent evidence mirror serializes");
+    .unwrap_or_else(|error| unreachable!("parent evidence mirror serializes: {error:?}"));
 
     let action = serde_json::to_value(ParentActionReference {
         action_reference_id: "action-1".to_string(),
@@ -71,7 +71,7 @@ fn schema_domain_mirrors_parent_references_use_current_typescript_literals() {
         policy_version: "policy-v1".to_string(),
         created_at: "2026-06-20T18:01:00.000Z".to_string(),
     })
-    .expect("parent action mirror serializes");
+    .unwrap_or_else(|error| unreachable!("parent action mirror serializes: {error:?}"));
 
     assert_eq!(evidence["evidenceReferenceId"], "evidence-1");
     assert_eq!(evidence["kind"], "query-store-summary");
@@ -164,7 +164,7 @@ fn schema_domain_mirrors_notification_outbox_proof_uses_current_typescript_liter
         cloud_routing_claimed: false,
         parent_notification_ui_claimed: false,
     })
-    .expect("notification outbox proof mirror serializes");
+    .unwrap_or_else(|error| unreachable!("notification outbox proof mirror serializes: {error:?}"));
 
     assert_eq!(
         value["schemaVersion"],
@@ -262,11 +262,12 @@ fn schema_domain_mirrors_policy_preview_boundary_uses_current_typescript_shape()
             expires_at: Some("2026-06-21T11:00:00.000Z".to_string()),
         },
     })
-    .expect("policy preview mirror serializes");
+    .unwrap_or_else(|error| unreachable!("policy preview mirror serializes: {error:?}"));
 
     let budget_boundary_state =
-        serde_json::to_value(PolicyPreviewBudgetBoundaryState::BonusTimeExpiring)
-            .expect("policy preview budget boundary state serializes");
+        serde_json::to_value(PolicyPreviewBudgetBoundaryState::BonusTimeExpiring).unwrap_or_else(
+            |error| unreachable!("policy preview budget boundary state serializes: {error:?}"),
+        );
 
     assert_eq!(preview["origin"], "assistant-preview");
     assert_eq!(preview["confirmationState"], "confirmed");

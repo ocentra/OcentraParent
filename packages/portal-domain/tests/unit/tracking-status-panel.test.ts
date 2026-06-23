@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/schema-domain/activity-query';
+import { ActivityEventKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import {
   trackingStatusLiveSummary,
   trackingStatusServiceDataCoverage,
@@ -101,7 +102,7 @@ function trackingReadModel() {
         deviceId: 'child-device-1',
         platform: 'android',
         observer: 'tracking-retention',
-        kind: 'activity.tracking.retention.deleted',
+        kind: ActivityEventKind.TrackingRetentionDeleted,
         subjectKind: 'location-evidence',
         subjectId: 'location-evidence-1',
         subjectDisplayName: null,

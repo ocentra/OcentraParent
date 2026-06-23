@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -16,12 +11,17 @@ export const TrackingRetentionRuntimeArtifactGateStatusSchema = Schema.Literal(
   'artifact-set-present'
 );
 
-export const TrackingRetentionRuntimeArtifactGatePathSchema = brandedNonEmptyStringSchema('TrackingRetentionRuntimeArtifactGatePath');
+export const TrackingRetentionRuntimeArtifactGatePathSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionRuntimeArtifactGatePath'
+);
 
-export const TrackingRetentionRuntimeArtifactGateRowIdSchema = brandedNonEmptyStringSchema('TrackingRetentionRuntimeArtifactGateRowId');
+export const TrackingRetentionRuntimeArtifactGateRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionRuntimeArtifactGateRowId'
+);
 
-export const TrackingRetentionRuntimeArtifactGateArtifactRefSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionRuntimeArtifactGateArtifactRef');
+export const TrackingRetentionRuntimeArtifactGateArtifactRefSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionRuntimeArtifactGateArtifactRef'
+);
 
 export const TrackingRetentionRuntimeArtifactGateBlockerSchema = Schema.Literal(
   ...RequiredTrackingRetentionRuntimeProductBlockers
@@ -213,4 +213,3 @@ function retentionRuntimeArtifactRow(
     productClaimReady: false,
   });
 }
-

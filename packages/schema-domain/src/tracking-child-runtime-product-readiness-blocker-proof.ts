@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import {
   TrackingChildRuntimeSnapshotRequirementsReadModelSchema,
@@ -16,8 +10,9 @@ import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tra
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
 const TrackingChildRuntimeProductReadinessCounterSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingChildRuntimeProductReadinessBlockerProofIdSchema =
-  brandedNonEmptyStringSchema('TrackingChildRuntimeProductReadinessBlockerProofId');
+export const TrackingChildRuntimeProductReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingChildRuntimeProductReadinessBlockerProofId'
+);
 
 export const TrackingChildRuntimeProductReadinessBlockerSchema = Schema.Literal(
   'child-device-delivery-runtime-proof-required',
@@ -469,4 +464,3 @@ function trackingChildRuntimeProductReadinessBlockerRowNonClaimsAreHonest(
     row.productReadyClaimed === false
   );
 }
-

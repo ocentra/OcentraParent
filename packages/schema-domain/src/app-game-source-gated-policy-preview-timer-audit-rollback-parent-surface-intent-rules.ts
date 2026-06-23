@@ -166,4 +166,3 @@ export const appGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceInten
   (readModelState === AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState.BlockedByCompilerDecision &&
     intentState ===
       AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentState.BlockedByCompilerDecision);
-

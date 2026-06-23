@@ -1,7 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    ActivityEvidenceKind, ActivityEvidenceRef, AppGameServiceReadModel,
-    APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE, APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
-    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameServiceReadModel, APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
+    APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
 };
 
 pub(super) fn policy_evidence_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {

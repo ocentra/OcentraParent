@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
@@ -13,12 +8,24 @@ import {
 } from './capabilities';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofReadModelId');
-export const V08BrowserEnforcementTimerRecoveryProofEntryIdSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofEntryId');
-export const V08BrowserEnforcementTimerRecoveryProofReferenceSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofReference');
-export const V08BrowserEnforcementTimerRecoveryProofRequirementSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofRequirement');
-export const V08BrowserEnforcementTimerRecoveryProofBoundarySchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofBoundary');
-export const V08BrowserEnforcementTimerRecoveryProofFallbackSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofFallback');
+export const V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofReadModelId'
+);
+export const V08BrowserEnforcementTimerRecoveryProofEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofEntryId'
+);
+export const V08BrowserEnforcementTimerRecoveryProofReferenceSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofReference'
+);
+export const V08BrowserEnforcementTimerRecoveryProofRequirementSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofRequirement'
+);
+export const V08BrowserEnforcementTimerRecoveryProofBoundarySchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofBoundary'
+);
+export const V08BrowserEnforcementTimerRecoveryProofFallbackSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofFallback'
+);
 
 export const V08TimerRecoverySurfaceSchema = withParser(
   Schema.Literal(

@@ -5,12 +5,10 @@ const ChildRuntimeTransportReceiptCount = Schema.Number.pipe(Schema.nonNegative(
 export const AgentAppGameChildRuntimeTransportReceiptSchemaVersion = 1;
 export const AgentAppGameChildRuntimeTransportReceiptPayloadField =
   'appGameChildRuntimeTransportReceiptReadModel' as const;
-export const AgentAppGameChildRuntimeTransportReceiptReadModelId =
-  'app-game-child-runtime-transport-receipt' as const;
+export const AgentAppGameChildRuntimeTransportReceiptReadModelId = 'app-game-child-runtime-transport-receipt' as const;
 export const AgentAppGameChildRuntimeTransportReceiptSourceRuntimeWriterRef =
   'app-game-child-device-runtime-writer' as const;
-export const AgentAppGameChildRuntimeTransportReceiptCustodyLabel =
-  'app-game-child-runtime-transport-receipt' as const;
+export const AgentAppGameChildRuntimeTransportReceiptCustodyLabel = 'app-game-child-runtime-transport-receipt' as const;
 export const AgentAppGameChildRuntimeTransportReceiptCapabilityStatus =
   'app-game-child-runtime-transport-required' as const;
 export const AgentAppGameChildRuntimeTransportReceiptTransportContractRef =
@@ -21,8 +19,7 @@ export const AgentAppGameChildRuntimeTransportReceiptGapTransportNotExecuted =
   'child-runtime-transport-not-executed' as const;
 export const AgentAppGameChildRuntimeTransportReceiptGapReceiptNotIngested =
   'child-runtime-receipt-not-ingested' as const;
-export const AgentAppGameChildRuntimeTransportReceiptGapProviderNotExecuted =
-  'provider-delivery-not-executed' as const;
+export const AgentAppGameChildRuntimeTransportReceiptGapProviderNotExecuted = 'provider-delivery-not-executed' as const;
 export const AgentAppGameChildRuntimeTransportReceiptGapPlatformChannelNotProved =
   'platform-delivery-channel-not-proved' as const;
 
@@ -196,9 +193,7 @@ function childRuntimeTransportReceiptRowIsHonest(row: AgentAppGameChildRuntimeTr
     row.productMeanings.includes('native-game') &&
     row.requiredTransportRefs.length > 0 &&
     row.requiredReceiptRefs.length > 0 &&
-    row.openGaps.some(
-      (gap: string) => gap === AgentAppGameChildRuntimeTransportReceiptGapTransportNotExecuted
-    ) &&
+    row.openGaps.some((gap: string) => gap === AgentAppGameChildRuntimeTransportReceiptGapTransportNotExecuted) &&
     !row.runtimeTransportExecuted &&
     !row.runtimeReceiptIngested &&
     !row.providerDeliveryExecuted &&

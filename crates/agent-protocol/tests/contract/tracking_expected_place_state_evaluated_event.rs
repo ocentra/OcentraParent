@@ -1,21 +1,31 @@
 use ocentra_eventing::envelope::DomainEvent;
-use ocentra_parent_agent_protocol::{
-    constants, TrackingChildDeviceId, TrackingChildProfileId, TrackingEvaluationId,
-    TrackingEvidenceRef, TrackingExpectedPlaceExceptionState, TrackingExpectedPlaceRef,
-    TrackingExpectedPlaceState, TrackingExpectedPlaceStateEvaluatedEvent,
-    TrackingParentActionRequirement, TrackingScheduleId, TrackingTimestamp,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    TrackingChildDeviceId, TrackingChildProfileId, TrackingEvaluationId, TrackingEvidenceRef,
+    TrackingExpectedPlaceRef, TrackingExpectedPlaceState, TrackingObservationId,
+    TrackingScheduleId, TrackingTimestamp,
+};
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingExpectedPlaceExceptionState, TrackingExpectedPlaceStateEvaluatedEvent,
+    TrackingParentActionRequirement,
 };
 
 #[test]
 fn expected_place_event_uses_tracking_contract_and_idempotency() {
     let event = expected_place_fixture(None);
 
-    let contract = event
-        .contract()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
-    let idempotency = event
-        .idempotency_key()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let contract = event.contract().unwrap_or_else(|error| {
+        unreachable!(
+            "{}: {error:?}",
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
+        )
+    });
+    let idempotency = event.idempotency_key().unwrap_or_else(|error| {
+        unreachable!(
+            "{}: {error:?}",
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
+        )
+    });
 
     assert_eq!(
         contract.event_type.as_str(),
@@ -35,8 +45,9 @@ fn expected_place_event_uses_tracking_contract_and_idempotency() {
 fn expected_place_event_serializes_grace_tolerance_and_exception_citations() {
     let event = expected_place_fixture(Some(TrackingExpectedPlaceExceptionState::HolidayMode));
 
-    let serialized =
-        serde_json::to_value(&event).expect("tracking expected-place event serializes");
+    let serialized = serde_json::to_value(&event).unwrap_or_else(|error| {
+        unreachable!("tracking expected-place event serializes: {error:?}")
+    });
 
     assert_eq!(
         serialized["expectedPlaceRef"],
@@ -64,35 +75,75 @@ fn expected_place_fixture(
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID
+            )
+        }),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID
+            )
+        }),
         evaluation_id: TrackingEvaluationId::parse(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID
+            )
+        }),
         schedule_id: TrackingScheduleId::parse(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID
+            )
+        }),
         expected_place_ref: TrackingExpectedPlaceRef::parse(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF),
-        source_observation_id: ocentra_parent_agent_protocol::TrackingObservationId::parse(
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF
+            )
+        }),
+        source_observation_id: TrackingObservationId::parse(
             constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_OBSERVATION_ID
+            )
+        }),
         source_observed_at: TrackingTimestamp::parse(
             constants::tracking_runtime::DEFAULT_OBSERVED_AT,
         )
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_OBSERVED_AT
+            )
+        }),
         expected_place_state: TrackingExpectedPlaceState::parse(
             constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED,
         )
-        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED
+            )
+        }),
         distance_tolerance_meters: Some(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_DISTANCE_TOLERANCE_METERS,
         ),
@@ -104,7 +155,12 @@ fn expected_place_fixture(
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_EVIDENCE_REF
+            )
+        })],
         parent_action_requirement: TrackingParentActionRequirement::NotRequired,
     }
 }

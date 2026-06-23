@@ -189,6 +189,28 @@ Required artifacts:
 16-validation-commands.log
 ```
 
+## Partial-proof boundary
+
+The restored proof root may prove selected MCP tools and CLI/MCP parity. It does not prove all MCP tools, all scopes, all artifact-slice cases, package parity, Rust logging-core behavior, validation wrapper completion, or product telemetry readiness.
+
+Required proof metadata for closeout:
+
+```text
+mcp_tool_list_state
+latest_failures_state
+run_diagnostics_state
+artifact_slice_state
+cli_mcp_parity_state
+bounded_output_state
+path_boundary_state
+stale_ingest_state
+missing_data_state
+checklist_closeout_state
+no_claim
+```
+
+If a proof root exists but checklist rows remain unchecked, record `partial-proof` instead of DONE.
+
 ## Checklist rows
 
 - [ ] Existing parent MCP framework audited.
@@ -196,16 +218,16 @@ Required artifacts:
 - [ ] MCP source/query service designed around existing DuckDB/NDJSON query path.
 - [ ] MCP server script added or existing server extended.
 - [ ] `mcp:logging` package/root script added.
-- [ ] `get_errors` implemented.
-- [ ] `get_recent_logs` implemented.
-- [ ] `get_logs_by_source` implemented.
-- [ ] `get_logs_by_context` implemented.
-- [ ] `query_logs` implemented.
-- [ ] `get_log_stats` implemented.
-- [ ] `get_latest_failures` implemented.
-- [ ] `get_run_diagnostics` implemented.
-- [ ] `get_artifact_slice` implemented with bounded output.
-- [ ] MCP and CLI share query/data-access code.
+- [ ] Error query tool implemented.
+- [ ] Recent logs query tool implemented.
+- [ ] Source filter query tool implemented.
+- [ ] Context filter query tool implemented.
+- [ ] Flexible query tool implemented.
+- [ ] Stats query tool implemented.
+- [ ] Latest failures query tool implemented.
+- [ ] Run diagnostics query tool implemented.
+- [ ] Bounded local file slice query tool implemented.
+- [ ] MCP and CLI share data access code.
 - [ ] MCP smoke tests pass.
 - [ ] Agent guidance documents MCP-first, CLI-fallback behavior.
 - [ ] Proof root and workpack completion section filled.
@@ -253,40 +275,17 @@ Known gaps/manual-required states:
 
 ## Current audit note
 
-Focused checks observed in this checkout:
-
-```text
-- node scripts/dev/mcp-logging-server.mjs --list-tools -> pass
-- node scripts/dev/mcp-logging-server.mjs --smoke latest-failures with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
-- node scripts/dev/mcp-logging-server.mjs --smoke run-diagnostics with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
-- node scripts/dev/mcp-logging-server.mjs --smoke artifact-slice with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
-- node scripts/dev/agent-query.mjs latest-failures with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
-- node scripts/dev/agent-query.mjs by-run <seeded-run-id> with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
-- cmd /c npx vitest run packages/logging-domain/tests/integration/mcp-query-interface.test.ts -> pass
-```
-
-What this actually proves:
-
-```text
-- the MCP server starts locally
-- the tool list is present
-- fresh-root latest-failures, run-diagnostics, and bounded artifact-slice paths work against deterministic local evidence under test-results/logging-domain-parity-mcp/
-- CLI and MCP can both resolve the same seeded failing run from the canonical custom root
-- the package has at least one dedicated MCP integration test
-- output/logging-domain-parity-proof/07-mcp-query-interface/ and test-results/logging-domain-parity-mcp/ now exist in this checkout
-```
+Focused checks observed in this checkout include local MCP tool listing and smoke tests for latest failures, run diagnostics, artifact slice, and CLI/MCP query parity. Treat those as bounded MCP query proof only.
 
 What this does not yet prove:
 
 ```text
-- full WP07 checklist closeout
-- dedicated proof artifacts for stale-ingest recovery beyond the current integration and smoke inventory
-- repo-wide MCP adoption or whole-plan parity
-```
-
-Required next step for truthful closeout:
-
-```text
-- decide whether the current proof inventory is sufficient to check remaining WP07 rows or add one narrow stale-ingest-recovery proof artifact
-- keep WP07 scoped to the MCP/query surface and do not broaden into WP06 checker hardening from this workpack
+all MCP tools complete
+all scopes complete
+all artifact slice cases complete
+package parity complete
+Rust logging-core complete
+validation wrapper complete
+product telemetry ready
+checklist closeout complete
 ```

@@ -7,11 +7,12 @@ use crate::{
     NetworkEvidencePolicyMode, NetworkInterventionState, NetworkLocalAiQueueStatus,
     NetworkRiskBudgetState,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
-    let proof =
-        prove_network_end_to_end_pipeline(pipeline_input()).expect("pipeline proof should build");
+    let proof = prove_network_end_to_end_pipeline(pipeline_input())
+        .expect_value("pipeline proof should build");
 
     assert_eq!(proof.trigger_ref, "trigger:network:flow:1");
     assert_eq!(proof.capture_ref, "capture:network:bounded:1");
@@ -42,7 +43,7 @@ fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
             .local_ai_queue
             .job
             .as_ref()
-            .expect("local AI job should be queued")
+            .expect_value("local AI job should be queued")
             .trigger_ref,
         "trigger:network:flow:1"
     );
@@ -83,8 +84,8 @@ fn end_to_end_pipeline_carries_refs_from_trigger_to_retention_export() {
 
 #[test]
 fn end_to_end_pipeline_keeps_weak_evidence_non_enforcing() {
-    let proof =
-        prove_network_end_to_end_pipeline(pipeline_input()).expect("pipeline proof should build");
+    let proof = prove_network_end_to_end_pipeline(pipeline_input())
+        .expect_value("pipeline proof should build");
 
     assert_eq!(
         proof.policy_mapping.mode,
@@ -120,7 +121,8 @@ fn end_to_end_pipeline_carries_dry_run_action_result_state() {
     let mut input = pipeline_input();
     input.adapter_dry_run = true;
 
-    let proof = prove_network_end_to_end_pipeline(input).expect("pipeline proof should build");
+    let proof =
+        prove_network_end_to_end_pipeline(input).expect_value("pipeline proof should build");
 
     assert_eq!(
         proof.adapter_proof.proof_state,
@@ -139,7 +141,8 @@ fn end_to_end_pipeline_carries_unavailable_action_result_state() {
     let mut input = pipeline_input();
     input.adapter_capability_state = NetworkDnsAdapterCapabilityState::Unavailable;
 
-    let proof = prove_network_end_to_end_pipeline(input).expect("pipeline proof should build");
+    let proof =
+        prove_network_end_to_end_pipeline(input).expect_value("pipeline proof should build");
 
     assert_eq!(
         proof.adapter_proof.proof_state,
@@ -159,7 +162,8 @@ fn end_to_end_pipeline_keeps_unavailable_evidence_non_enforcing() {
     input.sources[0].signal_strength = NetworkCascadeSignalStrength::Unavailable;
     input.sources[0].evidence_grade = NetworkEvidenceGrade::D;
 
-    let proof = prove_network_end_to_end_pipeline(input).expect("pipeline proof should build");
+    let proof =
+        prove_network_end_to_end_pipeline(input).expect_value("pipeline proof should build");
 
     assert_eq!(
         proof.local_ai_queue.status,

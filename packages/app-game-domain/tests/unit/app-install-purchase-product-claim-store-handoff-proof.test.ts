@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimStoreHandoffProofSchema,
   AppInstallPurchaseProductClaimStoreHandoffRowSchema,
   summarizeAppInstallPurchaseProductClaimStoreHandoffProof,
-} from '../../src/app-install-purchase-product-claim-store-handoff-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-store-handoff-proof';
 
 describe('app install purchase product claim store handoff proof', () => {
   acceptsStoreHandoffRows();

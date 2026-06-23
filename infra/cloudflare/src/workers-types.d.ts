@@ -1,4 +1,4 @@
-declare module "@cloudflare/workers-types" {
+declare module '@cloudflare/workers-types' {
   export interface AnalyticsEngineDataset {
     writeDataPoint(data: {
       indexes?: ReadonlyArray<string>;
@@ -15,7 +15,7 @@ declare module "@cloudflare/workers-types" {
   export interface D1Database {
     prepare(query: string): D1PreparedStatement;
     batch(
-      statements: ReadonlyArray<D1PreparedStatement>,
+      statements: ReadonlyArray<D1PreparedStatement>
     ): Promise<ReadonlyArray<{ results: ReadonlyArray<unknown>; success: true }>>;
     exec(query: string): Promise<{ count: number; duration: number }>;
   }
@@ -29,7 +29,7 @@ declare module "@cloudflare/workers-types" {
   }
   export interface DurableObjectState {}
   export interface KVNamespace {
-    get(key: string, type?: "text" | "json"): Promise<unknown>;
+    get(key: string, type?: 'text' | 'json'): Promise<unknown>;
     put(key: string, value: string): Promise<void>;
   }
   export interface Queue {

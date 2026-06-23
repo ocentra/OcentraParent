@@ -17,23 +17,13 @@ describe('agent policy control audit redaction', () => {
     expect(redacted.parentVisibleState).toBe('manual-required');
     expect(redacted.reasonCodes).toEqual(['permission-loss', 'manual-portal-follow-up']);
     expect(redacted.auditRefs).toEqual(['audit-ref-policy-control-network-manual-required']);
-    expect(redacted.manualProofRequirements).toEqual([
-      'child-device-admin-permission-regrant',
-    ]);
-    expect(redacted.childDisplayName).toBe(
-      PolicyControlAuditRedactionPlaceholder.ChildIdentity
-    );
-    expect(redacted.accountLocator).toBe(
-      PolicyControlAuditRedactionPlaceholder.AccountIdentity
-    );
-    expect(redacted.policyTargetValue).toBe(
-      PolicyControlAuditRedactionPlaceholder.PolicyTarget
-    );
+    expect(redacted.manualProofRequirements).toEqual(['child-device-admin-permission-regrant']);
+    expect(redacted.childDisplayName).toBe(PolicyControlAuditRedactionPlaceholder.ChildIdentity);
+    expect(redacted.accountLocator).toBe(PolicyControlAuditRedactionPlaceholder.AccountIdentity);
+    expect(redacted.policyTargetValue).toBe(PolicyControlAuditRedactionPlaceholder.PolicyTarget);
     expect(redacted.rawUrl).toBe(PolicyControlAuditRedactionPlaceholder.RawUrl);
     expect(redacted.secretToken).toBe(PolicyControlAuditRedactionPlaceholder.Secret);
-    expect(redacted.providerDetail).toBe(
-      PolicyControlAuditRedactionPlaceholder.ProviderDetail
-    );
+    expect(redacted.providerDetail).toBe(PolicyControlAuditRedactionPlaceholder.ProviderDetail);
     expect(redacted.protectedFieldKinds).toEqual([
       'child-display-name',
       'account-locator',

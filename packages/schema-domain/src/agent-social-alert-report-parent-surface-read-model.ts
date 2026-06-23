@@ -155,8 +155,7 @@ export const SocialAlertReportParentSurfaceReadModelSnapshotSchema = withParser(
   }).pipe(
     Schema.filter(
       (snapshot) =>
-        parentSurfaceSnapshotIsHonest(snapshot) ||
-        'Expected parent-surface counts and no-claim fields to match rows'
+        parentSurfaceSnapshotIsHonest(snapshot) || 'Expected parent-surface counts and no-claim fields to match rows'
     )
   )
 );

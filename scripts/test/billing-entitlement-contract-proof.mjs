@@ -50,8 +50,7 @@ async function main() {
       contract: 'packages/schema-domain/src/billing-entitlement.ts',
       proofModel: 'packages/schema-domain/src/billing-entitlement-proof.ts',
       contractTest: 'packages/billing-domain/tests/unit/billing-entitlement.test.ts',
-      parentVisibleSummaryTest:
-        'packages/schema-domain/tests/unit/billing-parent-visible-summary.test.ts',
+      parentVisibleSummaryTest: 'packages/schema-domain/tests/unit/billing-parent-visible-summary.test.ts',
       packageExport,
       documentation,
       output: relativePath(proofPath),
@@ -176,7 +175,9 @@ function relativePath(path) {
 }
 
 function summarizeValues(values) {
-  return Object.fromEntries(values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map()));
+  return Object.fromEntries(
+    values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map())
+  );
 }
 
 function npmCommand(args) {

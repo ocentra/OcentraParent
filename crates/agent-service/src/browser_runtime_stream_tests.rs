@@ -1,4 +1,4 @@
-use std::fs::remove_file;
+use std::{error::Error, fs::remove_file, io::Error as IoError};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
@@ -8,16 +8,39 @@ use ocentra_parent_agent_core::browser_event_runtime::{
     request_browser_runtime_action_intent_handoff_for_input,
     request_browser_runtime_action_intent_status_for_input, BrowserRuntimeInput,
 };
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, ActivityEvent, AgentCommandEnvelope, AgentCommandName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, BrowserActiveProofSource,
-    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserRuntimePhase,
-    BrowserTabEvidence, LogFieldValue, LogFields, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
-    AGENT_PROTOCOL_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION, POLICY_DRY_RUN_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy::POLICY_DRY_RUN_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModelRow;
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::browser::BrowserActiveProofSource;
+use ocentra_parent_agent_protocol::browser::BrowserActiveTabState;
+use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
+use ocentra_parent_agent_protocol::browser::BrowserChannel;
+use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
+use ocentra_parent_agent_protocol::browser::BrowserFamily;
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
+use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserTabEvidence;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use serde_json::Value;
 
 use crate::{
@@ -49,14 +72,15 @@ const BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS: [&str; 3] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
 ];
 
+type TestResult = Result<(), Box<dyn Error>>;
+
 macro_rules! assert_child_status_payload_empty {
     ($payload:expr) => {{
         assert_eq!(
             $payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS),
             Some(&LogFieldValue::Number(0.0))
         );
-        let empty_array =
-            LogFieldValue::String(serde_json::to_string(&Vec::<String>::new()).unwrap());
+        let empty_array = LogFieldValue::String(String::from("[]"));
         for field in BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS {
             assert_eq!($payload.get(field), Some(&empty_array));
         }
@@ -139,19 +163,19 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
         entries[0][constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
         Value::Null
     );
+    let last_entry = entries.last().unwrap_or(&Value::Null);
     assert_eq!(
-        entries.last().unwrap()[constants::field::EVENT_TYPE],
+        last_entry[constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
     );
 }
 
 #[tokio::test]
-async fn service_browser_runtime_action_intent_status_projects_pending_candidate() {
+async fn service_browser_runtime_action_intent_status_projects_pending_candidate() -> TestResult {
     let status = request_browser_runtime_action_intent_status_for_input(
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     )
-    .await
-    .unwrap()
+    .await?
     .request_report
     .response;
     let mut report = BrowserRuntimeServiceStreamReport::default();
@@ -167,8 +191,7 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
     let handoff = request_browser_runtime_action_intent_handoff_for_input(
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     )
-    .await
-    .unwrap()
+    .await?
     .request_report
     .response;
     let mut report = BrowserRuntimeServiceStreamReport::default();
@@ -187,13 +210,12 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
     let handoff = request_browser_runtime_action_intent_handoff_for_input(
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     )
-    .await
-    .unwrap();
+    .await?;
     let mut report = BrowserRuntimeServiceStreamReport::default();
     let child_status_response =
         action_intent_child_status_from_handoff(&handoff.request_report.response)
             .await
-            .unwrap();
+            .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
     report.record_action_intent_child_status(&child_status_response);
     let payload = browser_runtime_event_chain_stream_payload(&report);
 
@@ -206,12 +228,15 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
         &payload,
         constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID,
     );
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn service_browser_runtime_stream_projects_store_backed_policy_preview_candidate() {
+async fn service_browser_runtime_stream_projects_store_backed_policy_preview_candidate(
+) -> TestResult {
     let read_model = read_model(vec![managed_row()]);
-    let policy_preview = policy_preview_read_model_for_browser(&read_model);
+    let policy_preview = policy_preview_read_model_for_browser(&read_model)?;
     let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
         &read_model,
         Some(&policy_preview),
@@ -225,7 +250,7 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
             entry[constants::field::EVENT_TYPE]
                 == constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or(&Value::Null);
 
     assert_eq!(report.action_intent_candidates, 1);
     assert_eq!(report.action_intent_dispatch_attempts, 0);
@@ -259,6 +284,8 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
         policy_entry[constants::field::PAYLOAD][constants::field::ADAPTER_DISPATCH_CLAIMED],
         false
     );
+
+    Ok(())
 }
 
 #[tokio::test]
@@ -286,22 +313,30 @@ async fn service_browser_runtime_stream_keeps_unavailable_rows_manual_required()
     assert_eq!(report.exact_url_rows, 0);
     assert_eq!(report.manual_required_rows, 1);
     assert_eq!(report.intervention_command_events, 0);
-    assert!(!event_types.contains(&constants::browser::EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED));
-    assert!(!event_types.contains(&constants::browser::EVENT_BROWSER_INTERVENTION_RESULT_OBSERVED));
     assert_eq!(
-        entries.last().unwrap()[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
+        event_types,
+        vec![
+            constants::browser::EVENT_BROWSER_EVIDENCE_OBSERVED,
+            constants::browser::EVENT_BROWSER_EVIDENCE_JOURNALED,
+            constants::browser::EVENT_BROWSER_AUDIT_ENTRY_COMMITTED,
+            constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED,
+        ]
+    );
+    let last_entry = entries.last().unwrap_or(&Value::Null);
+    assert_eq!(
+        last_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
         false
     );
     assert_eq!(
-        entries.last().unwrap()[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
+        last_entry[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
         constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING
     );
     assert_eq!(
-        entries.last().unwrap()[constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
+        last_entry[constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
         constants::browser::QUERY_VISIBILITY_UNAVAILABLE
     );
     assert_eq!(
-        entries.last().unwrap()[constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
+        last_entry[constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
         constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS
     );
 }
@@ -367,31 +402,38 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
 }
 
 #[tokio::test]
-async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() {
+async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() -> TestResult {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let store_path = temp_path(constants::activity_store::TEST_CAPTURE_BROWSER_STORE_SUFFIX);
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
-    store
-        .ingest_events(&[browser_activity_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
-    let entries = stream_entries(&event.payload);
+    let result = async {
+        let store = ActivityStore::open(&store_path)
+            .map_err(|error| IoError::other(format!("{error:?}")))?;
+        store
+            .ingest_events(&[browser_activity_event()?])
+            .map_err(|error| IoError::other(format!("{error:?}")))?;
+        let body = serde_json::to_string(&command_envelope())?;
+        let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+        let entries = stream_entries(&event.payload);
+
+        assert_eq!(
+            entries.len(),
+            BrowserRuntimePhase::ordered_chain().len() - 4
+        );
+        assert_store_backed_stream_payload_header(&event);
+        assert_store_backed_stream_first_entry(&entries);
+        assert_store_backed_stream_child_status_and_no_execution(&event.payload);
+
+        Ok::<(), Box<dyn Error>>(())
+    }
+    .await;
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
     cleanup_path(&store_path);
 
-    assert_eq!(
-        entries.len(),
-        BrowserRuntimePhase::ordered_chain().len() - 4
-    );
-    assert_store_backed_stream_payload_header(&event);
-    assert_store_backed_stream_first_entry(&entries);
-    assert_store_backed_stream_child_status_and_no_execution(&event.payload);
+    result
 }
 
 fn read_model(rows: Vec<BrowserTabEvidence>) -> BrowserEvidenceReadModel {
@@ -411,12 +453,12 @@ fn read_model(rows: Vec<BrowserTabEvidence>) -> BrowserEvidenceReadModel {
 
 fn policy_preview_read_model_for_browser(
     read_model: &BrowserEvidenceReadModel,
-) -> PolicyPreviewReadModel {
+) -> Result<PolicyPreviewReadModel, IoError> {
     let evidence_reference_id = read_model
         .latest_event_id
         .clone()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    PolicyPreviewReadModel {
+        .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
+    Ok(PolicyPreviewReadModel {
         schema_version: POLICY_DRY_RUN_SCHEMA_VERSION.to_string(),
         generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         custody: policy_constants::PREVIEW_CUSTODY_ACTIVITY_STORE.to_string(),
@@ -469,7 +511,7 @@ fn policy_preview_read_model_for_browser(
             policy_audit_reference_id: None,
             network_evidence_mapping: None,
         }],
-    }
+    })
 }
 
 fn managed_row() -> BrowserTabEvidence {
@@ -534,7 +576,7 @@ fn unsupported_row() -> BrowserTabEvidence {
     }
 }
 
-fn browser_activity_event() -> ActivityEvent {
+fn browser_activity_event() -> Result<ActivityEvent, IoError> {
     browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -558,7 +600,7 @@ fn browser_activity_event() -> ActivityEvent {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
+    .map_err(|error| IoError::other(format!("{error:?}")))
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -582,10 +624,8 @@ fn command_envelope() -> AgentCommandEnvelope {
 
 fn stream_entries(payload: &LogFields) -> Vec<Value> {
     match payload.get(constants::field::BROWSER_RUNTIME_EVENT_CHAIN_STREAM) {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::String(text)) => serde_json::from_str(text).unwrap_or_default(),
+        _ => Vec::new(),
     }
 }
 
@@ -595,7 +635,7 @@ fn first_entry_with_capability<'a>(entries: &'a [Value], capability: &str) -> &'
         .find(|entry| {
             entry[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS] == capability
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or(&Value::Null)
 }
 
 fn temp_path(suffix: &str) -> std::path::PathBuf {

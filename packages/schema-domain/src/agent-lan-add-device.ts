@@ -5,20 +5,19 @@ import {
   AgentProtocolSchemaVersion,
   AgentTimestampSchema,
 } from './event-primitives';
+import { AgentLanPairingRejectionReasonSchema, AgentLanSelectedRouteTrustStateSchema } from './agent-lan';
 import {
   AgentLanPairingAddressRefSchema,
   AgentLanPairingDeviceRefSchema,
   AgentLanPairingNetworkModeSchema,
   AgentLanPairingParentAuthoritySchema,
   AgentLanPairingProductionDiscoveryStateSchema,
-  AgentLanPairingRejectionReasonSchema,
+  AgentLanPairingProofDigestSchema,
   AgentLanPairingRouteIdSchema,
   AgentLanPairingRuntimeSupportStatusSchema,
-  AgentLanPairingProofDigestSchema,
   AgentLanSelectedDeviceReachabilitySchema,
-  AgentLanSelectedRouteTrustStateSchema,
   AgentPairingIdSchema,
-} from './agent-lan';
+} from './agent-lan-primitives';
 import { AgentLanDiscoverySourceMatrixSchema } from './lan-source-matrix';
 import { AgentLanSignedDiscoveryRelaySpineSchema } from './lan-relay-spine';
 
@@ -241,7 +240,9 @@ export const AgentLanCanonicalHouseholdNetworkIdentitySchema = withParser(
     staleAt: Schema.Union(AgentTimestampSchema, Schema.Null),
     offlineAt: Schema.Union(AgentTimestampSchema, Schema.Null),
     evidenceRecords: Schema.Array(AgentLanDiscoveryEvidenceRecordSchema).pipe(
-      Schema.filter((records) => records.length > 0 || 'Expected agent canonical LAN devices to include evidence records')
+      Schema.filter(
+        (records) => records.length > 0 || 'Expected agent canonical LAN devices to include evidence records'
+      )
     ),
   })
 );
@@ -352,7 +353,9 @@ export type AgentLanBrowserAddDeviceScanSummary = Infer<typeof AgentLanBrowserAd
 export type AgentLanSelectedDeviceReadiness = Infer<typeof AgentLanSelectedDeviceReadinessSchema>;
 export type AgentLanProductionHouseholdProofCapability = Infer<typeof AgentLanProductionHouseholdProofCapabilitySchema>;
 export type AgentLanProductionHouseholdProofState = Infer<typeof AgentLanProductionHouseholdProofStateSchema>;
-export type AgentLanProductionHouseholdProofRuntimeOwner = Infer<typeof AgentLanProductionHouseholdProofRuntimeOwnerSchema>;
+export type AgentLanProductionHouseholdProofRuntimeOwner = Infer<
+  typeof AgentLanProductionHouseholdProofRuntimeOwnerSchema
+>;
 export type AgentLanProductionHouseholdProofStatus = Infer<typeof AgentLanProductionHouseholdProofStatusSchema>;
 export type AgentLanProductionHouseholdProofSummary = Infer<typeof AgentLanProductionHouseholdProofSummarySchema>;
 export type AgentLanDiscoveryEvidenceRecord = Infer<typeof AgentLanDiscoveryEvidenceRecordSchema>;

@@ -1,17 +1,20 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
-};
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::SocialParentNotificationDeliveryReadinessSnapshot;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
 
 #[tokio::test]
 async fn social_parent_notification_delivery_command_reports_service_backed_readiness_rows() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope())
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model = read_model_payload(
         &event.payload[constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL],
@@ -65,8 +68,8 @@ fn command_envelope() -> AgentCommandEnvelope {
 fn read_model_payload(value: &LogFieldValue) -> SocialParentNotificationDeliveryReadinessSnapshot {
     match value {
         LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

@@ -3,7 +3,7 @@ import {
   TrackingEscalationReadinessReadModelSchema,
   TrackingEscalationReadinessRowSchema,
   buildTrackingEscalationReadinessReadModel,
-} from '../../src/tracking-escalation-readiness-proof';
+} from '@ocentra-parent/schema-domain/tracking-escalation-readiness-proof';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const EvidenceTrace = {

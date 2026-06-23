@@ -19,7 +19,11 @@
 output/eventing-plan-proof/<workpack-file-stem>/
 ```
 
+`docs/proof/eventing-plan/` is accepted only for the current WP12 route-proof manifest bundle. New implementation/workpack proof should use `output/eventing-plan-proof/<workpack-file-stem>/` unless preserving a historical route pointer.
+
 ## Common commands
+
+Use the subset relevant to the selected workpack:
 
 ```bash
 cargo test -p ocentra-eventing --test unit
@@ -27,6 +31,7 @@ cargo test -p ocentra-eventing --test contract
 cargo test -p ocentra-eventing --test journal_replay
 cargo test -p ocentra-eventing --test integration
 cargo test -p ocentra-eventing --test version_skew
+cargo test -p ocentra-eventing --tests
 cargo lint-architecture crates/ocentra-eventing/src crates/ocentra-eventing/tests
 npm run test --workspace @ocentra-parent/event-domain
 npm run type-check --workspace @ocentra-parent/event-domain
@@ -37,6 +42,57 @@ cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- policy-
 npm run lint:architecture -- --files packages/agent-protocol-domain/src/contracts.ts packages/agent-protocol-domain/src/policy-control-audit-redaction.ts packages/agent-protocol-domain/src/policy-control-delivery-read-model.ts
 node scripts/test/eventing-rollout-proof.mjs
 git diff --check -- docs/proof/eventing-plan docs/plans/eventing-plan
+```
+
+Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
+
+## Command ownership notes
+
+- `crates/ocentra-eventing` owns local event bus semantics: typed envelopes, event ids, idempotency, ordering, queue/dead-letter, request/response, journal/replay, topology, contract registry, local dispatch lifecycle, and testkit helpers.
+- `schema-domain` owns neutral shared event/contract shapes when they cross package or plan boundaries.
+- `packages/event-domain` is package-boundary metadata only unless a selected workpack names an explicit public surface.
+- `crates/agent-protocol`, `crates/agent-service`, and `packages/agent-protocol-domain` prove protocol/service/TS mirror behavior only when selected.
+- LAN, remote, network, AI, policy, enforcement, portal, data-custody, setup, payment, account, browser, app-game, screen, and tracking scopes run only when the selected workpack explicitly touches their handoff.
+
+## Eventing E2E meaning
+
+Do not use one proof family to claim the whole eventing path. For this plan, E2E has separate meanings:
+
+```text
+crate contract E2E: typed ids + event contract + envelope + registry/topology shape -> crate tests.
+dispatch lifecycle E2E: publisher/subscriber/registrar -> local dispatch -> lifecycle/shutdown report.
+queue/dead-letter E2E: duplicate/no-subscriber/overflow/TTL/retry -> queue/dead-letter metrics/report.
+request-response E2E: request id + response contract -> completion/timeout/cancel/duplicate behavior.
+journal/replay E2E: stored envelope -> append/hash chain -> replay/filter/version-skew proof.
+protocol-shape E2E: Rust/TS protocol event shape -> serde/parser tests -> no service-delivery claim.
+consumer-handoff E2E: consumer-owned event shape -> local publish/read-model bridge -> owning consumer proof path.
+LAN mesh E2E: selected export/import -> LAN authority/transport validation -> local republish only after validation.
+rollout gate E2E: accepted proof roots + carried blockers -> route proof -> no-claim and open workpack state.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Every eventing proof slice must preserve product-safe logging and local harness logging.
+
+Product/runtime-safe logging:
+
+```text
+redact private payload bodies, child activity payloads, provider secrets, account tokens, raw policy/enforcement payloads, and consumer-private data unless a selected expectation explicitly allows the field
+log event namespace/type, schema version, aggregate key, event id, idempotency key, correlation id, causation id, request id, queue state, retry/dead-letter state, journal/replay state, delivery route, consumer handoff state, blocker note, and no-claim boundary when safe
+separate local bus, transport, protocol, consumer read-model, storage/custody, policy/enforcement, and portal/UI states
+never treat crate logs, protocol logs, route docs, or consumer read-model logs as proof of another owner without a selected proof root
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, event family, exit code, result, artifact pointer, diagnostics summary, blocker note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
 ```
 
 ## Current local proof roots
@@ -64,7 +120,10 @@ envelope schema
 idempotency
 ordering/replay
 retry/dead-letter
+request-response
 consumer contract
+consumer handoff
+LAN mesh handoff
 redaction
 manual-required blockers
 proof-root presence
@@ -72,4 +131,15 @@ WP12 rollout-proof route restored without PR_READY claims
 WP13 source-side test scaffold cleanup locally proved
 WP11 scoped proof roots restored locally, package-wide agent-protocol-domain type-check passes again, and focused policy-control plus contracts validation is green
 WP10 remains open until its proof roots and blocking validation exist
+```
+
+## Required negative states
+
+```text
+crate-local proof cannot claim cross-device transport
+journal/replay proof cannot claim production retention/deletion/export
+protocol shape proof cannot claim service delivery
+consumer read-model proof cannot claim reusable crate readiness
+provider or peer device cannot direct-publish policy/enforcement events
+WP12/WP13 proof cannot close WP10
 ```

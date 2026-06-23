@@ -1,10 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    schema_domain_mirrors::family::ParentActionReference, ChildProfileReference,
-    ParentDeviceReference, ParentEvidenceReference,
+    activity::policy::ParentEvidenceReference,
+    activity::policy_context::{ChildProfileReference, ParentDeviceReference},
+    enforcement::ParentActionReference,
 };
 
+pub const ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION: u16 = crate::ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION;
 pub const ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE: &str = "child-device-activity-store";
 pub const ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY: &str = "ready";
 pub const ACTIVITY_MEMORY_GRAPH_CAPABILITY_NO_EVIDENCE: &str = "no-evidence";

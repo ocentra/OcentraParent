@@ -1,5 +1,6 @@
 use ocentra_evidence::ManualReviewState;
-use ocentra_parent_agent_protocol::{constants, TrackingChildDeviceId};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::TrackingChildDeviceId;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TrackingLowPowerModeState {
@@ -128,346 +129,450 @@ const TRACKING_LOCATION_OFFLINE_AFTER_SECONDS: u32 = 900;
 const TRACKING_PARENT_SYNC_LATE_AFTER_SECONDS: u32 = 900;
 const TRACKING_LOW_BATTERY_THRESHOLD_PERCENT: u8 = 15;
 
+fn tracking_device_status_decision(
+    device_status: &'static str,
+    manual_review_state: ManualReviewState,
+    degraded_reasons: Vec<&'static str>,
+) -> TrackingDeviceStatusDecision {
+    TrackingDeviceStatusDecision {
+        device_status,
+        manual_review_state,
+        degraded_reasons,
+    }
+}
+
+fn tracking_capability_status_decision(
+    capability_status: &'static str,
+    foreground_availability_state: TrackingCapabilityAvailabilityState,
+    background_availability_state: TrackingCapabilityAvailabilityState,
+    manual_action_required: bool,
+    degraded_reasons: Vec<&'static str>,
+) -> TrackingCapabilityStatusDecision {
+    TrackingCapabilityStatusDecision {
+        capability_status,
+        foreground_availability_state,
+        background_availability_state,
+        manual_action_required,
+        degraded_reasons,
+    }
+}
+
 pub fn evaluate_tracking_device_status(
     input: TrackingDeviceStatusInput,
 ) -> TrackingDeviceStatusDecision {
-    match input.service_state {
-        TrackingRuntimeServiceState::DisabledByParent => {
-            return TrackingDeviceStatusDecision {
-                device_status: constants::tracking_runtime::DEVICE_STATUS_SERVICE_DISABLED,
-                manual_review_state: ManualReviewState::NotRequired,
-                degraded_reasons: vec![constants::tracking_runtime::REASON_DISABLED_BY_PARENT],
-            };
-        }
-        TrackingRuntimeServiceState::ServiceDisabled => {
-            return TrackingDeviceStatusDecision {
-                device_status: constants::tracking_runtime::DEVICE_STATUS_SERVICE_DISABLED,
-                manual_review_state: ManualReviewState::Required,
-                degraded_reasons: vec![constants::tracking_runtime::REASON_SERVICE_DISABLED],
-            };
-        }
-        TrackingRuntimeServiceState::Unavailable => {
-            return TrackingDeviceStatusDecision {
-                device_status: constants::tracking_runtime::DEVICE_STATUS_UNAVAILABLE,
-                manual_review_state: ManualReviewState::Required,
-                degraded_reasons: vec![
-                    constants::tracking_runtime::REASON_TRACKING_RUNTIME_UNAVAILABLE,
-                ],
-            };
-        }
-        TrackingRuntimeServiceState::AdapterError => {
-            return TrackingDeviceStatusDecision {
-                device_status: constants::tracking_runtime::DEVICE_STATUS_UNAVAILABLE,
-                manual_review_state: ManualReviewState::Required,
-                degraded_reasons: vec![constants::tracking_runtime::REASON_ADAPTER_ERROR],
-            };
-        }
-        TrackingRuntimeServiceState::Running => {}
+    let TrackingDeviceStatusInput {
+        child_device_id: _child_device_id,
+        last_heartbeat_age_seconds,
+        last_location_sample_age_seconds,
+        last_parent_sync_age_seconds,
+        battery_percentage,
+        charging_state,
+        low_power_mode_state,
+        connectivity_state,
+        radio_state,
+        pending_upload_count,
+        service_state,
+    } = input;
+
+    if let Some(decision) = device_status_for_service_state(&service_state) {
+        return decision;
     }
 
-    let mut offline_reasons = Vec::new();
-    if input.last_heartbeat_age_seconds > TRACKING_HEARTBEAT_OFFLINE_AFTER_SECONDS {
-        offline_reasons.push(constants::tracking_runtime::REASON_TRACKING_HEARTBEAT_STALE);
-    }
-    if input.last_location_sample_age_seconds > TRACKING_LOCATION_OFFLINE_AFTER_SECONDS {
-        offline_reasons.push(constants::tracking_runtime::REASON_LAST_LOCATION_SAMPLE_STALE);
-    }
-    if input.connectivity_state == TrackingConnectivityState::Offline {
-        offline_reasons.push(constants::tracking_runtime::REASON_CONNECTIVITY_OFFLINE);
-    }
-    if input.radio_state == TrackingRadioState::Disabled {
-        offline_reasons.push(constants::tracking_runtime::REASON_RADIO_DISABLED);
-    }
-    if !offline_reasons.is_empty() {
-        return TrackingDeviceStatusDecision {
-            device_status: constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY,
-            manual_review_state: ManualReviewState::Required,
-            degraded_reasons: offline_reasons,
-        };
-    }
-
-    if input.pending_upload_count > 0 {
-        let mut degraded_reasons = vec![constants::tracking_runtime::REASON_PENDING_UPLOAD_BACKLOG];
-        if input.last_parent_sync_age_seconds > TRACKING_PARENT_SYNC_LATE_AFTER_SECONDS {
-            degraded_reasons.push(constants::tracking_runtime::REASON_PARENT_SYNC_LATE);
-        }
-        return TrackingDeviceStatusDecision {
-            device_status: constants::tracking_runtime::DEVICE_STATUS_PENDING_UPLOAD,
-            manual_review_state: ManualReviewState::NotRequired,
+    let degraded_reasons = offline_device_reasons(
+        last_heartbeat_age_seconds,
+        last_location_sample_age_seconds,
+        &connectivity_state,
+        &radio_state,
+    );
+    if !degraded_reasons.is_empty() {
+        return tracking_device_status_decision(
+            constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY,
+            ManualReviewState::Required,
             degraded_reasons,
-        };
+        );
     }
 
-    let heartbeat_stale = input.last_heartbeat_age_seconds > TRACKING_HEARTBEAT_STALE_AFTER_SECONDS;
-    let location_stale =
-        input.last_location_sample_age_seconds > TRACKING_LOCATION_STALE_AFTER_SECONDS;
-    let parent_sync_late =
-        input.last_parent_sync_age_seconds > TRACKING_PARENT_SYNC_LATE_AFTER_SECONDS;
-    if heartbeat_stale || location_stale || parent_sync_late {
-        let mut degraded_reasons = Vec::new();
-        if heartbeat_stale {
-            degraded_reasons.push(constants::tracking_runtime::REASON_TRACKING_HEARTBEAT_STALE);
-        }
-        if location_stale {
-            degraded_reasons.push(constants::tracking_runtime::REASON_LAST_LOCATION_SAMPLE_STALE);
-        }
-        if parent_sync_late {
-            degraded_reasons.push(constants::tracking_runtime::REASON_PARENT_SYNC_LATE);
-        }
-        return TrackingDeviceStatusDecision {
-            device_status: constants::tracking_runtime::DEVICE_STATUS_STALE,
-            manual_review_state: ManualReviewState::NotRequired,
+    if pending_upload_count > 0 {
+        return pending_upload_device_status_decision(last_parent_sync_age_seconds);
+    }
+
+    let degraded_reasons = stale_device_reasons(
+        last_heartbeat_age_seconds,
+        last_location_sample_age_seconds,
+        last_parent_sync_age_seconds,
+    );
+    if !degraded_reasons.is_empty() {
+        return tracking_device_status_decision(
+            constants::tracking_runtime::DEVICE_STATUS_STALE,
+            ManualReviewState::NotRequired,
             degraded_reasons,
-        };
+        );
     }
 
-    let low_battery = input
-        .battery_percentage
-        .is_some_and(|percent| percent <= TRACKING_LOW_BATTERY_THRESHOLD_PERCENT)
-        && input.charging_state == TrackingChargingState::Discharging;
-    if input.low_power_mode_state == TrackingLowPowerModeState::Active
-        || low_battery
-        || input.connectivity_state == TrackingConnectivityState::Metered
-    {
-        let mut degraded_reasons = vec![constants::tracking_runtime::REASON_BATTERY_THROTTLED];
-        if input.low_power_mode_state == TrackingLowPowerModeState::Active {
-            degraded_reasons.push(constants::tracking_runtime::REASON_LOW_POWER_MODE);
-        }
-        if low_battery {
-            degraded_reasons.push(constants::tracking_runtime::REASON_BATTERY_LOW);
-        }
-        if input.connectivity_state == TrackingConnectivityState::Metered {
-            degraded_reasons.push(constants::tracking_runtime::REASON_CONNECTIVITY_METERED);
-        }
-        return TrackingDeviceStatusDecision {
-            device_status: constants::tracking_runtime::DEVICE_STATUS_BATTERY_THROTTLED,
-            manual_review_state: ManualReviewState::NotRequired,
+    let degraded_reasons = battery_throttled_device_reasons(
+        battery_percentage,
+        &charging_state,
+        &low_power_mode_state,
+        &connectivity_state,
+    );
+    if !degraded_reasons.is_empty() {
+        return tracking_device_status_decision(
+            constants::tracking_runtime::DEVICE_STATUS_BATTERY_THROTTLED,
+            ManualReviewState::NotRequired,
             degraded_reasons,
-        };
+        );
     }
 
-    TrackingDeviceStatusDecision {
-        device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
-        manual_review_state: ManualReviewState::NotRequired,
-        degraded_reasons: Vec::new(),
-    }
+    tracking_device_status_decision(
+        constants::tracking_runtime::DEVICE_STATUS_LIVE,
+        ManualReviewState::NotRequired,
+        Vec::new(),
+    )
 }
 
 pub fn evaluate_tracking_capability_status(
     input: TrackingCapabilityStatusInput,
 ) -> TrackingCapabilityStatusDecision {
-    match input.service_state {
-        TrackingRuntimeServiceState::DisabledByParent => {
-            return TrackingCapabilityStatusDecision {
-                capability_status:
-                    constants::tracking_runtime::CAPABILITY_STATUS_DISABLED_BY_PARENT,
-                foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                manual_action_required: false,
-                degraded_reasons: vec![constants::tracking_runtime::REASON_DISABLED_BY_PARENT],
-            };
-        }
-        TrackingRuntimeServiceState::AdapterError => {
-            return TrackingCapabilityStatusDecision {
-                capability_status: constants::tracking_runtime::CAPABILITY_STATUS_ADAPTER_ERROR,
-                foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                manual_action_required: true,
-                degraded_reasons: vec![constants::tracking_runtime::REASON_ADAPTER_ERROR],
-            };
-        }
-        TrackingRuntimeServiceState::ServiceDisabled => {
-            return TrackingCapabilityStatusDecision {
-                capability_status: constants::tracking_runtime::CAPABILITY_STATUS_SERVICE_DISABLED,
-                foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                manual_action_required: true,
-                degraded_reasons: vec![constants::tracking_runtime::REASON_SERVICE_DISABLED],
-            };
-        }
-        TrackingRuntimeServiceState::Unavailable => {
-            return TrackingCapabilityStatusDecision {
-                capability_status: constants::tracking_runtime::CAPABILITY_STATUS_UNAVAILABLE,
-                foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                manual_action_required: true,
-                degraded_reasons: vec![
-                    constants::tracking_runtime::REASON_TRACKING_RUNTIME_UNAVAILABLE,
-                ],
-            };
-        }
-        TrackingRuntimeServiceState::Running => {}
+    let TrackingCapabilityStatusInput {
+        permission_state,
+        platform_state,
+        background_capability_state,
+        strict_background_required,
+        service_state,
+        device_status,
+    } = input;
+
+    if let Some(decision) = capability_status_for_service_state(&service_state) {
+        return decision;
     }
 
-    if input.platform_state == TrackingPlatformState::Unsupported {
-        return TrackingCapabilityStatusDecision {
-            capability_status: constants::tracking_runtime::CAPABILITY_STATUS_PLATFORM_UNSUPPORTED,
-            foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            manual_action_required: false,
-            degraded_reasons: vec![constants::tracking_runtime::REASON_PLATFORM_UNSUPPORTED],
-        };
+    if platform_state == TrackingPlatformState::Unsupported {
+        return tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_PLATFORM_UNSUPPORTED,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            false,
+            vec![constants::tracking_runtime::REASON_PLATFORM_UNSUPPORTED],
+        );
     }
 
-    if input.device_status == constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY {
-        return TrackingCapabilityStatusDecision {
-            capability_status:
-                constants::tracking_runtime::CAPABILITY_STATUS_OFFLINE_LAST_KNOWN_ONLY,
-            foreground_availability_state: TrackingCapabilityAvailabilityState::Limited,
-            background_availability_state: TrackingCapabilityAvailabilityState::Limited,
-            manual_action_required: false,
-            degraded_reasons: vec![constants::tracking_runtime::REASON_TRACKING_HEARTBEAT_STALE],
-        };
-    }
-    if input.device_status == constants::tracking_runtime::DEVICE_STATUS_BATTERY_THROTTLED {
-        return TrackingCapabilityStatusDecision {
-            capability_status: constants::tracking_runtime::CAPABILITY_STATUS_BATTERY_THROTTLED,
-            foreground_availability_state: TrackingCapabilityAvailabilityState::Limited,
-            background_availability_state: TrackingCapabilityAvailabilityState::Limited,
-            manual_action_required: false,
-            degraded_reasons: vec![constants::tracking_runtime::REASON_BATTERY_THROTTLED],
-        };
+    if let Some(decision) = capability_status_for_device_status(device_status) {
+        return decision;
     }
 
-    match input.permission_state {
-        TrackingPermissionState::ManualRequired => TrackingCapabilityStatusDecision {
-            capability_status: constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED,
-            foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            manual_action_required: true,
-            degraded_reasons: vec![
-                constants::tracking_runtime::REASON_MANAGED_DEVICE_PROOF_REQUIRED,
-            ],
-        },
+    match permission_state {
+        TrackingPermissionState::ManualRequired => tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_MANAGED_DEVICE_PROOF_REQUIRED],
+        ),
         TrackingPermissionState::Denied
         | TrackingPermissionState::Restricted
-        | TrackingPermissionState::NotRequested => TrackingCapabilityStatusDecision {
-            capability_status: constants::tracking_runtime::CAPABILITY_STATUS_PERMISSION_REQUIRED,
-            foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            manual_action_required: true,
-            degraded_reasons: vec![
-                constants::tracking_runtime::REASON_FOREGROUND_PERMISSION_REQUIRED,
-            ],
-        },
-        TrackingPermissionState::ServiceDisabled => TrackingCapabilityStatusDecision {
-            capability_status: constants::tracking_runtime::CAPABILITY_STATUS_SERVICE_DISABLED,
-            foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            manual_action_required: true,
-            degraded_reasons: vec![constants::tracking_runtime::REASON_SERVICE_DISABLED],
-        },
+        | TrackingPermissionState::NotRequested => tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_PERMISSION_REQUIRED,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_FOREGROUND_PERMISSION_REQUIRED],
+        ),
+        TrackingPermissionState::ServiceDisabled => tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_SERVICE_DISABLED,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_SERVICE_DISABLED],
+        ),
         TrackingPermissionState::Unsupported | TrackingPermissionState::Unavailable => {
-            TrackingCapabilityStatusDecision {
-                capability_status: constants::tracking_runtime::CAPABILITY_STATUS_UNAVAILABLE,
-                foreground_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                manual_action_required: true,
-                degraded_reasons: vec![
-                    constants::tracking_runtime::REASON_TRACKING_RUNTIME_UNAVAILABLE,
-                ],
-            }
+            tracking_capability_status_decision(
+                constants::tracking_runtime::CAPABILITY_STATUS_UNAVAILABLE,
+                TrackingCapabilityAvailabilityState::Unavailable,
+                TrackingCapabilityAvailabilityState::Unavailable,
+                true,
+                vec![constants::tracking_runtime::REASON_TRACKING_RUNTIME_UNAVAILABLE],
+            )
         }
-        TrackingPermissionState::ApproximateOnly => TrackingCapabilityStatusDecision {
-            capability_status: constants::tracking_runtime::CAPABILITY_STATUS_APPROXIMATE_ONLY,
-            foreground_availability_state: TrackingCapabilityAvailabilityState::Limited,
-            background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-            manual_action_required: false,
-            degraded_reasons: vec![
-                constants::tracking_runtime::REASON_PRECISE_LOCATION_UNAVAILABLE,
-            ],
-        },
+        TrackingPermissionState::ApproximateOnly => tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_APPROXIMATE_ONLY,
+            TrackingCapabilityAvailabilityState::Limited,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            false,
+            vec![constants::tracking_runtime::REASON_PRECISE_LOCATION_UNAVAILABLE],
+        ),
         TrackingPermissionState::GrantedForeground => {
-            if input.background_capability_state
-                == TrackingBackgroundCapabilityState::ManagedDeviceRequired
-                || input.platform_state == TrackingPlatformState::ManagedDevice
-            {
-                return TrackingCapabilityStatusDecision {
-                    capability_status:
-                        constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED,
-                    foreground_availability_state: TrackingCapabilityAvailabilityState::Available,
-                    background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                    manual_action_required: true,
-                    degraded_reasons: vec![
-                        constants::tracking_runtime::REASON_MANAGED_DEVICE_PROOF_REQUIRED,
-                    ],
-                };
-            }
-
-            if input.strict_background_required
-                || input.background_capability_state
-                    == TrackingBackgroundCapabilityState::PermissionRequired
-            {
-                return TrackingCapabilityStatusDecision {
-                    capability_status: constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_PERMISSION_REQUIRED,
-                    foreground_availability_state: TrackingCapabilityAvailabilityState::Available,
-                    background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                    manual_action_required: true,
-                    degraded_reasons: vec![constants::tracking_runtime::REASON_BACKGROUND_PERMISSION_REQUIRED],
-                };
-            }
-
-            if input.background_capability_state == TrackingBackgroundCapabilityState::Unsupported {
-                return TrackingCapabilityStatusDecision {
-                    capability_status:
-                        constants::tracking_runtime::CAPABILITY_STATUS_FOREGROUND_ONLY,
-                    foreground_availability_state: TrackingCapabilityAvailabilityState::Available,
-                    background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                    manual_action_required: false,
-                    degraded_reasons: vec![
-                        constants::tracking_runtime::REASON_BACKGROUND_PLATFORM_UNSUPPORTED,
-                    ],
-                };
-            }
-
-            TrackingCapabilityStatusDecision {
-                capability_status: constants::tracking_runtime::CAPABILITY_STATUS_FOREGROUND_ONLY,
-                foreground_availability_state: TrackingCapabilityAvailabilityState::Available,
-                background_availability_state: TrackingCapabilityAvailabilityState::Unavailable,
-                manual_action_required: false,
-                degraded_reasons: Vec::new(),
-            }
+            granted_foreground_capability_status_decision(
+                &platform_state,
+                &background_capability_state,
+                strict_background_required,
+            )
         }
         TrackingPermissionState::GrantedBackground => {
-            let (
-                capability_status,
-                background_availability_state,
-                manual_action_required,
-                degraded_reasons,
-            ) = match input.background_capability_state {
-                TrackingBackgroundCapabilityState::Ready => (
-                    constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_READY,
-                    TrackingCapabilityAvailabilityState::Available,
-                    false,
-                    Vec::new(),
-                ),
-                TrackingBackgroundCapabilityState::PermissionRequired => (
-                    constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_PERMISSION_REQUIRED,
-                    TrackingCapabilityAvailabilityState::Unavailable,
-                    true,
-                    vec![constants::tracking_runtime::REASON_BACKGROUND_PERMISSION_REQUIRED],
-                ),
-                TrackingBackgroundCapabilityState::ManagedDeviceRequired => (
-                    constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED,
-                    TrackingCapabilityAvailabilityState::Unavailable,
-                    true,
-                    vec![constants::tracking_runtime::REASON_MANAGED_DEVICE_PROOF_REQUIRED],
-                ),
-                TrackingBackgroundCapabilityState::Unsupported => (
-                    constants::tracking_runtime::CAPABILITY_STATUS_FOREGROUND_ONLY,
-                    TrackingCapabilityAvailabilityState::Unavailable,
-                    false,
-                    vec![constants::tracking_runtime::REASON_BACKGROUND_PLATFORM_UNSUPPORTED],
-                ),
-            };
-
-            TrackingCapabilityStatusDecision {
-                capability_status,
-                foreground_availability_state: TrackingCapabilityAvailabilityState::Available,
-                background_availability_state,
-                manual_action_required,
-                degraded_reasons,
-            }
+            granted_background_capability_status_decision(&background_capability_state)
         }
     }
+}
+
+fn device_status_for_service_state(
+    service_state: &TrackingRuntimeServiceState,
+) -> Option<TrackingDeviceStatusDecision> {
+    match service_state {
+        TrackingRuntimeServiceState::DisabledByParent => Some(tracking_device_status_decision(
+            constants::tracking_runtime::DEVICE_STATUS_SERVICE_DISABLED,
+            ManualReviewState::NotRequired,
+            vec![constants::tracking_runtime::REASON_DISABLED_BY_PARENT],
+        )),
+        TrackingRuntimeServiceState::ServiceDisabled => Some(tracking_device_status_decision(
+            constants::tracking_runtime::DEVICE_STATUS_SERVICE_DISABLED,
+            ManualReviewState::Required,
+            vec![constants::tracking_runtime::REASON_SERVICE_DISABLED],
+        )),
+        TrackingRuntimeServiceState::Unavailable => Some(tracking_device_status_decision(
+            constants::tracking_runtime::DEVICE_STATUS_UNAVAILABLE,
+            ManualReviewState::Required,
+            vec![constants::tracking_runtime::REASON_TRACKING_RUNTIME_UNAVAILABLE],
+        )),
+        TrackingRuntimeServiceState::AdapterError => Some(tracking_device_status_decision(
+            constants::tracking_runtime::DEVICE_STATUS_UNAVAILABLE,
+            ManualReviewState::Required,
+            vec![constants::tracking_runtime::REASON_ADAPTER_ERROR],
+        )),
+        TrackingRuntimeServiceState::Running => None,
+    }
+}
+
+fn offline_device_reasons(
+    last_heartbeat_age_seconds: u32,
+    last_location_sample_age_seconds: u32,
+    connectivity_state: &TrackingConnectivityState,
+    radio_state: &TrackingRadioState,
+) -> Vec<&'static str> {
+    let mut degraded_reasons = Vec::new();
+    if last_heartbeat_age_seconds > TRACKING_HEARTBEAT_OFFLINE_AFTER_SECONDS {
+        degraded_reasons.push(constants::tracking_runtime::REASON_TRACKING_HEARTBEAT_STALE);
+    }
+    if last_location_sample_age_seconds > TRACKING_LOCATION_OFFLINE_AFTER_SECONDS {
+        degraded_reasons.push(constants::tracking_runtime::REASON_LAST_LOCATION_SAMPLE_STALE);
+    }
+    if *connectivity_state == TrackingConnectivityState::Offline {
+        degraded_reasons.push(constants::tracking_runtime::REASON_CONNECTIVITY_OFFLINE);
+    }
+    if *radio_state == TrackingRadioState::Disabled {
+        degraded_reasons.push(constants::tracking_runtime::REASON_RADIO_DISABLED);
+    }
+    degraded_reasons
+}
+
+fn pending_upload_device_status_decision(
+    last_parent_sync_age_seconds: u32,
+) -> TrackingDeviceStatusDecision {
+    let mut degraded_reasons = vec![constants::tracking_runtime::REASON_PENDING_UPLOAD_BACKLOG];
+    if last_parent_sync_age_seconds > TRACKING_PARENT_SYNC_LATE_AFTER_SECONDS {
+        degraded_reasons.push(constants::tracking_runtime::REASON_PARENT_SYNC_LATE);
+    }
+    tracking_device_status_decision(
+        constants::tracking_runtime::DEVICE_STATUS_PENDING_UPLOAD,
+        ManualReviewState::NotRequired,
+        degraded_reasons,
+    )
+}
+
+fn stale_device_reasons(
+    last_heartbeat_age_seconds: u32,
+    last_location_sample_age_seconds: u32,
+    last_parent_sync_age_seconds: u32,
+) -> Vec<&'static str> {
+    let mut degraded_reasons = Vec::new();
+    if last_heartbeat_age_seconds > TRACKING_HEARTBEAT_STALE_AFTER_SECONDS {
+        degraded_reasons.push(constants::tracking_runtime::REASON_TRACKING_HEARTBEAT_STALE);
+    }
+    if last_location_sample_age_seconds > TRACKING_LOCATION_STALE_AFTER_SECONDS {
+        degraded_reasons.push(constants::tracking_runtime::REASON_LAST_LOCATION_SAMPLE_STALE);
+    }
+    if last_parent_sync_age_seconds > TRACKING_PARENT_SYNC_LATE_AFTER_SECONDS {
+        degraded_reasons.push(constants::tracking_runtime::REASON_PARENT_SYNC_LATE);
+    }
+    degraded_reasons
+}
+
+fn battery_throttled_device_reasons(
+    battery_percentage: Option<u8>,
+    charging_state: &TrackingChargingState,
+    low_power_mode_state: &TrackingLowPowerModeState,
+    connectivity_state: &TrackingConnectivityState,
+) -> Vec<&'static str> {
+    let low_battery = battery_percentage
+        .is_some_and(|percent| percent <= TRACKING_LOW_BATTERY_THRESHOLD_PERCENT)
+        && *charging_state == TrackingChargingState::Discharging;
+    let mut degraded_reasons = Vec::new();
+    if *low_power_mode_state == TrackingLowPowerModeState::Active
+        || low_battery
+        || *connectivity_state == TrackingConnectivityState::Metered
+    {
+        degraded_reasons.push(constants::tracking_runtime::REASON_BATTERY_THROTTLED);
+    }
+    if *low_power_mode_state == TrackingLowPowerModeState::Active {
+        degraded_reasons.push(constants::tracking_runtime::REASON_LOW_POWER_MODE);
+    }
+    if low_battery {
+        degraded_reasons.push(constants::tracking_runtime::REASON_BATTERY_LOW);
+    }
+    if *connectivity_state == TrackingConnectivityState::Metered {
+        degraded_reasons.push(constants::tracking_runtime::REASON_CONNECTIVITY_METERED);
+    }
+    degraded_reasons
+}
+
+fn capability_status_for_service_state(
+    service_state: &TrackingRuntimeServiceState,
+) -> Option<TrackingCapabilityStatusDecision> {
+    match service_state {
+        TrackingRuntimeServiceState::DisabledByParent => Some(tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_DISABLED_BY_PARENT,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            false,
+            vec![constants::tracking_runtime::REASON_DISABLED_BY_PARENT],
+        )),
+        TrackingRuntimeServiceState::AdapterError => Some(tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_ADAPTER_ERROR,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_ADAPTER_ERROR],
+        )),
+        TrackingRuntimeServiceState::ServiceDisabled => Some(tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_SERVICE_DISABLED,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_SERVICE_DISABLED],
+        )),
+        TrackingRuntimeServiceState::Unavailable => Some(tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_UNAVAILABLE,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_TRACKING_RUNTIME_UNAVAILABLE],
+        )),
+        TrackingRuntimeServiceState::Running => None,
+    }
+}
+
+fn capability_status_for_device_status(
+    device_status: &'static str,
+) -> Option<TrackingCapabilityStatusDecision> {
+    if device_status == constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY {
+        return Some(tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_OFFLINE_LAST_KNOWN_ONLY,
+            TrackingCapabilityAvailabilityState::Limited,
+            TrackingCapabilityAvailabilityState::Limited,
+            false,
+            vec![constants::tracking_runtime::REASON_TRACKING_HEARTBEAT_STALE],
+        ));
+    }
+    if device_status == constants::tracking_runtime::DEVICE_STATUS_BATTERY_THROTTLED {
+        return Some(tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_BATTERY_THROTTLED,
+            TrackingCapabilityAvailabilityState::Limited,
+            TrackingCapabilityAvailabilityState::Limited,
+            false,
+            vec![constants::tracking_runtime::REASON_BATTERY_THROTTLED],
+        ));
+    }
+    None
+}
+
+fn granted_foreground_capability_status_decision(
+    platform_state: &TrackingPlatformState,
+    background_capability_state: &TrackingBackgroundCapabilityState,
+    strict_background_required: bool,
+) -> TrackingCapabilityStatusDecision {
+    if *background_capability_state == TrackingBackgroundCapabilityState::ManagedDeviceRequired
+        || *platform_state == TrackingPlatformState::ManagedDevice
+    {
+        return tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED,
+            TrackingCapabilityAvailabilityState::Available,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_MANAGED_DEVICE_PROOF_REQUIRED],
+        );
+    }
+
+    if strict_background_required
+        || *background_capability_state == TrackingBackgroundCapabilityState::PermissionRequired
+    {
+        return tracking_capability_status_decision(
+            constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_PERMISSION_REQUIRED,
+            TrackingCapabilityAvailabilityState::Available,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_BACKGROUND_PERMISSION_REQUIRED],
+        );
+    }
+
+    if *background_capability_state == TrackingBackgroundCapabilityState::Unsupported {
+        return foreground_only_capability_status_decision(vec![
+            constants::tracking_runtime::REASON_BACKGROUND_PLATFORM_UNSUPPORTED,
+        ]);
+    }
+
+    foreground_only_capability_status_decision(Vec::new())
+}
+
+fn granted_background_capability_status_decision(
+    background_capability_state: &TrackingBackgroundCapabilityState,
+) -> TrackingCapabilityStatusDecision {
+    let (
+        capability_status,
+        background_availability_state,
+        manual_action_required,
+        degraded_reasons,
+    ) = match background_capability_state {
+        TrackingBackgroundCapabilityState::Ready => (
+            constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_READY,
+            TrackingCapabilityAvailabilityState::Available,
+            false,
+            Vec::new(),
+        ),
+        TrackingBackgroundCapabilityState::PermissionRequired => (
+            constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_PERMISSION_REQUIRED,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_BACKGROUND_PERMISSION_REQUIRED],
+        ),
+        TrackingBackgroundCapabilityState::ManagedDeviceRequired => (
+            constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            true,
+            vec![constants::tracking_runtime::REASON_MANAGED_DEVICE_PROOF_REQUIRED],
+        ),
+        TrackingBackgroundCapabilityState::Unsupported => (
+            constants::tracking_runtime::CAPABILITY_STATUS_FOREGROUND_ONLY,
+            TrackingCapabilityAvailabilityState::Unavailable,
+            false,
+            vec![constants::tracking_runtime::REASON_BACKGROUND_PLATFORM_UNSUPPORTED],
+        ),
+    };
+
+    tracking_capability_status_decision(
+        capability_status,
+        TrackingCapabilityAvailabilityState::Available,
+        background_availability_state,
+        manual_action_required,
+        degraded_reasons,
+    )
+}
+
+fn foreground_only_capability_status_decision(
+    degraded_reasons: Vec<&'static str>,
+) -> TrackingCapabilityStatusDecision {
+    tracking_capability_status_decision(
+        constants::tracking_runtime::CAPABILITY_STATUS_FOREGROUND_ONLY,
+        TrackingCapabilityAvailabilityState::Available,
+        TrackingCapabilityAvailabilityState::Unavailable,
+        false,
+        degraded_reasons,
+    )
 }

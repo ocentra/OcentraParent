@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildArtifactDeliveryProofReadModel } from './app-install-purchase-child-artifact-delivery-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
@@ -58,7 +53,9 @@ const AppInstallPurchaseApprovedApiDataCustodyClaimSchema = withParser(Schema.Li
 const AppInstallPurchaseApprovedApiEntitlementNonClaimSchema = withParser(Schema.Literal(...ApiEntitlementNonClaims));
 
 const ApiEntitlementRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementRowId');
-const ApiEntitlementChildArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementChildArtifactRowId');
+const ApiEntitlementChildArtifactRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApiEntitlementChildArtifactRowId'
+);
 const ApiEntitlementRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementRef');
 const ApiEntitlementReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementReportRef');
 const ApiEntitlementAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementAuditRef');
@@ -286,4 +283,3 @@ function apiEntitlementBoundaryIsExplicit(boundary: typeof ApiEntitlementClaimBo
     boundary.includes('not generic app blocking')
   );
 }
-

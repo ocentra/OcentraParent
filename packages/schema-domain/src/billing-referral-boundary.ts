@@ -1,23 +1,9 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
-import {
-  BillingAuditReferenceSchema,
-  NonNegativeBillingCountSchema,
-} from './billing-entitlement-values';
+import { BillingAuditReferenceSchema, NonNegativeBillingCountSchema } from './billing-entitlement-values';
 
 export const BillingReferralInviteStateSchema = withParser(
-  Schema.Literal(
-    'invite-created',
-    'invite-opened',
-    'qualified-credit-granted',
-    'fraud-review'
-  )
+  Schema.Literal('invite-created', 'invite-opened', 'qualified-credit-granted', 'fraud-review')
 );
 
 export const BillingReferralInviteResultStatusSchema = withParser(
@@ -34,22 +20,14 @@ export const BillingReferralInviteRejectionReasonSchema = withParser(
   )
 );
 
-export const BillingReferralSubjectSchema = brandedNonEmptyStringSchema(
-  'BillingReferralSubject'
-);
-export const BillingReferralRequestIdSchema = brandedNonEmptyStringSchema(
-  'BillingReferralRequestId'
-);
-export const BillingReferralInviteIdSchema = brandedNonEmptyStringSchema(
-  'BillingReferralInviteId'
-);
+export const BillingReferralSubjectSchema = brandedNonEmptyStringSchema('BillingReferralSubject');
+export const BillingReferralRequestIdSchema = brandedNonEmptyStringSchema('BillingReferralRequestId');
+export const BillingReferralInviteIdSchema = brandedNonEmptyStringSchema('BillingReferralInviteId');
 
 export const BillingReferralCodeSchema = withParser(
   NonEmptyStringSchema.pipe(
     Schema.filter(
-      (value) =>
-        /^[A-Z0-9-]+$/u.test(value) ||
-        'Expected billing referral codes to stay uppercase and hyphenated'
+      (value) => /^[A-Z0-9-]+$/u.test(value) || 'Expected billing referral codes to stay uppercase and hyphenated'
     )
   )
 );
@@ -58,8 +36,7 @@ export const BillingReferralInvitedIdentifierSchema = withParser(
   NonEmptyStringSchema.pipe(
     Schema.filter(
       (value) =>
-        !value.includes('child-') ||
-        'Expected referral invite identifiers to stay free of child-private tokens'
+        !value.includes('child-') || 'Expected referral invite identifiers to stay free of child-private tokens'
     )
   )
 );
@@ -99,18 +76,13 @@ export const BillingReferralInviteResultSchema = withParser(
     status: BillingReferralInviteResultStatusSchema,
     inviteState: Schema.Union(BillingReferralInviteStateSchema, Schema.Null),
     referralCode: Schema.Union(BillingReferralCodeSchema, Schema.Null),
-    rejectionReason: Schema.Union(
-      BillingReferralInviteRejectionReasonSchema,
-      Schema.Null
-    ),
+    rejectionReason: Schema.Union(BillingReferralInviteRejectionReasonSchema, Schema.Null),
     auditReference: BillingAuditReferenceSchema,
   }).pipe(
     Schema.filter(
       (result) =>
         result.status !== 'accepted' ||
-        (result.inviteState !== null &&
-          result.rejectionReason === null &&
-          result.referralCode !== null) ||
+        (result.inviteState !== null && result.rejectionReason === null && result.referralCode !== null) ||
         'Expected accepted referral invites to carry an invite state and referral code without a rejection reason'
     ),
     Schema.filter(
@@ -134,19 +106,9 @@ export const BillingReferralInviteResultSchema = withParser(
   )
 );
 
-export type BillingReferralInviteState = Infer<
-  typeof BillingReferralInviteStateSchema
->;
-export type BillingReferralInviteResultStatus = Infer<
-  typeof BillingReferralInviteResultStatusSchema
->;
-export type BillingReferralInviteRejectionReason = Infer<
-  typeof BillingReferralInviteRejectionReasonSchema
->;
-export type BillingReferralInviteSummary = Infer<
-  typeof BillingReferralInviteSummarySchema
->;
+export type BillingReferralInviteState = Infer<typeof BillingReferralInviteStateSchema>;
+export type BillingReferralInviteResultStatus = Infer<typeof BillingReferralInviteResultStatusSchema>;
+export type BillingReferralInviteRejectionReason = Infer<typeof BillingReferralInviteRejectionReasonSchema>;
+export type BillingReferralInviteSummary = Infer<typeof BillingReferralInviteSummarySchema>;
 export type BillingReferralSummary = Infer<typeof BillingReferralSummarySchema>;
-export type BillingReferralInviteResult = Infer<
-  typeof BillingReferralInviteResultSchema
->;
+export type BillingReferralInviteResult = Infer<typeof BillingReferralInviteResultSchema>;

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { decodeAppGameLinuxWslRuntimeProof } from '../../src/app-game-linux-wsl-runtime-proof';
+import { decodeAppGameLinuxWslRuntimeProof } from '@ocentra-parent/schema-domain/app-game-linux-wsl-runtime-proof';
 import {
   AppGameLinuxForegroundCaptureReadinessSchema,
   createAppGameLinuxForegroundCaptureReadiness,
   summarizeAppGameLinuxForegroundCaptureReadiness,
-} from '../../src/app-game-linux-foreground-capture-readiness';
+} from '@ocentra-parent/schema-domain/app-game-linux-foreground-capture-readiness';
 
 describe('app-game Linux foreground capture readiness', () => {
   it('summarizes WSLg display and socket proof as capture-tool-missing readiness', () => {

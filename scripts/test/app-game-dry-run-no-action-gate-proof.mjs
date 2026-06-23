@@ -35,7 +35,7 @@ async function main() {
   ]);
 
   const runtimeSource = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-time-budget-policy-runtime.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-time-budget-policy-runtime.ts'),
     'utf8'
   );
   const runtimeTest = await readFile(
@@ -160,7 +160,7 @@ async function main() {
     gateState: 'prevented-by-dry-run-only-and-not-dispatched-contracts',
     evidence: {
       runtimeDecision:
-        'packages/app-game-domain/src/app-game-time-budget-policy-runtime.ts builds dry-run decisions, maps exceeded dry-run budgets to time-limit-dry-run, and emits dry-run-only handoff state.',
+        'packages/schema-domain/src/app-game-time-budget-policy-runtime.ts builds dry-run decisions, maps exceeded dry-run budgets to time-limit-dry-run, and emits dry-run-only handoff state.',
       runtimeTests:
         'packages/app-game-domain/tests/unit/app-game-time-budget-policy-runtime.test.ts proves dry-run-only, disabled, ask-parent, and manual-required outcomes without adapter execution.',
       previewHandoff:

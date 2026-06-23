@@ -34,12 +34,14 @@ async function main() {
   );
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
-  const schemaWriterModule = await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
+  const schemaWriterModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
   commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
-  const schemaBoundaryModule = await import(
-    '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-runtime-transport-receipt-boundary'
+  const schemaBoundaryModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-runtime-transport-receipt-boundary');
+  commands.push(
+    'node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-runtime-transport-receipt-boundary'
   );
-  commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-runtime-transport-receipt-boundary');
   if (!('AppGameChildDeviceRuntimeWriterReadModelSchema' in schemaWriterModule)) {
     throw new Error('Missing AppGameChildDeviceRuntimeWriterReadModelSchema export from schema-domain');
   }
@@ -79,8 +81,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      boundaryOwner:
-        'packages/schema-domain/src/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.ts',
+      boundaryOwner: 'packages/schema-domain/src/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.ts',
       writerOwner: 'packages/schema-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
       consumerTest:
         'packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.test.ts',

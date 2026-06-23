@@ -1,7 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LocalAiGenerationState,
-    LocalAiProviderSchedulerJobClass, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event, local_ai_chat_generation_request::parse_generation_request,

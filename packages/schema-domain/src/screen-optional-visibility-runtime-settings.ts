@@ -1,9 +1,6 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
 import { ActivityTimestampSchema } from './evidence-primitives';
-import {
-  ScreenEvidenceReasonSchema,
-  ScreenEvidenceSettingVersionSchema,
-} from './screen-evidence-primitives';
+import { ScreenEvidenceReasonSchema, ScreenEvidenceSettingVersionSchema } from './screen-evidence-primitives';
 import {
   ScreenLiveViewOptInSettingSchema,
   ScreenRawScreenshotRetentionOptInSettingSchema,
@@ -21,9 +18,7 @@ export const ScreenOptionalVisibilityRuntimeRequestKindSchema = withParser(
   Schema.Literal('replaceRawRetention', 'replaceLiveView', 'disableAll')
 );
 
-export const ScreenOptionalVisibilityRuntimeUpdateStatusSchema = withParser(
-  Schema.Literal('accepted', 'rejected')
-);
+export const ScreenOptionalVisibilityRuntimeUpdateStatusSchema = withParser(Schema.Literal('accepted', 'rejected'));
 
 export const ScreenOptionalVisibilityRuntimeRejectionReasonSchema = withParser(
   Schema.Literal('invalid-setting', 'stale-revision', 'mode-conflict')
@@ -228,14 +223,11 @@ function rejectedRuntimeResponse(
   });
 }
 
-function optionalVisibilityRuntimeStateIsConsistent(
-  value: ScreenOptionalVisibilityRuntimeSettingsStateShape
-): boolean {
+function optionalVisibilityRuntimeStateIsConsistent(value: ScreenOptionalVisibilityRuntimeSettingsStateShape): boolean {
   return (
     value.rawScreenshotRemoteUploadEnabled === false &&
     value.productLiveViewReady === false &&
-    (value.rawRetentionSetting.mode === 'disabled' ||
-      value.liveViewSetting.liveViewMode === 'disabled')
+    (value.rawRetentionSetting.mode === 'disabled' || value.liveViewSetting.liveViewMode === 'disabled')
   );
 }
 
@@ -284,9 +276,7 @@ function disabledRawRetention(
   });
 }
 
-function disabledLiveView(
-  state: ScreenOptionalVisibilityRuntimeSettingsState
-): ScreenLiveViewOptInSetting {
+function disabledLiveView(state: ScreenOptionalVisibilityRuntimeSettingsState): ScreenLiveViewOptInSetting {
   return ScreenLiveViewOptInSettingSchema.parse({
     ...state.liveViewSetting,
     liveViewMode: 'disabled',
@@ -307,9 +297,7 @@ function disabledLiveView(
   });
 }
 
-export type ScreenOptionalVisibilityRuntimeRequestKind = Infer<
-  typeof ScreenOptionalVisibilityRuntimeRequestKindSchema
->;
+export type ScreenOptionalVisibilityRuntimeRequestKind = Infer<typeof ScreenOptionalVisibilityRuntimeRequestKindSchema>;
 export type ScreenOptionalVisibilityRuntimeUpdateStatus = Infer<
   typeof ScreenOptionalVisibilityRuntimeUpdateStatusSchema
 >;

@@ -4,7 +4,7 @@ import {
   AppGamePlatformExtensionProofPackReadinessReadModelSchema,
   AppGamePlatformExtensionProofPackReadinessRowSchema,
   summarizeAppGamePlatformExtensionProofPackReadiness,
-} from '../../src/app-game-platform-extension-proof-pack-readiness';
+} from '@ocentra-parent/schema-domain/app-game-platform-extension-proof-pack-readiness';
 
 it('covers non-Windows app/game platform extension proof packs without adapter claims', () => {
   const readModel = AppGamePlatformExtensionProofPackReadinessReadModelSchema.parse(

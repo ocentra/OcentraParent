@@ -14,7 +14,7 @@ const appGameProofDir = join(
 );
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
-const appGameUsageContractsPath = 'packages/app-game-domain/src/app-game-android-usage-events-contracts.ts';
+const appGameUsageContractsPath = 'packages/schema-domain/src/app-game-android-usage-events-contracts.ts';
 
 await main();
 
@@ -32,13 +32,13 @@ async function main() {
       'app-game-android-usage-events-capability-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
 
   const sourceProof = await assertAndroidSourceProof();
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-capability-proof.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-usage-events-capability-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsCapabilityReadModel({
@@ -67,12 +67,12 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
       androidManifest: 'platforms/android/agent/app/src/main/AndroidManifest.xml',
-      contract: 'packages/app-game-domain/src/app-game-android-usage-events-capability-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-usage-events-capability-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-capability-proof.test.ts',
     },
     claimsProved: [
       'Android package-local app/game UsageEvents capability bridge compiles into the debug package',
-      'App-game-domain contract keeps UsageStats settings grant, runtime collection, adapter dispatch, platform enforcement, and child delivery unclaimed',
+      'The centralized capability contract keeps UsageStats settings grant, runtime collection, adapter dispatch, platform enforcement, and child delivery unclaimed',
       'Android MainActivity exposes the package-local bridge state without storing raw UsageEvents rows or package names',
     ],
     claimsNotProved: [

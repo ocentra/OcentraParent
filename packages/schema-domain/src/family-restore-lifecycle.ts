@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   FamilyReferenceSchema,
@@ -16,10 +11,7 @@ import {
   HouseholdMembershipStateSchema,
   HouseholdRoleSchema,
 } from './family-household-authority';
-import {
-  SetupRecoveryAbuseStateSchema,
-  SetupRecoveryResponseTimingStateSchema,
-} from './family-setup-invite';
+import { SetupRecoveryAbuseStateSchema, SetupRecoveryResponseTimingStateSchema } from './family-setup-invite';
 
 export const RecoveryOperationIdSchema = brandedNonEmptyStringSchema('RecoveryOperationId');
 
@@ -116,7 +108,10 @@ const recoverySupportChannelValues = [
   RecoverySupportChannelLiteral.HouseholdOwnerAssisted,
   RecoverySupportChannelLiteral.SupportAssisted,
 ] as const;
-const recoveryDecisionStateValues = [RecoveryDecisionStateLiteral.Authorized, RecoveryDecisionStateLiteral.Rejected] as const;
+const recoveryDecisionStateValues = [
+  RecoveryDecisionStateLiteral.Authorized,
+  RecoveryDecisionStateLiteral.Rejected,
+] as const;
 const recoveryChildEvidenceAccessStateValues = [
   RecoveryChildEvidenceAccessStateLiteral.Allowed,
   RecoveryChildEvidenceAccessStateLiteral.Blocked,

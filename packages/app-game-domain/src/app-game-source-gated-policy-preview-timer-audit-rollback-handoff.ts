@@ -116,4 +116,3 @@ function requiredProofRefsForAuditRollback(
   }
   return schedulerPersistenceRow.requiredProofRefs;
 }
-

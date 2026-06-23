@@ -78,7 +78,8 @@ const proof = {
     schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence.ts',
     schemaRules: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence-rules.ts',
     consumerSource: 'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence.ts',
-    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-scheduler-persistence.test.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-scheduler-persistence.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-scheduler-persistence-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-timer-scheduler-persistence-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,

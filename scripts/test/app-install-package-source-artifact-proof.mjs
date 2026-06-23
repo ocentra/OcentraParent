@@ -72,9 +72,9 @@ async function main() {
     proofMode: 'app-install-package-source-artifact-proof',
     commands,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-install-purchase-approval-package-sources.ts',
-      aggregateContract: 'packages/app-game-domain/src/app-install-purchase-approval.ts',
-      proofReadModel: 'packages/app-game-domain/src/app-install-purchase-approval-proof.ts',
+      contract: 'packages/schema-domain/src/app-install-purchase-approval-package-sources.ts',
+      aggregateContract: 'packages/schema-domain/src/app-install-purchase-approval.ts',
+      proofReadModel: 'packages/schema-domain/src/app-install-purchase-approval-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approval.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

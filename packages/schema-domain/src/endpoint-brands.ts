@@ -1,8 +1,4 @@
-import {
-  Schema,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { Schema, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 
 const SlashPathString = NonEmptyStringSchema.pipe(
   Schema.filter((value) => value.startsWith('/') || 'Expected a path starting with /')

@@ -41,12 +41,12 @@ proof lessons, not the code or protocols.
 Ocentra already has several pieces that should become the base of the remote
 fabric:
 
-- `packages/agent-protocol-domain/src/primitives.ts`
+- `packages/schema-domain/src/event-primitives.ts`
   already defines `AgentRoute` values for `localhost`, `local-network`, and
   `cloud-relay`.
 - `crates/agent-protocol/src/transport.rs`
   mirrors those Rust route values.
-- `packages/agent-protocol-domain/src/defaults.ts`
+- `packages/schema-domain/src/agent-protocol-defaults.ts`
   already has route security policy defaults, including `cloud-relay` requiring
   pairing and disallowing anonymous control.
 - `packages/parent-domain/src/lan-pairing-values.ts`
@@ -189,19 +189,21 @@ The protocol can stay precise. The UI should be calm and decisive.
 
 ## Domain Model
 
-Keep the first V2 contracts in `@ocentra-parent/parent-domain` unless they grow
-large enough to justify a future `remote-domain`.
+Keep the first V2 shared contracts in `@ocentra-parent/schema-domain`. Keep
+`@ocentra-parent/parent-domain` for behavior, route selection, and
+parent-facing read models unless that behavior surface grows large enough to
+justify a future `remote-domain`.
 
 Recommended new files:
 
-- `packages/parent-domain/src/remote-route.ts`
-- `packages/parent-domain/src/remote-capability.ts`
-- `packages/parent-domain/src/remote-session.ts`
-- `packages/parent-domain/src/remote-desktop.ts`
-- `packages/parent-domain/src/remote-audit.ts`
-- `packages/parent-domain/tests/remote-route.test.ts`
-- `packages/parent-domain/tests/remote-capability.test.ts`
-- `packages/parent-domain/tests/remote-session.test.ts`
+- `packages/schema-domain/src/remote-route.ts`
+- `packages/schema-domain/src/remote-capability.ts`
+- `packages/schema-domain/src/remote-session.ts`
+- `packages/schema-domain/src/remote-desktop.ts`
+- `packages/schema-domain/src/remote-audit.ts`
+- `packages/schema-domain/tests/unit/remote-route.test.ts`
+- `packages/schema-domain/tests/unit/remote-capability.test.ts`
+- `packages/schema-domain/tests/unit/remote-session.test.ts`
 
 ### Route Contracts
 
@@ -405,12 +407,13 @@ Recommended new event names:
 
 Files:
 
-- `packages/agent-protocol-domain/src/contracts.ts`
-  adds command/event literals and exported constants.
-- `packages/agent-protocol-domain/src/security.ts`
-  either grows remote schemas or delegates to new `remote.ts`.
+- `packages/schema-domain/src/agent-command-event-contracts.ts`
+  grows the shared remote command/event literals and exported constants.
+- `packages/schema-domain/src/remote-route.ts`,
+  `remote-capability.ts`, `remote-session.ts`, and `remote-audit.ts`
+  own the shared remote schemas.
 - New `packages/agent-protocol-domain/src/remote.ts`
-  is preferable once schemas exceed a small patch.
+  is the adapter/parser layer over the central schemas.
 - `crates/agent-protocol/src/transport.rs`
   adds Rust protocol route/session types.
 - New `crates/agent-protocol/src/remote.rs`
@@ -799,10 +802,10 @@ Goal: create the typed remote vocabulary.
 
 Files:
 
-- `packages/parent-domain/src/remote-route.ts`
-- `packages/parent-domain/src/remote-capability.ts`
-- `packages/parent-domain/src/remote-session.ts`
-- `packages/parent-domain/src/remote-audit.ts`
+- `packages/schema-domain/src/remote-route.ts`
+- `packages/schema-domain/src/remote-capability.ts`
+- `packages/schema-domain/src/remote-session.ts`
+- `packages/schema-domain/src/remote-audit.ts`
 - matching tests.
 
 Proof:
@@ -818,8 +821,12 @@ Goal: portal and Rust service can speak remote intent language.
 
 Files:
 
+- `packages/schema-domain/src/agent-command-event-contracts.ts`
+- `packages/schema-domain/src/remote-route.ts`
+- `packages/schema-domain/src/remote-capability.ts`
+- `packages/schema-domain/src/remote-session.ts`
+- `packages/schema-domain/src/remote-audit.ts`
 - `packages/agent-protocol-domain/src/remote.ts`
-- `packages/agent-protocol-domain/src/contracts.ts`
 - `crates/agent-protocol/src/remote.rs`
 - `crates/agent-protocol/src/constants/remote.rs`
 - Rust protocol tests.

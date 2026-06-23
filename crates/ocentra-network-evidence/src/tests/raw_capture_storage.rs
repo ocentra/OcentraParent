@@ -4,11 +4,12 @@ use crate::{
     NetworkRawCaptureStorageError, NetworkRawCaptureStorageInput,
     NetworkRawCaptureStorageRequiredArtifact, NetworkRawCaptureStorageState,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn raw_capture_storage_accepts_custody_ready_artifact_governance_refs() {
     let proof = plan_network_raw_capture_storage(storage_ready_input(proof_ready_live_capture()))
-        .expect("complete raw capture custody refs should be storage ready");
+        .expect_value("complete raw capture custody refs should be storage ready");
 
     assert_eq!(
         proof.storage_state,
@@ -45,7 +46,7 @@ fn raw_capture_storage_records_manual_required_custody_gaps_when_artifact_is_tou
         custody_chain_verified: false,
         ..storage_ready_input(proof_ready_live_capture())
     })
-    .expect("missing custody refs should become manual-required");
+    .expect_value("missing custody refs should become manual-required");
 
     assert_eq!(
         proof.storage_state,
@@ -69,7 +70,7 @@ fn raw_capture_storage_preserves_live_capture_unavailable_and_degraded_states() 
     let unavailable = plan_network_raw_capture_storage(storage_ready_input(
         live_capture_with_state(NetworkLiveCaptureProofState::Unavailable),
     ))
-    .expect("unavailable capture state should remain visible");
+    .expect_value("unavailable capture state should remain visible");
     assert_eq!(
         unavailable.storage_state,
         NetworkRawCaptureStorageState::Unavailable
@@ -79,7 +80,7 @@ fn raw_capture_storage_preserves_live_capture_unavailable_and_degraded_states() 
     let degraded = plan_network_raw_capture_storage(storage_ready_input(live_capture_with_state(
         NetworkLiveCaptureProofState::Degraded,
     )))
-    .expect("degraded capture state should remain visible");
+    .expect_value("degraded capture state should remain visible");
     assert_eq!(
         degraded.storage_state,
         NetworkRawCaptureStorageState::Degraded
@@ -171,7 +172,7 @@ fn storage_ready_input(
 
 fn proof_ready_live_capture() -> NetworkLiveCaptureProof {
     plan_network_live_capture_proof(live_capture_input())
-        .expect("complete live capture proof refs should parse")
+        .expect_value("complete live capture proof refs should parse")
 }
 
 fn manual_required_live_capture() -> NetworkLiveCaptureProof {
@@ -180,7 +181,7 @@ fn manual_required_live_capture() -> NetworkLiveCaptureProof {
         custody_ref: None,
         ..live_capture_input()
     })
-    .expect("missing live capture custody refs should parse")
+    .expect_value("missing live capture custody refs should parse")
 }
 
 fn live_capture_with_state(state: NetworkLiveCaptureProofState) -> NetworkLiveCaptureProof {
@@ -201,7 +202,7 @@ fn live_capture_with_state(state: NetworkLiveCaptureProofState) -> NetworkLiveCa
             plan_network_live_capture_proof(live_capture_input())
         }
     }
-    .expect("live capture state fixture should parse")
+    .expect_value("live capture state fixture should parse")
 }
 
 fn live_capture_input() -> NetworkLiveCaptureProofInput {

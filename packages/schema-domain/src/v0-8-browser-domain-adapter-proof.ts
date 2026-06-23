@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
@@ -18,12 +13,24 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-export const V08BrowserDomainAdapterProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofReadModelId');
-export const V08BrowserDomainAdapterProofEntryIdSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofEntryId');
-export const V08BrowserDomainAdapterProofReferenceSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofReference');
-export const V08BrowserDomainAdapterProofRequirementSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofRequirement');
-export const V08BrowserDomainAdapterProofClaimBoundarySchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofClaimBoundary');
-export const V08BrowserDomainAdapterProofFallbackSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofFallback');
+export const V08BrowserDomainAdapterProofReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08BrowserDomainAdapterProofReadModelId'
+);
+export const V08BrowserDomainAdapterProofEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08BrowserDomainAdapterProofEntryId'
+);
+export const V08BrowserDomainAdapterProofReferenceSchema = brandedNonEmptyStringSchema(
+  'V08BrowserDomainAdapterProofReference'
+);
+export const V08BrowserDomainAdapterProofRequirementSchema = brandedNonEmptyStringSchema(
+  'V08BrowserDomainAdapterProofRequirement'
+);
+export const V08BrowserDomainAdapterProofClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'V08BrowserDomainAdapterProofClaimBoundary'
+);
+export const V08BrowserDomainAdapterProofFallbackSchema = brandedNonEmptyStringSchema(
+  'V08BrowserDomainAdapterProofFallback'
+);
 
 export const V08BrowserDomainAdapterProofSurfaceSchema = withParser(
   Schema.Literal(
@@ -963,4 +970,3 @@ function entry(input: V08BrowserDomainAdapterProofEntryInput): V08BrowserDomainA
     lastCheckedAt: documentedAt,
   });
 }
-

@@ -69,7 +69,7 @@ async function main() {
       'app-game-android-child-runtime-local-receipt-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -79,7 +79,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-child-runtime-local-receipt-proof.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-child-runtime-local-receipt-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidChildRuntimeLocalReceiptProof({
@@ -106,14 +106,14 @@ async function main() {
       androidProofSource:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
-      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-receipt-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-child-runtime-local-receipt-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-receipt-proof.test.ts',
       packageBuild: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
     },
     claimsProved: [
       'The Android child app package compiles with a package-local receipt append and readback proof',
       'MainActivity renders parent-safe local receipt append and readback states',
-      'App-game-domain accepts the Android local receipt proof only when package-local write/readback evidence is present',
+      'The centralized local-receipt proof accepts the Android evidence only when package-local write/readback markers are present',
     ],
     claimsNotProved: [
       'Physical child runtime transport execution',

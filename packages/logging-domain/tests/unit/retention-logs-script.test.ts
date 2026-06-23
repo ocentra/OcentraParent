@@ -25,7 +25,11 @@ function makeTempDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
 }
 
-function runScript(scriptPath: string, env: NodeJS.ProcessEnv, args: readonly string[]): { stdout: string; stderr: string; status: number | null } {
+function runScript(
+  scriptPath: string,
+  env: NodeJS.ProcessEnv,
+  args: readonly string[]
+): { stdout: string; stderr: string; status: number | null } {
   const result = spawnSync(process.execPath, [TSX_CLI, scriptPath, ...args], {
     cwd: workspaceRoot(),
     env,
@@ -48,11 +52,10 @@ it('retention-logs reports both log families', () => {
       ...process.env,
       OCENTRA_PARENT_LOG_DIR: tempDir,
     };
-    const result = runScript(
-      path.join(workspaceRoot(), 'packages/logging-domain/scripts/retention-logs.ts'),
-      env,
-      ['--scope=parent-test', '--keep=0']
-    );
+    const result = runScript(path.join(workspaceRoot(), 'packages/logging-domain/scripts/retention-logs.ts'), env, [
+      '--scope=parent-test',
+      '--keep=0',
+    ]);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('testRunsDeleted');
     expect(result.stdout).toContain('appSessionsDeleted');

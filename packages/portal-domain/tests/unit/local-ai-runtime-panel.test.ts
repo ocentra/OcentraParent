@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { createLocalAiRuntimePanelIntent, parseActivityMemoryGraphReadModel, PortalDetails } from '../../src/contracts';
 

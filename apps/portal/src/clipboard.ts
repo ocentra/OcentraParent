@@ -1,6 +1,5 @@
 import { PortalClipboard, PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { type PortalClipboardText } from '@ocentra-parent/portal-domain/detail-values';
-
+import { type PortalClipboardText } from '@ocentra-parent/schema-domain/portal-contracts';
 export async function writeClipboardText(text: PortalClipboardText): Promise<boolean> {
   if (navigator.clipboard !== undefined) {
     try {

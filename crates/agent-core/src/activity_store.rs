@@ -1,11 +1,17 @@
 use std::path::Path;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityIngestStatus, ActivityMemoryGraphReadModel,
-    ActivityNetworkFlowReadModel, ActivityRecentSummary, AppGameServiceReadModel,
-    AppGameSessionReport, BrowserEvidenceReadModel, LocalAiParentRuleContextRef,
-    PolicyPreviewReadModel, ScreenEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::policy_context::LocalAiParentRuleContextRef;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel;
+use ocentra_parent_agent_protocol::activity_query::{
+    ActivityIngestStatus, ActivityRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, AppGameSessionReport};
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenEvidenceRecentSummary;
 use rusqlite::{params, Connection};
 
 use crate::{

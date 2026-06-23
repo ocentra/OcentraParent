@@ -12,20 +12,14 @@ export function literalSchema<Literal extends Record<string, string>>(literal: L
 
 export function parsedLiteralRecord<
   Literal extends Record<string, string>,
-  Value extends Literal[keyof Literal] = Literal[keyof Literal]
->(
-  literal: Literal,
-  parseValue: (value: Literal[keyof Literal]) => Value
-): Readonly<Record<keyof Literal, Value>> {
+  Value extends Literal[keyof Literal] = Literal[keyof Literal],
+>(literal: Literal, parseValue: (value: Literal[keyof Literal]) => Value): Readonly<Record<keyof Literal, Value>> {
   return Object.freeze(
     Object.fromEntries(literalValues(literal).map((value) => [literalRecordKey(value), parseValue(value)]))
   ) as Readonly<Record<keyof Literal, Value>>;
 }
 
-export function hasExactlySameValues<T>(
-  values: readonly T[],
-  expectedValues: readonly T[]
-): boolean {
+export function hasExactlySameValues<T>(values: readonly T[], expectedValues: readonly T[]): boolean {
   if (values.length !== expectedValues.length) {
     return false;
   }

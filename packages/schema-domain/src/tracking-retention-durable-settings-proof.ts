@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -15,9 +10,13 @@ import {
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
 
-export const TrackingRetentionDurableSettingsProofIdSchema = brandedNonEmptyStringSchema('TrackingRetentionDurableSettingsProofId');
+export const TrackingRetentionDurableSettingsProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionDurableSettingsProofId'
+);
 
-export const TrackingRetentionDurableSettingsStoreRefSchema = brandedNonEmptyStringSchema('TrackingRetentionDurableSettingsStoreRef');
+export const TrackingRetentionDurableSettingsStoreRefSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionDurableSettingsStoreRef'
+);
 
 export const TrackingRetentionDurableSettingsRowSchema = withParser(
   Schema.Struct({
@@ -146,4 +145,3 @@ function durableSettingsRow(
     productClaimReady: false,
   });
 }
-

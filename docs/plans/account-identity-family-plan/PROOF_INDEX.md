@@ -109,7 +109,7 @@ test-results/account-identity-family-plan-security-route-gate/
 00-first-run-ui-state-machine.md
 01-household-setup-ui-proof.md
 02-device-role-ui-proof.md
-03-observer-read-only-ui-proof.md
+03-observer-read-only-proof.md
 04-recovery-ui-proof.md
 05-mobile-parent-child-claim-split-proof.md
 06-source-custody-label-proof.md
@@ -150,6 +150,37 @@ blocker:
 required environment:
 why this does not prove completion:
 next command:
+```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: account-identity-family-plan
+workpack: <WP id and name>
+owner: schema-domain | family-domain | family-identity-core | setup-domain | provisioning-core | portal-domain | apps/portal | protocol/service | docs-only
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+correlation_id: <runtime/proof correlation id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <raw stdout/stderr artifact pointer, test-results path, proof file, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+redaction_note: <tokens/provider claims/session secrets/child activity data redacted or n/a>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store raw stdout/stderr, Playwright artifacts, screenshots, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
+## Runtime and local harness split
+
+Runtime/product-safe proof must show redaction and custody boundaries. Local harness proof may include richer diagnostics, but it still stores raw logs by pointer and keeps plan docs compact.
+
+```text
+runtime-safe: no raw session secrets, provider claims, recovery tokens, invite secrets, or child activity data.
+local harness: enough file/line/command/artifact context for Codex/MCP/humans to debug without reading terminal walls.
 ```
 
 ## No-claim language

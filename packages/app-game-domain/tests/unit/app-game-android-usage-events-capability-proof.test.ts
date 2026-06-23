@@ -3,11 +3,11 @@ import {
   AppGameAndroidUsageEventsCapabilityReadModelSchema,
   createAppGameAndroidUsageEventsCapabilityReadModel,
   summarizeAppGameAndroidUsageEventsCapabilityReadModel,
-} from '../../src/app-game-android-usage-events-capability-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-capability-proof';
 import {
   AppGameAndroidUsageEventsCommandName,
   AppGameAndroidUsageEventsEventName,
-} from '../../src/app-game-android-usage-events-contracts';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-contracts';
 
 describe('app-game Android UsageEvents capability proof', () => {
   it('accepts the package-local Android UsageEvents bridge without promoting runtime claims', () => {

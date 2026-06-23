@@ -16,6 +16,8 @@
 
 Status column reflects runtime execution state, not engineering-spec completeness.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
 | open | [WP00 Cloudflare Control Plane Handoff](workpacks/00-cloudflare-control-plane-handoff.md) | 0/8 | `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/` |
@@ -55,6 +57,15 @@ WP12 depends on WP03/WP05 and admin/support boundaries.
 WP07 is last and consumes all previous proof roots.
 ```
 
+## Selection rules
+
+- Choose exactly one workpack.
+- If the selected workpack owner/proof family is unclear, classify it through `WORKPACK_FAMILIES.md`; do not scan every family.
+- Do not start any runtime workpack while WP00 lacks accepted Cloudflare handoff proof or an exact blocker.
+- Do not use Cloudflare scaffold, route presence, provider docs, assertion matrix rows, or spec completeness as runtime proof.
+- Do not use billing-domain tests as parent dashboard proof without the targeted parent-surface proof.
+- Do not use provider checkout/portal proof as entitlement proof.
+
 ## Do not select
 
-Do not implement account identity, device trust, Cloudflare scaffold, data custody, setup/install, or policy semantics in this plan.
+Do not implement account identity, device trust, Cloudflare scaffold, data custody, setup/install, policy semantics, enforcement behavior, or child telemetry in this plan.

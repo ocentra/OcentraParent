@@ -6,12 +6,16 @@ use crate::{
     NetworkScreenSummaryTriggerError, NetworkScreenSummaryTriggerInput,
     NetworkScreenSummaryTriggerPlan, NetworkScreenSummaryTriggerStatus,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn screen_summary_trigger_queues_when_recommended_enabled_and_custody_ready() {
     let plan = plan_network_screen_summary_trigger(input(weak_network_bundle()))
-        .expect("recommended screen summary should queue with custody refs");
-    let job = plan.job.as_ref().expect("queued plan should include job");
+        .expect_value("recommended screen summary should queue with custody refs");
+    let job = plan
+        .job
+        .as_ref()
+        .expect_value("queued plan should include job");
 
     assert_eq!(plan.status, NetworkScreenSummaryTriggerStatus::Queued);
     assert_eq!(
@@ -31,7 +35,7 @@ fn screen_summary_trigger_queues_when_recommended_enabled_and_custody_ready() {
 #[test]
 fn screen_summary_trigger_skips_when_cascade_does_not_recommend_screen() {
     let plan = plan_network_screen_summary_trigger(input(confirmed_domain_bundle()))
-        .expect("confirmed source should not queue screen summary");
+        .expect_value("confirmed source should not queue screen summary");
 
     assert_eq!(
         plan.status,
@@ -52,7 +56,7 @@ fn screen_summary_trigger_preserves_disabled_unavailable_protected_and_debounced
         screen_summary_enabled: false,
         ..input(weak_network_bundle())
     })
-    .expect("disabled state should be explicit");
+    .expect_value("disabled state should be explicit");
     assert_eq!(
         disabled.status,
         NetworkScreenSummaryTriggerStatus::DisabledByParent
@@ -63,7 +67,7 @@ fn screen_summary_trigger_preserves_disabled_unavailable_protected_and_debounced
         queue_available: false,
         ..input(weak_network_bundle())
     })
-    .expect("queue unavailable should be explicit");
+    .expect_value("queue unavailable should be explicit");
     assert_eq!(
         queue_unavailable.status,
         NetworkScreenSummaryTriggerStatus::QueueUnavailable
@@ -73,7 +77,7 @@ fn screen_summary_trigger_preserves_disabled_unavailable_protected_and_debounced
         protected_surface_detected: true,
         ..input(weak_network_bundle())
     })
-    .expect("protected surface should not queue");
+    .expect_value("protected surface should not queue");
     assert_eq!(
         protected.status,
         NetworkScreenSummaryTriggerStatus::ProtectedSurfaceUnavailable
@@ -83,7 +87,7 @@ fn screen_summary_trigger_preserves_disabled_unavailable_protected_and_debounced
         debounce_clear: false,
         ..input(weak_network_bundle())
     })
-    .expect("debounced trigger should not queue");
+    .expect_value("debounced trigger should not queue");
     assert_eq!(
         debounced.status,
         NetworkScreenSummaryTriggerStatus::Debounced
@@ -96,7 +100,7 @@ fn screen_summary_trigger_requires_local_custody_deletion_and_runtime() {
         encrypted_temporary_custody_available: false,
         ..input(weak_network_bundle())
     })
-    .expect("missing custody should be manual-required");
+    .expect_value("missing custody should be manual-required");
     assert_eq!(
         custody.status,
         NetworkScreenSummaryTriggerStatus::CustodyManualRequired
@@ -106,7 +110,7 @@ fn screen_summary_trigger_requires_local_custody_deletion_and_runtime() {
         delete_after_analysis_available: false,
         ..input(weak_network_bundle())
     })
-    .expect("missing deletion policy should be manual-required");
+    .expect_value("missing deletion policy should be manual-required");
     assert_eq!(
         deletion.status,
         NetworkScreenSummaryTriggerStatus::CustodyManualRequired
@@ -116,7 +120,7 @@ fn screen_summary_trigger_requires_local_custody_deletion_and_runtime() {
         local_only_runtime_available: false,
         ..input(weak_network_bundle())
     })
-    .expect("missing local runtime should be manual-required");
+    .expect_value("missing local runtime should be manual-required");
     assert_eq!(
         runtime.status,
         NetworkScreenSummaryTriggerStatus::CustodyManualRequired
@@ -247,7 +251,7 @@ fn bundle(
             adapter_action_authority: false,
         }],
     })
-    .expect("test bundle should be valid");
+    .expect_value("test bundle should be valid");
     if signal_strength == NetworkCascadeSignalStrength::WeakHint {
         assert!(bundle
             .next_checks

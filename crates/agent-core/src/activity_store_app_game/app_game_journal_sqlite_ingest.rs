@@ -1,32 +1,39 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow,
-    AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION, APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
-    APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE, APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
-    APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED, APP_GAME_FOREGROUND_BACKGROUND,
-    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
-    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
-    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
-    APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID, APP_GAME_JOURNAL_LAUNCHER_SUBJECT_ID,
-    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_FOREGROUND,
-    APP_GAME_JOURNAL_ROW_KIND_INVENTORY, APP_GAME_JOURNAL_ROW_KIND_LAUNCHER,
-    APP_GAME_JOURNAL_ROW_KIND_RUNTIME, APP_GAME_JOURNAL_SOURCE_ID,
-    APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceRef, ActivityObserver, ActivitySource,
+    ActivitySubject, ActivitySubjectKind,
+};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
+    AppGameRuntimeEvidenceRow,
+};
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER, APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
+    APP_GAME_CLASSIFICATION_PERMISSION_LIMITED, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
+    APP_GAME_FOREGROUND_BACKGROUND, APP_GAME_FOREGROUND_FOREGROUND,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
+    APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE, APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL,
+    APP_GAME_JOURNAL_FIELD_REPLAY_STATE, APP_GAME_JOURNAL_FIELD_ROW_JSON,
+    APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID,
+    APP_GAME_JOURNAL_LAUNCHER_SUBJECT_ID, APP_GAME_JOURNAL_REPLAY_STATE_STORED,
+    APP_GAME_JOURNAL_ROW_KIND_FOREGROUND, APP_GAME_JOURNAL_ROW_KIND_INVENTORY,
+    APP_GAME_JOURNAL_ROW_KIND_LAUNCHER, APP_GAME_JOURNAL_ROW_KIND_RUNTIME,
+    APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE,
     APP_GAME_LAUNCHER_PROOF_CLASSIFIER_BACKED_CHILD_GAME,
     APP_GAME_LAUNCHER_PROOF_DETERMINISTIC_CHILD_GAME, APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY,
     APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
     APP_GAME_OBSERVATION_MODE_PROCESS_EXIT, APP_GAME_OBSERVATION_MODE_PROCESS_START,
     APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_NOT_RUNNING, APP_GAME_RUNTIME_RUNNING,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
-pub(crate) mod protocol_rows;
+pub mod protocol_rows;
 pub(crate) mod read_model;
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) enum AppGameJournalSqliteIngestError {
+pub enum AppGameJournalSqliteIngestError {
     InventoryClaimsUse,
     RuntimeClaimsForeground,
     RuntimeExitInvalid,
@@ -47,7 +54,7 @@ pub(crate) enum AppGameJournalSqliteIngestError {
     Json,
 }
 
-pub(crate) fn app_game_inventory_journal_event(
+pub fn app_game_inventory_journal_event(
     device_id: &str,
     platform: &str,
     row: &AppGameInventoryEvidenceRow,
@@ -73,7 +80,7 @@ pub(crate) fn app_game_inventory_journal_event(
     }))
 }
 
-pub(crate) fn app_game_runtime_journal_event(
+pub fn app_game_runtime_journal_event(
     device_id: &str,
     platform: &str,
     row: &AppGameRuntimeEvidenceRow,
@@ -116,7 +123,7 @@ pub(crate) fn app_game_runtime_journal_event(
     }))
 }
 
-pub(crate) fn app_game_foreground_journal_event(
+pub fn app_game_foreground_journal_event(
     device_id: &str,
     platform: &str,
     row: &AppGameForegroundEvidenceRow,
@@ -163,7 +170,7 @@ pub(crate) fn app_game_foreground_journal_event(
     }))
 }
 
-pub(crate) fn app_game_launcher_journal_event(
+pub fn app_game_launcher_journal_event(
     device_id: &str,
     platform: &str,
     row: &AppGameLauncherEvidenceRow,
@@ -314,7 +321,7 @@ pub(super) struct ActivityEventInput<'a> {
     pub device_id: &'a str,
     pub platform: &'a str,
     pub fields: LogFields,
-    pub evidence: Vec<ocentra_parent_agent_protocol::ActivityEvidenceRef>,
+    pub evidence: Vec<ActivityEvidenceRef>,
 }
 
 pub(super) fn activity_event(input: ActivityEventInput<'_>) -> ActivityEvent {

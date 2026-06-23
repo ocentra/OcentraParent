@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryProofReadModel } from './app-install-purchase-external-runtime-writer-delivery-boundary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ExternalRuntimeWriterDeliveryBlockerProofVersion =
@@ -92,10 +87,18 @@ const ExternalRuntimeWriterDeliveryRequiredBlockerSchema = withParser(
   Schema.Literal(...ExternalRuntimeWriterDeliveryRequiredBlockers)
 );
 
-const ExternalRuntimeWriterDeliveryBlockerRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRowId');
-const ExternalRuntimeWriterDeliveryBlockerRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRef');
-const ExternalRuntimeWriterDeliveryBlockerAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerAuditRef');
-const ExternalRuntimeWriterDeliveryBlockerBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerBoundary');
+const ExternalRuntimeWriterDeliveryBlockerRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRowId'
+);
+const ExternalRuntimeWriterDeliveryBlockerRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRef'
+);
+const ExternalRuntimeWriterDeliveryBlockerAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerAuditRef'
+);
+const ExternalRuntimeWriterDeliveryBlockerBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerBoundary'
+);
 
 const ExternalRuntimeWriterDeliveryBlockerRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofSchemaVersionSchema,
@@ -345,4 +348,3 @@ function externalRuntimeWriterDeliveryBlockerBoundaryIsExplicit(
 ): boolean {
   return ExternalRuntimeWriterDeliveryBlockerFragments.every((fragment) => boundary.includes(fragment));
 }
-

@@ -1,10 +1,5 @@
 import { EventingEventTypeSchema } from './eventing';
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const LanPairingSchemaVersionSchema = withParser(Schema.Literal('v0.9'));
 

@@ -43,7 +43,7 @@ async function main() {
       'app-game-android-accessibility-enabled-sample-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -66,7 +66,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-accessibility-enabled-sample-proof.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-accessibility-enabled-sample-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidAccessibilityEnabledSampleProof({
@@ -87,7 +87,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-accessibility-enabled-sample-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-accessibility-enabled-sample-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-accessibility-enabled-sample-proof.test.ts',
       androidService:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java',
@@ -100,7 +100,7 @@ async function main() {
     claimsProved: [
       'Android Accessibility service can be settings-enabled for the debug child-agent package on the physical Samsung Galaxy S9 proof target',
       'The package-local service reports a bound runtime state and count-only window-state event sample after app launch',
-      'App-game-domain records only settings enablement, UI state, and event count without raw Accessibility event rows, service names, overlay content, delivery, dispatch, or enforcement claims',
+      'The centralized sample proof records only settings enablement, UI state, and event count without raw Accessibility event rows, service names, overlay content, delivery, dispatch, or enforcement claims',
     ],
     claimsNotProved: [
       'Warning, block, request, or usage-context overlay execution',
@@ -136,7 +136,7 @@ async function writeBlockedProof({ sourceState, settingsBefore }) {
     settingsBefore: redactSettings(settingsBefore),
     sourceState,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-accessibility-enabled-sample-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-accessibility-enabled-sample-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-accessibility-enabled-sample-proof.test.ts',
       androidService:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java',

@@ -1,6 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityReportDocument, ActivityReportFrequency, ActivitySavedReportState,
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReportDocument, ActivityReportFrequency, ActivitySavedReportState,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::{
@@ -74,7 +78,7 @@ pub async fn build_activity_screen_read_model(command: AgentCommandEnvelope) -> 
         constants::activity_surface::READ_MODEL_SCREEN,
         read_model.state,
         read_model.rows.len(),
-        serde_json::to_string(&read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serialized_json(&read_model),
     )
 }
 
@@ -89,7 +93,7 @@ pub async fn build_activity_app_use_read_model(
         constants::activity_surface::READ_MODEL_APP_USE,
         read_model.state,
         read_model.rows.len(),
-        serde_json::to_string(&read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serialized_json(&read_model),
     )
 }
 
@@ -104,7 +108,7 @@ pub async fn build_activity_browser_read_model(
         constants::activity_surface::READ_MODEL_BROWSER,
         read_model.state,
         read_model.rows.len(),
-        serde_json::to_string(&read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serialized_json(&read_model),
     )
 }
 
@@ -117,7 +121,7 @@ pub async fn build_activity_games_read_model(command: AgentCommandEnvelope) -> A
         constants::activity_surface::READ_MODEL_GAMES,
         read_model.state,
         read_model.rows.len(),
-        serde_json::to_string(&read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serialized_json(&read_model),
     )
 }
 
@@ -132,7 +136,7 @@ pub async fn build_activity_network_read_model(
         constants::activity_surface::READ_MODEL_NETWORK,
         read_model.state,
         read_model.rows.len(),
-        serde_json::to_string(&read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serialized_json(&read_model),
     )
 }
 
@@ -157,7 +161,7 @@ fn read_model_event(
     event: AgentEventName,
     event_id: &'static str,
     read_model_kind: &'static str,
-    state: ocentra_parent_agent_protocol::ActivityReadModelState,
+    state: ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState,
     row_count: usize,
     read_model_json: String,
 ) -> AgentEventEnvelope {
@@ -170,4 +174,13 @@ fn read_model_event(
         activity_read_model_payload(read_model_kind, state, row_count, read_model_json),
         None,
     )
+}
+
+fn serialized_json<T>(value: &T) -> String
+where
+    T: serde::Serialize,
+{
+    serde_json::to_string(value).unwrap_or_else(|_| {
+        serde_json::Value::String(constants::error::AGENT_EVENT_SERIALIZES.to_string()).to_string()
+    })
 }

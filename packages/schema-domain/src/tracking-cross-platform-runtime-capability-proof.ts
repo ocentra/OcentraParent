@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 const CountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
@@ -26,7 +20,9 @@ export const TrackingCrossPlatformRuntimeCapabilityStatusSchema = withParser(
   Schema.Literal('local-proof-passed', 'ci-manual-required', 'host-tool-unavailable')
 );
 
-export const TrackingCrossPlatformRuntimeCapabilityRefSchema = brandedNonEmptyStringSchema('TrackingCrossPlatformRuntimeCapabilityRef');
+export const TrackingCrossPlatformRuntimeCapabilityRefSchema = brandedNonEmptyStringSchema(
+  'TrackingCrossPlatformRuntimeCapabilityRef'
+);
 
 export const RequiredTrackingCrossPlatformRuntimeCapabilityAreas = [
   'windows-host-toolchain',
@@ -236,4 +232,3 @@ function hasPassed(
 ): boolean {
   return rows.some((row) => row.area === area && row.status === 'local-proof-passed');
 }
-

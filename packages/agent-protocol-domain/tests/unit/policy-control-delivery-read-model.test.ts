@@ -11,144 +11,14 @@ import { parseAgentPolicyControlDeliveryReadModelEvent } from '../../src/policy-
 const Timestamp = '2026-06-13T21:05:00Z';
 
 describe('policy control delivery read-model adapter', () => {
-  it('parses parent-visible ack degraded manual-required and partial delivery states', () => {
-    const result = parseAgentPolicyControlDeliveryReadModelEvent(eventWithSnapshot(snapshot()));
-
-    expect(result.ok).toBe(true);
-    if (!result.ok) {
-      return;
-    }
-
-    expect(result.value.rows).toHaveLength(4);
-    expect(result.value.acknowledgedCount).toBe(1);
-    expect(result.value.degradedCount).toBe(1);
-    expect(result.value.manualRequiredCount).toBe(1);
-    expect(result.value.partiallyAppliedCount).toBe(1);
-    expect(result.value.parentVisibleState).toBe('manual-required');
-    expect(result.value.activationBlocked).toBe(true);
-    expect(result.value.rows[1]?.transportState).toBe('offline');
-    expect(result.value.rows[2]?.manualProofRequirements).toEqual(['child-device-admin-permission-regrant']);
-    expect(result.value.rows[3]?.domainStates.map((state) => state.deliveryState)).toEqual([
-      'applied',
-      'degraded',
-    ]);
-  });
-
-  it('rejects wrong events missing json invalid json and unsafe delivery state claims', () => {
-    expect(
-      parseAgentPolicyControlDeliveryReadModelEvent({
-        ...eventWithSnapshot(snapshot()),
-        event: 'agent.health.reported',
-      }).ok
-    ).toBe(false);
-    expect(
-      parseAgentPolicyControlDeliveryReadModelEvent({
-        ...eventWithSnapshot(snapshot()),
-        payload: {},
-      })
-    ).toEqual({
-      ok: false,
-      reason: 'missing-json-field',
-    });
-    expect(
-      parseAgentPolicyControlDeliveryReadModelEvent({
-        ...eventWithSnapshot(snapshot()),
-        payload: {
-          [PolicyControlDeliveryReadModelPayloadField]: '{',
-        },
-      })
-    ).toEqual({
-      ok: false,
-      reason: 'invalid-json',
-    });
-    expect(
-      parseAgentPolicyControlDeliveryReadModelEvent(
-        eventWithSnapshot({
-          ...snapshot(),
-          rows: [
-            {
-              ...appliedRow(),
-              ackState: 'pending',
-            },
-          ],
-          pendingCount: 0,
-          acknowledgedCount: 0,
-          degradedCount: 0,
-          manualRequiredCount: 0,
-          appliedCount: 1,
-          partiallyAppliedCount: 0,
-          rejectedCount: 0,
-          rolledBackCount: 0,
-          supersededCount: 0,
-          expiredBeforeDeliveryCount: 0,
-          parentVisibleState: 'applied',
-          activationBlocked: false,
-        })
-      )
-    ).toEqual({
-      ok: false,
-      reason: 'invalid-payload',
-    });
-    expect(
-      PolicyControlDeliveryReadModelSnapshotSchema.safeParse({
-        ...snapshot(),
-        rows: [
-          {
-            ...manualRequiredRow(),
-            manualProofRequirements: [],
-            ackState: 'pending',
-            applyState: 'pending',
-          },
-        ],
-        pendingCount: 0,
-        acknowledgedCount: 0,
-        degradedCount: 0,
-        manualRequiredCount: 1,
-        appliedCount: 0,
-        partiallyAppliedCount: 0,
-        rejectedCount: 0,
-        rolledBackCount: 0,
-        supersededCount: 0,
-        expiredBeforeDeliveryCount: 0,
-        parentVisibleState: 'manual-required',
-        activationBlocked: true,
-      }).success
-    ).toBe(false);
-    expect(
-      PolicyControlDeliveryReadModelSnapshotSchema.safeParse({
-        ...snapshot(),
-        rows: [
-          {
-            ...partialRow(),
-            domainStates: [
-              {
-                ...partialRow().domainStates[0],
-                deliveryState: 'applied',
-              },
-              {
-                ...partialRow().domainStates[1],
-                deliveryState: 'applied',
-                lastAckEventId: 'partial-screen-ack-1',
-                lastAppliedEventId: 'partial-screen-apply-1',
-              },
-            ],
-          },
-        ],
-        pendingCount: 0,
-        acknowledgedCount: 0,
-        degradedCount: 0,
-        manualRequiredCount: 0,
-        appliedCount: 0,
-        partiallyAppliedCount: 1,
-        rejectedCount: 0,
-        rolledBackCount: 0,
-        supersededCount: 0,
-        expiredBeforeDeliveryCount: 0,
-        parentVisibleState: 'partially-applied',
-        activationBlocked: true,
-      }).success
-    ).toBe(false);
-  });
+  it(
+    'parses parent-visible ack degraded manual-required and partial delivery states',
+    assertParentVisibleDeliveryStateParsing
+  );
+  it(
+    'rejects wrong events missing json invalid json and unsafe delivery state claims',
+    assertInvalidDeliveryStateRejections
+  );
 });
 
 function eventWithSnapshot(snapshot: unknown) {
@@ -360,4 +230,164 @@ function appliedRow() {
       },
     ],
   };
+}
+
+function assertParentVisibleDeliveryStateParsing() {
+  const result = parseAgentPolicyControlDeliveryReadModelEvent(eventWithSnapshot(snapshot()));
+
+  expect(result.ok).toBe(true);
+  if (!result.ok) {
+    return;
+  }
+
+  expect(result.value.rows).toHaveLength(4);
+  expect(result.value.acknowledgedCount).toBe(1);
+  expect(result.value.degradedCount).toBe(1);
+  expect(result.value.manualRequiredCount).toBe(1);
+  expect(result.value.partiallyAppliedCount).toBe(1);
+  expect(result.value.parentVisibleState).toBe('manual-required');
+  expect(result.value.activationBlocked).toBe(true);
+  expect(result.value.rows[1]?.transportState).toBe('offline');
+  expect(result.value.rows[2]?.manualProofRequirements).toEqual(['child-device-admin-permission-regrant']);
+  expect(result.value.rows[3]?.domainStates.map((state) => state.deliveryState)).toEqual(['applied', 'degraded']);
+}
+
+function assertInvalidDeliveryStateRejections() {
+  expectWrongEventRejection();
+  expectMissingJsonFieldRejection();
+  expectInvalidJsonRejection();
+  expectUnsafeAppliedStateRejection();
+  expectMissingManualProofRequirementsRejection();
+  expectUnsafePartialDomainStateRejection();
+}
+
+function expectWrongEventRejection() {
+  expect(
+    parseAgentPolicyControlDeliveryReadModelEvent({
+      ...eventWithSnapshot(snapshot()),
+      event: 'agent.health.reported',
+    }).ok
+  ).toBe(false);
+}
+
+function expectMissingJsonFieldRejection() {
+  expect(
+    parseAgentPolicyControlDeliveryReadModelEvent({
+      ...eventWithSnapshot(snapshot()),
+      payload: {},
+    })
+  ).toEqual({
+    ok: false,
+    reason: 'missing-json-field',
+  });
+}
+
+function expectInvalidJsonRejection() {
+  expect(
+    parseAgentPolicyControlDeliveryReadModelEvent({
+      ...eventWithSnapshot(snapshot()),
+      payload: {
+        [PolicyControlDeliveryReadModelPayloadField]: '{',
+      },
+    })
+  ).toEqual({
+    ok: false,
+    reason: 'invalid-json',
+  });
+}
+
+function expectUnsafeAppliedStateRejection() {
+  expect(
+    parseAgentPolicyControlDeliveryReadModelEvent(
+      eventWithSnapshot({
+        ...snapshot(),
+        rows: [
+          {
+            ...appliedRow(),
+            ackState: 'pending',
+          },
+        ],
+        pendingCount: 0,
+        acknowledgedCount: 0,
+        degradedCount: 0,
+        manualRequiredCount: 0,
+        appliedCount: 1,
+        partiallyAppliedCount: 0,
+        rejectedCount: 0,
+        rolledBackCount: 0,
+        supersededCount: 0,
+        expiredBeforeDeliveryCount: 0,
+        parentVisibleState: 'applied',
+        activationBlocked: false,
+      })
+    )
+  ).toEqual({
+    ok: false,
+    reason: 'invalid-payload',
+  });
+}
+
+function expectMissingManualProofRequirementsRejection() {
+  expect(
+    PolicyControlDeliveryReadModelSnapshotSchema.safeParse({
+      ...snapshot(),
+      rows: [
+        {
+          ...manualRequiredRow(),
+          manualProofRequirements: [],
+          ackState: 'pending',
+          applyState: 'pending',
+        },
+      ],
+      pendingCount: 0,
+      acknowledgedCount: 0,
+      degradedCount: 0,
+      manualRequiredCount: 1,
+      appliedCount: 0,
+      partiallyAppliedCount: 0,
+      rejectedCount: 0,
+      rolledBackCount: 0,
+      supersededCount: 0,
+      expiredBeforeDeliveryCount: 0,
+      parentVisibleState: 'manual-required',
+      activationBlocked: true,
+    }).success
+  ).toBe(false);
+}
+
+function expectUnsafePartialDomainStateRejection() {
+  expect(
+    PolicyControlDeliveryReadModelSnapshotSchema.safeParse({
+      ...snapshot(),
+      rows: [
+        {
+          ...partialRow(),
+          domainStates: [
+            {
+              ...partialRow().domainStates[0],
+              deliveryState: 'applied',
+            },
+            {
+              ...partialRow().domainStates[1],
+              deliveryState: 'applied',
+              lastAckEventId: 'partial-screen-ack-1',
+              lastAppliedEventId: 'partial-screen-apply-1',
+            },
+          ],
+        },
+      ],
+      pendingCount: 0,
+      acknowledgedCount: 0,
+      degradedCount: 0,
+      manualRequiredCount: 0,
+      appliedCount: 0,
+      partiallyAppliedCount: 1,
+      rejectedCount: 0,
+      rolledBackCount: 0,
+      supersededCount: 0,
+      expiredBeforeDeliveryCount: 0,
+      parentVisibleState: 'partially-applied',
+      activationBlocked: true,
+    }).success
+  ).toBe(false);
 }

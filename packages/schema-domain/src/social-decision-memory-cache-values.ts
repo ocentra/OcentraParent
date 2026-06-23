@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const SocialDecisionMemoryCacheSchemaVersionSchema = withParser(Schema.Literal('social-decision-memory-cache'));
 
@@ -63,4 +58,3 @@ export type SocialDecisionMemorySubjectKind = Infer<typeof SocialDecisionMemoryS
 export type SocialDecisionMemoryState = Infer<typeof SocialDecisionMemoryStateSchema>;
 export type SocialDecisionMemoryTtlClass = Infer<typeof SocialDecisionMemoryTtlClassSchema>;
 export type SocialDecisionMemoryCacheKeyKind = Infer<typeof SocialDecisionMemoryCacheKeyKindSchema>;
-

@@ -5,12 +5,14 @@ use std::{
 };
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, SCREEN_CATEGORY_UNKNOWN,
-    SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV,
-    SCREEN_SERVICE_EVENT_ID_PREFIX, SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID,
-    SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX, SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID,
-    SCREEN_SERVICE_SUMMARY_CAPTURED, SCREEN_SERVICE_TEMPLATE_VERSION,
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    SCREEN_CATEGORY_UNKNOWN, SCREEN_PROVIDER_SERVICE_METADATA,
+    SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV, SCREEN_SERVICE_EVENT_ID_PREFIX,
+    SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID, SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
+    SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID, SCREEN_SERVICE_SUMMARY_CAPTURED,
+    SCREEN_SERVICE_TEMPLATE_VERSION,
 };
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
@@ -47,7 +49,7 @@ fn screen_cadence_tick_respects_disabled_screen_analysis_setting() {
         max_ticks: Some(1),
         max_pending_queue_records: 1,
         temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir: test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: test_path(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: test_path(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
@@ -65,7 +67,9 @@ fn screen_cadence_tick_respects_disabled_screen_analysis_setting() {
         ),
         1,
     )
-    .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    .unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+    });
 
     assert_eq!(outcome, ScreenAiCadenceTickOutcome::Suppressed);
     assert!(!config.queue_dir.exists());
@@ -83,7 +87,7 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         max_ticks: Some(1),
         max_pending_queue_records: 3,
         temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
@@ -115,24 +119,52 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
         temporary_image_ttl_seconds: config.temporary_image_ttl_seconds,
     })
-    .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    .unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+    });
 
     let queue_file = config
         .queue_dir
         .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
-    let queue_record =
-        fs::read_to_string(queue_file).expect(constants::error::ACTIVITY_STORE_OPENS);
-    assert!(queue_record.contains(&queue_job_id));
-    assert!(!queue_record.contains(constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER));
+    let queue_record = fs::read_to_string(queue_file).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
+    let queue_lines = queue_record.lines().collect::<Vec<_>>();
+    assert_eq!(queue_lines.len(), 1);
+    let queue_entry: serde_json::Value =
+        serde_json::from_str(queue_lines[0]).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
+    let ciphertext = queue_entry
+        .get(constants::field::CIPHERTEXT)
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or_else(|| panic!("missing {}", constants::field::CIPHERTEXT));
 
-    let store =
-        ActivityStore::open(&config.store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    assert_eq!(
+        queue_entry
+            .get(constants::field::SCREEN_QUEUE_JOB_ID)
+            .and_then(serde_json::Value::as_str),
+        Some(queue_job_id.as_str())
+    );
+    assert_eq!(
+        queue_entry
+            .get(constants::field::STATUS)
+            .and_then(serde_json::Value::as_str),
+        Some(ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED)
+    );
+    assert_ne!(ciphertext, constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER);
+
+    let store = ActivityStore::open(&config.store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
+        });
 
     assert_eq!(summary.returned, 1);
     assert_eq!(
@@ -154,12 +186,14 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
 fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
-    fs::create_dir_all(&queue_dir).expect(constants::error::ACTIVITY_STORE_OPENS);
+    fs::create_dir_all(&queue_dir).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     fs::write(
         queue_dir.join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME),
         SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE,
     )
-    .expect(constants::error::ACTIVITY_STORE_OPENS);
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let config = ScreenAiCadenceRuntimeConfig {
         screen_analysis_enabled: true,
         cadence_capture_enabled: true,
@@ -168,7 +202,7 @@ fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
         max_ticks: Some(1),
         max_pending_queue_records: 1,
         temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir,
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
@@ -186,7 +220,9 @@ fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
         ),
         1,
     )
-    .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    .unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+    });
 
     assert_eq!(
         outcome,

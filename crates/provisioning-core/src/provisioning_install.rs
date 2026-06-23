@@ -34,7 +34,6 @@ const PROVISIONING_READINESS_EVALUATED_EVENT_TYPE: &str = "provisioning.readines
 const PROVISIONING_ACTION_PLANNED_EVENT_TYPE: &str = "provisioning.action.planned";
 const PROVISIONING_IDEMPOTENCY_SEPARATOR: &str = ":";
 const PROVISIONING_ACTION_PREFIX: &str = "provisioning-action:";
-const ERROR_PROVISIONING_ACTION_ID: &str = "provisioning action id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AccountReadinessState {
@@ -498,7 +497,7 @@ impl DomainEvent for ProvisioningReadinessEvaluatedEvent {
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         provisioning_idempotency_key(
-            EventType::parse(PROVISIONING_READINESS_EVALUATED_EVENT_TYPE)?,
+            &EventType::parse(PROVISIONING_READINESS_EVALUATED_EVENT_TYPE)?,
             &self.evaluation_id,
         )
     }
@@ -515,7 +514,7 @@ impl DomainEvent for ProvisioningActionPlannedEvent {
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         provisioning_idempotency_key(
-            EventType::parse(PROVISIONING_ACTION_PLANNED_EVENT_TYPE)?,
+            &EventType::parse(PROVISIONING_ACTION_PLANNED_EVENT_TYPE)?,
             &self.action_plan_id,
         )
     }
@@ -640,10 +639,7 @@ pub fn provisioning_action_planned_event(
 ) -> ProvisioningActionPlannedEvent {
     ProvisioningActionPlannedEvent {
         aggregate_id: event.aggregate_id,
-        action_plan_id: ProvisioningActionPlanId::parse(provisioning_action_ref(
-            &event.evaluation_id,
-        ))
-        .expect(ERROR_PROVISIONING_ACTION_ID),
+        action_plan_id: ProvisioningActionPlanId(provisioning_action_ref(&event.evaluation_id)),
         source_evaluation_id: event.evaluation_id,
         action_plan: plan_provisioning_actions(event.input),
     }
@@ -936,7 +932,7 @@ fn provisioning_event_contract(event_type: EventType) -> Result<EventContract, E
 }
 
 fn provisioning_idempotency_key(
-    event_type: EventType,
+    event_type: &EventType,
     unique_ref: impl std::fmt::Display,
 ) -> Result<IdempotencyKey, EventingError> {
     IdempotencyKey::parse(format!(

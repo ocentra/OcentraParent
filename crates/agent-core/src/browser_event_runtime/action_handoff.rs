@@ -8,7 +8,8 @@ use ocentra_eventing::{
     topology::EventTopologyManifest, topology::EventTopologyPublisher,
     topology::EventTopologySubscriber,
 };
-use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
+use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 use super::{

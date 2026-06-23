@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
 import {
@@ -12,9 +7,13 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-export const TrackingFamilyDashboardRollupRowIdSchema = brandedNonEmptyStringSchema('TrackingFamilyDashboardRollupRowId');
+export const TrackingFamilyDashboardRollupRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingFamilyDashboardRollupRowId'
+);
 
-export const TrackingFamilyDashboardRollupProofRefSchema = brandedNonEmptyStringSchema('TrackingFamilyDashboardRollupProofRef');
+export const TrackingFamilyDashboardRollupProofRefSchema = brandedNonEmptyStringSchema(
+  'TrackingFamilyDashboardRollupProofRef'
+);
 
 export const TrackingFamilyDashboardRollupKindSchema = withParser(
   Schema.Literal('family-active-summary', 'child-attention-summary', 'retention-audit-summary')
@@ -222,4 +221,3 @@ function evidence(
     observedAt,
   });
 }
-

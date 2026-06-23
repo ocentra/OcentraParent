@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportProcessRuntimeStatusSchemaVersionSchema = withParser(
   Schema.Literal('production-support-process-runtime-status-proof')
@@ -93,10 +89,12 @@ export const ProductionSupportProcessRuntimeStatusNonClaimSchema = withParser(
   )
 );
 
-export const ProductionSupportProcessRuntimeStatusReferenceSchema =
-  brandedNonEmptyStringSchema('ProductionSupportProcessRuntimeStatusReference');
-export const ProductionSupportProcessRuntimeStatusRequirementSchema =
-  brandedNonEmptyStringSchema('ProductionSupportProcessRuntimeStatusRequirement');
+export const ProductionSupportProcessRuntimeStatusReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportProcessRuntimeStatusReference'
+);
+export const ProductionSupportProcessRuntimeStatusRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportProcessRuntimeStatusRequirement'
+);
 
 export const ForbiddenProductionSupportProcessRuntimeStatusDataClasses = [
   'child-activity-evidence',
@@ -136,4 +134,3 @@ export const RequiredProductionSupportProcessRuntimeStatusNonClaims = [
   'no-incident-runtime-execution',
   'no-default-ocentra-hosted-family-data',
 ] as const;
-

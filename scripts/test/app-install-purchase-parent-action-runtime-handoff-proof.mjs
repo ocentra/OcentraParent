@@ -57,10 +57,10 @@ async function main() {
     commands,
     evidence: {
       parentActionRuntimeHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
-      sourceParentReviewActionContract: 'packages/app-game-domain/src/app-install-purchase-parent-review-action-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
+      sourceParentReviewActionContract: 'packages/schema-domain/src/app-install-purchase-parent-review-action-proof.ts',
       sourcePlatformAdapterBoundaryContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-parent-action-runtime-handoff-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

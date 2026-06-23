@@ -1,20 +1,20 @@
 import type { ReactElement } from 'react';
 import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
-import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import {
-  isPortalNetworkEvidenceDrawerRoute,
+  type PortalDetailValue,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
-import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
+} from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   networkEvidenceDrawerSummary,
   type NetworkEvidenceDrawerSummary,
 } from '@ocentra-parent/portal-domain/network-evidence-drawer';
+import {
+  isPortalInlineNetworkEvidenceDrawerRoute,
+  isPortalNetworkEvidenceDrawerRoute,
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
@@ -23,25 +23,32 @@ export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue):
 
 export function NetworkEvidenceDrawerRoutePanel({
   liveActivity,
+  route,
 }: {
   readonly liveActivity: PortalLiveActivityState;
+  readonly route: PortalRouteValue;
 }): ReactElement {
   const summary = networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel, {
     networkFlowEventPayload: liveActivity.networkFlowEvent?.payload ?? null,
     policyPreviewReadModel: liveActivity.policyPreviewReadModel,
     networkRuntimeEventChainStream: liveActivity.networkRuntimeEventChainStream,
   });
+  const inlineOnActivityRoute = isPortalInlineNetworkEvidenceDrawerRoute(route);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.NetworkFlow)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.NetworkFlow)}
       className={PortalDom.Classes.TrackingStatusOverlay}
+      style={inlineOnActivityRoute ? inlineActivityRoutePanelStyle : undefined}
     >
-      <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+      <div
+        className={PortalDom.Classes.TrackingStatusOverlayContent}
+        style={inlineOnActivityRoute ? inlineActivityRoutePanelContentStyle : undefined}
+      >
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{PortalText.Resolve(PortalTextToken.NetworkFlow)}</p>
-          <h2>{PortalText.Resolve(PortalTextToken.NetworkFlow)}</h2>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvePortalDevText(PortalDevTextToken.NetworkFlow)}</p>
+          <h2>{resolvePortalDevText(PortalDevTextToken.NetworkFlow)}</h2>
           {liveActivity.networkFlowReadModel === null ? (
-            <p>{PortalText.Resolve(PortalTextToken.NoNetworkFlow)}</p>
+            <p>{resolvePortalDevText(PortalDevTextToken.NoNetworkFlow)}</p>
           ) : null}
         </header>
         <div
@@ -60,7 +67,7 @@ export function NetworkEvidenceDrawerRoutePanel({
 function NetworkEvidenceDrawerCard({ summary }: { readonly summary: NetworkEvidenceDrawerSummary }): ReactElement {
   return (
     <article className={networkEvidenceDrawerCardClassName()}>
-      <h2>{PortalText.Resolve(PortalTextToken.NetworkFlow)}</h2>
+      <h2>{resolvePortalDevText(PortalDevTextToken.NetworkFlow)}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <NetworkEvidenceDrawerDetail label={PortalDetails.EventId} value={summary.evidenceId} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.LastObserved} value={summary.observedAt} />
@@ -133,3 +140,15 @@ function NetworkEvidenceDrawerDetail({
 function networkEvidenceDrawerCardClassName(): string {
   return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(PortalDom.Classes.ClassNameSeparator);
 }
+
+const inlineActivityRoutePanelStyle = {
+  position: 'relative',
+  inset: 'auto',
+  zIndex: 'auto',
+  marginTop: '16px',
+  overflow: 'visible',
+} as const;
+
+const inlineActivityRoutePanelContentStyle = {
+  height: 'auto',
+} as const;

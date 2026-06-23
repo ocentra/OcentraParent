@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use ocentra_eventing::{
     delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
     delivery::EventDeliveryRouteKind, replay::ReplayMode,
@@ -46,15 +48,23 @@ use crate::network_event_runtime::{
     },
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
 #[tokio::test]
-async fn network_runtime_remote_delivery_status_preserves_broker_family_hub_refs_without_transport()
-{
+async fn network_runtime_remote_delivery_status_preserves_broker_family_hub_refs_without_transport(
+) -> TestResult {
     let proof_result: Result<
         NetworkRuntimeRemoteDeliveryStatusReport,
         NetworkRuntimeRemoteDeliveryStatusError,
     > = prove_network_runtime_remote_delivery_status().await;
-    let report =
-        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS);
+    let report = ok(
+        proof_result,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS,
+    )?;
 
     assert_eq!(
         report.broker_status,
@@ -123,13 +133,17 @@ async fn network_runtime_remote_delivery_status_preserves_broker_family_hub_refs
         report.relay_policy_ref.as_str(),
         constants::network_flow::TEST_FAMILY_HUB_RELAY_POLICY_REF
     );
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_status_rejects_authority_and_side_effect_claims() {
-    let report = prove_network_runtime_remote_delivery_status()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS);
+async fn network_runtime_remote_delivery_status_rejects_authority_and_side_effect_claims(
+) -> TestResult {
+    let report = ok(
+        prove_network_runtime_remote_delivery_status().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELIVERY_STATUS,
+    )?;
 
     assert!(report.local_idempotency_queue_proved);
     assert!(report.queued_duplicate_rejected);
@@ -167,16 +181,21 @@ async fn network_runtime_remote_delivery_status_rejects_authority_and_side_effec
         .family_hub_decision
         .required_artifacts
         .contains(&EventDeliveryRequiredArtifact::ExternalRelayPolicy));
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_event_chain_journal_preserves_export_boundary_without_transport() {
+async fn network_runtime_remote_event_chain_journal_preserves_export_boundary_without_transport(
+) -> TestResult {
     let proof_result: Result<
         NetworkRuntimeRemoteEventChainJournalReport,
         NetworkRuntimeRemoteEventChainJournalError,
     > = prove_network_runtime_remote_event_chain_journal().await;
-    let report = proof_result
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL);
+    let report = ok(
+        proof_result,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL,
+    )?;
 
     assert_eq!(
         report.event_chain_journal_ref.as_str(),
@@ -211,13 +230,17 @@ async fn network_runtime_remote_event_chain_journal_preserves_export_boundary_wi
     );
     assert_eq!(report.exported_event_type_count, report.journal_entry_count);
     assert_eq!(report.unavailable_event_count, report.journal_entry_count);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content_claims() {
-    let report = prove_network_runtime_remote_event_chain_journal()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL);
+async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content_claims(
+) -> TestResult {
+    let report = ok(
+        prove_network_runtime_remote_event_chain_journal().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EVENT_CHAIN_JOURNAL,
+    )?;
 
     assert_eq!(
         report.remote_delivery_status.broker_status,
@@ -236,16 +259,21 @@ async fn network_runtime_remote_event_chain_journal_rejects_delivery_and_content
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_no_enforcement_invariant_accepts_available_metadata() {
+async fn network_runtime_remote_delivery_no_enforcement_invariant_accepts_available_metadata(
+) -> TestResult {
     let proof_result: Result<
         NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
         NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
     > = prove_network_runtime_remote_delivery_no_enforcement_invariant().await;
-    let report = proof_result
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT);
+    let report = ok(
+        proof_result,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT,
+    )?;
 
     assert_eq!(
         report.invariant_ref.as_str(),
@@ -312,13 +340,17 @@ async fn network_runtime_remote_delivery_no_enforcement_invariant_accepts_availa
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_no_enforcement_invariant_rejects_remote_action_claims() {
-    let mut dispatch_readiness = prove_network_runtime_remote_delivery_dispatch_readiness()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS);
+async fn network_runtime_remote_delivery_no_enforcement_invariant_rejects_remote_action_claims(
+) -> TestResult {
+    let mut dispatch_readiness = ok(
+        prove_network_runtime_remote_delivery_dispatch_readiness().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS,
+    )?;
     dispatch_readiness.enforcement_command_event_count = 1;
     dispatch_readiness.dispatch_attempt_count = 1;
 
@@ -331,17 +363,21 @@ async fn network_runtime_remote_delivery_no_enforcement_invariant_rejects_remote
         proof_result,
         Err(NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError::UnsupportedClaim)
     ));
+
+    Ok(())
 }
 
 #[tokio::test]
 async fn network_runtime_remote_delivery_receipt_ledger_preserves_local_ack_boundary_without_transport(
-) {
+) -> TestResult {
     let proof_result: Result<
         NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
         NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     > = prove_network_runtime_remote_delivery_receipt_ledger().await;
-    let report =
-        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER);
+    let report = ok(
+        proof_result,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER,
+    )?;
 
     assert_eq!(
         report.event_chain_journal_ref.as_str(),
@@ -402,14 +438,17 @@ async fn network_runtime_remote_delivery_receipt_ledger_preserves_local_ack_boun
             constants::network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF
         );
     }
+
+    Ok(())
 }
 
 #[tokio::test]
 async fn network_runtime_remote_delivery_receipt_ledger_rejects_transport_action_and_content_claims(
-) {
-    let report = prove_network_runtime_remote_delivery_receipt_ledger()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER);
+) -> TestResult {
+    let report = ok(
+        prove_network_runtime_remote_delivery_receipt_ledger().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_RECEIPT_LEDGER,
+    )?;
 
     assert_eq!(
         report.local_receipt_ack_ref.as_str(),
@@ -433,17 +472,21 @@ async fn network_runtime_remote_delivery_receipt_ledger_rejects_transport_action
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_durable_envelope_preserves_receipt_refs_without_transport()
-{
+async fn network_runtime_remote_delivery_durable_envelope_preserves_receipt_refs_without_transport(
+) -> TestResult {
     let proof_result: Result<
         NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
         NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     > = prove_network_runtime_remote_delivery_durable_envelope().await;
-    let report =
-        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE);
+    let report = ok(
+        proof_result,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE,
+    )?;
 
     assert_eq!(
         report.durable_envelope_ref.as_str(),
@@ -515,14 +558,17 @@ async fn network_runtime_remote_delivery_durable_envelope_preserves_receipt_refs
             constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF
         );
     }
+
+    Ok(())
 }
 
 #[tokio::test]
 async fn network_runtime_remote_delivery_durable_envelope_rejects_delivery_action_and_content_claims(
-) {
-    let report = prove_network_runtime_remote_delivery_durable_envelope()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE);
+) -> TestResult {
+    let report = ok(
+        prove_network_runtime_remote_delivery_durable_envelope().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE,
+    )?;
 
     assert!(!report.broker_delivery_implemented);
     assert!(!report.family_hub_delivery_implemented);
@@ -542,20 +588,27 @@ async fn network_runtime_remote_delivery_durable_envelope_rejects_delivery_actio
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_outbox_handoff_preserves_durable_refs_without_dispatch() {
+async fn network_runtime_remote_delivery_outbox_handoff_preserves_durable_refs_without_dispatch(
+) -> TestResult {
     let proof_result: Result<
         NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
         NetworkRuntimeRemoteDeliveryOutboxHandoffError,
     > = prove_network_runtime_remote_delivery_outbox_handoff().await;
-    let report =
-        proof_result.expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+    let report = ok(
+        proof_result,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF,
+    )?;
 
     assert_outbox_handoff_refs(&report);
     assert_outbox_handoff_counts(&report);
     assert_outbox_handoff_candidates(&report);
+
+    Ok(())
 }
 
 fn assert_outbox_handoff_refs(report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport) {
@@ -650,10 +703,11 @@ fn assert_outbox_handoff_candidates(report: &NetworkRuntimeRemoteDeliveryOutboxH
 
 #[tokio::test]
 async fn network_runtime_remote_delivery_outbox_handoff_rejects_dispatch_ack_action_and_content_claims(
-) {
-    let report = prove_network_runtime_remote_delivery_outbox_handoff()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+) -> TestResult {
+    let report = ok(
+        prove_network_runtime_remote_delivery_outbox_handoff().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF,
+    )?;
 
     assert_eq!(report.dispatch_attempt_count, 0);
     assert_eq!(report.remote_ack_count, 0);
@@ -675,16 +729,21 @@ async fn network_runtime_remote_delivery_outbox_handoff_rejects_dispatch_ack_act
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_dispatch_readiness_blocks_without_transport() {
+async fn network_runtime_remote_delivery_dispatch_readiness_blocks_without_transport() -> TestResult
+{
     let proof_result: Result<
         NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
         NetworkRuntimeRemoteDeliveryDispatchReadinessError,
     > = prove_network_runtime_remote_delivery_dispatch_readiness().await;
-    let report = proof_result
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS);
+    let report = ok(
+        proof_result,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS,
+    )?;
 
     assert_eq!(
         report.dispatch_readiness_ref.as_str(),
@@ -714,6 +773,8 @@ async fn network_runtime_remote_delivery_dispatch_readiness_blocks_without_trans
     assert_eq!(report.dispatch_attempt_count, 0);
     assert_eq!(report.remote_ack_count, 0);
     assert_dispatch_gate_blocks_transport(&report);
+
+    Ok(())
 }
 
 fn assert_dispatch_gate_blocks_transport(
@@ -758,10 +819,12 @@ fn assert_dispatch_gate_blocks_transport(
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_dispatch_readiness_rejects_authority_and_content_claims() {
-    let report = prove_network_runtime_remote_delivery_dispatch_readiness()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS);
+async fn network_runtime_remote_delivery_dispatch_readiness_rejects_authority_and_content_claims(
+) -> TestResult {
+    let report = ok(
+        prove_network_runtime_remote_delivery_dispatch_readiness().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS,
+    )?;
 
     assert_eq!(report.dispatch_attempt_count, 0);
     assert_eq!(report.remote_ack_count, 0);
@@ -783,4 +846,6 @@ async fn network_runtime_remote_delivery_dispatch_readiness_rejects_authority_an
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 import {
   ScreenAnalysisParentSettingSchema,
   ScreenEvidenceRemoteBoundarySettingSchema,
@@ -252,4 +247,3 @@ function remoteBoundaryForSetting(setting: typeof DisabledSetting) {
   }
   return DisabledRemoteBoundarySetting;
 }
-

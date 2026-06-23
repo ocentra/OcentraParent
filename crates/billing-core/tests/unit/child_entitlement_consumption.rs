@@ -8,6 +8,7 @@ use ocentra_billing_core::billing_subscription::{
     BillingManualReviewRequirement, BillingSubscriptionStatus,
 };
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 
 const BILLING_AGGREGATE_ID: &str = "billing-household-default";
 const CHILD_DEVICE_ID: &str = "child-device-default";
@@ -22,9 +23,9 @@ fn snapshot(
 ) -> BillingChildEntitlementSnapshot {
     BillingChildEntitlementSnapshot {
         snapshot_id: BillingEntitlementSnapshotId::parse(SNAPSHOT_ID)
-            .expect("billing entitlement snapshot id"),
+            .expect_value("billing entitlement snapshot id"),
         child_device_id: BillingChildDeviceId::parse(CHILD_DEVICE_ID)
-            .expect("billing child device id"),
+            .expect_value("billing child device id"),
         subscription_status,
         signature_state,
         freshness_state,
@@ -279,7 +280,7 @@ fn cancelled_child_snapshot_revokes_access() {
 fn consumption_record_projects_typed_domain_events() {
     let received = BillingChildEntitlementSnapshotReceivedEvent {
         aggregate_id: BillingAggregateId::parse(BILLING_AGGREGATE_ID)
-            .expect("billing aggregate id"),
+            .expect_value("billing aggregate id"),
         snapshot: snapshot(
             BillingSubscriptionStatus::Cancelled,
             BillingChildSnapshotSignatureState::Trusted,
@@ -293,7 +294,7 @@ fn consumption_record_projects_typed_domain_events() {
     assert_eq!(
         received
             .contract()
-            .expect("billing child snapshot contract")
+            .expect_value("billing child snapshot contract")
             .event_type
             .as_str(),
         SNAPSHOT_RECEIVED_EVENT_TYPE
@@ -301,7 +302,7 @@ fn consumption_record_projects_typed_domain_events() {
     assert_eq!(
         recorded
             .contract()
-            .expect("billing child consumption contract")
+            .expect_value("billing child consumption contract")
             .event_type
             .as_str(),
         CONSUMPTION_RECORDED_EVENT_TYPE

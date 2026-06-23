@@ -1,10 +1,5 @@
 import { EventingEventTypeSchema } from './eventing';
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { PolicyActionSchema, PolicyDecisionSchema, PolicyRuleSchema } from './policy-contracts';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import { ParentEvidenceReferenceSchema } from './family-references';

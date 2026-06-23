@@ -17,7 +17,11 @@ pub fn prove_network_android_physical_target(
     let proof_ref = types::normalize_text(&input.proof_ref)
         .ok_or(NetworkAndroidPhysicalTargetError::EmptyProofRef)?;
     let expected = normalize_expected(input.expected)?;
-    let observed = input.observed.map(normalize_observed).transpose()?;
+    let observed = input
+        .observed
+        .as_ref()
+        .map(normalize_observed)
+        .transpose()?;
     let (state, boundary_reasons, mismatches) = proof_state(
         input.adb_available,
         input.target_connected,

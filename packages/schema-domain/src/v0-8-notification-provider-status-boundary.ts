@@ -1,20 +1,25 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from './family-reference-primitives';
 
-export const V08NotificationProviderStatusBoundaryReadModelIdSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryReadModelId');
-export const V08NotificationProviderStatusBoundaryEntryIdSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryEntryId');
-export const V08NotificationProviderStatusBoundaryReferenceSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryReference');
-export const V08NotificationProviderStatusBoundaryRequirementSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryRequirement');
-export const V08NotificationProviderStatusBoundaryTextSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryText');
+export const V08NotificationProviderStatusBoundaryReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08NotificationProviderStatusBoundaryReadModelId'
+);
+export const V08NotificationProviderStatusBoundaryEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08NotificationProviderStatusBoundaryEntryId'
+);
+export const V08NotificationProviderStatusBoundaryReferenceSchema = brandedNonEmptyStringSchema(
+  'V08NotificationProviderStatusBoundaryReference'
+);
+export const V08NotificationProviderStatusBoundaryRequirementSchema = brandedNonEmptyStringSchema(
+  'V08NotificationProviderStatusBoundaryRequirement'
+);
+export const V08NotificationProviderStatusBoundaryTextSchema = brandedNonEmptyStringSchema(
+  'V08NotificationProviderStatusBoundaryText'
+);
 
 export const V08NotificationProviderStatusSchema = withParser(
   Schema.Literal('queued', 'delivered', 'failed', 'unavailable', 'manual-required')

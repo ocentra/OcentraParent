@@ -11,26 +11,30 @@ use crate::browser_event_runtime::action_status::{
 use crate::browser_event_runtime::delivery::prove_browser_runtime_delivery_decision;
 use crate::browser_event_runtime::topology::browser_runtime_chain_topology_manifest;
 use crate::browser_event_runtime::{
-    publish_browser_runtime_chain_for_input, BrowserRuntimeEventPayload, BrowserRuntimeInput,
-    BrowserRuntimeReport,
+    BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimeReport,
+    publish_browser_runtime_chain_for_input,
 };
 use ocentra_eventing::{
     delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
     delivery::EventDeliveryRouteKind, topology::EventTopologyStatus,
 };
-use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
+use ocentra_parent_agent_protocol::constants;
 
 mod browser_event_runtime_child_status_tests;
 mod browser_event_runtime_parent_surface_tests;
 mod browser_event_runtime_social_provider_receipt_tests;
 mod browser_event_runtime_stream_report_tests;
 
+type TestResult = Result<(), String>;
+
 #[tokio::test]
-async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
-    let report =
+async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() -> TestResult {
+    let report = ok(
         publish_browser_runtime_chain_for_input(BrowserRuntimeInput::managed_decision_fixture())
-            .await
-            .unwrap();
+            .await,
+        "publish managed decision fixture",
+    )?;
 
     assert_eq!(report.dead_letters.len(), 0);
     assert_eq!(
@@ -38,10 +42,10 @@ async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
         BrowserRuntimePhase::ordered_chain().len()
     );
     assert_eq!(
-        decoded_phases(&report),
+        decoded_phases(&report)?,
         BrowserRuntimePhase::ordered_chain().to_vec()
     );
-    assert_previous_refs_follow_published_events(&report);
+    assert_previous_refs_follow_published_events(&report)?;
     assert!(report.intervention_command_published());
     assert_all_payloads_preserve_browser_context(
         &report,
@@ -49,63 +53,62 @@ async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
         constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
         constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
         None,
-    );
+    )?;
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() {
-    let report =
+async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() -> TestResult {
+    let report = ok(
         publish_browser_runtime_chain_for_input(BrowserRuntimeInput::manual_required_fixture())
-            .await
-            .unwrap();
+            .await,
+        "publish manual required fixture",
+    )?;
 
-    let phases = decoded_phases(&report);
-    assert!(phases.contains(&BrowserRuntimePhase::EvidenceObserved));
-    assert!(phases.contains(&BrowserRuntimePhase::EvidenceJournaled));
-    assert!(phases.contains(&BrowserRuntimePhase::AuditEntryCommitted));
-    assert!(phases.contains(&BrowserRuntimePhase::ReadModelProjected));
-    assert!(!phases.contains(&BrowserRuntimePhase::InterventionCommandIssued));
-    assert!(!phases.contains(&BrowserRuntimePhase::InterventionResultObserved));
+    assert_eq!(decoded_phases(&report)?, non_executing_runtime_phases());
     assert!(!report.intervention_command_published());
-    assert_previous_refs_follow_published_events(&report);
+    assert_previous_refs_follow_published_events(&report)?;
     assert_all_payloads_preserve_browser_context(
         &report,
         constants::browser::CAPABILITY_STATUS_AVAILABLE,
         constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
         constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
         None,
-    );
+    )?;
 
-    let policy_event = decoded_payloads(&report)
-        .into_iter()
-        .find(|payload| payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted)
-        .unwrap();
+    let policy_event = some(
+        decoded_payloads(&report)?
+            .into_iter()
+            .find(|payload| payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted),
+        "policy decision payload missing",
+    )?;
     assert!(!policy_event.ai_authority);
     assert!(!policy_event.policy_authority);
     assert!(!policy_event.intervention_command_allowed);
     assert!(!policy_event.adapter_dispatch_claimed);
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_chain_carries_dry_run_action_handoff_without_dispatch() {
-    let report = publish_browser_runtime_chain_for_input(
-        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
-    )
-    .await
-    .unwrap();
+async fn browser_runtime_chain_carries_dry_run_action_handoff_without_dispatch() -> TestResult {
+    let report = ok(
+        publish_browser_runtime_chain_for_input(
+            BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+        )
+        .await,
+        "publish dry run action handoff fixture",
+    )?;
 
-    let phases = decoded_phases(&report);
-    assert!(phases.contains(&BrowserRuntimePhase::PolicyEvaluationRequested));
-    assert!(phases.contains(&BrowserRuntimePhase::PolicyDecisionCompleted));
-    assert!(!phases.contains(&BrowserRuntimePhase::InterventionCommandIssued));
-    assert!(!phases.contains(&BrowserRuntimePhase::InterventionResultObserved));
+    assert_eq!(decoded_phases(&report)?, non_executing_runtime_phases());
     assert!(!report.intervention_command_published());
-    assert_previous_refs_follow_published_events(&report);
+    assert_previous_refs_follow_published_events(&report)?;
 
-    let policy_event = decoded_payloads(&report)
-        .into_iter()
-        .find(|payload| payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted)
-        .unwrap();
+    let policy_event = some(
+        decoded_payloads(&report)?
+            .into_iter()
+            .find(|payload| payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted),
+        "policy decision payload missing",
+    )?;
     assert_eq!(
         policy_event.policy_preview_id.as_deref(),
         Some(constants::browser::TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID)
@@ -118,21 +121,27 @@ async fn browser_runtime_chain_carries_dry_run_action_handoff_without_dispatch()
     assert!(policy_event.policy_authority);
     assert!(!policy_event.adapter_dispatch_claimed);
     assert!(!policy_event.intervention_command_allowed);
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_handoff_prepares_outbox_without_dispatch() {
-    let report = publish_browser_runtime_chain_for_input(
-        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
-    )
-    .await
-    .unwrap();
+async fn browser_runtime_action_intent_handoff_prepares_outbox_without_dispatch() -> TestResult {
+    let report = ok(
+        publish_browser_runtime_chain_for_input(
+            BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+        )
+        .await,
+        "publish dry run action handoff fixture",
+    )?;
 
-    assert!(!report.stored_events.is_empty());
+    assert_eq!(decoded_phases(&report)?, non_executing_runtime_phases());
     assert!(!report.intervention_command_published());
 
     let (candidate_count, policy_preview_id, action_intent_id, event_ref, outbox_ref, handoff_ref) =
-        report.action_intent_handoff_summary().unwrap();
+        some(
+            report.action_intent_handoff_summary(),
+            "action intent handoff summary missing",
+        )?;
     assert_eq!(candidate_count, 1);
     assert_eq!(
         policy_preview_id,
@@ -151,26 +160,30 @@ async fn browser_runtime_action_intent_handoff_prepares_outbox_without_dispatch(
         handoff_ref,
         constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
     );
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_without_dispatch() {
-    let report = request_browser_runtime_action_intent_handoff_for_input(
-        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
-    )
-    .await
-    .unwrap();
+async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_without_dispatch()
+-> TestResult {
+    let report = ok(
+        request_browser_runtime_action_intent_handoff_for_input(
+            BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+        )
+        .await,
+        "request action intent handoff",
+    )?;
 
     assert_eq!(report.dead_letters.len(), 0);
     assert_eq!(report.request_report.publish_report.handled_count, 1);
     assert_eq!(
-        report
-            .stored_events
-            .first()
-            .unwrap()
-            .contract
-            .event_type
-            .as_str(),
+        some(
+            report.stored_events.first(),
+            "handoff request event missing"
+        )?
+        .contract
+        .event_type
+        .as_str(),
         constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED
     );
 
@@ -192,11 +205,13 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_
         handoff.handoff_ref.as_deref(),
         Some(constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF)
     );
-    assert!(handoff
-        .source_event_ref
-        .as_deref()
-        .unwrap()
-        .ends_with(constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED));
+    assert!(
+        handoff
+            .source_event_ref
+            .as_deref()
+            .ok_or_else(|| "handoff source event ref missing".to_string())?
+            .ends_with(constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED)
+    );
     assert_eq!(handoff.dispatch_attempt_count, 0);
     assert_eq!(handoff.adapter_execution_count, 0);
     assert_eq!(handoff.browser_mutation_count, 0);
@@ -204,15 +219,19 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_
     assert_eq!(handoff.enforcement_execution_count, 0);
     assert!(handoff.dry_run_only);
     assert!(handoff.policy_authority_only);
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_rows_empty() {
-    let report = request_browser_runtime_action_intent_handoff_for_input(
-        BrowserRuntimeInput::manual_required_fixture(),
-    )
-    .await
-    .unwrap();
+async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_rows_empty()
+-> TestResult {
+    let report = ok(
+        request_browser_runtime_action_intent_handoff_for_input(
+            BrowserRuntimeInput::manual_required_fixture(),
+        )
+        .await,
+        "request manual action handoff",
+    )?;
 
     let handoff = report.request_report.response;
     assert_eq!(handoff.candidate_count, 0);
@@ -226,13 +245,16 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_row
     assert_eq!(handoff.browser_mutation_count, 0);
     assert_eq!(handoff.child_intervention_execution_count, 0);
     assert_eq!(handoff.enforcement_execution_count, 0);
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_durable_handoff_preserves_refs_without_execution() {
-    let report = prove_browser_runtime_action_intent_durable_handoff()
-        .await
-        .unwrap();
+async fn browser_runtime_action_intent_durable_handoff_preserves_refs_without_execution()
+-> TestResult {
+    let report = ok(
+        prove_browser_runtime_action_intent_durable_handoff().await,
+        "prove browser runtime durable handoff",
+    )?;
 
     assert_eq!(report.request_event_count, 1);
     assert_eq!(report.durable_record_count, 1);
@@ -242,7 +264,7 @@ async fn browser_runtime_action_intent_durable_handoff_preserves_refs_without_ex
     assert!(report.row_matches_handoff_response);
     assert!(report.row_matches_request_event);
 
-    let row = report.rows.first().unwrap();
+    let row = some(report.rows.first(), "durable handoff row missing")?;
     assert_eq!(
         row.state,
         BrowserRuntimeActionIntentDurableHandoffReadModelState::PreparedNotDispatched
@@ -295,23 +317,23 @@ async fn browser_runtime_action_intent_durable_handoff_preserves_refs_without_ex
     assert!(!report.child_intervention_execution_claimed);
     assert!(!report.final_policy_execution_claimed);
     assert!(!report.enforcement_claimed);
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_event_subscriber_returns_pending_status() {
-    let report = request_browser_runtime_action_intent_status_for_input(
-        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
-    )
-    .await
-    .unwrap();
+async fn browser_runtime_action_intent_event_subscriber_returns_pending_status() -> TestResult {
+    let report = ok(
+        request_browser_runtime_action_intent_status_for_input(
+            BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+        )
+        .await,
+        "request action intent status",
+    )?;
 
     assert_eq!(report.dead_letters.len(), 0);
     assert_eq!(report.request_report.publish_report.handled_count, 1);
     assert_eq!(
-        report
-            .stored_events
-            .first()
-            .unwrap()
+        some(report.stored_events.first(), "status request event missing")?
             .contract
             .event_type
             .as_str(),
@@ -334,15 +356,18 @@ async fn browser_runtime_action_intent_event_subscriber_returns_pending_status()
     assert_eq!(status.enforcement_execution_count, 0);
     assert!(status.dry_run_only);
     assert!(status.policy_authority_only);
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_event_subscriber_keeps_manual_rows_empty() {
-    let report = request_browser_runtime_action_intent_status_for_input(
-        BrowserRuntimeInput::manual_required_fixture(),
-    )
-    .await
-    .unwrap();
+async fn browser_runtime_action_intent_event_subscriber_keeps_manual_rows_empty() -> TestResult {
+    let report = ok(
+        request_browser_runtime_action_intent_status_for_input(
+            BrowserRuntimeInput::manual_required_fixture(),
+        )
+        .await,
+        "request manual action status",
+    )?;
 
     let status = report.request_report.response;
     assert_eq!(status.candidate_count, 0);
@@ -352,25 +377,40 @@ async fn browser_runtime_action_intent_event_subscriber_keeps_manual_rows_empty(
     assert_eq!(status.adapter_execution_count, 0);
     assert_eq!(status.child_intervention_execution_count, 0);
     assert_eq!(status.enforcement_execution_count, 0);
+    Ok(())
 }
 
 #[test]
-fn browser_runtime_action_intent_handoff_topology_covers_named_event_and_subscriber() {
-    let manifest = browser_runtime_action_intent_handoff_topology_manifest().unwrap();
+fn browser_runtime_action_intent_handoff_topology_covers_named_event_and_subscriber() -> TestResult
+{
+    let manifest = ok(
+        browser_runtime_action_intent_handoff_topology_manifest(),
+        "browser action intent handoff topology",
+    )?;
     assert_eq!(manifest.unready_entries().len(), 0);
     assert_eq!(manifest.entries().len(), 1);
 
-    let entry = manifest.entries().first().unwrap();
+    let entry = some(
+        manifest.entries().first(),
+        "browser action intent handoff topology entry missing",
+    )?;
     assert_eq!(entry.status, EventTopologyStatus::Covered);
     assert_eq!(
         entry.contract.event_type.as_str(),
         constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED
     );
     assert_eq!(
-        entry.publishers.first().unwrap().as_str(),
+        some(
+            entry.publishers.first(),
+            "browser action intent handoff publisher missing",
+        )?
+        .as_str(),
         constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE
     );
-    let subscriber = entry.subscribers.first().unwrap();
+    let subscriber = some(
+        entry.subscribers.first(),
+        "browser action intent handoff subscriber missing",
+    )?;
     assert_eq!(
         subscriber.subscriber_id.as_str(),
         constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF
@@ -379,25 +419,39 @@ fn browser_runtime_action_intent_handoff_topology_covers_named_event_and_subscri
         subscriber.target_handler.as_str(),
         constants::browser::TARGET_BROWSER_ACTION_INTENT_HANDOFF
     );
+    Ok(())
 }
 
 #[test]
-fn browser_runtime_action_intent_topology_covers_named_event_and_subscriber() {
-    let manifest = browser_runtime_action_intent_status_topology_manifest().unwrap();
+fn browser_runtime_action_intent_topology_covers_named_event_and_subscriber() -> TestResult {
+    let manifest = ok(
+        browser_runtime_action_intent_status_topology_manifest(),
+        "browser action intent status topology",
+    )?;
     assert_eq!(manifest.unready_entries().len(), 0);
     assert_eq!(manifest.entries().len(), 1);
 
-    let entry = manifest.entries().first().unwrap();
+    let entry = some(
+        manifest.entries().first(),
+        "browser action intent status topology entry missing",
+    )?;
     assert_eq!(entry.status, EventTopologyStatus::Covered);
     assert_eq!(
         entry.contract.event_type.as_str(),
         constants::browser::EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED
     );
     assert_eq!(
-        entry.publishers.first().unwrap().as_str(),
+        some(
+            entry.publishers.first(),
+            "browser action intent status publisher missing",
+        )?
+        .as_str(),
         constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE
     );
-    let subscriber = entry.subscribers.first().unwrap();
+    let subscriber = some(
+        entry.subscribers.first(),
+        "browser action intent status subscriber missing",
+    )?;
     assert_eq!(
         subscriber.subscriber_id.as_str(),
         constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS
@@ -406,11 +460,15 @@ fn browser_runtime_action_intent_topology_covers_named_event_and_subscriber() {
         subscriber.target_handler.as_str(),
         constants::browser::TARGET_BROWSER_ACTION_INTENT_STATUS
     );
+    Ok(())
 }
 
 #[test]
-fn browser_runtime_chain_topology_covers_ordered_event_spine() {
-    let manifest = browser_runtime_chain_topology_manifest().unwrap();
+fn browser_runtime_chain_topology_covers_ordered_event_spine() -> TestResult {
+    let manifest = ok(
+        browser_runtime_chain_topology_manifest(),
+        "browser runtime chain topology",
+    )?;
     assert_eq!(manifest.unready_entries().len(), 0);
     assert_eq!(
         manifest.entries().len(),
@@ -418,25 +476,38 @@ fn browser_runtime_chain_topology_covers_ordered_event_spine() {
     );
 
     for phase in BrowserRuntimePhase::ordered_chain() {
-        let entry = manifest
-            .entries()
-            .iter()
-            .find(|entry| entry.contract.event_type.as_str() == phase.event_type())
-            .unwrap();
+        let entry = some(
+            manifest
+                .entries()
+                .iter()
+                .find(|entry| entry.contract.event_type.as_str() == phase.event_type()),
+            "browser runtime chain topology phase entry missing",
+        )?;
         assert_eq!(entry.status, EventTopologyStatus::Covered);
         assert_eq!(
-            entry.publishers.first().unwrap().as_str(),
+            some(
+                entry.publishers.first(),
+                "browser runtime chain topology publisher missing",
+            )?
+            .as_str(),
             constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE
         );
-        let subscriber = entry.subscribers.first().unwrap();
+        let subscriber = some(
+            entry.subscribers.first(),
+            "browser runtime chain topology subscriber missing",
+        )?;
         assert_eq!(subscriber.subscriber_id.as_str(), phase.subscriber_id());
         assert_eq!(subscriber.target_handler.as_str(), phase.target_handler());
     }
+    Ok(())
 }
 
 #[test]
-fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
-    let report = prove_browser_runtime_delivery_decision().unwrap();
+fn browser_runtime_delivery_decision_keeps_current_routes_local_only() -> TestResult {
+    let report = ok(
+        prove_browser_runtime_delivery_decision(),
+        "prove browser runtime delivery decision",
+    )?;
 
     macro_rules! assert_ready_route {
         ($proof:expr, $kind:expr, $state:expr) => {{
@@ -472,17 +543,20 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
         EventDeliveryDecisionState::ExternalTransportRouteManualRequired
     );
     assert_eq!(
-        report.external_transport_delivery.missing_artifacts.len(),
-        10
+        report.external_transport_delivery.missing_artifacts,
+        vec![
+            EventDeliveryRequiredArtifact::CustodyProof,
+            EventDeliveryRequiredArtifact::PublisherAuthProof,
+            EventDeliveryRequiredArtifact::SubscriberAuthProof,
+            EventDeliveryRequiredArtifact::EncryptionProof,
+            EventDeliveryRequiredArtifact::RetentionPolicy,
+            EventDeliveryRequiredArtifact::ReplayPlan,
+            EventDeliveryRequiredArtifact::DeletionPlan,
+            EventDeliveryRequiredArtifact::OffsetPolicy,
+            EventDeliveryRequiredArtifact::DedupePolicy,
+            EventDeliveryRequiredArtifact::TransportConfig,
+        ]
     );
-    assert!(report
-        .external_transport_delivery
-        .missing_artifacts
-        .contains(&EventDeliveryRequiredArtifact::CustodyProof));
-    assert!(report
-        .external_transport_delivery
-        .missing_artifacts
-        .contains(&EventDeliveryRequiredArtifact::TransportConfig));
     assert!(report.external_transport_manual_required);
     assert!(!report.external_transport_delivery_implemented);
     assert!(!report.external_relay_delivery_implemented);
@@ -491,6 +565,7 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     assert!(!report.child_intervention_execution_claimed);
     assert!(!report.final_policy_execution_claimed);
     assert!(!report.enforcement_claimed);
+    Ok(())
 }
 
 fn assert_all_payloads_preserve_browser_context(
@@ -499,24 +574,43 @@ fn assert_all_payloads_preserve_browser_context(
     custody_label: &str,
     query_visibility: &str,
     degraded_reason: Option<&str>,
-) {
-    for payload in decoded_payloads(report) {
+) -> TestResult {
+    for payload in decoded_payloads(report)? {
         assert_eq!(payload.capability_status, capability_status);
         assert_eq!(payload.custody_label, custody_label);
         assert_eq!(payload.query_visibility, query_visibility);
         assert_eq!(payload.degraded_reason.as_deref(), degraded_reason);
     }
+    Ok(())
 }
 
-fn assert_previous_refs_follow_published_events(report: &BrowserRuntimeReport) {
-    let decoded = decoded_payloads(report);
-    assert_eq!(decoded.first().unwrap().previous_phase_ref, None);
+fn assert_previous_refs_follow_published_events(report: &BrowserRuntimeReport) -> TestResult {
+    let decoded = decoded_payloads(report)?;
+    assert_eq!(
+        some(decoded.first(), "browser runtime first payload missing")?.previous_phase_ref,
+        None
+    );
 
     for pair in decoded.windows(2) {
         let previous = &pair[0];
         let current = &pair[1];
         assert_eq!(current.previous_phase_ref, Some(event_ref(previous)));
     }
+    Ok(())
+}
+
+fn non_executing_runtime_phases() -> Vec<BrowserRuntimePhase> {
+    BrowserRuntimePhase::ordered_chain()
+        .iter()
+        .cloned()
+        .filter(|phase| {
+            !matches!(
+                phase,
+                BrowserRuntimePhase::InterventionCommandIssued
+                    | BrowserRuntimePhase::InterventionResultObserved
+            )
+        })
+        .collect()
 }
 
 fn event_ref(payload: &BrowserRuntimeEventPayload) -> String {
@@ -529,22 +623,33 @@ fn event_ref(payload: &BrowserRuntimeEventPayload) -> String {
     value
 }
 
-fn decoded_phases(report: &BrowserRuntimeReport) -> Vec<BrowserRuntimePhase> {
-    decoded_payloads(report)
+fn decoded_phases(report: &BrowserRuntimeReport) -> Result<Vec<BrowserRuntimePhase>, String> {
+    Ok(decoded_payloads(report)?
         .into_iter()
         .map(|payload| payload.phase)
-        .collect()
+        .collect())
 }
 
-fn decoded_payloads(report: &BrowserRuntimeReport) -> Vec<BrowserRuntimeEventPayload> {
+fn decoded_payloads(
+    report: &BrowserRuntimeReport,
+) -> Result<Vec<BrowserRuntimeEventPayload>, String> {
     report
         .stored_events
         .iter()
         .map(|event| {
-            event
-                .decode::<BrowserRuntimeEventPayload>()
-                .unwrap()
-                .payload
+            ok(
+                event.decode::<BrowserRuntimeEventPayload>(),
+                "decode browser runtime event payload",
+            )
+            .map(|decoded| decoded.payload)
         })
         .collect()
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
 }

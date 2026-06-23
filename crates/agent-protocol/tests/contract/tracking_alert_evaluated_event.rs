@@ -1,12 +1,16 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingAlertEvaluatedEvent, TrackingParentNotificationState,
 };
-use ocentra_parent_agent_protocol::{
-    constants, TrackingAlertEvaluationId, TrackingAlertSeverity, TrackingChildDeviceId,
-    TrackingChildProfileId, TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicyViolationId,
-    TrackingTimestamp,
-};
+use ocentra_parent_agent_protocol::TrackingAlertEvaluationId;
+use ocentra_parent_agent_protocol::TrackingAlertSeverity;
+use ocentra_parent_agent_protocol::TrackingChildDeviceId;
+use ocentra_parent_agent_protocol::TrackingChildProfileId;
+use ocentra_parent_agent_protocol::TrackingEvidenceRef;
+use ocentra_parent_agent_protocol::TrackingPolicyRuleRef;
+use ocentra_parent_agent_protocol::TrackingPolicyViolationId;
+use ocentra_parent_agent_protocol::TrackingTimestamp;
 
 #[test]
 fn alert_evaluated_event_uses_tracking_contract_and_idempotency() {
@@ -15,16 +19,27 @@ fn alert_evaluated_event_uses_tracking_contract_and_idempotency() {
         TrackingParentNotificationState::Allowed,
         vec![
             TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF),
+                .unwrap_or_else(|error| {
+                    unreachable!(
+                        "{}: {error:?}",
+                        constants::tracking_runtime::DEFAULT_EVIDENCE_REF
+                    )
+                }),
         ],
     );
 
-    let contract = event
-        .contract()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
-    let idempotency = event
-        .idempotency_key()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let contract = event.contract().unwrap_or_else(|error| {
+        unreachable!(
+            "{}: {error:?}",
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
+        )
+    });
+    let idempotency = event.idempotency_key().unwrap_or_else(|error| {
+        unreachable!(
+            "{}: {error:?}",
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
+        )
+    });
 
     assert_eq!(
         contract.event_type.as_str(),
@@ -48,7 +63,8 @@ fn alert_evaluated_event_serializes_suppressed_missing_evidence_state() {
         vec![],
     );
 
-    let serialized = serde_json::to_value(&event).expect("tracking alert event serializes");
+    let serialized = serde_json::to_value(&event)
+        .unwrap_or_else(|error| unreachable!("tracking alert event serializes: {error:?}"));
 
     assert_eq!(
         serialized["severity"],
@@ -70,27 +86,58 @@ fn alert_evaluated_fixture(
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID
+            )
+        }),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID
+            )
+        }),
         alert_evaluation_id: TrackingAlertEvaluationId::parse(
             constants::tracking_runtime::DEFAULT_ALERT_EVALUATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_ALERT_EVALUATION_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_ALERT_EVALUATION_ID
+            )
+        }),
         source_policy_violation_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+            )
+        }),
         policy_rule_ref: TrackingPolicyRuleRef::parse(
             constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
         )
-        .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE),
-        severity: TrackingAlertSeverity::parse(severity).expect(severity),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+            )
+        }),
+        severity: TrackingAlertSeverity::parse(severity)
+            .unwrap_or_else(|error| unreachable!("{severity}: {error:?}")),
         parent_notification_state,
         evaluated_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+            .unwrap_or_else(|error| {
+                unreachable!(
+                    "{}: {error:?}",
+                    constants::tracking_runtime::DEFAULT_OBSERVED_AT
+                )
+            }),
         evidence_refs,
     }
 }

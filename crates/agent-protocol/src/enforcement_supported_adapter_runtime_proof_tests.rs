@@ -15,12 +15,16 @@ use crate::{
 fn supported_adapter_runtime_command_and_event_names_are_stable() {
     assert_eq!(
         serde_json::to_value(AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            }),
         "agent.enforcement.supported-adapter-runtime-proof.get"
     );
     assert_eq!(
         serde_json::to_value(AgentEventName::AgentEnforcementSupportedAdapterRuntimeProofReported)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            }),
         "agent.enforcement.supported-adapter-runtime-proof.reported"
     );
 }
@@ -42,13 +46,14 @@ fn supported_adapter_runtime_states_have_stable_protocol_strings() {
         V08SupportedAdapterRuntimeBoundary::AndroidMobileControlManualGate,
         V08SupportedAdapterRuntimeBoundary::IosMobileControlManualGate,
     ];
-    let serialized =
-        serde_json::to_value(boundaries).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(boundaries).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized
             .as_array()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .len(),
         13
     );
@@ -91,9 +96,13 @@ fn supported_adapter_runtime_states_have_stable_protocol_strings() {
 fn supported_adapter_runtime_read_model_serializes_honest_non_claims() {
     let read_model = read_model_fixture();
     let reparsed = serde_json::from_value::<V08SupportedAdapterRuntimeProofReadModel>(
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let state_counts = count_runtime_states(&reparsed.entries);
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);

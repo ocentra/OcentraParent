@@ -1,5 +1,3 @@
-#![allow(clippy::panic)]
-
 use super::read_model::{
     TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
     TRACKING_READ_MODEL_FIELD_ACTIVE_CAPABILITY_STATUS_COUNTS,
@@ -132,13 +130,17 @@ fn read_model_active_count_pairs(read_model: &TrackingReadModel) -> Vec<FieldPai
 }
 
 fn active_counts_json(counts: &[TrackingReadModelCount]) -> String {
-    serde_json::to_string(counts)
-        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    match serde_json::to_string(counts) {
+        Ok(value) => value,
+        Err(_) => unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES),
+    }
 }
 
 fn tracking_read_model_json(read_model: &TrackingReadModel) -> String {
-    serde_json::to_string(read_model)
-        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    match serde_json::to_string(read_model) {
+        Ok(value) => value,
+        Err(_) => unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES),
+    }
 }
 
 fn latest_row_pairs(row: Option<&TrackingReadModelRow>) -> Vec<FieldPair> {

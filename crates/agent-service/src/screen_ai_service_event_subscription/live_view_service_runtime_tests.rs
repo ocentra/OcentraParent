@@ -169,9 +169,12 @@ fn set_lan_defaults() {
 }
 
 fn with_clean_live_view_env(test: impl FnOnce()) {
-    let _guard = LIVE_VIEW_ENV_LOCK
-        .lock()
-        .expect(constants::screen_flow::ERROR_SCREEN_LIVE_VIEW_ENV_LOCKS);
+    let _guard = LIVE_VIEW_ENV_LOCK.lock().unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_LIVE_VIEW_ENV_LOCKS
+        )
+    });
     clear_live_view_env();
     test();
     clear_live_view_env();

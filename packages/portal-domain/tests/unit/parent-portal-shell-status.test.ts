@@ -7,11 +7,16 @@ import {
   type AgentProtocolLogFields,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { resolveParentPortalShellStatus } from '../../src/parent-portal-shell-status';
 import { PARENT_PORTAL_SERVICE_STATE } from '../../src/parent-portal-service-state';
-import { PortalRoute } from '../../src/routes';
 
 describe('parent portal shell status', () => {
+  registerProtocolRouteShellStatusTests();
+  registerLanShellStatusTests();
+});
+
+function registerProtocolRouteShellStatusTests(): void {
   it('keeps protocol routes live-local without inventing household proof', () => {
     const status = resolveParentPortalShellStatus({
       route: PortalRoute.Commands,
@@ -46,7 +51,9 @@ describe('parent portal shell status', () => {
     expect(status.routeCapabilityState).toBe('available');
     expect(status.globalConnectionState).toBe('online');
   });
+}
 
+function registerLanShellStatusTests(): void {
   it('shows no-household and no-selected-device when LAN proof exists without household assignment', () => {
     const status = resolveParentPortalShellStatus({
       route: PortalRoute.Devices,
@@ -103,7 +110,7 @@ describe('parent portal shell status', () => {
     expect(status.globalConnectionState).toBe('stale');
     expect(status.cards.find((card) => card.id === 'child-device')?.value).toBe('chil...-001');
   });
-});
+}
 
 function payloadEvent(
   event: AgentEventName,

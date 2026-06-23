@@ -62,9 +62,9 @@ pub fn export_selected_local_event(
     source_peer_id: &str,
     message_id: &str,
     idempotency_key: &str,
-    sent_at_epoch_seconds: u64,
-    stale_after_seconds: u64,
+    delivery_window_seconds: (u64, u64),
 ) -> HouseholdMeshExportDecision {
+    let (sent_at_epoch_seconds, stale_after_seconds) = delivery_window_seconds;
     let Some(lan_message_type) = lan_message_type_for(event_kind) else {
         return HouseholdMeshExportDecision::Reject(
             HouseholdMeshBridgeRejection::UnselectedLocalEvent,
@@ -90,7 +90,7 @@ pub fn export_selected_local_event(
 }
 
 pub fn validate_incoming_lan_message(
-    message: HouseholdMeshLanMessage,
+    message: &HouseholdMeshLanMessage,
     expected_family_id: &str,
     expected_target_child_device_id: &str,
     received_at_epoch_seconds: u64,
@@ -140,7 +140,7 @@ pub fn validate_incoming_lan_message(
         };
     }
     HouseholdMeshImportDecision::Republish(HouseholdMeshLocalRepublish::from_validated_message(
-        &message,
+        message,
     ))
 }
 

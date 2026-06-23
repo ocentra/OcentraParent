@@ -4,23 +4,35 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, ActivityReadModelState, ActivityReportCustodyLabel,
-    ActivityReportDocument, ActivityReportFrequency, ActivityReportSection,
-    ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
-    ActivityReportSourceState, ActivitySavedReportMetadata, ActivitySavedReportState,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope, AgentCommandName,
-    AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionConfirmState,
-    ParentAssistantActionPreviewKind, ParentAssistantActionPreviewResult,
-    ParentAssistantActionPreviewState, ParentAssistantApiAuthorizationState,
-    ParentAssistantApiProviderAccessState, ParentAssistantBackendState,
-    ParentAssistantEvidenceContext, ParentAssistantProviderRoutingState,
-    ParentAssistantProviderSelection, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
-    ParentAssistantThreadResponse, ParentAssistantThreadState, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol as parent_protocol;
+use ocentra_parent_agent_protocol::activity::{
+    policy::ParentEvidenceReference, policy::ParentEvidenceReferenceKind,
 };
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
+    ActivityReportFrequency, ActivityReportSection, ActivityReportSectionKind,
+    ActivityReportSourceLabel, ActivityReportSourceReachabilityState, ActivityReportSourceState,
+    ActivitySavedReportMetadata, ActivitySavedReportState, ActivitySurfaceScope,
+    ActivitySurfaceScopeKind,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
+use ocentra_parent_agent_protocol::parent_assistant::{
+    provider_route::ParentAssistantProviderRoutingState,
+    provider_route::ParentAssistantProviderSelection, ParentAssistantActionConfirmResult,
+    ParentAssistantActionConfirmState, ParentAssistantActionPreviewKind,
+    ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
+    ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
+    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
+    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
+    ParentAssistantRunState, ParentAssistantThreadResponse, ParentAssistantThreadState,
+};
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     fields::fields_from_pairs,
@@ -54,7 +66,7 @@ fn parent_assistant_thread_create_returns_durable_service_state() {
     assert_eq!(
         response
             .active_thread
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .state,
         ParentAssistantThreadState::Open
     );
@@ -75,8 +87,8 @@ fn parent_assistant_thread_list_reads_durable_local_store_after_create() {
         Default::default(),
     );
 
-    let created = thread_response_for_command_in_dir(&create, directory.clone());
-    let listed = thread_response_for_command_in_dir(&list, directory.clone());
+    let created = thread_response_for_command_in_dir(&create, &directory);
+    let listed = thread_response_for_command_in_dir(&list, &directory);
 
     let _ = fs::remove_dir_all(directory);
 
@@ -92,7 +104,7 @@ fn parent_assistant_thread_list_reads_durable_local_store_after_create() {
     assert_eq!(
         listed
             .active_thread
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .thread_id,
         constants::parent_assistant::DEFAULT_THREAD_ID
     );
@@ -122,7 +134,7 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
     assert_eq!(status.run_state, ParentAssistantRunState::Unavailable);
     assert_eq!(
         status.scheduler_status.singleton_scope,
-        ocentra_parent_agent_protocol::LocalAiProviderSingletonScope::PhysicalDevice
+        ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSingletonScope::PhysicalDevice
     );
     assert_eq!(status.scheduler_status.queue.total(), 0);
     assert_eq!(status.queue_depth, 0);
@@ -215,8 +227,8 @@ fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_c
 }
 
 fn assert_authorized_api_routes(
-    boundary: &ocentra_parent_agent_protocol::ParentAssistantApiProviderBoundary,
-    degraded_boundary: &ocentra_parent_agent_protocol::ParentAssistantApiProviderBoundary,
+    boundary: &ocentra_parent_agent_protocol::parent_assistant::ParentAssistantApiProviderBoundary,
+    degraded_boundary: &ocentra_parent_agent_protocol::parent_assistant::ParentAssistantApiProviderBoundary,
 ) {
     let route = api_boundary::provider_route(ParentAssistantProviderState::Unavailable, boundary);
     let degraded_route =
@@ -351,7 +363,7 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
         .find(|context| {
             context.citation_label == constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     assert_eq!(
         report_context.evidence.evidence_reference_id,
         constants::activity_surface::REPORT_ID_DAILY
@@ -470,7 +482,7 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
 
 fn command(
     command_name: AgentCommandName,
-    payload: ocentra_parent_agent_protocol::LogFields,
+    payload: ocentra_parent_agent_protocol::logging::LogFields,
 ) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -492,46 +504,46 @@ fn command(
 
 fn thread_response_payload(value: &LogFieldValue) -> ParentAssistantThreadResponse {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn provider_status_payload(value: &LogFieldValue) -> ParentAssistantProviderStatus {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn run_cancel_payload(value: &LogFieldValue) -> ParentAssistantRunCancelResult {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn action_confirm_payload(value: &LogFieldValue) -> ParentAssistantActionConfirmResult {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn action_preview_payload(value: &LogFieldValue) -> ParentAssistantActionPreviewResult {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
@@ -554,7 +566,7 @@ fn evidence_context() -> ParentAssistantEvidenceContext {
 
 fn activity_report_document_json() -> String {
     serde_json::to_string(&ActivityReportDocument {
-        schema_version: ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
+        schema_version: parent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: constants::activity_surface::REPORT_ID_DAILY.to_string(),
         frequency: ActivityReportFrequency::Daily,
         scope: ActivitySurfaceScope {
@@ -613,7 +625,7 @@ fn activity_report_document_json() -> String {
             evidence: Vec::new(),
         }],
     })
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn unique_temp_dir() -> PathBuf {
@@ -624,7 +636,9 @@ fn unique_temp_dir() -> PathBuf {
     name.push_str(
         &SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|error| {
+                panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            })
             .as_nanos()
             .to_string(),
     );

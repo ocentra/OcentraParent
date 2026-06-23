@@ -4,6 +4,16 @@
 
 Define the ledger-to-device gate that turns billing and referral truth into signed entitlement snapshots and device-bound access checks.
 
+## Ownership boundary
+
+```text
+payment-subscription-plan owns billing/referral/entitlement ledger semantics and signed entitlement snapshot model.
+device-trust-bootstrap-plan owns device enrollment, local sealed trust, and trusted-device binding.
+account-identity-family-plan owns account/household/role authority.
+policy-control-plane-plan consumes proven entitlement state but does not define payment authority.
+provider state is input only and is never the root of entitlement.
+```
+
 ## First-touch surface
 
 - `packages/billing-domain/src/billing-entitlement-runtime-proof.ts`
@@ -36,6 +46,29 @@ Define the ledger-to-device gate that turns billing and referral truth into sign
 - Local sealed device trust is required where the snapshot model says so.
 - Stale, revoked, or expired snapshots are rejected.
 
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+billing_ledger_state
+referral_ledger_state
+entitlement_ledger_state
+provider_state_boundary
+snapshot_signature_state
+snapshot_freshness_state
+household_binding_state
+device_binding_state
+device_trust_handoff_state
+account_authority_state
+cancel_revoke_state
+referral_loss_recalculation_state
+safety_feature_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
 ## Proof IDs
 
 - `payment-entitlement.billing-ledger-source`
@@ -57,9 +90,11 @@ Define the ledger-to-device gate that turns billing and referral truth into sign
 - Reject any snapshot that is not signed or does not bind the household and device.
 - Reject stale, revoked, expired, or wrong-device snapshots.
 - Reject any entitlement path that exposes child telemetry.
+- Reject entitlement unlock without account and device-trust handoffs.
 
 ## Failure conditions
 
 - Do not treat the snapshot as the root of trust.
 - Do not let provider state bypass the entitlement ledger.
 - Do not reuse a snapshot across households or devices.
+- Do not let entitlement proof claim policy/enforcement behavior.

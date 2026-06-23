@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -30,7 +25,11 @@ import {
   type ParentMobileServiceBridgeAssistantJobState,
   type ParentMobileServiceBridgeRuntimeOwner,
 } from './parent-mobile-service-bridge-runtime';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentDeviceIdSchema,
+  ParentEvidenceReferenceIdSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ParentMobileControllerObserverHandoffRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('parent-mobile-controller-observer-handoff-proof')
@@ -85,13 +84,27 @@ export const ParentMobileControllerObserverHandoffProofSourceSchema = withParser
   )
 );
 
-const ParentMobileControllerObserverHandoffProofPathSchema = brandedNonEmptyStringSchema('ParentMobileControllerObserverHandoffProofPath');
-const ParentMobileControllerObserverHandoffProofCommandSchema = brandedNonEmptyStringSchema('ParentMobileControllerObserverHandoffProofCommand');
-const ParentMobileControllerObserverHandoffProofLabelSchema = brandedNonEmptyStringSchema('ParentMobileControllerObserverHandoffProofLabel');
-const ParentMobileControllerObserverHandoffRequirementSchema = brandedNonEmptyStringSchema('ParentMobileControllerObserverHandoffRequirement');
-const ParentMobileControllerObserverHandoffClaimBoundarySchema = brandedNonEmptyStringSchema('ParentMobileControllerObserverHandoffClaimBoundary');
-const ParentMobileControllerObserverHandoffUnavailableReasonSchema = brandedNonEmptyStringSchema('ParentMobileControllerObserverHandoffUnavailableReason');
-const ParentMobileControllerObserverHandoffProviderIdSchema = brandedNonEmptyStringSchema('ParentMobileControllerObserverHandoffProviderId');
+const ParentMobileControllerObserverHandoffProofPathSchema = brandedNonEmptyStringSchema(
+  'ParentMobileControllerObserverHandoffProofPath'
+);
+const ParentMobileControllerObserverHandoffProofCommandSchema = brandedNonEmptyStringSchema(
+  'ParentMobileControllerObserverHandoffProofCommand'
+);
+const ParentMobileControllerObserverHandoffProofLabelSchema = brandedNonEmptyStringSchema(
+  'ParentMobileControllerObserverHandoffProofLabel'
+);
+const ParentMobileControllerObserverHandoffRequirementSchema = brandedNonEmptyStringSchema(
+  'ParentMobileControllerObserverHandoffRequirement'
+);
+const ParentMobileControllerObserverHandoffClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'ParentMobileControllerObserverHandoffClaimBoundary'
+);
+const ParentMobileControllerObserverHandoffUnavailableReasonSchema = brandedNonEmptyStringSchema(
+  'ParentMobileControllerObserverHandoffUnavailableReason'
+);
+const ParentMobileControllerObserverHandoffProviderIdSchema = brandedNonEmptyStringSchema(
+  'ParentMobileControllerObserverHandoffProviderId'
+);
 
 export const ParentMobileControllerObserverHandoffProofInputSchema = withParser(
   Schema.Struct({

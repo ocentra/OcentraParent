@@ -1,18 +1,11 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ActivityTimestampSchema } from './evidence-primitives';
 import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
 import { ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
 
 export const ScreenLinuxCaptureCapabilitySchemaVersion = 1;
 
-const ScreenLinuxCaptureDocRefSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenLinuxCaptureDocRef')
-);
+const ScreenLinuxCaptureDocRefSchema = withParser(brandedNonEmptyStringSchema('ScreenLinuxCaptureDocRef'));
 const ScreenLinuxCaptureReasonSchema = withParser(ScreenEvidenceReasonSchema);
 const OptionalScreenLinuxCaptureProofRefSchema = Schema.Union(
   ScreenOptionalVisibilityPlatformProofRefSchema,
@@ -328,4 +321,3 @@ export type ScreenLinuxCaptureProofState = Infer<typeof ScreenLinuxCaptureProofS
 export type ScreenLinuxCompositor = Infer<typeof ScreenLinuxCompositorSchema>;
 export type ScreenLinuxCaptureCapabilityRow = Infer<typeof ScreenLinuxCaptureCapabilityRowSchema>;
 export type ScreenLinuxCaptureCapabilityProof = Infer<typeof ScreenLinuxCaptureCapabilityProofSchema>;
-

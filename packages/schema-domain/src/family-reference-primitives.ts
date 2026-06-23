@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const ParentContractSchemaVersionSchema = withParser(Schema.Literal('v0.6'));
 
@@ -19,9 +14,7 @@ export const ParentEvidenceReferenceIdSchema = brandedNonEmptyStringSchema('Pare
 export const ParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
 export const ParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 
-export const ParentPlatformSchema = withParser(
-  Schema.Literal('windows', 'linux', 'macos', 'android', 'ios')
-);
+export const ParentPlatformSchema = withParser(Schema.Literal('windows', 'linux', 'macos', 'android', 'ios'));
 export const ParentActorRoleSchema = withParser(Schema.Literal('parent', 'guardian', 'system'));
 export const ParentEvidenceReferenceKindSchema = withParser(
   Schema.Literal('journal-event', 'query-store-summary', 'activity-event', 'policy-decision', 'local-ai-result')

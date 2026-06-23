@@ -1,13 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, AppGameControlActionResult, AppGameServiceReadModel,
-    AppGameTimerParentSurfaceChildUxLocalArtifactRecord,
-    AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord,
-    AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord,
-    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_CONTROL_POLICY_KIND_GAME,
-    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
-    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    AppGameControlActionResult, APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
+    APP_GAME_CONTROL_POLICY_KIND_GAME, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceChildUxLocalArtifactRecord;
+use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord;
+use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME;
 
 pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) reference_ids: Vec<String>,

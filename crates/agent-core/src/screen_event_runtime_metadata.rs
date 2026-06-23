@@ -3,7 +3,8 @@ use ocentra_eventing::{
     ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
     ids::SourceService, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{constants, ScreenRuntimePhase};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
 
 use crate::{
     screen_event_runtime_input::{

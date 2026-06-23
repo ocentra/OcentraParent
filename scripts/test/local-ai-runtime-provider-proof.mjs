@@ -18,14 +18,7 @@ async function main() {
 
   await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/ai-domain',
-      '--',
-      'local-ai-runtime-provider-proof',
-    ])
+    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/ai-domain', '--', 'local-ai-runtime-provider-proof'])
   );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'local_ai_runtime_provider_proof']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'local_ai_provider_scheduler']);

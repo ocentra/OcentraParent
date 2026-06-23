@@ -10,6 +10,7 @@ use super::identifiers::{
 };
 use crate::ActivityEvidenceRef;
 
+pub const TRACKING_READ_MODEL_SCHEMA_VERSION: u16 = crate::ACTIVITY_QUERY_SCHEMA_VERSION;
 pub const TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE: &str = "child-device-query-store";
 pub const TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS: &str = "no-tracking-events";
 pub const TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE: &str = "active";

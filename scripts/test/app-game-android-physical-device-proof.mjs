@@ -26,7 +26,6 @@ async function main() {
     'app-game-android-physical-device-proof',
     'app-game-broad-blocking-proof-gates',
   ]);
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 
   run('adb', ['connect', adbTarget]);
   const devices = run('adb', ['devices', '-l']).stdout;
@@ -40,7 +39,7 @@ async function main() {
     'Physical Android 10 device is reachable for package, foreground usage-event, and policy-state proof; normal-mode hide/suspend remains blocked until Device Owner or Profile Owner proof is attached.';
 
   const module = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-physical-device-proof.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-physical-device-proof.js')).href
   );
   const readModel = module.decodeAppGameAndroidPhysicalDeviceProof({
     schemaVersion: proofMode,
@@ -92,7 +91,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-physical-device-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-physical-device-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-physical-device-proof.test.ts',
       physicalDevice:
         'adb devices -l observed physical product:star2qltecs model:SM_G965W at an explicit Wi-Fi ADB target; raw serial and package names are redacted.',
@@ -290,11 +289,11 @@ function devicePolicyStates() {
 
 async function assertSourceBoundaries() {
   const gateData = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const gateRules = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   assertIncludes(gateData, "gateId: 'android-normal-mode-hide-suspend-manual-required'", 'Android gate id');

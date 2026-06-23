@@ -120,7 +120,9 @@ async function loadProofModule() {
 }
 
 async function assertPackageExport(proofModule) {
-  const schemaPackageJson = JSON.parse(await readFile(join(repoRoot, 'packages', 'schema-domain', 'package.json'), 'utf8'));
+  const schemaPackageJson = JSON.parse(
+    await readFile(join(repoRoot, 'packages', 'schema-domain', 'package.json'), 'utf8')
+  );
   assert.deepEqual(schemaPackageJson.exports['./notification-local-outbox-adapter-proof'], {
     import: './dist/notification-local-outbox-adapter-proof.js',
     types: './dist/notification-local-outbox-adapter-proof.d.ts',
@@ -131,7 +133,6 @@ async function assertPackageExport(proofModule) {
     exportedModule.NotificationLocalOutboxAdapterProofReadModel.schemaVersion,
     proofModule.NotificationLocalOutboxAdapterProofReadModel.schemaVersion
   );
-
 }
 
 async function writeAndReadOutbox(proofModule, records) {

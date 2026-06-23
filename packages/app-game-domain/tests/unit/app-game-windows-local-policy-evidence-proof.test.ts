@@ -3,7 +3,7 @@ import {
   AppGameWindowsLocalPolicyEvidenceProofSchema,
   createAppGameWindowsLocalPolicyEvidenceProof,
   summarizeAppGameWindowsLocalPolicyEvidenceProof,
-} from '../../src/app-game-windows-local-policy-evidence-proof';
+} from '@ocentra-parent/schema-domain/app-game-windows-local-policy-evidence-proof';
 
 describe('app-game Windows local policy evidence proof', () => {
   recordsUnavailableLocalPolicyWithoutBroadBlockingClaim();

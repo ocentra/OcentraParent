@@ -11,7 +11,9 @@ use super::{
 #[test]
 fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
     let serialized = serde_json::to_value(app_game_timer_parent_surface_read_model())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
 
     assert_eq!(
         serialized["custodyLabel"],

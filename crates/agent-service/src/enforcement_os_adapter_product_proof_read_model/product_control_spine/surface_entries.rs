@@ -1,16 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants::{
-        v08_browser_domain_adapter_proof as browser_proof,
-        v08_cross_platform_enforcement_capability_proof as cross_proof,
-        v08_enforcement_product_control_spine as spine, v08_os_adapter_product_proof as os_proof,
-    },
-    V08BrowserDomainAdapterProofReadModel, V08CrossPlatformEnforcementCapabilityProofReadModel,
-    V08EnforcementProductControlCapabilityName, V08EnforcementProductControlCapabilityStatus,
-    V08EnforcementProductControlClaimState, V08EnforcementProductControlDevicePolicyState,
-    V08EnforcementProductControlExecutionState, V08EnforcementProductControlParentAction,
-    V08EnforcementProductControlSpineEntry, V08EnforcementProductControlSurface,
-    V08EnforcementProductControlSurfaceKind, V08OsAdapterProductProofReadModel,
-};
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
+use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as cross_proof;
+use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
+use ocentra_parent_agent_protocol::constants::v08_os_adapter_product_proof as os_proof;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlCapabilityName;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlCapabilityStatus;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlClaimState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlDevicePolicyState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlExecutionState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlParentAction;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineEntry;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSurface;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSurfaceKind;
 
 use super::{
     entry_factory::{

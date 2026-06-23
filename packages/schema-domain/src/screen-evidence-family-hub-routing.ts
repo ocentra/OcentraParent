@@ -19,10 +19,7 @@ import {
   ScreenFamilyAiHubTransferModeSchema,
 } from './screen-evidence-family-hub-routing-values';
 import { ScreenEvidenceQueueJobIdSchema } from './screen-evidence-primitives';
-import {
-  ScreenEvidenceCustodyStateSchema,
-  ScreenLocalModelProviderKindSchema,
-} from './screen-evidence-states';
+import { ScreenEvidenceCustodyStateSchema, ScreenLocalModelProviderKindSchema } from './screen-evidence-states';
 
 const ScreenFamilyAiHubCapabilityBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(ScreenFamilyAiHubRouteSchemaVersion),

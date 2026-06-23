@@ -1,9 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandName, AgentEventName, DeviceRoleRuntimeReadModel,
-    DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim, DeviceRuntimeRole,
-    DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState, DeviceRuntimeSurface,
-    LanPairingParentAuthority, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeAiProviderState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeLocalAiClaim;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleEntry;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     lan_pairing::LanPairingRuntime,
@@ -172,7 +180,7 @@ async fn expired_lan_ai_job_lease_dead_letters_after_max_attempts() {
 
 async fn lan_ai_job_event(
     runtime: LanPairingRuntime,
-) -> ocentra_parent_agent_protocol::AgentEventEnvelope {
+) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
     lan_ai_job_event_with_ids(
         runtime,
         constants::lan_pairing::INTENT_ID,
@@ -185,7 +193,7 @@ async fn lan_ai_job_event_with_ids(
     runtime: LanPairingRuntime,
     message_id: &str,
     intent_id: &str,
-) -> ocentra_parent_agent_protocol::AgentEventEnvelope {
+) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
     let mut command = command_for_target(
         AgentCommandName::AgentLanAiJobSubmit,
         local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),

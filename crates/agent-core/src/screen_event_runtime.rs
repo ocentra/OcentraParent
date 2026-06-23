@@ -2,7 +2,12 @@ use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, error::EventingError, ids::EventType,
     ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{constants, ScreenRuntimePhase};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimeClaimBoundary,
+    ScreenRuntimeEventPayload as ProtocolScreenRuntimeEventPayload, ScreenRuntimePhase,
+};
 
 use crate::{
     screen_event_runtime_input::{
@@ -19,13 +24,10 @@ use crate::{
     },
     screen_event_runtime_state::{
         action_state, ai_audit_state, custody_state, deletion_state, evidence_scope, policy_state,
-        ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
-        ScreenPolicyState, ScreenRuntimeClaimBoundary,
     },
 };
 
-pub(crate) type ScreenRuntimeEventPayload =
-    ocentra_parent_agent_protocol::ScreenRuntimeEventPayload;
+pub(crate) type ScreenRuntimeEventPayload = ProtocolScreenRuntimeEventPayload;
 
 #[derive(Clone, Debug)]
 pub struct ScreenRuntimeReport {

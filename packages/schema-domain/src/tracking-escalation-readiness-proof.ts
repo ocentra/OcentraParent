@@ -1,18 +1,6 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  TrackingLocationPolicyReadModelSchema,
-  TrackingPolicySchemaVersion,
-} from './tracking-location-policy';
-import {
-  evaluateTrackingAcknowledgementImpact,
-  resolveTrackingChildCheckIn,
-} from './tracking-location-policy-runtime';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
+import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
+import { evaluateTrackingAcknowledgementImpact, resolveTrackingChildCheckIn } from './tracking-location-policy-runtime';
 import { TrackingPolicyAuditRefSchema } from './tracking-location-policy-primitives';
 import type {
   TrackingAcknowledgement,
@@ -422,4 +410,3 @@ function trackingEscalationReadinessReadModelIsHonest(readModel: TrackingEscalat
     readModel.productClaimReady === false
   );
 }
-

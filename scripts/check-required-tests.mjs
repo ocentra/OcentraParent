@@ -1,8 +1,13 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import { resolveScopedFiles } from './check-architecture-scope.mjs';
 
 const repoRoot = process.cwd();
 const findings = [];
+const scriptName = 'node scripts/check-required-tests.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
 
 function toPosix(path) {
   return path.split('\\').join('/');
@@ -61,22 +66,91 @@ function checkRustCrate(path) {
   }
 }
 
-for (const workspaceRoot of ['packages', 'apps']) {
-  for (const path of childDirs(join(repoRoot, workspaceRoot))) {
+function collectFullTargets() {
+  const nodeWorkspaces = [];
+  const rustCrates = [];
+
+  for (const workspaceRoot of ['packages', 'apps']) {
+    for (const path of childDirs(join(repoRoot, workspaceRoot))) {
+      nodeWorkspaces.push(path);
+    }
+  }
+
+  for (const path of childDirs(join(repoRoot, 'crates'))) {
+    rustCrates.push(path);
+  }
+
+  return { nodeWorkspaces, rustCrates };
+}
+
+function collectScopedTargets(rawArgs) {
+  const scope = resolveScopedFiles(rawArgs, {
+    scriptName,
+    usageLines,
+    roots: ['apps', 'packages', 'crates'],
+    acceptPath: () => true,
+  });
+
+  if (scope.mode === 'skip') {
+    return { nodeWorkspaces: [], rustCrates: [] };
+  }
+
+  const nodeWorkspaces = new Set();
+  const rustCrates = new Set();
+
+  for (const filePath of scope.files) {
+    const segments = filePath.split('/');
+    if (segments.length < 2) {
+      continue;
+    }
+
+    const workspacePath = join(repoRoot, segments[0], segments[1]);
+    if (segments[0] === 'packages' || segments[0] === 'apps') {
+      nodeWorkspaces.add(workspacePath);
+      continue;
+    }
+
+    if (segments[0] === 'crates') {
+      rustCrates.add(workspacePath);
+    }
+  }
+
+  return {
+    nodeWorkspaces: [...nodeWorkspaces],
+    rustCrates: [...rustCrates],
+  };
+}
+
+export function main(rawArgs = process.argv.slice(2)) {
+  findings.length = 0;
+  const { nodeWorkspaces, rustCrates } = rawArgs.length === 0 ? collectFullTargets() : collectScopedTargets(rawArgs);
+
+  for (const path of nodeWorkspaces) {
     checkNodeWorkspace(path);
   }
-}
 
-for (const path of childDirs(join(repoRoot, 'crates'))) {
-  checkRustCrate(path);
-}
-
-if (findings.length > 0) {
-  console.error('Every source workspace must have tests from the beginning.');
-  for (const finding of findings) {
-    console.error(finding);
+  for (const path of rustCrates) {
+    checkRustCrate(path);
   }
-  process.exit(1);
+
+  if (findings.length > 0) {
+    console.error('Every source workspace must have tests from the beginning.');
+    for (const finding of findings) {
+      console.error(finding);
+    }
+    process.exit(1);
+  }
+
+  if (rawArgs.length === 0) {
+    console.log('Required test scaffold is present for all source workspaces.');
+    return;
+  }
+
+  console.log(
+    `Required test scaffold is present for ${nodeWorkspaces.length} node workspace(s) and ${rustCrates.length} Rust crate(s).`
+  );
 }
 
-console.log('Required test scaffold is present for all source workspaces.');
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

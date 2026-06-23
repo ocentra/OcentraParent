@@ -14,7 +14,11 @@ import {
   AppRiskDetectionSourceKind as SourceKind,
   AppRiskDetectionSurfaceState,
 } from '@ocentra-parent/schema-domain/app-game';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+  ParentPlatform,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type RiskSeed = {
   readonly candidateId: string;

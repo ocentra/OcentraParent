@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -49,8 +44,12 @@ export const TrackingNotificationPreferencePreflightStatusSchema = withParser(
 export const TrackingNotificationPreferencePreflightNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationPreferencePreflightNonClaims)
 );
-export const TrackingNotificationPreferencePreflightIdSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferencePreflightId');
-export const TrackingNotificationPreferencePreflightReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferencePreflightReference');
+export const TrackingNotificationPreferencePreflightIdSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationPreferencePreflightId'
+);
+export const TrackingNotificationPreferencePreflightReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationPreferencePreflightReference'
+);
 
 const TrackingNotificationPreferencePreflightRowBaseSchema = Schema.Struct({
   preferenceRowId: TrackingNotificationPreferencePreflightReferenceSchema,
@@ -270,4 +269,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

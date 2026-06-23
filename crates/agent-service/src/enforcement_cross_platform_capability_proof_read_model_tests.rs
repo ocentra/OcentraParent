@@ -1,12 +1,13 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_cross_platform_enforcement_capability_proof as proof},
-    policy_constants, ParentPlatform, V08CrossPlatformEnforcementCapabilityClaimState,
-    V08CrossPlatformEnforcementCapabilityProofEntry,
-    V08CrossPlatformEnforcementCapabilityProofReadModel,
-    V08CrossPlatformEnforcementCapabilitySurface,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityClaimState;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilitySurface;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_cross_platform_capability_proof_read_model::v08_cross_platform_enforcement_capability_proof_read_model;
 
@@ -93,11 +94,14 @@ fn cross_platform_read_model_serializes_for_service_preview() {
     let read_model = v08_cross_platform_enforcement_capability_proof_read_model(
         policy_constants::TEST_EVALUATED_AT,
     );
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let reparsed =
+    let Ok(serialized) = serde_json::to_value(read_model) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+    let Ok(reparsed) =
         serde_json::from_value::<V08CrossPlatformEnforcementCapabilityProofReadModel>(serialized)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
     let linux = entry_for(
         &reparsed.entries,
         V08CrossPlatformEnforcementCapabilitySurface::LinuxEnforcementAdapterScaffold,
@@ -118,10 +122,10 @@ fn entry_for(
     entries: &[V08CrossPlatformEnforcementCapabilityProofEntry],
     surface: V08CrossPlatformEnforcementCapabilitySurface,
 ) -> &V08CrossPlatformEnforcementCapabilityProofEntry {
-    entries
-        .iter()
-        .find(|entry| entry.surface == surface)
-        .expect(proof::READ_MODEL_ID)
+    let Some(entry) = entries.iter().find(|entry| entry.surface == surface) else {
+        panic!("{}", proof::READ_MODEL_ID);
+    };
+    entry
 }
 
 fn count_claims(

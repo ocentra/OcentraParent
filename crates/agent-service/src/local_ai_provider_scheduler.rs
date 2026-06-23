@@ -1,11 +1,15 @@
 use std::{collections::HashMap, future::Future, sync::OnceLock};
 
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiChatGenerationResult, LocalAiDegradedState, LocalAiProviderSchedulerDecision,
-    LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
-    LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerQueue,
-    LocalAiProviderSchedulerStatus, LocalModelRuntimeStatus,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerDecision;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerQueue;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 use tokio::sync::Mutex;
 
 use crate::{
@@ -63,7 +67,7 @@ impl LocalAiProviderSchedulerRuntime {
     ) -> LocalAiProviderSchedulerStatus {
         self.states
             .lock()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .get(physical_device_id)
             .cloned()
             .unwrap_or_else(|| status_unavailable_for_device(physical_device_id, timestamp_now()))
@@ -90,7 +94,7 @@ impl LocalAiProviderSchedulerRuntime {
         let mut states = self
             .states
             .lock()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let status = status_for_device(&mut states, physical_device_id, runtime);
         increment_queue(&mut status.queue, &job_class);
         status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Queued;
@@ -130,7 +134,7 @@ impl LocalAiProviderSchedulerRuntime {
         let mut states = self
             .states
             .lock()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let status = status_for_device(&mut states, physical_device_id, runtime);
         decrement_queue(&mut status.queue, &job_class);
         status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Running;
@@ -179,7 +183,7 @@ impl LocalAiProviderSchedulerRuntime {
         let mut states = self
             .states
             .lock()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let status = status_for_device(&mut states, physical_device_id, runtime);
         status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Unavailable;
         status.current_job_class = None;
@@ -316,7 +320,7 @@ impl LocalAiProviderSchedulerRuntime {
         let mut states = self
             .states
             .lock()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let status = status_for_device(&mut states, physical_device_id, runtime);
         status.current_job_class = None;
         status.lifecycle_state = if status.queue.total() > 0 {

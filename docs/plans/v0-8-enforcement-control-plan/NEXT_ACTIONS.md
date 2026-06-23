@@ -1,4 +1,4 @@
-﻿# V0.8 Enforcement Control Plan Next Actions
+# V0.8 Enforcement Control Plan Next Actions
 
 <!-- agent-capsule -->
 
@@ -14,31 +14,55 @@
 
 <!-- /agent-capsule -->
 
-This file is the short resume list for the next worker. It is derived from open workpack/checklist status and does not replace the assigned workpack.
+This file is the short resume list for the next worker. It is derived from open
+workpack/checklist status and does not replace the assigned workpack.
 
 ## How to use
 
 1. Confirm the hub assignment and lane.
-2. Pick only the assigned workpack from the list below.
-3. Open that workpack and exact checklist rows only.
-4. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
+2. Read `WORKPACK_FAMILIES.md` only if the selected workpack's owner or
+   handoff boundary is unclear.
+3. Pick only the assigned workpack from the list below.
+4. Open that workpack and exact checklist rows only.
+5. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are
+   updated and validation is listed.
 
-## Highest-open workpacks by unchecked boxes
+## Route hygiene status
+
+- Ownership doctrine, workpack-family routing, structured proof expectations,
+  and proof-index cleanup are now in place.
+- Product/runtime closure is still blocked by the open workpacks below.
+
+## Highest-open workpacks by dependency
+
+### Close execution authority first
 
 - [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md): 5 open of 5 boxes.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md): 5 open of 5 boxes.
 - [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md): 5 open of 5 boxes.
+
+### Then close approval, audit, and read-model truth
+
 - [10 Parent Approval And Override](workpacks/10-parent-approval-override.md): 5 open of 5 boxes.
 - [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes.
-- [12 Child-Facing Status And Reasons](workpacks/12-child-facing-status-and-reasons.md): 5 open of 5 boxes.
 - [13 Service Read Models And API](workpacks/13-service-read-models-and-api.md): 5 open of 5 boxes.
-- [14 Portal Control State Consumption](workpacks/14-portal-control-state-consumption.md): 5 open of 5 boxes.
+
+### Keep integrity and non-claim state explicit
+
 - [15 Integrity Heartbeat And Permission Loss](workpacks/15-integrity-heartbeat-permission-loss.md): 5 open of 5 boxes.
 - [16 Tamper/Uninstall Non-Claim Design](workpacks/16-tamper-uninstall-non-claim-design.md): 5 open of 5 boxes.
+
+### Use the rollout gate only after the slices above are honest
+
+- [20 Rollout Docs And CI/PR Gate](workpacks/20-rollout-docs-ci-pr-gate.md): 5 open of 5 boxes.
+
+### Still open and dependent on the slices above
+
+- [12 Child-Facing Status And Reasons](workpacks/12-child-facing-status-and-reasons.md): 5 open of 5 boxes.
+- [14 Portal Control State Consumption](workpacks/14-portal-control-state-consumption.md): 5 open of 5 boxes.
 - [17 Cross-Platform Unavailable States](workpacks/17-cross-platform-unavailable-states.md): 5 open of 5 boxes.
 - [19 Playwright And UI Proof](workpacks/19-playwright-ui-proof.md): 5 open of 5 boxes.
-- [20 Rollout Docs And CI/PR Gate](workpacks/20-rollout-docs-ci-pr-gate.md): 5 open of 5 boxes.
 
 ## Recently closed proof slice
 
@@ -51,12 +75,19 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## PR readiness guard
 
-A PR-ready slice should close a named workpack or clearly explain the exact remaining rows. Do not create a tiny PR that only updates one proof note while leaving the assigned workpack/checklist state stale.
+A PR-ready slice should close a named workpack or clearly explain the exact
+remaining rows. Do not create a tiny PR that only updates one proof note while
+leaving the assigned workpack/checklist state stale.
 
-Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), proof reference(s), and feature/product docs if product status changed.
+Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s),
+proof reference(s), and feature/product docs if product status changed.
+
+Do not use route-doc cleanup, portal rendering, evidence capture, AI output, or
+a focused contract pass to claim full enforcement readiness.
 
 ## Actioned completion tracker
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [ ] Re-check `WORKPACK_FAMILIES.md` when owner or handoff boundaries are unclear.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
-- [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Record failure conditions, skipped checks, no-claim boundaries, and evidence paths in the selected workpack and proof artifacts.

@@ -12,7 +12,10 @@ import {
   ParentStepUpMethod,
   SessionFreshnessState,
 } from '@ocentra-parent/schema-domain/family-household-authority';
-import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentActorRole,
+  ParentContractSchemaVersion,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   RecoveryBundleFailureReason,
   RecoveryBundleHandoffTarget,
@@ -169,218 +172,265 @@ const QrApprovalResponse = SetupPairingApprovalResponseSchema.parse({
   approvedAt: '2026-06-13T20:01:00.000Z',
 });
 
-describe('setup family bridge', () => {
-  it('produces a trusted ready report from an accepted child-device invite', () => {
-    const report = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
-      setupInvite: SetupInviteSchema.parse({
-        ...BaseInvite,
+const BaseFamilyRecoveryOperation = RecoveryOperationSchema.parse({
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  recoveryOperationId: 'family-recovery-1',
+  family: { familyId: 'family-main' },
+  requestedBy: { actorId: 'actor-owner', role: ParentActorRole.Parent },
+  requesterMembershipState: HouseholdMembershipState.Active,
+  relatedAccount: { parentAccountId: 'parent-account-1' },
+  relatedDevice: {
+    deviceId: 'device-child-1',
+    childProfileId: 'child-1',
+    label: 'Sam Android',
+    platform: 'android',
+  },
+  kind: RecoveryKind.CompromisedAccount,
+  state: 'approved',
+  ownerApprovalRequired: false,
+  identityProofState: RecoveryIdentityProofState.Verified,
+  supportChannel: RecoverySupportChannel.SupportAssisted,
+  deleteExportHandoffRequired: true,
+  bundleHandoffTarget: RecoveryBundleHandoffTarget.DeviceTrustRecoveryPersistence,
+  bundleState: RecoveryBundleState.ApplyPending,
+  bundleFailureReason: null,
+  deleteExportState: RecoveryDeleteExportState.DeletePending,
+  openedAt: '2026-06-13T20:01:00.000Z',
+  closedAt: null,
+});
+
+function createSetupInvite(overrides: Record<string, unknown> = {}) {
+  return SetupInviteSchema.parse({
+    ...BaseInvite,
+    ...overrides,
+  });
+}
+
+function createHouseholdAuthorityInput(overrides: Record<string, unknown> = {}) {
+  return HouseholdAuthorityInputSchema.parse({
+    ...BaseAuthorityInput,
+    ...overrides,
+  });
+}
+
+function createSetupReadinessInput(overrides: Record<string, unknown> = {}) {
+  return SetupFamilyReadinessInputSchema.parse({
+    ...BaseInput,
+    ...overrides,
+  });
+}
+
+function createFamilyRecoveryOperation(overrides: Record<string, unknown> = {}) {
+  return RecoveryOperationSchema.parse({
+    ...BaseFamilyRecoveryOperation,
+    ...overrides,
+  });
+}
+
+function readinessChecklistEntry(report: { checklist: readonly ChecklistEntry[] }, checklistItemId: string) {
+  return report.checklist.find((entry) => entry.checklistItemId === checklistItemId);
+}
+
+function expectTrustedReadyReportFromAcceptedInvite() {
+  const report = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
+      setupInvite: createSetupInvite({
         state: SetupInviteState.Accepted,
       }),
       parentStepUpAssertion: LocalStepUpAssertion,
-    });
+    })
+  );
 
-    expect(report.pairingState).toBe(SetupPairingState.Trusted);
-    expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
-    expect(report.recoveryState).toBe(SetupRecoveryState.Normal);
-    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Ready);
-    expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Paired);
-    expect(
-      report.checklist.find((entry: ChecklistEntry) => entry.checklistItemId === 'setup-pairing-state')?.state
-    ).toBe('complete');
-  });
+  expect(report.pairingState).toBe(SetupPairingState.Trusted);
+  expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
+  expect(report.recoveryState).toBe(SetupRecoveryState.Normal);
+  expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Ready);
+  expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Paired);
+  expect(readinessChecklistEntry(report, 'setup-pairing-state')?.state).toBe('complete');
+}
 
-  it('keeps an accepted child invite blocked until fresh step-up is supplied even when the parent device is trusted', () => {
-    const report = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
-      setupInvite: SetupInviteSchema.parse({
-        ...BaseInvite,
+function expectAcceptedInviteToStayBlockedUntilFreshStepUp() {
+  const report = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
+      setupInvite: createSetupInvite({
         state: SetupInviteState.Accepted,
       }),
-    });
+    })
+  );
 
-    expect(report.pairingState).toBe(SetupPairingState.Accepted);
-    expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
-    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
+  expect(report.pairingState).toBe(SetupPairingState.Accepted);
+  expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
+  expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
+}
+
+function expectReplayDetectionToMapToReplayRejectedPairing() {
+  const input = createSetupReadinessInput({
+    replayDetected: true,
   });
+  const projection = deriveSetupPairingProjectionFromFamilyContext(input);
+  const report = createSetupReadinessReportFromFamilyContext(input);
 
-  it('maps replay detection into blocked replay-rejected pairing state', () => {
-    const input = {
-      ...BaseInput,
-      replayDetected: true,
-    };
+  expect(projection.pairingState).toBe(SetupPairingState.Replayed);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.ReplayRejected);
+  expect(report.recoveryState).toBe(SetupRecoveryState.Required);
+  expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
+}
 
-    const projection = deriveSetupPairingProjectionFromFamilyContext(input);
-    const report = createSetupReadinessReportFromFamilyContext(input);
-
-    expect(projection.pairingState).toBe(SetupPairingState.Replayed);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.ReplayRejected);
-    expect(report.recoveryState).toBe(SetupRecoveryState.Required);
-    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
-  });
-
-  it('maps stale signed hello into an explicit pairing rejection state', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext({
-      ...BaseInput,
+function expectStaleSignedHelloToMapToExplicitPairingRejection() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
       staleCode: true,
-    });
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.StaleSignedHello);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.StaleSignedHello);
-    expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
+  expect(projection.pairingState).toBe(SetupPairingState.StaleSignedHello);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.StaleSignedHello);
+  expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
+}
+
+function expectPendingDeviceTrustToKeepAcceptedInviteBlocked() {
+  const input = createSetupReadinessInput({
+    setupInvite: createSetupInvite({
+      state: SetupInviteState.Accepted,
+    }),
+    householdAuthorityInput: createHouseholdAuthorityInput({
+      deviceTrustState: DeviceTrustState.Pending,
+    }),
   });
+  const projection = deriveSetupPairingProjectionFromFamilyContext(input);
+  const report = createSetupReadinessReportFromFamilyContext(input);
 
-  it('keeps an accepted child invite pending until the parent confirms device trust', () => {
-    const input = SetupFamilyReadinessInputSchema.parse({
-      ...BaseInput,
-      setupInvite: SetupInviteSchema.parse({
-        ...BaseInvite,
-        state: SetupInviteState.Accepted,
-      }),
-      householdAuthorityInput: HouseholdAuthorityInputSchema.parse({
-        ...BaseAuthorityInput,
-        deviceTrustState: DeviceTrustState.Pending,
-      }),
-    });
+  expect(projection.pairingState).toBe(SetupPairingState.Accepted);
+  expect(projection.failureReason).toBeNull();
+  expect(projection.recoveryState).toBe(SetupRecoveryState.Normal);
+  expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
+  expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Paired);
+  expect(readinessChecklistEntry(report, 'setup-pairing-state')?.supportCode).toBe('accepted');
+}
 
-    const projection = deriveSetupPairingProjectionFromFamilyContext(input);
-    const report = createSetupReadinessReportFromFamilyContext(input);
-
-    expect(projection.pairingState).toBe(SetupPairingState.Accepted);
-    expect(projection.failureReason).toBeNull();
-    expect(projection.recoveryState).toBe(SetupRecoveryState.Normal);
-    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
-    expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Paired);
-    expect(
-      report.checklist.find((entry: ChecklistEntry) => entry.checklistItemId === 'setup-pairing-state')?.supportCode
-    ).toBe('accepted');
-  });
-
-  it('accepts a phone QR approval bridge as fresh step-up for a desktop pairing action', () => {
-    const report = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
+function expectPhoneQrApprovalToActAsFreshStepUp() {
+  const report = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
       parentDevice: DesktopParentDevice,
-      setupInvite: SetupInviteSchema.parse({
-        ...BaseInvite,
+      setupInvite: createSetupInvite({
         state: SetupInviteState.Accepted,
       }),
       pairingApprovalChallenge: QrApprovalChallenge,
       pairingApprovalResponse: QrApprovalResponse,
-    });
+    })
+  );
 
-    expect(report.pairingState).toBe(SetupPairingState.Trusted);
-    expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
-    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Ready);
-  });
+  expect(report.pairingState).toBe(SetupPairingState.Trusted);
+  expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
+  expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Ready);
+}
 
-  it('rejects expired phone QR approvals instead of silently trusting the pairing action', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext({
-      ...BaseInput,
+function expectExpiredPhoneQrApprovalsToBeRejected() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
       parentDevice: DesktopParentDevice,
       observedAt: '2026-06-13T20:06:00.000Z',
-      setupInvite: SetupInviteSchema.parse({
-        ...BaseInvite,
+      setupInvite: createSetupInvite({
         state: SetupInviteState.Accepted,
       }),
       pairingApprovalChallenge: QrApprovalChallenge,
       pairingApprovalResponse: QrApprovalResponse,
-    });
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.Expired);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.ApprovalExpired);
-  });
+  expect(projection.pairingState).toBe(SetupPairingState.Expired);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.ApprovalExpired);
+}
 
-  it('marks wrong-account pairing when the invite targets a different parent account', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext(
-      SetupFamilyReadinessInputSchema.parse({
-        ...BaseInput,
-        setupInvite: SetupInviteSchema.parse({
-          ...BaseInvite,
-          state: SetupInviteState.Accepted,
-        }),
-        parentAccount: { parentAccountId: 'parent-account-9' },
-      })
-    );
+function expectDifferentTargetAccountToMapWrongAccount() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
+      setupInvite: createSetupInvite({
+        state: SetupInviteState.Accepted,
+      }),
+      parentAccount: { parentAccountId: 'parent-account-9' },
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.Untrusted);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.WrongAccount);
-    expect(projection.accountState).toBe(SetupAccountReadinessState.WrongAccount);
-  });
+  expect(projection.pairingState).toBe(SetupPairingState.Untrusted);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.WrongAccount);
+  expect(projection.accountState).toBe(SetupAccountReadinessState.WrongAccount);
+}
 
-  it('maps cross-family authority rejection into wrong-household setup state', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext({
-      ...BaseInput,
-      householdAuthorityInput: HouseholdAuthorityInputSchema.parse({
-        ...BaseAuthorityInput,
+function expectCrossFamilyAuthorityToMapWrongHousehold() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
+      householdAuthorityInput: createHouseholdAuthorityInput({
         sameFamily: false,
       }),
-    });
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.WrongHousehold);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.WrongHousehold);
-    expect(projection.accountState).toBe(SetupAccountReadinessState.RecoveryRequired);
-  });
+  expect(projection.pairingState).toBe(SetupPairingState.WrongHousehold);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.WrongHousehold);
+  expect(projection.accountState).toBe(SetupAccountReadinessState.RecoveryRequired);
+}
 
-  it('maps wrong-device-scope authority rejection into explicit pairing state', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext({
-      ...BaseInput,
-      householdAuthorityInput: HouseholdAuthorityInputSchema.parse({
-        ...BaseAuthorityInput,
+function expectWrongDeviceScopeToMapExplicitPairingState() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
+      householdAuthorityInput: createHouseholdAuthorityInput({
         deviceOwnershipScope: DeviceOwnershipScope.OtherDevice,
       }),
-    });
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.WrongDevice);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.WrongDevice);
-    expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
-  });
+  expect(projection.pairingState).toBe(SetupPairingState.WrongDevice);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.WrongDevice);
+  expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
+}
 
-  it('maps unbound child-profile authority rejection into explicit pairing state', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext({
-      ...BaseInput,
-      householdAuthorityInput: HouseholdAuthorityInputSchema.parse({
-        ...BaseAuthorityInput,
+function expectMissingChildProfileBindingToMapAnonymousDevice() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
+      householdAuthorityInput: createHouseholdAuthorityInput({
         childProfileBindingState: ChildProfileBindingState.Missing,
       }),
-    });
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.AnonymousDevice);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.AnonymousDevice);
-    expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
-  });
+  expect(projection.pairingState).toBe(SetupPairingState.AnonymousDevice);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.AnonymousDevice);
+  expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
+}
 
-  it('maps role rejection into explicit parent-role-required pairing state', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext({
-      ...BaseInput,
-      householdAuthorityInput: HouseholdAuthorityInputSchema.parse({
-        ...BaseAuthorityInput,
+function expectRoleRejectionToMapParentRoleRequired() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
+      householdAuthorityInput: createHouseholdAuthorityInput({
         actorRole: HouseholdRole.Observer,
       }),
-    });
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.ParentRoleRequired);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.ParentRoleRequired);
-    expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
-  });
+  expect(projection.pairingState).toBe(SetupPairingState.ParentRoleRequired);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.ParentRoleRequired);
+  expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
+}
 
-  it('treats offline child reachability as explicit pairing recovery work', () => {
-    const projection = deriveSetupPairingProjectionFromFamilyContext({
-      ...BaseInput,
+function expectOfflineChildReachabilityToMapRecoveryWork() {
+  const projection = deriveSetupPairingProjectionFromFamilyContext(
+    createSetupReadinessInput({
       childServiceState: SetupChildServiceState.Offline,
       childAppState: 'offline',
       networkReachabilityState: 'offline-child',
-    });
+    })
+  );
 
-    expect(projection.pairingState).toBe(SetupPairingState.Untrusted);
-    expect(projection.failureReason).toBe(SetupPairingFailureReason.OfflineChild);
-    expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
-  });
+  expect(projection.pairingState).toBe(SetupPairingState.Untrusted);
+  expect(projection.failureReason).toBe(SetupPairingFailureReason.OfflineChild);
+  expect(projection.recoveryState).toBe(SetupRecoveryState.Required);
+}
 
-  it('surfaces install progression even when the legacy child app state still says ready', () => {
-    const report = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
-      setupInvite: SetupInviteSchema.parse({
-        ...BaseInvite,
+function expectInstallProgressionToSurfaceAlongsideLegacyReadyState() {
+  const report = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
+      setupInvite: createSetupInvite({
         state: SetupInviteState.Accepted,
       }),
       childAppState: 'ready',
@@ -388,158 +438,175 @@ describe('setup family bridge', () => {
       childServiceState: SetupChildServiceState.NotStarted,
       permissionState: 'missing',
       policyBaselineState: 'missing',
-    });
+    })
+  );
 
-    expect(report.childInstallState).toBe(SetupChildInstallState.Installed);
-    expect(report.childServiceState).toBe(SetupChildServiceState.NotStarted);
-    expect(report.pairingState).toBe(SetupPairingState.Accepted);
-    expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Installed);
-    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
-  });
+  expect(report.childInstallState).toBe(SetupChildInstallState.Installed);
+  expect(report.childServiceState).toBe(SetupChildServiceState.NotStarted);
+  expect(report.pairingState).toBe(SetupPairingState.Accepted);
+  expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Installed);
+  expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
+}
 
-  it('keeps support-assisted recovery blocked until custody handoff is cleared and emits a setup recovery operation', () => {
-    const familyRecovery = RecoveryOperationSchema.parse({
-      schemaVersion: ParentContractSchemaVersion.V0_6,
-      recoveryOperationId: 'family-recovery-1',
-      family: { familyId: 'family-main' },
-      requestedBy: { actorId: 'actor-owner', role: ParentActorRole.Parent },
-      requesterMembershipState: HouseholdMembershipState.Active,
-      relatedAccount: { parentAccountId: 'parent-account-1' },
-      relatedDevice: {
-        deviceId: 'device-child-1',
-        childProfileId: 'child-1',
-        label: 'Sam Android',
-        platform: 'android',
-      },
-      kind: RecoveryKind.CompromisedAccount,
-      state: 'approved',
-      ownerApprovalRequired: false,
-      identityProofState: RecoveryIdentityProofState.Verified,
-      supportChannel: RecoverySupportChannel.SupportAssisted,
-      deleteExportHandoffRequired: true,
-      bundleHandoffTarget: RecoveryBundleHandoffTarget.DeviceTrustRecoveryPersistence,
-      bundleState: RecoveryBundleState.ApplyPending,
-      bundleFailureReason: null,
-      deleteExportState: RecoveryDeleteExportState.DeletePending,
-      openedAt: '2026-06-13T20:01:00.000Z',
-      closedAt: null,
-    });
-
-    const report = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
-      setupInvite: SetupInviteSchema.parse({
-        ...BaseInvite,
+function expectSupportAssistedRecoveryToStayBlockedUntilCustodyClears() {
+  const familyRecovery = createFamilyRecoveryOperation();
+  const report = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
+      setupInvite: createSetupInvite({
         state: SetupInviteState.Accepted,
       }),
       recoveryOperation: familyRecovery,
-    });
-
-    const recoveryOperation = createSetupRecoveryOperationFromFamilyRecovery(
-      SetupFamilyRecoveryOperationInputSchema.parse({
-        recoveryOperationId: 'setup-recovery-1',
-        setupRecoveryKind: SetupRecoveryKind.PermissionLoss,
-        parentAccount: BaseInput.parentAccount,
-        parentDevice: BaseInput.parentDevice,
-        childProfile: BaseInput.childProfile,
-        childDevice: {
-          deviceId: 'device-child-1',
-          childProfileId: 'child-1',
-          label: 'Sam Android',
-          platform: 'android',
-        },
-        sourcePairingState: SetupPairingState.Accepted,
-        familyRecoveryOperation: familyRecovery,
-      })
-    );
-
-    expect(report.recoveryState).toBe(SetupRecoveryState.InProgress);
-    expect(report.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
-    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
-    expect(recoveryOperation.kind).toBe(SetupRecoveryKind.PermissionLoss);
-    expect(recoveryOperation.state).toBe(SetupRecoveryState.InProgress);
-    expect(recoveryOperation.resolvedAt).toBeNull();
-  });
-
-  it('only marks recovery recovered after applied bundle and delete settlement, and blocks wrong-key restores', () => {
-    const acceptedInvite = SetupInviteSchema.parse({
-      ...BaseInvite,
-      state: SetupInviteState.Accepted,
-    });
-    const completedRecovery = RecoveryOperationSchema.parse({
-      schemaVersion: ParentContractSchemaVersion.V0_6,
-      recoveryOperationId: 'family-recovery-completed',
-      family: { familyId: 'family-main' },
-      requestedBy: { actorId: 'actor-owner', role: ParentActorRole.Parent },
-      requesterMembershipState: HouseholdMembershipState.Active,
-      relatedAccount: { parentAccountId: 'parent-account-1' },
-      relatedDevice: {
+    })
+  );
+  const recoveryOperation = createSetupRecoveryOperationFromFamilyRecovery(
+    SetupFamilyRecoveryOperationInputSchema.parse({
+      recoveryOperationId: 'setup-recovery-1',
+      setupRecoveryKind: SetupRecoveryKind.PermissionLoss,
+      parentAccount: BaseInput.parentAccount,
+      parentDevice: BaseInput.parentDevice,
+      childProfile: BaseInput.childProfile,
+      childDevice: {
         deviceId: 'device-child-1',
         childProfileId: 'child-1',
         label: 'Sam Android',
         platform: 'android',
       },
-      kind: RecoveryKind.CompromisedAccount,
-      state: 'completed',
-      ownerApprovalRequired: false,
-      identityProofState: RecoveryIdentityProofState.Verified,
-      supportChannel: RecoverySupportChannel.SelfServe,
-      deleteExportHandoffRequired: true,
-      bundleHandoffTarget: RecoveryBundleHandoffTarget.DeviceTrustRecoveryPersistence,
-      bundleState: RecoveryBundleState.Applied,
-      bundleFailureReason: null,
-      deleteExportState: RecoveryDeleteExportState.DeletePending,
-      openedAt: '2026-06-13T20:01:00.000Z',
-      closedAt: '2026-06-13T20:09:00.000Z',
-    });
+      sourcePairingState: SetupPairingState.Accepted,
+      familyRecoveryOperation: familyRecovery,
+    })
+  );
 
-    const pendingDeleteReport = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
+  expect(report.recoveryState).toBe(SetupRecoveryState.InProgress);
+  expect(report.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
+  expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
+  expect(recoveryOperation.kind).toBe(SetupRecoveryKind.PermissionLoss);
+  expect(recoveryOperation.state).toBe(SetupRecoveryState.InProgress);
+  expect(recoveryOperation.resolvedAt).toBeNull();
+}
+
+function expectRecoveryToRequireAppliedBundleAndDeleteSettlement() {
+  const acceptedInvite = createSetupInvite({
+    state: SetupInviteState.Accepted,
+  });
+  const completedRecovery = createFamilyRecoveryOperation({
+    recoveryOperationId: 'family-recovery-completed',
+    state: 'completed',
+    supportChannel: RecoverySupportChannel.SelfServe,
+    bundleState: RecoveryBundleState.Applied,
+    deleteExportState: RecoveryDeleteExportState.DeletePending,
+    closedAt: '2026-06-13T20:09:00.000Z',
+  });
+  const pendingDeleteReport = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
       setupInvite: acceptedInvite,
       parentStepUpAssertion: LocalStepUpAssertion,
       recoveryOperation: completedRecovery,
-    });
-
-    expect(pendingDeleteReport.pairingState).toBe(SetupPairingState.Accepted);
-    expect(pendingDeleteReport.recoveryState).toBe(SetupRecoveryState.InProgress);
-    expect(pendingDeleteReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
-    expect(deriveSetupReadinessOverallState(pendingDeleteReport)).toBe(SetupReadinessOverallState.Blocked);
-
-    const settledRecovery = RecoveryOperationSchema.parse({
-      ...completedRecovery,
-      recoveryOperationId: 'family-recovery-completed-settled',
-      deleteExportState: RecoveryDeleteExportState.DeleteConfirmed,
-    });
-
-    const settledReport = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
+    })
+  );
+  const settledRecovery = createFamilyRecoveryOperation({
+    ...completedRecovery,
+    recoveryOperationId: 'family-recovery-completed-settled',
+    deleteExportState: RecoveryDeleteExportState.DeleteConfirmed,
+  });
+  const settledReport = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
       setupInvite: acceptedInvite,
       parentStepUpAssertion: LocalStepUpAssertion,
       recoveryOperation: settledRecovery,
-    });
-
-    expect(settledReport.pairingState).toBe(SetupPairingState.Recovered);
-    expect(settledReport.recoveryState).toBe(SetupRecoveryState.Recovered);
-    expect(settledReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Synced);
-    expect(deriveSetupReadinessOverallState(settledReport)).toBe(SetupReadinessOverallState.Ready);
-
-    const wrongKeyRecovery = RecoveryOperationSchema.parse({
-      ...completedRecovery,
-      recoveryOperationId: 'family-recovery-wrong-key',
-      deleteExportHandoffRequired: false,
-      bundleState: RecoveryBundleState.Rejected,
-      bundleFailureReason: RecoveryBundleFailureReason.WrongKey,
-      deleteExportState: RecoveryDeleteExportState.None,
-    });
-
-    const wrongKeyReport = createSetupReadinessReportFromFamilyContext({
-      ...BaseInput,
+    })
+  );
+  const wrongKeyRecovery = createFamilyRecoveryOperation({
+    ...completedRecovery,
+    recoveryOperationId: 'family-recovery-wrong-key',
+    deleteExportHandoffRequired: false,
+    bundleState: RecoveryBundleState.Rejected,
+    bundleFailureReason: RecoveryBundleFailureReason.WrongKey,
+    deleteExportState: RecoveryDeleteExportState.None,
+  });
+  const wrongKeyReport = createSetupReadinessReportFromFamilyContext(
+    createSetupReadinessInput({
       setupInvite: acceptedInvite,
       parentStepUpAssertion: LocalStepUpAssertion,
       recoveryOperation: wrongKeyRecovery,
-    });
+    })
+  );
 
-    expect(wrongKeyReport.recoveryState).toBe(SetupRecoveryState.Required);
-    expect(wrongKeyReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
-    expect(deriveSetupReadinessOverallState(wrongKeyReport)).toBe(SetupReadinessOverallState.Blocked);
-  });
+  expect(pendingDeleteReport.pairingState).toBe(SetupPairingState.Accepted);
+  expect(pendingDeleteReport.recoveryState).toBe(SetupRecoveryState.InProgress);
+  expect(pendingDeleteReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
+  expect(deriveSetupReadinessOverallState(pendingDeleteReport)).toBe(SetupReadinessOverallState.Blocked);
+  expect(settledReport.pairingState).toBe(SetupPairingState.Recovered);
+  expect(settledReport.recoveryState).toBe(SetupRecoveryState.Recovered);
+  expect(settledReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Synced);
+  expect(deriveSetupReadinessOverallState(settledReport)).toBe(SetupReadinessOverallState.Ready);
+  expect(wrongKeyReport.recoveryState).toBe(SetupRecoveryState.Required);
+  expect(wrongKeyReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
+  expect(deriveSetupReadinessOverallState(wrongKeyReport)).toBe(SetupReadinessOverallState.Blocked);
+}
+
+const SetupFamilyBridgeCases = [
+  ['produces a trusted ready report from an accepted child-device invite', expectTrustedReadyReportFromAcceptedInvite],
+  [
+    'keeps an accepted child invite blocked until fresh step-up is supplied even when the parent device is trusted',
+    expectAcceptedInviteToStayBlockedUntilFreshStepUp,
+  ],
+  [
+    'maps replay detection into blocked replay-rejected pairing state',
+    expectReplayDetectionToMapToReplayRejectedPairing,
+  ],
+  [
+    'maps stale signed hello into an explicit pairing rejection state',
+    expectStaleSignedHelloToMapToExplicitPairingRejection,
+  ],
+  [
+    'keeps an accepted child invite pending until the parent confirms device trust',
+    expectPendingDeviceTrustToKeepAcceptedInviteBlocked,
+  ],
+  [
+    'accepts a phone QR approval bridge as fresh step-up for a desktop pairing action',
+    expectPhoneQrApprovalToActAsFreshStepUp,
+  ],
+  [
+    'rejects expired phone QR approvals instead of silently trusting the pairing action',
+    expectExpiredPhoneQrApprovalsToBeRejected,
+  ],
+  [
+    'marks wrong-account pairing when the invite targets a different parent account',
+    expectDifferentTargetAccountToMapWrongAccount,
+  ],
+  [
+    'maps cross-family authority rejection into wrong-household setup state',
+    expectCrossFamilyAuthorityToMapWrongHousehold,
+  ],
+  [
+    'maps wrong-device-scope authority rejection into explicit pairing state',
+    expectWrongDeviceScopeToMapExplicitPairingState,
+  ],
+  [
+    'maps unbound child-profile authority rejection into explicit pairing state',
+    expectMissingChildProfileBindingToMapAnonymousDevice,
+  ],
+  ['maps role rejection into explicit parent-role-required pairing state', expectRoleRejectionToMapParentRoleRequired],
+  [
+    'treats offline child reachability as explicit pairing recovery work',
+    expectOfflineChildReachabilityToMapRecoveryWork,
+  ],
+  [
+    'surfaces install progression even when the legacy child app state still says ready',
+    expectInstallProgressionToSurfaceAlongsideLegacyReadyState,
+  ],
+  [
+    'keeps support-assisted recovery blocked until custody handoff is cleared and emits a setup recovery operation',
+    expectSupportAssistedRecoveryToStayBlockedUntilCustodyClears,
+  ],
+  [
+    'only marks recovery recovered after applied bundle and delete settlement, and blocks wrong-key restores',
+    expectRecoveryToRequireAppliedBundleAndDeleteSettlement,
+  ],
+] as const;
+
+describe('setup family bridge', () => {
+  for (const [testName, runTest] of SetupFamilyBridgeCases) {
+    it(testName, runTest);
+  }
 });

@@ -21,10 +21,8 @@ import {
   type SocialParentNotificationDeliveryPanelIntent,
 } from '@ocentra-parent/portal-domain/social-parent-notification-delivery-panel';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import {
-  isPortalBrowserParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
   type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
   type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,

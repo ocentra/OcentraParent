@@ -1,10 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, policy_constants, EnforcementAction,
-    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementMode, EnforcementPermissionState,
-    EnforcementResultStatus, EnforcementRollbackState, EnforcementUnavailableReason,
-    ParentPlatform, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAction, EnforcementAdapterKind, EnforcementCapabilityState,
+    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementMode,
+    EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
+    EnforcementUnavailableReason, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_adapter::{
     terminate_owned_process, unavailable_adapter_outcome, EnforcementAdapterOutcome,

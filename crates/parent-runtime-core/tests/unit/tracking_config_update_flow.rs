@@ -1,11 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, default_tracking_config_update_request,
-    parent_tracking_config_updated_event_from_command, AgentCommandEnvelope, AgentCommandName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
-    ParentTrackingConfigUpdatedEvent, TrackingConfigPolicyDecisionState,
-    TrackingConfigPortalUpdateKind, TrackingConfigUpdateResponseState,
-    TrackingConfigUpdateTargetScope, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::tracking::config_update_event::{
+    default_tracking_config_update_request, parent_tracking_config_updated_event_from_command,
+    ParentTrackingConfigUpdatedEvent, TrackingConfigAuditOutcome,
+    TrackingConfigPolicyDecisionState, TrackingConfigPortalUpdateKind,
+    TrackingConfigUpdateResponseState, TrackingConfigUpdateTargetScope,
 };
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_runtime_core::tracking_config_update_flow::publish_parent_tracking_config_updated_event_flow;
 use ocentra_parent_runtime_core::tracking_dispatch::{
     ChildAcknowledgementState, ChildRuntimePublishState, ParentRuntimeOriginState,
@@ -21,8 +27,8 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         ChildAcknowledgementState::Required,
         ParentRuntimeOriginState::TrustedLocalUi,
     )
-    .await
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .await;
+    let flow_report = result_or_unreachable(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         flow_report.change_requested_event.previous_event_ref,
@@ -39,11 +45,26 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
             .child_runtime_publish_state,
         ChildRuntimePublishState::Publish
     );
-    assert!(flow_report.change_approved_event.is_some());
+    assert_eq!(
+        flow_report
+            .change_approved_event
+            .as_ref()
+            .expect("approved flow should emit a change-approved event")
+            .previous_event_ref,
+        flow_report.policy_decision_event.decision_event_ref
+    );
+    assert_eq!(
+        flow_report
+            .change_approved_event
+            .as_ref()
+            .expect("approved flow should emit a change-approved event")
+            .child_runtime_publish_required,
+        true
+    );
     assert!(flow_report.change_rejected_event.is_none());
     assert_eq!(
         flow_report.audit_event.audit_outcome,
-        ocentra_parent_agent_protocol::TrackingConfigAuditOutcome::Committed
+        TrackingConfigAuditOutcome::Committed
     );
     assert_eq!(
         flow_report.portal_event.update_kind,
@@ -53,7 +74,16 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         flow_report.parent_request_report.response.response_state,
         TrackingConfigUpdateResponseState::Applied
     );
-    assert!(flow_report.child_runtime_flow.is_some());
+    assert_eq!(
+        flow_report
+            .child_runtime_flow
+            .as_ref()
+            .expect("approved flow should emit a child runtime flow")
+            .parent_request_report
+            .response
+            .response_state,
+        TrackingConfigUpdateResponseState::Applied
+    );
 }
 
 #[tokio::test]
@@ -66,8 +96,8 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
         ChildAcknowledgementState::Required,
         ParentRuntimeOriginState::Untrusted,
     )
-    .await
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .await;
+    let flow_report = result_or_unreachable(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         flow_report.policy_decision_event.decision_state,
@@ -82,19 +112,19 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
     );
     assert!(flow_report.change_approved_event.is_none());
     assert_eq!(
-        flow_report
-            .change_rejected_event
-            .as_ref()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
-            .rejection_reason_code,
+        option_or_unreachable(
+            flow_report.change_rejected_event.as_ref(),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        )
+        .rejection_reason_code,
         constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED
     );
     assert_eq!(
         flow_report.portal_event.update_kind,
         TrackingConfigPortalUpdateKind::ManualRequiredState
     );
-    assert_eq!(flow_report.portal_event.visible_manual_required, true);
-    assert_eq!(flow_report.portal_event.visible_unavailable, true);
+    assert!(flow_report.portal_event.visible_manual_required);
+    assert!(flow_report.portal_event.visible_unavailable);
     assert_eq!(
         flow_report.parent_request_report.response.response_state,
         TrackingConfigUpdateResponseState::Rejected
@@ -123,12 +153,27 @@ fn tracking_config_command() -> AgentCommandEnvelope {
         },
         target: AgentMessageTarget {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform:
-                ocentra_parent_agent_protocol::policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS
-                    .to_string(),
+            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
             route: AgentRoute::Localhost,
         },
         command: AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
         payload: LogFields::new(),
+    }
+}
+
+fn result_or_unreachable<T, E>(result: Result<T, E>, context: &'static str) -> T
+where
+    E: std::fmt::Debug,
+{
+    match result {
+        Ok(value) => value,
+        Err(error) => unreachable!("{context}: {error:?}"),
+    }
+}
+
+fn option_or_unreachable<T>(option: Option<T>, context: &'static str) -> T {
+    match option {
+        Some(value) => value,
+        None => unreachable!("{context}"),
     }
 }

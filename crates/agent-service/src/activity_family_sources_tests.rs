@@ -1,11 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportFrequency,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportFrequency,
     ActivityReportRequest, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
     ActivityReportSourceState, ActivitySurfaceScope, ActivitySurfaceScopeKind,
-    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
-    AgentRoute, LogFieldValue, LogFields, ACTIVITY_SURFACE_SCHEMA_VERSION,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute,
+};
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_family_sources::family_sources_from_command, activity_surface_report::report_document,
@@ -14,7 +19,7 @@ use crate::{
 
 #[test]
 fn activity_family_sources_parse_reachable_offline_stale_and_error_records_from_command_payload() {
-    let sources = family_sources_from_command(&command_with_sources(vec![
+    let sources = family_sources_from_command(&command_with_sources(&[
         source_record(
             constants::activity_surface::DEFAULT_DEVICE_ID,
             ActivityReportSourceReachabilityState::Reachable,
@@ -183,9 +188,10 @@ async fn activity_family_report_without_query_store_keeps_family_fanout_unavaila
     );
 }
 
-fn command_with_sources(sources: Vec<ActivityReportSourceState>) -> AgentCommandEnvelope {
-    let encoded_sources =
-        serde_json::to_string(&sources).expect(constants::error::AGENT_EVENT_SERIALIZES);
+fn command_with_sources(sources: &[ActivityReportSourceState]) -> AgentCommandEnvelope {
+    let encoded_sources = serde_json::to_string(sources).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     command(fields_from_pairs(vec![(
         constants::field::ACTIVITY_FAMILY_SOURCES,
         LogFieldValue::String(encoded_sources),
@@ -229,12 +235,12 @@ fn family_report_request() -> ActivityReportRequest {
 }
 
 fn source_record(
-    device_id: &str,
+    source_device_ref: &str,
     reachability_state: ActivityReportSourceReachabilityState,
     state: ActivityReadModelState,
 ) -> ActivityReportSourceState {
     ActivityReportSourceState {
-        device_id: device_id.to_string(),
+        device_id: source_device_ref.to_string(),
         reachability_state,
         state,
         reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),

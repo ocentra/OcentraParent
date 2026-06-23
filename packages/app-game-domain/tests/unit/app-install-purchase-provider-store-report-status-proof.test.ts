@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProviderStoreReportStatusProofSchema,
   AppInstallPurchaseProviderStoreReportStatusRowSchema,
   summarizeAppInstallPurchaseProviderStoreReportStatusProof,
-} from '../../src/app-install-purchase-provider-store-report-status-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-provider-store-report-status-proof';
 
 describe('app install and purchase provider store report status proof', () => {
   acceptsProviderStoreReportStatusRowsWithoutProviderOrPortalClaims();

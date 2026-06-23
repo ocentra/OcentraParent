@@ -159,4 +159,3 @@ export const appGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelMatchesHa
     readModelState === AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState.BlockedBySourceFreshness) ||
   (auditRollbackState === AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState.BlockedByCompilerDecision &&
     readModelState === AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState.BlockedByCompilerDecision);
-

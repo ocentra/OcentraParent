@@ -7,9 +7,7 @@ import {
   BrowserGamePolicyCompilerInputSchema,
   BrowserGamePolicyDecisionCandidateSchema,
 } from '@ocentra-parent/schema-domain/browser-game-policy-compiler';
-import {
-  compileBrowserGamePolicyCandidate,
-} from '@ocentra-parent/browser-domain/browser-game-policy-compiler';
+import { compileBrowserGamePolicyCandidate } from '../../packages/browser-domain/dist/browser-game-policy-candidate-compiler.js';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-policy-compiler-live-evidence-proof';
@@ -140,7 +138,7 @@ const decisions = captures.map(decisionFor);
 const negativeChecks = runNegativeChecks(inputs[0], decisions[0]);
 
 if (!captures.every((capture) => capture.responseOk)) {
-  throw new Error('Expected all browser-game policy compiler public captures to return HTTP 2xx/3xx responses');
+  throw new Error('Expected all browser-game policy compiler live captures to return HTTP 2xx/3xx responses');
 }
 if (!inputs.every((input) => BrowserGamePolicyCompilerInputSchema.safeParse(input).success)) {
   throw new Error('Expected every browser-game policy compiler input to parse');
@@ -162,7 +160,7 @@ const proof = {
   branch,
   commit,
   baseCommit,
-  captureMode: 'real-public-browser-game-policy-compiler-shapes',
+  captureMode: 'real-live-browser-game-policy-compiler-shapes',
   targets: captures,
   inputs,
   decisions,

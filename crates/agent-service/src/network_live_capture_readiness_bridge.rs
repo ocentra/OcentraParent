@@ -14,12 +14,19 @@ use ocentra_network_evidence::{
         },
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkLiveCaptureExecutionStatusState, NetworkLiveCaptureProofStatusState,
-    NetworkLiveCaptureStatus, NetworkLiveCaptureStatusPlatform, NetworkLiveCaptureStatusRow,
-    NetworkRawCaptureStorageStatusState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureExecutionStatusState;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureProofStatusState;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureStatus;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureStatusPlatform;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureStatusRow;
+use ocentra_parent_agent_protocol::network_flow::NetworkRawCaptureStorageStatusState;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::network_live_capture_execution_bridge::{execution_input, protocol_execution_state};
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -60,7 +67,7 @@ pub(crate) fn build_network_live_capture_status_report(
 
 pub(crate) fn network_live_capture_status_payload() -> Result<LogFields, ()> {
     let status = network_live_capture_status()?;
-    let serialized = serde_json::to_string(&status).map_err(|_| ())?;
+    let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
     Ok(fields_from_pairs(vec![(
         constants::network_flow::FIELD_NETWORK_LIVE_CAPTURE_STATUS,
         LogFieldValue::String(serialized),
@@ -82,11 +89,11 @@ fn live_capture_rows() -> Result<Vec<NetworkLiveCaptureStatusRow>, ()> {
     inputs
         .into_iter()
         .map(|input| {
-            let proof = plan_network_live_capture_proof(input).map_err(|_| ())?;
+            let proof = plan_network_live_capture_proof(input).map_err(|_error| ())?;
             let storage =
-                plan_network_raw_capture_storage(storage_input(&proof)).map_err(|_| ())?;
-            let execution =
-                prove_network_live_capture_execution(execution_input(&proof)).map_err(|_| ())?;
+                plan_network_raw_capture_storage(storage_input(&proof)).map_err(|_error| ())?;
+            let execution = prove_network_live_capture_execution(execution_input(&proof))
+                .map_err(|_error| ())?;
             Ok(status_row(&proof, &storage, &execution))
         })
         .collect()

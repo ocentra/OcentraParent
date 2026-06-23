@@ -4,12 +4,13 @@ use crate::{
     DomainCategoryDatabase, DomainCategoryRecord, DomainCategorySource, NetworkCategory,
     PublicSuffixModel,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn category_database_matches_registrable_domain_with_fresh_source() {
     let model = PublicSuffixModel::ocentra_fixture();
     let evidence = normalize_domain_with_public_suffix("watch.video.example.test", &model)
-        .expect("fixture domain should normalize");
+        .expect_value("fixture domain should normalize");
     let source = DomainCategorySource {
         source_id: "ocentra-category-fixture-v1".to_owned(),
         retrieved_at_epoch_seconds: 1_000,
@@ -23,7 +24,7 @@ fn category_database_matches_registrable_domain_with_fresh_source() {
         source,
         confidence_percent: 92,
     }])
-    .expect("fixture category database should be valid");
+    .expect_value("fixture category database should be valid");
 
     let lookup = lookup_domain_category(&database, &evidence, 1_050);
 
@@ -55,7 +56,7 @@ fn category_database_matches_registrable_domain_with_fresh_source() {
 fn category_database_marks_stale_source_without_upgrading_claim() {
     let model = PublicSuffixModel::ocentra_fixture();
     let evidence = normalize_domain_with_public_suffix("video.example.test", &model)
-        .expect("fixture domain should normalize");
+        .expect_value("fixture domain should normalize");
     let source = DomainCategorySource {
         source_id: "ocentra-category-fixture-v1".to_owned(),
         retrieved_at_epoch_seconds: 100,
@@ -69,7 +70,7 @@ fn category_database_marks_stale_source_without_upgrading_claim() {
         source,
         confidence_percent: 80,
     }])
-    .expect("fixture category database should be valid");
+    .expect_value("fixture category database should be valid");
 
     let lookup = lookup_domain_category(&database, &evidence, 111);
 

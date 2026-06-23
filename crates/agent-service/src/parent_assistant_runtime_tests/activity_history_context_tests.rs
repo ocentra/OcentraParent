@@ -1,10 +1,18 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityHistoricalReportList, ActivityHistoricalReportListItem,
-    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportSourceLabel,
-    ActivityReportSourceStateSummary, ActivitySavedReportState, ActivitySurfaceRequest,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, ParentEvidenceReferenceKind,
-    ACTIVITY_SURFACE_SCHEMA_VERSION,
-};
+use std::io::Error as IoError;
+
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity_surface::ActivityHistoricalReportList;
+use ocentra_parent_agent_protocol::activity_surface::ActivityHistoricalReportListItem;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportCustodyLabel;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceLabel;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceStateSummary;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySurfaceRequest;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySurfaceScope;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySurfaceScopeKind;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::{
     activity_surface_report_store::save_report_document, fields::fields_from_pairs,
@@ -14,9 +22,11 @@ use crate::{
 };
 
 #[test]
-fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() {
+fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() -> super::TestResult
+{
+    let command = history_context_command()?;
     let request = request_from_command(
-        &history_context_command(),
+        &command,
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
         None,
         None,
@@ -28,7 +38,7 @@ fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() 
         .find(|context| {
             context.citation_label == constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
 
     assert_eq!(
         report_context.evidence.evidence_reference_id,
@@ -57,10 +67,13 @@ fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() 
     );
     assert!(!report_context.raw_child_evidence_included);
     assert!(!report_context.direct_enforcement_allowed);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn parent_assistant_runtime_loads_saved_history_without_report_payload() {
+async fn parent_assistant_runtime_loads_saved_history_without_report_payload() -> super::TestResult
+{
     let _guard = crate::activity_report_env_lock::REPORT_ENV_LOCK
         .lock()
         .await;
@@ -72,7 +85,7 @@ async fn parent_assistant_runtime_loads_saved_history_without_report_payload() {
     let stored_history =
         activity_report_history_from_command(&super::command_with_payload(Default::default()))
             .await
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
     let request = request_from_command(
         &super::command_with_payload(Default::default()),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
@@ -89,7 +102,7 @@ async fn parent_assistant_runtime_loads_saved_history_without_report_payload() {
         .find(|context| {
             context.citation_label == constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
 
     assert_eq!(
         report_context.evidence.evidence_reference_id,
@@ -103,15 +116,23 @@ async fn parent_assistant_runtime_loads_saved_history_without_report_payload() {
         .contains(constants::activity_surface::SUMMARY_STORAGE_SAVED));
     assert!(!report_context.raw_child_evidence_included);
     assert!(!report_context.direct_enforcement_allowed);
+
+    Ok(())
 }
 
-fn history_context_command() -> ocentra_parent_agent_protocol::AgentCommandEnvelope {
-    super::command_with_payload(fields_from_pairs(vec![(
+fn history_context_command(
+) -> Result<ocentra_parent_agent_protocol::transport::AgentCommandEnvelope, IoError> {
+    let history = serde_json::to_string(&history_list()).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::AGENT_EVENT_SERIALIZES
+        ))
+    })?;
+
+    Ok(super::command_with_payload(fields_from_pairs(vec![(
         constants::field::ACTIVITY_REPORTS,
-        ocentra_parent_agent_protocol::LogFieldValue::String(
-            serde_json::to_string(&history_list()).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
-    )]))
+        ocentra_parent_agent_protocol::logging::LogFieldValue::String(history),
+    )])))
 }
 
 fn history_list() -> ActivityHistoricalReportList {
@@ -178,6 +199,5 @@ fn cleanup_report_root(path: &std::path::PathBuf) {
 fn nanos_now() -> u128 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
-        .as_nanos()
+        .map_or(0, |duration| duration.as_nanos())
 }

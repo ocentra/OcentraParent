@@ -5,21 +5,25 @@ use super::expected_place::{
 use super::geofence::geofence_transition_from_parts;
 use super::geofence::{TrackingGeofenceEvaluation, TrackingGeofenceInsideState};
 use ocentra_evidence::PrivatePayloadState;
-use ocentra_parent_agent_protocol::{
-    constants, tracking_acknowledgement_id_from_violation_id,
-    tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
-    tracking_evidence_ref_from_observation_id, ParentNotificationRequestedEvent,
-    TrackingAcknowledgementId, TrackingAcknowledgementState, TrackingAiAnalysisRequestedEvent,
-    TrackingAiAnalysisRequirement, TrackingAiBoundaryMode, TrackingAiPurpose, TrackingAiRequestId,
-    TrackingCapabilityStatus, TrackingCheckInId, TrackingCheckInState,
-    TrackingChildCheckInRecordedEvent, TrackingChildDeviceId, TrackingChildProfileId,
-    TrackingEvidenceRecordedEvent, TrackingEvidenceRef, TrackingExpectedPlaceRef,
-    TrackingExpectedPlaceStateEvaluatedEvent, TrackingGeofenceRuleRef,
-    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent,
-    TrackingLocationRelation, TrackingNotificationChannel, TrackingObservationId,
-    TrackingParentAcknowledgementRecordedEvent, TrackingParentActionRequirement,
-    TrackingRuntimeConfig, TrackingRuntimeEnabledState, TrackingRuntimeMode, TrackingTimestamp,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_acknowledgement_id_from_violation_id, tracking_ai_request_id_from_evidence_ref,
+    tracking_check_in_id_from_observation_id, tracking_evidence_ref_from_observation_id,
+    TrackingAcknowledgementId, TrackingAcknowledgementState, TrackingAiPurpose,
+    TrackingAiRequestId, TrackingCapabilityStatus, TrackingCheckInId, TrackingCheckInState,
+    TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef, TrackingExpectedPlaceRef,
+    TrackingGeofenceRuleRef, TrackingLocationRelation, TrackingNotificationChannel,
+    TrackingObservationId, TrackingPolicyViolationId, TrackingTimestamp, TrackingTransitionKind,
     TrackingUncertaintyCode,
+};
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    default_tracking_runtime_config, policy_eligible_tracking_runtime_config,
+    ParentNotificationRequestedEvent, TrackingAiAnalysisRequestedEvent,
+    TrackingAiAnalysisRequirement, TrackingAiBoundaryMode, TrackingChildCheckInRecordedEvent,
+    TrackingEvidenceRecordedEvent, TrackingExpectedPlaceStateEvaluatedEvent,
+    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent,
+    TrackingParentAcknowledgementRecordedEvent, TrackingParentActionRequirement,
+    TrackingRuntimeConfig, TrackingRuntimeEnabledState, TrackingRuntimeMode,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -42,42 +46,38 @@ pub enum TrackingPortalNotificationCandidateState {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingRuntimeRef {
-    DefaultChildDevice,
-    DefaultChildProfile,
-    DefaultObservation,
-    DefaultExpectedPlace,
+    ChildDevice,
+    ChildProfile,
+    Observation,
+    ExpectedPlace,
 }
 
 impl TrackingRuntimeRef {
     fn as_contract_text(self) -> &'static str {
         match self {
-            Self::DefaultChildDevice => constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
-            Self::DefaultChildProfile => constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
-            Self::DefaultObservation => constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
-            Self::DefaultExpectedPlace => constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
+            Self::ChildDevice => constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
+            Self::ChildProfile => constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
+            Self::Observation => constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
+            Self::ExpectedPlace => constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
         }
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingLocationRelationKind {
-    UncertainNearExpectedPlace,
-    AtExpectedPlace,
-    AwayFromExpectedPlace,
+    UncertainNear,
+    At,
+    Away,
 }
 
 impl TrackingLocationRelationKind {
     fn as_contract_text(self) -> &'static str {
         match self {
-            Self::UncertainNearExpectedPlace => {
+            Self::UncertainNear => {
                 constants::tracking_runtime::LOCATION_RELATION_UNCERTAIN_NEAR_EXPECTED_PLACE
             }
-            Self::AtExpectedPlace => {
-                constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE
-            }
-            Self::AwayFromExpectedPlace => {
-                constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE
-            }
+            Self::At => constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE,
+            Self::Away => constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE,
         }
     }
 }
@@ -165,11 +165,11 @@ impl TrackingTimestampKind {
 }
 
 pub fn default_child_tracking_runtime_config() -> TrackingRuntimeConfig {
-    ocentra_parent_agent_protocol::default_tracking_runtime_config()
+    default_tracking_runtime_config()
 }
 
 pub fn policy_eligible_child_tracking_runtime_config() -> TrackingRuntimeConfig {
-    ocentra_parent_agent_protocol::policy_eligible_tracking_runtime_config()
+    policy_eligible_tracking_runtime_config()
 }
 
 pub fn default_location_observed_event() -> TrackingLocationObservedEvent {
@@ -178,14 +178,14 @@ pub fn default_location_observed_event() -> TrackingLocationObservedEvent {
 
 pub fn default_uncertain_location_observed_event() -> TrackingLocationObservedEvent {
     TrackingLocationObservedEvent {
-        child_device_id: tracking_child_device_id(TrackingRuntimeRef::DefaultChildDevice),
-        child_profile_id: tracking_child_profile_id(TrackingRuntimeRef::DefaultChildProfile),
-        observation_id: tracking_observation_id(TrackingRuntimeRef::DefaultObservation),
+        child_device_id: tracking_child_device_id(TrackingRuntimeRef::ChildDevice),
+        child_profile_id: tracking_child_profile_id(TrackingRuntimeRef::ChildProfile),
+        observation_id: tracking_observation_id(TrackingRuntimeRef::Observation),
         observed_at: tracking_timestamp(TrackingTimestampKind::DefaultObservedAt),
         latitude_e7: DEFAULT_EXPECTED_PLACE_LATITUDE_E7,
         longitude_e7: DEFAULT_EXPECTED_PLACE_LONGITUDE_E7,
         horizontal_accuracy_meters: 25,
-        expected_place_ref: tracking_expected_place_ref(TrackingRuntimeRef::DefaultExpectedPlace),
+        expected_place_ref: tracking_expected_place_ref(TrackingRuntimeRef::ExpectedPlace),
         config: policy_eligible_child_tracking_runtime_config(),
     }
 }
@@ -269,8 +269,7 @@ pub fn tracking_geofence_transition_from_evidence(
         event.child_profile_id.clone(),
         event.source_observation_id.clone(),
         event.source_observed_at.clone(),
-        TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
-            .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
+        tracking_geofence_rule_ref(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
         evaluation,
         vec![event.evidence_ref.clone()],
     )
@@ -327,7 +326,7 @@ fn tracking_ai_analysis_requirement(
 ) -> TrackingAiAnalysisRequirement {
     if config.tracking_enabled_state == TrackingRuntimeEnabledState::Enabled
         && config.ai_boundary_mode == TrackingAiBoundaryMode::RequestWhenUncertain
-        && relation == TrackingLocationRelationKind::UncertainNearExpectedPlace
+        && relation == TrackingLocationRelationKind::UncertainNear
     {
         TrackingAiAnalysisRequirement::Required
     } else {
@@ -406,7 +405,7 @@ fn tracking_notification_channel(
 }
 
 fn tracking_acknowledgement_id(
-    violation_id: &ocentra_parent_agent_protocol::TrackingPolicyViolationId,
+    violation_id: &TrackingPolicyViolationId,
 ) -> TrackingAcknowledgementId {
     tracking_acknowledgement_id_from_violation_id(violation_id)
 }
@@ -417,6 +416,14 @@ fn tracking_check_in_id(observation_id: &TrackingObservationId) -> TrackingCheck
 
 fn tracking_capability_status(value: &'static str) -> TrackingCapabilityStatus {
     parse_contract_text(value, TrackingCapabilityStatus::parse)
+}
+
+fn tracking_geofence_rule_ref(value: &'static str) -> TrackingGeofenceRuleRef {
+    parse_contract_text(value, TrackingGeofenceRuleRef::parse)
+}
+
+fn tracking_transition_kind(value: &'static str) -> TrackingTransitionKind {
+    parse_contract_text(value, TrackingTransitionKind::parse)
 }
 
 fn tracking_acknowledgement_state(
@@ -445,12 +452,12 @@ fn infer_tracking_location_relation(
 
     if expected_place_delta <= EXPECTED_PLACE_MAX_DELTA_E7 {
         if event.horizontal_accuracy_meters <= PRECISE_EXPECTED_PLACE_ACCURACY_MAX_METERS {
-            TrackingLocationRelationKind::AtExpectedPlace
+            TrackingLocationRelationKind::At
         } else {
-            TrackingLocationRelationKind::UncertainNearExpectedPlace
+            TrackingLocationRelationKind::UncertainNear
         }
     } else {
-        TrackingLocationRelationKind::AwayFromExpectedPlace
+        TrackingLocationRelationKind::Away
     }
 }
 
@@ -501,10 +508,9 @@ fn default_tracking_expected_place_evaluation_from_relation(
 ) -> TrackingExpectedPlaceEvaluation {
     if relation.as_str() == constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE {
         TrackingExpectedPlaceEvaluation {
-            transition_kind: ocentra_parent_agent_protocol::TrackingTransitionKind::parse(
+            transition_kind: tracking_transition_kind(
                 constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
-            )
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
+            ),
             ..default_expected_place_evaluation()
         }
     } else if relation.as_str()
@@ -518,18 +524,14 @@ fn default_tracking_expected_place_evaluation_from_relation(
             };
 
         TrackingExpectedPlaceEvaluation {
-            transition_kind: ocentra_parent_agent_protocol::TrackingTransitionKind::parse(
-                transition_kind,
-            )
-            .expect(transition_kind),
+            transition_kind: tracking_transition_kind(transition_kind),
             ..default_expected_place_evaluation()
         }
     } else {
         TrackingExpectedPlaceEvaluation {
-            transition_kind: ocentra_parent_agent_protocol::TrackingTransitionKind::parse(
+            transition_kind: tracking_transition_kind(
                 constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
-            )
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
+            ),
             capability_status: tracking_capability_status(
                 constants::tracking_runtime::CAPABILITY_STATUS_RECENT,
             ),
@@ -545,5 +547,8 @@ fn parse_contract_text<T, E>(
 where
     E: core::fmt::Debug,
 {
-    parse(value).expect(value)
+    match parse(value) {
+        Ok(parsed_value) => parsed_value,
+        Err(_) => unreachable!("tracking runtime contract drift: {value}"),
+    }
 }

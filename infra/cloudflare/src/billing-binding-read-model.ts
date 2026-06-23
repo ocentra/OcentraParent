@@ -4,9 +4,9 @@ import type {
   D1PreparedStatement,
   KVNamespace,
   R2Bucket,
-} from "@cloudflare/workers-types";
-import type { BillingReferralSummary } from "../../../packages/billing-domain/src/billing-referral-boundary.js";
-import type { Env } from "./env.js";
+} from '@cloudflare/workers-types';
+import type { BillingReferralSummary } from '../../../packages/billing-domain/src/billing-referral-boundary.js';
+import type { Env } from './env.js';
 import {
   buildBillingInvoices,
   buildBillingReferralSummary,
@@ -30,88 +30,78 @@ import {
   type BillingLicenseDecisionSummary,
   type BillingStatusSummary,
   type PricingPlanSummary,
-} from "./fixtures.js";
+} from './fixtures.js';
 
-const GENERATED_AT = "2026-06-14T00:00:00.000Z";
-const RECONCILIATION_PARENT_ACCOUNT_REF = "parent-account:billing-reconciliation";
-const RECONCILIATION_FAMILY_REF = "family:billing-reconciliation";
+const GENERATED_AT = '2026-06-14T00:00:00.000Z';
+const RECONCILIATION_PARENT_ACCOUNT_REF = 'parent-account:billing-reconciliation';
+const RECONCILIATION_FAMILY_REF = 'family:billing-reconciliation';
 const DEFAULT_BILLING_SUBJECTS = [
-  "parent:demo-active",
-  "parent:demo-maxed",
-  "parent:demo-grace",
-  "parent:demo-review",
+  'parent:demo-active',
+  'parent:demo-maxed',
+  'parent:demo-grace',
+  'parent:demo-review',
 ] as const;
 
-const PRICING_PLANS_KEY = "billing:pricing-plans";
-const AUDIT_EVENTS_KEY = "billing/audit-events.json";
-const TOUCH_KEY_PREFIX = "billing-touch:";
+const PRICING_PLANS_KEY = 'billing:pricing-plans';
+const AUDIT_EVENTS_KEY = 'billing/audit-events.json';
+const TOUCH_KEY_PREFIX = 'billing-touch:';
 
 function normalizeSql(sql: string): string {
-  return sql.replace(/\s+/g, " ").trim();
+  return sql.replace(/\s+/g, ' ').trim();
 }
 
 const CREATE_READ_MODEL_SCHEMA_SQL = [
-  "CREATE TABLE IF NOT EXISTS billing_status (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS billing_invoices (subject TEXT NOT NULL, invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS billing_referrals (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS billing_snapshots (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS billing_admin_accounts (parent_account_ref TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS billing_admin_invoices (invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS billing_admin_disputes (dispute_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS billing_admin_referrals (referral_code TEXT PRIMARY KEY, payload_json TEXT NOT NULL)",
-].join(";\n");
+  'CREATE TABLE IF NOT EXISTS billing_status (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS billing_invoices (subject TEXT NOT NULL, invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS billing_referrals (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS billing_snapshots (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS billing_admin_accounts (parent_account_ref TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS billing_admin_invoices (invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS billing_admin_disputes (dispute_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS billing_admin_referrals (referral_code TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+].join(';\n');
 
-const SELECT_STATUS_ROW_COUNT_SQL = normalizeSql(
-  "SELECT COUNT(*) AS row_count FROM billing_status",
-);
-const SELECT_STATUS_BY_SUBJECT_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_status WHERE subject = ?1 LIMIT 1",
-);
+const SELECT_STATUS_ROW_COUNT_SQL = normalizeSql('SELECT COUNT(*) AS row_count FROM billing_status');
+const SELECT_STATUS_BY_SUBJECT_SQL = normalizeSql('SELECT payload_json FROM billing_status WHERE subject = ?1 LIMIT 1');
 const SELECT_INVOICES_BY_SUBJECT_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_invoices WHERE subject = ?1 ORDER BY invoice_id",
+  'SELECT payload_json FROM billing_invoices WHERE subject = ?1 ORDER BY invoice_id'
 );
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_referrals WHERE subject = ?1 LIMIT 1",
+  'SELECT payload_json FROM billing_referrals WHERE subject = ?1 LIMIT 1'
 );
 const SELECT_SNAPSHOT_BY_SUBJECT_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_snapshots WHERE subject = ?1 LIMIT 1",
+  'SELECT payload_json FROM billing_snapshots WHERE subject = ?1 LIMIT 1'
 );
 const SELECT_ADMIN_ACCOUNTS_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_admin_accounts ORDER BY parent_account_ref",
+  'SELECT payload_json FROM billing_admin_accounts ORDER BY parent_account_ref'
 );
-const SELECT_ADMIN_INVOICES_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_admin_invoices ORDER BY invoice_id",
-);
-const SELECT_ADMIN_DISPUTES_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_admin_disputes ORDER BY dispute_id",
-);
+const SELECT_ADMIN_INVOICES_SQL = normalizeSql('SELECT payload_json FROM billing_admin_invoices ORDER BY invoice_id');
+const SELECT_ADMIN_DISPUTES_SQL = normalizeSql('SELECT payload_json FROM billing_admin_disputes ORDER BY dispute_id');
 const SELECT_ADMIN_REFERRALS_SQL = normalizeSql(
-  "SELECT payload_json FROM billing_admin_referrals ORDER BY referral_code",
+  'SELECT payload_json FROM billing_admin_referrals ORDER BY referral_code'
 );
 
-const UPSERT_STATUS_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_status (subject, payload_json) VALUES (?1, ?2)",
-);
+const UPSERT_STATUS_SQL = normalizeSql('INSERT OR REPLACE INTO billing_status (subject, payload_json) VALUES (?1, ?2)');
 const UPSERT_INVOICE_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_invoices (subject, invoice_id, payload_json) VALUES (?1, ?2, ?3)",
+  'INSERT OR REPLACE INTO billing_invoices (subject, invoice_id, payload_json) VALUES (?1, ?2, ?3)'
 );
 const UPSERT_REFERRAL_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_referrals (subject, payload_json) VALUES (?1, ?2)",
+  'INSERT OR REPLACE INTO billing_referrals (subject, payload_json) VALUES (?1, ?2)'
 );
 const UPSERT_SNAPSHOT_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_snapshots (subject, payload_json) VALUES (?1, ?2)",
+  'INSERT OR REPLACE INTO billing_snapshots (subject, payload_json) VALUES (?1, ?2)'
 );
 const UPSERT_ADMIN_ACCOUNT_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_admin_accounts (parent_account_ref, payload_json) VALUES (?1, ?2)",
+  'INSERT OR REPLACE INTO billing_admin_accounts (parent_account_ref, payload_json) VALUES (?1, ?2)'
 );
 const UPSERT_ADMIN_INVOICE_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_admin_invoices (invoice_id, payload_json) VALUES (?1, ?2)",
+  'INSERT OR REPLACE INTO billing_admin_invoices (invoice_id, payload_json) VALUES (?1, ?2)'
 );
 const UPSERT_ADMIN_DISPUTE_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_admin_disputes (dispute_id, payload_json) VALUES (?1, ?2)",
+  'INSERT OR REPLACE INTO billing_admin_disputes (dispute_id, payload_json) VALUES (?1, ?2)'
 );
 const UPSERT_ADMIN_REFERRAL_SQL = normalizeSql(
-  "INSERT OR REPLACE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)",
+  'INSERT OR REPLACE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)'
 );
 
 const seedReadyByEnv = new WeakMap<Env, Promise<void>>();
@@ -156,63 +146,63 @@ export interface LocalBillingBindingState {
 
 export type BillingStateMutation =
   | {
-      kind: "hosted-session";
+      kind: 'hosted-session';
       subject: string;
       requestId: string;
-      sessionKind: "checkout-session-create" | "billing-portal-session-create";
+      sessionKind: 'checkout-session-create' | 'billing-portal-session-create';
       auditReference: string;
-      actorRole: "parent" | "guardian";
+      actorRole: 'parent' | 'guardian';
     }
   | {
-      kind: "change-plan";
+      kind: 'change-plan';
       subject: string;
       requestId: string;
       targetPlanId: string;
       auditReference: string;
     }
   | {
-      kind: "cancel";
+      kind: 'cancel';
       subject: string;
       requestId: string;
-      cancellationState: BillingCancellationSummary["cancellationState"];
+      cancellationState: BillingCancellationSummary['cancellationState'];
       auditReference: string;
     }
   | {
-      kind: "referral-invite";
+      kind: 'referral-invite';
       subject: string;
       requestId: string;
       invitedIdentifier: string;
       referralCode: string;
       auditReference: string;
-      actorRole: "parent" | "guardian";
+      actorRole: 'parent' | 'guardian';
     }
   | {
-      kind: "manual-invoice";
+      kind: 'manual-invoice';
       subject: string;
       requestId: string;
       region: string;
       auditReference: string;
-      actorRole: "support" | "admin";
+      actorRole: 'support' | 'admin';
     }
   | {
-      kind: "admin-refund";
+      kind: 'admin-refund';
       subject: string;
       requestId: string;
       invoiceId: string;
-      refundState: "refund-requested" | "refund-settled";
+      refundState: 'refund-requested' | 'refund-settled';
       amountCents: number;
       auditReference: string;
-      actorRole: "support" | "admin";
+      actorRole: 'support' | 'admin';
     }
   | {
-      kind: "reconciliation";
+      kind: 'reconciliation';
       subject: string;
       requestId: string;
       auditReference: string;
-      actorRole: "support" | "admin" | "system";
+      actorRole: 'support' | 'admin' | 'system';
     }
   | {
-      kind: "provider-webhook";
+      kind: 'provider-webhook';
       provider: string;
       subject: string;
       eventId: string;
@@ -241,15 +231,10 @@ function asReadonlyArray<T>(value: ReadonlyArray<T>): ReadonlyArray<T> {
 }
 
 function mapFromRecord<T>(value: Readonly<Record<string, T>>): Map<string, T> {
-  return new Map(
-    Object.entries(value).map(([key, entry]) => [key, cloneJsonValue(entry)]),
-  );
+  return new Map(Object.entries(value).map(([key, entry]) => [key, cloneJsonValue(entry)]));
 }
 
-function withAddedWarning(
-  warnings: ReadonlyArray<string>,
-  nextWarning: string,
-): ReadonlyArray<string> {
+function withAddedWarning(warnings: ReadonlyArray<string>, nextWarning: string): ReadonlyArray<string> {
   return warnings.includes(nextWarning) ? warnings : [...warnings, nextWarning];
 }
 
@@ -267,16 +252,12 @@ function parsePayloadRows<T>(rows: ReadonlyArray<PayloadJsonRow>): ReadonlyArray
 
 function subjectRecord<T>(
   subjects: ReadonlyArray<string>,
-  builder: (subject: string) => T,
+  builder: (subject: string) => T
 ): Readonly<Record<string, T>> {
   return Object.fromEntries(subjects.map((subject) => [subject, builder(subject)]));
 }
 
-function replaceByKey<T>(
-  current: ReadonlyArray<T>,
-  nextEntry: T,
-  keyFor: (entry: T) => string,
-): ReadonlyArray<T> {
+function replaceByKey<T>(current: ReadonlyArray<T>, nextEntry: T, keyFor: (entry: T) => string): ReadonlyArray<T> {
   const nextKey = keyFor(nextEntry);
   const filtered = current.filter((entry) => keyFor(entry) !== nextKey);
   return [...filtered, cloneJsonValue(nextEntry)];
@@ -293,12 +274,12 @@ class LocalKvNamespace implements KVNamespace {
     this.values.set(key, value);
   }
 
-  async get(key: string, type?: "text" | "json"): Promise<unknown> {
+  async get(key: string, type?: 'text' | 'json'): Promise<unknown> {
     const value = this.values.get(key);
     if (value === undefined) {
       return null;
     }
-    if (type === "json") {
+    if (type === 'json') {
       return JSON.parse(value);
     }
     return value;
@@ -356,7 +337,7 @@ class LocalD1Statement implements D1PreparedStatement {
   constructor(
     private readonly state: LocalBillingD1State,
     query: string,
-    private readonly values: ReadonlyArray<unknown> = [],
+    private readonly values: ReadonlyArray<unknown> = []
   ) {
     this.normalizedQuery = normalizeSql(query);
   }
@@ -390,48 +371,34 @@ class LocalD1Statement implements D1PreparedStatement {
       case SELECT_STATUS_ROW_COUNT_SQL:
         return [{ row_count: this.state.statusBySubject.size } as T];
       case SELECT_STATUS_BY_SUBJECT_SQL: {
-        const subject = String(this.values[0] ?? "");
+        const subject = String(this.values[0] ?? '');
         const status = this.state.statusBySubject.get(subject);
-        return status
-          ? [{ payload_json: JSON.stringify(status) } as T]
-          : [];
+        return status ? [{ payload_json: JSON.stringify(status) } as T] : [];
       }
       case SELECT_INVOICES_BY_SUBJECT_SQL: {
-        const subject = String(this.values[0] ?? "");
+        const subject = String(this.values[0] ?? '');
         return (this.state.invoicesBySubject.get(subject) ?? []).map(
-          (invoice) => ({ payload_json: JSON.stringify(invoice) }) as T,
+          (invoice) => ({ payload_json: JSON.stringify(invoice) }) as T
         );
       }
       case SELECT_REFERRAL_BY_SUBJECT_SQL: {
-        const subject = String(this.values[0] ?? "");
+        const subject = String(this.values[0] ?? '');
         const referral = this.state.referralsBySubject.get(subject);
-        return referral
-          ? [{ payload_json: JSON.stringify(referral) } as T]
-          : [];
+        return referral ? [{ payload_json: JSON.stringify(referral) } as T] : [];
       }
       case SELECT_SNAPSHOT_BY_SUBJECT_SQL: {
-        const subject = String(this.values[0] ?? "");
+        const subject = String(this.values[0] ?? '');
         const snapshot = this.state.snapshotsBySubject.get(subject);
-        return snapshot
-          ? [{ payload_json: JSON.stringify(snapshot) } as T]
-          : [];
+        return snapshot ? [{ payload_json: JSON.stringify(snapshot) } as T] : [];
       }
       case SELECT_ADMIN_ACCOUNTS_SQL:
-        return this.state.adminAccounts.map(
-          (row) => ({ payload_json: JSON.stringify(row) }) as T,
-        );
+        return this.state.adminAccounts.map((row) => ({ payload_json: JSON.stringify(row) }) as T);
       case SELECT_ADMIN_INVOICES_SQL:
-        return this.state.adminInvoices.map(
-          (row) => ({ payload_json: JSON.stringify(row) }) as T,
-        );
+        return this.state.adminInvoices.map((row) => ({ payload_json: JSON.stringify(row) }) as T);
       case SELECT_ADMIN_DISPUTES_SQL:
-        return this.state.adminDisputes.map(
-          (row) => ({ payload_json: JSON.stringify(row) }) as T,
-        );
+        return this.state.adminDisputes.map((row) => ({ payload_json: JSON.stringify(row) }) as T);
       case SELECT_ADMIN_REFERRALS_SQL:
-        return this.state.adminReferrals.map(
-          (row) => ({ payload_json: JSON.stringify(row) }) as T,
-        );
+        return this.state.adminReferrals.map((row) => ({ payload_json: JSON.stringify(row) }) as T);
       default:
         return [];
     }
@@ -440,78 +407,56 @@ class LocalD1Statement implements D1PreparedStatement {
   private executeMutation(): void {
     switch (this.normalizedQuery) {
       case UPSERT_STATUS_SQL: {
-        const subject = String(this.values[0] ?? "");
-        const payloadJson = String(this.values[1] ?? "{}");
+        const subject = String(this.values[0] ?? '');
+        const payloadJson = String(this.values[1] ?? '{}');
         this.state.statusBySubject.set(subject, parsePayload<BillingStatusSummary>(payloadJson));
         return;
       }
       case UPSERT_INVOICE_SQL: {
-        const subject = String(this.values[0] ?? "");
-        const payloadJson = String(this.values[2] ?? "{}");
+        const subject = String(this.values[0] ?? '');
+        const payloadJson = String(this.values[2] ?? '{}');
         const invoice = parsePayload<BillingInvoiceSummary>(payloadJson);
         const current = this.state.invoicesBySubject.get(subject) ?? [];
         this.state.invoicesBySubject.set(
           subject,
-          replaceByKey(current, invoice, (entry) => entry.invoiceId),
+          replaceByKey(current, invoice, (entry) => entry.invoiceId)
         );
         return;
       }
       case UPSERT_REFERRAL_SQL: {
-        const subject = String(this.values[0] ?? "");
-        const payloadJson = String(this.values[1] ?? "{}");
-        this.state.referralsBySubject.set(
-          subject,
-          parsePayload<BillingReferralSummary>(payloadJson),
-        );
+        const subject = String(this.values[0] ?? '');
+        const payloadJson = String(this.values[1] ?? '{}');
+        this.state.referralsBySubject.set(subject, parsePayload<BillingReferralSummary>(payloadJson));
         return;
       }
       case UPSERT_SNAPSHOT_SQL: {
-        const subject = String(this.values[0] ?? "");
-        const payloadJson = String(this.values[1] ?? "{}");
-        this.state.snapshotsBySubject.set(
-          subject,
-          parsePayload<BillingEntitlementSnapshotSummary>(payloadJson),
-        );
+        const subject = String(this.values[0] ?? '');
+        const payloadJson = String(this.values[1] ?? '{}');
+        this.state.snapshotsBySubject.set(subject, parsePayload<BillingEntitlementSnapshotSummary>(payloadJson));
         return;
       }
       case UPSERT_ADMIN_ACCOUNT_SQL: {
-        const payloadJson = String(this.values[1] ?? "{}");
+        const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingAccountSummary>(payloadJson);
-        this.state.adminAccounts = replaceByKey(
-          this.state.adminAccounts,
-          nextRow,
-          (entry) => entry.parentAccountRef,
-        );
+        this.state.adminAccounts = replaceByKey(this.state.adminAccounts, nextRow, (entry) => entry.parentAccountRef);
         return;
       }
       case UPSERT_ADMIN_INVOICE_SQL: {
-        const payloadJson = String(this.values[1] ?? "{}");
+        const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingInvoiceSummary>(payloadJson);
-        this.state.adminInvoices = replaceByKey(
-          this.state.adminInvoices,
-          nextRow,
-          (entry) => entry.invoiceId,
-        );
+        this.state.adminInvoices = replaceByKey(this.state.adminInvoices, nextRow, (entry) => entry.invoiceId);
         return;
       }
       case UPSERT_ADMIN_DISPUTE_SQL: {
-        const payloadJson = String(this.values[1] ?? "{}");
+        const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingDisputeSummary>(payloadJson);
-        this.state.adminDisputes = replaceByKey(
-          this.state.adminDisputes,
-          nextRow,
-          (entry) => entry.disputeId,
-        );
+        this.state.adminDisputes = replaceByKey(this.state.adminDisputes, nextRow, (entry) => entry.disputeId);
         return;
       }
       case UPSERT_ADMIN_REFERRAL_SQL: {
-        const payloadJson = String(this.values[1] ?? "{}");
+        const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingReferralSummary>(payloadJson);
-        this.state.adminReferrals = replaceByKey(
-          this.state.adminReferrals,
-          nextRow,
-          (entry) => entry.referralCode,
-        );
+        this.state.adminReferrals = replaceByKey(this.state.adminReferrals, nextRow, (entry) => entry.referralCode);
         return;
       }
       default:
@@ -537,7 +482,7 @@ class LocalBillingD1Database implements D1Database {
   }
 
   async batch(
-    statements: ReadonlyArray<D1PreparedStatement>,
+    statements: ReadonlyArray<D1PreparedStatement>
   ): Promise<ReadonlyArray<{ results: ReadonlyArray<unknown>; success: true }>> {
     return Promise.all(statements.map((statement) => statement.run()));
   }
@@ -581,16 +526,10 @@ export function buildDefaultBillingBindingSeed(env: Env): BillingBindingSeedPatc
   const subjects = Array.from(DEFAULT_BILLING_SUBJECTS);
   return {
     pricingPlans: asReadonlyArray(LOCAL_PRICING_PLANS),
-    statusBySubject: subjectRecord(subjects, (subject) =>
-      buildBillingStatusSummary(subject, env),
-    ),
+    statusBySubject: subjectRecord(subjects, (subject) => buildBillingStatusSummary(subject, env)),
     invoicesBySubject: subjectRecord(subjects, (subject) => buildBillingInvoices(subject)),
-    referralsBySubject: subjectRecord(subjects, (subject) =>
-      buildBillingReferralSummary(subject),
-    ),
-    snapshotsBySubject: subjectRecord(subjects, (subject) =>
-      buildEntitlementSnapshot(subject),
-    ),
+    referralsBySubject: subjectRecord(subjects, (subject) => buildBillingReferralSummary(subject)),
+    snapshotsBySubject: subjectRecord(subjects, (subject) => buildEntitlementSnapshot(subject)),
     adminAccounts: listAdminBillingAccounts(null),
     adminInvoices: listAdminBillingInvoices(null),
     adminDisputes: listAdminBillingDisputes(null),
@@ -654,15 +593,11 @@ export function createLocalBillingBindings(): {
 
 async function incrementTouchCounter(env: Env, counterKey: string): Promise<void> {
   const fullKey = `${TOUCH_KEY_PREFIX}${counterKey}`;
-  const current = Number((await env.BILLING_RATE_LIMIT_KV?.get(fullKey)) ?? "0");
+  const current = Number((await env.BILLING_RATE_LIMIT_KV?.get(fullKey)) ?? '0');
   await env.BILLING_RATE_LIMIT_KV?.put(fullKey, String(current + 1));
 }
 
-async function recordBindingRead(
-  env: Env,
-  counterKey: string,
-  subject: string | null,
-): Promise<void> {
+async function recordBindingRead(env: Env, counterKey: string, subject: string | null): Promise<void> {
   await incrementTouchCounter(env, counterKey);
   env.ANALYTICS?.writeDataPoint({
     indexes: [counterKey],
@@ -679,7 +614,10 @@ async function d1First<T>(
   if (!database) {
     return null;
   }
-  return database.prepare(query).bind(...values).first<T>();
+  return database
+    .prepare(query)
+    .bind(...values)
+    .first<T>();
 }
 
 async function d1All<T>(
@@ -690,108 +628,54 @@ async function d1All<T>(
   if (!database) {
     return [];
   }
-  const result = await database.prepare(query).bind(...values).all<T>();
+  const result = await database
+    .prepare(query)
+    .bind(...values)
+    .all<T>();
   return result.results;
 }
 
-async function upsertBillingStatusSummary(
-  env: Env,
-  status: BillingStatusSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_STATUS_SQL).bind(
-    status.subject,
-    JSON.stringify(status),
-  ).run();
+async function upsertBillingStatusSummary(env: Env, status: BillingStatusSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_STATUS_SQL).bind(status.subject, JSON.stringify(status)).run();
 }
 
-async function upsertBillingSnapshotSummary(
-  env: Env,
-  snapshot: BillingEntitlementSnapshotSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_SNAPSHOT_SQL).bind(
-    snapshot.subject,
-    JSON.stringify(snapshot),
-  ).run();
+async function upsertBillingSnapshotSummary(env: Env, snapshot: BillingEntitlementSnapshotSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_SNAPSHOT_SQL).bind(snapshot.subject, JSON.stringify(snapshot)).run();
 }
 
-async function upsertAdminBillingAccountSummary(
-  env: Env,
-  account: AdminBillingAccountSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(
-    account.parentAccountRef,
-    JSON.stringify(account),
-  ).run();
+async function upsertAdminBillingAccountSummary(env: Env, account: AdminBillingAccountSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(account.parentAccountRef, JSON.stringify(account)).run();
 }
 
-async function upsertBillingInvoiceSummary(
-  env: Env,
-  subject: string,
-  invoice: BillingInvoiceSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_INVOICE_SQL).bind(
-    subject,
-    invoice.invoiceId,
-    JSON.stringify(invoice),
-  ).run();
+async function upsertBillingInvoiceSummary(env: Env, subject: string, invoice: BillingInvoiceSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_INVOICE_SQL).bind(subject, invoice.invoiceId, JSON.stringify(invoice)).run();
 }
 
-async function upsertAdminBillingInvoiceSummary(
-  env: Env,
-  invoice: AdminBillingInvoiceSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(
-    invoice.invoiceId,
-    JSON.stringify(invoice),
-  ).run();
+async function upsertAdminBillingInvoiceSummary(env: Env, invoice: AdminBillingInvoiceSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(invoice.invoiceId, JSON.stringify(invoice)).run();
 }
 
-async function upsertAdminBillingDisputeSummary(
-  env: Env,
-  dispute: AdminBillingDisputeSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(
-    dispute.disputeId,
-    JSON.stringify(dispute),
-  ).run();
+async function upsertAdminBillingDisputeSummary(env: Env, dispute: AdminBillingDisputeSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(dispute.disputeId, JSON.stringify(dispute)).run();
 }
 
-async function upsertBillingReferralSummary(
-  env: Env,
-  referral: BillingReferralSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_REFERRAL_SQL).bind(
-    referral.subject,
-    JSON.stringify(referral),
-  ).run();
+async function upsertBillingReferralSummary(env: Env, referral: BillingReferralSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_REFERRAL_SQL).bind(referral.subject, JSON.stringify(referral)).run();
 }
 
-async function upsertAdminBillingReferralSummary(
-  env: Env,
-  referral: AdminBillingReferralSummary,
-): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(
-    referral.referralCode,
-    JSON.stringify(referral),
-  ).run();
+async function upsertAdminBillingReferralSummary(env: Env, referral: AdminBillingReferralSummary): Promise<void> {
+  await env.BILLING_D1?.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(referral.referralCode, JSON.stringify(referral)).run();
 }
 
-async function readStoredAuditEvents(
-  env: Env,
-): Promise<ReadonlyArray<BillingAuditEventSummary>> {
+async function readStoredAuditEvents(env: Env): Promise<ReadonlyArray<BillingAuditEventSummary>> {
   const object = await env.BILLING_AUDIT_R2?.get(AUDIT_EVENTS_KEY);
   if (!object) {
     return [];
   }
-  return ((await object.json<ReadonlyArray<BillingAuditEventSummary>>()) ?? []).map(
-    (entry) => cloneJsonValue(entry),
-  );
+  return ((await object.json<ReadonlyArray<BillingAuditEventSummary>>()) ?? []).map((entry) => cloneJsonValue(entry));
 }
 
-async function appendBillingAuditEvent(
-  env: Env,
-  nextEvent: BillingAuditEventSummary,
-): Promise<void> {
+async function appendBillingAuditEvent(env: Env, nextEvent: BillingAuditEventSummary): Promise<void> {
   if (!env.BILLING_AUDIT_R2) {
     return;
   }
@@ -800,26 +684,19 @@ async function appendBillingAuditEvent(
   await env.BILLING_AUDIT_R2.put(AUDIT_EVENTS_KEY, JSON.stringify(next));
 }
 
-async function updateAdminAccountProjection(
-  env: Env,
-  status: BillingStatusSummary,
-): Promise<void> {
+async function updateAdminAccountProjection(env: Env, status: BillingStatusSummary): Promise<void> {
   const adminAccounts = await loadAdminBillingAccounts(env, null);
-  const current = adminAccounts.find(
-    (entry) => entry.parentAccountRef === status.parentAccountRef,
-  );
+  const current = adminAccounts.find((entry) => entry.parentAccountRef === status.parentAccountRef);
   if (!current) {
     return;
   }
 
-  await upsertAdminBillingAccountSummary(
-    env,
-    {
+  await upsertAdminBillingAccountSummary(env, {
     ...current,
     parentVisibleState: status.parentVisibleState,
     subscriptionStatus: status.subscriptionStatus,
     planId: status.plan.planId,
-    manualRequired: status.accountStatus === "manual-review",
+    manualRequired: status.accountStatus === 'manual-review',
     failureKind: status.failureState?.failureKind ?? null,
     auditReference: status.auditReference,
     updatedAt: status.updatedAt,
@@ -827,71 +704,68 @@ async function updateAdminAccountProjection(
 }
 
 type ProviderWebhookTransition =
-  | "activate-subscription"
-  | "enter-grace"
-  | "dispute-opened"
-  | "dispute-lost"
-  | "dispute-won"
-  | "ignore";
+  | 'activate-subscription'
+  | 'enter-grace'
+  | 'dispute-opened'
+  | 'dispute-lost'
+  | 'dispute-won'
+  | 'ignore';
 
 function providerWebhookTransition(eventType: string): ProviderWebhookTransition {
   if (
     new Set([
-      "checkout.session.completed",
-      "invoice.paid",
-      "customer.subscription.created",
-      "customer.subscription.updated",
-      "subscription.charged",
-      "subscription.activated",
-      "BILLING.SUBSCRIPTION.ACTIVATED",
-      "SUBSCRIPTION_RENEWED",
-      "DID_RENEW",
+      'checkout.session.completed',
+      'invoice.paid',
+      'customer.subscription.created',
+      'customer.subscription.updated',
+      'subscription.charged',
+      'subscription.activated',
+      'BILLING.SUBSCRIPTION.ACTIVATED',
+      'SUBSCRIPTION_RENEWED',
+      'DID_RENEW',
     ]).has(eventType)
   ) {
-    return "activate-subscription";
+    return 'activate-subscription';
   }
   if (
-    new Set([
-      "invoice.payment_failed",
-      "payment_failed",
-      "subscription_past_due",
-      "payment.requires_action",
-    ]).has(eventType)
+    new Set(['invoice.payment_failed', 'payment_failed', 'subscription_past_due', 'payment.requires_action']).has(
+      eventType
+    )
   ) {
-    return "enter-grace";
+    return 'enter-grace';
   }
-  if (new Set(["charge.dispute.created", "dispute_open"]).has(eventType)) {
-    return "dispute-opened";
+  if (new Set(['charge.dispute.created', 'dispute_open']).has(eventType)) {
+    return 'dispute-opened';
   }
-  if (new Set(["charge.dispute.funds_withdrawn", "dispute_lost"]).has(eventType)) {
-    return "dispute-lost";
+  if (new Set(['charge.dispute.funds_withdrawn', 'dispute_lost']).has(eventType)) {
+    return 'dispute-lost';
   }
-  if (new Set(["charge.dispute.funds_reinstated", "dispute_won"]).has(eventType)) {
-    return "dispute-won";
+  if (new Set(['charge.dispute.funds_reinstated', 'dispute_won']).has(eventType)) {
+    return 'dispute-won';
   }
-  return "ignore";
+  return 'ignore';
 }
 
-function graceFailureState(): BillingStatusSummary["failureState"] {
+function graceFailureState(): BillingStatusSummary['failureState'] {
   return {
-    failureKind: "payment-required",
-    parentResolution: "payment-update",
+    failureKind: 'payment-required',
+    parentResolution: 'payment-update',
     retryAllowed: true,
-    retryAfter: "2026-06-15T00:00:00.000Z",
+    retryAfter: '2026-06-15T00:00:00.000Z',
   };
 }
 
-function manualReviewFailureState(): BillingStatusSummary["failureState"] {
+function manualReviewFailureState(): BillingStatusSummary['failureState'] {
   return {
-    failureKind: "provider-unavailable",
-    parentResolution: "manual-support-review",
+    failureKind: 'provider-unavailable',
+    parentResolution: 'manual-support-review',
     retryAllowed: false,
     retryAfter: null,
   };
 }
 
 function manualInvoiceSummaryId(subject: string, requestId: string): string {
-  return `${subject.replaceAll(":", "-")}-manual-invoice-${requestId}`;
+  return `${subject.replaceAll(':', '-')}-manual-invoice-${requestId}`;
 }
 
 function referralInviteSummaryId(referralCode: string, requestId: string): string {
@@ -899,26 +773,21 @@ function referralInviteSummaryId(referralCode: string, requestId: string): strin
 }
 
 function hostedSessionAuditEventId(
-  sessionKind: "checkout-session-create" | "billing-portal-session-create",
-  requestId: string,
+  sessionKind: 'checkout-session-create' | 'billing-portal-session-create',
+  requestId: string
 ): string {
-  return sessionKind === "checkout-session-create"
+  return sessionKind === 'checkout-session-create'
     ? `billing-checkout-session:${requestId}`
     : `billing-portal-session:${requestId}`;
 }
 
-function hostedSessionAuditEventType(
-  sessionKind: "checkout-session-create" | "billing-portal-session-create",
-): string {
-  return sessionKind === "checkout-session-create"
-    ? "billing.checkout-session.created"
-    : "billing.portal-session.created";
+function hostedSessionAuditEventType(sessionKind: 'checkout-session-create' | 'billing-portal-session-create'): string {
+  return sessionKind === 'checkout-session-create'
+    ? 'billing.checkout-session.created'
+    : 'billing.portal-session.created';
 }
 
-async function seedD1Tables(
-  database: D1Database,
-  patch: BillingBindingSeedPatch,
-): Promise<void> {
+async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch): Promise<void> {
   if (patch.statusBySubject) {
     for (const [subject, row] of Object.entries(patch.statusBySubject)) {
       await database.prepare(UPSERT_STATUS_SQL).bind(subject, JSON.stringify(row)).run();
@@ -927,52 +796,31 @@ async function seedD1Tables(
   if (patch.invoicesBySubject) {
     for (const [subject, invoices] of Object.entries(patch.invoicesBySubject)) {
       for (const invoice of invoices) {
-        await database
-          .prepare(UPSERT_INVOICE_SQL)
-          .bind(subject, invoice.invoiceId, JSON.stringify(invoice))
-          .run();
+        await database.prepare(UPSERT_INVOICE_SQL).bind(subject, invoice.invoiceId, JSON.stringify(invoice)).run();
       }
     }
   }
   if (patch.referralsBySubject) {
     for (const [subject, referral] of Object.entries(patch.referralsBySubject)) {
-      await database
-        .prepare(UPSERT_REFERRAL_SQL)
-        .bind(subject, JSON.stringify(referral))
-        .run();
+      await database.prepare(UPSERT_REFERRAL_SQL).bind(subject, JSON.stringify(referral)).run();
     }
   }
   if (patch.snapshotsBySubject) {
     for (const [subject, snapshot] of Object.entries(patch.snapshotsBySubject)) {
-      await database
-        .prepare(UPSERT_SNAPSHOT_SQL)
-        .bind(subject, JSON.stringify(snapshot))
-        .run();
+      await database.prepare(UPSERT_SNAPSHOT_SQL).bind(subject, JSON.stringify(snapshot)).run();
     }
   }
   for (const row of patch.adminAccounts ?? []) {
-    await database
-      .prepare(UPSERT_ADMIN_ACCOUNT_SQL)
-      .bind(row.parentAccountRef, JSON.stringify(row))
-      .run();
+    await database.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(row.parentAccountRef, JSON.stringify(row)).run();
   }
   for (const row of patch.adminInvoices ?? []) {
-    await database
-      .prepare(UPSERT_ADMIN_INVOICE_SQL)
-      .bind(row.invoiceId, JSON.stringify(row))
-      .run();
+    await database.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(row.invoiceId, JSON.stringify(row)).run();
   }
   for (const row of patch.adminDisputes ?? []) {
-    await database
-      .prepare(UPSERT_ADMIN_DISPUTE_SQL)
-      .bind(row.disputeId, JSON.stringify(row))
-      .run();
+    await database.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(row.disputeId, JSON.stringify(row)).run();
   }
   for (const row of patch.adminReferrals ?? []) {
-    await database
-      .prepare(UPSERT_ADMIN_REFERRAL_SQL)
-      .bind(row.referralCode, JSON.stringify(row))
-      .run();
+    await database.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(row.referralCode, JSON.stringify(row)).run();
   }
 }
 
@@ -1025,11 +873,9 @@ function includesQuery(values: ReadonlyArray<string>, query: string): boolean {
 
 export async function loadPricingPlans(env: Env): Promise<ReadonlyArray<PricingPlanSummary>> {
   await ensureReadModelSeed(env);
-  const plans = await env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, "json");
-  await recordBindingRead(env, "pricing-public", null);
-  return Array.isArray(plans)
-    ? (plans as ReadonlyArray<PricingPlanSummary>)
-    : LOCAL_PRICING_PLANS;
+  const plans = await env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, 'json');
+  await recordBindingRead(env, 'pricing-public', null);
+  return Array.isArray(plans) ? (plans as ReadonlyArray<PricingPlanSummary>) : LOCAL_PRICING_PLANS;
 }
 
 export async function loadLocalSeedSummary(env: Env): Promise<{
@@ -1047,7 +893,7 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
   return {
     generatedAt: GENERATED_AT,
     environment: env.ENVIRONMENT,
-    authAdapterMode: env.AUTH_ADAPTER_MODE?.trim() || "local-safe-fixture",
+    authAdapterMode: env.AUTH_ADAPTER_MODE?.trim() || 'local-safe-fixture',
     pricingPlanCount: pricingPlans.length,
     adminAccountCount: adminAccounts.length,
     referralFixtureCount: referrals.length,
@@ -1055,38 +901,27 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
   };
 }
 
-export async function loadBillingStatusSummary(
-  env: Env,
-  subject: string,
-): Promise<BillingStatusSummary> {
+export async function loadBillingStatusSummary(env: Env, subject: string): Promise<BillingStatusSummary> {
   await ensureReadModelSeed(env);
   const stored = parsePayloadRow<BillingStatusSummary>(
-    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject),
+    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject)
   );
-  await recordBindingRead(env, "billing-status", subject);
+  await recordBindingRead(env, 'billing-status', subject);
   return stored ?? buildBillingStatusSummary(subject, env);
 }
 
-export async function loadBillingInvoices(
-  env: Env,
-  subject: string,
-): Promise<ReadonlyArray<BillingInvoiceSummary>> {
+export async function loadBillingInvoices(env: Env, subject: string): Promise<ReadonlyArray<BillingInvoiceSummary>> {
   await ensureReadModelSeed(env);
   const stored = parsePayloadRows<BillingInvoiceSummary>(
-    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_INVOICES_BY_SUBJECT_SQL, subject),
+    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_INVOICES_BY_SUBJECT_SQL, subject)
   );
-  await recordBindingRead(env, "billing-invoices", subject);
+  await recordBindingRead(env, 'billing-invoices', subject);
   return stored.length > 0 ? stored : buildBillingInvoices(subject);
 }
 
-export async function findBillingInvoiceSubject(
-  env: Env,
-  invoiceId: string,
-): Promise<string | null> {
+export async function findBillingInvoiceSubject(env: Env, invoiceId: string): Promise<string | null> {
   for (const subject of DEFAULT_BILLING_SUBJECTS) {
-    const invoice = (await loadBillingInvoices(env, subject)).find(
-      (row) => row.invoiceId === invoiceId,
-    );
+    const invoice = (await loadBillingInvoices(env, subject)).find((row) => row.invoiceId === invoiceId);
     if (invoice) {
       return subject;
     }
@@ -1095,27 +930,24 @@ export async function findBillingInvoiceSubject(
   return null;
 }
 
-export async function loadBillingReferralSummary(
-  env: Env,
-  subject: string,
-): Promise<BillingReferralSummary> {
+export async function loadBillingReferralSummary(env: Env, subject: string): Promise<BillingReferralSummary> {
   await ensureReadModelSeed(env);
   const stored = parsePayloadRow<BillingReferralSummary>(
-    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_REFERRAL_BY_SUBJECT_SQL, subject),
+    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_REFERRAL_BY_SUBJECT_SQL, subject)
   );
-  await recordBindingRead(env, "billing-referrals", subject);
+  await recordBindingRead(env, 'billing-referrals', subject);
   return stored ?? buildBillingReferralSummary(subject);
 }
 
 export async function loadBillingEntitlementSnapshot(
   env: Env,
-  subject: string,
+  subject: string
 ): Promise<BillingEntitlementSnapshotSummary> {
   await ensureReadModelSeed(env);
   const stored = parsePayloadRow<BillingEntitlementSnapshotSummary>(
-    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_SNAPSHOT_BY_SUBJECT_SQL, subject),
+    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_SNAPSHOT_BY_SUBJECT_SQL, subject)
   );
-  await recordBindingRead(env, "billing-entitlement-snapshot", subject);
+  await recordBindingRead(env, 'billing-entitlement-snapshot', subject);
   return stored ?? buildEntitlementSnapshot(subject);
 }
 
@@ -1124,20 +956,20 @@ export async function loadBillingLicenseDecision(
   subject: string,
   requestId: string,
   deviceId: string,
-  requestedNewDevice: boolean,
+  requestedNewDevice: boolean
 ): Promise<BillingLicenseDecisionSummary> {
   const snapshot = await loadBillingEntitlementSnapshot(env, subject);
   const requestedDeviceAlreadyTrusted = !requestedNewDevice;
   const atDeviceLimit = snapshot.activeDevices >= snapshot.deviceLimit;
 
-  if (snapshot.parentVisibleState === "manual-review") {
+  if (snapshot.parentVisibleState === 'manual-review') {
     return {
       requestId,
       subject,
       deviceId,
-      decision: "manual-review",
-      reasonCode: "manual-review",
-      deviceActivationBehavior: "manual-review-required",
+      decision: 'manual-review',
+      reasonCode: 'manual-review',
+      deviceActivationBehavior: 'manual-review-required',
       requestedDeviceAlreadyTrusted,
       planId: snapshot.planId,
       currentActiveDevices: snapshot.activeDevices,
@@ -1151,9 +983,9 @@ export async function loadBillingLicenseDecision(
       requestId,
       subject,
       deviceId,
-      decision: "denied",
-      reasonCode: "limit-exceeded",
-      deviceActivationBehavior: "deny-new-device",
+      decision: 'denied',
+      reasonCode: 'limit-exceeded',
+      deviceActivationBehavior: 'deny-new-device',
       requestedDeviceAlreadyTrusted,
       planId: snapshot.planId,
       currentActiveDevices: snapshot.activeDevices,
@@ -1162,14 +994,14 @@ export async function loadBillingLicenseDecision(
     };
   }
 
-  if (snapshot.subscriptionStatus === "grace" && requestedNewDevice) {
+  if (snapshot.subscriptionStatus === 'grace' && requestedNewDevice) {
     return {
       requestId,
       subject,
       deviceId,
-      decision: "grace",
-      reasonCode: "payment-required",
-      deviceActivationBehavior: "grace-existing-devices",
+      decision: 'grace',
+      reasonCode: 'payment-required',
+      deviceActivationBehavior: 'grace-existing-devices',
       requestedDeviceAlreadyTrusted,
       planId: snapshot.planId,
       currentActiveDevices: snapshot.activeDevices,
@@ -1183,120 +1015,101 @@ export async function loadBillingLicenseDecision(
 
 export async function loadAdminBillingAccounts(
   env: Env,
-  query: string | null,
+  query: string | null
 ): Promise<ReadonlyArray<AdminBillingAccountSummary>> {
   await ensureReadModelSeed(env);
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingAccountSummary>(
-    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_ACCOUNTS_SQL),
+    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_ACCOUNTS_SQL)
   );
-  await recordBindingRead(env, "admin-billing-accounts", null);
+  await recordBindingRead(env, 'admin-billing-accounts', null);
   const rows = stored.length > 0 ? stored : listAdminBillingAccounts(query);
   if (!loweredQuery) {
     return rows;
   }
   return rows.filter((row) =>
-    includesQuery(
-      [row.parentAccountRef, row.familyRef, row.planId, row.parentVisibleState],
-      loweredQuery,
-    ),
+    includesQuery([row.parentAccountRef, row.familyRef, row.planId, row.parentVisibleState], loweredQuery)
   );
 }
 
 export async function loadAdminBillingInvoices(
   env: Env,
-  query: string | null,
+  query: string | null
 ): Promise<ReadonlyArray<AdminBillingInvoiceSummary>> {
   await ensureReadModelSeed(env);
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingInvoiceSummary>(
-    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_INVOICES_SQL),
+    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_INVOICES_SQL)
   );
-  await recordBindingRead(env, "admin-billing-invoices", null);
+  await recordBindingRead(env, 'admin-billing-invoices', null);
   const rows = stored.length > 0 ? stored : listAdminBillingInvoices(query);
   if (!loweredQuery) {
     return rows;
   }
   return rows.filter((row) =>
-    includesQuery(
-      [row.invoiceId, row.invoiceNumber, row.parentAccountRef, row.familyRef, row.planId],
-      loweredQuery,
-    ),
+    includesQuery([row.invoiceId, row.invoiceNumber, row.parentAccountRef, row.familyRef, row.planId], loweredQuery)
   );
 }
 
 export async function loadAdminBillingDisputes(
   env: Env,
-  query: string | null,
+  query: string | null
 ): Promise<ReadonlyArray<AdminBillingDisputeSummary>> {
   await ensureReadModelSeed(env);
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingDisputeSummary>(
-    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_DISPUTES_SQL),
+    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_DISPUTES_SQL)
   );
-  await recordBindingRead(env, "admin-billing-disputes", null);
+  await recordBindingRead(env, 'admin-billing-disputes', null);
   const rows = stored.length > 0 ? stored : listAdminBillingDisputes(query);
   if (!loweredQuery) {
     return rows;
   }
   return rows.filter((row) =>
-    includesQuery(
-      [row.disputeId, row.parentAccountRef, row.familyRef, row.invoiceId, row.disputeState],
-      loweredQuery,
-    ),
+    includesQuery([row.disputeId, row.parentAccountRef, row.familyRef, row.invoiceId, row.disputeState], loweredQuery)
   );
 }
 
 export async function loadAdminBillingReferrals(
   env: Env,
-  query: string | null,
+  query: string | null
 ): Promise<ReadonlyArray<AdminBillingReferralSummary>> {
   await ensureReadModelSeed(env);
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingReferralSummary>(
-    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_REFERRALS_SQL),
+    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_REFERRALS_SQL)
   );
-  await recordBindingRead(env, "admin-billing-referrals", null);
+  await recordBindingRead(env, 'admin-billing-referrals', null);
   const rows = stored.length > 0 ? stored : listAdminBillingReferrals(query);
   if (!loweredQuery) {
     return rows;
   }
-  return rows.filter((row) =>
-    includesQuery([row.referralCode, row.ownerSubject, row.abuseReviewState], loweredQuery),
-  );
+  return rows.filter((row) => includesQuery([row.referralCode, row.ownerSubject, row.abuseReviewState], loweredQuery));
 }
 
 export async function loadBillingAuditEvents(
   env: Env,
-  query: string | null,
+  query: string | null
 ): Promise<ReadonlyArray<BillingAuditEventSummary>> {
   await ensureReadModelSeed(env);
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const object = await env.BILLING_AUDIT_R2?.get(AUDIT_EVENTS_KEY);
-  const stored = object
-    ? ((await object.json<ReadonlyArray<BillingAuditEventSummary>>()) ?? [])
-    : [];
-  await recordBindingRead(env, "admin-billing-audit", null);
+  const stored = object ? ((await object.json<ReadonlyArray<BillingAuditEventSummary>>()) ?? []) : [];
+  await recordBindingRead(env, 'admin-billing-audit', null);
   const rows = stored.length > 0 ? stored : listBillingAuditEvents(query);
   if (!loweredQuery) {
     return rows;
   }
   return rows.filter((row) =>
-    includesQuery(
-      [row.eventId, row.eventType, row.parentAccountRef, row.familyRef, row.actorRole],
-      loweredQuery,
-    ),
+    includesQuery([row.eventId, row.eventType, row.parentAccountRef, row.familyRef, row.actorRole], loweredQuery)
   );
 }
 
-export async function applyBillingStateMutation(
-  env: Env,
-  mutation: BillingStateMutation,
-): Promise<void> {
+export async function applyBillingStateMutation(env: Env, mutation: BillingStateMutation): Promise<void> {
   await ensureReadModelSeed(env);
 
   switch (mutation.kind) {
-    case "hosted-session": {
+    case 'hosted-session': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       const updatedAt = new Date().toISOString();
       await appendBillingAuditEvent(env, {
@@ -1310,7 +1123,7 @@ export async function applyBillingStateMutation(
       } as unknown as BillingAuditEventSummary);
       return;
     }
-    case "change-plan": {
+    case 'change-plan': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
       const pricingPlans = await loadPricingPlans(env);
@@ -1322,14 +1135,8 @@ export async function applyBillingStateMutation(
       const updatedAt = new Date().toISOString();
       const activeReferralCredits = status.seatComposition.activeReferralCredits;
       const baseIncludedSeats = status.seatComposition.baseIncludedSeats;
-      const paidExtraSeats = Math.max(
-        targetPlan.deviceLimit - baseIncludedSeats - activeReferralCredits,
-        0,
-      );
-      const availableDeviceSlots = Math.max(
-        targetPlan.deviceLimit - status.deviceUsage.activeDevices,
-        0,
-      );
+      const paidExtraSeats = Math.max(targetPlan.deviceLimit - baseIncludedSeats - activeReferralCredits, 0);
+      const availableDeviceSlots = Math.max(targetPlan.deviceLimit - status.deviceUsage.activeDevices, 0);
       const nextStatus = {
         ...status,
         plan: cloneJsonValue(targetPlan),
@@ -1343,10 +1150,7 @@ export async function applyBillingStateMutation(
           effectiveLimit: baseIncludedSeats + activeReferralCredits + paidExtraSeats,
           availableDeviceSlots,
         },
-        warnings: withAddedWarning(
-          status.warnings,
-          "plan-change-pending-provider-sync",
-        ),
+        warnings: withAddedWarning(status.warnings, 'plan-change-pending-provider-sync'),
         auditReference: mutation.auditReference,
         updatedAt,
       } as unknown as BillingStatusSummary;
@@ -1354,10 +1158,7 @@ export async function applyBillingStateMutation(
         ...snapshot,
         planId: targetPlan.planId,
         deviceLimit: targetPlan.deviceLimit,
-        availableDeviceSlots: Math.max(
-          targetPlan.deviceLimit - snapshot.activeDevices,
-          0,
-        ),
+        availableDeviceSlots: Math.max(targetPlan.deviceLimit - snapshot.activeDevices, 0),
         signedAt: updatedAt,
         auditReference: `${mutation.auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
@@ -1367,8 +1168,8 @@ export async function applyBillingStateMutation(
       await updateAdminAccountProjection(env, nextStatus);
       await appendBillingAuditEvent(env, {
         eventId: `billing-change-plan:${mutation.requestId}`,
-        eventType: "billing.change-plan.accepted",
-        actorRole: "parent",
+        eventType: 'billing.change-plan.accepted',
+        actorRole: 'parent',
         parentAccountRef: nextStatus.parentAccountRef,
         familyRef: nextStatus.familyRef,
         auditReference: mutation.auditReference,
@@ -1376,57 +1177,39 @@ export async function applyBillingStateMutation(
       } as unknown as BillingAuditEventSummary);
       return;
     }
-    case "cancel": {
+    case 'cancel': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
       const updatedAt = new Date().toISOString();
       const cancellationWarning =
-        mutation.cancellationState === "scheduled-period-end"
-          ? "cancellation-scheduled-period-end"
-          : mutation.cancellationState === "already-in-grace"
-            ? "cancellation-confirmed-in-grace"
-            : "cancellation-manual-review-required";
+        mutation.cancellationState === 'scheduled-period-end'
+          ? 'cancellation-scheduled-period-end'
+          : mutation.cancellationState === 'already-in-grace'
+            ? 'cancellation-confirmed-in-grace'
+            : 'cancellation-manual-review-required';
 
       const nextStatus = {
         ...status,
-        accountStatus:
-          mutation.cancellationState === "manual-review-required"
-            ? "manual-review"
-            : status.accountStatus,
+        accountStatus: mutation.cancellationState === 'manual-review-required' ? 'manual-review' : status.accountStatus,
         subscriptionStatus:
-          mutation.cancellationState === "manual-review-required"
-            ? "past-due"
-            : status.subscriptionStatus,
+          mutation.cancellationState === 'manual-review-required' ? 'past-due' : status.subscriptionStatus,
         portalVisibleState:
-          mutation.cancellationState === "manual-review-required"
-            ? "manual-required"
-            : status.portalVisibleState,
+          mutation.cancellationState === 'manual-review-required' ? 'manual-required' : status.portalVisibleState,
         parentVisibleState:
-          mutation.cancellationState === "manual-review-required"
-            ? "manual-review"
-            : status.parentVisibleState,
+          mutation.cancellationState === 'manual-review-required' ? 'manual-review' : status.parentVisibleState,
         warnings: withAddedWarning(status.warnings, cancellationWarning),
         auditReference: mutation.auditReference,
         updatedAt,
       } as unknown as BillingStatusSummary;
       const nextSnapshot = {
         ...snapshot,
-        source:
-          mutation.cancellationState === "manual-review-required"
-            ? "manual-admin-review"
-            : snapshot.source,
+        source: mutation.cancellationState === 'manual-review-required' ? 'manual-admin-review' : snapshot.source,
         signatureState:
-          mutation.cancellationState === "manual-review-required"
-            ? "manual-required"
-            : snapshot.signatureState,
+          mutation.cancellationState === 'manual-review-required' ? 'manual-required' : snapshot.signatureState,
         subscriptionStatus:
-          mutation.cancellationState === "manual-review-required"
-            ? "past-due"
-            : snapshot.subscriptionStatus,
+          mutation.cancellationState === 'manual-review-required' ? 'past-due' : snapshot.subscriptionStatus,
         parentVisibleState:
-          mutation.cancellationState === "manual-review-required"
-            ? "manual-review"
-            : snapshot.parentVisibleState,
+          mutation.cancellationState === 'manual-review-required' ? 'manual-review' : snapshot.parentVisibleState,
         signedAt: updatedAt,
         auditReference: `${mutation.auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
@@ -1436,8 +1219,8 @@ export async function applyBillingStateMutation(
       await updateAdminAccountProjection(env, nextStatus);
       await appendBillingAuditEvent(env, {
         eventId: `billing-cancel:${mutation.requestId}`,
-        eventType: "billing.cancel.accepted",
-        actorRole: "parent",
+        eventType: 'billing.cancel.accepted',
+        actorRole: 'parent',
         parentAccountRef: nextStatus.parentAccountRef,
         familyRef: nextStatus.familyRef,
         auditReference: mutation.auditReference,
@@ -1445,7 +1228,7 @@ export async function applyBillingStateMutation(
       } as unknown as BillingAuditEventSummary);
       return;
     }
-    case "referral-invite": {
+    case 'referral-invite': {
       const referral = await loadBillingReferralSummary(env, mutation.subject);
       const adminReferrals = await loadAdminBillingReferrals(env, null);
       const updatedAt = new Date().toISOString();
@@ -1455,7 +1238,7 @@ export async function applyBillingStateMutation(
         invites: [
           {
             inviteId: referralInviteSummaryId(mutation.referralCode, mutation.requestId),
-            inviteState: "invite-created",
+            inviteState: 'invite-created',
             referralCode: mutation.referralCode,
             invitedIdentifier: mutation.invitedIdentifier,
             auditReference: mutation.auditReference,
@@ -1465,33 +1248,29 @@ export async function applyBillingStateMutation(
         ],
         auditReference: `${mutation.auditReference}:summary`,
       } as unknown as BillingReferralSummary;
-      const existingAdminReferral = adminReferrals.find(
-        (row) => row.referralCode === mutation.referralCode,
-      );
-      const nextAdminReferral = (
-        existingAdminReferral
-          ? {
-              ...existingAdminReferral,
-              invitedFamilies: existingAdminReferral.invitedFamilies + 1,
-              auditReference: `${mutation.auditReference}:admin`,
-              updatedAt,
-            }
-          : {
-              referralCode: mutation.referralCode,
-              ownerSubject: mutation.subject,
-              creditedFamilies: nextReferral.availableCredits,
-              invitedFamilies: nextReferral.activeReferredParents + nextReferral.pendingInvites,
-              abuseReviewState: "clear",
-              auditReference: `${mutation.auditReference}:admin`,
-              updatedAt,
-            }
-      ) as unknown as AdminBillingReferralSummary;
+      const existingAdminReferral = adminReferrals.find((row) => row.referralCode === mutation.referralCode);
+      const nextAdminReferral = (existingAdminReferral
+        ? {
+            ...existingAdminReferral,
+            invitedFamilies: existingAdminReferral.invitedFamilies + 1,
+            auditReference: `${mutation.auditReference}:admin`,
+            updatedAt,
+          }
+        : {
+            referralCode: mutation.referralCode,
+            ownerSubject: mutation.subject,
+            creditedFamilies: nextReferral.availableCredits,
+            invitedFamilies: nextReferral.activeReferredParents + nextReferral.pendingInvites,
+            abuseReviewState: 'clear',
+            auditReference: `${mutation.auditReference}:admin`,
+            updatedAt,
+          }) as unknown as AdminBillingReferralSummary;
 
       await upsertBillingReferralSummary(env, nextReferral);
       await upsertAdminBillingReferralSummary(env, nextAdminReferral);
       await appendBillingAuditEvent(env, {
         eventId: `billing-referral-invite:${mutation.requestId}`,
-        eventType: "billing.referral.invite-created",
+        eventType: 'billing.referral.invite-created',
         actorRole: mutation.actorRole,
         parentAccountRef: (await loadBillingStatusSummary(env, mutation.subject)).parentAccountRef,
         familyRef: (await loadBillingStatusSummary(env, mutation.subject)).familyRef,
@@ -1500,7 +1279,7 @@ export async function applyBillingStateMutation(
       } as unknown as BillingAuditEventSummary);
       return;
     }
-    case "manual-invoice": {
+    case 'manual-invoice': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
       const updatedAt = new Date().toISOString();
@@ -1512,13 +1291,13 @@ export async function applyBillingStateMutation(
         parentAccountRef: status.parentAccountRef,
         familyRef: status.familyRef,
         planId: status.plan.planId,
-        currency: "USD",
+        currency: 'USD',
         subtotalCents: status.plan.priceCents,
         taxCents: 0,
         totalCents: status.plan.priceCents,
-        invoiceVisibility: "manual-support-required",
-        paymentState: "unpaid",
-        provider: "manual-invoice",
+        invoiceVisibility: 'manual-support-required',
+        paymentState: 'unpaid',
+        provider: 'manual-invoice',
         hostedUrl: null,
         periodStart: updatedAt,
         periodEnd: updatedAt,
@@ -1531,30 +1310,30 @@ export async function applyBillingStateMutation(
       } as unknown as AdminBillingInvoiceSummary;
       const nextStatus = {
         ...status,
-        accountStatus: "manual-review",
-        subscriptionStatus: "past-due",
-        portalVisibleState: "manual-required",
-        parentVisibleState: "manual-review",
-        localSafetyBehavior: "manual-review-with-local-safety",
-        providerMode: "manual-invoice",
+        accountStatus: 'manual-review',
+        subscriptionStatus: 'past-due',
+        portalVisibleState: 'manual-required',
+        parentVisibleState: 'manual-review',
+        localSafetyBehavior: 'manual-review-with-local-safety',
+        providerMode: 'manual-invoice',
         nextRenewalAt: null,
         manualInvoiceState: {
           visible: true,
-          invoiceState: "manual-support-required",
+          invoiceState: 'manual-support-required',
         },
-        source: "manual-admin-review",
+        source: 'manual-admin-review',
         failureState: manualReviewFailureState(),
-        warnings: withAddedWarning(status.warnings, "manual-invoice-issued"),
+        warnings: withAddedWarning(status.warnings, 'manual-invoice-issued'),
         auditReference,
         updatedAt,
       } as unknown as BillingStatusSummary;
       const nextSnapshot = {
         ...snapshot,
-        subscriptionStatus: "past-due",
-        source: "manual-admin-review",
-        signatureState: "manual-required",
-        parentVisibleState: "manual-review",
-        localSafetyBehavior: "manual-review-with-local-safety",
+        subscriptionStatus: 'past-due',
+        source: 'manual-admin-review',
+        signatureState: 'manual-required',
+        parentVisibleState: 'manual-review',
+        localSafetyBehavior: 'manual-review-with-local-safety',
         failureState: manualReviewFailureState(),
         signedAt: updatedAt,
         auditReference: `${auditReference}:snapshot`,
@@ -1567,7 +1346,7 @@ export async function applyBillingStateMutation(
       await updateAdminAccountProjection(env, nextStatus);
       await appendBillingAuditEvent(env, {
         eventId: `billing-manual-invoice:${mutation.requestId}`,
-        eventType: "billing.manual-invoice.created",
+        eventType: 'billing.manual-invoice.created',
         actorRole: mutation.actorRole,
         parentAccountRef: status.parentAccountRef,
         familyRef: status.familyRef,
@@ -1576,17 +1355,15 @@ export async function applyBillingStateMutation(
       } as unknown as BillingAuditEventSummary);
       return;
     }
-    case "admin-refund": {
+    case 'admin-refund': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
       const invoices = await loadBillingInvoices(env, mutation.subject);
       const adminInvoices = await loadAdminBillingInvoices(env, null);
       const updatedAt = new Date().toISOString();
-      const refundSettled = mutation.refundState === "refund-settled";
+      const refundSettled = mutation.refundState === 'refund-settled';
       const auditReference = `${mutation.auditReference}:state`;
-      const nextFailureState = refundSettled
-        ? manualReviewFailureState()
-        : status.failureState;
+      const nextFailureState = refundSettled ? manualReviewFailureState() : status.failureState;
 
       let matchedInvoice = false;
       for (const invoice of invoices) {
@@ -1597,7 +1374,7 @@ export async function applyBillingStateMutation(
         matchedInvoice = true;
         await upsertBillingInvoiceSummary(env, mutation.subject, {
           ...invoice,
-          paymentState: refundSettled ? "refunded" : invoice.paymentState,
+          paymentState: refundSettled ? 'refunded' : invoice.paymentState,
           auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
           updatedAt,
         } as unknown as BillingInvoiceSummary);
@@ -1610,7 +1387,7 @@ export async function applyBillingStateMutation(
 
         await upsertAdminBillingInvoiceSummary(env, {
           ...invoice,
-          paymentState: refundSettled ? "refunded" : invoice.paymentState,
+          paymentState: refundSettled ? 'refunded' : invoice.paymentState,
           auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
           updatedAt,
         } as unknown as AdminBillingInvoiceSummary);
@@ -1619,28 +1396,28 @@ export async function applyBillingStateMutation(
       if (refundSettled && matchedInvoice) {
         const nextStatus: any = {
           ...status,
-          accountStatus: "manual-review",
-          subscriptionStatus: "past-due",
-          portalVisibleState: "manual-required",
-          parentVisibleState: "manual-review",
-          localSafetyBehavior: "manual-review-with-local-safety",
-          source: "manual-admin-review",
+          accountStatus: 'manual-review',
+          subscriptionStatus: 'past-due',
+          portalVisibleState: 'manual-required',
+          parentVisibleState: 'manual-review',
+          localSafetyBehavior: 'manual-review-with-local-safety',
+          source: 'manual-admin-review',
           failureState: nextFailureState,
           nextRenewalAt: null,
           warnings: withAddedWarning(
-            status.warnings.filter((warning) => warning !== "provider-webhook-synced"),
-            "refund-settled-manual-review",
+            status.warnings.filter((warning) => warning !== 'provider-webhook-synced'),
+            'refund-settled-manual-review'
           ),
           auditReference,
           updatedAt,
         } as unknown as BillingStatusSummary;
         const nextSnapshot: any = {
           ...snapshot,
-          subscriptionStatus: "past-due",
-          source: "manual-admin-review",
-          signatureState: "manual-required",
-          parentVisibleState: "manual-review",
-          localSafetyBehavior: "manual-review-with-local-safety",
+          subscriptionStatus: 'past-due',
+          source: 'manual-admin-review',
+          signatureState: 'manual-required',
+          parentVisibleState: 'manual-review',
+          localSafetyBehavior: 'manual-review-with-local-safety',
           failureState: nextFailureState,
           signedAt: updatedAt,
           auditReference: `${auditReference}:snapshot`,
@@ -1662,11 +1439,11 @@ export async function applyBillingStateMutation(
       } as unknown as BillingAuditEventSummary);
       return;
     }
-    case "reconciliation": {
+    case 'reconciliation': {
       const updatedAt = new Date().toISOString();
       await appendBillingAuditEvent(env, {
         eventId: `billing-reconciliation:${mutation.requestId}`,
-        eventType: "billing.reconciliation.accepted",
+        eventType: 'billing.reconciliation.accepted',
         actorRole: mutation.actorRole,
         parentAccountRef: RECONCILIATION_PARENT_ACCOUNT_REF,
         familyRef: RECONCILIATION_FAMILY_REF,
@@ -1675,9 +1452,9 @@ export async function applyBillingStateMutation(
       } as unknown as BillingAuditEventSummary);
       return;
     }
-    case "provider-webhook": {
+    case 'provider-webhook': {
       const transition = providerWebhookTransition(mutation.eventType);
-      if (transition === "ignore") {
+      if (transition === 'ignore') {
         return;
       }
 
@@ -1688,38 +1465,38 @@ export async function applyBillingStateMutation(
       const updatedAt = new Date().toISOString();
       const auditReference = `${status.auditReference}:provider-webhook:${mutation.provider}`;
 
-      if (transition === "activate-subscription") {
+      if (transition === 'activate-subscription') {
         const nextStatus: any = {
           ...status,
-          accountStatus: "active",
-          subscriptionStatus: "active",
-          portalVisibleState: "ready",
-          parentVisibleState: "available",
-          localSafetyBehavior: "unchanged",
-          source: "signed-local-snapshot",
+          accountStatus: 'active',
+          subscriptionStatus: 'active',
+          portalVisibleState: 'ready',
+          parentVisibleState: 'available',
+          localSafetyBehavior: 'unchanged',
+          source: 'signed-local-snapshot',
           failureState: null,
           warnings: withAddedWarning(
             status.warnings.filter(
               (warning) =>
-                warning !== "cancellation-confirmed-in-grace" &&
-                warning !== "cancellation-manual-review-required" &&
-                warning !== "cancellation-scheduled-period-end" &&
-                warning !== "provider-webhook-payment-required" &&
-                warning !== "provider-webhook-dispute-opened" &&
-                warning !== "provider-webhook-dispute-lost",
+                warning !== 'cancellation-confirmed-in-grace' &&
+                warning !== 'cancellation-manual-review-required' &&
+                warning !== 'cancellation-scheduled-period-end' &&
+                warning !== 'provider-webhook-payment-required' &&
+                warning !== 'provider-webhook-dispute-opened' &&
+                warning !== 'provider-webhook-dispute-lost'
             ),
-            "provider-webhook-synced",
+            'provider-webhook-synced'
           ),
           auditReference,
           updatedAt,
         } as unknown as BillingStatusSummary;
         const nextSnapshot: any = {
           ...snapshot,
-          subscriptionStatus: "active",
-          source: "signed-local-snapshot",
-          signatureState: "signed",
-          parentVisibleState: "available",
-          localSafetyBehavior: "unchanged",
+          subscriptionStatus: 'active',
+          source: 'signed-local-snapshot',
+          signatureState: 'signed',
+          parentVisibleState: 'available',
+          localSafetyBehavior: 'unchanged',
           failureState: null,
           signedAt: updatedAt,
           auditReference: `${auditReference}:snapshot`,
@@ -1730,18 +1507,16 @@ export async function applyBillingStateMutation(
         for (const invoice of invoices) {
           const nextInvoice = {
             ...invoice,
-            paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "paid",
+            paymentState: invoice.provider === 'manual-invoice' ? invoice.paymentState : 'paid',
             auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
             updatedAt,
           } as unknown as BillingInvoiceSummary;
           await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
         }
-        for (const invoice of adminInvoices.filter(
-          (entry) => entry.parentAccountRef === status.parentAccountRef,
-        )) {
+        for (const invoice of adminInvoices.filter((entry) => entry.parentAccountRef === status.parentAccountRef)) {
           const nextInvoice: any = {
             ...invoice,
-            paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "paid",
+            paymentState: invoice.provider === 'manual-invoice' ? invoice.paymentState : 'paid',
             manualRequired: false,
             auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
             updatedAt,
@@ -1749,35 +1524,35 @@ export async function applyBillingStateMutation(
           await upsertAdminBillingInvoiceSummary(env, nextInvoice);
         }
         await updateAdminAccountProjection(env, nextStatus);
-      } else if (transition === "enter-grace") {
+      } else if (transition === 'enter-grace') {
         const nextStatus = {
           ...status,
-          accountStatus: "grace",
-          subscriptionStatus: "grace",
-          portalVisibleState: "degraded",
-          parentVisibleState: "grace",
-          localSafetyBehavior: "grace-with-local-safety",
-          source: "signed-local-snapshot",
+          accountStatus: 'grace',
+          subscriptionStatus: 'grace',
+          portalVisibleState: 'degraded',
+          parentVisibleState: 'grace',
+          localSafetyBehavior: 'grace-with-local-safety',
+          source: 'signed-local-snapshot',
           failureState: graceFailureState(),
           warnings: withAddedWarning(
             status.warnings.filter(
               (warning) =>
-                warning !== "provider-webhook-synced" &&
-                warning !== "provider-webhook-dispute-opened" &&
-                warning !== "provider-webhook-dispute-lost",
+                warning !== 'provider-webhook-synced' &&
+                warning !== 'provider-webhook-dispute-opened' &&
+                warning !== 'provider-webhook-dispute-lost'
             ),
-            "provider-webhook-payment-required",
+            'provider-webhook-payment-required'
           ),
           auditReference,
           updatedAt,
         } as unknown as BillingStatusSummary;
         const nextSnapshot = {
           ...snapshot,
-          subscriptionStatus: "grace",
-          source: "signed-local-snapshot",
-          signatureState: "signed",
-          parentVisibleState: "grace",
-          localSafetyBehavior: "grace-with-local-safety",
+          subscriptionStatus: 'grace',
+          source: 'signed-local-snapshot',
+          signatureState: 'signed',
+          parentVisibleState: 'grace',
+          localSafetyBehavior: 'grace-with-local-safety',
           failureState: graceFailureState(),
           signedAt: updatedAt,
           auditReference: `${auditReference}:snapshot`,
@@ -1788,19 +1563,17 @@ export async function applyBillingStateMutation(
         for (const invoice of invoices) {
           const nextInvoice = {
             ...invoice,
-            paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "grace",
+            paymentState: invoice.provider === 'manual-invoice' ? invoice.paymentState : 'grace',
             auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
             updatedAt,
           } as unknown as BillingInvoiceSummary;
           await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
         }
-        for (const invoice of adminInvoices.filter(
-          (entry) => entry.parentAccountRef === status.parentAccountRef,
-        )) {
+        for (const invoice of adminInvoices.filter((entry) => entry.parentAccountRef === status.parentAccountRef)) {
           const nextInvoice: any = {
             ...invoice,
-            paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "grace",
-            manualRequired: invoice.invoiceVisibility === "manual-support-required",
+            paymentState: invoice.provider === 'manual-invoice' ? invoice.paymentState : 'grace',
+            manualRequired: invoice.invoiceVisibility === 'manual-support-required',
             auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
             updatedAt,
           };
@@ -1809,20 +1582,21 @@ export async function applyBillingStateMutation(
         await updateAdminAccountProjection(env, nextStatus);
       } else {
         const disputeId = mutation.disputeId ?? `dispute-${mutation.provider}-${mutation.eventId}`;
-        const invoiceId = mutation.invoiceId ?? invoices[0]?.invoiceId ?? adminInvoices[0]?.invoiceId ?? "invoice-unresolved";
+        const invoiceId =
+          mutation.invoiceId ?? invoices[0]?.invoiceId ?? adminInvoices[0]?.invoiceId ?? 'invoice-unresolved';
         const disputeState =
-          transition === "dispute-opened"
-            ? "dispute-opened"
-            : transition === "dispute-lost"
-              ? "dispute-lost"
-              : "dispute-won";
+          transition === 'dispute-opened'
+            ? 'dispute-opened'
+            : transition === 'dispute-lost'
+              ? 'dispute-lost'
+              : 'dispute-won';
         const entitlementEffect =
-          transition === "dispute-opened"
-            ? "manual-review-required"
-            : transition === "dispute-lost"
-              ? "revoke-paid-access"
-              : "grace-paid-access";
-        const manualRequired = transition !== "dispute-won";
+          transition === 'dispute-opened'
+            ? 'manual-review-required'
+            : transition === 'dispute-lost'
+              ? 'revoke-paid-access'
+              : 'grace-paid-access';
+        const manualRequired = transition !== 'dispute-won';
         const nextDispute = {
           disputeId,
           parentAccountRef: status.parentAccountRef,
@@ -1836,70 +1610,65 @@ export async function applyBillingStateMutation(
         } as unknown as AdminBillingDisputeSummary;
         await upsertAdminBillingDisputeSummary(env, nextDispute);
 
-        const nextStatus =
-          (transition === "dispute-won"
-            ? {
-                ...status,
-                accountStatus: "active",
-                subscriptionStatus: "active",
-                portalVisibleState: "ready",
-                parentVisibleState: "available",
-                localSafetyBehavior: "unchanged",
-                source: "signed-local-snapshot",
-                failureState: null,
-                warnings: withAddedWarning(
-                  status.warnings.filter(
-                    (warning) =>
-                      warning !== "provider-webhook-dispute-opened" &&
-                      warning !== "provider-webhook-dispute-lost",
-                  ),
-                  "provider-webhook-synced",
+        const nextStatus = (transition === 'dispute-won'
+          ? {
+              ...status,
+              accountStatus: 'active',
+              subscriptionStatus: 'active',
+              portalVisibleState: 'ready',
+              parentVisibleState: 'available',
+              localSafetyBehavior: 'unchanged',
+              source: 'signed-local-snapshot',
+              failureState: null,
+              warnings: withAddedWarning(
+                status.warnings.filter(
+                  (warning) =>
+                    warning !== 'provider-webhook-dispute-opened' && warning !== 'provider-webhook-dispute-lost'
                 ),
-                auditReference,
-                updatedAt,
-              }
-            : {
-                ...status,
-                accountStatus: "manual-review",
-                subscriptionStatus: "past-due",
-                portalVisibleState: "manual-required",
-                parentVisibleState: "manual-review",
-                localSafetyBehavior: "manual-review-with-local-safety",
-                source: "manual-admin-review",
-                failureState: manualReviewFailureState(),
-                warnings: withAddedWarning(
-                  status.warnings.filter((warning) => warning !== "provider-webhook-synced"),
-                  transition === "dispute-opened"
-                    ? "provider-webhook-dispute-opened"
-                    : "provider-webhook-dispute-lost",
-                ),
-                auditReference,
-                updatedAt,
-              }) as unknown as BillingStatusSummary;
-        const nextSnapshot =
-          (transition === "dispute-won"
-            ? {
-                ...snapshot,
-                subscriptionStatus: "active",
-                source: "signed-local-snapshot",
-                signatureState: "signed",
-                parentVisibleState: "available",
-                localSafetyBehavior: "unchanged",
-                failureState: null,
-                signedAt: updatedAt,
-                auditReference: `${auditReference}:snapshot`,
-              }
-            : {
-                ...snapshot,
-                subscriptionStatus: "past-due",
-                source: "manual-admin-review",
-                signatureState: "manual-required",
-                parentVisibleState: "manual-review",
-                localSafetyBehavior: "manual-review-with-local-safety",
-                failureState: manualReviewFailureState(),
-                signedAt: updatedAt,
-                auditReference: `${auditReference}:snapshot`,
-              }) as unknown as BillingEntitlementSnapshotSummary;
+                'provider-webhook-synced'
+              ),
+              auditReference,
+              updatedAt,
+            }
+          : {
+              ...status,
+              accountStatus: 'manual-review',
+              subscriptionStatus: 'past-due',
+              portalVisibleState: 'manual-required',
+              parentVisibleState: 'manual-review',
+              localSafetyBehavior: 'manual-review-with-local-safety',
+              source: 'manual-admin-review',
+              failureState: manualReviewFailureState(),
+              warnings: withAddedWarning(
+                status.warnings.filter((warning) => warning !== 'provider-webhook-synced'),
+                transition === 'dispute-opened' ? 'provider-webhook-dispute-opened' : 'provider-webhook-dispute-lost'
+              ),
+              auditReference,
+              updatedAt,
+            }) as unknown as BillingStatusSummary;
+        const nextSnapshot = (transition === 'dispute-won'
+          ? {
+              ...snapshot,
+              subscriptionStatus: 'active',
+              source: 'signed-local-snapshot',
+              signatureState: 'signed',
+              parentVisibleState: 'available',
+              localSafetyBehavior: 'unchanged',
+              failureState: null,
+              signedAt: updatedAt,
+              auditReference: `${auditReference}:snapshot`,
+            }
+          : {
+              ...snapshot,
+              subscriptionStatus: 'past-due',
+              source: 'manual-admin-review',
+              signatureState: 'manual-required',
+              parentVisibleState: 'manual-review',
+              localSafetyBehavior: 'manual-review-with-local-safety',
+              failureState: manualReviewFailureState(),
+              signedAt: updatedAt,
+              auditReference: `${auditReference}:snapshot`,
+            }) as unknown as BillingEntitlementSnapshotSummary;
 
         await upsertBillingStatusSummary(env, nextStatus);
         await upsertBillingSnapshotSummary(env, nextSnapshot);
@@ -1909,7 +1678,7 @@ export async function applyBillingStateMutation(
       await appendBillingAuditEvent(env, {
         eventId: `billing-webhook:${mutation.provider}:${mutation.eventId}`,
         eventType: `billing.webhook.${mutation.provider}.${mutation.eventType}`,
-        actorRole: "system",
+        actorRole: 'system',
         parentAccountRef: status.parentAccountRef,
         familyRef: status.familyRef,
         auditReference,
@@ -1919,6 +1688,3 @@ export async function applyBillingStateMutation(
     }
   }
 }
-
-
-

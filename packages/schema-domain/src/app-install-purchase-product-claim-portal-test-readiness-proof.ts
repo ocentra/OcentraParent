@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimGateProofReadModel } from './app-install-purchase-product-claim-gate-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -274,4 +269,3 @@ function portalTestReadinessProofIsHonest(proof: AppInstallPurchaseProductClaimP
     proof.knownGaps.length > 0
   );
 }
-

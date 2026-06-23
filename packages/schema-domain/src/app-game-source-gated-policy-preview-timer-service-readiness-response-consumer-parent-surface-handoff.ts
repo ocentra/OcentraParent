@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -39,15 +34,25 @@ type AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumer
 >;
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffId');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffId'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffRowId');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffRowId'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffContractRef');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffContractRef'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceProofRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceProofRef');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceProofRef'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceSummaryRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceSummaryRef');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceSummaryRef'
+  );
 
 const ConsumerStateSchema = withParser(
   Schema.Literal(
@@ -293,4 +298,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseC
   );
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffState };
-

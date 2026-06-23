@@ -4,7 +4,8 @@ import {
 } from '@ocentra-parent/schema-domain/app-game-policy-readiness';
 import { AppGameSchemaVersion } from '@ocentra-parent/schema-domain/app-game-primitives';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import { parseAgentAppGamePolicyReadinessEvent } from '../../src/app-game-policy-readiness';
 

@@ -3,7 +3,6 @@ import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 
-test.skip(process.env['SOCIAL_ALERT_REPORT_UI_PROOF'] !== '1', 'Dedicated social alert/report UI proof only.');
 test.setTimeout(120_000);
 
 const portalShellReadyTimeoutMs = 90_000;
@@ -19,23 +18,25 @@ const accessibilitySummaryPath = path.join(
   'accessibility-summary.json'
 );
 
-test('browser route renders service-backed social alert and report intent rows', async ({ page }) => {
-  const browserFailures = collectBrowserFailures(page);
+if (process.env['SOCIAL_ALERT_REPORT_UI_PROOF'] === '1') {
+  test('browser route renders service-backed social alert and report intent rows', async ({ page }) => {
+    const browserFailures = collectBrowserFailures(page);
 
-  await assertSocialAlertReportRoute(page);
-  await requestSocialAlertReportReadModel(page);
-  await assertServiceBackedSocialAlertReportRows(page);
-  await requestSocialParentNotificationDeliveryReadModel(page);
-  await assertSocialParentNotificationDeliveryRows(page);
-  await requestSocialAlertReportParentSurfaceReadModel(page);
-  await assertSocialAlertReportParentSurfaceRows(page);
-  await assertBrowserActionIntentStatusRows(page);
-  await assertBrowserReceiptStatusRows(page);
-  await captureSocialAlertReportScreenshots(page);
-  await writeAccessibilitySummary(await collectAccessibilitySummary(page));
+    await assertSocialAlertReportRoute(page);
+    await requestSocialAlertReportReadModel(page);
+    await assertServiceBackedSocialAlertReportRows(page);
+    await requestSocialParentNotificationDeliveryReadModel(page);
+    await assertSocialParentNotificationDeliveryRows(page);
+    await requestSocialAlertReportParentSurfaceReadModel(page);
+    await assertSocialAlertReportParentSurfaceRows(page);
+    await assertBrowserActionIntentStatusRows(page);
+    await assertBrowserReceiptStatusRows(page);
+    await captureSocialAlertReportScreenshots(page);
+    await writeAccessibilitySummary(await collectAccessibilitySummary(page));
 
-  expect(browserFailures).toEqual([]);
-});
+    expect(browserFailures).toEqual([]);
+  });
+}
 
 async function assertSocialAlertReportRoute(page: Page): Promise<void> {
   await page.goto('/#/browser?agent.browser.social-alert-report.read-model.reported');

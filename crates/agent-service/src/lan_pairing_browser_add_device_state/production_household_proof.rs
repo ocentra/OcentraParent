@@ -1,10 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanBrowserAddDeviceScanSummary, LanHouseholdDeviceActionKind,
-    LanHouseholdDeviceDecision, LanPairingDeviceReachability, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanProductionHouseholdProofCapability, LanProductionHouseholdProofStatus,
-    LanProductionHouseholdProofSummary, LanSelectedDeviceReadiness, LanTrustedDeviceRegistryEntry,
-    V09ProductionDiscoveryHouseholdProofState, V09ProductionDiscoveryHouseholdRuntimeOwner,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry;
+use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdProofState;
+use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdRuntimeOwner;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::production_household_proof::LanProductionHouseholdProofCapability;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::production_household_proof::LanProductionHouseholdProofStatus;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::production_household_proof::LanProductionHouseholdProofSummary;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceScanSummary;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceActionKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanSelectedDeviceReadiness;
 
 pub(super) fn production_household_proof_summary(
     generated_at: &str,
@@ -92,7 +99,7 @@ fn production_discovery_status_rows(
         ),
         ci_status(
             LanProductionHouseholdProofCapability::PassiveNeighborDiscovery,
-            physical_household_lan_state.clone(),
+            physical_household_lan_state,
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
         ),
         ci_status(
@@ -132,7 +139,7 @@ fn production_decision_status_rows(
             LanProductionHouseholdProofCapability::ParentAssignment,
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Assign,
+                &LanHouseholdDeviceActionKind::Assign,
             ),
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PARENT_ASSIGNMENT,
         ),
@@ -140,7 +147,7 @@ fn production_decision_status_rows(
             LanProductionHouseholdProofCapability::ParentRename,
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Rename,
+                &LanHouseholdDeviceActionKind::Rename,
             ),
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PARENT_RENAME,
         ),
@@ -148,7 +155,7 @@ fn production_decision_status_rows(
             LanProductionHouseholdProofCapability::ParentIgnore,
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Ignore,
+                &LanHouseholdDeviceActionKind::Ignore,
             ),
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PARENT_IGNORE,
         ),
@@ -300,11 +307,11 @@ fn registry_state(
 
 fn decision_state(
     household_device_decisions: &[LanHouseholdDeviceDecision],
-    action_kind: LanHouseholdDeviceActionKind,
+    action_kind: &LanHouseholdDeviceActionKind,
 ) -> LanPairingProductionDiscoveryState {
     if household_device_decisions
         .iter()
-        .any(|decision| decision.action_kind == action_kind && decision.revoked_at.is_none())
+        .any(|decision| decision.action_kind == *action_kind && decision.revoked_at.is_none())
     {
         LanPairingProductionDiscoveryState::Discovered
     } else {

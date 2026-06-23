@@ -121,10 +121,7 @@ async function assertDocumentationProof() {
   const billing = await readRepoFile('docs/expectations/billing.md');
   assertIncludes(productionDistribution, proofMode, 'production distribution feature proof note');
   assertIncludes(billing, proofMode, 'billing expectation proof note');
-  return [
-    'docs/features/production-distribution-support.md',
-    'docs/expectations/billing.md',
-  ];
+  return ['docs/features/production-distribution-support.md', 'docs/expectations/billing.md'];
 }
 
 async function readRepoFile(path) {
@@ -169,7 +166,9 @@ function relativePath(path) {
 }
 
 function summarizeValues(values) {
-  return Object.fromEntries(values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map()));
+  return Object.fromEntries(
+    values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map())
+  );
 }
 
 function npmCommand(args) {

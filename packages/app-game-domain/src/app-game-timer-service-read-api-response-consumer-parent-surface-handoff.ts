@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
 import {
@@ -21,15 +16,26 @@ import {
   appGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffHasNoRuntimeClaims,
   appGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffMatchesResponseConsumerHandoff,
   type AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffStateValue,
-} from './app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+} from '@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type ResponseConsumerHandoffRow = Infer<typeof ResponseConsumerHandoffRowSchema>;
 
-export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffIdSchema = brandedNonEmptyStringSchema('AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffId');
-export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffRowId');
-export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceProofRefSchema = brandedNonEmptyStringSchema('AppGameTimerServiceReadApiResponseConsumerParentSurfaceProofRef');
-export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceContractRefSchema = brandedNonEmptyStringSchema('AppGameTimerServiceReadApiResponseConsumerParentSurfaceContractRef');
+export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffIdSchema = brandedNonEmptyStringSchema(
+  'AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffId'
+);
+export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffRowId'
+);
+export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceProofRefSchema = brandedNonEmptyStringSchema(
+  'AppGameTimerServiceReadApiResponseConsumerParentSurfaceProofRef'
+);
+export const AppGameTimerServiceReadApiResponseConsumerParentSurfaceContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGameTimerServiceReadApiResponseConsumerParentSurfaceContractRef'
+);
 
 const ParentSurfaceHandoffStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffState))
@@ -216,4 +222,3 @@ function mapParentSurfaceHandoffState(
   }
   return AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffState.BlockedByCompilerDecision;
 }
-

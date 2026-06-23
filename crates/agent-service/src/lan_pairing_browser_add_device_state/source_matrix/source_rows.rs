@@ -1,8 +1,25 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanDiscoverySourceAuthority, LanDiscoverySourceKind, LanDiscoverySourceRow,
-    LanDiscoverySourceRuntimePath, LanDiscoverySourceStatus, LanDiscoverySourceUiSurface,
-    LanPlanWorkpackId,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceAuthority;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceRow;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceRuntimePath;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceStatus;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceUiSurface;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanPlanWorkpackId;
+
+struct SourceRowDetails {
+    status: LanDiscoverySourceStatus,
+    authority: LanDiscoverySourceAuthority,
+    runtime_path: LanDiscoverySourceRuntimePath,
+    ui_surface: LanDiscoverySourceUiSurface,
+    can_confirm_child_agent: bool,
+    can_assign_child_profile: bool,
+    can_control_route: bool,
+    requires_selected_interface: bool,
+    persists_across_restart: bool,
+    evidence_label: &'static str,
+    required_artifact_summary: Option<String>,
+}
 
 pub(super) fn source_rows() -> Vec<LanDiscoverySourceRow> {
     let mut rows = Vec::new();
@@ -18,32 +35,36 @@ fn implemented_source_rows() -> Vec<LanDiscoverySourceRow> {
         source_row(
             LanDiscoverySourceKind::ContractBoundary,
             LanPlanWorkpackId::W01,
-            LanDiscoverySourceStatus::Implemented,
-            LanDiscoverySourceAuthority::ProofGate,
-            LanDiscoverySourceRuntimePath::TypescriptContract,
-            LanDiscoverySourceUiSurface::ProofReport,
-            false,
-            false,
-            false,
-            false,
-            false,
-            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_01,
-            None,
+            SourceRowDetails {
+                status: LanDiscoverySourceStatus::Implemented,
+                authority: LanDiscoverySourceAuthority::ProofGate,
+                runtime_path: LanDiscoverySourceRuntimePath::TypescriptContract,
+                ui_surface: LanDiscoverySourceUiSurface::ProofReport,
+                can_confirm_child_agent: false,
+                can_assign_child_profile: false,
+                can_control_route: false,
+                requires_selected_interface: false,
+                persists_across_restart: false,
+                evidence_label: constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_01,
+                required_artifact_summary: None,
+            },
         ),
         source_row(
             LanDiscoverySourceKind::WindowsNeighborTable,
             LanPlanWorkpackId::W04,
-            LanDiscoverySourceStatus::Implemented,
-            LanDiscoverySourceAuthority::WeakIdentity,
-            LanDiscoverySourceRuntimePath::RustServiceReadModel,
-            LanDiscoverySourceUiSurface::DevicesLan,
-            false,
-            false,
-            false,
-            true,
-            false,
-            constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
-            None,
+            SourceRowDetails {
+                status: LanDiscoverySourceStatus::Implemented,
+                authority: LanDiscoverySourceAuthority::WeakIdentity,
+                runtime_path: LanDiscoverySourceRuntimePath::RustServiceReadModel,
+                ui_surface: LanDiscoverySourceUiSurface::DevicesLan,
+                can_confirm_child_agent: false,
+                can_assign_child_profile: false,
+                can_control_route: false,
+                requires_selected_interface: true,
+                persists_across_restart: false,
+                evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
+                required_artifact_summary: None,
+            },
         ),
     ]
 }
@@ -127,32 +148,40 @@ fn signed_child_source_rows() -> Vec<LanDiscoverySourceRow> {
         source_row(
             LanDiscoverySourceKind::SignedChildAgentHello,
             LanPlanWorkpackId::W18,
-            LanDiscoverySourceStatus::ManualRequired,
-            LanDiscoverySourceAuthority::StrongIdentity,
-            LanDiscoverySourceRuntimePath::ManualArtifact,
-            LanDiscoverySourceUiSurface::ProofReport,
-            true,
-            false,
-            true,
-            true,
-            true,
-            constants::lan_pairing::PRODUCTION_PROOF_LABEL_SIGNED_HELLO,
-            Some(constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD.to_string()),
+            SourceRowDetails {
+                status: LanDiscoverySourceStatus::ManualRequired,
+                authority: LanDiscoverySourceAuthority::StrongIdentity,
+                runtime_path: LanDiscoverySourceRuntimePath::ManualArtifact,
+                ui_surface: LanDiscoverySourceUiSurface::ProofReport,
+                can_confirm_child_agent: true,
+                can_assign_child_profile: false,
+                can_control_route: true,
+                requires_selected_interface: true,
+                persists_across_restart: true,
+                evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_SIGNED_HELLO,
+                required_artifact_summary: Some(
+                    constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD.to_string(),
+                ),
+            },
         ),
         source_row(
             LanDiscoverySourceKind::SignedChildAgentHeartbeat,
             LanPlanWorkpackId::W18,
-            LanDiscoverySourceStatus::ManualRequired,
-            LanDiscoverySourceAuthority::StrongIdentity,
-            LanDiscoverySourceRuntimePath::ManualArtifact,
-            LanDiscoverySourceUiSurface::ProofReport,
-            true,
-            false,
-            true,
-            true,
-            true,
-            constants::lan_pairing::PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT,
-            Some(constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD.to_string()),
+            SourceRowDetails {
+                status: LanDiscoverySourceStatus::ManualRequired,
+                authority: LanDiscoverySourceAuthority::StrongIdentity,
+                runtime_path: LanDiscoverySourceRuntimePath::ManualArtifact,
+                ui_surface: LanDiscoverySourceUiSurface::ProofReport,
+                can_confirm_child_agent: true,
+                can_assign_child_profile: false,
+                can_control_route: true,
+                requires_selected_interface: true,
+                persists_across_restart: true,
+                evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT,
+                required_artifact_summary: Some(
+                    constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD.to_string(),
+                ),
+            },
         ),
     ]
 }
@@ -164,17 +193,21 @@ fn weak_source(
     source_row(
         source,
         workpack_id,
-        LanDiscoverySourceStatus::ManualRequired,
-        LanDiscoverySourceAuthority::NameOnly,
-        LanDiscoverySourceRuntimePath::ManualArtifact,
-        LanDiscoverySourceUiSurface::ProofReport,
-        false,
-        false,
-        false,
-        true,
-        false,
-        constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP,
-        Some(constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP.to_string()),
+        SourceRowDetails {
+            status: LanDiscoverySourceStatus::ManualRequired,
+            authority: LanDiscoverySourceAuthority::NameOnly,
+            runtime_path: LanDiscoverySourceRuntimePath::ManualArtifact,
+            ui_surface: LanDiscoverySourceUiSurface::ProofReport,
+            can_confirm_child_agent: false,
+            can_assign_child_profile: false,
+            can_control_route: false,
+            requires_selected_interface: true,
+            persists_across_restart: false,
+            evidence_label: constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP,
+            required_artifact_summary: Some(
+                constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP.to_string(),
+            ),
+        },
     )
 }
 
@@ -185,50 +218,43 @@ fn not_implemented_source(
     source_row(
         source,
         workpack_id,
-        LanDiscoverySourceStatus::NotImplemented,
-        LanDiscoverySourceAuthority::NoChildConfirmation,
-        LanDiscoverySourceRuntimePath::ManualArtifact,
-        LanDiscoverySourceUiSurface::ProofReport,
-        false,
-        false,
-        false,
-        true,
-        false,
-        constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE,
-        Some(constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE.to_string()),
+        SourceRowDetails {
+            status: LanDiscoverySourceStatus::NotImplemented,
+            authority: LanDiscoverySourceAuthority::NoChildConfirmation,
+            runtime_path: LanDiscoverySourceRuntimePath::ManualArtifact,
+            ui_surface: LanDiscoverySourceUiSurface::ProofReport,
+            can_confirm_child_agent: false,
+            can_assign_child_profile: false,
+            can_control_route: false,
+            requires_selected_interface: true,
+            persists_across_restart: false,
+            evidence_label: constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE,
+            required_artifact_summary: Some(
+                constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE.to_string(),
+            ),
+        },
     )
 }
 
-#[allow(clippy::too_many_arguments)]
 fn source_row(
     source: LanDiscoverySourceKind,
     workpack_id: LanPlanWorkpackId,
-    status: LanDiscoverySourceStatus,
-    authority: LanDiscoverySourceAuthority,
-    runtime_path: LanDiscoverySourceRuntimePath,
-    ui_surface: LanDiscoverySourceUiSurface,
-    can_confirm_child_agent: bool,
-    can_assign_child_profile: bool,
-    can_control_route: bool,
-    requires_selected_interface: bool,
-    persists_across_restart: bool,
-    evidence_label: &str,
-    required_artifact_summary: Option<String>,
+    details: SourceRowDetails,
 ) -> LanDiscoverySourceRow {
     LanDiscoverySourceRow {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         source,
         workpack_id,
-        status,
-        authority,
-        runtime_path,
-        ui_surface,
-        can_confirm_child_agent,
-        can_assign_child_profile,
-        can_control_route,
-        requires_selected_interface,
-        persists_across_restart,
-        evidence_label: evidence_label.to_string(),
-        required_artifact_summary,
+        status: details.status,
+        authority: details.authority,
+        runtime_path: details.runtime_path,
+        ui_surface: details.ui_surface,
+        can_confirm_child_agent: details.can_confirm_child_agent,
+        can_assign_child_profile: details.can_assign_child_profile,
+        can_control_route: details.can_control_route,
+        requires_selected_interface: details.requires_selected_interface,
+        persists_across_restart: details.persists_across_restart,
+        evidence_label: details.evidence_label.to_string(),
+        required_artifact_summary: details.required_artifact_summary,
     }
 }

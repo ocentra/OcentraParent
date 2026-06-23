@@ -5,13 +5,14 @@ use crate::windows_firewall_lab_execution::{
         NetworkWindowsFirewallLabExecutionState,
     },
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 use super::fixtures::{command, lab_execution_input};
 
 #[test]
 fn windows_firewall_lab_accepts_bounded_apply_verify_rollback_evidence() {
     let proof = prove_network_windows_firewall_lab_execution(lab_execution_input())
-        .expect("complete lab evidence should prove bounded execution and rollback");
+        .expect_value("complete lab evidence should prove bounded execution and rollback");
 
     assert_eq!(
         proof.state,
@@ -44,7 +45,7 @@ fn windows_firewall_lab_is_manual_required_without_admin_or_commands() {
             command_evidence: Vec::new(),
             ..lab_execution_input()
         })
-        .expect("missing admin should stay explicit instead of failing");
+        .expect_value("missing admin should stay explicit instead of failing");
 
     assert_eq!(
         no_admin.state,
@@ -61,7 +62,7 @@ fn windows_firewall_lab_is_manual_required_without_admin_or_commands() {
             )],
             ..lab_execution_input()
         })
-        .expect("partial lab command evidence should stay manual-required");
+        .expect_value("partial lab command evidence should stay manual-required");
 
     assert_eq!(
         missing_commands.state,
@@ -79,7 +80,7 @@ fn windows_firewall_lab_reports_unavailable_without_windows_host() {
             command_evidence: Vec::new(),
             ..lab_execution_input()
         })
-        .expect("non-Windows host should report unavailable");
+        .expect_value("non-Windows host should report unavailable");
 
     assert_eq!(
         proof.state,

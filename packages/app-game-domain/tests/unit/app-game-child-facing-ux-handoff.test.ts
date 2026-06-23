@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameChildUxCardSchema } from '../../src/app-game-child-facing-ux';
+import { AppGameChildUxCardSchema } from '@ocentra-parent/schema-domain/app-game-child-facing-ux';
 import {
   AppGameChildUxCapabilityState,
   AppGameChildUxClaimState,
@@ -13,7 +13,7 @@ import {
   AppGameChildUxHandoffReadModelSchema,
   AppGameChildUxHandoffStatus,
   buildAppGameChildUxHandoffReadModel,
-} from '../../src/app-game-child-facing-ux-handoff';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-handoff';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

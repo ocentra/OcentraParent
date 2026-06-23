@@ -1,8 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkEndpoint,
-    ActivityNetworkFlowCounters, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkEndpoint;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowCounters;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 
 use super::network_product_path_bridge::prove_network_product_path_for_read_model;
 

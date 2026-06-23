@@ -24,11 +24,13 @@ pub enum ArtifactKind {
 #[serde(rename_all = "camelCase")]
 pub struct ArtifactRef {
     pub schema_version: u16,
-    pub event_type: String,
+    #[serde(rename = "eventType")]
+    pub record_type: String,
     pub artifact_id: String,
     pub run_id: String,
     pub command_id: String,
-    pub path: String,
+    #[serde(rename = "path")]
+    pub artifact_path: String,
     pub kind: ArtifactKind,
     pub sha256: String,
     pub byte_length: u64,
@@ -72,11 +74,11 @@ impl ArtifactWriter {
 
         Ok(ArtifactRef {
             schema_version: ARTIFACT_SCHEMA_VERSION,
-            event_type: "artifact".to_owned(),
+            record_type: "artifact".to_owned(),
             artifact_id,
             run_id,
             command_id,
-            path: path_string(&path),
+            artifact_path: path_string(&path),
             kind,
             sha256,
             byte_length: content.len() as u64,

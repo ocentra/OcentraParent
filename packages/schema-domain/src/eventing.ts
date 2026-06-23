@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 const EventingTaxonomyTextSchema = NonEmptyStringSchema.pipe(
   Schema.filter((value) => isEventingTaxonomyText(value) || 'Expected event type or namespace taxonomy text')

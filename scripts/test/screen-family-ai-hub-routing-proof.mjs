@@ -13,12 +13,10 @@ async function main() {
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 
-  const familyHubRoutingModule = await import(
-    '../../packages/screen-domain/dist/screen-evidence-family-hub-routing.js'
-  );
-  const familyHubRoutingValuesModule = await import(
-    '../../packages/schema-domain/dist/screen-evidence-family-hub-routing-values.js'
-  );
+  const familyHubRoutingModule =
+    await import('../../packages/screen-domain/dist/screen-evidence-family-hub-routing.js');
+  const familyHubRoutingValuesModule =
+    await import('../../packages/schema-domain/dist/screen-evidence-family-hub-routing-values.js');
   const screenEvidence = {
     planScreenFamilyAiHubRoute: familyHubRoutingModule.planScreenFamilyAiHubRoute,
     ScreenFamilyAiHubCapabilitySchema: (

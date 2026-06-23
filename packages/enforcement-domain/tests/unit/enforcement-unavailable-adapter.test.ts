@@ -18,7 +18,11 @@ import {
   type EnforcementUnavailableStatus,
   EnforcementUnavailableStatusSchema,
 } from '@ocentra-parent/schema-domain/enforcement';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+  ParentPlatform,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const observedAt = '2026-05-24T17:55:00.000Z';
 const evidenceReference = {

@@ -9,10 +9,7 @@ import {
   ParentAccountReferenceSchema,
   ParentDeviceReferenceSchema,
 } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import { type Infer, Schema, withParser } from './effect';
 
 function brandedNonEmptyStringSchema<const Brand extends string>(brand: Brand) {
@@ -230,6 +227,87 @@ export const SetupPairingFailureReason = {
   PermissionLoss: SetupPairingFailureReasonSchema.parse(SetupPairingFailureReasonLiteral.PermissionLoss),
 } as const;
 
+function resolveSetupPairingApprovalFailure(failureReason: SetupPairingFailureReason): SetupPairingApprovalResolution {
+  return SetupPairingApprovalResolutionSchema.parse({
+    assertion: null,
+    failureReason,
+  });
+}
+
+function setupPairingApprovalIsExpired(
+  challenge: SetupPairingApprovalChallenge,
+  response: SetupPairingApprovalResponse,
+  observedAt: Infer<typeof ParentTimestampSchema>
+): boolean {
+  return challenge.expiresAt < observedAt || response.approvedAt > challenge.expiresAt;
+}
+
+function setupPairingApprovalReplaysDifferentChallenge(
+  challenge: SetupPairingApprovalChallenge,
+  response: SetupPairingApprovalResponse
+): boolean {
+  return (
+    response.approvalChallengeId !== challenge.approvalChallengeId ||
+    response.pairingIntentId !== challenge.pairingIntentId ||
+    response.challengeNonce !== challenge.challengeNonce
+  );
+}
+
+function setupPairingApprovalTargetsDifferentHousehold(
+  challenge: SetupPairingApprovalChallenge,
+  response: SetupPairingApprovalResponse
+): boolean {
+  return response.family.familyId !== challenge.family.familyId;
+}
+
+function setupPairingApprovalTargetsDifferentAccount(
+  challenge: SetupPairingApprovalChallenge,
+  response: SetupPairingApprovalResponse
+): boolean {
+  return response.parentAccount.parentAccountId !== challenge.parentAccount.parentAccountId;
+}
+
+function setupPairingApprovalTargetsDifferentAction(
+  challenge: SetupPairingApprovalChallenge,
+  response: SetupPairingApprovalResponse
+): boolean {
+  return (
+    response.action !== challenge.action ||
+    response.desktopSessionId !== challenge.desktopSessionId ||
+    response.childProfile.childProfileId !== challenge.childProfile.childProfileId
+  );
+}
+
+function setupPairingApprovalTargetsDifferentDevice(
+  challenge: SetupPairingApprovalChallenge,
+  response: SetupPairingApprovalResponse
+): boolean {
+  return (
+    response.actionDevice.deviceId !== challenge.actionDevice.deviceId ||
+    response.actionDevice.childProfileId !== challenge.actionDevice.childProfileId
+  );
+}
+
+function deriveParentStepUpAssertionFromApprovedResponse(
+  challenge: SetupPairingApprovalChallenge,
+  response: SetupPairingApprovalResponse
+) {
+  return ParentStepUpAssertionSchema.parse({
+    schemaVersion: response.schemaVersion,
+    stepUpAssertionId: response.approvalResponseId,
+    family: response.family,
+    parentAccount: response.parentAccount,
+    actionDevice: response.actionDevice,
+    approverDevice: response.approvalDevice,
+    targetChildProfile: response.childProfile,
+    action: response.action,
+    method: response.approvalMethod,
+    nonce: response.challengeNonce,
+    issuedAt: response.approvedAt,
+    expiresAt: challenge.expiresAt,
+  });
+}
+
 export function isSetupPairingIntentActive(input: SetupPairingIntent): boolean {
   const intent = SetupPairingIntentSchema.parse(input);
 
@@ -251,73 +329,31 @@ export function deriveParentStepUpAssertionFromSetupPairingApproval(input: {
   const response = SetupPairingApprovalResponseSchema.parse(input.response);
   const observedAt = Schema.decodeUnknownSync(ParentTimestampSchema)(input.observedAt);
 
-  if (challenge.expiresAt < observedAt || response.approvedAt > challenge.expiresAt) {
-    return SetupPairingApprovalResolutionSchema.parse({
-      assertion: null,
-      failureReason: SetupPairingFailureReason.ApprovalExpired,
-    });
+  if (setupPairingApprovalIsExpired(challenge, response, observedAt)) {
+    return resolveSetupPairingApprovalFailure(SetupPairingFailureReason.ApprovalExpired);
   }
 
-  if (
-    response.approvalChallengeId !== challenge.approvalChallengeId ||
-    response.pairingIntentId !== challenge.pairingIntentId ||
-    response.challengeNonce !== challenge.challengeNonce
-  ) {
-    return SetupPairingApprovalResolutionSchema.parse({
-      assertion: null,
-      failureReason: SetupPairingFailureReason.ReplayRejected,
-    });
+  if (setupPairingApprovalReplaysDifferentChallenge(challenge, response)) {
+    return resolveSetupPairingApprovalFailure(SetupPairingFailureReason.ReplayRejected);
   }
 
-  if (response.family.familyId !== challenge.family.familyId) {
-    return SetupPairingApprovalResolutionSchema.parse({
-      assertion: null,
-      failureReason: SetupPairingFailureReason.WrongHousehold,
-    });
+  if (setupPairingApprovalTargetsDifferentHousehold(challenge, response)) {
+    return resolveSetupPairingApprovalFailure(SetupPairingFailureReason.WrongHousehold);
   }
 
-  if (response.parentAccount.parentAccountId !== challenge.parentAccount.parentAccountId) {
-    return SetupPairingApprovalResolutionSchema.parse({
-      assertion: null,
-      failureReason: SetupPairingFailureReason.WrongAccount,
-    });
+  if (setupPairingApprovalTargetsDifferentAccount(challenge, response)) {
+    return resolveSetupPairingApprovalFailure(SetupPairingFailureReason.WrongAccount);
   }
 
-  if (
-    response.action !== challenge.action ||
-    response.desktopSessionId !== challenge.desktopSessionId ||
-    response.childProfile.childProfileId !== challenge.childProfile.childProfileId
-  ) {
-    return SetupPairingApprovalResolutionSchema.parse({
-      assertion: null,
-      failureReason: SetupPairingFailureReason.WrongTarget,
-    });
+  if (setupPairingApprovalTargetsDifferentAction(challenge, response)) {
+    return resolveSetupPairingApprovalFailure(SetupPairingFailureReason.WrongTarget);
   }
 
-  if (
-    response.actionDevice.deviceId !== challenge.actionDevice.deviceId ||
-    response.actionDevice.childProfileId !== challenge.actionDevice.childProfileId
-  ) {
-    return SetupPairingApprovalResolutionSchema.parse({
-      assertion: null,
-      failureReason: SetupPairingFailureReason.WrongDevice,
-    });
+  if (setupPairingApprovalTargetsDifferentDevice(challenge, response)) {
+    return resolveSetupPairingApprovalFailure(SetupPairingFailureReason.WrongDevice);
   }
 
-  const assertion = ParentStepUpAssertionSchema.parse({
-    schemaVersion: response.schemaVersion,
-    stepUpAssertionId: response.approvalResponseId,
-    family: response.family,
-    parentAccount: response.parentAccount,
-    actionDevice: response.actionDevice,
-    approverDevice: response.approvalDevice,
-    targetChildProfile: response.childProfile,
-    action: response.action,
-    method: response.approvalMethod,
-    nonce: response.challengeNonce,
-    issuedAt: response.approvedAt,
-    expiresAt: challenge.expiresAt,
-  });
+  const assertion = deriveParentStepUpAssertionFromApprovedResponse(challenge, response);
 
   return SetupPairingApprovalResolutionSchema.parse({
     assertion,

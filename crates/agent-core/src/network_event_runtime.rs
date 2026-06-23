@@ -1,7 +1,6 @@
 use crate::{
     network_event_runtime_state::{
         ai_audit_state, evidence_grade, evidence_scope, intervention_state, risk_budget_state,
-        NetworkInterventionState, NetworkRuntimeClaimBoundary,
     },
     NetworkObservation,
 };
@@ -11,8 +10,11 @@ use ocentra_eventing::{
     ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
     ids::SourceService, ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, NetworkRuntimePhase,
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::{
+    NetworkInterventionState, NetworkRuntimeClaimBoundary,
+    NetworkRuntimeEventPayload as ProtocolNetworkRuntimeEventPayload, NetworkRuntimePhase,
 };
 
 pub(crate) mod broker_delivery;
@@ -52,8 +54,7 @@ pub(crate) mod review;
 
 use refs::NetworkRuntimeChainRefs;
 
-pub(crate) type NetworkRuntimeEventPayload =
-    ocentra_parent_agent_protocol::NetworkRuntimeEventPayload;
+pub(crate) type NetworkRuntimeEventPayload = ProtocolNetworkRuntimeEventPayload;
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeReport {
@@ -224,6 +225,7 @@ fn event_custody(observation: &NetworkObservation) -> EventCustody {
     }
 }
 
+#[cfg(test)]
 fn network_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
     let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
     if let Some(domain) = &payload.destination_domain {

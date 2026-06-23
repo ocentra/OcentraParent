@@ -28,15 +28,60 @@ Proof rule: proof must contain command log, negative case, artifact path, update
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
 
+## Ownership, Import, And Boundary Contract
+
+This plan owns LAN discovery, LAN pairing route contracts, household LAN evidence/readiness state, weak/strong LAN source classification, LAN read models, and LAN proof gates. It does not own every setup, portal, eventing, remote, device-trust, package, policy, or child-runtime behavior that consumes LAN state.
+
+Module roles:
+
+```text
+schema-domain: canonical shared LAN pairing, discovery, source-matrix, read-model, signed hello, heartbeat, assignment, revocation, and audit shapes when those shapes cross package, crate, app, or plan boundaries.
+lan-domain: current package-level LAN metadata and packet-local proof consumer surface. It is not the full runtime/packet implementation owner for every LAN claim.
+agent-protocol and agent-service: Rust protocol/service/read-model proof only when the selected workpack names those surfaces.
+portal-domain and apps/portal: projection and UI only; portal renders service-backed LAN state and must not invent LAN truth.
+eventing-plan: local event bus semantics only; eventing does not own LAN transport, discovery, route authority, or physical topology proof.
+device-trust-bootstrap-plan and account-identity-family-plan: trusted-device, household, actor, role, and authority owners.
+remote-access-plan: relay and remote-access transport owner.
+parent/child runtime distribution plans: package, installer, signed child package, and child-agent distribution owners.
+cloudflare-control-plane-plan: cloud/backend runtime owner when relay/backend storage is selected.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+canonical schema-domain LAN contract/read-model/proof shapes
+lan-domain public package metadata and selected public proof-consumer helpers
+agent-protocol/agent-service public surfaces only when the selected workpack owns protocol/service proof
+portal public projection contracts only when the selected workpack names portal proof
+neutral event/evidence/logging/protocol primitives
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports and claims:
+
+```text
+portal, setup, account, device-trust, remote, eventing, Cloudflare, policy, enforcement, package distribution, or child-runtime internals imported to bypass typed LAN handoffs
+unit tests upgraded into integration, e2e, security, physical, release, or load proof
+single-machine proof upgraded into real household LAN proof
+schema/contract proof upgraded into packet/runtime proof
+source-matrix proof upgraded into physical discovery proof
+portal rendering proof upgraded into LAN truth proof
+B1/B2 proof upgraded into signed hello, heartbeat, service/runtime, portal, physical household, router/firewall, or relay proof
+frozen workpacks 21-25 used as current completion scope
+```
+
+If LAN work needs eventing, device trust, account authority, remote relay, portal UI, package distribution, setup, cloud, policy, enforcement, child runtime, or data custody behavior, it must use typed evidence refs, commands, events, requests, read models, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
+
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected workpack owner/proof family is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 

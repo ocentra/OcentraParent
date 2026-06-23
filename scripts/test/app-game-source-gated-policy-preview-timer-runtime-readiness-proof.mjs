@@ -36,7 +36,9 @@ runNpm([
   'app-game-source-gated-policy-preview-timer-status',
 ]);
 
-const runtimeReadinessContract = await importAppGameDist('app-game-source-gated-policy-preview-timer-runtime-readiness.js');
+const runtimeReadinessContract = await importAppGameDist(
+  'app-game-source-gated-policy-preview-timer-runtime-readiness.js'
+);
 const wp79Proof = await readJson(
   join(repoRoot, 'test-results', 'app-game-source-gated-policy-preview-timer-status-proof', 'proof.json')
 );
@@ -75,7 +77,8 @@ const proof = {
     schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-runtime-readiness.ts',
     schemaRules: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-runtime-readiness-rules.ts',
     consumerSource: 'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-runtime-readiness.ts',
-    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-runtime-readiness.test.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-runtime-readiness.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-runtime-readiness-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-timer-runtime-readiness-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,

@@ -1,13 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  PortalTheme,
-  type PortalThemeValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom, PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { UnifiedFooter } from '../../../vendor/ocentra-parent-core-ui/Footer/UnifiedFooter';
 import { BrandedLoadingSpinner } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/BrandedLoadingSpinner';
 import { ScopeToggle } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ScopeToggle/ScopeToggle';
@@ -172,7 +167,7 @@ function PortalOutlineHeader({
   return (
     <header {...shellHeaderExtensionAttributes} className={PortalUnifiedChrome.Classes.OutlineHeader}>
       <button
-        aria-label={PortalText.Resolve(PortalTextToken.HeaderHome)}
+        aria-label={resolvePortalDevText(PortalDevTextToken.HeaderHome)}
         className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
         onClick={goHome}
         type={PortalDom.ButtonType.Button}
@@ -190,7 +185,7 @@ function PortalOutlineHeader({
               />
             </span>
             <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
-              {PortalText.Resolve(PortalTextToken.HeaderHome)}
+              {resolvePortalDevText(PortalDevTextToken.HeaderHome)}
             </span>
           </span>
         </PortalHeaderSvgFrame>
@@ -199,7 +194,7 @@ function PortalOutlineHeader({
       <div className={PortalUnifiedChrome.Classes.OutlineHeaderBrand}>
         <PortalHeaderSvgFrame />
         <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPart}>
-          {PortalText.Resolve(PortalTextToken.HeaderBrandLeft)}
+          {resolvePortalDevText(PortalDevTextToken.HeaderBrandLeft)}
         </span>
         <span
           aria-hidden={PortalDom.Attributes.True}
@@ -218,14 +213,14 @@ function PortalOutlineHeader({
           ) : null}
         </span>
         <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted}>
-          {PortalText.Resolve(PortalTextToken.HeaderBrandRight)}
+          {resolvePortalDevText(PortalDevTextToken.HeaderBrandRight)}
         </span>
       </div>
       <PortalHeaderConnector>
         <PortalHeaderThemeToggle onThemeChange={onThemeChange} theme={theme} />
       </PortalHeaderConnector>
       <button
-        aria-label={PortalText.Resolve(PortalTextToken.HeaderLogin)}
+        aria-label={resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
         className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
         onClick={onAuthOpen}
         type={PortalDom.ButtonType.Button}
@@ -243,7 +238,7 @@ function PortalOutlineHeader({
               />
             </span>
             <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
-              {PortalText.Resolve(PortalTextToken.HeaderLogin)}
+              {resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
             </span>
           </span>
         </PortalHeaderSvgFrame>
@@ -265,7 +260,7 @@ function PortalHeaderThemeToggle({
   const darkIcon = darkActive ? headerThemeDarkSelectedIcon : headerThemeDarkIdleIcon;
   return (
     <span
-      aria-label={PortalText.Resolve(PortalTextToken.DisplayTheme)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.DisplayTheme)}
       className={PortalUnifiedChrome.Classes.OutlineHeaderTheme}
       role="group"
     >
@@ -275,20 +270,20 @@ function PortalHeaderThemeToggle({
         options={[
           {
             value: PortalTheme.Light,
-            label: PortalText.Resolve(PortalTextToken.ThemeLight),
+            label: resolvePortalDevText(PortalDevTextToken.ThemeLight),
             iconHref: lightIcon,
           },
           {
             value: PortalTheme.Dark,
-            label: PortalText.Resolve(PortalTextToken.ThemeDark),
+            label: resolvePortalDevText(PortalDevTextToken.ThemeDark),
             iconHref: darkIcon,
           },
         ]}
-        title={PortalText.Resolve(PortalTextToken.DisplayTheme)}
+        title={resolvePortalDevText(PortalDevTextToken.DisplayTheme)}
         value={theme}
       />
       <button
-        aria-label={PortalText.Resolve(PortalTextToken.ThemeLight)}
+        aria-label={resolvePortalDevText(PortalDevTextToken.ThemeLight)}
         aria-pressed={lightActive ? PortalDom.Attributes.True : PortalDom.Attributes.False}
         className={[
           PortalUnifiedChrome.Classes.OutlineHeaderThemeButton,
@@ -298,7 +293,7 @@ function PortalHeaderThemeToggle({
         type={PortalDom.ButtonType.Button}
       />
       <button
-        aria-label={PortalText.Resolve(PortalTextToken.ThemeDark)}
+        aria-label={resolvePortalDevText(PortalDevTextToken.ThemeDark)}
         aria-pressed={darkActive ? PortalDom.Attributes.True : PortalDom.Attributes.False}
         className={[
           PortalUnifiedChrome.Classes.OutlineHeaderThemeButton,

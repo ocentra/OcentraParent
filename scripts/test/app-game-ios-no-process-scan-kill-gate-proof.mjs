@@ -27,11 +27,11 @@ async function main() {
   ]);
 
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
@@ -104,9 +104,9 @@ async function main() {
     gateState: 'prevented-by-ios-not-claimed-process-gate',
     evidence: {
       iosGate:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts defines ios-process-kill-not-claimed as iOS terminate-process, not-claimed, not-dispatched, canCallAdapter=false, and broadBlockingClaimed=false.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gate-data.ts defines ios-process-kill-not-claimed as iOS terminate-process, not-claimed, not-dispatched, canCallAdapter=false, and broadBlockingClaimed=false.',
       iosGateRules:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts keeps iOS proof kinds explicit before any platform upgrade can be considered.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gate-rules.ts keeps iOS proof kinds explicit before any platform upgrade can be considered.',
       iosGateTests:
         'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts asserts iOS process killing is not claimed and cannot dispatch adapters.',
       catalogBoundary:

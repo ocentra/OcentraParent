@@ -1,13 +1,18 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, ActivityGamesReadModel, ActivityGamesReadModelRow,
-    ActivityReadModelState, ActivitySurfaceRequest, AppGameForegroundEvidenceRow,
-    AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow, AppGameServiceReadModel,
-    ACTIVITY_SURFACE_SCHEMA_VERSION, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityGamesReadModel, ActivityGamesReadModelRow, ActivityReadModelState,
+    ActivitySurfaceRequest,
+};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow,
+    AppGameServiceReadModel, APP_GAME_CLASSIFICATION_KNOWN_GAME,
     APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER, APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
     APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_FOREGROUND_NOT_CLAIMED,
     APP_GAME_INVENTORY_STATE_UNAVAILABLE, APP_GAME_PRODUCT_LAUNCHER, APP_GAME_PRODUCT_NATIVE_GAME,
     APP_GAME_RUNTIME_NOT_CLAIMED,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::activity_surface_read_model_states::{
     offline_games_read_model, request_targets_remote_device, unavailable_games_read_model,
@@ -136,8 +141,8 @@ fn has_game_source(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
-    launcher: Option<&ocentra_parent_agent_protocol::AppGameLauncherEvidenceRow>,
-    rollup: Option<&ocentra_parent_agent_protocol::AppGameSessionDailyRollup>,
+    launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
+    rollup: Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
 ) -> bool {
     inventory.is_some()
         || running.is_some()
@@ -187,8 +192,8 @@ fn game_row_id(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
-    launcher: Option<&ocentra_parent_agent_protocol::AppGameLauncherEvidenceRow>,
-    rollup: Option<&ocentra_parent_agent_protocol::AppGameSessionDailyRollup>,
+    launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
+    rollup: Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
 ) -> String {
     rollup
         .and_then(|row| row.session_ids.first().cloned())
@@ -203,7 +208,7 @@ fn game_label(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
-    launcher: Option<&ocentra_parent_agent_protocol::AppGameLauncherEvidenceRow>,
+    launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
 ) -> String {
     foreground
         .map(|row| row.process_name.clone())
@@ -221,8 +226,8 @@ fn game_classification(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
-    launcher: Option<&ocentra_parent_agent_protocol::AppGameLauncherEvidenceRow>,
-    rollup: Option<&ocentra_parent_agent_protocol::AppGameSessionDailyRollup>,
+    launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
+    rollup: Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
 ) -> String {
     rollup
         .map(|row| row.classification_state.clone())
@@ -235,7 +240,7 @@ fn game_classification(
 
 fn game_product_kind(
     inventory: Option<&AppGameInventoryEvidenceRow>,
-    launcher: Option<&ocentra_parent_agent_protocol::AppGameLauncherEvidenceRow>,
+    launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
 ) -> String {
     inventory
         .map(|row| row.product_kind.clone())
@@ -247,7 +252,7 @@ fn game_last_observed_at(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
-    launcher: Option<&ocentra_parent_agent_protocol::AppGameLauncherEvidenceRow>,
+    launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
 ) -> Option<String> {
     launcher
         .map(|row| row.observed_at.clone())

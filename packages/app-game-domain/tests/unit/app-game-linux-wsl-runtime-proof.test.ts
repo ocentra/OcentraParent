@@ -3,7 +3,7 @@ import {
   AppGameLinuxWslRuntimeProofSchema,
   decodeAppGameLinuxWslRuntimeProof,
   summarizeAppGameLinuxWslRuntimeProof,
-} from '../../src/app-game-linux-wsl-runtime-proof';
+} from '@ocentra-parent/schema-domain/app-game-linux-wsl-runtime-proof';
 
 describe('app-game Linux WSL runtime proof', () => {
   registerAcceptedWslProofTest();

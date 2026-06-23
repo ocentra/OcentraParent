@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseStoreStatusHandoffProofSchema,
   AppInstallPurchaseStoreStatusHandoffRowSchema,
   summarizeAppInstallPurchaseStoreStatusHandoffProof,
-} from '../../src/app-install-purchase-store-status-handoff-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-store-status-handoff-proof';
 
 describe('app install and purchase store status handoff proof', () => {
   acceptsStoreStatusHandoffRowsWithoutRuntimeClaims();

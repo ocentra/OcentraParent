@@ -4,9 +4,7 @@ function defineLiteralKindGroup<const TLiteral extends Record<string, string>>(l
   const schema = withParser(
     Schema.Literal(...(Object.values(literal) as [TLiteral[keyof TLiteral], ...TLiteral[keyof TLiteral][]]))
   );
-  const parsed = Object.fromEntries(
-    Object.entries(literal).map(([key, value]) => [key, schema.parse(value)])
-  ) as {
+  const parsed = Object.fromEntries(Object.entries(literal).map(([key, value]) => [key, schema.parse(value)])) as {
     readonly [K in keyof TLiteral]: TLiteral[K];
   };
 
@@ -37,6 +35,14 @@ const ActivityEventKindDefinition = defineLiteralKindGroup({
   EnforcementAuditRecorded: 'activity.enforcement.audit-recorded',
   DeviceIdleStateObserved: 'activity.device.idle-state-observed',
   ScreenAnalysisSummarized: 'activity.screen.analysis.summarized',
+  LocationObserved: 'activity.location.observed',
+  TrackingAlertEvaluated: 'activity.tracking.alert.evaluated',
+  TrackingGeofenceTransitionEvaluated: 'activity.tracking.geofence-transition.evaluated',
+  TrackingExpectedPlaceEvaluated: 'activity.tracking.expected-place.evaluated',
+  TrackingChildCheckInResponded: 'activity.tracking.child-check-in.responded',
+  TrackingParentNotificationRequested: 'activity.tracking.parent-notification.requested',
+  TrackingRetentionDeleted: 'activity.tracking.retention.deleted',
+  NetworkRetentionDeleted: 'activity.network.retention.deleted',
 } as const);
 
 const ActivitySubjectKindDefinition = defineLiteralKindGroup({

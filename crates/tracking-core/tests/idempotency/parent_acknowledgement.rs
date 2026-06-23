@@ -1,8 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef,
-    TrackingPolicyRuleRef, TrackingPolicySeverity, TrackingPolicyViolationDetectedEvent,
-    TrackingPolicyViolationId, TrackingTimestamp,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef, TrackingPolicyRuleRef,
+    TrackingPolicySeverity, TrackingPolicyViolationId, TrackingTimestamp,
 };
+use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingPolicyViolationDetectedEvent;
 use ocentra_tracking_core::parent_acknowledgement::record_parent_acknowledgement;
 
 #[test]
@@ -11,29 +12,47 @@ fn parent_acknowledgement_is_idempotent_for_same_policy_violation() {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        }),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID)
+        }),
         violation_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        .unwrap_or_else(|_| {
+            unreachable!(
+                "{}",
+                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+            )
+        }),
         policy_rule_ref: TrackingPolicyRuleRef::parse(
             constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
         )
-        .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE),
+        .unwrap_or_else(|_| {
+            unreachable!(
+                "{}",
+                constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+            )
+        }),
         severity: TrackingPolicySeverity::parse(
             constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
         )
-        .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::POLICY_SEVERITY_REVIEW)
+        }),
         detected_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+            .unwrap_or_else(|_| {
+                unreachable!("{}", constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            }),
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        .unwrap_or_else(|_| unreachable!("{}", constants::tracking_runtime::DEFAULT_EVIDENCE_REF))],
     };
 
     let first = record_parent_acknowledgement(&violation);

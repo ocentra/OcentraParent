@@ -128,33 +128,33 @@ async function main() {
     join(repoRoot, 'test-results', 'app-game-windows-local-policy-evidence-proof', 'proof.json')
   );
   const androidAuthorityModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-authority-preflight.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-authority-preflight.js')).href
   );
   const androidAccessibilityModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-accessibility-overlay-preflight.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-accessibility-overlay-preflight.js')
     ).href
   );
   const replayModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );
   const linuxForegroundModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
       .href
   );
   const linuxDockerModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-docker-host-preflight.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-linux-docker-host-preflight.js')).href
   );
   const module = await import(
     pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-platform-proof-status.js')).href
   );
   const appleCiModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
       .href
   );
   const windowsModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
     ).href
   );
   const androidAuthorityPreflight = androidAuthorityModule.createAppGameAndroidAuthorityPreflightReadModel({
@@ -272,22 +272,22 @@ async function main() {
       contract: 'packages/app-game-domain/src/app-game-platform-proof-status.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-platform-proof-status.test.ts',
       windowsBroadBlockingAuthorityPreflight:
-        'packages/app-game-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
+        'packages/schema-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
       windowsBroadBlockingAuthorityPreflightTest:
         'packages/app-game-domain/tests/unit/app-game-windows-broad-blocking-authority-preflight.test.ts',
-      windowsLocalPolicyEvidence: 'packages/app-game-domain/src/app-game-windows-local-policy-evidence-proof.ts',
+      windowsLocalPolicyEvidence: 'packages/schema-domain/src/app-game-windows-local-policy-evidence-proof.ts',
       windowsLocalPolicyEvidenceTest:
         'packages/app-game-domain/tests/unit/app-game-windows-local-policy-evidence-proof.test.ts',
-      androidAuthorityPreflight: 'packages/app-game-domain/src/app-game-android-authority-preflight.ts',
+      androidAuthorityPreflight: 'packages/schema-domain/src/app-game-android-authority-preflight.ts',
       androidAuthorityPreflightTest: 'packages/app-game-domain/tests/unit/app-game-android-authority-preflight.test.ts',
       androidAccessibilityOverlayPreflight:
-        'packages/app-game-domain/src/app-game-android-accessibility-overlay-preflight.ts',
+        'packages/schema-domain/src/app-game-android-accessibility-overlay-preflight.ts',
       androidAccessibilityOverlayPreflightTest:
         'packages/app-game-domain/tests/unit/app-game-android-accessibility-overlay-preflight.test.ts',
-      androidAccessibilityRuntimeProof: 'packages/app-game-domain/src/app-game-android-accessibility-runtime-proof.ts',
+      androidAccessibilityRuntimeProof: 'packages/schema-domain/src/app-game-android-accessibility-runtime-proof.ts',
       androidAccessibilityRuntimeProofTest:
         'packages/app-game-domain/tests/unit/app-game-android-accessibility-runtime-proof.test.ts',
-      appleCiPlatformProofPreflight: 'packages/app-game-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
+      appleCiPlatformProofPreflight: 'packages/schema-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
       appleCiPlatformProofPreflightTest:
         'packages/app-game-domain/tests/unit/app-game-apple-ci-platform-proof-preflight.test.ts',
       portalCommands: 'packages/portal-domain/src/commands.ts',
@@ -297,14 +297,15 @@ async function main() {
       portalLiveState: 'packages/portal-domain/src/live-activity-state.ts',
       protocolContract: 'packages/agent-protocol-domain/src/app-game-platform-proof-status.ts',
       protocolTest: 'packages/agent-protocol-domain/tests/unit/app-game-platform-proof-status.test.ts',
-      androidUsageEventsReplay: 'packages/app-game-domain/src/app-game-android-usage-events-replay.ts',
+      androidUsageEventsReplay: 'packages/schema-domain/src/app-game-android-usage-events-replay.ts',
       androidUsageEventsReplayTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-replay.test.ts',
-      linuxForegroundCaptureReadiness: 'packages/app-game-domain/src/app-game-linux-foreground-capture-readiness.ts',
+      linuxForegroundCaptureReadiness: 'packages/schema-domain/src/app-game-linux-foreground-capture-readiness.ts',
       linuxForegroundCaptureReadinessTest:
         'packages/app-game-domain/tests/unit/app-game-linux-foreground-capture-readiness.test.ts',
-      linuxActiveWindowToolProof: 'packages/app-game-domain/src/app-game-linux-active-window-tool-proof.ts',
-      linuxActiveWindowToolProofTest: 'packages/app-game-domain/tests/unit/app-game-linux-active-window-tool-proof.test.ts',
-      linuxDockerHostPreflight: 'packages/app-game-domain/src/app-game-linux-docker-host-preflight.ts',
+      linuxActiveWindowToolProof: 'packages/schema-domain/src/app-game-linux-active-window-tool-proof.ts',
+      linuxActiveWindowToolProofTest:
+        'packages/app-game-domain/tests/unit/app-game-linux-active-window-tool-proof.test.ts',
+      linuxDockerHostPreflight: 'packages/schema-domain/src/app-game-linux-docker-host-preflight.ts',
       linuxDockerHostPreflightTest: 'packages/app-game-domain/tests/unit/app-game-linux-docker-host-preflight.test.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_platform_proof_status.rs',
       rustService: 'crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs',
@@ -420,9 +421,9 @@ async function main() {
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
       '- App-game read model: packages/app-game-domain/src/app-game-platform-proof-status.ts',
-      '- Windows authority preflight: packages/app-game-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
-      '- Android authority preflight: packages/app-game-domain/src/app-game-android-authority-preflight.ts',
-      '- Android Accessibility overlay preflight: packages/app-game-domain/src/app-game-android-accessibility-overlay-preflight.ts',
+      '- Windows authority preflight: packages/schema-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
+      '- Android authority preflight: packages/schema-domain/src/app-game-android-authority-preflight.ts',
+      '- Android Accessibility overlay preflight: packages/schema-domain/src/app-game-android-accessibility-overlay-preflight.ts',
       '',
       'Evidence:',
       '- Windows, Android, and Linux rows share one platform proof status read model.',

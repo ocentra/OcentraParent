@@ -1,7 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    policy_constants as policy, LocalAiSafetyResult, LocalAiUnknownState, ParentEvidenceReference,
-    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyRule, PolicyTarget,
-};
+use ocentra_parent_agent_protocol::activity::local_ai::{LocalAiSafetyResult, LocalAiUnknownState};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyRule;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct PolicyDryRunEvaluationInput {

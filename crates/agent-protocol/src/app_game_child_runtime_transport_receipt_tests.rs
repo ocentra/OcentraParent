@@ -25,14 +25,24 @@ fn app_game_child_runtime_transport_receipt_command_and_event_names_are_stable()
         serde_json::to_value(
             AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet
         )
-        .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                crate::constants::error::AGENT_EVENT_SERIALIZES
+            )
+        }),
         "agent.activity.app-game.child-runtime-transport-receipt.read-model.get"
     );
     assert_eq!(
         serde_json::to_value(
             AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported
         )
-        .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                crate::constants::error::AGENT_EVENT_SERIALIZES
+            )
+        }),
         "agent.activity.app-game.child-runtime-transport-receipt.read-model.reported"
     );
 }
@@ -41,7 +51,9 @@ fn app_game_child_runtime_transport_receipt_command_and_event_names_are_stable()
 fn app_game_child_runtime_transport_receipt_parity_manifest_matches_contract_constants() {
     let manifest: serde_json::Value =
         serde_json::from_str(APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PARITY_MANIFEST)
-            .expect("child runtime transport receipt parity manifest parses");
+            .unwrap_or_else(|error| {
+                unreachable!("child runtime transport receipt parity manifest parses: {error:?}")
+            });
 
     assert_eq!(
         manifest,
@@ -133,9 +145,16 @@ fn app_game_child_runtime_transport_receipt_serializes_without_delivery_claims()
     };
 
     let reparsed = serde_json::from_value::<AppGameChildRuntimeTransportReceiptReadModel>(
-        serde_json::to_value(read_model).expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model).unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                crate::constants::error::AGENT_EVENT_SERIALIZES
+            )
+        }),
     )
-    .expect("child runtime transport receipt read model reparses");
+    .unwrap_or_else(|error| {
+        unreachable!("child runtime transport receipt read model reparses: {error:?}")
+    });
 
     assert_eq!(
         reparsed.read_model_id,

@@ -4,7 +4,7 @@ import {
   AppInstallPurchasePlatformArtifactProofSchema,
   AppInstallPurchasePlatformStoreArtifactRowSchema,
   summarizeAppInstallPurchasePlatformArtifactProof,
-} from '../../src/app-install-purchase-platform-artifact-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-platform-artifact-proof';
 
 describe('app install and purchase platform artifact proof', () => {
   acceptsPlatformStoreAndReportArtifactRefsWithoutRuntimeClaims();

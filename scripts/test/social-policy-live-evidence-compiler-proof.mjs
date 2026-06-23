@@ -6,7 +6,7 @@ import {
   SocialParentPolicyCompilerInputSchema,
   SocialParentPolicyDecisionCandidateSchema,
 } from '../../packages/schema-domain/dist/social-policy-compiler.js';
-import { compileSocialParentPolicyCandidate } from '../../packages/browser-domain/dist/social-policy-compiler.js';
+import { compileSocialParentPolicyCandidate } from '../../packages/browser-domain/dist/social-policy-candidate-compiler.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -19,7 +19,7 @@ const observedAt = new Date().toISOString();
 const builtFiles = [
   'packages/schema-domain/dist/social-policy-compiler-values.js',
   'packages/schema-domain/dist/social-policy-compiler.js',
-  'packages/browser-domain/dist/social-policy-compiler.js',
+  'packages/browser-domain/dist/social-policy-candidate-compiler.js',
 ];
 
 assertBuiltContractsAreFresh();

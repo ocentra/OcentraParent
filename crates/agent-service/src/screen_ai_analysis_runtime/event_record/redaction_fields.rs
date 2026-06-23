@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, LogFieldValue};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::ScreenAiAnalysisEventRecord;
 

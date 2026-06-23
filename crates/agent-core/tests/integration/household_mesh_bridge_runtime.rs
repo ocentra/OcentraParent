@@ -1,20 +1,26 @@
-use ocentra_parent_agent_protocol::{constants, household_mesh::HouseholdMeshAuthenticationState};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::household_mesh::{
+    HouseholdMeshAuthenticationState, HouseholdMeshBridgePhase,
+    HouseholdMeshBridgeRejectionReason, HouseholdMeshBridgeValidationState,
+};
 
-use super::{
+use crate::household_mesh_bridge_runtime::{
     publish_household_mesh_bridge_chain_for_input, validate_household_mesh_bridge_export,
     validate_household_mesh_bridge_import, HouseholdMeshBridgeEventPayload,
     HouseholdMeshBridgeExportCandidate, HouseholdMeshBridgeInboundEnvelope,
-    HouseholdMeshBridgeInput, HouseholdMeshBridgePhase, HouseholdMeshBridgeRejectionReason,
-    HouseholdMeshBridgeReport, HouseholdMeshBridgeValidationState,
+    HouseholdMeshBridgeInput, HouseholdMeshBridgeReport,
 };
 
+type TestResult = Result<(), String>;
+
 #[tokio::test]
-async fn household_mesh_bridge_exports_selected_events_and_republishes_validated_imports() {
-    let report =
+async fn household_mesh_bridge_exports_selected_events_and_republishes_validated_imports() -> TestResult {
+    let report = ok(
         publish_household_mesh_bridge_chain_for_input(HouseholdMeshBridgeInput::proof_fixture())
-            .await
-            .expect(constants::household_mesh::ERROR_BRIDGE_CHAIN_PUBLISHES);
-    let payloads = decode_payloads(&report);
+            .await,
+        constants::household_mesh::ERROR_BRIDGE_CHAIN_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
 
     assert_eq!(
         report.publish_reports.len(),
@@ -27,7 +33,7 @@ async fn household_mesh_bridge_exports_selected_events_and_republishes_validated
     assert!(report.dead_letters.is_empty());
     assert!(!report.violates_bridge_custody());
 
-    let exported = payload_for_phase(&payloads, HouseholdMeshBridgePhase::LanMessageExported);
+    let exported = payload_for_phase(&payloads, HouseholdMeshBridgePhase::LanMessageExported)?;
     assert_eq!(
         exported.local_event_ref,
         constants::household_mesh::LOCAL_EVENT_AI_WORK_OFFER
@@ -57,7 +63,7 @@ async fn household_mesh_bridge_exports_selected_events_and_republishes_validated
         HouseholdMeshBridgeValidationState::Accepted
     );
 
-    let received = payload_for_phase(&payloads, HouseholdMeshBridgePhase::LanMessageReceived);
+    let received = payload_for_phase(&payloads, HouseholdMeshBridgePhase::LanMessageReceived)?;
     assert_eq!(
         received.local_event_ref,
         constants::household_mesh::LOCAL_EVENT_AI_RESULT_RETURN
@@ -75,7 +81,8 @@ async fn household_mesh_bridge_exports_selected_events_and_republishes_validated
         HouseholdMeshBridgeValidationState::Accepted
     );
 
-    let republished = payload_for_phase(&payloads, HouseholdMeshBridgePhase::LocalEventRepublished);
+    let republished =
+        payload_for_phase(&payloads, HouseholdMeshBridgePhase::LocalEventRepublished)?;
     assert_eq!(
         republished.previous_phase_ref,
         Some(constants::household_mesh::TEST_BRIDGE_RECEIVED_MESSAGE_REF.to_string())
@@ -85,6 +92,8 @@ async fn household_mesh_bridge_exports_selected_events_and_republishes_validated
         HouseholdMeshBridgeValidationState::Accepted
     );
     assert_eq!(republished.rejection_reason, None);
+
+    Ok(())
 }
 
 #[test]
@@ -206,12 +215,13 @@ fn household_mesh_bridge_rejects_untrusted_replayed_stale_and_mismatched_imports
 }
 
 #[tokio::test]
-async fn household_mesh_bridge_topology_uses_bridge_targets_not_direct_remote_bus() {
-    let report =
+async fn household_mesh_bridge_topology_uses_bridge_targets_not_direct_remote_bus() -> TestResult {
+    let report = ok(
         publish_household_mesh_bridge_chain_for_input(HouseholdMeshBridgeInput::proof_fixture())
-            .await
-            .expect(constants::household_mesh::ERROR_BRIDGE_TOPOLOGY_PROVES);
-    let payloads = decode_payloads(&report);
+            .await,
+        constants::household_mesh::ERROR_BRIDGE_TOPOLOGY_PROVES,
+    )?;
+    let payloads = decode_payloads(&report)?;
 
     assert!(payloads.iter().all(|payload| {
         payload.custody.selected_event_only
@@ -219,6 +229,8 @@ async fn household_mesh_bridge_topology_uses_bridge_targets_not_direct_remote_bu
             && !payload.custody.raw_screenshot_transferred
             && !payload.custody.private_local_event_exported
     }));
+
+    Ok(())
 }
 
 fn assert_import_rejection(
@@ -235,17 +247,20 @@ fn assert_import_rejection(
     assert_eq!(validation.rejection_reason, Some(expected));
 }
 
-fn decode_payloads(report: &HouseholdMeshBridgeReport) -> Vec<HouseholdMeshBridgeEventPayload> {
+fn decode_payloads(
+    report: &HouseholdMeshBridgeReport,
+) -> Result<Vec<HouseholdMeshBridgeEventPayload>, String> {
     report
         .stored_events
         .iter()
         .map(|event| {
             let envelope: ocentra_eventing::envelope::EventEnvelope<
                 HouseholdMeshBridgeEventPayload,
-            > = event
-                .decode()
-                .expect(constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES);
-            envelope.payload
+            > = ok(
+                event.decode(),
+                constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES,
+            )?;
+            Ok(envelope.payload)
         })
         .collect()
 }
@@ -253,9 +268,19 @@ fn decode_payloads(report: &HouseholdMeshBridgeReport) -> Vec<HouseholdMeshBridg
 fn payload_for_phase(
     payloads: &[HouseholdMeshBridgeEventPayload],
     phase: HouseholdMeshBridgePhase,
-) -> &HouseholdMeshBridgeEventPayload {
-    payloads
+) -> Result<&HouseholdMeshBridgeEventPayload, String> {
+    some(
+        payloads
         .iter()
-        .find(|payload| payload.phase == phase)
-        .expect(constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES)
+        .find(|payload| payload.phase == phase),
+        constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES,
+    )
+}
+
+fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
 }

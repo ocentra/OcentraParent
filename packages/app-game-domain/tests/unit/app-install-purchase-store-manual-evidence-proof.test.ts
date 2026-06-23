@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseStoreManualEvidenceProofSchema,
   AppInstallPurchaseStoreManualEvidenceRowSchema,
   summarizeAppInstallPurchaseStoreManualEvidence,
-} from '../../src/app-install-purchase-store-manual-evidence-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-store-manual-evidence-proof';
 
 describe('app install and purchase store manual evidence proof', () => {
   acceptsStoreManualEvidenceRowsWithoutStoreExecutionClaims();

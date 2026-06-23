@@ -84,10 +84,7 @@ export async function fetchRunInfoFromBridge(endpoint: string): Promise<BridgeRu
   };
 }
 
-export async function notifyBridgeRunStarted(
-  endpoint: string,
-  payload: BridgeRunStartedPayload
-): Promise<boolean> {
+export async function notifyBridgeRunStarted(endpoint: string, payload: BridgeRunStartedPayload): Promise<boolean> {
   const normalized = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
   const response = await fetch(`${normalized}/__run_started__`, {
     method: 'POST',
@@ -120,9 +117,7 @@ export async function flushBridgeRun(endpoint: string, runId: string): Promise<b
   return response.ok;
 }
 
-export function resolveBridgeEndpoint(
-  env?: NodeJS.ProcessEnv | Record<string, string | undefined>
-): string | null {
+export function resolveBridgeEndpoint(env?: NodeJS.ProcessEnv | Record<string, string | undefined>): string | null {
   return createParentLogConfig(env).bridgeUrl;
 }
 

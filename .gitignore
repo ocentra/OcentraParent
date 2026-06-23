@@ -12,6 +12,8 @@ coverage/
 .env.*
 !.env.example
 target/
+/target-*/
+tmp/
 apps/*/src-tauri/gen/
 apps/*/src-tauri/.generated/
 apps/*/src-tauri/target-*-dev/

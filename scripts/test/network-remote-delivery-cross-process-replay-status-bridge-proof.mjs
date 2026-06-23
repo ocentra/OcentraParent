@@ -19,7 +19,7 @@ const sourceFiles = [
   'crates/agent-service/src/network_remote_delivery_status_cross_process.rs',
   'crates/agent-service/src/network_remote_delivery_status_payload.rs',
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
-  'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/agent-protocol-defaults.ts',
   'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
@@ -220,7 +220,7 @@ function assertSourceContracts() {
   const serviceCrossProcess = readText('crates/agent-service/src/network_remote_delivery_status_cross_process.rs');
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
-  const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const tsDefaults = readText('packages/schema-domain/src/agent-protocol-defaults.ts');
   const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
   const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
   const tsTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
@@ -246,6 +246,7 @@ function assertSourceContracts() {
     [servicePayload, 'prove_network_runtime_remote_delivery_external_cross_process_transport'],
     [serviceTests, 'assert_remote_delivery_cross_process_replay_status'],
     [tsDefaults, 'CrossProcessReplayRef'],
+    [tsParser, 'parseAgentNetworkRemoteDeliveryStatusEvent'],
     [schemaStatus, 'AgentNetworkRemoteDeliveryRow10tRefs'],
     [tsTests, 'crossProcessReplayRef'],
     [schemaStatus, 'externalCrossProcessTransportImplemented: Schema.Literal(true)'],

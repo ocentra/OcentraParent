@@ -1,9 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanBrowserAddDeviceDiscoveryDevice, LanHouseholdDeviceActionKind,
-    LanHouseholdDeviceDecision, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingDiscoveryRuntimeStatus, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanTrustedDeviceRegistryEntry,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDiscoveryRuntimeStatus;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingNetworkMode;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceActionKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
 
 pub(crate) fn local_agent_discovery_device() -> LanBrowserAddDeviceDiscoveryDevice {
     let mut device = LanPairingDeviceRef::new(

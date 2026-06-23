@@ -5,9 +5,10 @@ use ocentra_eventing::{
     delivery::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
     ids::EventType, ids::SourceComponent, ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::network_capture::NetworkObservation;
 

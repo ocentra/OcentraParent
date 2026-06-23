@@ -1,10 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, EnforcementAction, EnforcementAdapterKind,
-    EnforcementAdapterResultCode, EnforcementAuditEvent, EnforcementAuditEventKind,
-    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementIntent, EnforcementMode,
-    EnforcementResult, EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
-    EnforcementTimerEventKind, EnforcementUnavailableReason, ParentEvidenceReference,
-    ParentPlatform, PolicyAction, PolicyDecision, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAction, EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementAuditEvent,
+    EnforcementAuditEventKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
+    EnforcementIntent, EnforcementMode, EnforcementResult, EnforcementResultStatus,
+    EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
+    EnforcementUnavailableReason, ParentPlatform,
 };
 
 mod enforcement_authorization;

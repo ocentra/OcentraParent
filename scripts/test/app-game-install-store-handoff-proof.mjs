@@ -17,7 +17,7 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -30,9 +30,9 @@ async function main() {
   );
 
   const { AppGameInstallStoreHandoffProofMatrix } =
-    await import('../../packages/app-game-domain/dist/app-game-install-store-handoff-proof.js');
+    await import('../../packages/schema-domain/dist/app-game-install-store-handoff-proof.js');
   const { AppGameInstallStoreHandoffMatrixSchema, AppGameInstallStoreHandoffRowSchema } =
-    await import('../../packages/app-game-domain/dist/app-game-install-store-handoff.js');
+    await import('../../packages/schema-domain/dist/app-game-install-store-handoff.js');
   const matrix = AppGameInstallStoreHandoffMatrixSchema.parse(AppGameInstallStoreHandoffProofMatrix);
   const summary = summarizeMatrix(matrix);
   assertProof(matrix, summary, AppGameInstallStoreHandoffRowSchema);
@@ -45,9 +45,9 @@ async function main() {
     commands,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-install-store-handoff.ts',
+      contract: 'packages/schema-domain/src/app-game-install-store-handoff.ts',
       rules: 'packages/schema-domain/src/app-game-install-store-handoff-rules.ts',
-      proofMatrix: 'packages/app-game-domain/src/app-game-install-store-handoff-proof.ts',
+      proofMatrix: 'packages/schema-domain/src/app-game-install-store-handoff-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-install-store-handoff.test.ts',
       proofHarness: 'scripts/test/app-game-install-store-handoff-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs',
@@ -132,7 +132,7 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-install-store-handoff: PASS',
       '- Matrix rows: 6',
       '- Store/purchase context-only rows: 2',
@@ -144,7 +144,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust/service protocol not changed. This workpack adds app-game-domain handoff contracts plus centralized schema rules only; runtime and WebSocket parity remain future work.\n',
+    'Rust/service protocol not changed. This workpack consumes centralized schema handoff contracts only; runtime and WebSocket parity remain future work.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof);
@@ -198,7 +198,7 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Validation run:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-install-store-handoff: PASS',
       '- node scripts/test/app-game-install-store-handoff-proof.mjs: PASS',
       '',

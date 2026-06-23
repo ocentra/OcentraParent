@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseParentReviewActionProofReadModel } from './app-install-purchase-parent-review-action-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -61,7 +56,9 @@ const AppInstallPurchaseApprovalReportDomainNonClaimSchema = withParser(
 
 const ApprovalReportDomainRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReportDomainRowId');
 const ApprovalReportDomainRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReportDomainRef');
-const ApprovalReportDomainClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReportDomainClaimBoundary');
+const ApprovalReportDomainClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalReportDomainClaimBoundary'
+);
 
 const ApprovalReportDomainRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseApprovalReportDomainProofSchemaVersionSchema,
@@ -276,4 +273,3 @@ function approvalReportDomainBoundaryIsExplicit(
 ): boolean {
   return ApprovalReportBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

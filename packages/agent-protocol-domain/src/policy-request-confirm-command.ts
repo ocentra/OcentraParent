@@ -1,4 +1,8 @@
-import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/schema-domain/event-primitives';
+import {
+  AgentProtocolSchemaVersion,
+  type AgentPeerRole,
+  type AgentRoute,
+} from '@ocentra-parent/schema-domain/event-primitives';
 import { AgentPolicyPreviewDefaults } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
 import * as PolicyRequestContracts from '@ocentra-parent/schema-domain/agent-policy-request-confirm-command';
 import {
@@ -8,7 +12,7 @@ import {
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
   type AgentProtocolLogFields,
-} from './contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export type PolicyRequestAssistantPreviewConfirmAdapterFailureReason =
   | 'wrong-event'
@@ -72,8 +76,7 @@ const PolicyRequestAssistantPreviewConfirmDefaults = {
   ConfirmedAt: '2026-06-18T00:05:00Z',
 } as const;
 
-export function defaultPolicyRequestAssistantPreviewConfirmRequest():
-  PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequest {
+export function defaultPolicyRequestAssistantPreviewConfirmRequest(): PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequest {
   return PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequestSchema.parse({
     schemaVersion: AgentProtocolSchemaVersion,
     commandId: PolicyRequestAssistantPreviewConfirmDefaults.CommandId,
@@ -100,8 +103,7 @@ export function defaultPolicyRequestAssistantPreviewConfirmRequest():
     confirmationActorId: PolicyRequestAssistantPreviewConfirmDefaults.ConfirmationActorId,
     confirmationActorRole: 'parent',
     confirmationActorState: 'active',
-    confirmationAuditReferenceId:
-      PolicyRequestAssistantPreviewConfirmDefaults.ConfirmationAuditReferenceId,
+    confirmationAuditReferenceId: PolicyRequestAssistantPreviewConfirmDefaults.ConfirmationAuditReferenceId,
     confirmedAt: PolicyRequestAssistantPreviewConfirmDefaults.ConfirmedAt,
   });
 }
@@ -136,8 +138,9 @@ export function createPolicyRequestAssistantPreviewConfirmPayload(
   }
 
   return {
-    [PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmPayloadField.Request]:
-      JSON.stringify(parsedRequest.data),
+    [PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmPayloadField.Request]: JSON.stringify(
+      parsedRequest.data
+    ),
   };
 }
 

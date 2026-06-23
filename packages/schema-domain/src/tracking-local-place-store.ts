@@ -1,8 +1,5 @@
 import type { ActivityEvidenceRef } from './evidence-contracts';
-import type {
-  TrackingNearbyPlaceEvidence,
-  TrackingParentDefinedPlace,
-} from './tracking-geofence';
+import type { TrackingNearbyPlaceEvidence, TrackingParentDefinedPlace } from './tracking-geofence';
 import type {
   TrackingLocalParentDefinedPlaceExportSnapshot,
   TrackingLocalParentDefinedPlaceStore,

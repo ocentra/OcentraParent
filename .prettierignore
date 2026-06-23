@@ -4,6 +4,15 @@ coverage/
 .turbo/
 .wix/
 target/
+
+# Docs and proof writeups are useful working material, but they should not
+# block code validation or CI on formatting drift.
+**/*.md
+
+tmp/
+output/
+test-results/
+infra/cloudflare/.wrangler/tmp/
 package-lock.json
 *.wxs
 .gitleaks.toml

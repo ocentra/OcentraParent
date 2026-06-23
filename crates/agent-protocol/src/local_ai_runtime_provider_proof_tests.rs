@@ -23,7 +23,8 @@ fn local_ai_runtime_provider_proof_serializes_shared_parent_child_provider() {
         )],
     };
 
-    let serialized = serde_json::to_value(read_model).expect("provider proof serializes");
+    let serialized = serde_json::to_value(read_model)
+        .unwrap_or_else(|error| unreachable!("provider proof serializes: {error:?}"));
 
     assert_eq!(
         serialized["readModelId"],
@@ -51,7 +52,8 @@ fn local_ai_runtime_provider_proof_serializes_unavailable_reason() {
         unavailable_status(),
     );
 
-    let serialized = serde_json::to_value(entry).expect("unavailable provider proof serializes");
+    let serialized = serde_json::to_value(entry)
+        .unwrap_or_else(|error| unreachable!("unavailable provider proof serializes: {error:?}"));
 
     assert_eq!(
         serialized["proofStatus"],

@@ -5,10 +5,11 @@ use crate::{
     NetworkAiDetectionLabel, NetworkAiDetectionPrecisionState, NetworkAiDetectionRecallState,
     NetworkAiDetectionRiskLevel, NetworkAiDetectionUncertaintyCode,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn ai_detection_fixture_evaluation_meets_precision_recall_and_drift_thresholds() {
-    let proof = evaluate_network_ai_detection_fixtures(evaluation_input(vec![
+    let proof = evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
         fixture_case(
             "detect-vpn-1",
             NetworkAiDetectionLabel::VpnProxyTunnel,
@@ -37,7 +38,7 @@ fn ai_detection_fixture_evaluation_meets_precision_recall_and_drift_thresholds()
             vec![],
         ),
     ]))
-    .expect("fixture gate should pass");
+    .expect_value("fixture gate should pass");
 
     assert_eq!(proof.fixture_count, 3);
     assert_eq!(proof.true_positive_count, 2);
@@ -114,8 +115,8 @@ fn ai_detection_fixture_evaluation_flags_precision_and_drift_regressions() {
     input.minimum_recall_basis_points = 8_000;
     input.maximum_average_drift_basis_points = 1_000;
 
-    let proof =
-        evaluate_network_ai_detection_fixtures(input).expect("regression should be measured");
+    let proof = evaluate_network_ai_detection_fixtures(&input)
+        .expect_value("regression should be measured");
 
     assert_eq!(proof.true_positive_count, 1);
     assert_eq!(proof.false_positive_count, 1);
@@ -151,7 +152,7 @@ fn ai_detection_fixture_evaluation_flags_precision_and_drift_regressions() {
 
 #[test]
 fn ai_detection_fixture_evaluation_preserves_unknown_and_low_confidence_states() {
-    let proof = evaluate_network_ai_detection_fixtures(evaluation_input(vec![fixture_case(
+    let proof = evaluate_network_ai_detection_fixtures(&evaluation_input(vec![fixture_case(
         "detect-unknown-1",
         NetworkAiDetectionLabel::UnknownHighVolume,
         NetworkAiDetectionLabel::Unknown,
@@ -160,7 +161,7 @@ fn ai_detection_fixture_evaluation_preserves_unknown_and_low_confidence_states()
         NetworkAiDetectionRiskLevel::Unknown,
         vec![],
     )]))
-    .expect("unknown prediction should remain explicit");
+    .expect_value("unknown prediction should remain explicit");
     let result = &proof.results[0];
 
     assert_eq!(proof.precision_basis_points, None);
@@ -186,35 +187,35 @@ fn ai_detection_fixture_evaluation_preserves_unknown_and_low_confidence_states()
 #[test]
 fn ai_detection_fixture_evaluation_rejects_raw_content_and_authority_claims() {
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(NetworkAiDetectionEvaluationInput {
+        evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
             model_execution_claimed: true,
             ..evaluation_input(vec![passing_case()])
         }),
         Err(NetworkAiDetectionEvaluationError::ModelExecutionClaimRejected)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(NetworkAiDetectionEvaluationInput {
+        evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
             raw_pcap_input_claimed: true,
             ..evaluation_input(vec![passing_case()])
         }),
         Err(NetworkAiDetectionEvaluationError::RawPcapInputRejected)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(NetworkAiDetectionEvaluationInput {
+        evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
             policy_authority_claimed: true,
             ..evaluation_input(vec![passing_case()])
         }),
         Err(NetworkAiDetectionEvaluationError::PolicyAuthorityClaimRejected)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(NetworkAiDetectionEvaluationInput {
+        evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
             enforcement_command_claimed: true,
             ..evaluation_input(vec![passing_case()])
         }),
         Err(NetworkAiDetectionEvaluationError::EnforcementCommandClaimRejected)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(evaluation_input(vec![
+        evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
             NetworkAiDetectionFixtureCase {
                 page_content_claimed: true,
                 ..passing_case()
@@ -223,7 +224,7 @@ fn ai_detection_fixture_evaluation_rejects_raw_content_and_authority_claims() {
         Err(NetworkAiDetectionEvaluationError::PageContentClaimRejected)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(evaluation_input(vec![
+        evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
             NetworkAiDetectionFixtureCase {
                 exact_url_claimed: true,
                 ..passing_case()
@@ -236,18 +237,18 @@ fn ai_detection_fixture_evaluation_rejects_raw_content_and_authority_claims() {
 #[test]
 fn ai_detection_fixture_evaluation_rejects_invalid_refs_and_duplicate_fixtures() {
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(NetworkAiDetectionEvaluationInput {
+        evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
             evaluation_run_ref: " ".to_owned(),
             ..evaluation_input(vec![passing_case()])
         }),
         Err(NetworkAiDetectionEvaluationError::EmptyEvaluationRunRef)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(evaluation_input(vec![])),
+        evaluate_network_ai_detection_fixtures(&evaluation_input(vec![])),
         Err(NetworkAiDetectionEvaluationError::EmptyFixtureCases)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(evaluation_input(vec![
+        evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
             NetworkAiDetectionFixtureCase {
                 evidence_refs: vec![],
                 ..passing_case()
@@ -256,7 +257,7 @@ fn ai_detection_fixture_evaluation_rejects_invalid_refs_and_duplicate_fixtures()
         Err(NetworkAiDetectionEvaluationError::EmptyEvidenceRefs)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(evaluation_input(vec![
+        evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
             NetworkAiDetectionFixtureCase {
                 input_kinds: vec![],
                 ..passing_case()
@@ -265,7 +266,7 @@ fn ai_detection_fixture_evaluation_rejects_invalid_refs_and_duplicate_fixtures()
         Err(NetworkAiDetectionEvaluationError::EmptyInputKinds)
     );
     assert_eq!(
-        evaluate_network_ai_detection_fixtures(evaluation_input(vec![
+        evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
             passing_case(),
             NetworkAiDetectionFixtureCase {
                 fixture_ref: "fixture-duplicate".to_owned(),

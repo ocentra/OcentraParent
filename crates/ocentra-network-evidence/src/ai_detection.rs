@@ -197,9 +197,9 @@ pub enum NetworkAiDetectionEvaluationError {
 }
 
 pub fn evaluate_network_ai_detection_fixtures(
-    input: NetworkAiDetectionEvaluationInput,
+    input: &NetworkAiDetectionEvaluationInput,
 ) -> Result<NetworkAiDetectionEvaluationProof, NetworkAiDetectionEvaluationError> {
-    reject_global_claims(&input)?;
+    reject_global_claims(input)?;
     if input.minimum_precision_basis_points > 10_000
         || input.minimum_recall_basis_points > 10_000
         || input.maximum_average_drift_basis_points > 10_000
@@ -221,7 +221,7 @@ pub fn evaluate_network_ai_detection_fixtures(
     let baseline_ref = normalize_ref(&input.baseline_ref)
         .ok_or(NetworkAiDetectionEvaluationError::EmptyBaselineRef)?;
 
-    let results = normalize_results(&input)?;
+    let results = normalize_results(input)?;
     let counts = count_detection_results(&results);
     let precision_basis_points =
         ratio_basis_points(counts.true_positive, counts.predicted_positive);

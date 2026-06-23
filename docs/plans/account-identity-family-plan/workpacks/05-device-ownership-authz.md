@@ -21,6 +21,7 @@ Define authorization for parent devices, child devices, service agents, remote c
 ## Required inputs
 
 ```text
+workpacks/00-owner-boundary-proof-gate.md
 workpacks/02-identity-household-role-model.md
 workpacks/03-session-token-lifecycle.md
 RESEARCH_AND_DECISIONS.md
@@ -29,8 +30,10 @@ docs/features/remote-lan-mobile-platforms.md
 docs/features/family-setup-device-roles.md
 docs/expectations/family-setup.md
 docs/expectations/platforms.md
+packages/schema-domain account/device/capability exports when shared shape changes are required
 packages/family-domain/src/household-authority.ts
 packages/family-domain/tests/unit/household-authority.test.ts
+crates/family-identity-core/** only when Rust parity is selected
 ```
 
 ## Required authority dimensions
@@ -71,12 +74,30 @@ support/admin review
 Likely paths:
 
 ```text
+packages/schema-domain/** only when canonical shared device/capability/action shapes change
 packages/family-domain/src/household-authority.ts
 packages/family-domain/src/setup-lifecycle.ts
 packages/family-domain/tests/unit/household-authority.test.ts
+crates/family-identity-core/** only when Rust parity is selected
 crates/agent-protocol/** only if typed protocol parity is needed
 crates/agent-service/** only if selected service boundary proof is implemented
 ```
+
+## Current owner/import/proof constraints
+
+This workpack owns account-family authorization for device/resource/capability decisions. It does not own physical trusted-device proof, LAN transport, remote transport, payment execution, policy runtime, or data-custody execution.
+
+```text
+schema-domain: canonical shared device/capability/action shapes when cross-boundary.
+family-domain: helper/projection and TypeScript authority tests.
+family-identity-core: Rust parity only when selected.
+agent-protocol/agent-service: protocol/service only when selected.
+device-trust/LAN/remote/payment/policy/data-custody: adjacent owners only.
+```
+
+Allowed direct imports are limited to `schema-domain`, neutral protocol/evidence/logging/capability primitives, approved `family-domain` helpers, selected Rust/protocol/service crates when the workpack names them, and pure common helpers. Do not import LAN, remote, payment, policy, data-custody, or device-trust runtime internals to prove account-family authorization.
+
+Proof must keep capability authorization separate from execution. Remote-view/remote-control authorization is not remote transport readiness. Export/delete or billing authorization is not data-custody/payment execution.
 
 ## Required proof root
 
@@ -125,6 +146,13 @@ npm run lint:architecture -- --files packages/family-domain crates/agent-protoco
 
 If Rust/service paths are not touched, record `not-applicable` in the command log instead of forcing unrelated failures.
 
+If canonical schema or Rust parity changes:
+
+```bash
+npm run build --workspace @ocentra-parent/schema-domain
+cargo test -p ocentra-family-identity-core household_authority
+```
+
 ## Negative cases
 
 - Wrong-household device action denied.
@@ -143,6 +171,7 @@ Physical trusted-device proof remains owned by `device-trust-bootstrap-plan`. LA
 ## Fill before DONE
 
 - Workpack id and branch: `WP05 Device Ownership AuthZ`; `codex/tracking-plan-full-continuation-a`.
+- Current branch note: this historical completion record predates the plan-harness branch. On `codex/plan-harness-update`, treat it as prior proof evidence only; new edits must follow `workpacks/00-owner-boundary-proof-gate.md`, `TEST_PROOF_EXPECTATIONS.md`, and `PROOF_INDEX.md`.
 - Current status: complete for the local contract/proof slice. `00-device-authority-matrix.md`, `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, `06-billing-owner-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/05-device-ownership-authz/`.
 - Contract/source changes in this slice: no new WP05-owned production TypeScript or Rust authority logic was required beyond the earlier WP04 repair in `packages/family-domain/src/setup-lifecycle.ts`. This slice only added owner-only export/delete assertions in the shared authority tests at `packages/family-domain/tests/unit/household-authority.test.ts` and `crates/family-identity-core/tests/unit/household_authority.rs` so the proof root could close honestly.
 - Touched files:

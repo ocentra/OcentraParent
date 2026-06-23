@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeProofReadModel } from './app-install-purchase-runtime-proof';
 import { AppInstallPurchasePlatformArtifactProofReadModel } from './app-install-purchase-platform-artifact-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -350,4 +345,3 @@ function childArtifactBoundaryIsExplicit(boundary: typeof ChildArtifactClaimBoun
     boundary.includes('not generic app blocking')
   );
 }
-

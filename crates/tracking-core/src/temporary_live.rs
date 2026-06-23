@@ -1,6 +1,7 @@
 use ocentra_family_identity_core::family_identity::ChildDisclosureState;
-use ocentra_parent_agent_protocol::{
-    constants, tracking_temporary_live_session_id_from_child_device_id, TrackingChildDeviceId,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_temporary_live_session_id_from_child_device_id, TrackingChildDeviceId,
     TrackingTemporaryLiveSessionId, TrackingTemporaryLiveState,
 };
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
@@ -30,11 +31,19 @@ pub struct TrackingTemporaryLiveSessionDecision {
 pub fn evaluate_temporary_live_tracking_session(
     input: TrackingTemporaryLiveSessionInput,
 ) -> TrackingTemporaryLiveSessionDecision {
-    if input.parent_authority_state != ParentAuthorityState::Authorized
-        || input.child_disclosure_state != ChildDisclosureState::Disclosed
+    let TrackingTemporaryLiveSessionInput {
+        child_device_id,
+        requested_duration_minutes,
+        elapsed_minutes,
+        parent_authority_state,
+        child_disclosure_state,
+    } = input;
+
+    if parent_authority_state != ParentAuthorityState::Authorized
+        || child_disclosure_state != ChildDisclosureState::Disclosed
     {
         return TrackingTemporaryLiveSessionDecision {
-            session_id: temporary_live_session_id(&input.child_device_id),
+            session_id: temporary_live_session_id(&child_device_id),
             session_state: temporary_live_state(
                 constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED,
             ),
@@ -42,9 +51,9 @@ pub fn evaluate_temporary_live_tracking_session(
         };
     }
 
-    if input.elapsed_minutes >= input.requested_duration_minutes {
+    if elapsed_minutes >= requested_duration_minutes {
         return TrackingTemporaryLiveSessionDecision {
-            session_id: temporary_live_session_id(&input.child_device_id),
+            session_id: temporary_live_session_id(&child_device_id),
             session_state: temporary_live_state(
                 constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED,
             ),
@@ -53,7 +62,7 @@ pub fn evaluate_temporary_live_tracking_session(
     }
 
     TrackingTemporaryLiveSessionDecision {
-        session_id: temporary_live_session_id(&input.child_device_id),
+        session_id: temporary_live_session_id(&child_device_id),
         session_state: temporary_live_state(
             constants::tracking_runtime::TEMPORARY_LIVE_STATE_ACTIVE,
         ),
@@ -68,6 +77,8 @@ fn temporary_live_session_id(
 }
 
 fn temporary_live_state(value: &'static str) -> TrackingTemporaryLiveState {
-    TrackingTemporaryLiveState::parse(value)
-        .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_ACTIVE)
+    match TrackingTemporaryLiveState::parse(value) {
+        Ok(parsed_state) => parsed_state,
+        Err(_) => unreachable!("canonical tracking live-session state failed to parse: {value}"),
+    }
 }

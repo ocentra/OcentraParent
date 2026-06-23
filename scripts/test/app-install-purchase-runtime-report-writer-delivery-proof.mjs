@@ -67,11 +67,12 @@ async function main() {
     packageExportState: 'not-claimed-new-public-export-deferred',
     evidence: {
       runtimeReportWriterDeliveryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
       sourceRuntimeWriterExecutionDeliveryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
-      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
+      sourceReportRuntimeContract: 'packages/schema-domain/src/app-install-purchase-report-runtime-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',

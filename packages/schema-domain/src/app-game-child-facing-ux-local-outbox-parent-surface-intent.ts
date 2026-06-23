@@ -1,10 +1,10 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { FamilyReferenceSchema } from './family-references';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
-import { V08NotificationProviderStatusSchema, type V08NotificationProviderStatus } from './v0-8-notification-provider-status-boundary';
+  V08NotificationProviderStatusSchema,
+  type V08NotificationProviderStatus,
+} from './v0-8-notification-provider-status-boundary';
 import {
   V3NotificationDeliveryResultStateSchema,
   V3NotificationParentPreferenceStateSchema,
@@ -159,28 +159,44 @@ function parentSurfaceIntentRowIsHonest(row: ParentSurfaceIntentRowInput): boole
 
 function parentSurfaceIntentReadModelIsHonest(readModel: ParentSurfaceIntentReadModelInput): boolean {
   return (
+    parentSurfaceIntentCountsAreHonest(readModel) &&
+    parentSurfaceIntentNonClaimsArePresent(readModel) &&
+    parentSurfaceIntentClaimsRemainScoped(readModel)
+  );
+}
+
+function parentSurfaceIntentCountsAreHonest(readModel: ParentSurfaceIntentReadModelInput): boolean {
+  return (
     readModel.manualActionRequiredCount === countSurfaceStatus(readModel.rows, 'manual-action-required') &&
     readModel.unavailableVisibleCount === countSurfaceStatus(readModel.rows, 'unavailable-visible') &&
     readModel.historyVisibleCount === readModel.rows.length &&
-    readModel.preferenceSetupRequiredCount === countPreferenceVisibility(readModel.rows, 'preference-setup-required') &&
-    RequiredAppGameChildUxLocalOutboxParentSurfaceIntentNonClaims.every((claim) =>
-      readModel.parentSurfaceNonClaims.includes(claim)
-    ) &&
-    !readModel.parentNotificationUiRendered &&
-    !readModel.parentPreferenceUiRendered &&
-    !readModel.parentFrequencyControlUiRendered &&
-    !readModel.parentPreferenceMutationClaimed &&
-    !readModel.providerDeliveryRuntimeClaimed &&
-    !readModel.providerReceiptIngestionClaimed &&
-    !readModel.providerCredentialsClaimed &&
-    !readModel.cloudRoutingClaimed &&
-    !readModel.childDeliveryClaimed &&
-    !readModel.productionRuntimeClaimed &&
-    !readModel.productionDurableOutboxStorageClaimed &&
-    !readModel.adapterDispatchClaimed &&
-    !readModel.platformEnforcementClaimed &&
-    !readModel.rawPrivateSourceRowsIncluded
+    readModel.preferenceSetupRequiredCount === countPreferenceVisibility(readModel.rows, 'preference-setup-required')
   );
+}
+
+function parentSurfaceIntentNonClaimsArePresent(readModel: ParentSurfaceIntentReadModelInput): boolean {
+  return RequiredAppGameChildUxLocalOutboxParentSurfaceIntentNonClaims.every((claim) =>
+    readModel.parentSurfaceNonClaims.includes(claim)
+  );
+}
+
+function parentSurfaceIntentClaimsRemainScoped(readModel: ParentSurfaceIntentReadModelInput): boolean {
+  return [
+    readModel.parentNotificationUiRendered,
+    readModel.parentPreferenceUiRendered,
+    readModel.parentFrequencyControlUiRendered,
+    readModel.parentPreferenceMutationClaimed,
+    readModel.providerDeliveryRuntimeClaimed,
+    readModel.providerReceiptIngestionClaimed,
+    readModel.providerCredentialsClaimed,
+    readModel.cloudRoutingClaimed,
+    readModel.childDeliveryClaimed,
+    readModel.productionRuntimeClaimed,
+    readModel.productionDurableOutboxStorageClaimed,
+    readModel.adapterDispatchClaimed,
+    readModel.platformEnforcementClaimed,
+    readModel.rawPrivateSourceRowsIncluded,
+  ].every((claim) => claim === false);
 }
 
 const countSurfaceStatus = (
@@ -193,9 +209,7 @@ const countPreferenceVisibility = (
   visibility: ParentSurfaceIntentRowInput['preferenceVisibility']
 ): number => rows.filter((row) => row.preferenceVisibility === visibility).length;
 
-export {
-  historyVisibilityFor,
-};
+export { historyVisibilityFor };
 
 export const decodeAppGameChildUxLocalOutboxParentSurfaceIntentReadModel = Schema.decodeUnknownSync(
   AppGameChildUxLocalOutboxParentSurfaceIntentReadModelSchema

@@ -3,9 +3,9 @@ import {
   type AppGameNotificationParentSurfaceIntentReadModel,
   type AppGameNotificationParentSurfaceIntentRow,
 } from '@ocentra-parent/schema-domain/app-game-notification-parent-surface-intent';
-import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDetails } from './details';
 
 export type AppGameNotificationParentSurfaceDetail = {

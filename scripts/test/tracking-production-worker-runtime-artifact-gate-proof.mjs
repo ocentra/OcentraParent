@@ -32,7 +32,13 @@ async function main() {
 
   const proofModule = await tsImport(
     pathToFileURL(
-      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-production-worker-runtime-artifact-gate-proof.ts')
+      path.join(
+        repoRoot,
+        'packages',
+        'tracking-domain',
+        'src',
+        'tracking-production-worker-runtime-artifact-gate-proof.ts'
+      )
     ).href,
     import.meta.url
   );

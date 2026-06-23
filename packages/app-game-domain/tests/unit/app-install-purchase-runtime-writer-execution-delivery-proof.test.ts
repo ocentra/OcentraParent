@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseRuntimeWriterExecutionDeliveryProofSchema,
   AppInstallPurchaseRuntimeWriterExecutionDeliveryRowSchema,
   summarizeAppInstallPurchaseRuntimeWriterExecutionDeliveryProof,
-} from '../../src/app-install-purchase-runtime-writer-execution-delivery-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-runtime-writer-execution-delivery-proof';
 
 describe('app install and purchase runtime writer execution delivery proof', () => {
   acceptsParentOwnedRuntimeWriterEnvelopesAndReceipts();

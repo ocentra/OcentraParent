@@ -4,7 +4,7 @@ import {
   buildTrackingAiStoredRefConsumerProof,
   type TrackingAiStoredRefConsumerProof,
   type TrackingAiStoredRefConsumerRow,
-} from '../../src/tracking-ai-stored-ref-consumer-proof';
+} from '@ocentra-parent/schema-domain/tracking-ai-stored-ref-consumer-proof';
 
 const GeneratedAt = '2026-06-07T05:44:00.000Z';
 

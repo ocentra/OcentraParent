@@ -70,9 +70,13 @@ export const AgentNetworkWindowsFirewallLabStatusSchema = withParser(
 
 export type AgentNetworkWindowsFirewallLabCommandRow = Infer<typeof AgentNetworkWindowsFirewallLabCommandRowSchema>;
 export type AgentNetworkWindowsFirewallLabStatus = Infer<typeof AgentNetworkWindowsFirewallLabStatusSchema>;
+type WindowsFirewallCommandEvidenceByKind = ReadonlyMap<
+  AgentNetworkWindowsFirewallLabCommandRow['kind'],
+  AgentNetworkWindowsFirewallLabCommandRow
+>;
 
 function windowsFirewallLabCommandEvidenceIsConsistent(status: AgentNetworkWindowsFirewallLabStatusStruct): boolean {
-  if (status.commandCount !== status.commandEvidence.length || status.requiredCommandCount !== status.commandEvidence.length) {
+  if (!windowsFirewallCommandCountsMatch(status)) {
     return false;
   }
 
@@ -80,19 +84,49 @@ function windowsFirewallLabCommandEvidenceIsConsistent(status: AgentNetworkWindo
     return true;
   }
 
-  const byKind = new Map(status.commandEvidence.map((row) => [row.kind, row] as const));
-  if (byKind.size !== status.commandEvidence.length) {
-    return false;
-  }
-
+  const byKind = windowsFirewallCommandEvidenceByKind(status.commandEvidence);
   return (
-    status.applyCommandObserved === byKind.has('apply-rule') &&
-    status.verifyPresentObserved === byKind.has('verify-rule-present') &&
-    status.rollbackCommandObserved === byKind.has('rollback-rule') &&
-    status.verifyRemovedObserved === byKind.has('verify-rule-removed') &&
-    byKind.get('apply-rule')?.rulePresentAfterCommand === true &&
-    byKind.get('verify-rule-present')?.rulePresentAfterCommand === true &&
-    byKind.get('rollback-rule')?.rulePresentAfterCommand === false &&
-    byKind.get('verify-rule-removed')?.rulePresentAfterCommand === false
+    byKind !== null && windowsFirewallObservedFlagsMatch(status, byKind) && windowsFirewallCommandOutcomesMatch(byKind)
+  );
+}
+
+function windowsFirewallCommandCountsMatch(status: AgentNetworkWindowsFirewallLabStatusStruct): boolean {
+  return (
+    status.commandCount === status.commandEvidence.length &&
+    status.requiredCommandCount === status.commandEvidence.length
+  );
+}
+
+function windowsFirewallCommandEvidenceByKind(
+  rows: readonly AgentNetworkWindowsFirewallLabCommandRow[]
+): WindowsFirewallCommandEvidenceByKind | null {
+  const byKind = new Map(rows.map((row) => [row.kind, row] as const));
+  return byKind.size === rows.length ? byKind : null;
+}
+
+function windowsFirewallObservedFlagsMatch(
+  status: AgentNetworkWindowsFirewallLabStatusStruct,
+  byKind: WindowsFirewallCommandEvidenceByKind
+): boolean {
+  const observedFlags = [
+    { observed: status.applyCommandObserved, kind: 'apply-rule' },
+    { observed: status.verifyPresentObserved, kind: 'verify-rule-present' },
+    { observed: status.rollbackCommandObserved, kind: 'rollback-rule' },
+    { observed: status.verifyRemovedObserved, kind: 'verify-rule-removed' },
+  ] as const;
+
+  return observedFlags.every(({ observed, kind }) => observed === byKind.has(kind));
+}
+
+function windowsFirewallCommandOutcomesMatch(byKind: WindowsFirewallCommandEvidenceByKind): boolean {
+  const expectedCommands = [
+    { kind: 'apply-rule', rulePresentAfterCommand: true },
+    { kind: 'verify-rule-present', rulePresentAfterCommand: true },
+    { kind: 'rollback-rule', rulePresentAfterCommand: false },
+    { kind: 'verify-rule-removed', rulePresentAfterCommand: false },
+  ] as const;
+
+  return expectedCommands.every(
+    ({ kind, rulePresentAfterCommand }) => byKind.get(kind)?.rulePresentAfterCommand === rulePresentAfterCommand
   );
 }

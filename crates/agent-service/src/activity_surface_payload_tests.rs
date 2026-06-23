@@ -1,7 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportFrequency, ActivityReportRequest,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, LogFieldValue, ACTIVITY_SURFACE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivityReportFrequency, ActivityReportRequest, ActivitySurfaceScope,
+    ActivitySurfaceScopeKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::{
     activity_surface_payload::activity_report_document_payload,
@@ -17,7 +20,7 @@ fn activity_report_payload_marks_unavailable_reports_unavailable() {
         Some(LogFieldValue::String(state)) => {
             assert_eq!(state, constants::activity_surface::STATE_UNAVAILABLE);
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
     assert!(report
         .sections

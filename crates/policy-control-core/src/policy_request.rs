@@ -1,8 +1,9 @@
 #![forbid(unsafe_code)]
-#![allow(clippy::needless_pass_by_value)]
-
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
+};
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
@@ -14,11 +15,6 @@ use crate::policy_source::{
 };
 
 const POLICY_REQUEST_SCHEMA_VERSION_VALUE: u16 = 1;
-
-pub type PolicyRequestOrigin = ocentra_parent_agent_protocol::PolicyRequestOrigin;
-pub type PolicyAssistantConfirmationState =
-    ocentra_parent_agent_protocol::PolicyAssistantConfirmationState;
-pub type PolicyRequestStatus = ocentra_parent_agent_protocol::PolicyRequestStatus;
 
 macro_rules! policy_request_text_id {
     ($name:ident, $field:expr) => {
@@ -399,12 +395,6 @@ pub fn resolve_parent_policy_approval(
     }
 
     let mut resolved_request = request.clone();
-    resolved_request.status = policy_request_status_for_approval(approval.decision);
-    resolved_request.resolved_approval_id = Some(approval.approval_id.clone());
-    resolved_request.resolved_at = Some(approval.decided_at.clone());
-    resolved_request
-        .audit_reference_ids
-        .push(approval.audit_reference_id.clone());
 
     let temporary_override = match approval.decision {
         PolicyApprovalDecision::Grant | PolicyApprovalDecision::Modify => {
@@ -413,6 +403,20 @@ pub fn resolve_parent_policy_approval(
         PolicyApprovalDecision::Deny | PolicyApprovalDecision::Expire => None,
     };
 
+    let ParentPolicyApproval {
+        approval_id,
+        decision,
+        decided_at,
+        audit_reference_id,
+        ..
+    } = approval;
+
+    resolved_request.status = policy_request_status_for_approval(decision);
+    resolved_request.resolved_approval_id = Some(approval_id);
+    resolved_request.resolved_at = Some(decided_at);
+    resolved_request
+        .audit_reference_ids
+        .push(audit_reference_id);
     validate_child_policy_request(&resolved_request)?;
     Ok(PolicyRequestResolution {
         request: resolved_request,

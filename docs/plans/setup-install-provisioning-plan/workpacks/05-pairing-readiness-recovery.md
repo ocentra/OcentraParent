@@ -2,6 +2,16 @@
 
 Goal: define first-run pairing and readiness as product state, not scattered protocol notes.
 
+## Ownership boundary
+
+```text
+setup-install-provisioning-plan owns setup pairing journey labels, readiness matrix, recovery UX, redacted setup diagnostics, and no-fake-ready proof.
+lan-plan owns discovery, signed hello, LAN pairing protocol, local transport, and physical LAN proof.
+account-identity-family-plan owns household/device authority and parent role proof.
+device-trust-bootstrap-plan owns trusted-device approval and trust/key proof.
+data-custody-storage-plan and policy-control-plane-plan own custody and policy-baseline readiness inputs.
+```
+
 Owns: pairing journey, setup status model, recovery UX, stale/revoked/offline states, and final readiness checklist.
 
 Handoff: `lan-plan` owns local pairing protocol; `account-identity-family-plan` owns household/device authority; `portal-ux-household-surfaces-plan` owns UI rendering.
@@ -12,6 +22,42 @@ Expected shape:
 - Pairing code/link/QR state has expiry, revocation, household binding, and replay rejection.
 - Readiness separates account, parent app, child app, permissions, network reachability, custody sync, and policy baseline.
 - Recovery handles lost parent device, child reinstall, revoked child, wrong account, offline device, and permission loss.
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+pairing_lifecycle_state
+parent_authority_state
+child_bootstrap_redeem_state
+parent_confirmation_state
+pairing_code_state
+expiry_state
+revocation_state
+replay_state
+wrong_household_state
+wrong_device_state
+stale_signed_hello_state
+anonymous_device_state
+revoked_device_state
+offline_child_state
+permission_missing_state
+policy_baseline_state
+data_custody_state
+lost_parent_recovery_state
+child_reinstall_recovery_state
+redacted_log_state
+lan_handoff_state
+device_trust_handoff_state
+first_run_complete_state
+no_lan_protocol_claim
+no_device_trust_claim
+no_setup_complete_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 Expected proof:
 
@@ -90,6 +136,13 @@ Proof artifact expectations:
 - `guided-parent-child-pairing-proof.md`
 - `no-fake-ready-after-install-proof.md`
 - `redacted-bootstrap-logs-proof.md`
+
+## Failure conditions
+
+- Do not claim setup complete from LAN discovery, UI rendering, or pairing-code generation alone.
+- Do not claim LAN protocol implementation or device-trust readiness from setup journey proof.
+- Do not show child data on public pages.
+- Do not omit redaction state for pairing/bootstrap logs.
 
 ## Fill before DONE
 

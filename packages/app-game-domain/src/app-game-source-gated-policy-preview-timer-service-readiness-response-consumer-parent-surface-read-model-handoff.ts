@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
@@ -34,14 +34,19 @@ import {
   appGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffMatchesParentSurfaceHandoff,
   type AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffStateValue,
 } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type ParentSurfaceHandoffRow = Infer<
   typeof AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffRowSchema
 >;
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffId');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffId'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffRowIdSchema =
   NonEmptyStringSchema.pipe(
     Schema.brand(
@@ -55,9 +60,13 @@ export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsume
     )
   );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelProofRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelProofRef');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelProofRef'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelRef');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelRef'
+  );
 
 const ReadModelStateSchema = withParser(
   Schema.Literal(
@@ -314,4 +323,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseC
   );
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffState };
-

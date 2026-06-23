@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
@@ -13,14 +15,19 @@ use crate::network_event_runtime::{
     remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
 #[tokio::test]
-async fn network_runtime_remote_delivery_delete_export_propagation_records_readiness_refs() {
-    let proof_result: Result<
-        NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
-        NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
-    > = prove_network_runtime_remote_delivery_delete_export_propagation().await;
-    let report = proof_result
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION);
+async fn network_runtime_remote_delivery_delete_export_propagation_records_readiness_refs(
+) -> TestResult {
+    let report: NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport = ok(
+        prove_network_runtime_remote_delivery_delete_export_propagation().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION,
+    )?;
 
     assert_eq!(
         report.delete_export_propagation_ref.as_str(),
@@ -52,13 +59,17 @@ async fn network_runtime_remote_delivery_delete_export_propagation_records_readi
     );
     assert!(report.propagation_records_match_fixture_records);
     assert_records_preserve_delete_export_refs(&report);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_delete_export_propagation_stays_proof_only() {
-    let report = prove_network_runtime_remote_delivery_delete_export_propagation()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION);
+async fn network_runtime_remote_delivery_delete_export_propagation_stays_proof_only() -> TestResult
+{
+    let report = ok(
+        prove_network_runtime_remote_delivery_delete_export_propagation().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION,
+    )?;
 
     assert!(!report.broker_delivery_implemented);
     assert!(!report.family_hub_delivery_implemented);
@@ -78,13 +89,17 @@ async fn network_runtime_remote_delivery_delete_export_propagation_stays_proof_o
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_delete_export_propagation_rejects_product_claims() {
-    let mut fixture_transport = prove_network_runtime_remote_delivery_fixture_transport()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT);
+async fn network_runtime_remote_delivery_delete_export_propagation_rejects_product_claims(
+) -> TestResult {
+    let mut fixture_transport = ok(
+        prove_network_runtime_remote_delivery_fixture_transport().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT,
+    )?;
     fixture_transport.remote_delete_export_propagation_implemented = true;
 
     let proof_result =
@@ -96,6 +111,8 @@ async fn network_runtime_remote_delivery_delete_export_propagation_rejects_produ
         proof_result,
         Err(NetworkRuntimeRemoteDeliveryDeleteExportPropagationError::UnsupportedClaim)
     ));
+
+    Ok(())
 }
 
 fn assert_records_preserve_delete_export_refs(

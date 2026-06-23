@@ -1,6 +1,10 @@
 import { type Infer, Schema, withParser } from './effect';
 import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from './policy-contracts';
-import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from './family-references';
+import {
+  ChildProfileReferenceSchema,
+  ParentDeviceReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from './family-references';
 import { ParentContractSchemaVersionSchema } from './family-reference-primitives';
 import {
   LocalAiDegradedStateSchema,

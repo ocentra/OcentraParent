@@ -23,11 +23,13 @@ Decide the identity-provider architecture and custody boundary before login/user
 ```text
 AGENTS.md
 PLAN_STATE.md
+workpacks/00-owner-boundary-proof-gate.md
 RESEARCH_AND_DECISIONS.md
 docs/features/family-setup-device-roles.md
 docs/expectations/family-setup.md
 docs/expectations/cloud.md
 docs/expectations/platforms.md
+packages/schema-domain package exports when shared account/family/session shapes are touched
 packages/family-domain/package.json
 ```
 
@@ -61,10 +63,26 @@ docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md
 If implementation starts here, keep it to provider adapter boundaries only:
 
 ```text
+packages/schema-domain/** only when canonical shared account/session/provider shapes are added or changed
 packages/family-domain/src/session-lifecycle.ts
 packages/family-domain/src/household-authority.ts
 packages/family-domain/tests/unit/*provider*.test.ts
 ```
+
+## Current owner/import/proof constraints
+
+This workpack is a provider/custody decision gate. It must not become login runtime, household authority, or setup implementation.
+
+```text
+schema-domain: canonical shared provider/session/account shapes only when cross-boundary shape changes are required.
+family-domain: helper/projection and local contract tests only.
+Cloudflare runtime/schema: target implementation remains future work unless explicitly selected.
+IdP/Firebase/Auth.js: external adapter only; never family product truth.
+```
+
+Allowed direct imports are limited to `schema-domain`, neutral protocol/evidence/logging/capability primitives, approved `family-domain` helpers, and pure common helpers. Do not import setup/payment/policy/remote/device-trust/data-custody runtime internals to settle provider authority.
+
+Proof must include a custody/no-claim note: provider decision proof is not runtime login/session readiness, and no IdP/custom-claim field may become household/member/child/device product truth.
 
 ## Required proof root
 
@@ -107,6 +125,7 @@ npm run lint:architecture -- --files docs/plans/account-identity-family-plan
 If provider boundary code changes:
 
 ```bash
+npm run build --workspace @ocentra-parent/schema-domain
 npm run build --workspace @ocentra-parent/family-domain
 npm run test --workspace @ocentra-parent/family-domain -- provider
 ```
@@ -126,6 +145,7 @@ Implementation remains open until WP02/WP03 convert this decision into family-do
 ## Fill before DONE
 
 - Workpack id and branch: `WP01 Auth Provider Decision`; `codex/tracking-plan-full-continuation-a`.
+- Current branch note: this historical completion record predates the plan-harness branch. On `codex/plan-harness-update`, treat it as prior proof evidence only; new edits must follow `workpacks/00-owner-boundary-proof-gate.md`, `TEST_PROOF_EXPECTATIONS.md`, and `PROOF_INDEX.md`.
 - Decision outcome: Cloudflare-first custody; Firebase Auth and Auth.js stay adapter-only; D1/DO own family truth; no family data in IdP/custom claims.
 - Rejected options:
   - Firebase owns family product data.

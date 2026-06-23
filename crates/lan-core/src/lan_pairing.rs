@@ -12,7 +12,7 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
     ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
-use ocentra_parent_agent_protocol::{constants, LAN_PAIRING_SCHEMA_VERSION};
+use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-lan-core";
@@ -142,7 +142,7 @@ impl DomainEvent for LanDiscoveryDecisionRecordedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
             EventType::parse(LAN_DISCOVERY_DECISION_RECORDED_EVENT_TYPE)?,
-            SchemaVersion::new(LAN_PAIRING_SCHEMA_VERSION)?,
+            SchemaVersion::new(constants::lan_pairing::SCHEMA_VERSION)?,
         ))
     }
 

@@ -1,6 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserPolicyRejectionReason, BrowserPolicyUpdateResponse, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason;
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateResponse;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use serde::Serialize;
 
 use crate::fields::fields_from_pairs;
 
@@ -8,9 +11,7 @@ pub(crate) fn browser_policy_response_payload(response: &BrowserPolicyUpdateResp
     let mut fields = fields_from_pairs(vec![
         (
             constants::field::BROWSER_POLICY_RESPONSE,
-            LogFieldValue::String(
-                serde_json::to_string(response).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialize_protocol_json(response)),
         ),
         (
             constants::field::BROWSER_POLICY_UPDATE_KIND,
@@ -26,22 +27,25 @@ pub(crate) fn browser_policy_response_payload(response: &BrowserPolicyUpdateResp
     if let Some(effective_policy) = &response.effective_policy {
         fields.insert(
             constants::field::BROWSER_POLICY_EFFECTIVE_POLICY.to_string(),
-            LogFieldValue::String(
-                serde_json::to_string(effective_policy)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialize_protocol_json(effective_policy)),
         );
     }
     if let Some(capability_registry) = &response.capability_registry {
         fields.insert(
             constants::field::BROWSER_POLICY_CAPABILITY_REGISTRY.to_string(),
-            LogFieldValue::String(
-                serde_json::to_string(capability_registry)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialize_protocol_json(capability_registry)),
         );
     }
     fields
+}
+
+fn serialize_protocol_json<T>(value: &T) -> String
+where
+    T: Serialize + ?Sized,
+{
+    serde_json::to_string(value).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }
 
 fn rejection_reason_protocol_str(reason: BrowserPolicyRejectionReason) -> &'static str {

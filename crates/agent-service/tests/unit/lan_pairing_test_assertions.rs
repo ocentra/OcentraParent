@@ -1,4 +1,7 @@
-use ocentra_parent_agent_protocol::{constants, AgentEventEnvelope, AgentEventName, LogFieldValue};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
     assert_accepted_control_for_intent(event, constants::lan_pairing::INTENT_ID);
@@ -206,7 +209,7 @@ fn assert_explicit_discovery_state(event: &AgentEventEnvelope) {
                 constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE,
             ]
             .contains(&value.as_str()) => {}
-        _ => std::panic::panic_any(constants::error::UNEXPECTED_LAN_DISCOVERY_STATE),
+        _ => unreachable!("{}", constants::error::UNEXPECTED_LAN_DISCOVERY_STATE),
     }
 }
 

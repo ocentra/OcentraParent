@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeTransportReceiptProofSchemaVersionSchema = withParser(
@@ -41,7 +36,9 @@ export const AppGameAndroidChildRuntimeTransportReceiptGapSchema = withParser(
   )
 );
 
-const AndroidChildRuntimeReceiptIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeTransportReceiptProofId');
+const AndroidChildRuntimeReceiptIdSchema = brandedNonEmptyStringSchema(
+  'AppGameAndroidChildRuntimeTransportReceiptProofId'
+);
 
 const AppGameAndroidChildRuntimeTransportReceiptProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeTransportReceiptProofSchemaVersionSchema,
@@ -159,21 +156,45 @@ function androidChildRuntimeTransportReceiptProofRefs(input: {
 
 function androidChildRuntimeTransportReceiptProofIsHonest(proof: AndroidChildRuntimeReceiptCandidate): boolean {
   return (
+    androidChildRuntimeTransportReceiptStateIsHonest(proof) &&
+    androidChildRuntimeTransportReceiptProofRefsArePresent(proof) &&
+    androidChildRuntimeTransportReceiptOpenGapsArePresent(proof) &&
+    androidChildRuntimeTransportReceiptClaimsRemainScoped(proof)
+  );
+}
+
+function androidChildRuntimeTransportReceiptStateIsHonest(proof: AndroidChildRuntimeReceiptCandidate): boolean {
+  return (
     proof.transportChannelState === 'activity-visible-transport-channel' &&
     proof.receiptStoreState === 'internal-receipt-store-available' &&
     proof.receiptAckState === 'receipt-ack-waiting-for-runtime' &&
     proof.packageActivityVisible &&
     proof.uiTransportStateObserved &&
-    proof.uiReceiptStateObserved &&
-    proof.proofRefs.includes('android-child-runtime-activity-transport-ref') &&
-    proof.proofRefs.includes('android-child-runtime-internal-receipt-store-ref') &&
-    proof.proofRefs.includes('android-child-runtime-status-ui-ref') &&
-    proof.openGaps.includes('android-child-runtime-transport-not-executed') &&
-    proof.openGaps.includes('android-child-runtime-receipt-not-ingested') &&
-    proof.openGaps.includes('android-provider-delivery-not-executed') &&
-    proof.openGaps.includes('android-platform-delivery-channel-not-proved') &&
-    proof.openGaps.includes('android-adapter-dispatch-not-proved') &&
-    proof.openGaps.includes('android-platform-enforcement-not-proved') &&
+    proof.uiReceiptStateObserved
+  );
+}
+
+function androidChildRuntimeTransportReceiptProofRefsArePresent(proof: AndroidChildRuntimeReceiptCandidate): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-child-runtime-activity-transport-ref',
+    'android-child-runtime-internal-receipt-store-ref',
+    'android-child-runtime-status-ui-ref',
+  ] as const);
+}
+
+function androidChildRuntimeTransportReceiptOpenGapsArePresent(proof: AndroidChildRuntimeReceiptCandidate): boolean {
+  return includesAll(proof.openGaps, [
+    'android-child-runtime-transport-not-executed',
+    'android-child-runtime-receipt-not-ingested',
+    'android-provider-delivery-not-executed',
+    'android-platform-delivery-channel-not-proved',
+    'android-adapter-dispatch-not-proved',
+    'android-platform-enforcement-not-proved',
+  ] as const);
+}
+
+function androidChildRuntimeTransportReceiptClaimsRemainScoped(proof: AndroidChildRuntimeReceiptCandidate): boolean {
+  return (
     !proof.runtimeTransportExecuted &&
     !proof.runtimeReceiptIngested &&
     !proof.providerDeliveryExecuted &&
@@ -184,3 +205,6 @@ function androidChildRuntimeTransportReceiptProofIsHonest(proof: AndroidChildRun
   );
 }
 
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

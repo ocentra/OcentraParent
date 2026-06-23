@@ -4,12 +4,16 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityHistoricalReportList, ActivityReportDocument, ActivitySavedReportState,
-    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields, LogLevel,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityHistoricalReportList, ActivityReportDocument, ActivitySavedReportState,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_surface_api::{build_activity_report_history, build_activity_report_save},
@@ -26,7 +30,7 @@ async fn activity_report_save_and_history_commands_round_trip_real_json_storage(
     env::set_var(constants::env_var::DEV_LOG_DIR, &report_root);
     let report = report_document(super::report_request(), None, Vec::new());
 
-    let save_event = build_activity_report_save(save_command(report)).await;
+    let save_event = build_activity_report_save(save_command(&report)).await;
     let history_event = build_activity_report_history(history_command()).await;
 
     env::remove_var(constants::env_var::DEV_LOG_DIR);
@@ -56,13 +60,13 @@ async fn activity_report_save_and_history_commands_round_trip_real_json_storage(
     );
 }
 
-fn save_command(report: ActivityReportDocument) -> AgentCommandEnvelope {
+fn save_command(report: &ActivityReportDocument) -> AgentCommandEnvelope {
     let mut payload = surface_command_payload();
     payload.insert(
         constants::field::ACTIVITY_REPORT_DOCUMENT.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&report).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serde_json::to_string(&report).unwrap_or_else(|error| {
+            panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+        })),
     );
     command(AgentCommandName::AgentActivityReportSave, payload)
 }
@@ -125,8 +129,10 @@ fn report_from_event(event: &AgentEventEnvelope) -> ActivityReportDocument {
         .payload
         .get(constants::field::ACTIVITY_REPORT_DOCUMENT)
         .and_then(log_field_string)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    serde_json::from_str(report_json).expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    serde_json::from_str(report_json).unwrap_or_else(|error| {
+        panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }
 
 fn history_from_event(event: &AgentEventEnvelope) -> ActivityHistoricalReportList {
@@ -134,8 +140,10 @@ fn history_from_event(event: &AgentEventEnvelope) -> ActivityHistoricalReportLis
         .payload
         .get(constants::field::ACTIVITY_REPORTS)
         .and_then(log_field_string)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    serde_json::from_str(history_json).expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    serde_json::from_str(history_json).unwrap_or_else(|error| {
+        panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }
 
 fn log_field_string(value: &LogFieldValue) -> Option<&str> {
@@ -160,6 +168,8 @@ fn temp_report_root() -> PathBuf {
 fn nanos_now() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|error| {
+            panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+        })
         .as_nanos()
 }

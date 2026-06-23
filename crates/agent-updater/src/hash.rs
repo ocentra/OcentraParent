@@ -9,7 +9,7 @@ use crate::error::UpdaterError;
 pub fn sha256_file(path: &Path) -> Result<String, UpdaterError> {
     let mut file = File::open(path)?;
     let mut hasher = Sha256::new();
-    let mut buffer = [0_u8; 64 * 1024];
+    let mut buffer = [0_u8; 16 * 1024];
     loop {
         let count = file.read(&mut buffer)?;
         if count == 0 {
@@ -51,11 +51,26 @@ mod tests {
 
     #[test]
     fn sha256_file_matches_known_payload() {
-        let dir = tempfile::tempdir().expect("temp dir");
+        let dir_result = tempfile::tempdir();
+        assert!(dir_result.is_ok(), "temp dir failed: {dir_result:?}");
+        let Ok(dir) = dir_result else {
+            return;
+        };
         let path = dir.path().join("payload.bin");
-        std::fs::write(&path, b"ocentra").expect("payload write");
+        let write_result = std::fs::write(&path, b"ocentra");
+        assert!(
+            write_result.is_ok(),
+            "payload write failed: {write_result:?}"
+        );
+        if write_result.is_err() {
+            return;
+        }
 
-        let hash = sha256_file(&path).expect("payload hash");
+        let hash_result = sha256_file(&path);
+        assert!(hash_result.is_ok(), "payload hash failed: {hash_result:?}");
+        let Ok(hash) = hash_result else {
+            return;
+        };
 
         assert_eq!(
             hash,

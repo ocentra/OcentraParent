@@ -28,15 +28,54 @@ Proof rule: proof must contain command log, negative case, artifact path, update
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
 
+## Ownership, Import, And Boundary Contract
+
+App/game is the native app and native game evidence spine. It observes and normalizes local app/game facts, writes evidence, builds read models, and emits typed handoffs. It does not own AI classification, policy authority, enforcement authority, notification delivery, portal rendering, or platform custody beyond the assigned adapter surface.
+
+Module roles:
+
+```text
+schema-domain: canonical shared app/game schema, brands, parser, evidence row, adapter readiness, classifier digest, policy target, platform proof, child UX, and handoff shapes when those shapes cross package, crate, app, or plan boundaries.
+app-game-domain: TypeScript helper/projection and focused validation surface. It consumes canonical schema-domain shapes and must not become a broad aggregator of policy, enforcement, notification, portal, or production runtime behavior.
+app-game-core: child-local Rust app/game observation, sessionization, evidence event, AI-request event, and policy-request event boundary. It should use event/protocol handoffs rather than importing sibling runtime crates.
+agent-protocol and agent-service: wire/service boundaries only when the selected workpack names protocol, service handler, or read API proof.
+parent-domain, policy-domain, enforcement-domain, notification-domain, portal-domain, and apps/portal: consumers/projections/handoff owners. They must not re-own app/game observation, sessionization, or platform adapter authority.
+AI plan: classifier/digest consumer only. AI consumes stored evidence or structured digests and does not scan apps, games, launchers, windows, processes, or devices directly.
+platform adapters: source observers for assigned OS/platform proof only. They produce typed observations and capability states; they do not decide policy or enforcement.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+canonical schema-domain app/game/evidence/policy-reference/protocol/capability/logging shapes
+neutral event/evidence/logging/protocol primitives
+approved public app-game-domain helper exports when the selected workpack names app-game-domain scope
+approved Rust runtime/parity crates when the selected workpack names Rust proof
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports:
+
+```text
+sibling feature owner runtime behavior from AI, policy, enforcement, notification, portal, child-runtime, LAN, remote, setup, payment, or data-custody plans
+private source files from another plan's owning package/crate
+peer feature contracts when the shared shape should live in schema-domain or another neutral boundary
+portal, policy, AI, or notification code that scans app/game source state instead of consuming app/game evidence/read models
+policy or enforcement internals that execute app/game actions without typed app/game authority, source freshness, and adapter-readiness proof
+```
+
+If app/game needs AI, policy, enforcement, notification, portal, child-runtime, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) - classify the assigned workpack family only when owner path is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 

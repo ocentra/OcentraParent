@@ -7,11 +7,12 @@ use crate::{
     NetworkWindowsFirewallProofState, NetworkWindowsFirewallRequiredArtifact,
     NetworkWindowsFirewallTargetKind,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn windows_firewall_adapter_allows_apply_ready_with_policy_capability_artifacts_and_audit_refs() {
     let proof = plan_network_windows_firewall_adapter_proof(apply_ready_input())
-        .expect("complete Windows Firewall adapter proof should become apply-ready");
+        .expect_value("complete Windows Firewall adapter proof should become apply-ready");
 
     assert_eq!(
         proof.proof_state,
@@ -80,7 +81,7 @@ fn windows_firewall_adapter_dry_run_is_non_executable_without_adapter_artifacts(
             audit_event_ref: None,
             ..apply_ready_input()
         })
-        .expect("dry-run Windows Firewall proof should be allowed without apply artifacts");
+        .expect_value("dry-run Windows Firewall proof should be allowed without apply artifacts");
 
     assert_eq!(proof.proof_state, NetworkWindowsFirewallProofState::DryRun);
     assert_eq!(
@@ -115,7 +116,7 @@ fn windows_firewall_adapter_routes_weak_or_parent_review_policy_to_manual_requir
             ),
             ..apply_ready_input()
         })
-        .expect("grade B block policy handoff should not become firewall apply-ready");
+        .expect_value("grade B block policy handoff should not become firewall apply-ready");
 
     assert_eq!(
         proof.proof_state,
@@ -138,7 +139,9 @@ fn windows_firewall_adapter_routes_weak_or_parent_review_policy_to_manual_requir
             ),
             ..apply_ready_input()
         })
-        .expect("non-block mapped actions should stay outside the firewall apply-ready boundary");
+        .expect_value(
+            "non-block mapped actions should stay outside the firewall apply-ready boundary",
+        );
 
     assert_eq!(
         limit.proof_state,
@@ -157,7 +160,7 @@ fn windows_firewall_adapter_marks_capability_manual_required_or_unavailable_with
             capability_state: NetworkWindowsFirewallCapabilityState::ManualRequired,
             ..apply_ready_input()
         })
-        .expect("manual-required capability should stay reportable");
+        .expect_value("manual-required capability should stay reportable");
     assert_eq!(
         manual.proof_state,
         NetworkWindowsFirewallProofState::ManualRequired
@@ -173,7 +176,7 @@ fn windows_firewall_adapter_marks_capability_manual_required_or_unavailable_with
             capability_state: NetworkWindowsFirewallCapabilityState::Unavailable,
             ..apply_ready_input()
         })
-        .expect("unavailable capability should stay reportable");
+        .expect_value("unavailable capability should stay reportable");
     assert_eq!(
         unavailable.proof_state,
         NetworkWindowsFirewallProofState::Unavailable
@@ -198,7 +201,7 @@ fn windows_firewall_adapter_requires_authorization_capability_apply_result_rollb
             audit_event_ref: None,
             ..apply_ready_input()
         })
-        .expect("missing Windows Firewall artifacts should produce a manual-required proof");
+        .expect_value("missing Windows Firewall artifacts should produce a manual-required proof");
 
     assert_eq!(
         proof.proof_state,
@@ -353,5 +356,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

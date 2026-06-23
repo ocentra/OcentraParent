@@ -1,7 +1,4 @@
-import {
-  Schema,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { Schema, brandedNonEmptyStringSchema } from './effect';
 
 export const DisplayTextSchema = brandedNonEmptyStringSchema('DisplayText');
 export type DisplayText = typeof DisplayTextSchema.Type;

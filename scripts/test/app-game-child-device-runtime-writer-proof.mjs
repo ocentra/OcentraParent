@@ -29,11 +29,11 @@ async function main() {
   );
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
-  const schemaReadinessModule = await import(
-    '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness'
-  );
+  const schemaReadinessModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness');
   commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness');
-  const schemaWriterModule = await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
+  const schemaWriterModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
   commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
   if (!('AppGameChildDeviceDeliveryReadinessReadModelSchema' in schemaReadinessModule)) {
     throw new Error('Missing AppGameChildDeviceDeliveryReadinessReadModelSchema export from schema-domain');

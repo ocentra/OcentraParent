@@ -30,16 +30,12 @@ import {
 } from './family-reference-primitives';
 
 export const AppGamePolicyPreviewHandoffIdSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffId');
-export const AppGamePolicyPreviewHandoffRowIdSchema = brandedNonEmptyStringSchema(
-  'AppGamePolicyPreviewHandoffRowId'
-);
+export const AppGamePolicyPreviewHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffRowId');
 export const AppGamePolicyPreviewHandoffSourceContractRefSchema = brandedNonEmptyStringSchema(
   'AppGamePolicyPreviewHandoffSourceContractRef'
 );
 export const AppGamePolicyPreviewHandoffRuntimeClaimStateSchema = withParser(Schema.Literal('not-claimed'));
-export const AppGamePolicyPreviewHandoffAdapterDispatchStateSchema = withParser(
-  Schema.Literal('not-dispatched')
-);
+export const AppGamePolicyPreviewHandoffAdapterDispatchStateSchema = withParser(Schema.Literal('not-dispatched'));
 
 export const AppGamePolicyPreviewTargetDomainSchema = withParser(
   Schema.Literal(...Object.values(AppGamePolicyPreviewTargetDomain))

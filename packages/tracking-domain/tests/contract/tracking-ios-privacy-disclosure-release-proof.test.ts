@@ -4,7 +4,7 @@ import {
   TrackingIosPrivacyDisclosureProofRowSchema,
   buildTrackingIosPrivacyDisclosureProofReadModel,
   type TrackingIosPrivacyDisclosureInputRow,
-} from '../../src/tracking-ios-privacy-disclosure-release-proof';
+} from '@ocentra-parent/schema-domain/tracking-ios-privacy-disclosure-release-proof';
 
 const Timestamp = '2026-06-07T17:30:00.000Z';
 

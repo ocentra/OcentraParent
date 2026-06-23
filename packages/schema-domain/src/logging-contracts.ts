@@ -2,12 +2,7 @@ import {
   AgentDeviceIdSchema as EventAgentDeviceIdSchema,
   AgentPlatformSchema as EventAgentPlatformSchema,
 } from './event-primitives';
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const AgentDeviceIdSchema = EventAgentDeviceIdSchema;
 export const AgentHostnameSchema = brandedNonEmptyStringSchema('AgentHostname');

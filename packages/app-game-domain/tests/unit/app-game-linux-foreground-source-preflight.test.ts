@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { decodeAppGameLinuxWslRuntimeProof } from '../../src/app-game-linux-wsl-runtime-proof';
+import { decodeAppGameLinuxWslRuntimeProof } from '@ocentra-parent/schema-domain/app-game-linux-wsl-runtime-proof';
 import {
   createAppGameLinuxForegroundCaptureReadiness,
   type AppGameLinuxForegroundCaptureReadiness,
-} from '../../src/app-game-linux-foreground-capture-readiness';
+} from '@ocentra-parent/schema-domain/app-game-linux-foreground-capture-readiness';
 import {
   AppGameLinuxForegroundSourcePreflightReadModelSchema,
   createAppGameLinuxForegroundSourcePreflightReadModel,
   summarizeAppGameLinuxForegroundSourcePreflightReadModel,
-} from '../../src/app-game-linux-foreground-source-preflight';
+} from '@ocentra-parent/schema-domain/app-game-linux-foreground-source-preflight';
 
 describe('app-game Linux foreground source preflight', () => {
   it('reports WSLg display ready but active-window tool install required on this host', () => {

@@ -15,7 +15,10 @@ import {
   BrowserUnmanagedFallbackCapability,
 } from '@ocentra-parent/schema-domain/browser-values';
 import { BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
-import { BrowserInventoryReadModelSchema, BrowserInventoryRowSchema } from '@ocentra-parent/schema-domain/browser-inventory-schemas';
+import {
+  BrowserInventoryReadModelSchema,
+  BrowserInventoryRowSchema,
+} from '@ocentra-parent/schema-domain/browser-inventory-schemas';
 
 describe('browser inventory contracts', () => {
   it('accepts managed inventory rows with target-list-only exact evidence boundaries', () => {

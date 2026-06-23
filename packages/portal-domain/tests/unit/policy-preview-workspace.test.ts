@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createPolicyWorkspacePreviewRows,
-  type PolicyWorkspacePreviewRow,
-} from '../../src/policy-preview-workspace';
+import { createPolicyWorkspacePreviewRows, type PolicyWorkspacePreviewRow } from '../../src/policy-preview-workspace';
 import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
 
 describe('policy preview workspace rows', () => {
@@ -67,9 +64,7 @@ describe('policy preview workspace rows', () => {
   });
 });
 
-function readModel(
-  overrides: Partial<PortalPolicyPreviewReadModel>
-): PortalPolicyPreviewReadModel {
+function readModel(overrides: Partial<PortalPolicyPreviewReadModel>): PortalPolicyPreviewReadModel {
   return {
     schemaVersion: 1,
     generatedAt: '2026-06-18T09:00:00Z',

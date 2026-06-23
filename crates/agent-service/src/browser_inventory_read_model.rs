@@ -1,13 +1,27 @@
 use ocentra_parent_agent_core::browser_windows_inventory::BrowserWindowsInventoryObservation;
-use ocentra_parent_agent_protocol::{
-    constants, BrowserActiveTabCapability, BrowserCapabilityStatus, BrowserChannel,
-    BrowserCustodyLabel, BrowserExactUrlCapability, BrowserFamily, BrowserInventoryInstallState,
-    BrowserInventoryReadModel, BrowserInventoryRow, BrowserInventoryRunningState,
-    BrowserManagedProfileState, BrowserManagedSessionStatus, BrowserManagedState,
-    BrowserManagementTier, BrowserQueryVisibilityLabel, BrowserSupportTier,
-    BrowserUnmanagedFallbackCapability, BROWSER_EVIDENCE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::browser::{
+    BrowserCapabilityStatus, BrowserChannel, BrowserFamily,
 };
+#[cfg(test)]
+use ocentra_parent_agent_protocol::browser_inventory::{
+    BrowserActiveTabCapability, BrowserExactUrlCapability, BrowserInventoryInstallState,
+    BrowserInventoryRunningState, BrowserManagedProfileState, BrowserManagementTier,
+    BrowserSupportTier, BrowserUnmanagedFallbackCapability,
+};
+use ocentra_parent_agent_protocol::browser_inventory::{
+    BrowserInventoryReadModel, BrowserInventoryRow,
+};
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::browser_managed::{
+    BrowserManagedSessionStatus, BrowserManagedState,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::BROWSER_EVIDENCE_SCHEMA_VERSION;
 
+#[cfg(test)]
 pub fn browser_inventory_read_model_from_status(
     status: &BrowserManagedSessionStatus,
 ) -> BrowserInventoryReadModel {
@@ -37,13 +51,14 @@ pub fn browser_inventory_read_model_from_windows_inventory(
         })
         .collect::<Vec<_>>();
     let returned = rows.len() as u64;
+    let latest_observed_at = latest_observed_at(&scanned_at, returned);
 
     BrowserInventoryReadModel {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        generated_at: scanned_at.clone(),
+        generated_at: scanned_at,
         limit: returned,
         returned,
-        latest_observed_at: latest_observed_at(&scanned_at, returned),
+        latest_observed_at,
         capability_status: None,
         custody_label: BrowserCustodyLabel::ChildDeviceLocal,
         query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
@@ -51,6 +66,7 @@ pub fn browser_inventory_read_model_from_windows_inventory(
     }
 }
 
+#[cfg(test)]
 fn browser_inventory_row_from_status(status: &BrowserManagedSessionStatus) -> BrowserInventoryRow {
     let browser_family = status
         .browser_family
@@ -126,6 +142,7 @@ fn browser_inventory_row_from_windows_observation(
     }
 }
 
+#[cfg(test)]
 struct BrowserInventoryDerivedState {
     install_state: BrowserInventoryInstallState,
     running_state: BrowserInventoryRunningState,
@@ -137,6 +154,7 @@ struct BrowserInventoryDerivedState {
     unmanaged_fallback_capability: BrowserUnmanagedFallbackCapability,
 }
 
+#[cfg(test)]
 fn inventory_state_from_status(
     status: &BrowserManagedSessionStatus,
 ) -> BrowserInventoryDerivedState {
@@ -155,6 +173,7 @@ fn inventory_state_from_status(
     }
 }
 
+#[cfg(test)]
 fn managed_target_list_inventory_state(
     status: &BrowserManagedSessionStatus,
 ) -> BrowserInventoryDerivedState {
@@ -175,6 +194,7 @@ fn managed_target_list_inventory_state(
     }
 }
 
+#[cfg(test)]
 fn unmanaged_inventory_state() -> BrowserInventoryDerivedState {
     BrowserInventoryDerivedState {
         install_state: BrowserInventoryInstallState::CandidateRunning,
@@ -188,6 +208,7 @@ fn unmanaged_inventory_state() -> BrowserInventoryDerivedState {
     }
 }
 
+#[cfg(test)]
 fn missing_inventory_state() -> BrowserInventoryDerivedState {
     BrowserInventoryDerivedState {
         install_state: BrowserInventoryInstallState::NotInstalled,
@@ -201,6 +222,7 @@ fn missing_inventory_state() -> BrowserInventoryDerivedState {
     }
 }
 
+#[cfg(test)]
 fn managed_profile_missing_bridge_state() -> BrowserInventoryDerivedState {
     BrowserInventoryDerivedState {
         install_state: BrowserInventoryInstallState::Installed,
@@ -214,6 +236,7 @@ fn managed_profile_missing_bridge_state() -> BrowserInventoryDerivedState {
     }
 }
 
+#[cfg(test)]
 fn unsupported_inventory_state() -> BrowserInventoryDerivedState {
     BrowserInventoryDerivedState {
         install_state: BrowserInventoryInstallState::Installed,
@@ -227,6 +250,7 @@ fn unsupported_inventory_state() -> BrowserInventoryDerivedState {
     }
 }
 
+#[cfg(test)]
 fn degraded_inventory_state() -> BrowserInventoryDerivedState {
     BrowserInventoryDerivedState {
         install_state: BrowserInventoryInstallState::Installed,
@@ -240,6 +264,7 @@ fn degraded_inventory_state() -> BrowserInventoryDerivedState {
     }
 }
 
+#[cfg(test)]
 fn inventory_row_id(
     browser_family: &BrowserFamily,
     capability_status: &BrowserCapabilityStatus,
@@ -258,6 +283,7 @@ fn inventory_row_id(
     }
 }
 
+#[cfg(test)]
 fn product_name(browser_family: &BrowserFamily) -> String {
     match browser_family {
         BrowserFamily::Edge => constants::browser::PRODUCT_NAME_MICROSOFT_EDGE.to_string(),
@@ -270,6 +296,7 @@ fn product_name(browser_family: &BrowserFamily) -> String {
     }
 }
 
+#[cfg(test)]
 fn executable_path_ref(status: &BrowserManagedSessionStatus) -> Option<String> {
     status.unmanaged_executable_path_ref.clone().or_else(|| {
         status
@@ -278,6 +305,7 @@ fn executable_path_ref(status: &BrowserManagedSessionStatus) -> Option<String> {
     })
 }
 
+#[cfg(test)]
 fn reason_code(status: &BrowserManagedSessionStatus) -> String {
     status.degraded_reason.clone().unwrap_or_else(|| {
         constants::browser::INVENTORY_REASON_MANAGED_TARGET_LIST_ACTIVE_TAB_UNPROVED.to_string()

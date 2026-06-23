@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildAppGameNotificationParentSurfaceIntentReadModel,
-} from '../../src/app-game-notification-parent-surface-intent';
+import { buildAppGameNotificationParentSurfaceIntentReadModel } from '../../src/app-game-notification-parent-surface-intent';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,

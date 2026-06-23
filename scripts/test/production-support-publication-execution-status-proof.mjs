@@ -58,7 +58,8 @@ async function main() {
       contract: 'packages/schema-domain/src/production-support-publication-execution-status-proof.ts',
       values: 'packages/schema-domain/src/production-support-publication-execution-status-values.ts',
       readModel: 'packages/schema-domain/src/production-support-publication-execution-status-read-model.ts',
-      contractTest: 'packages/production-domain/tests/unit/production-support-publication-execution-status-proof.test.ts',
+      contractTest:
+        'packages/production-domain/tests/unit/production-support-publication-execution-status-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -88,7 +89,9 @@ async function main() {
 
 async function assertBuiltContract() {
   const contractModule = await importBuiltSchemaDomainModule('production-support-publication-execution-status-proof');
-  const readModelModule = await importBuiltSchemaDomainModule('production-support-publication-execution-status-read-model');
+  const readModelModule = await importBuiltSchemaDomainModule(
+    'production-support-publication-execution-status-read-model'
+  );
   const valuesModule = await importBuiltSchemaDomainModule('production-support-publication-execution-status-values');
   const proof = contractModule.ProductionSupportPublicationExecutionStatusProofSchema.parse(
     readModelModule.ProductionSupportPublicationExecutionStatusReadModel

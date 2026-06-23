@@ -1,11 +1,5 @@
-import {
-  HouseholdAuthorityInputSchema,
-  ParentStepUpAssertionSchema,
-} from './family-household-authority';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { HouseholdAuthorityInputSchema, ParentStepUpAssertionSchema } from './family-household-authority';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   ChildProfileReferenceSchema,
   FamilyReferenceSchema,

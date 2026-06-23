@@ -125,22 +125,65 @@ export const PolicyPreviewBudgetBoundaryStateLiteral = {
   Expired: 'expired',
 } as const;
 
-export const PolicyActionSchema = withParser(Schema.Literal('allow', 'warn', 'block', 'time-limit', 'ask-parent', 'unknown'));
-export const PolicyTargetTypeSchema = withParser(Schema.Literal('app', 'process', 'window', 'domain', 'site', 'category', 'video', 'channel', 'activity-type', 'device'));
-export const PolicyScheduleDaySchema = withParser(Schema.Literal('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));
-export const PolicyDecisionHandoffStateSchema = withParser(Schema.Literal('not-requested', 'disabled', 'pending', 'handed-off'));
-export const PermissionRequestStateSchema = withParser(Schema.Literal('open', 'approved', 'denied', 'expired', 'cancelled'));
-export const PolicyScheduleBoundaryStateSchema = withParser(Schema.Literal('within-window', 'outside-window', 'dst-gap', 'dst-overlap', 'clock-skew', 'exception-active', 'expired'));
+export const PolicyActionSchema = withParser(
+  Schema.Literal('allow', 'warn', 'block', 'time-limit', 'ask-parent', 'unknown')
+);
+export const PolicyTargetTypeSchema = withParser(
+  Schema.Literal(
+    'app',
+    'process',
+    'window',
+    'domain',
+    'site',
+    'category',
+    'video',
+    'channel',
+    'activity-type',
+    'device'
+  )
+);
+export const PolicyScheduleDaySchema = withParser(
+  Schema.Literal('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
+);
+export const PolicyDecisionHandoffStateSchema = withParser(
+  Schema.Literal('not-requested', 'disabled', 'pending', 'handed-off')
+);
+export const PermissionRequestStateSchema = withParser(
+  Schema.Literal('open', 'approved', 'denied', 'expired', 'cancelled')
+);
+export const PolicyScheduleBoundaryStateSchema = withParser(
+  Schema.Literal(
+    'within-window',
+    'outside-window',
+    'dst-gap',
+    'dst-overlap',
+    'clock-skew',
+    'exception-active',
+    'expired'
+  )
+);
 export const PolicyScheduleDstTransitionSchema = withParser(Schema.Literal('spring-forward', 'fall-back'));
-export const PolicyScheduleDstResolutionSchema = withParser(Schema.Literal('skip-forward', 'first-occurrence', 'second-occurrence', 'manual-required'));
-export const PolicyScheduleClockSourceSchema = withParser(Schema.Literal('child-device', 'trusted-service', 'manual-required'));
+export const PolicyScheduleDstResolutionSchema = withParser(
+  Schema.Literal('skip-forward', 'first-occurrence', 'second-occurrence', 'manual-required')
+);
+export const PolicyScheduleClockSourceSchema = withParser(
+  Schema.Literal('child-device', 'trusted-service', 'manual-required')
+);
 export const PolicyScheduleBudgetResetKindSchema = withParser(Schema.Literal('daily', 'weekly', 'monthly'));
-export const PolicyScheduleBudgetCarryoverModeSchema = withParser(Schema.Literal('discard-unused', 'carry-forward', 'cap-carryover'));
-export const PolicyScheduleOfflineRecoverySchema = withParser(Schema.Literal('resume-remaining', 'recompute-from-journal', 'manual-required'));
-export const PolicyScheduleOfflineRecoveryStateSchema = withParser(Schema.Literal('not-needed', 'recovered-from-device', 'recomputed-from-journal', 'manual-required'));
+export const PolicyScheduleBudgetCarryoverModeSchema = withParser(
+  Schema.Literal('discard-unused', 'carry-forward', 'cap-carryover')
+);
+export const PolicyScheduleOfflineRecoverySchema = withParser(
+  Schema.Literal('resume-remaining', 'recompute-from-journal', 'manual-required')
+);
+export const PolicyScheduleOfflineRecoveryStateSchema = withParser(
+  Schema.Literal('not-needed', 'recovered-from-device', 'recomputed-from-journal', 'manual-required')
+);
 export const PolicyPreviewOriginSchema = withParser(Schema.Literal('parent-preview', 'assistant-preview'));
 export const PolicyPreviewConfirmationStateSchema = withParser(Schema.Literal('confirmation-required', 'confirmed'));
-export const PolicyPreviewBudgetBoundaryStateSchema = withParser(Schema.Literal('within-budget', 'bonus-time-active', 'bonus-time-expiring', 'manual-required', 'expired'));
+export const PolicyPreviewBudgetBoundaryStateSchema = withParser(
+  Schema.Literal('within-budget', 'bonus-time-active', 'bonus-time-expiring', 'manual-required', 'expired')
+);
 
 export const PolicyTargetSchema = withParser(
   Schema.Struct({
@@ -602,10 +645,7 @@ function validatePolicyScheduleTimeBudgetStatus(timeBudget: PolicyScheduleTimeBu
     timeBudget.bonusTimeRemainingMinutes !== null,
     'timeBudget.bonusTimeRemainingMinutes is required when bonusTimeMinutes are active'
   );
-  assertPolicyNonNegativeNumber(
-    timeBudget.bonusTimeRemainingMinutes ?? 0,
-    'timeBudget.bonusTimeRemainingMinutes'
-  );
+  assertPolicyNonNegativeNumber(timeBudget.bonusTimeRemainingMinutes ?? 0, 'timeBudget.bonusTimeRemainingMinutes');
   assertPolicyContract(
     (timeBudget.bonusTimeRemainingMinutes ?? 0) <= timeBudget.bonusTimeMinutes,
     'timeBudget.bonusTimeRemainingMinutes cannot exceed timeBudget.bonusTimeMinutes'
@@ -622,6 +662,107 @@ function validatePolicyScheduleTimeBudgetStatus(timeBudget: PolicyScheduleTimeBu
     bonusTimeExpiresAt > evaluatedAt,
     'timeBudget.bonusTimeExpiresAt must be after evaluatedAt while bonus time is active'
   );
+}
+
+function validatePolicyScheduleBoundaryOptionalSections(boundary: PolicyScheduleBoundary, evaluatedAt: number): void {
+  if (boundary.dstBoundary !== null) {
+    parsePolicyLocalTimeMinutes(boundary.dstBoundary.localTime, 'dstBoundary.localTime');
+    assertPolicyContract(
+      Number.isInteger(boundary.dstBoundary.offsetBeforeMinutes),
+      'dstBoundary.offsetBeforeMinutes must be an integer minute offset'
+    );
+    assertPolicyContract(
+      Number.isInteger(boundary.dstBoundary.offsetAfterMinutes),
+      'dstBoundary.offsetAfterMinutes must be an integer minute offset'
+    );
+  }
+
+  if (boundary.clockSkew !== null) {
+    parsePolicyTimestampMillis(boundary.clockSkew.observedAt, 'clockSkew.observedAt');
+    assertPolicyContract(
+      Number.isFinite(boundary.clockSkew.allowedSkewMinutes) && boundary.clockSkew.allowedSkewMinutes >= 0,
+      'clockSkew.allowedSkewMinutes must be a non-negative number'
+    );
+    assertPolicyContract(
+      Number.isFinite(boundary.clockSkew.observedSkewMinutes),
+      'clockSkew.observedSkewMinutes must be a finite number'
+    );
+  }
+
+  if (boundary.exception !== null) {
+    const exceptionStartsAt = parsePolicyTimestampMillis(boundary.exception.startsAt, 'exception.startsAt');
+    const exceptionExpiresAt = parsePolicyTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt');
+    assertPolicyContract(exceptionExpiresAt > exceptionStartsAt, 'schedule exceptions must expire after they start');
+  }
+
+  if (boundary.expiry !== null) {
+    const expiresAt = parsePolicyTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt');
+    const expiredAt = parsePolicyTimestampMillis(boundary.expiry.expiredAt, 'expiry.expiredAt');
+    assertPolicyContract(expiredAt >= expiresAt, 'expiry.expiredAt must be on or after expiry.expiresAt');
+    if (boundary.state !== PolicyScheduleBoundaryState.Expired) {
+      assertPolicyContract(evaluatedAt < expiresAt, 'non-expired schedule boundaries cannot be evaluated after expiry');
+    }
+  }
+
+  if (boundary.timeBudget !== null) {
+    validatePolicyScheduleTimeBudgetStatus(boundary.timeBudget, evaluatedAt);
+  }
+}
+
+function validatePolicyScheduleBoundaryState(boundary: PolicyScheduleBoundary, evaluatedAt: number): void {
+  switch (boundary.state) {
+    case PolicyScheduleBoundaryState.DstGap:
+      assertPolicyContract(boundary.dstBoundary !== null, 'dst-gap boundaries require dstBoundary details');
+      assertPolicyContract(
+        boundary.dstBoundary.transition === PolicyScheduleDstTransition.SpringForward,
+        'dst-gap boundaries must use the spring-forward transition'
+      );
+      assertPolicyContract(
+        boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.FirstOccurrence &&
+          boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.SecondOccurrence,
+        'dst-gap boundaries cannot use overlap-only resolutions'
+      );
+      return;
+    case PolicyScheduleBoundaryState.DstOverlap:
+      assertPolicyContract(boundary.dstBoundary !== null, 'dst-overlap boundaries require dstBoundary details');
+      assertPolicyContract(
+        boundary.dstBoundary.transition === PolicyScheduleDstTransition.FallBack,
+        'dst-overlap boundaries must use the fall-back transition'
+      );
+      assertPolicyContract(
+        boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.SkipForward,
+        'dst-overlap boundaries cannot skip the repeated hour'
+      );
+      return;
+    case PolicyScheduleBoundaryState.ClockSkew:
+      assertPolicyContract(boundary.clockSkew !== null, 'clock-skew boundaries require clockSkew details');
+      assertPolicyContract(
+        Math.abs(boundary.clockSkew.observedSkewMinutes) > boundary.clockSkew.allowedSkewMinutes,
+        'clock-skew boundaries require skew beyond the allowed tolerance'
+      );
+      return;
+    case PolicyScheduleBoundaryState.ExceptionActive: {
+      assertPolicyContract(boundary.exception !== null, 'exception-active boundaries require exception details');
+      const exceptionStartsAt = parsePolicyTimestampMillis(boundary.exception.startsAt, 'exception.startsAt');
+      const exceptionExpiresAt = parsePolicyTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt');
+      assertPolicyContract(
+        evaluatedAt >= exceptionStartsAt && evaluatedAt < exceptionExpiresAt,
+        'exception-active boundaries must be evaluated inside the exception window'
+      );
+      return;
+    }
+    case PolicyScheduleBoundaryState.Expired: {
+      assertPolicyContract(boundary.expiry !== null, 'expired schedule boundaries require expiry details');
+      const expiresAt = parsePolicyTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt');
+      assertPolicyContract(
+        evaluatedAt >= expiresAt,
+        'expired schedule boundaries must be evaluated on or after expiry'
+      );
+      return;
+    }
+    default:
+      return;
+  }
 }
 
 function validatePolicyPreview(preview: PolicyPreview): void {
@@ -665,106 +806,8 @@ function validatePolicySchedule(schedule: PolicySchedule): void {
 function validatePolicyScheduleBoundary(boundary: PolicyScheduleBoundary): void {
   const evaluatedAt = parsePolicyTimestampMillis(boundary.evaluatedAt, 'evaluatedAt');
   parsePolicyLocalTimeMinutes(boundary.localTime, 'localTime');
-
-  if (boundary.dstBoundary !== null) {
-    parsePolicyLocalTimeMinutes(boundary.dstBoundary.localTime, 'dstBoundary.localTime');
-    assertPolicyContract(
-      Number.isInteger(boundary.dstBoundary.offsetBeforeMinutes),
-      'dstBoundary.offsetBeforeMinutes must be an integer minute offset'
-    );
-    assertPolicyContract(
-      Number.isInteger(boundary.dstBoundary.offsetAfterMinutes),
-      'dstBoundary.offsetAfterMinutes must be an integer minute offset'
-    );
-  }
-
-  if (boundary.clockSkew !== null) {
-    parsePolicyTimestampMillis(boundary.clockSkew.observedAt, 'clockSkew.observedAt');
-    assertPolicyContract(
-      Number.isFinite(boundary.clockSkew.allowedSkewMinutes) && boundary.clockSkew.allowedSkewMinutes >= 0,
-      'clockSkew.allowedSkewMinutes must be a non-negative number'
-    );
-    assertPolicyContract(
-      Number.isFinite(boundary.clockSkew.observedSkewMinutes),
-      'clockSkew.observedSkewMinutes must be a finite number'
-    );
-  }
-
-  if (boundary.exception !== null) {
-    const exceptionStartsAt = parsePolicyTimestampMillis(boundary.exception.startsAt, 'exception.startsAt');
-    const exceptionExpiresAt = parsePolicyTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt');
-    assertPolicyContract(exceptionExpiresAt > exceptionStartsAt, 'schedule exceptions must expire after they start');
-  }
-
-  if (boundary.expiry !== null) {
-    const expiresAt = parsePolicyTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt');
-    const expiredAt = parsePolicyTimestampMillis(boundary.expiry.expiredAt, 'expiry.expiredAt');
-    assertPolicyContract(expiredAt >= expiresAt, 'expiry.expiredAt must be on or after expiry.expiresAt');
-    if (boundary.state !== PolicyScheduleBoundaryState.Expired) {
-      assertPolicyContract(evaluatedAt < expiresAt, 'non-expired schedule boundaries cannot be evaluated after expiry');
-    }
-  }
-
-  if (boundary.timeBudget !== null) {
-    validatePolicyScheduleTimeBudgetStatus(boundary.timeBudget, evaluatedAt);
-  }
-
-  switch (boundary.state) {
-    case PolicyScheduleBoundaryState.DstGap: {
-      assertPolicyContract(boundary.dstBoundary !== null, 'dst-gap boundaries require dstBoundary details');
-      assertPolicyContract(
-        boundary.dstBoundary.transition === PolicyScheduleDstTransition.SpringForward,
-        'dst-gap boundaries must use the spring-forward transition'
-      );
-      assertPolicyContract(
-        boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.FirstOccurrence &&
-          boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.SecondOccurrence,
-        'dst-gap boundaries cannot use overlap-only resolutions'
-      );
-      break;
-    }
-    case PolicyScheduleBoundaryState.DstOverlap: {
-      assertPolicyContract(boundary.dstBoundary !== null, 'dst-overlap boundaries require dstBoundary details');
-      assertPolicyContract(
-        boundary.dstBoundary.transition === PolicyScheduleDstTransition.FallBack,
-        'dst-overlap boundaries must use the fall-back transition'
-      );
-      assertPolicyContract(
-        boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.SkipForward,
-        'dst-overlap boundaries cannot skip the repeated hour'
-      );
-      break;
-    }
-    case PolicyScheduleBoundaryState.ClockSkew: {
-      assertPolicyContract(boundary.clockSkew !== null, 'clock-skew boundaries require clockSkew details');
-      assertPolicyContract(
-        Math.abs(boundary.clockSkew.observedSkewMinutes) > boundary.clockSkew.allowedSkewMinutes,
-        'clock-skew boundaries require skew beyond the allowed tolerance'
-      );
-      break;
-    }
-    case PolicyScheduleBoundaryState.ExceptionActive: {
-      assertPolicyContract(boundary.exception !== null, 'exception-active boundaries require exception details');
-      const exceptionStartsAt = parsePolicyTimestampMillis(boundary.exception.startsAt, 'exception.startsAt');
-      const exceptionExpiresAt = parsePolicyTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt');
-      assertPolicyContract(
-        evaluatedAt >= exceptionStartsAt && evaluatedAt < exceptionExpiresAt,
-        'exception-active boundaries must be evaluated inside the exception window'
-      );
-      break;
-    }
-    case PolicyScheduleBoundaryState.Expired: {
-      assertPolicyContract(boundary.expiry !== null, 'expired schedule boundaries require expiry details');
-      const expiresAt = parsePolicyTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt');
-      assertPolicyContract(
-        evaluatedAt >= expiresAt,
-        'expired schedule boundaries must be evaluated on or after expiry'
-      );
-      break;
-    }
-    default:
-      break;
-  }
+  validatePolicyScheduleBoundaryOptionalSections(boundary, evaluatedAt);
+  validatePolicyScheduleBoundaryState(boundary, evaluatedAt);
 }
 
 export function parsePolicySchedule(input: unknown): PolicySchedule {

@@ -38,7 +38,7 @@ async function main() {
   const eventingRowProof = await readJson(eventingRowProofRef);
   const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-parent-child-local-runtime-bridge-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-parent-child-local-runtime-bridge-proof.ts')
     ).href,
     import.meta.url
   );

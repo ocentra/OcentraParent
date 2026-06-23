@@ -25,6 +25,57 @@ checked checklist/workpack state. Use the selected workpack,
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.
 
+## Current ownership interpretation
+
+```text
+schema-domain:
+  Canonical shared browser/evidence/read-model/intervention contracts when browser shapes cross package, crate, app, or plan boundaries.
+
+browser-domain:
+  TypeScript helper/projection and focused validation surface. It consumes canonical shared shapes and must not become a policy, notification, family, AI, portal, or enforcement runtime aggregator.
+
+browser-core:
+  Child-local Rust browser observation, evidence-event, AI-request, policy-request, and source-readiness boundary.
+
+agent-protocol and agent-service:
+  Wire/service/read-model boundaries when selected. They are not default owners for every browser contract.
+
+AI plan:
+  Consumes stored browser evidence, source refs, or structured digest refs. AI does not import browser runtime, scrape browser state, or decide enforcement.
+
+Policy/enforcement plans:
+  Consume source-ready browser evidence and parent rules. They own deterministic decisions/actions; browser owns source truth and browser-specific intervention handoff readiness.
+
+portal-domain and apps/portal:
+  Parent-visible browser status and activity projections. They do not capture browser state, infer exact URLs, run policy, or enforce.
+
+Network, screen, app-game, tracking, LAN, remote, account, data-custody, and setup plans:
+  Adjacent sibling owners or handoff consumers. They must not re-own browser source truth.
+```
+
+## Current coupling risks
+
+```text
+- `browser-domain` currently depends on family-domain, notification-domain, and policy-domain. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through schema-domain.
+- Older plan-local source ownership notes still reference legacy `packages/activity-domain/src/browser*.ts` paths that do not exist in this checkout.
+- Network/process/window evidence must not be promoted into exact URL, active tab, page title, or browser-game proof without selected browser-source proof.
+- Managed intervention harness proof does not prove product-level warning/block readiness unless policy decision refs, action refs, audit refs, child delivery state, and portal proof exist.
+- Browser reference/control inventory workpacks are not implementation scope by themselves.
+```
+
+## Current proof interpretation
+
+```text
+All numbered workpacks remain open in their own files.
+Plan-local proof roots under output/browser-plan-proof/<workpack-file-stem>/ are currently absent in this checkout.
+CDP target-list proof is not active-tab proof.
+Unmanaged browser process detection is not exact URL evidence.
+Portal display proof is not browser source capture or service proof.
+Policy authoring proof is not intervention/action proof.
+Platform preflight proof is not platform parity.
+Reference/settings inventories are not runtime implementation proof.
+```
+
 ## Resume route
 
 1. Read this file.
@@ -102,12 +153,15 @@ Current implementation is concentrated in `packages/browser-domain`,
 - `README_FULL_ORIGINAL.md` unless you need historical full README context.
 - Full `implementation-checklist.md` unless `CHECKLIST_INDEX.md` names exact section/row.
 - All workpacks; use `WORKPACK_INDEX.md`.
+- `WORKPACK_FAMILIES.md` unless the selected workpack owner/proof family is unclear.
 - Source inventories and pasted-content audits unless source ownership is unclear.
 - Historical checkpoint/proof docs unless `PROOF_INDEX.md` or the assigned workpack names them.
 
 ## Health / consistency
 
 - See `PLAN_HEALTH.md` before claiming the whole plan is complete or stale.
+- Use the E2E tiers in `TEST_PROOF_EXPECTATIONS.md` before any feature-complete or PR_READY claim.
+- Use `WORKPACK_FAMILIES.md` only to classify the selected workpack; do not use it as permission to scan a whole family.
 
 ## HID Execution Guard (added 2026-06-12)
 

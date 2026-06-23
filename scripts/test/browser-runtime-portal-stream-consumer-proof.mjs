@@ -44,7 +44,16 @@ const commands = [
   {
     name: 'portal-domain-command-contracts',
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/portal-domain', '--', 'tests/unit/contracts.test.ts'],
+    args: [
+      '/c',
+      'npm',
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/portal-domain',
+      '--',
+      'tests/unit/contracts.test.ts',
+    ],
   },
   {
     name: 'portal-live-activity-browser-stream-state',

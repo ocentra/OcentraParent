@@ -1,4 +1,4 @@
-import type { StackTrace } from './stackTrace';
+import type { StackTrace } from '@ocentra-parent/schema-domain/logging-contracts';
 
 export interface StackFrame {
   readonly functionName: string | null;
@@ -9,15 +9,55 @@ export interface StackFrame {
 }
 
 function normalizePath(value: string): string {
-  return value.replace(/\\/g, '/');
+  return value.replaceAll('\\', '/');
+}
+
+function isAsciiLetter(value: string): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  const code = value.charCodeAt(0);
+  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+}
+
+function trimWindowsFileUrlPrefix(pathname: string): string {
+  if (pathname.length >= 3 && pathname[0] === '/' && isAsciiLetter(pathname[1] ?? '') && pathname[2] === ':') {
+    return pathname.slice(1);
+  }
+  return pathname;
+}
+
+function parseLocationWithoutLineInfo(location: string): Omit<StackFrame, 'functionName'> {
+  const filePath = decodeFilePath(location);
+  return {
+    file: fileNameFromPath(filePath),
+    filePath,
+    line: null,
+    column: null,
+  };
+}
+
+function parseIntegerSegment(value: string, start: number, end: number): number | null {
+  if (start >= end) {
+    return null;
+  }
+
+  let parsed = 0;
+  for (let index = start; index < end; index += 1) {
+    const digit = value.charCodeAt(index) - 48;
+    if (digit < 0 || digit > 9) {
+      return null;
+    }
+    parsed = parsed * 10 + digit;
+  }
+
+  return parsed;
 }
 
 function decodeFilePath(value: string): string {
   if (value.startsWith('file://')) {
     const url = new URL(value);
-    return normalizePath(
-      decodeURIComponent(url.pathname).replace(/^\/([A-Za-z]:)/, '$1')
-    );
+    return normalizePath(trimWindowsFileUrlPrefix(decodeURIComponent(url.pathname)));
   }
   return normalizePath(value);
 }
@@ -33,35 +73,28 @@ function fileNameFromPath(filePath: string | null): string | null {
 
 function parseLocation(location: string): Omit<StackFrame, 'functionName'> {
   const trimmed = location.trim();
-  const match = /^(.*):(\d+):(\d+)$/.exec(trimmed);
-  if (match == null) {
-    const filePath = decodeFilePath(trimmed);
-    return {
-      file: fileNameFromPath(filePath),
-      filePath,
-      line: null,
-      column: null,
-    };
+  const columnSeparator = trimmed.lastIndexOf(':');
+  if (columnSeparator < 0) {
+    return parseLocationWithoutLineInfo(trimmed);
   }
 
-  const rawFilePath = match[1];
-  const rawLine = match[2];
-  const rawColumn = match[3];
-  if (rawFilePath == null || rawLine == null || rawColumn == null) {
-    const filePath = decodeFilePath(trimmed);
-    return {
-      file: fileNameFromPath(filePath),
-      filePath,
-      line: null,
-      column: null,
-    };
+  const lineSeparator = trimmed.lastIndexOf(':', columnSeparator - 1);
+  if (lineSeparator < 0) {
+    return parseLocationWithoutLineInfo(trimmed);
   }
-  const filePath = decodeFilePath(rawFilePath);
+
+  const line = parseIntegerSegment(trimmed, lineSeparator + 1, columnSeparator);
+  const column = parseIntegerSegment(trimmed, columnSeparator + 1, trimmed.length);
+  if (line == null || column == null) {
+    return parseLocationWithoutLineInfo(trimmed);
+  }
+
+  const filePath = decodeFilePath(trimmed.slice(0, lineSeparator));
   return {
     file: fileNameFromPath(filePath),
     filePath,
-    line: Number(rawLine),
-    column: Number(rawColumn),
+    line,
+    column,
   };
 }
 
@@ -72,15 +105,13 @@ function parseFrameLine(line: string): StackFrame | null {
   }
 
   const body = trimmed.slice(3);
-  const withFunctionMatch = /^(.*?) \((.*)\)$/.exec(body);
-  if (withFunctionMatch != null) {
-    const functionName = withFunctionMatch[1];
-    const location = withFunctionMatch[2];
-    const normalizedFunctionName =
-      functionName != null && functionName.trim().length > 0 ? functionName.trim() : null;
+  const locationOpen = body.indexOf(' (');
+  if (locationOpen >= 0 && body.endsWith(')')) {
+    const functionName = body.slice(0, locationOpen).trim();
+    const location = body.slice(locationOpen + 2, body.length - 1);
     return {
-      functionName: normalizedFunctionName,
-      ...parseLocation(location ?? body),
+      functionName: functionName.length > 0 ? functionName : null,
+      ...parseLocation(location),
     };
   }
 
@@ -92,7 +123,7 @@ function parseFrameLine(line: string): StackFrame | null {
 
 export function parseStackTrace(stackTrace: StackTrace): StackFrame[] {
   return String(stackTrace)
-    .split(/\r?\n/)
-    .map(parseFrameLine)
+    .split('\n')
+    .map((line) => parseFrameLine(line.endsWith('\r') ? line.slice(0, -1) : line))
     .filter((frame): frame is StackFrame => frame != null);
 }

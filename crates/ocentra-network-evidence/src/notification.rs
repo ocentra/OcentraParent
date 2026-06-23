@@ -58,7 +58,7 @@ pub enum NetworkParentNotificationCandidateError {
 }
 
 pub fn map_network_parent_notification_candidate(
-    input: NetworkParentNotificationCandidateInput,
+    input: &NetworkParentNotificationCandidateInput,
 ) -> Result<NetworkParentNotificationCandidate, NetworkParentNotificationCandidateError> {
     if input.provider_delivery_available {
         return Err(NetworkParentNotificationCandidateError::ProviderDeliveryClaimRejected);

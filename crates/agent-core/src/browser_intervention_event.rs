@@ -1,13 +1,20 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
-    BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
+};
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserCustodyLabel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_intervention_values::{
+    BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
     BrowserInterventionDeliveryState, BrowserInterventionMechanism, BrowserInterventionOutcome,
-    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState,
-    BrowserUnmanagedEnforcementState, BrowserUnmanagedFallbackActionState, LogFieldValue,
-    LogFields, ACTIVITY_SCHEMA_VERSION,
+    BrowserInterventionTargetType, BrowserUnmanagedDetectionState,
+    BrowserUnmanagedFallbackActionState,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_unmanaged_enforcement::BrowserUnmanagedEnforcementState;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 mod ids;
 #[derive(Clone, Debug, PartialEq, Eq)]

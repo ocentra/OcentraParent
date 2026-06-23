@@ -1,7 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanBrowserAddDeviceDiscoveryDevice, LanBrowserAddDeviceScanSummary,
-    LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDiscoveryRuntimeStatus;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceScanSummary;
 
 use crate::lan_network_inventory;
 

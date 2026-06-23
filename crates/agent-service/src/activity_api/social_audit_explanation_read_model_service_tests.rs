@@ -1,15 +1,20 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields, SocialAuditExplanationSnapshot,
-    AGENT_PROTOCOL_SCHEMA_VERSION, SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE,
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::SocialAuditExplanationSnapshot;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
 
 #[tokio::test]
 async fn social_audit_explanation_command_reports_service_backed_snapshot_rows() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope())
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model = social_audit_explanation_payload(
         &event.payload[constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL],
@@ -54,8 +59,8 @@ fn command_envelope() -> AgentCommandEnvelope {
 fn social_audit_explanation_payload(value: &LogFieldValue) -> SocialAuditExplanationSnapshot {
     match value {
         LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

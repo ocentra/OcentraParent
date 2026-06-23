@@ -1,4 +1,4 @@
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 
 export const PortalBrowserInventoryFields = {
   ActiveTabCapability: 'activeTabCapability',

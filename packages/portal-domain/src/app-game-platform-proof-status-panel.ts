@@ -1,4 +1,4 @@
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 
 const DetailSeparator = ' | ';
@@ -127,9 +127,7 @@ function readModelSummary(
   ];
 }
 
-function platformProofStatusRow(
-  row: AppGamePlatformProofStatusPanelReadModelRow
-): AppGamePlatformProofStatusPanelRow {
+function platformProofStatusRow(row: AppGamePlatformProofStatusPanelReadModelRow): AppGamePlatformProofStatusPanelRow {
   return {
     title: displayText(row.platform),
     details: [

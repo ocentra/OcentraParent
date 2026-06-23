@@ -30,7 +30,8 @@ import {
   BillingEntitlementRuntimeRefundCreditClaimSchema,
   BillingEntitlementRuntimeSchemaVersionSchema,
   BillingEntitlementRuntimeSnapshotStateSchema,
-  BillingEntitlementRuntimeSourceSchema,  type BillingEntitlementRuntimeConsumptionState,
+  BillingEntitlementRuntimeSourceSchema,
+  type BillingEntitlementRuntimeConsumptionState,
   type BillingEntitlementRuntimeNonClaim,
   type BillingEntitlementRuntimeOperation,
   type BillingEntitlementRuntimeSnapshotState,
@@ -231,12 +232,7 @@ export const BillingEntitlementRuntimeProofReadModel = BillingEntitlementRuntime
       'runtime-snapshot-manual-review',
       'manual-review',
       'manual-support-review',
-      degradedSnapshot(
-        'unknown',
-        'manual-admin-review',
-        'manual-required',
-        RuntimeValidationFailure
-      ),
+      degradedSnapshot('unknown', 'manual-admin-review', 'manual-required', RuntimeValidationFailure),
       RuntimeValidationFailure
     ),
   ],
@@ -349,7 +345,6 @@ export type {
   BillingEntitlementRuntimeOperation,
   BillingEntitlementRuntimeSnapshotState,
 };
-
 
 function billingEntitlementRuntimeProofIsHonest(proof: {
   readonly snapshotConsumptions: ReadonlyArray<{

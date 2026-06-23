@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -51,8 +46,12 @@ export const SocialAlertReportPreferencePreflightStatusSchema = withParser(
 export const SocialAlertReportPreferencePreflightNonClaimSchema = withParser(
   Schema.Literal(...RequiredSocialAlertReportPreferencePreflightNonClaims)
 );
-export const SocialAlertReportPreferencePreflightIdSchema = brandedNonEmptyStringSchema('SocialAlertReportPreferencePreflightId');
-export const SocialAlertReportPreferencePreflightReferenceSchema = brandedNonEmptyStringSchema('SocialAlertReportPreferencePreflightReference');
+export const SocialAlertReportPreferencePreflightIdSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportPreferencePreflightId'
+);
+export const SocialAlertReportPreferencePreflightReferenceSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportPreferencePreflightReference'
+);
 
 const SocialAlertReportPreferencePreflightRowBaseSchema = Schema.Struct({
   preferenceRowId: SocialAlertReportPreferencePreflightReferenceSchema,
@@ -292,4 +291,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

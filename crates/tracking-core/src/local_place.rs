@@ -1,5 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants, tracking_parent_defined_place_id_from_evidence_ref, TrackingEvidenceRef,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_parent_defined_place_id_from_evidence_ref, TrackingEvidenceRef,
     TrackingParentDefinedPlaceId, TrackingParentDefinedPlaceState,
 };
 
@@ -25,11 +26,14 @@ pub fn evaluate_parent_defined_place(
     } else {
         constants::tracking_runtime::PARENT_DEFINED_PLACE_STATE_ACCEPTED
     };
+    let parsed_place_state = match TrackingParentDefinedPlaceState::parse(place_state) {
+        Ok(parsed_state) => parsed_state,
+        Err(_) => unreachable!("tracking parent-defined place contract drift: {place_state}"),
+    };
 
     TrackingParentDefinedPlaceDecision {
         place_id: tracking_parent_defined_place_id_from_evidence_ref(&input.source_evidence_ref),
-        place_state: TrackingParentDefinedPlaceState::parse(place_state)
-            .expect(constants::tracking_runtime::PARENT_DEFINED_PLACE_STATE_ACCEPTED),
+        place_state: parsed_place_state,
         evidence_refs: input.evidence_refs,
     }
 }

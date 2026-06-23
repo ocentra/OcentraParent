@@ -14,11 +14,7 @@ import {
 import { Action } from '../../Common/NavSvgIcons/Action';
 import { EnforcementOfficerIcon } from '../../Common/NavSvgIcons/ParentNavSvgIcons';
 import { defaultChatBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
-import {
-  calculateScopeMultiChoiceMetrics,
-  defaultScopeMultiChoiceConfig,
-  mergeScopeMultiChoiceConfig,
-} from './ScopeMultiChoice/ScopeMultiChoiceMetrics';
+import { calculateScopeMultiChoiceMetrics } from './ScopeMultiChoice/ScopeMultiChoiceMetrics';
 import { defaultScopeMultiChoiceConfig, mergeScopeMultiChoiceConfig } from './ScopeMultiChoice/ScopeMultiChoiceConfig';
 import { ScopeMultiChoice } from './ScopeMultiChoice/ScopeMultiChoice';
 import { calculateScopeToggleMetrics } from './ScopeToggle/ScopeToggleMetrics';

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { GooglePlacesNearbyFieldMask, buildGooglePlacesNearbyReadModel } from '../../src/tracking-poi-provider-adapter';
+import { GooglePlacesNearbyFieldMask } from '@ocentra-parent/schema-domain/tracking-poi-provider-adapter';
 import {
   TrackingPlaceCategoryAmbiguityReviewSchema,
   TrackingPlaceCategorySafeCopySchema,
   buildTrackingPlaceCategoryAmbiguityReviews,
   trackingPlaceCategoryCopyIsAccusationFree,
-} from '../../src/tracking-place-category-ambiguity-proof';
+} from '@ocentra-parent/schema-domain/tracking-place-category-ambiguity-proof';
+import { buildGooglePlacesNearbyReadModel } from '../../src/tracking-poi-provider-adapter';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const Timestamp = '2026-06-06T18:14:00.000Z';

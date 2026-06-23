@@ -51,7 +51,9 @@ export function parseAgentPolicyControlDeliveryReadModelEvent(event: {
   };
 }
 
-function adapterFailure(reason: AgentPolicyControlDeliveryReadModelFailureReason): AgentPolicyControlDeliveryReadModelResult {
+function adapterFailure(
+  reason: AgentPolicyControlDeliveryReadModelFailureReason
+): AgentPolicyControlDeliveryReadModelResult {
   return {
     ok: false,
     reason,

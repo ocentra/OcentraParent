@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
@@ -47,7 +41,9 @@ export const TrackingRealRuntimeHandoffBlockerSchema = Schema.Literal(
   'production-durable-workers-required'
 );
 
-export const TrackingRealRuntimeHandoffArtifactPathSchema = brandedNonEmptyStringSchema('TrackingRealRuntimeHandoffArtifactPath');
+export const TrackingRealRuntimeHandoffArtifactPathSchema = brandedNonEmptyStringSchema(
+  'TrackingRealRuntimeHandoffArtifactPath'
+);
 
 export const TrackingRealRuntimeHandoffRowIdSchema = brandedNonEmptyStringSchema('TrackingRealRuntimeHandoffRowId');
 
@@ -816,4 +812,3 @@ function summarizeRealRuntimeHandoffRows(
     productReadyRowCount: 0,
   };
 }
-

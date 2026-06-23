@@ -3,9 +3,11 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentMessageTarget, AgentRoute, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget, AgentRoute,
 };
 
 use crate::{

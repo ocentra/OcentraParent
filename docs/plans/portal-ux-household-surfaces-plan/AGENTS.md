@@ -14,8 +14,7 @@
 
 # Portal UX Household Surfaces Plan Agent Route
 
-Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects
-`docs/plans/portal-ux-household-surfaces-plan`.
+Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects `docs/plans/portal-ux-household-surfaces-plan`.
 
 ## High-density execution contract
 
@@ -27,16 +26,60 @@ Test rule: expected tests are obligations, not suggestions. If the test crate/fo
 Proof rule: proof must contain command log, negative case, artifact path, updated row, and skipped-risk note when applicable.
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+
+## Ownership, Import, And Boundary Contract
+
+This plan owns parent-facing portal UX presentation, route composition, read-model projection, degraded/empty/error/manual-required display, accessibility/responsive behavior, screenshot/manual-review proof, and no-fake-data boundaries. It does not own capture, policy source truth, enforcement authority, AI runtime, LAN transport, device trust, data custody, billing, setup/install, child runtime, or domain service truth.
+
+Module roles:
+
+```text
+apps/portal: React/Tauri parent portal runtime, route composition, rendered UX, local interaction state, and focused UI/e2e proof.
+portal-domain: public portal route, DOM, panel, presentation, read-model projection, proof-artifact, and UI contract package.
+schema-domain and domain packages: canonical source shapes/read models consumed by portal projections; they own contracts, not portal presentation.
+agent-protocol-domain and agent-protocol/service surfaces: service/read-model seams consumed by portal when selected.
+policy-control-plane-plan: policy source truth, compiler, delivery, approval, and ask-parent semantics; portal renders selected policy states only.
+setup-install-provisioning-plan, account-identity-family-plan, device-trust-bootstrap-plan, lan-plan, browser-plan, app-game-plan, network-plan, screen-plan, tracking-plan, ai-plan, payment-subscription-plan, data-custody-storage-plan, notification, and enforcement plans: sibling owners for domain truth and runtime behavior.
+```
+
+Direct imports are allowed only for explicit public helper surfaces:
+
+```text
+portal-domain public exports for route/panel/projection contracts
+schema-domain and domain-package public read models for selected views
+agent-protocol-domain public read models and commands when selected
+apps/portal local view components for the selected route
+neutral logging/evidence/protocol helpers that do not own sibling behavior
+```
+
+Forbidden direct imports and claims:
+
+```text
+sibling runtime internals imported to bypass typed read models or handoffs
+portal-local replacement read models treated as product truth
+fixture/demo data rendered as real service state
+visual screenshot upgraded into runtime proof
+portal route existence upgraded into domain readiness
+happy-path UI test upgraded into product readiness
+policy preview upgraded into applied policy
+delivered/acknowledged upgraded into active enforcement
+assistant output upgraded into parent-approved action
+portal projection upgraded into capture, transport, billing, custody, or enforcement proof
+```
+
+If portal UX needs domain truth, it must consume typed read models, commands, events, evidence refs, custody labels, source labels, proof roots, and explicit no-claim boundaries from the owning plan. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
 
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when owner/proof family is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 
@@ -76,6 +119,4 @@ After the assigned workpack is known, use [TEST_PROOF_EXPECTATIONS.md](TEST_PROO
 
 ## Before DONE / PR_READY
 
-Read `PLAN_HEALTH.md` if you are making a broad completion/staleness claim. Update the assigned workpack, relevant checklist rows, proof references, and
-feature/product docs as needed. Then follow `../../agent/PR_DONE_FLOW.md` and
-`../../agent/VALIDATION_FLOW.md`.
+Read `PLAN_HEALTH.md` if you are making a broad completion/staleness claim. Update the assigned workpack, relevant checklist rows, proof references, and feature/product docs as needed. Then follow `../../agent/PR_DONE_FLOW.md` and `../../agent/VALIDATION_FLOW.md`.

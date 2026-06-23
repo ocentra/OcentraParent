@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionReleasePublicStatusSchemaVersionSchema = withParser(
   Schema.Literal('production-release-public-status-proof')
@@ -107,4 +103,3 @@ export const RequiredNonClaims = [
   'no-support-backend-upload',
   'no-child-activity-custody',
 ] as const;
-

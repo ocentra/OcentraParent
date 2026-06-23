@@ -3,9 +3,7 @@ import {
   AppGameSourceFreshnessPolicyConsumptionMatrix,
   AppGameSourceFreshnessPolicyConsumptionRequests,
 } from '../../src/app-game-source-freshness-policy-consumption-data';
-import {
-  evaluateAppGameSourceFreshnessPolicyReadiness,
-} from '../../src/app-game-source-freshness-policy-consumption';
+import { evaluateAppGameSourceFreshnessPolicyReadiness } from '../../src/app-game-source-freshness-policy-consumption';
 import {
   AppGameSourceFreshnessPolicyReadinessSchema,
   AppGameSourceFreshnessPolicyRequestSchema,

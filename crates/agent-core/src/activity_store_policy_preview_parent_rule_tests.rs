@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, PolicyAction, PolicyTarget, PolicyTargetType,
-};
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 use super::{
     activity_store_policy_preview_test_fixture::{
@@ -9,23 +11,32 @@ use super::{
     ActivityStore,
 };
 
-#[test]
-fn policy_preview_read_model_resolves_local_parent_rule_context_for_matching_evidence() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
-    let event = browser_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context_for_event(&event)])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+type TestResult = Result<(), String>;
 
-    let read_model = store
-        .policy_preview_read_model(
+#[test]
+fn policy_preview_read_model_resolves_local_parent_rule_context_for_matching_evidence() -> TestResult
+{
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let event = browser_event();
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context_for_event(&event)]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.parent_rule_context_references.len(), 1);
@@ -47,17 +58,22 @@ fn policy_preview_read_model_resolves_local_parent_rule_context_for_matching_evi
         vec![policy::TEST_BLOCK_RULE_ID.to_string()]
     );
     assert!(row.decision.dry_run);
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_resolves_site_rule_from_browser_url_alias() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_resolves_site_rule_from_browser_url_alias() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = browser_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context(
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context(
             PolicyTarget {
                 target_id: constants::activity_store::TEST_BROWSER_TARGET_ID.to_string(),
                 target_type: PolicyTargetType::Site,
@@ -66,16 +82,18 @@ fn policy_preview_read_model_resolves_site_rule_from_browser_url_alias() {
             policy::TEST_ASK_PARENT_RULE_ID,
             PolicyAction::AskParent,
             policy::TEST_REASON_PARENT_ASK,
-            vec![event.event_id.clone()],
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+            vec![event.event_id],
+        )]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.target.target_type, PolicyTargetType::Domain);
@@ -89,17 +107,22 @@ fn policy_preview_read_model_resolves_site_rule_from_browser_url_alias() {
         row.decision.rule_ids,
         vec![policy::TEST_ASK_PARENT_RULE_ID.to_string()]
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_resolves_app_rule_from_active_window_alias() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_resolves_app_rule_from_active_window_alias() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = active_window_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context(
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context(
             PolicyTarget {
                 target_id: constants::activity_store::TEST_WINDOW_SUBJECT_ID.to_string(),
                 target_type: PolicyTargetType::App,
@@ -108,16 +131,18 @@ fn policy_preview_read_model_resolves_app_rule_from_active_window_alias() {
             policy::TEST_TIME_LIMIT_RULE_ID,
             PolicyAction::TimeLimit,
             policy::TEST_REASON_PARENT_TIME_LIMIT,
-            vec![event.event_id.clone()],
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+            vec![event.event_id],
+        )]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.target.target_type, PolicyTargetType::Window);
@@ -131,15 +156,20 @@ fn policy_preview_read_model_resolves_app_rule_from_active_window_alias() {
         row.decision.rule_ids,
         vec![policy::TEST_TIME_LIMIT_RULE_ID.to_string()]
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_rejects_wrong_device_or_child_rule_contexts() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_rejects_wrong_device_or_child_rule_contexts() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = browser_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
     let mut wrong_device = parent_rule_context_for_event(&event);
     wrong_device.parent_rule_ref_id = policy::TEST_DISABLED_RULE_ID.to_string();
     wrong_device.device.device_id = constants::activity_store::TEST_REMOTE_DEVICE_ID.to_string();
@@ -147,16 +177,18 @@ fn policy_preview_read_model_rejects_wrong_device_or_child_rule_contexts() {
     wrong_child.parent_rule_ref_id = policy::TEST_EXPIRED_RULE_ID.to_string();
     wrong_child.device.child_profile_id =
         Some(constants::activity_store::TEST_REMOTE_DEVICE_ID.to_string());
-    store
-        .replace_parent_rule_contexts(&[wrong_device, wrong_child])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.replace_parent_rule_contexts(&[wrong_device, wrong_child]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.parent_rule_context_references.len(), 0);
@@ -168,15 +200,20 @@ fn policy_preview_read_model_rejects_wrong_device_or_child_rule_contexts() {
             policy::REASON_LOCAL_AI_RESULT_MISSING.to_string()
         ]
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_rejects_future_or_expired_rule_windows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_rejects_future_or_expired_rule_windows() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = browser_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
     let mut future_rule = parent_rule_context_for_event(&event);
     future_rule.parent_rule_ref_id = policy::TEST_DISABLED_RULE_ID.to_string();
     future_rule.rule.effective_from =
@@ -185,16 +222,18 @@ fn policy_preview_read_model_rejects_future_or_expired_rule_windows() {
     expired_rule.parent_rule_ref_id = policy::TEST_EXPIRED_RULE_ID.to_string();
     expired_rule.rule.effective_until =
         Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string());
-    store
-        .replace_parent_rule_contexts(&[future_rule, expired_rule])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.replace_parent_rule_contexts(&[future_rule, expired_rule]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.parent_rule_context_references.len(), 0);
@@ -206,27 +245,34 @@ fn policy_preview_read_model_rejects_future_or_expired_rule_windows() {
             policy::REASON_LOCAL_AI_RESULT_MISSING.to_string()
         ]
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_rejects_scheduled_rule_without_schedule_proof() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_rejects_scheduled_rule_without_schedule_proof() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = browser_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
     let mut scheduled_rule = parent_rule_context_for_event(&event);
     scheduled_rule.rule.schedule_id = Some(policy::TEST_TIME_LIMIT_RULE_ID.to_string());
-    store
-        .replace_parent_rule_contexts(&[scheduled_rule])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.replace_parent_rule_contexts(&[scheduled_rule]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.parent_rule_context_references.len(), 0);
@@ -238,17 +284,22 @@ fn policy_preview_read_model_rejects_scheduled_rule_without_schedule_proof() {
             policy::REASON_LOCAL_AI_RESULT_MISSING.to_string()
         ]
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_rejects_partially_grounded_parent_rule_context() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_rejects_partially_grounded_parent_rule_context() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = browser_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context(
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context(
             PolicyTarget {
                 target_id: constants::activity_store::TEST_BROWSER_TARGET_ID.to_string(),
                 target_type: PolicyTargetType::Domain,
@@ -257,16 +308,18 @@ fn policy_preview_read_model_rejects_partially_grounded_parent_rule_context() {
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![event.event_id.clone(), policy::TEST_EVIDENCE_ID.to_string()],
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+            vec![event.event_id, policy::TEST_EVIDENCE_ID.to_string()],
+        )]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.parent_rule_context_references.len(), 0);
@@ -278,4 +331,9 @@ fn policy_preview_read_model_rejects_partially_grounded_parent_rule_context() {
             policy::REASON_LOCAL_AI_RESULT_MISSING.to_string()
         ]
     );
+    Ok(())
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

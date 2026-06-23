@@ -3,14 +3,17 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, journal::ActivityJournalLine, APP_GAME_CLASSIFICATION_KNOWN_APP,
-    APP_GAME_INVENTORY_ENTRY_ID_PREFIX, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_RUNTIME_NOT_CLAIMED,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_INVENTORY_ENTRY_ID_PREFIX,
+    APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE, APP_GAME_INVENTORY_STATE_INSTALLED,
+    APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_RUNTIME_NOT_CLAIMED,
     APP_GAME_TEST_STORE_APP_DISPLAY_LABEL, APP_GAME_TEST_STORE_APP_PACKAGE_ID,
     APP_GAME_TEST_STORE_PACKAGE_MANIFEST_USER_MODEL_ID, APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML,
     APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 
 use crate::{
     activity_store::ActivityStore,
@@ -91,7 +94,7 @@ fn store_package_manifest_source_respects_limit_before_journal_projection() {
         std::slice::from_ref(&root),
         1,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(events.len(), 1);
     cleanup_store_package_root(&root);
@@ -110,14 +113,14 @@ fn store_package_journal_event_replays_into_sqlite_read_model() {
         std::slice::from_ref(&root),
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let (store, lines) = append_and_replay(&events);
     let model = app_game_journal_sqlite_read_model(
         &store.connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.inventory_returned, 1);
@@ -143,7 +146,7 @@ fn store_package_default_source_is_optional_on_unsupported_platforms() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     for event in events {
         assert_eq!(event.evidence.len(), 0);
@@ -172,33 +175,35 @@ fn package_dir(root: &Path, suffix: &str) -> PathBuf {
 }
 
 fn write_manifest(root: &Path, manifest: &str) {
-    fs::create_dir_all(root).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::create_dir_all(root)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_CAPTURE_RECORDS));
     let mut path = root.to_path_buf();
     path.push(APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME);
-    fs::write(path, manifest).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::write(path, manifest)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_CAPTURE_RECORDS));
 }
 
-fn append_and_replay(
-    events: &[ocentra_parent_agent_protocol::ActivityEvent],
-) -> (ActivityStore, Vec<ActivityJournalLine>) {
+fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path();
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.clone(), key.clone())
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS)),
         );
     }
-    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader = ActivityJournal::open(path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

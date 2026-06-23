@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { PortalConnectionState } from '@ocentra-parent/portal-domain/contracts';
+import { ActivityEventKind } from '@ocentra-parent/schema-domain/evidence-kinds';
+import { PortalConnectionState } from '@ocentra-parent/schema-domain/portal-contracts';
 import { createPortalRuntimeState } from '../../src/portal-state';
 import { buildDiagnosticsExport } from '../../src/diagnostics-export';
 
@@ -79,7 +77,7 @@ function recentSummaryEvent() {
       firstObservedAt: '2026-05-20T20:44:59Z',
       lastObservedAt: '2026-05-20T20:44:59Z',
       lastEventId: 'activity-event-1',
-      mostRecentKind: 'activity.process.observed',
+      mostRecentKind: ActivityEventKind.ProcessObserved,
       mostRecentObserver: 'windows-process',
       mostRecentSubjectKind: 'process',
       mostRecentSubjectId: 'process-1',

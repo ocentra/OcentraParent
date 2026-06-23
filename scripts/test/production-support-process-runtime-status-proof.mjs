@@ -79,10 +79,7 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModule = await importBuiltModule(
-    'schema-domain',
-    'production-support-process-runtime-status-proof.js'
-  );
+  const contractModule = await importBuiltModule('schema-domain', 'production-support-process-runtime-status-proof.js');
   const readModelModule = await importBuiltModule(
     'schema-domain',
     'production-support-process-runtime-status-read-model.js'

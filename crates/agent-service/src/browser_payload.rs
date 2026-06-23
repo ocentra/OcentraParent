@@ -1,7 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserInventoryReadModel, BrowserInventoryRow, BrowserManagedSessionStatus,
-    LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::browser_inventory::{
+    BrowserInventoryReadModel, BrowserInventoryRow,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
 

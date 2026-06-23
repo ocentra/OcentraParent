@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeDeviceDeliveryProofSchema,
   AppInstallPurchaseExternalRuntimeDeviceDeliveryRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeDeviceDeliveryProof,
-} from '../../src/app-install-purchase-external-runtime-device-delivery-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-device-delivery-proof';
 
 describe('app install and purchase external runtime device delivery proof', () => {
   acceptsLinkedWriterReceiptAndChildEnvelopeEvidenceWithoutDeliveryClaims();

@@ -1,14 +1,11 @@
-import {
-  SocialDashboardUxTextToken,
-  resolveSocialDashboardUxText,
-} from '@ocentra-parent/text-domain/social-dashboard-ux-text';
+import { SocialDashboardUxTextToken, resolveSocialDashboardUxText } from '@ocentra-parent/schema-domain/text-social-ux';
 import {
   SocialDashboardUxSnapshotSchema,
   type SocialDashboardPanel,
   type SocialDashboardUxSnapshot,
 } from '@ocentra-parent/schema-domain/social-dashboard-ux';
-import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { type DisplayText, decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDetails } from './details';
 
 export type SocialDashboardPanelDetail = {

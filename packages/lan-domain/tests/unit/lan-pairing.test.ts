@@ -15,7 +15,10 @@ import {
   LanTrustedDeviceRegistryEntrySchema,
 } from '@ocentra-parent/schema-domain/lan-pairing-device';
 import { LanPairingRuntimeSupportSurfaceSchema } from '@ocentra-parent/schema-domain/lan-pairing-support';
-import { LanPairingIntentKindSchema, LanPairingRejectionReason } from '@ocentra-parent/schema-domain/lan-pairing-values';
+import {
+  LanPairingIntentKindSchema,
+  LanPairingRejectionReason,
+} from '@ocentra-parent/schema-domain/lan-pairing-values';
 
 const timestamp = '2026-05-23T14:40:00.000Z';
 const laterTimestamp = '2026-05-23T14:45:00.000Z';

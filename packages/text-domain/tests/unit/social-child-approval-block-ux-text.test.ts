@@ -3,8 +3,8 @@ import {
   SocialChildApprovalBlockUxText,
   SocialChildApprovalBlockUxTextToken,
   resolveSocialChildApprovalBlockUxText,
-} from '../../src/social-child-approval-block-ux-text';
-import { decodeDisplayText } from '../../src/contracts';
+} from '@ocentra-parent/schema-domain/text-social-ux';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 
 const BannedSocialChildCopyFragments = [
   'watched',

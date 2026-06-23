@@ -1,13 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_integrity_alert_status_bridge as bridge,
-    integrity_alert_status_bridge::{
-        V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
-        V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
-        V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
-        V08IntegrityAlertStatusBridgeReadModel,
-    },
-    policy_constants,
-};
+use ocentra_parent_agent_protocol::constants::v08_integrity_alert_status_bridge as bridge;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertAuditState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertDeliveryState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertNotificationIntentState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertParentVisibleStatus;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeEntry;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeReadModel;
+use ocentra_parent_agent_protocol::policy_constants;
 
 pub(crate) fn v08_integrity_alert_status_bridge_read_model(
     generated_at: &str,

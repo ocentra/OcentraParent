@@ -4,11 +4,12 @@ use crate::{
     NetworkReadinessState, NetworkRetentionReadinessProof, NetworkRolloutReadinessProof,
     NetworkSupportReadinessProof,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn readiness_proof_accepts_internal_security_privacy_support_and_rollout_gates() {
     let proof = evaluate_network_readiness_proof(readiness_input(false, None))
-        .expect("complete internal proof refs should pass");
+        .expect_value("complete internal proof refs should pass");
 
     assert_eq!(
         proof.readiness_state,
@@ -39,7 +40,7 @@ fn readiness_proof_accepts_internal_security_privacy_support_and_rollout_gates()
 #[test]
 fn readiness_proof_blocks_production_claim_without_external_signoff() {
     let proof = evaluate_network_readiness_proof(readiness_input(true, None))
-        .expect("production claim without signoff should be represented as blocked");
+        .expect_value("production claim without signoff should be represented as blocked");
 
     assert_eq!(
         proof.readiness_state,
@@ -59,7 +60,7 @@ fn readiness_proof_allows_production_ready_only_with_external_signoff() {
         true,
         Some("external-pen-test-signoff-row50"),
     ))
-    .expect("external signoff should allow production-ready readiness state");
+    .expect_value("external signoff should allow production-ready readiness state");
 
     assert_eq!(
         proof.readiness_state,

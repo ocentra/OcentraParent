@@ -6,10 +6,14 @@ import {
   type TrackingNotificationParentSurfaceHistoryReadModel,
   type TrackingNotificationParentSurfaceHistoryRow,
 } from '@ocentra-parent/schema-domain/tracking-notification-parent-surface-history-proof';
-import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
-import { TrackingStatusProofArtifacts, type TrackingStatusProofArtifact } from './tracking-status-proof-artifacts';
+import type { DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import {
+  decodePortalDetailValue,
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/schema-domain/portal-contracts';
+import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 
 type PortalDisplayText = DisplayText;
 

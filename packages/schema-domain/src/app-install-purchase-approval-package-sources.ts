@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const RequiredRequestKinds = ['install', 'purchase', 'subscription'] as const;
 const RequiredPackageSourceFields = [
@@ -94,12 +89,24 @@ const AppInstallPurchaseApprovalPackageSourceChildDataCustodySchema = withParser
   Schema.Literal('no-child-activity-data')
 );
 
-const AppInstallPurchaseApprovalPackageSourceArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPackageSourceArtifactRowId');
-const AppInstallPurchaseApprovalPackageSourceMetadataRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPackageSourceMetadataRowId');
-const AppInstallPurchaseApprovalPackageSourceArtifactRequirementSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPackageSourceArtifactRequirement');
-const AppInstallPurchaseApprovalPackageSourceLimitationReasonSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPackageSourceLimitationReason');
-const AppInstallPurchaseApprovalPackageSourceReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPackageSourceReportRef');
-const AppInstallPurchaseApprovalPackageSourceClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPackageSourceClaimBoundary');
+const AppInstallPurchaseApprovalPackageSourceArtifactRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPackageSourceArtifactRowId'
+);
+const AppInstallPurchaseApprovalPackageSourceMetadataRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPackageSourceMetadataRowId'
+);
+const AppInstallPurchaseApprovalPackageSourceArtifactRequirementSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPackageSourceArtifactRequirement'
+);
+const AppInstallPurchaseApprovalPackageSourceLimitationReasonSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPackageSourceLimitationReason'
+);
+const AppInstallPurchaseApprovalPackageSourceReportRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPackageSourceReportRef'
+);
+const AppInstallPurchaseApprovalPackageSourceClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPackageSourceClaimBoundary'
+);
 
 const AppInstallPurchaseApprovalPackageSourceArtifactRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseApprovalPackageSourceSchemaVersionSchema,
@@ -274,4 +281,3 @@ function packageSourceKey(input: {
 }): string {
   return `${input.platform}:${input.storeSurface}`;
 }
-

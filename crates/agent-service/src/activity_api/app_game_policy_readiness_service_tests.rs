@@ -1,23 +1,33 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,
-    AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    AppGameEvidenceClaim, AppGamePolicyReadinessReadModel, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
-    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
-    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
-    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM,
-    APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
+};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameEvidenceClaim, APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
+    APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE, APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL,
+    APP_GAME_JOURNAL_FIELD_REPLAY_STATE, APP_GAME_JOURNAL_FIELD_ROW_JSON,
+    APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_REPLAY_STATE_STORED,
+    APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM, APP_GAME_JOURNAL_SOURCE_ID,
+    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
+};
+use ocentra_parent_agent_protocol::app_game_policy_readiness::{
+    AppGamePolicyReadinessReadModel, APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE,
     APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE, APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW,
     APP_GAME_POLICY_READINESS_STATE_MISSING, APP_GAME_POLICY_READINESS_STATE_READY,
-    APP_GAME_POLICY_READINESS_STATUS_PARTIAL, APP_GAME_RUNTIME_NOT_CLAIMED,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
+    APP_GAME_POLICY_READINESS_STATUS_PARTIAL,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK, lan_pairing::LanPairingRuntime,
@@ -38,13 +48,18 @@ async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     store
         .ingest_events(&[evidence_claim_activity_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+        });
 
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model = policy_readiness_payload(
         &event.payload[constants::field::APP_GAME_POLICY_READINESS_READ_MODEL],
@@ -136,9 +151,9 @@ fn evidence_claim_activity_event() -> ActivityEvent {
     );
     fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&claim).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serde_json::to_string(&claim).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })),
     );
     fields.insert(
         APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL.to_string(),
@@ -168,8 +183,9 @@ fn evidence_claim_activity_event() -> ActivityEvent {
         kind: ActivityEventKind::DeviceIdleStateObserved,
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
-            subject_id: ocentra_parent_agent_protocol::APP_GAME_JOURNAL_EVIDENCE_CLAIM_SUBJECT_ID
-                .to_string(),
+            subject_id:
+                ocentra_parent_agent_protocol::app_game::APP_GAME_JOURNAL_EVIDENCE_CLAIM_SUBJECT_ID
+                    .to_string(),
             display_name: Some(APP_GAME_TEST_DISPLAY_LABEL.to_string()),
         },
         fields,
@@ -210,20 +226,20 @@ fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
 
 fn policy_readiness_payload(value: &LogFieldValue) -> AppGamePolicyReadinessReadModel {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn readiness_row<'a>(
-    rows: &'a [ocentra_parent_agent_protocol::AppGamePolicyReadinessRow],
+    rows: &'a [ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessRow],
     readiness_kind: &str,
-) -> &'a ocentra_parent_agent_protocol::AppGamePolicyReadinessRow {
+) -> &'a ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessRow {
     rows.iter()
         .find(|row| row.readiness_kind == readiness_kind)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn temp_path(suffix: &str) -> std::path::PathBuf {

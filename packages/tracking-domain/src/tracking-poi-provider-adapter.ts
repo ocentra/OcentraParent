@@ -332,4 +332,3 @@ function distanceBetweenMeters(
 function radians(value: number): number {
   return (value * Math.PI) / 180;
 }
-

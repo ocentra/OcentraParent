@@ -1,22 +1,33 @@
 use ocentra_parent_agent_core::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
-use ocentra_parent_agent_protocol::{
-    constants::v08_enforcement_policy_dispatch as dispatch,
-    policy_constants,
-    schema_domain_mirrors::family::{
-        ParentActorReference as MirrorParentActorReference,
-        ParentActorRole as MirrorParentActorRole,
-    },
-    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementMode,
-    EnforcementPolicyDispatchApprovalState, EnforcementPolicyDispatchCapabilityMatrixRow,
-    EnforcementPolicyDispatchIntent, EnforcementPolicyDispatchOutcomeState,
-    EnforcementPolicyDispatchProofLevel, EnforcementPolicyDispatchReadModel,
-    EnforcementPolicyDispatchReadModelEntry, EnforcementPolicyDispatchRejectionReason,
-    EnforcementPolicyDispatchSourceState, EnforcementPolicyDispatchTimerState,
-    ParentActionReference, ParentActorReference, ParentActorRole, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
-    PolicyTarget, PolicyTargetType, V08EnforcementProductControlParentAction,
-    V08EnforcementProductControlSurface,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::v08_enforcement_policy_dispatch as dispatch;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAdapterKind;
+use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
+use ocentra_parent_agent_protocol::enforcement::EnforcementMode;
+use ocentra_parent_agent_protocol::enforcement::ParentActionReference;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchApprovalState;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchCapabilityMatrixRow;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchIntent;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchOutcomeState;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchProofLevel;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchReadModel;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchReadModelEntry;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchRejectionReason;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchSourceState;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchTimerState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlParentAction;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSurface;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::schema_domain_mirrors::family::ParentActorReference as MirrorParentActorReference;
+use ocentra_parent_agent_protocol::schema_domain_mirrors::family::ParentActorRole as MirrorParentActorRole;
 
 pub(crate) fn v08_enforcement_policy_dispatch_read_model(
     generated_at: &str,
@@ -28,7 +39,8 @@ pub(crate) fn v08_enforcement_policy_dispatch_read_model(
         entries: policy_dispatch_entries(generated_at),
     };
 
-    validate_enforcement_policy_dispatch_read_model(&read_model).unwrap();
+    validate_enforcement_policy_dispatch_read_model(&read_model)
+        .unwrap_or_else(|_| panic!("{}", dispatch::READ_MODEL_ID));
     read_model
 }
 
@@ -256,6 +268,7 @@ fn scaffold_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispatchReadM
     )
 }
 
+#[derive(Clone, Copy)]
 struct DispatchEntryInput {
     intent_id: &'static str,
     matrix_id: &'static str,

@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  type AgentAppGamePolicyReadinessResult,
-} from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
+import { type AgentAppGamePolicyReadinessResult } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
 import {
   AgentAppGamePolicyReadinessKind,
   AgentAppGamePolicyReadinessState,

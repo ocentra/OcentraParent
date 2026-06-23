@@ -61,16 +61,16 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       providerStoreProductClaimContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
-      sourceProductClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
+      sourceProductClaimGateContract: 'packages/schema-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       sourceProviderStorePreflightContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-provider-store-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-provider-store-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-product-claim-provider-store-proof',
       output: relative(repoRoot, proofPath),
     },
     providerStoreProductClaimSummary: summary,

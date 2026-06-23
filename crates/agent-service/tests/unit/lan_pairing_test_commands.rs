@@ -1,7 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
@@ -302,5 +309,10 @@ pub(crate) fn intent_payload_for_pairing(
 }
 
 pub(crate) fn serialize_command(command: AgentCommandEnvelope) -> String {
-    serde_json::to_string(&command).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    let command_value = serde_json::to_value(command).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    serde_json::to_string(&command_value).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }

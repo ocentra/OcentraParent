@@ -1,15 +1,6 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
-import {
-  PolicyCompiledArtifactSchema,
-  PolicyCompilerDomain,
-  type PolicyCompiledArtifact,
-} from './policy-compiler';
+import { PolicyCompiledArtifactSchema, PolicyCompilerDomain, type PolicyCompiledArtifact } from './policy-compiler';
 import {
   TrackingAlertIntentSchema,
   TrackingChildCheckInRequestSchema,

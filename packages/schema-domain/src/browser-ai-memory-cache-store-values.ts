@@ -1,16 +1,7 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
-export const BrowserAiMemoryCacheStoreIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiMemoryCacheStoreId')
-);
-export const BrowserAiMemoryCacheEntryIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiMemoryCacheEntryId')
-);
+export const BrowserAiMemoryCacheStoreIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiMemoryCacheStoreId'));
+export const BrowserAiMemoryCacheEntryIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiMemoryCacheEntryId'));
 
 export const BrowserAiMemoryCacheKeyKindSchema = withParser(
   Schema.Literal(
@@ -53,4 +44,3 @@ export const BrowserAiMemoryCacheInvalidationReasonSchema = withParser(
 
 export type BrowserAiMemoryCacheKeyKind = Infer<typeof BrowserAiMemoryCacheKeyKindSchema>;
 export type BrowserAiMemoryCacheTtlClass = Infer<typeof BrowserAiMemoryCacheTtlClassSchema>;
-

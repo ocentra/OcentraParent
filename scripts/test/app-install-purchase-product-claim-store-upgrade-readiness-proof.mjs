@@ -62,18 +62,18 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       storeUpgradeReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-store-upgrade-readiness-proof.ts',
-      sourceProductClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-store-upgrade-readiness-proof.ts',
+      sourceProductClaimGateContract: 'packages/schema-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       sourcePortalTestReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
       sourceProviderStoreContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-store-upgrade-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof',
       output: relative(repoRoot, proofPath),
     },
     storeUpgradeReadinessSummary: summary,

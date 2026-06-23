@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentProtocolDefaults,
-  parseAgentSocialSourceCustodyMutationEvent,
-  SocialSourceCustodyMutationSnapshotSchema,
-  type AgentEventEnvelope,
-} from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { SocialSourceCustodyMutationSnapshotSchema } from '@ocentra-parent/schema-domain/agent-social-source-custody-mutation';
+import { parseAgentSocialSourceCustodyMutationEvent } from '../../src/social-source-custody-mutation';
 
 const Timestamp = '2026-06-07T03:56:00Z';
 

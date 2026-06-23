@@ -1,27 +1,11 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentContractSchemaVersionSchema } from './family-reference-primitives';
 
-export const ScreenControlCatalogIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenControlCatalogId')
-);
-export const ScreenControlSectionIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenControlSectionId')
-);
-export const ScreenControlSettingIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenControlSettingId')
-);
-export const ScreenControlOptionIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenControlOptionId')
-);
-export const ScreenControlRuleIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenControlRuleId')
-);
+export const ScreenControlCatalogIdSchema = withParser(brandedNonEmptyStringSchema('ScreenControlCatalogId'));
+export const ScreenControlSectionIdSchema = withParser(brandedNonEmptyStringSchema('ScreenControlSectionId'));
+export const ScreenControlSettingIdSchema = withParser(brandedNonEmptyStringSchema('ScreenControlSettingId'));
+export const ScreenControlOptionIdSchema = withParser(brandedNonEmptyStringSchema('ScreenControlOptionId'));
+export const ScreenControlRuleIdSchema = withParser(brandedNonEmptyStringSchema('ScreenControlRuleId'));
 
 export const ScreenControlCatalogSourceKindSchema = withParser(
   Schema.Literal(

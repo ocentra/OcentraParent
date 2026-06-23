@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProviderStoreApiExecutionProofSchema,
   AppInstallPurchaseProviderStoreApiExecutionRowSchema,
   summarizeAppInstallPurchaseProviderStoreApiExecutionProof,
-} from '../../src/app-install-purchase-provider-store-api-execution-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-provider-store-api-execution-proof';
 
 describe('app install purchase provider store api execution proof', () => {
   acceptsProviderStoreApiExecutionRows();

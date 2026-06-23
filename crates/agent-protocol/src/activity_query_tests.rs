@@ -15,7 +15,9 @@ fn activity_ingest_status_serializes_to_typescript_contract_shape() {
         last_event_id: Some(constants::event_id::HEALTH_REPORTED.to_string()),
     };
 
-    let serialized = serde_json::to_value(status).expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let serialized = serde_json::to_value(status).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::ACTIVITY_STORE_QUERIES)
+    });
 
     assert_eq!(serialized[constants::field::SCHEMA_VERSION], 1);
     assert_eq!(serialized[constants::field::DATABASE_READY], true);
@@ -46,7 +48,9 @@ fn activity_recent_summary_serializes_to_typescript_contract_shape() {
         most_recent_subject_name: None,
     };
 
-    let serialized = serde_json::to_value(summary).expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let serialized = serde_json::to_value(summary).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::ACTIVITY_STORE_QUERIES)
+    });
 
     assert_eq!(query.limit, constants::activity_store::DEFAULT_RECENT_LIMIT);
     assert_eq!(serialized[constants::field::RETURNED], 1);

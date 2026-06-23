@@ -2,6 +2,7 @@ use ocentra_browser_core::{
     browser_ai_analysis_requested_event, browser_evidence_recorded_event, browser_observed_event,
     browser_policy_evaluation_requested_event, BrowserObservationIntent,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainObservedSignal,
     ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
@@ -27,7 +28,7 @@ fn ambiguous_navigation_requests_ai_and_policy_evidence() {
     );
     assert_eq!(
         browser_ai_analysis_requested_event(&evidence)
-            .expect("browser ai request")
+            .expect_value("browser ai request")
             .evidence_refs,
         vec![evidence.evidence_ref.clone()]
     );
@@ -47,7 +48,7 @@ fn known_policy_navigation_skips_ai() {
     assert_eq!(browser_ai_analysis_requested_event(&evidence), None);
     assert_eq!(
         browser_policy_evaluation_requested_event(&evidence)
-            .expect("browser policy request")
+            .expect_value("browser policy request")
             .evidence_refs,
         vec![evidence.evidence_ref.clone()]
     );

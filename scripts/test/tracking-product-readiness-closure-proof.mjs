@@ -628,7 +628,7 @@ function sourceSnapshot(proof) {
     `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.aggregateEvidence.claimAuditManualProviderRuntimeRequiredRowCount}`,
     `- claimAuditProductionRuntimeRequiredRowCount: ${proof.aggregateEvidence.claimAuditProductionRuntimeRequiredRowCount}`,
     '- does not prove retention product settings, physical-device, authority, provider-delivery, production, or product-ready tracking behavior',
-    '- proof module: packages/tracking-domain/src/tracking-product-readiness-closure-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-product-readiness-closure-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-product-readiness-closure-proof.test.ts',
     '- proof harness: scripts/test/tracking-product-readiness-closure-proof.mjs',
     '',
@@ -637,7 +637,7 @@ function sourceSnapshot(proof) {
 
 function importDist(name) {
   return tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', name.replace(/\.js$/u, '.ts'))).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', name.replace(/\.js$/u, '.ts'))).href,
     import.meta.url
   );
 }

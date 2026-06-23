@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProviderStoreExecutionReadinessProofSchema,
   AppInstallPurchaseProviderStoreExecutionReadinessRowSchema,
   summarizeAppInstallPurchaseProviderStoreExecutionReadinessProof,
-} from '../../src/app-install-purchase-provider-store-execution-readiness-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-provider-store-execution-readiness-proof';
 
 describe('app install and purchase provider store execution readiness proof', () => {
   acceptsProviderStoreExecutionReadinessRowsWithoutProviderClaims();

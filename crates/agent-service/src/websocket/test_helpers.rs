@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, lan_pairing::LanPairingRuntime,
@@ -10,13 +10,13 @@ pub(crate) async fn handle_command_text_for_test(
     lan_pairing: LanPairingRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    super::handle_command_text(
+    Box::pin(super::handle_command_text(
         text,
         lan_pairing,
         BrowserPolicyRuntime::in_memory(),
         ScreenSettingsRuntime::in_memory(),
         origin,
-    )
+    ))
     .await
 }
 
@@ -26,13 +26,13 @@ pub(crate) async fn handle_command_text_with_browser_policy_for_test(
     browser_policy: BrowserPolicyRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    super::handle_command_text(
+    Box::pin(super::handle_command_text(
         text,
         lan_pairing,
         browser_policy,
         ScreenSettingsRuntime::in_memory(),
         origin,
-    )
+    ))
     .await
 }
 
@@ -42,12 +42,12 @@ pub(crate) async fn handle_command_text_with_screen_settings_for_test(
     screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    super::handle_command_text(
+    Box::pin(super::handle_command_text(
         text,
         lan_pairing,
         BrowserPolicyRuntime::in_memory(),
         screen_settings,
         origin,
-    )
+    ))
     .await
 }

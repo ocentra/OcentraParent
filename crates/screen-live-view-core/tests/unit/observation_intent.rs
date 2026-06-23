@@ -31,12 +31,10 @@ fn session_requires_policy_without_ai_analysis() {
         screen_live_view_ai_analysis_requested_event(&evidence),
         None
     );
-    assert_eq!(
-        screen_live_view_policy_evaluation_requested_event(&evidence)
-            .expect("screen live view policy request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
+    assert!(matches!(
+        screen_live_view_policy_evaluation_requested_event(&evidence).as_ref(),
+        Some(policy) if policy.evidence_refs == vec![evidence.evidence_ref.clone()]
+    ));
 }
 
 #[test]
@@ -54,12 +52,10 @@ fn unauthorized_session_still_routes_to_policy_only() {
         screen_live_view_ai_analysis_requested_event(&evidence),
         None
     );
-    assert_eq!(
-        screen_live_view_policy_evaluation_requested_event(&evidence)
-            .expect("screen live view policy request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
+    assert!(matches!(
+        screen_live_view_policy_evaluation_requested_event(&evidence).as_ref(),
+        Some(policy) if policy.evidence_refs == vec![evidence.evidence_ref.clone()]
+    ));
 }
 
 #[test]

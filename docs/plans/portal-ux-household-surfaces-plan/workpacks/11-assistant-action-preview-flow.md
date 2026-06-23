@@ -14,19 +14,25 @@
 
 <!-- /agent-capsule -->
 
-Sources: [20-step plan](../portal-ux-household-surfaces-20-step-plan.md),
-[test blueprint](../portal-ux-household-surfaces-test-blueprint.md),
-[UI/UX guide](../ui-ux-requirements-guide.md), and [folder README](../README.md).
+Sources: [20-step plan](../portal-ux-household-surfaces-20-step-plan.md), [test blueprint](../portal-ux-household-surfaces-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), and [folder README](../README.md).
+
+## Ownership boundary
+
+```text
+portal UX owns rendered assistant explanation/action-preview UI, cited state, denied-action state, and no-claim boundaries.
+ai-plan owns provider/runtime/model behavior and evidence-context construction.
+policy-control-plane-plan owns typed policy action preview and parent confirmation semantics.
+v0-8-enforcement-control-plan owns enforcement action authority and adapter execution.
+account-identity-family-plan owns role/session authority.
+```
 
 ## Where We Are
 
-Assistant contracts and evidence context proof exist, but a finished
-portal-based action preview flow is not done.
+Assistant contracts and evidence context proof exist, but a finished portal-based action preview flow is not done.
 
 ## Where We Want To Be
 
-Assistant output becomes cited explanation, proposed typed action, preview,
-parent confirmation, and child-agent validation/result state.
+Assistant output becomes cited explanation, proposed typed action, preview, parent confirmation, and child-agent validation/result state.
 
 ## Decision Tree
 
@@ -48,6 +54,29 @@ parent confirmation, and child-agent validation/result state.
 - Result: delivered, active, denied, expired, superseded, unavailable, or rollback-required.
 - Degraded provider: assistant unavailable or low-confidence; action creation disabled.
 
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+assistant_surface_state
+citation_state
+evidence_ref_state
+typed_action_preview_state
+parent_confirmation_state
+role_authority_state
+provider_degraded_state
+low_confidence_state
+prompt_injection_boundary_state
+child_agent_validation_state
+result_state_separation
+enforcement_boundary_state
+no_direct_mutation_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
 ## Requirement Checklist
 
 - [ ] Show citations/evidence refs for answers.
@@ -61,8 +90,7 @@ parent confirmation, and child-agent validation/result state.
 
 ## Acceptance And Proof
 
-Assistant UI cannot write policy or enforcement state without typed preview and
-confirmation flow.
+Assistant UI cannot write policy or enforcement state without typed preview and confirmation flow.
 
 Expected proof names:
 
@@ -81,6 +109,7 @@ Proof must include chat/action screenshots or DOM snapshots, typed action fixtur
 - Do not let assistant output directly mutate policy, enforcement, billing, account, or child-device state.
 - Do not treat model confidence as authority.
 - Do not omit evidence refs for safety-relevant recommendations.
+- Do not claim assistant action readiness without parent confirmation and owning-plan handoff proof.
 
 ## Parallel Ownership Notes
 

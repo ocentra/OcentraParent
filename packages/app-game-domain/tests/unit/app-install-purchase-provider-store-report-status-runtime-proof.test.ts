@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProviderStoreReportStatusRuntimeProofSchema,
   AppInstallPurchaseProviderStoreReportStatusRuntimeRowSchema,
   summarizeAppInstallPurchaseProviderStoreReportStatusRuntimeProof,
-} from '../../src/app-install-purchase-provider-store-report-status-runtime-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-provider-store-report-status-runtime-proof';
 
 describe('app install and purchase provider store report status runtime proof', () => {
   acceptsProviderStoreReportStatusRuntimeRowsWithoutDeliveryClaims();

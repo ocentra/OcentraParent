@@ -1,6 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiChatGenerationResult, LocalAiGenerationState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
 
 use crate::{
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
@@ -12,7 +12,7 @@ use crate::{
 pub(crate) fn unavailable_result(
     message_id: &str,
     config: &LocalAiRuntimeConfigSnapshot,
-    request: LocalAiChatGenerationRequest,
+    request: &LocalAiChatGenerationRequest,
     reason: &'static str,
 ) -> LocalAiChatGenerationResult {
     let (status, _, _) = local_ai_runtime_status_from_config(timestamp_now(), config);
@@ -45,7 +45,7 @@ pub(crate) struct LocalAiFailedGeneration {
 pub(crate) fn failed_result(
     message_id: &str,
     config: &LocalAiRuntimeConfigSnapshot,
-    request: LocalAiChatGenerationRequest,
+    request: &LocalAiChatGenerationRequest,
     failure: LocalAiFailedGeneration,
 ) -> LocalAiChatGenerationResult {
     LocalAiChatGenerationResult {

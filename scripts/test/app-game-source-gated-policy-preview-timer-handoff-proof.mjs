@@ -23,7 +23,8 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 
-const schemaTimerHandoff = await import('@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-handoff');
+const schemaTimerHandoff =
+  await import('@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-handoff');
 commands.push('node import @ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-handoff');
 if (!('AppGameSourceGatedPolicyPreviewTimerHandoffSchema' in schemaTimerHandoff)) {
   throw new Error('Missing AppGameSourceGatedPolicyPreviewTimerHandoffSchema export from schema-domain');

@@ -1,38 +1,38 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
-import { IMPLEMENTED_HANDLER_KEYS } from "../../src/index.js";
-import { ROUTE_MANIFEST } from "../../src/routes.js";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { IMPLEMENTED_HANDLER_KEYS } from '../../src/index.js';
+import { ROUTE_MANIFEST } from '../../src/routes.js';
 
 const EXPECTED_AUTH_ROUTES = new Map([
-  ["GET /auth/billing/status", "parent-session-required"],
-  ["POST /auth/billing/checkout", "parent-session-required"],
-  ["POST /auth/billing/portal", "parent-session-required"],
-  ["GET /auth/billing/invoices", "parent-session-required"],
-  ["POST /auth/billing/change-plan", "parent-session-required"],
-  ["POST /auth/billing/cancel", "parent-session-required"],
-  ["GET /auth/billing/referrals", "parent-session-required"],
-  ["POST /auth/billing/referral-invite", "parent-session-required"],
-  ["GET /auth/billing/entitlement-snapshot", "trusted-parent-device-required"],
-  ["POST /auth/billing/license-check", "trusted-parent-device-required"],
-  ["POST /auth/billing/manual-invoice", "support-required"],
+  ['GET /auth/billing/status', 'parent-session-required'],
+  ['POST /auth/billing/checkout', 'parent-session-required'],
+  ['POST /auth/billing/portal', 'parent-session-required'],
+  ['GET /auth/billing/invoices', 'parent-session-required'],
+  ['POST /auth/billing/change-plan', 'parent-session-required'],
+  ['POST /auth/billing/cancel', 'parent-session-required'],
+  ['GET /auth/billing/referrals', 'parent-session-required'],
+  ['POST /auth/billing/referral-invite', 'parent-session-required'],
+  ['GET /auth/billing/entitlement-snapshot', 'trusted-parent-device-required'],
+  ['POST /auth/billing/license-check', 'trusted-parent-device-required'],
+  ['POST /auth/billing/manual-invoice', 'support-required'],
 ] as const);
 
 const EXPECTED_WEBHOOK_ROUTES = [
-  "POST /webhooks/stripe",
-  "POST /webhooks/razorpay",
-  "POST /webhooks/paypal",
-  "POST /webhooks/apple",
-  "POST /webhooks/google",
+  'POST /webhooks/stripe',
+  'POST /webhooks/razorpay',
+  'POST /webhooks/paypal',
+  'POST /webhooks/apple',
+  'POST /webhooks/google',
 ] as const;
 
 const EXPECTED_ADMIN_ROUTES = new Map([
-  ["GET /admin/billing/accounts", "support-required"],
-  ["GET /admin/billing/invoices", "support-required"],
-  ["POST /admin/billing/refunds", "admin-required"],
-  ["GET /admin/billing/disputes", "admin-required"],
-  ["GET /admin/billing/referrals", "admin-required"],
-  ["POST /admin/billing/reconciliation", "internal-queue-only"],
-  ["GET /admin/billing/audit", "admin-required"],
+  ['GET /admin/billing/accounts', 'support-required'],
+  ['GET /admin/billing/invoices', 'support-required'],
+  ['POST /admin/billing/refunds', 'admin-required'],
+  ['GET /admin/billing/disputes', 'admin-required'],
+  ['GET /admin/billing/referrals', 'admin-required'],
+  ['POST /admin/billing/reconciliation', 'internal-queue-only'],
+  ['GET /admin/billing/audit', 'admin-required'],
 ] as const);
 
 const ALLOWED_ROUTE_PATTERNS = [
@@ -43,19 +43,19 @@ const ALLOWED_ROUTE_PATTERNS = [
   /^\/admin\/billing\/[a-z-]+$/u,
 ] as const;
 
-describe("ROUTE_MANIFEST", () => {
-  it("keeps route and method pairs unique", () => {
+describe('ROUTE_MANIFEST', () => {
+  it('keeps route and method pairs unique', () => {
     const routeKeys = ROUTE_MANIFEST.map((route) => `${route.method} ${route.path}`);
     assert.equal(new Set(routeKeys).size, routeKeys.length);
   });
 
-  it("pins every public, auth, webhook, and admin billing route to the expected auth state", () => {
+  it('pins every public, auth, webhook, and admin billing route to the expected auth state', () => {
     const expectations = new Map<string, string>([
-      ["GET /health", "public"],
-      ["GET /public/pricing", "public"],
+      ['GET /health', 'public'],
+      ['GET /public/pricing', 'public'],
       ...EXPECTED_AUTH_ROUTES,
       ...EXPECTED_ADMIN_ROUTES,
-      ...EXPECTED_WEBHOOK_ROUTES.map((routeKey) => [routeKey, "provider-webhook-signature-required"] as const),
+      ...EXPECTED_WEBHOOK_ROUTES.map((routeKey) => [routeKey, 'provider-webhook-signature-required'] as const),
     ]);
 
     for (const [routeKey, authState] of expectations) {
@@ -65,10 +65,10 @@ describe("ROUTE_MANIFEST", () => {
     }
   });
 
-  it("requires every manifest entry to declare the core contract metadata fields", () => {
+  it('requires every manifest entry to declare the core contract metadata fields', () => {
     for (const route of ROUTE_MANIFEST) {
       assert.match(route.path, /^\//u);
-      assert.ok(route.method === "GET" || route.method === "POST");
+      assert.ok(route.method === 'GET' || route.method === 'POST');
       assert.match(route.authState, /.+/u);
       assert.match(route.handlerKey, /.+/u);
       assert.match(route.requestModel, /.+/u);
@@ -78,29 +78,28 @@ describe("ROUTE_MANIFEST", () => {
     }
   });
 
-  it("never marks auth, admin, or webhook billing routes as public", () => {
-    const privateRoutes = ROUTE_MANIFEST.filter((route) =>
-      route.path.startsWith("/auth/") ||
-      route.path.startsWith("/admin/") ||
-      route.path.startsWith("/webhooks/"),
+  it('never marks auth, admin, or webhook billing routes as public', () => {
+    const privateRoutes = ROUTE_MANIFEST.filter(
+      (route) =>
+        route.path.startsWith('/auth/') || route.path.startsWith('/admin/') || route.path.startsWith('/webhooks/')
     );
 
     assert.ok(privateRoutes.length > 0);
     for (const route of privateRoutes) {
-      assert.notEqual(route.authState, "public", `${route.method} ${route.path} must not be public`);
+      assert.notEqual(route.authState, 'public', `${route.method} ${route.path} must not be public`);
     }
   });
 
-  it("keeps route paths inside the declared Cloudflare worker groups", () => {
+  it('keeps route paths inside the declared Cloudflare worker groups', () => {
     for (const route of ROUTE_MANIFEST) {
       assert.ok(
         ALLOWED_ROUTE_PATTERNS.some((pattern) => pattern.test(route.path)),
-        `Unexpected route outside declared groups: ${route.method} ${route.path}`,
+        `Unexpected route outside declared groups: ${route.method} ${route.path}`
       );
     }
   });
 
-  it("does not expose implemented handlers outside the manifest", () => {
+  it('does not expose implemented handlers outside the manifest', () => {
     const manifestHandlerKeys = new Set(ROUTE_MANIFEST.map((route) => route.handlerKey));
     for (const handlerKey of IMPLEMENTED_HANDLER_KEYS) {
       assert.ok(manifestHandlerKeys.has(handlerKey));

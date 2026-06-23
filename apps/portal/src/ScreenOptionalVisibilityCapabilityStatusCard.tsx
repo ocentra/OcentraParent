@@ -4,7 +4,8 @@ import {
   ScreenOptionalVisibilityCapabilityProofGeneratedAt,
 } from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-proof';
 import type { ScreenOptionalVisibilityCapabilityStatus } from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-status';
-import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails, PortalReadableValues } from '@ocentra-parent/portal-domain/details';
 
 type OptionalVisibilityStatusValue = ReactNode;

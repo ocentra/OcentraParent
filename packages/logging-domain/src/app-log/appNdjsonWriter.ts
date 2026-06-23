@@ -46,11 +46,7 @@ export function listAppLogSessionFiles(scope: TestLogScope, rootDir?: string): s
     .sort((left, right) => left.localeCompare(right));
 }
 
-export function pruneAppLogSessions(
-  scope: TestLogScope,
-  keepNewest: number,
-  rootDir?: string
-): number {
+export function pruneAppLogSessions(scope: TestLogScope, keepNewest: number, rootDir?: string): number {
   const files = listAppLogSessionFiles(scope, rootDir)
     .map((filePath) => ({
       filePath,

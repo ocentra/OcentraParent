@@ -10,7 +10,8 @@ use ocentra_eventing::{
 #[cfg(test)]
 use ocentra_eventing::clock::ManualEventClock;
 
-use ocentra_parent_agent_protocol::{constants, NetworkRuntimePhase};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase;
 
 use crate::NetworkObservation;
 

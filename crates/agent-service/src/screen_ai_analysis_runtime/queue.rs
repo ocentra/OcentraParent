@@ -5,7 +5,8 @@ use ocentra_parent_agent_core::{
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
     screen_evidence_queue::ScreenEvidenceQueue,
 };
-use ocentra_parent_agent_protocol::{constants, ScreenAnalysisResult};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisResult;
 
 use crate::activity_capture::ActivityCaptureError;
 

@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendDurableQueueRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-durable-queue-runtime-proof')
@@ -95,8 +91,12 @@ export const ProductionSupportStatusBackendDurableQueueRuntimeNonClaimSchema = w
   )
 );
 
-export const DurableQueueRuntimeReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendDurableQueueRuntimeReference');
-export const DurableQueueRuntimeManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendDurableQueueRuntimeManualRequirement');
+export const DurableQueueRuntimeReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportStatusBackendDurableQueueRuntimeReference'
+);
+export const DurableQueueRuntimeManualRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportStatusBackendDurableQueueRuntimeManualRequirement'
+);
 
 export const RequiredDurableQueueRuntimeTargets = [
   'support-runbook-status-backend-durable-queue-runtime',
@@ -171,4 +171,3 @@ export const RequiredDurableQueueRuntimeNonClaims = [
   'no-provider-secret-custody',
   'no-child-activity-custody',
 ] as const;
-

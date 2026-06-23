@@ -35,7 +35,7 @@ fn child_domain_ai_completion_hands_off_to_policy_without_authority() {
         ocentra_child_ai_core::child_domain_analysis::complete_child_domain_ai_analysis(&request);
     let handoff =
         child_domain_policy_evaluation_requested_from_ai_result_event_if_required(&completed)
-            .expect("policy handoff is required");
+            .unwrap_or_else(|| unreachable!("policy handoff is required"));
 
     assert_eq!(
         completed.event_type,

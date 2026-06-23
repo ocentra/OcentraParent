@@ -14,8 +14,7 @@
 
 # Screen AI Pipeline Plan Agent Route
 
-Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects
-`docs/plans/screen-ai-pipeline-plan`.
+Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects `docs/plans/screen-ai-pipeline-plan`.
 
 ## High-density execution contract
 
@@ -27,16 +26,65 @@ Test rule: expected tests are obligations, not suggestions. If the test crate/fo
 Proof rule: proof must contain command log, negative case, artifact path, updated row, and skipped-risk note when applicable.
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+
+## Ownership, Import, And Boundary Contract
+
+This plan owns the integration pipeline from real screen-trigger/capture evidence into local AI analysis, schema-valid AI results, deterministic policy handoff, action dry-run proof, journal/read-model/portal projection, custody/delete proof, live-operator proof, performance/backpressure proof, and final rollout proof. It does not own raw capture mechanics, shared AI provider/runtime, policy authority, enforcement execution, data custody policy, portal UX ownership, browser/app/network/tracking source truth, or remote access.
+
+Module roles:
+
+```text
+screen-ai-pipeline-plan: multi-hop integration proof, scenario routing, proof shape, no-claim boundaries, and rollout gate for screen -> AI -> policy/action path.
+screen-plan and screen-domain: screen capture, screen evidence contracts, OCR/VLM/screen intelligence contracts, protected surfaces, disclosure, and screen settings. screen-domain is a real contract package, not just metadata.
+ai-plan and schema-domain: shared AI/runtime/evidence-context/model-result contracts. ai-domain is package identity and focused tests; canonical shared AI contracts live in schema-domain.
+policy-control-plane-plan: deterministic policy source truth, parent rule precedence, preview/delivery/approval semantics, and policy decision boundary.
+v0-8-enforcement-control-plan: enforcement action authority, adapter execution, rollback, and supported runtime proof.
+data-custody-storage-plan: deletion, retention, export, privacy, and custody rules for raw images, queue artifacts, results, and screenshots.
+portal-ux-household-surfaces-plan and portal-domain/apps/portal: parent-visible projection, screenshots, route/UI proof, and no-fake-data presentation.
+browser-plan, app-game-plan, network-plan, tracking-plan, and screen-plan: domain source truth, triggers, evidence provenance, and target-specific runtime behavior.
+agent-protocol, agent-service, and agent-core: protocol/service/journal/read-model seams only when selected by the workpack.
+```
+
+Direct imports are allowed only for explicit public helper surfaces:
+
+```text
+schema-domain canonical screen/AI/evidence/policy/action/custody shapes
+screen-domain public screen evidence/intelligence/router/disclosure contracts when selected
+agent-protocol-domain/agent-protocol public read models, events, or command seams when selected
+portal-domain public projection contracts when selected
+domain-plan public handoff contracts only when the selected workpack names them
+neutral event/evidence/logging helpers that do not own product behavior
+```
+
+Forbidden direct imports and claims:
+
+```text
+screen capture internals imported to bypass screen-plan ownership
+AI/provider internals imported to bypass ai-plan/schema-domain contracts
+AI result upgraded into policy authority
+policy decision upgraded into enforcement execution
+policy dry-run upgraded into adapter/runtime proof
+local capture proof upgraded into full screen-AI product proof
+mock/fixture proof upgraded into product proof
+live-operator artifact-gate proof upgraded into live capture rerun proof
+portal screenshot upgraded into pipeline/runtime proof
+raw image path, prompt, OCR text, VLM output, or child-private payload leaked into unredacted logs
+retention/custody proof claimed without deletion/retention artifacts
+```
+
+If screen-AI work needs raw capture, model provider behavior, policy authority, enforcement action, custody, portal rendering, domain trigger truth, or remote access behavior, it must use typed handoffs, retained proof roots, and explicit no-claim boundaries. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
 
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when owner/proof family is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 
@@ -76,6 +124,4 @@ After the assigned workpack is known, use [TEST_PROOF_EXPECTATIONS.md](TEST_PROO
 
 ## Before DONE / PR_READY
 
-Read `PLAN_HEALTH.md` if you are making a broad completion/staleness claim. Update the assigned workpack, relevant checklist rows, proof references, and
-feature/product docs as needed. Then follow `../../agent/PR_DONE_FLOW.md` and
-`../../agent/VALIDATION_FLOW.md`.
+Read `PLAN_HEALTH.md` if you are making a broad completion/staleness claim. Update the assigned workpack, relevant checklist rows, proof references, and feature/product docs as needed. Then follow `../../agent/PR_DONE_FLOW.md` and `../../agent/VALIDATION_FLOW.md`.

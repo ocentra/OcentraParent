@@ -6,9 +6,9 @@ use crate::{
     LanPairingRejectionReason, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
 };
 
-pub(crate) mod production_household_proof;
-pub(crate) mod signed_discovery_relay_spine;
-pub(crate) mod source_matrix;
+pub mod production_household_proof;
+pub mod signed_discovery_relay_spine;
+pub mod source_matrix;
 use self::{
     production_household_proof::LanProductionHouseholdProofSummary,
     signed_discovery_relay_spine::LanSignedDiscoveryRelaySpineSummary,

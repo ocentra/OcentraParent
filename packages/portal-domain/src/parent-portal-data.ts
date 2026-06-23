@@ -1,4 +1,5 @@
-import { PortalRoute, portalRouteHashPath, type PortalRoute as PortalRouteValue } from './routes';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { portalRouteHashPath } from './routes';
 import {
   PARENT_PORTAL_NAV_LABELS,
   PARENT_PORTAL_NAV_GROUPS,
@@ -243,12 +244,57 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
   [PortalRoute.Entitlements]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Account, 'entitlements'),
   [PortalRoute.PlatformsInstall]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
   [PortalRoute.InstallUpdates]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
-  [PortalRoute.Diagnostics]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Account, 'support-api-status'),
+  [PortalRoute.Diagnostics]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Diagnostics, 'support-api-status'),
+  [PortalRoute.ProofPanels]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.ProofPanels, 'dev-proof-panels'),
   [PortalRoute.SettingsRules]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Portal, 'family-settings'),
   [PortalRoute.Commands]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Commands, 'dev-commands'),
   [PortalRoute.Events]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Events, 'dev-events'),
   [PortalRoute.Logs]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Logs, 'dev-logs'),
   [PortalRoute.FrameTuner]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AppLayout, 'app-layout'),
+} as const;
+
+const PARENT_PORTAL_MANAGE_LANE_ROUTES: Readonly<Record<ParentPortalManageLane, ReadonlySet<PortalRouteValue>>> = {
+  deviceOps: new Set([
+    PortalRoute.Devices,
+    PortalRoute.LanPairing,
+    PortalRoute.CapabilityStatus,
+    PortalRoute.RemoteAccess,
+    PortalRoute.PlatformsInstall,
+    PortalRoute.InstallUpdates,
+  ]),
+  childPolicy: new Set([
+    PortalRoute.Activity,
+    PortalRoute.Browser,
+    PortalRoute.BrowserSettings,
+    PortalRoute.PolicyApps,
+    PortalRoute.PolicyGames,
+    PortalRoute.PolicyScreen,
+    PortalRoute.PolicyNetwork,
+    PortalRoute.PolicyTracking,
+    PortalRoute.PolicyRemoteScreen,
+    PortalRoute.RuleManagement,
+    PortalRoute.Schedules,
+    PortalRoute.Approvals,
+    PortalRoute.Enforcement,
+    PortalRoute.ScreenAnalysis,
+    PortalRoute.AppGameSessions,
+    PortalRoute.NetworkActivity,
+    PortalRoute.MemorySettings,
+    PortalRoute.AiRuntime,
+    PortalRoute.ApiProviders,
+    PortalRoute.ReportCompiler,
+  ]),
+  portal: new Set([
+    PortalRoute.Notifications,
+    PortalRoute.NotificationChannels,
+    PortalRoute.DriveConnections,
+    PortalRoute.ExportRetention,
+    PortalRoute.AuditHistory,
+    PortalRoute.Subscription,
+    PortalRoute.Entitlements,
+    PortalRoute.Diagnostics,
+    PortalRoute.SettingsRules,
+  ]),
 } as const;
 
 export function parentPortalRouteContext(route: PortalRouteValue): ParentPortalRouteContext {
@@ -262,48 +308,15 @@ export function parentPortalRouteContext(route: PortalRouteValue): ParentPortalR
 }
 
 export function parentPortalManageLaneForRoute(route: PortalRouteValue): ParentPortalManageLane | null {
-  switch (route) {
-    case PortalRoute.Devices:
-    case PortalRoute.LanPairing:
-    case PortalRoute.CapabilityStatus:
-    case PortalRoute.RemoteAccess:
-    case PortalRoute.PlatformsInstall:
-    case PortalRoute.InstallUpdates:
-      return 'deviceOps';
-    case PortalRoute.Activity:
-    case PortalRoute.Browser:
-    case PortalRoute.BrowserSettings:
-    case PortalRoute.PolicyApps:
-    case PortalRoute.PolicyGames:
-    case PortalRoute.PolicyScreen:
-    case PortalRoute.PolicyNetwork:
-    case PortalRoute.PolicyTracking:
-    case PortalRoute.PolicyRemoteScreen:
-    case PortalRoute.RuleManagement:
-    case PortalRoute.Schedules:
-    case PortalRoute.Approvals:
-    case PortalRoute.Enforcement:
-    case PortalRoute.ScreenAnalysis:
-    case PortalRoute.AppGameSessions:
-    case PortalRoute.NetworkActivity:
-    case PortalRoute.MemorySettings:
-    case PortalRoute.AiRuntime:
-    case PortalRoute.ApiProviders:
-    case PortalRoute.ReportCompiler:
-      return 'childPolicy';
-    case PortalRoute.Notifications:
-    case PortalRoute.NotificationChannels:
-    case PortalRoute.DriveConnections:
-    case PortalRoute.ExportRetention:
-    case PortalRoute.AuditHistory:
-    case PortalRoute.Subscription:
-    case PortalRoute.Entitlements:
-    case PortalRoute.Diagnostics:
-    case PortalRoute.SettingsRules:
-      return 'portal';
-    default:
-      return null;
+  for (const [lane, routes] of Object.entries(PARENT_PORTAL_MANAGE_LANE_ROUTES) as [
+    ParentPortalManageLane,
+    ReadonlySet<PortalRouteValue>,
+  ][]) {
+    if (routes.has(route)) {
+      return lane;
+    }
   }
+  return null;
 }
 
 export const PARENT_PORTAL_ROWS: ParentPortalRow[] = [

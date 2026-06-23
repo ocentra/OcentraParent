@@ -161,7 +161,7 @@ function rejectsDeviceOwnerAndInstallUpgrades(): void {
 }
 
 function validReadModel(): ChildAndroidPermissionCapabilityReadModel {
-  return {
+  return ChildAndroidPermissionCapabilityReadModelSchema.parse({
     schemaVersion: 'child-android-permission-capability-proof',
     packageId: 'ca.ocentra.parent.agent',
     nativeBridgeClass: 'ca.ocentra.parent.agent.ChildAndroidPermissionCapabilityProof',
@@ -202,10 +202,10 @@ function validReadModel(): ChildAndroidPermissionCapabilityReadModel {
       externalTransport: 'no LAN/WebSocket Android child-agent permission transport is claimed',
     },
     updatedAt: '2026-05-31T00:00:00.000Z',
-  };
+  });
 }
 
-function permissionProofs(): ChildAndroidPermissionCapabilityReadModel['permissionProofs'] {
+function permissionProofs() {
   return [
     permissionProof(
       'android.permission.FOREGROUND_SERVICE',
@@ -242,11 +242,11 @@ function permissionProofs(): ChildAndroidPermissionCapabilityReadModel['permissi
   ];
 }
 
-function adapterProofs(): ChildAndroidPermissionCapabilityReadModel['adapterProofs'] {
+function adapterProofs() {
   return [...packageAdapterProofs(), ...permissionAdapterProofs(), ...policyAdapterProofs()];
 }
 
-function packageAdapterProofs(): ChildAndroidPermissionCapabilityReadModel['adapterProofs'] {
+function packageAdapterProofs() {
   return [
     adapterProof(
       'package-debug-apk',
@@ -283,7 +283,7 @@ function packageAdapterProofs(): ChildAndroidPermissionCapabilityReadModel['adap
   ];
 }
 
-function permissionAdapterProofs(): ChildAndroidPermissionCapabilityReadModel['adapterProofs'] {
+function permissionAdapterProofs() {
   return [
     adapterProof(
       'post-notifications-permission',
@@ -320,7 +320,7 @@ function permissionAdapterProofs(): ChildAndroidPermissionCapabilityReadModel['a
   ];
 }
 
-function policyAdapterProofs(): ChildAndroidPermissionCapabilityReadModel['adapterProofs'] {
+function policyAdapterProofs() {
   return [
     adapterProof(
       'device-owner-policy',
@@ -341,7 +341,7 @@ function policyAdapterProofs(): ChildAndroidPermissionCapabilityReadModel['adapt
   ];
 }
 
-function packageLifecycleProofs(): ChildAndroidPermissionCapabilityReadModel['packageLifecycleProofs'] {
+function packageLifecycleProofs() {
   return [
     lifecycleProof('debug-apk-build', 'ci-mechanical-proof', 'android-package-build'),
     lifecycleProof('checksum', 'ci-mechanical-proof', 'android-package-build'),
@@ -358,13 +358,13 @@ function packageLifecycleProofs(): ChildAndroidPermissionCapabilityReadModel['pa
 }
 
 function permissionProof(
-  permission: ChildAndroidPermissionCapabilityReadModel['permissionProofs'][number]['permission'],
-  parentCapability: ChildAndroidPermissionCapabilityReadModel['permissionProofs'][number]['parentCapability'],
-  declarationState: ChildAndroidPermissionCapabilityReadModel['permissionProofs'][number]['declarationState'],
-  runtimeGrantState: ChildAndroidPermissionCapabilityReadModel['permissionProofs'][number]['runtimeGrantState'],
-  proofState: ChildAndroidPermissionCapabilityReadModel['permissionProofs'][number]['proofState'],
-  runtimeOwner: ChildAndroidPermissionCapabilityReadModel['permissionProofs'][number]['runtimeOwner']
-): ChildAndroidPermissionCapabilityReadModel['permissionProofs'][number] {
+  permission: string,
+  parentCapability: string,
+  declarationState: string,
+  runtimeGrantState: string,
+  proofState: string,
+  runtimeOwner: string
+) {
   const proofRequirement = `${permission} remains ${runtimeGrantState} until device proof changes it`;
   return {
     permission,
@@ -379,13 +379,13 @@ function permissionProof(
 }
 
 function adapterProof(
-  surface: ChildAndroidPermissionCapabilityReadModel['adapterProofs'][number]['surface'],
-  parentCapability: ChildAndroidPermissionCapabilityReadModel['adapterProofs'][number]['parentCapability'],
-  parentCapabilityStatus: ChildAndroidPermissionCapabilityReadModel['adapterProofs'][number]['parentCapabilityStatus'],
-  adapterState: ChildAndroidPermissionCapabilityReadModel['adapterProofs'][number]['adapterState'],
-  proofState: ChildAndroidPermissionCapabilityReadModel['adapterProofs'][number]['proofState'],
-  runtimeOwner: ChildAndroidPermissionCapabilityReadModel['adapterProofs'][number]['runtimeOwner']
-): ChildAndroidPermissionCapabilityReadModel['adapterProofs'][number] {
+  surface: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  adapterState: string,
+  proofState: string,
+  runtimeOwner: string
+) {
   const proofRequirement = `${surface} remains ${adapterState} with ${proofState}`;
   return {
     surface,
@@ -399,11 +399,7 @@ function adapterProof(
   };
 }
 
-function lifecycleProof(
-  phase: ChildAndroidPermissionCapabilityReadModel['packageLifecycleProofs'][number]['phase'],
-  proofState: ChildAndroidPermissionCapabilityReadModel['packageLifecycleProofs'][number]['proofState'],
-  runtimeOwner: ChildAndroidPermissionCapabilityReadModel['packageLifecycleProofs'][number]['runtimeOwner']
-): ChildAndroidPermissionCapabilityReadModel['packageLifecycleProofs'][number] {
+function lifecycleProof(phase: string, proofState: string, runtimeOwner: string) {
   return {
     phase,
     proofState,

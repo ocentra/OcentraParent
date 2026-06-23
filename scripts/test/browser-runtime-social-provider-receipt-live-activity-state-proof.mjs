@@ -40,7 +40,16 @@ const commands = [
   },
   {
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/portal', '--', 'tests/live-activity-state.test.ts'],
+    args: [
+      '/c',
+      'npm',
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'tests/live-activity-state.test.ts',
+    ],
     label: 'cmd /c npm run test --workspace @ocentra-parent/portal -- tests/live-activity-state.test.ts',
   },
   {

@@ -6,11 +6,8 @@ import {
   type BrowserParentExplanationPanelIntent,
   type BrowserParentExplanationPanelRow,
 } from '@ocentra-parent/portal-domain/browser-parent-explanation-panel';
-import {
-  isPortalBrowserParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
-
+import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 export function shouldRenderBrowserParentExplanationRoute(route: PortalRouteValue): boolean {
   return isPortalBrowserParentSurfaceRoute(route);
 }

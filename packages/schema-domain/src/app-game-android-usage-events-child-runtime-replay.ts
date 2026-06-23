@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameAndroidUsageEventsReplayReadModelSchema,
   type AppGameAndroidUsageEventsReplayReadModel,
@@ -174,4 +169,3 @@ function androidRuntimeReplayStateIsConsistent(
     !readModel.openGaps.includes('android-child-runtime-replay-consumer-not-attached' as never)
   );
 }
-

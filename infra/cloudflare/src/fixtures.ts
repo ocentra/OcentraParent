@@ -1,12 +1,12 @@
-import { getMissingBindings, resolveAuthAdapterMode, type Env } from "./env.js";
-import { BillingAccountRuntimeStatusRowSchema } from "../../../packages/billing-domain/src/billing-account-runtime-boundary.js";
+import { getMissingBindings, resolveAuthAdapterMode, type Env } from './env.js';
+import { BillingAccountRuntimeStatusRowSchema } from '../../../packages/billing-domain/src/billing-account-runtime-boundary.js';
 import {
   BillingReferralInviteResultSchema,
   BillingReferralSummarySchema,
   type BillingReferralInviteResult,
   type BillingReferralInviteState,
   type BillingReferralSummary,
-} from "../../../packages/billing-domain/src/billing-referral-boundary.js";
+} from '../../../packages/billing-domain/src/billing-referral-boundary.js';
 import {
   BillingSupportAdminAccountSummarySchema,
   BillingSupportAdminAuditEventSummarySchema,
@@ -18,30 +18,20 @@ import {
   type BillingSupportAdminDisputeSummary as DomainBillingSupportAdminDisputeSummary,
   type BillingSupportAdminInvoiceSummary as DomainBillingSupportAdminInvoiceSummary,
   type BillingSupportAdminReferralSummary as DomainBillingSupportAdminReferralSummary,
-} from "../../../packages/billing-domain/src/billing-support-admin-api-boundary.js";
+} from '../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
 import {
   BillingSupportAdminReconciliationSummarySchema,
   BillingSupportAdminRefundResultSchema,
   type BillingSupportAdminReconciliationSummary,
   type BillingSupportAdminRefundResult,
-} from "../../../packages/billing-domain/src/billing-support-admin-runtime-boundary.js";
+} from '../../../packages/billing-domain/src/billing-support-admin-runtime-boundary.js';
 
 type BillingAccountRuntimeStatusRow = ReturnType<typeof BillingAccountRuntimeStatusRowSchema.parse>;
 type ReferralInviteResult = BillingReferralInviteResult;
-type BillingStatusAccountStatus =
-  | "trialing"
-  | "active"
-  | "grace"
-  | "manual-review"
-  | "unavailable";
-type BillingStatusSubscriptionStatus = BillingAccountRuntimeStatusRow["subscriptionStatus"];
-type BillingStatusParentVisibleState =
-  | "available"
-  | "grace"
-  | "stale"
-  | "unavailable"
-  | "manual-review";
-type BillingStatusLocalSafetyBehavior = BillingAccountRuntimeStatusRow["localSafetyBehavior"];
+type BillingStatusAccountStatus = 'trialing' | 'active' | 'grace' | 'manual-review' | 'unavailable';
+type BillingStatusSubscriptionStatus = BillingAccountRuntimeStatusRow['subscriptionStatus'];
+type BillingStatusParentVisibleState = 'available' | 'grace' | 'stale' | 'unavailable' | 'manual-review';
+type BillingStatusLocalSafetyBehavior = BillingAccountRuntimeStatusRow['localSafetyBehavior'];
 
 export interface PricingFeatureSummary {
   code: string;
@@ -53,11 +43,11 @@ export interface PricingFeatureSummary {
 export interface PricingPlanSummary {
   planId: string;
   displayName: string;
-  interval: "monthly" | "yearly";
+  interval: 'monthly' | 'yearly';
   priceCents: number;
-  currency: "USD";
+  currency: 'USD';
   deviceLimit: number;
-  activeState: "active" | "trial-only" | "retired" | "manual-required";
+  activeState: 'active' | 'trial-only' | 'retired' | 'manual-required';
   featureSummary: ReadonlyArray<PricingFeatureSummary>;
 }
 
@@ -66,7 +56,7 @@ export interface ReferralFixture {
   referralCode: string;
   invitedFamilies: number;
   creditedFamilies: number;
-  status: "pending" | "credited";
+  status: 'pending' | 'credited';
   updatedAt: string;
 }
 
@@ -95,18 +85,13 @@ export interface BillingReferralStatusSummary {
 
 export interface BillingManualInvoiceStateSummary {
   visible: boolean;
-  invoiceState: "manual-support-required" | null;
+  invoiceState: 'manual-support-required' | null;
 }
 
-export type BillingPortalVisibleState =
-  | "ready"
-  | "degraded"
-  | "stale"
-  | "offline"
-  | "manual-required";
+export type BillingPortalVisibleState = 'ready' | 'degraded' | 'stale' | 'offline' | 'manual-required';
 
 export interface BillingStatusSummary {
-  status: "ok";
+  status: 'ok';
   environment: string;
   authAdapterMode: string;
   parentAccountRef: string;
@@ -117,10 +102,10 @@ export interface BillingStatusSummary {
   portalVisibleState: BillingPortalVisibleState;
   parentVisibleState: BillingStatusParentVisibleState;
   localSafetyBehavior: BillingStatusLocalSafetyBehavior;
-  childActivityCustody: "not-included";
-  evidenceExportAccess: "retained";
-  providerSecretCustody: "not-present";
-  providerMode: "stripe-hosted" | "manual-invoice";
+  childActivityCustody: 'not-included';
+  evidenceExportAccess: 'retained';
+  providerSecretCustody: 'not-present';
+  providerMode: 'stripe-hosted' | 'manual-invoice';
   nextRenewalAt: string | null;
   plan: PricingPlanSummary;
   deviceUsage: {
@@ -131,7 +116,7 @@ export interface BillingStatusSummary {
   seatComposition: BillingSeatCompositionSummary;
   referralSummary: BillingReferralStatusSummary;
   manualInvoiceState: BillingManualInvoiceStateSummary;
-  source: "signed-local-snapshot" | "manual-admin-review";
+  source: 'signed-local-snapshot' | 'manual-admin-review';
   failureState: BillingFailureStateSummary | null;
   warnings: ReadonlyArray<string>;
   auditReference: string;
@@ -146,13 +131,13 @@ export interface BillingInvoiceSummary {
   parentAccountRef: string;
   familyRef: string;
   planId: string;
-  currency: "USD";
+  currency: 'USD';
   subtotalCents: number;
   taxCents: number;
   totalCents: number;
-  invoiceVisibility: "customer-portal-hosted" | "manual-support-required";
-  paymentState: "paid" | "grace" | "unpaid" | "refunded";
-  provider: "stripe" | "manual-invoice";
+  invoiceVisibility: 'customer-portal-hosted' | 'manual-support-required';
+  paymentState: 'paid' | 'grace' | 'unpaid' | 'refunded';
+  provider: 'stripe' | 'manual-invoice';
   hostedUrl: string | null;
   periodStart: string;
   periodEnd: string;
@@ -162,24 +147,24 @@ export interface BillingInvoiceSummary {
 
 export interface BillingPlanChangeSummary {
   requestId: string;
-  status: "accepted" | "rejected";
+  status: 'accepted' | 'rejected';
   currentPlanId: string;
   targetPlanId: string | null;
-  changeKind: "upgrade" | "downgrade" | "invalid";
+  changeKind: 'upgrade' | 'downgrade' | 'invalid';
   hostedUrl: string | null;
   pendingEntitlementConfirmation: boolean;
-  rejectionReason: "invalid-plan" | null;
+  rejectionReason: 'invalid-plan' | null;
   effectiveAt: string | null;
   auditReference: string;
 }
 
 export interface BillingCancellationSummary {
   requestId: string;
-  status: "accepted";
-  cancellationState: "scheduled-period-end" | "already-in-grace" | "manual-review-required";
+  status: 'accepted';
+  cancellationState: 'scheduled-period-end' | 'already-in-grace' | 'manual-review-required';
   currentPlanId: string;
   retainsPaidAccessUntil: string;
-  parentVisibleState: "available" | "grace" | "manual-review" | "stale" | "unavailable";
+  parentVisibleState: 'available' | 'grace' | 'manual-review' | 'stale' | 'unavailable';
   auditReference: string;
 }
 
@@ -189,19 +174,16 @@ export interface BillingEntitlementSnapshotSummary {
   parentAccountRef: string;
   familyRef: string;
   planId: string;
-  subscriptionStatus: "active" | "grace" | "past-due";
-  source: "signed-local-snapshot" | "manual-admin-review";
-  signatureState: "signed" | "manual-required";
+  subscriptionStatus: 'active' | 'grace' | 'past-due';
+  source: 'signed-local-snapshot' | 'manual-admin-review';
+  signatureState: 'signed' | 'manual-required';
   signedAt: string;
   deviceLimit: number;
   activeDevices: number;
   trustedDevices: number;
   availableDeviceSlots: number;
-  parentVisibleState: "available" | "grace" | "manual-review";
-  localSafetyBehavior:
-    | "unchanged"
-    | "grace-with-local-safety"
-    | "manual-review-with-local-safety";
+  parentVisibleState: 'available' | 'grace' | 'manual-review';
+  localSafetyBehavior: 'unchanged' | 'grace-with-local-safety' | 'manual-review-with-local-safety';
   failureState: BillingFailureStateSummary | null;
   auditReference: string;
 }
@@ -210,13 +192,13 @@ export interface BillingLicenseDecisionSummary {
   requestId: string;
   subject: string;
   deviceId: string;
-  decision: "allowed" | "denied" | "grace" | "manual-review";
-  reasonCode: "within-plan" | "limit-exceeded" | "payment-required" | "manual-review";
+  decision: 'allowed' | 'denied' | 'grace' | 'manual-review';
+  reasonCode: 'within-plan' | 'limit-exceeded' | 'payment-required' | 'manual-review';
   deviceActivationBehavior:
-    | "allow-new-device"
-    | "deny-new-device"
-    | "grace-existing-devices"
-    | "manual-review-required";
+    | 'allow-new-device'
+    | 'deny-new-device'
+    | 'grace-existing-devices'
+    | 'manual-review-required';
   requestedDeviceAlreadyTrusted: boolean;
   planId: string;
   currentActiveDevices: number;
@@ -226,10 +208,10 @@ export interface BillingLicenseDecisionSummary {
 
 export interface ManualInvoiceResult {
   requestId: string;
-  status: "accepted";
-  invoiceState: "manual-support-required";
+  status: 'accepted';
+  invoiceState: 'manual-support-required';
   region: string;
-  provider: "manual-invoice";
+  provider: 'manual-invoice';
   auditReference: string;
 }
 
@@ -243,132 +225,127 @@ interface BillingAccountFixture {
   subject: string;
   parentAccountRef: string;
   familyRef: string;
-  accountStatus: "active" | "grace" | "manual-review";
-  subscriptionStatus: "active" | "grace" | "past-due";
-  parentVisibleState: "available" | "grace" | "manual-review";
-  localSafetyBehavior:
-    | "unchanged"
-    | "grace-with-local-safety"
-    | "manual-review-with-local-safety";
-  childActivityCustody: "not-included";
-  evidenceExportAccess: "retained";
-  providerSecretCustody: "not-present";
+  accountStatus: 'active' | 'grace' | 'manual-review';
+  subscriptionStatus: 'active' | 'grace' | 'past-due';
+  parentVisibleState: 'available' | 'grace' | 'manual-review';
+  localSafetyBehavior: 'unchanged' | 'grace-with-local-safety' | 'manual-review-with-local-safety';
+  childActivityCustody: 'not-included';
+  evidenceExportAccess: 'retained';
+  providerSecretCustody: 'not-present';
   planId: string;
   activeDevices: number;
   trustedDevices: number;
-  source: "signed-local-snapshot" | "manual-admin-review";
+  source: 'signed-local-snapshot' | 'manual-admin-review';
   failureState: BillingFailureStateSummary | null;
   auditReference: string;
   updatedAt: string;
 }
 
-const FIXTURE_TIMESTAMP = "2026-06-14T00:00:00.000Z";
-const PERIOD_END_TIMESTAMP = "2026-07-14T00:00:00.000Z";
+const FIXTURE_TIMESTAMP = '2026-06-14T00:00:00.000Z';
+const PERIOD_END_TIMESTAMP = '2026-07-14T00:00:00.000Z';
 
 function fixtureBoundaryId(subject: string): string {
-  return `billing-account-runtime-${subject.replace(/[^A-Za-z0-9_-]/g, "-")}`;
+  return `billing-account-runtime-${subject.replace(/[^A-Za-z0-9_-]/g, '-')}`;
 }
 
-function portalVisibleStateFor(
-  parentVisibleState: BillingStatusParentVisibleState,
-): BillingPortalVisibleState {
+function portalVisibleStateFor(parentVisibleState: BillingStatusParentVisibleState): BillingPortalVisibleState {
   switch (parentVisibleState) {
-    case "available":
-      return "ready";
-    case "grace":
-      return "degraded";
-    case "stale":
-      return "stale";
-    case "unavailable":
-      return "offline";
-    case "manual-review":
-      return "manual-required";
+    case 'available':
+      return 'ready';
+    case 'grace':
+      return 'degraded';
+    case 'stale':
+      return 'stale';
+    case 'unavailable':
+      return 'offline';
+    case 'manual-review':
+      return 'manual-required';
   }
 }
 
 export const LOCAL_PRICING_PLANS: ReadonlyArray<PricingPlanSummary> = [
   {
-    planId: "family-free",
-    displayName: "Family Free",
-    interval: "monthly",
+    planId: 'family-free',
+    displayName: 'Family Free',
+    interval: 'monthly',
     priceCents: 0,
-    currency: "USD",
+    currency: 'USD',
     deviceLimit: 1,
-    activeState: "active",
+    activeState: 'active',
     featureSummary: [
       {
-        code: "evidence-export",
-        label: "Evidence export access",
+        code: 'evidence-export',
+        label: 'Evidence export access',
         included: true,
         safetyCritical: true,
       },
       {
-        code: "activity-review",
-        label: "Activity review",
+        code: 'activity-review',
+        label: 'Activity review',
         included: true,
         safetyCritical: true,
       },
       {
-        code: "live-webhooks",
-        label: "Live provider sync",
+        code: 'live-webhooks',
+        label: 'Live provider sync',
         included: false,
         safetyCritical: false,
       },
     ],
   },
   {
-    planId: "family-core",
-    displayName: "Family Core",
-    interval: "monthly",
+    planId: 'family-core',
+    displayName: 'Family Core',
+    interval: 'monthly',
     priceCents: 1299,
-    currency: "USD",
+    currency: 'USD',
     deviceLimit: 5,
-    activeState: "active",
+    activeState: 'active',
     featureSummary: [
       {
-        code: "evidence-export",
-        label: "Evidence export access",
+        code: 'evidence-export',
+        label: 'Evidence export access',
         included: true,
         safetyCritical: true,
       },
       {
-        code: "activity-review",
-        label: "Activity review",
+        code: 'activity-review',
+        label: 'Activity review',
         included: true,
         safetyCritical: true,
       },
       {
-        code: "billing-portal",
-        label: "Hosted billing portal",
+        code: 'billing-portal',
+        label: 'Hosted billing portal',
         included: true,
         safetyCritical: false,
       },
     ],
   },
   {
-    planId: "family-max",
-    displayName: "Family Max",
-    interval: "monthly",
+    planId: 'family-max',
+    displayName: 'Family Max',
+    interval: 'monthly',
     priceCents: 2499,
-    currency: "USD",
+    currency: 'USD',
     deviceLimit: 10,
-    activeState: "active",
+    activeState: 'active',
     featureSummary: [
       {
-        code: "evidence-export",
-        label: "Evidence export access",
+        code: 'evidence-export',
+        label: 'Evidence export access',
         included: true,
         safetyCritical: true,
       },
       {
-        code: "activity-review",
-        label: "Activity review",
+        code: 'activity-review',
+        label: 'Activity review',
         included: true,
         safetyCritical: true,
       },
       {
-        code: "priority-support",
-        label: "Priority support queue",
+        code: 'priority-support',
+        label: 'Priority support queue',
         included: true,
         safetyCritical: false,
       },
@@ -378,108 +355,108 @@ export const LOCAL_PRICING_PLANS: ReadonlyArray<PricingPlanSummary> = [
 
 export const LOCAL_REFERRALS: ReadonlyArray<ReferralFixture> = [
   {
-    ownerSubject: "parent:demo-active",
-    referralCode: "REF-FAMILY-CORE",
+    ownerSubject: 'parent:demo-active',
+    referralCode: 'REF-FAMILY-CORE',
     invitedFamilies: 4,
     creditedFamilies: 2,
-    status: "credited",
+    status: 'credited',
     updatedAt: FIXTURE_TIMESTAMP,
   },
   {
-    ownerSubject: "parent:demo-grace",
-    referralCode: "REF-FAMILY-MAX",
+    ownerSubject: 'parent:demo-grace',
+    referralCode: 'REF-FAMILY-MAX',
     invitedFamilies: 1,
     creditedFamilies: 0,
-    status: "pending",
+    status: 'pending',
     updatedAt: FIXTURE_TIMESTAMP,
   },
 ] as const;
 
 const LOCAL_BILLING_ACCOUNTS: ReadonlyArray<BillingAccountFixture> = [
   {
-    subject: "parent:demo-active",
-    parentAccountRef: "parent-account:demo-active",
-    familyRef: "family:demo-active",
-    accountStatus: "active",
-    subscriptionStatus: "active",
-    parentVisibleState: "available",
-    localSafetyBehavior: "unchanged",
-    childActivityCustody: "not-included",
-    evidenceExportAccess: "retained",
-    providerSecretCustody: "not-present",
-    planId: "family-core",
+    subject: 'parent:demo-active',
+    parentAccountRef: 'parent-account:demo-active',
+    familyRef: 'family:demo-active',
+    accountStatus: 'active',
+    subscriptionStatus: 'active',
+    parentVisibleState: 'available',
+    localSafetyBehavior: 'unchanged',
+    childActivityCustody: 'not-included',
+    evidenceExportAccess: 'retained',
+    providerSecretCustody: 'not-present',
+    planId: 'family-core',
     activeDevices: 3,
     trustedDevices: 3,
-    source: "signed-local-snapshot",
+    source: 'signed-local-snapshot',
     failureState: null,
-    auditReference: "audit:billing:demo-active",
+    auditReference: 'audit:billing:demo-active',
     updatedAt: FIXTURE_TIMESTAMP,
   },
   {
-    subject: "parent:demo-maxed",
-    parentAccountRef: "parent-account:demo-maxed",
-    familyRef: "family:demo-maxed",
-    accountStatus: "active",
-    subscriptionStatus: "active",
-    parentVisibleState: "available",
-    localSafetyBehavior: "unchanged",
-    childActivityCustody: "not-included",
-    evidenceExportAccess: "retained",
-    providerSecretCustody: "not-present",
-    planId: "family-core",
+    subject: 'parent:demo-maxed',
+    parentAccountRef: 'parent-account:demo-maxed',
+    familyRef: 'family:demo-maxed',
+    accountStatus: 'active',
+    subscriptionStatus: 'active',
+    parentVisibleState: 'available',
+    localSafetyBehavior: 'unchanged',
+    childActivityCustody: 'not-included',
+    evidenceExportAccess: 'retained',
+    providerSecretCustody: 'not-present',
+    planId: 'family-core',
     activeDevices: 5,
     trustedDevices: 5,
-    source: "signed-local-snapshot",
+    source: 'signed-local-snapshot',
     failureState: null,
-    auditReference: "audit:billing:demo-maxed",
+    auditReference: 'audit:billing:demo-maxed',
     updatedAt: FIXTURE_TIMESTAMP,
   },
   {
-    subject: "parent:demo-grace",
-    parentAccountRef: "parent-account:demo-grace",
-    familyRef: "family:demo-grace",
-    accountStatus: "grace",
-    subscriptionStatus: "grace",
-    parentVisibleState: "grace",
-    localSafetyBehavior: "grace-with-local-safety",
-    childActivityCustody: "not-included",
-    evidenceExportAccess: "retained",
-    providerSecretCustody: "not-present",
-    planId: "family-max",
+    subject: 'parent:demo-grace',
+    parentAccountRef: 'parent-account:demo-grace',
+    familyRef: 'family:demo-grace',
+    accountStatus: 'grace',
+    subscriptionStatus: 'grace',
+    parentVisibleState: 'grace',
+    localSafetyBehavior: 'grace-with-local-safety',
+    childActivityCustody: 'not-included',
+    evidenceExportAccess: 'retained',
+    providerSecretCustody: 'not-present',
+    planId: 'family-max',
     activeDevices: 9,
     trustedDevices: 9,
-    source: "signed-local-snapshot",
+    source: 'signed-local-snapshot',
     failureState: {
-      failureKind: "payment-required",
-      parentResolution: "payment-update",
+      failureKind: 'payment-required',
+      parentResolution: 'payment-update',
       retryAllowed: true,
-      retryAfter: "2026-06-15T00:00:00.000Z",
+      retryAfter: '2026-06-15T00:00:00.000Z',
     },
-    auditReference: "audit:billing:demo-grace",
+    auditReference: 'audit:billing:demo-grace',
     updatedAt: FIXTURE_TIMESTAMP,
   },
   {
-    subject: "parent:demo-review",
-    parentAccountRef: "parent-account:demo-review",
-    familyRef: "family:demo-review",
-    accountStatus: "manual-review",
-    subscriptionStatus: "past-due",
-    parentVisibleState: "manual-review",
-    localSafetyBehavior: "manual-review-with-local-safety",
-    childActivityCustody: "not-included",
-    evidenceExportAccess: "retained",
-    providerSecretCustody: "not-present",
-    planId: "family-free",
+    subject: 'parent:demo-review',
+    parentAccountRef: 'parent-account:demo-review',
+    familyRef: 'family:demo-review',
+    accountStatus: 'manual-review',
+    subscriptionStatus: 'past-due',
+    parentVisibleState: 'manual-review',
+    localSafetyBehavior: 'manual-review-with-local-safety',
+    childActivityCustody: 'not-included',
+    evidenceExportAccess: 'retained',
+    providerSecretCustody: 'not-present',
+    planId: 'family-free',
     activeDevices: 1,
     trustedDevices: 1,
-    source: "manual-admin-review",
+    source: 'manual-admin-review',
     failureState: {
-      failureKind: "provider-unavailable",
-      parentResolution: "manual-support-review",
+      failureKind: 'provider-unavailable',
+      parentResolution: 'manual-support-review',
       retryAllowed: false,
       retryAfter: null,
     },
-    auditReference: "audit:billing:demo-review",
+    auditReference: 'audit:billing:demo-review',
     updatedAt: FIXTURE_TIMESTAMP,
   },
 ] as const;
@@ -514,7 +491,7 @@ function directReferralFixtureForSubject(subject: string): ReferralFixture | nul
 }
 
 function syntheticInvoiceId(subject: string, suffix: string): string {
-  return `${subject.replace(/[^A-Za-z0-9_-]/g, "-")}-${suffix}`;
+  return `${subject.replace(/[^A-Za-z0-9_-]/g, '-')}-${suffix}`;
 }
 
 function invoiceRowsForAccount(account: BillingAccountFixture): ReadonlyArray<BillingInvoiceSummary> {
@@ -523,56 +500,56 @@ function invoiceRowsForAccount(account: BillingAccountFixture): ReadonlyArray<Bi
     parentAccountRef: account.parentAccountRef,
     familyRef: account.familyRef,
     planId: account.planId,
-    currency: "USD" as const,
-    periodStart: "2026-06-01T00:00:00.000Z",
+    currency: 'USD' as const,
+    periodStart: '2026-06-01T00:00:00.000Z',
     periodEnd: PERIOD_END_TIMESTAMP,
     updatedAt: account.updatedAt,
   };
 
-  if (account.subscriptionStatus === "active") {
+  if (account.subscriptionStatus === 'active') {
     return [
       {
         ...baseInvoice,
-        invoiceId: syntheticInvoiceId(account.subject, "invoice-current"),
-        invoiceNumber: "INV-1001",
+        invoiceId: syntheticInvoiceId(account.subject, 'invoice-current'),
+        invoiceNumber: 'INV-1001',
         subtotalCents: plan.priceCents,
         taxCents: Math.round(plan.priceCents * 0.08),
         totalCents: plan.priceCents + Math.round(plan.priceCents * 0.08),
-        invoiceVisibility: "customer-portal-hosted",
-        paymentState: "paid",
-        provider: "stripe",
-        hostedUrl: `https://billing.stripe.com/p/session/${syntheticInvoiceId(account.subject, "invoice")}`,
+        invoiceVisibility: 'customer-portal-hosted',
+        paymentState: 'paid',
+        provider: 'stripe',
+        hostedUrl: `https://billing.stripe.com/p/session/${syntheticInvoiceId(account.subject, 'invoice')}`,
         auditReference: `${account.auditReference}:invoice-current`,
       },
     ];
   }
 
-  if (account.subscriptionStatus === "grace") {
+  if (account.subscriptionStatus === 'grace') {
     return [
       {
         ...baseInvoice,
-        invoiceId: syntheticInvoiceId(account.subject, "invoice-grace"),
-        invoiceNumber: "INV-2001",
+        invoiceId: syntheticInvoiceId(account.subject, 'invoice-grace'),
+        invoiceNumber: 'INV-2001',
         subtotalCents: plan.priceCents,
         taxCents: Math.round(plan.priceCents * 0.08),
         totalCents: plan.priceCents + Math.round(plan.priceCents * 0.08),
-        invoiceVisibility: "customer-portal-hosted",
-        paymentState: "grace",
-        provider: "stripe",
-        hostedUrl: `https://billing.stripe.com/p/session/${syntheticInvoiceId(account.subject, "grace")}`,
+        invoiceVisibility: 'customer-portal-hosted',
+        paymentState: 'grace',
+        provider: 'stripe',
+        hostedUrl: `https://billing.stripe.com/p/session/${syntheticInvoiceId(account.subject, 'grace')}`,
         auditReference: `${account.auditReference}:invoice-grace`,
       },
       {
         ...baseInvoice,
-        invoiceId: syntheticInvoiceId(account.subject, "invoice-previous"),
-        invoiceNumber: "INV-1999",
+        invoiceId: syntheticInvoiceId(account.subject, 'invoice-previous'),
+        invoiceNumber: 'INV-1999',
         subtotalCents: plan.priceCents,
         taxCents: Math.round(plan.priceCents * 0.08),
         totalCents: plan.priceCents + Math.round(plan.priceCents * 0.08),
-        invoiceVisibility: "customer-portal-hosted",
-        paymentState: "paid",
-        provider: "stripe",
-        hostedUrl: `https://billing.stripe.com/p/session/${syntheticInvoiceId(account.subject, "previous")}`,
+        invoiceVisibility: 'customer-portal-hosted',
+        paymentState: 'paid',
+        provider: 'stripe',
+        hostedUrl: `https://billing.stripe.com/p/session/${syntheticInvoiceId(account.subject, 'previous')}`,
         auditReference: `${account.auditReference}:invoice-previous`,
       },
     ];
@@ -581,14 +558,14 @@ function invoiceRowsForAccount(account: BillingAccountFixture): ReadonlyArray<Bi
   return [
     {
       ...baseInvoice,
-      invoiceId: syntheticInvoiceId(account.subject, "invoice-review"),
-      invoiceNumber: "INV-3001",
+      invoiceId: syntheticInvoiceId(account.subject, 'invoice-review'),
+      invoiceNumber: 'INV-3001',
       subtotalCents: 4999,
       taxCents: 0,
       totalCents: 4999,
-      invoiceVisibility: "manual-support-required",
-      paymentState: "unpaid",
-      provider: "manual-invoice",
+      invoiceVisibility: 'manual-support-required',
+      paymentState: 'unpaid',
+      provider: 'manual-invoice',
       hostedUrl: null,
       auditReference: `${account.auditReference}:invoice-review`,
     },
@@ -597,15 +574,12 @@ function invoiceRowsForAccount(account: BillingAccountFixture): ReadonlyArray<Bi
 
 function seatCompositionForAccount(
   account: BillingAccountFixture,
-  plan: PricingPlanSummary,
+  plan: PricingPlanSummary
 ): BillingSeatCompositionSummary {
   const referral = directReferralFixtureForSubject(account.subject);
   const baseIncludedSeats = 1;
   const activeReferralCredits = referral?.creditedFamilies ?? 0;
-  const paidExtraSeats = Math.max(
-    plan.deviceLimit - baseIncludedSeats - activeReferralCredits,
-    0,
-  );
+  const paidExtraSeats = Math.max(plan.deviceLimit - baseIncludedSeats - activeReferralCredits, 0);
 
   return {
     baseIncludedSeats,
@@ -616,79 +590,67 @@ function seatCompositionForAccount(
   };
 }
 
-function providerModeForInvoices(
-  invoices: ReadonlyArray<BillingInvoiceSummary>,
-): "stripe-hosted" | "manual-invoice" {
-  return invoices.some((invoice) => invoice.provider === "manual-invoice")
-    ? "manual-invoice"
-    : "stripe-hosted";
+function providerModeForInvoices(invoices: ReadonlyArray<BillingInvoiceSummary>): 'stripe-hosted' | 'manual-invoice' {
+  return invoices.some((invoice) => invoice.provider === 'manual-invoice') ? 'manual-invoice' : 'stripe-hosted';
 }
 
-function nextRenewalAtForInvoices(
-  invoices: ReadonlyArray<BillingInvoiceSummary>,
-): string | null {
+function nextRenewalAtForInvoices(invoices: ReadonlyArray<BillingInvoiceSummary>): string | null {
   const hostedInvoice = invoices.find(
-    (invoice) => invoice.provider === "stripe" && invoice.paymentState !== "refunded",
+    (invoice) => invoice.provider === 'stripe' && invoice.paymentState !== 'refunded'
   );
   return hostedInvoice?.periodEnd ?? null;
 }
 
 function manualInvoiceStateForInvoices(
-  invoices: ReadonlyArray<BillingInvoiceSummary>,
+  invoices: ReadonlyArray<BillingInvoiceSummary>
 ): BillingManualInvoiceStateSummary {
-  const manualInvoiceVisible = invoices.some(
-    (invoice) => invoice.invoiceVisibility === "manual-support-required",
-  );
+  const manualInvoiceVisible = invoices.some((invoice) => invoice.invoiceVisibility === 'manual-support-required');
 
   return {
     visible: manualInvoiceVisible,
-    invoiceState: manualInvoiceVisible ? "manual-support-required" : null,
+    invoiceState: manualInvoiceVisible ? 'manual-support-required' : null,
   };
 }
 
-function runtimeAccountStatusForFixture(
-  fixture: BillingAccountFixture,
-): "active" | "past-due" | "manual-review" {
+function runtimeAccountStatusForFixture(fixture: BillingAccountFixture): 'active' | 'past-due' | 'manual-review' {
   switch (fixture.accountStatus) {
-    case "active":
-      return "active";
-    case "grace":
-      return "past-due";
-    case "manual-review":
-      return "manual-review";
+    case 'active':
+      return 'active';
+    case 'grace':
+      return 'past-due';
+    case 'manual-review':
+      return 'manual-review';
   }
 }
 
 function runtimeParentVisibleStateForFixture(
-  fixture: BillingAccountFixture,
-): "available" | "past-due" | "manual-review" {
+  fixture: BillingAccountFixture
+): 'available' | 'past-due' | 'manual-review' {
   switch (fixture.parentVisibleState) {
-    case "available":
-      return "available";
-    case "grace":
-      return "past-due";
-    case "manual-review":
-      return "manual-review";
+    case 'available':
+      return 'available';
+    case 'grace':
+      return 'past-due';
+    case 'manual-review':
+      return 'manual-review';
   }
 }
 
 function runtimeSourceForFixture(
-  fixture: BillingAccountFixture,
-): "account-backend" | "signed-local-snapshot" | "manual-support-review" {
+  fixture: BillingAccountFixture
+): 'account-backend' | 'signed-local-snapshot' | 'manual-support-review' {
   switch (fixture.accountStatus) {
-    case "active":
-      return "account-backend";
-    case "grace":
-      return "signed-local-snapshot";
-    case "manual-review":
-      return "manual-support-review";
+    case 'active':
+      return 'account-backend';
+    case 'grace':
+      return 'signed-local-snapshot';
+    case 'manual-review':
+      return 'manual-support-review';
   }
 }
 
-function runtimeBackendStateForFixture(
-  fixture: BillingAccountFixture,
-): "available" | "manual-required" {
-  return fixture.accountStatus === "active" ? "available" : "manual-required";
+function runtimeBackendStateForFixture(fixture: BillingAccountFixture): 'available' | 'manual-required' {
+  return fixture.accountStatus === 'active' ? 'available' : 'manual-required';
 }
 
 function runtimeFailureStateForFixture(fixture: BillingAccountFixture) {
@@ -709,46 +671,46 @@ function runtimeFailureStateForFixture(fixture: BillingAccountFixture) {
 }
 
 function billingStatusAccountStatusForRuntime(
-  accountStatus: BillingAccountRuntimeStatusRow["accountStatus"],
+  accountStatus: BillingAccountRuntimeStatusRow['accountStatus']
 ): BillingStatusAccountStatus {
   switch (accountStatus) {
-    case "trialing":
-      return "trialing";
-    case "active":
-      return "active";
-    case "past-due":
-      return "grace";
-    case "backend-unavailable":
-    case "provider-unavailable":
-      return "unavailable";
-    case "manual-review":
-      return "manual-review";
+    case 'trialing':
+      return 'trialing';
+    case 'active':
+      return 'active';
+    case 'past-due':
+      return 'grace';
+    case 'backend-unavailable':
+    case 'provider-unavailable':
+      return 'unavailable';
+    case 'manual-review':
+      return 'manual-review';
   }
 }
 
 function billingStatusParentVisibleStateForRuntime(
-  parentVisibleState: BillingAccountRuntimeStatusRow["parentVisibleState"],
+  parentVisibleState: BillingAccountRuntimeStatusRow['parentVisibleState']
 ): BillingStatusParentVisibleState {
   switch (parentVisibleState) {
-    case "available":
-      return "available";
-    case "past-due":
-      return "grace";
-    case "stale":
-      return "stale";
-    case "unavailable":
-      return "unavailable";
-    case "manual-review":
-      return "manual-review";
+    case 'available':
+      return 'available';
+    case 'past-due':
+      return 'grace';
+    case 'stale':
+      return 'stale';
+    case 'unavailable':
+      return 'unavailable';
+    case 'manual-review':
+      return 'manual-review';
   }
 }
 
 function billingAccountRuntimeStatusRowForFixture(
   fixture: BillingAccountFixture,
-  invoices: ReadonlyArray<BillingInvoiceSummary>,
+  invoices: ReadonlyArray<BillingInvoiceSummary>
 ) {
   return BillingAccountRuntimeStatusRowSchema.parse({
-    schemaVersion: "billing-account-runtime-boundary-proof",
+    schemaVersion: 'billing-account-runtime-boundary-proof',
     boundaryId: fixtureBoundaryId(fixture.subject),
     parentAccount: {
       parentAccountId: fixture.parentAccountRef,
@@ -795,15 +757,15 @@ function referralStatusForSubject(subject: string): BillingReferralStatusSummary
 }
 
 function disputeRowsForAccount(account: BillingAccountFixture): ReadonlyArray<AdminBillingDisputeSummary> {
-  if (account.subject === "parent:demo-grace") {
+  if (account.subject === 'parent:demo-grace') {
     return [
       {
-        disputeId: "dispute-demo-grace-opened",
+        disputeId: 'dispute-demo-grace-opened',
         parentAccountRef: account.parentAccountRef,
         familyRef: account.familyRef,
-        invoiceId: syntheticInvoiceId(account.subject, "invoice-grace"),
-        disputeState: "dispute-opened",
-        entitlementEffect: "manual-review-required",
+        invoiceId: syntheticInvoiceId(account.subject, 'invoice-grace'),
+        disputeState: 'dispute-opened',
+        entitlementEffect: 'manual-review-required',
         manualRequired: true,
         auditReference: `${account.auditReference}:dispute-opened`,
         updatedAt: account.updatedAt,
@@ -811,15 +773,15 @@ function disputeRowsForAccount(account: BillingAccountFixture): ReadonlyArray<Ad
     ];
   }
 
-  if (account.subject === "parent:demo-review") {
+  if (account.subject === 'parent:demo-review') {
     return [
       {
-        disputeId: "dispute-demo-review-lost",
+        disputeId: 'dispute-demo-review-lost',
         parentAccountRef: account.parentAccountRef,
         familyRef: account.familyRef,
-        invoiceId: syntheticInvoiceId(account.subject, "invoice-review"),
-        disputeState: "dispute-lost",
-        entitlementEffect: "revoke-paid-access",
+        invoiceId: syntheticInvoiceId(account.subject, 'invoice-review'),
+        disputeState: 'dispute-lost',
+        entitlementEffect: 'revoke-paid-access',
         manualRequired: true,
         auditReference: `${account.auditReference}:dispute-lost`,
         updatedAt: account.updatedAt,
@@ -834,8 +796,8 @@ function auditEventRowsForAccount(account: BillingAccountFixture): ReadonlyArray
   return [
     {
       eventId: `${account.auditReference}:status-read`,
-      eventType: "billing.status.read",
-      actorRole: "parent",
+      eventType: 'billing.status.read',
+      actorRole: 'parent',
       parentAccountRef: account.parentAccountRef,
       familyRef: account.familyRef,
       auditReference: account.auditReference,
@@ -843,8 +805,8 @@ function auditEventRowsForAccount(account: BillingAccountFixture): ReadonlyArray
     } as BillingAuditEventSummary,
     {
       eventId: `${account.auditReference}:invoice-visible`,
-      eventType: "billing.invoice.visible",
-      actorRole: account.accountStatus === "manual-review" ? "support" : "parent",
+      eventType: 'billing.invoice.visible',
+      actorRole: account.accountStatus === 'manual-review' ? 'support' : 'parent',
       parentAccountRef: account.parentAccountRef,
       familyRef: account.familyRef,
       auditReference: `${account.auditReference}:invoice`,
@@ -854,10 +816,10 @@ function auditEventRowsForAccount(account: BillingAccountFixture): ReadonlyArray
 }
 
 function inviteStateForReferral(referral: ReferralFixture): BillingReferralInviteState {
-  if (referral.status === "credited") {
-    return "qualified-credit-granted";
+  if (referral.status === 'credited') {
+    return 'qualified-credit-granted';
   }
-  return "invite-created";
+  return 'invite-created';
 }
 
 export function buildBillingStatusSummary(subject: string, env: Env): BillingStatusSummary {
@@ -865,22 +827,20 @@ export function buildBillingStatusSummary(subject: string, env: Env): BillingSta
   const missingBindings = getMissingBindings(env);
   const warnings: string[] = [];
 
-  if (resolveAuthAdapterMode(env).startsWith("account-auth-adapter")) {
-    warnings.push("account-backend-not-wired");
+  if (resolveAuthAdapterMode(env).startsWith('account-auth-adapter')) {
+    warnings.push('account-backend-not-wired');
   }
   if (missingBindings.length > 0) {
-    warnings.push(`missing-bindings:${missingBindings.join(",")}`);
+    warnings.push(`missing-bindings:${missingBindings.join(',')}`);
   }
 
   const plan = planById(fixture.planId);
   const invoices = invoiceRowsForAccount(fixture);
   const runtimeStatusRow = billingAccountRuntimeStatusRowForFixture(fixture, invoices);
-  const parentVisibleState = billingStatusParentVisibleStateForRuntime(
-    runtimeStatusRow.parentVisibleState,
-  );
+  const parentVisibleState = billingStatusParentVisibleStateForRuntime(runtimeStatusRow.parentVisibleState);
 
   return {
-    status: "ok",
+    status: 'ok',
     environment: env.ENVIRONMENT,
     authAdapterMode: resolveAuthAdapterMode(env),
     parentAccountRef: fixture.parentAccountRef,
@@ -930,36 +890,34 @@ function planChangeSummaryFromCurrentPlan(
   auditReference: string,
   requestId: string,
   targetPlanId: string | null,
-  pricingPlans: ReadonlyArray<PricingPlanSummary>,
+  pricingPlans: ReadonlyArray<PricingPlanSummary>
 ): BillingPlanChangeSummary {
-  const targetPlan = targetPlanId
-    ? pricingPlans.find((plan) => plan.planId === targetPlanId) ?? null
-    : null;
+  const targetPlan = targetPlanId ? (pricingPlans.find((plan) => plan.planId === targetPlanId) ?? null) : null;
 
   if (!targetPlan || targetPlan.planId === currentPlan.planId || targetPlan.priceCents === 0) {
     return {
       requestId,
-      status: "rejected",
+      status: 'rejected',
       currentPlanId: currentPlan.planId,
       targetPlanId,
-      changeKind: "invalid",
+      changeKind: 'invalid',
       hostedUrl: null,
       pendingEntitlementConfirmation: false,
-      rejectionReason: "invalid-plan",
+      rejectionReason: 'invalid-plan',
       effectiveAt: null,
       auditReference: `${auditReference}:change-plan-rejected`,
     };
   }
 
-  const changeKind = targetPlan.priceCents > currentPlan.priceCents ? "upgrade" : "downgrade";
+  const changeKind = targetPlan.priceCents > currentPlan.priceCents ? 'upgrade' : 'downgrade';
   return {
     requestId,
-    status: "accepted",
+    status: 'accepted',
     currentPlanId: currentPlan.planId,
     targetPlanId: targetPlan.planId,
     changeKind,
     hostedUrl:
-      changeKind === "upgrade"
+      changeKind === 'upgrade'
         ? `https://checkout.stripe.com/c/pay/change-${targetPlan.planId}`
         : `https://billing.stripe.com/p/session/change-${targetPlan.planId}`,
     pendingEntitlementConfirmation: true,
@@ -970,37 +928,31 @@ function planChangeSummaryFromCurrentPlan(
 }
 
 function cancellationStateForStatus(
-  accountStatus: BillingStatusSummary["accountStatus"],
-  subscriptionStatus: BillingStatusSummary["subscriptionStatus"],
-): BillingCancellationSummary["cancellationState"] {
-  if (accountStatus === "manual-review") {
-    return "manual-review-required";
+  accountStatus: BillingStatusSummary['accountStatus'],
+  subscriptionStatus: BillingStatusSummary['subscriptionStatus']
+): BillingCancellationSummary['cancellationState'] {
+  if (accountStatus === 'manual-review') {
+    return 'manual-review-required';
   }
-  if (subscriptionStatus === "grace") {
-    return "already-in-grace";
+  if (subscriptionStatus === 'grace') {
+    return 'already-in-grace';
   }
-  return "scheduled-period-end";
+  return 'scheduled-period-end';
 }
 
 export function buildBillingPlanChangeSummaryFromStatus(
   status: BillingStatusSummary,
   requestId: string,
   targetPlanId: string | null,
-  pricingPlans: ReadonlyArray<PricingPlanSummary>,
+  pricingPlans: ReadonlyArray<PricingPlanSummary>
 ): BillingPlanChangeSummary {
-  return planChangeSummaryFromCurrentPlan(
-    status.plan,
-    status.auditReference,
-    requestId,
-    targetPlanId,
-    pricingPlans,
-  );
+  return planChangeSummaryFromCurrentPlan(status.plan, status.auditReference, requestId, targetPlanId, pricingPlans);
 }
 
 export function buildBillingPlanChangeSummary(
   subject: string,
   requestId: string,
-  targetPlanId: string | null,
+  targetPlanId: string | null
 ): BillingPlanChangeSummary {
   const account = accountFixtureForSubject(subject);
   return planChangeSummaryFromCurrentPlan(
@@ -1008,21 +960,18 @@ export function buildBillingPlanChangeSummary(
     account.auditReference,
     requestId,
     targetPlanId,
-    LOCAL_PRICING_PLANS,
+    LOCAL_PRICING_PLANS
   );
 }
 
 export function buildBillingCancellationSummaryFromStatus(
   status: BillingStatusSummary,
-  requestId: string,
+  requestId: string
 ): BillingCancellationSummary {
   return {
     requestId,
-    status: "accepted",
-    cancellationState: cancellationStateForStatus(
-      status.accountStatus,
-      status.subscriptionStatus,
-    ),
+    status: 'accepted',
+    cancellationState: cancellationStateForStatus(status.accountStatus, status.subscriptionStatus),
     currentPlanId: status.plan.planId,
     retainsPaidAccessUntil: status.nextRenewalAt ?? PERIOD_END_TIMESTAMP,
     parentVisibleState: status.parentVisibleState,
@@ -1030,16 +979,13 @@ export function buildBillingCancellationSummaryFromStatus(
   };
 }
 
-export function buildBillingCancellationSummary(
-  subject: string,
-  requestId: string,
-): BillingCancellationSummary {
+export function buildBillingCancellationSummary(subject: string, requestId: string): BillingCancellationSummary {
   return buildBillingCancellationSummaryFromStatus(
     buildBillingStatusSummary(subject, {
-      ENVIRONMENT: "local",
-      AUTH_ADAPTER_MODE: "local-safe-fixture",
+      ENVIRONMENT: 'local',
+      AUTH_ADAPTER_MODE: 'local-safe-fixture',
     } as Env),
-    requestId,
+    requestId
   );
 }
 
@@ -1072,81 +1018,81 @@ export function buildBillingReferralSummary(subject: string): BillingReferralSum
 export function buildReferralInviteResult(
   subject: string,
   requestId: string,
-  invitedIdentifier: string | null,
+  invitedIdentifier: string | null
 ): ReferralInviteResult {
   const referral = buildBillingReferralSummary(subject);
-  const normalizedInvite = invitedIdentifier?.trim().toLowerCase() ?? "";
+  const normalizedInvite = invitedIdentifier?.trim().toLowerCase() ?? '';
 
   if (normalizedInvite.length === 0) {
     return BillingReferralInviteResultSchema.parse({
       requestId,
-      status: "manual-review",
-      inviteState: "fraud-review",
+      status: 'manual-review',
+      inviteState: 'fraud-review',
       referralCode: referral.referralCode,
-      rejectionReason: "fraud-review",
+      rejectionReason: 'fraud-review',
       auditReference: `${referral.auditReference}:invite-fraud-review`,
     });
   }
 
-  if (normalizedInvite.includes(subject.replace(/[^A-Za-z0-9]/g, "").toLowerCase())) {
+  if (normalizedInvite.includes(subject.replace(/[^A-Za-z0-9]/g, '').toLowerCase())) {
     return BillingReferralInviteResultSchema.parse({
       requestId,
-      status: "rejected",
+      status: 'rejected',
       inviteState: null,
       referralCode: referral.referralCode,
-      rejectionReason: "self-referral-rejected",
+      rejectionReason: 'self-referral-rejected',
       auditReference: `${referral.auditReference}:invite-self-rejected`,
     });
   }
 
-  if (normalizedInvite.includes("same-household")) {
+  if (normalizedInvite.includes('same-household')) {
     return BillingReferralInviteResultSchema.parse({
       requestId,
-      status: "rejected",
+      status: 'rejected',
       inviteState: null,
       referralCode: referral.referralCode,
-      rejectionReason: "same-household-rejected",
+      rejectionReason: 'same-household-rejected',
       auditReference: `${referral.auditReference}:invite-household-rejected`,
     });
   }
 
-  if (normalizedInvite.includes("device-farm")) {
+  if (normalizedInvite.includes('device-farm')) {
     return BillingReferralInviteResultSchema.parse({
       requestId,
-      status: "rejected",
-      inviteState: "fraud-review",
+      status: 'rejected',
+      inviteState: 'fraud-review',
       referralCode: referral.referralCode,
-      rejectionReason: "same-device-farm-rejected",
+      rejectionReason: 'same-device-farm-rejected',
       auditReference: `${referral.auditReference}:invite-device-farm-review`,
     });
   }
 
-  if (normalizedInvite.includes("same-payment-method") || normalizedInvite.includes("shared-card")) {
+  if (normalizedInvite.includes('same-payment-method') || normalizedInvite.includes('shared-card')) {
     return BillingReferralInviteResultSchema.parse({
       requestId,
-      status: "manual-review",
-      inviteState: "fraud-review",
+      status: 'manual-review',
+      inviteState: 'fraud-review',
       referralCode: referral.referralCode,
-      rejectionReason: "same-payment-method-manual-review",
+      rejectionReason: 'same-payment-method-manual-review',
       auditReference: `${referral.auditReference}:invite-payment-method-review`,
     });
   }
 
-  if (normalizedInvite.includes("fraud-review")) {
+  if (normalizedInvite.includes('fraud-review')) {
     return BillingReferralInviteResultSchema.parse({
       requestId,
-      status: "manual-review",
-      inviteState: "fraud-review",
+      status: 'manual-review',
+      inviteState: 'fraud-review',
       referralCode: referral.referralCode,
-      rejectionReason: "fraud-review",
+      rejectionReason: 'fraud-review',
       auditReference: `${referral.auditReference}:invite-fraud-review`,
     });
   }
 
   return BillingReferralInviteResultSchema.parse({
     requestId,
-    status: "accepted",
-    inviteState: "invite-created",
+    status: 'accepted',
+    inviteState: 'invite-created',
     referralCode: referral.referralCode,
     rejectionReason: null,
     auditReference: `${referral.auditReference}:invite-created`,
@@ -1158,14 +1104,14 @@ export function buildEntitlementSnapshot(subject: string): BillingEntitlementSna
   const plan = planById(account.planId);
 
   return {
-    snapshotId: `snapshot-${subject.replace(/[^A-Za-z0-9_-]/g, "-")}`,
+    snapshotId: `snapshot-${subject.replace(/[^A-Za-z0-9_-]/g, '-')}`,
     subject,
     parentAccountRef: account.parentAccountRef,
     familyRef: account.familyRef,
     planId: plan.planId,
     subscriptionStatus: account.subscriptionStatus,
     source: account.source,
-    signatureState: account.source === "manual-admin-review" ? "manual-required" : "signed",
+    signatureState: account.source === 'manual-admin-review' ? 'manual-required' : 'signed',
     signedAt: account.updatedAt,
     deviceLimit: plan.deviceLimit,
     activeDevices: account.activeDevices,
@@ -1182,21 +1128,21 @@ export function buildLicenseDecision(
   subject: string,
   requestId: string,
   deviceId: string,
-  requestedNewDevice: boolean,
+  requestedNewDevice: boolean
 ): BillingLicenseDecisionSummary {
   const account = accountFixtureForSubject(subject);
   const plan = planById(account.planId);
   const requestedDeviceAlreadyTrusted = !requestedNewDevice;
   const atDeviceLimit = account.activeDevices >= plan.deviceLimit;
 
-  if (account.accountStatus === "manual-review") {
+  if (account.accountStatus === 'manual-review') {
     return {
       requestId,
       subject,
       deviceId,
-      decision: "manual-review",
-      reasonCode: "manual-review",
-      deviceActivationBehavior: "manual-review-required",
+      decision: 'manual-review',
+      reasonCode: 'manual-review',
+      deviceActivationBehavior: 'manual-review-required',
       requestedDeviceAlreadyTrusted,
       planId: plan.planId,
       currentActiveDevices: account.activeDevices,
@@ -1210,9 +1156,9 @@ export function buildLicenseDecision(
       requestId,
       subject,
       deviceId,
-      decision: "denied",
-      reasonCode: "limit-exceeded",
-      deviceActivationBehavior: "deny-new-device",
+      decision: 'denied',
+      reasonCode: 'limit-exceeded',
+      deviceActivationBehavior: 'deny-new-device',
       requestedDeviceAlreadyTrusted,
       planId: plan.planId,
       currentActiveDevices: account.activeDevices,
@@ -1221,14 +1167,14 @@ export function buildLicenseDecision(
     };
   }
 
-  if (account.subscriptionStatus === "grace" && requestedNewDevice) {
+  if (account.subscriptionStatus === 'grace' && requestedNewDevice) {
     return {
       requestId,
       subject,
       deviceId,
-      decision: "grace",
-      reasonCode: "payment-required",
-      deviceActivationBehavior: "grace-existing-devices",
+      decision: 'grace',
+      reasonCode: 'payment-required',
+      deviceActivationBehavior: 'grace-existing-devices',
       requestedDeviceAlreadyTrusted,
       planId: plan.planId,
       currentActiveDevices: account.activeDevices,
@@ -1241,9 +1187,9 @@ export function buildLicenseDecision(
     requestId,
     subject,
     deviceId,
-    decision: "allowed",
-    reasonCode: "within-plan",
-    deviceActivationBehavior: "allow-new-device",
+    decision: 'allowed',
+    reasonCode: 'within-plan',
+    deviceActivationBehavior: 'allow-new-device',
     requestedDeviceAlreadyTrusted,
     planId: plan.planId,
     currentActiveDevices: account.activeDevices,
@@ -1255,21 +1201,21 @@ export function buildLicenseDecision(
 export function buildManualInvoiceResult(
   subject: string,
   requestId: string,
-  region: string | null,
+  region: string | null
 ): ManualInvoiceResult {
   const account = accountFixtureForSubject(subject);
   return {
     requestId,
-    status: "accepted",
-    invoiceState: "manual-support-required",
-    region: region?.trim() || "manual-enterprise",
-    provider: "manual-invoice",
+    status: 'accepted',
+    invoiceState: 'manual-support-required',
+    region: region?.trim() || 'manual-enterprise',
+    provider: 'manual-invoice',
     auditReference: `${account.auditReference}:manual-invoice`,
   };
 }
 
 export function listAdminBillingAccounts(query: string | null): ReadonlyArray<AdminBillingAccountSummary> {
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const rows: ReadonlyArray<AdminBillingAccountSummary> = LOCAL_BILLING_ACCOUNTS.map((fixture) =>
     BillingSupportAdminAccountSummarySchema.parse({
       parentAccountRef: fixture.parentAccountRef,
@@ -1280,11 +1226,11 @@ export function listAdminBillingAccounts(query: string | null): ReadonlyArray<Ad
       evidenceExportAccess: fixture.evidenceExportAccess,
       childActivityCustody: fixture.childActivityCustody,
       providerSecretCustody: fixture.providerSecretCustody,
-      manualRequired: fixture.accountStatus === "manual-review",
+      manualRequired: fixture.accountStatus === 'manual-review',
       failureKind: fixture.failureState?.failureKind ?? null,
       auditReference: fixture.auditReference,
       updatedAt: fixture.updatedAt,
-    }),
+    })
   );
 
   if (!loweredQuery) {
@@ -1293,20 +1239,20 @@ export function listAdminBillingAccounts(query: string | null): ReadonlyArray<Ad
 
   return rows.filter((row) =>
     [row.parentAccountRef, row.familyRef, row.planId, row.parentVisibleState].some((value) =>
-      value.toLowerCase().includes(loweredQuery),
-    ),
+      value.toLowerCase().includes(loweredQuery)
+    )
   );
 }
 
 export function listAdminBillingInvoices(query: string | null): ReadonlyArray<AdminBillingInvoiceSummary> {
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const rows = LOCAL_BILLING_ACCOUNTS.flatMap((account) =>
     invoiceRowsForAccount(account).map((invoice) =>
       BillingSupportAdminInvoiceSummarySchema.parse({
         ...invoice,
-        manualRequired: invoice.invoiceVisibility === "manual-support-required",
-      }),
-    ),
+        manualRequired: invoice.invoiceVisibility === 'manual-support-required',
+      })
+    )
   );
 
   if (!loweredQuery) {
@@ -1315,17 +1261,15 @@ export function listAdminBillingInvoices(query: string | null): ReadonlyArray<Ad
 
   return rows.filter((row) =>
     [row.invoiceId, row.invoiceNumber, row.parentAccountRef, row.familyRef, row.planId].some((value) =>
-      value.toLowerCase().includes(loweredQuery),
-    ),
+      value.toLowerCase().includes(loweredQuery)
+    )
   );
 }
 
 export function listAdminBillingDisputes(query: string | null): ReadonlyArray<AdminBillingDisputeSummary> {
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const rows = LOCAL_BILLING_ACCOUNTS.flatMap((account) =>
-    disputeRowsForAccount(account).map((row) =>
-      BillingSupportAdminDisputeSummarySchema.parse(row),
-    ),
+    disputeRowsForAccount(account).map((row) => BillingSupportAdminDisputeSummarySchema.parse(row))
   );
 
   if (!loweredQuery) {
@@ -1334,23 +1278,23 @@ export function listAdminBillingDisputes(query: string | null): ReadonlyArray<Ad
 
   return rows.filter((row) =>
     [row.disputeId, row.parentAccountRef, row.familyRef, row.invoiceId, row.disputeState].some((value) =>
-      value.toLowerCase().includes(loweredQuery),
-    ),
+      value.toLowerCase().includes(loweredQuery)
+    )
   );
 }
 
 export function listAdminBillingReferrals(query: string | null): ReadonlyArray<AdminBillingReferralSummary> {
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const rows: ReadonlyArray<AdminBillingReferralSummary> = LOCAL_REFERRALS.map((referral) =>
     BillingSupportAdminReferralSummarySchema.parse({
       referralCode: referral.referralCode,
       ownerSubject: referral.ownerSubject,
       creditedFamilies: referral.creditedFamilies,
       invitedFamilies: referral.invitedFamilies,
-      abuseReviewState: referral.status === "pending" ? "review-required" : "clear",
+      abuseReviewState: referral.status === 'pending' ? 'review-required' : 'clear',
       auditReference: `audit:referral:${referral.referralCode.toLowerCase()}`,
       updatedAt: referral.updatedAt,
-    }),
+    })
   );
 
   if (!loweredQuery) {
@@ -1359,34 +1303,34 @@ export function listAdminBillingReferrals(query: string | null): ReadonlyArray<A
 
   return rows.filter((row) =>
     [row.referralCode, row.ownerSubject, row.abuseReviewState].some((value) =>
-      value.toLowerCase().includes(loweredQuery),
-    ),
+      value.toLowerCase().includes(loweredQuery)
+    )
   );
 }
 
 export function buildAdminRefundResult(
   requestId: string,
   invoiceId: string | null,
-  amountCents: number | null,
+  amountCents: number | null
 ): BillingSupportAdminRefundResult {
   const invoice = invoiceId ? listAdminBillingInvoices(null).find((entry) => entry.invoiceId === invoiceId) : null;
   if (!invoice) {
     return BillingSupportAdminRefundResultSchema.parse({
       requestId,
-      status: "rejected",
+      status: 'rejected',
       invoiceId,
-      refundState: "manual-review-required",
+      refundState: 'manual-review-required',
       amountCents: null,
-      auditReference: "audit:refund:rejected",
-      rejectionReason: "invoice-not-found",
+      auditReference: 'audit:refund:rejected',
+      rejectionReason: 'invoice-not-found',
     });
   }
 
   return BillingSupportAdminRefundResultSchema.parse({
     requestId,
-    status: "accepted",
+    status: 'accepted',
     invoiceId: invoice.invoiceId,
-    refundState: amountCents !== null && amountCents < invoice.totalCents ? "refund-requested" : "refund-settled",
+    refundState: amountCents !== null && amountCents < invoice.totalCents ? 'refund-requested' : 'refund-settled',
     amountCents: amountCents ?? invoice.totalCents,
     auditReference: `${invoice.auditReference}:refund`,
     rejectionReason: null,
@@ -1395,25 +1339,23 @@ export function buildAdminRefundResult(
 
 export function buildReconciliationSummary(
   requestId: string,
-  queued: boolean,
+  queued: boolean
 ): BillingSupportAdminReconciliationSummary {
   return BillingSupportAdminReconciliationSummarySchema.parse({
     requestId,
-    status: "accepted",
+    status: 'accepted',
     queued,
     driftFamiliesVisible: 2,
     retryBacklogVisible: 1,
     deadLetterVisible: 0,
-    auditReference: "audit:billing:reconciliation",
+    auditReference: 'audit:billing:reconciliation',
   });
 }
 
 export function listBillingAuditEvents(query: string | null): ReadonlyArray<BillingAuditEventSummary> {
-  const loweredQuery = query?.trim().toLowerCase() ?? "";
+  const loweredQuery = query?.trim().toLowerCase() ?? '';
   const rows = LOCAL_BILLING_ACCOUNTS.flatMap((account) =>
-    auditEventRowsForAccount(account).map((event) =>
-      BillingSupportAdminAuditEventSummarySchema.parse(event),
-    ),
+    auditEventRowsForAccount(account).map((event) => BillingSupportAdminAuditEventSummarySchema.parse(event))
   );
 
   if (!loweredQuery) {
@@ -1422,8 +1364,8 @@ export function listBillingAuditEvents(query: string | null): ReadonlyArray<Bill
 
   return rows.filter((row) =>
     [row.eventId, row.eventType, row.parentAccountRef, row.familyRef, row.actorRole].some((value) =>
-      value.toLowerCase().includes(loweredQuery),
-    ),
+      value.toLowerCase().includes(loweredQuery)
+    )
   );
 }
 

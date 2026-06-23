@@ -33,8 +33,12 @@ async function main() {
   ]);
 
   const policy = await importSource('packages/schema-domain/src/tracking-location-policy.ts');
-  const timeoutProof = await importSource('packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts');
-  const boundaryProof = await importSource('packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts');
+  const timeoutProof = await importSource(
+    'packages/schema-domain/src/tracking-child-check-in-timeout-escalation-proof.ts'
+  );
+  const boundaryProof = await importSource(
+    'packages/schema-domain/src/tracking-child-runtime-delivery-boundary-proof.ts'
+  );
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
   const sourceTimeoutReadModel = timeoutProof.buildTrackingChildCheckInTimeoutReadModel(
@@ -43,7 +47,7 @@ async function main() {
       readinessId: 'tracking-child-check-in-timeout-escalation-proof',
       sourceContractRefs: [
         'packages/schema-domain/src/tracking-location-policy.ts',
-        'packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
+        'packages/schema-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
         'docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md',
       ],
     },
@@ -54,8 +58,8 @@ async function main() {
       generatedAt: '2026-06-07T14:10:00.000Z',
       readinessId: 'tracking-child-runtime-delivery-boundary-proof',
       sourceContractRefs: [
-        'packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
-        'packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
+        'packages/schema-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
+        'packages/schema-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
         'packages/portal-domain/src/tracking-child-check-in-proof.ts',
         'apps/portal/e2e/tracking-hosted-ui-proof.spec.ts',
         'docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md',
@@ -168,7 +172,7 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- currentProofTier: P2_HOSTED_CI',
     '- status: proved',
     '- proves hosted child-runtime disclosure rows linked to child check-in timeout rows and hosted UI proof refs',
-    '- proof module: packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-delivery-boundary-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-delivery-boundary-proof.mjs',
     '- hosted UI source: packages/portal-domain/src/tracking-child-check-in-proof.ts',

@@ -1,15 +1,9 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
 import { ActivityEvidenceRefSchema } from './evidence-contracts';
 import { ActivityTimestampSchema } from './evidence-primitives';
-import {
-  ScreenEvidenceOcrSnippetTextSchema,
-  ScreenEvidenceSnippetLimitSchema,
-} from './screen-evidence-primitives';
+import { ScreenEvidenceOcrSnippetTextSchema, ScreenEvidenceSnippetLimitSchema } from './screen-evidence-primitives';
 import { ScreenOcrTextSnippetSchema } from './screen-evidence-result';
-import {
-  ScreenRedactionModeSchema,
-  ScreenRedactionNoteSchema,
-} from './screen-evidence-states';
+import { ScreenRedactionModeSchema, ScreenRedactionNoteSchema } from './screen-evidence-states';
 
 export const ScreenOcrRedactionSchemaVersion = 1;
 export const ScreenOcrRedactionMaxSnippetLimit = 5;
@@ -56,9 +50,7 @@ export const ScreenOcrRedactionPolicySchema = withParser(
     Schema.filter(
       (value) =>
         !value.ocrTextEnabled ||
-        (value.snippetLimit > 0 &&
-          value.redactionMode !== 'disabled' &&
-          value.textRetentionMode !== 'disabled') ||
+        (value.snippetLimit > 0 && value.redactionMode !== 'disabled' && value.textRetentionMode !== 'disabled') ||
         'Expected enabled OCR text to use an explicit redaction mode, positive snippet limit, and retention mode'
     ),
     Schema.filter(
@@ -226,9 +218,7 @@ function redactPiiText(
     return value;
   }
   return ScreenEvidenceOcrSnippetTextParser.parse(
-    value
-      .replace(EmailPattern, '[redacted-email]')
-      .replace(PhonePattern, '[redacted-phone]')
+    value.replace(EmailPattern, '[redacted-email]').replace(PhonePattern, '[redacted-phone]')
   );
 }
 

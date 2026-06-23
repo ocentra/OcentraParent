@@ -39,9 +39,7 @@ Current device-trust coverage starts in:
 - `test/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
 - `test/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
 
-These plan-local tests currently prove document and route alignment only. They do
-not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle
-execution, or child uninstall execution by themselves.
+These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
 Implementation-adjacent coverage currently lives in:
 
@@ -92,8 +90,59 @@ npm run lint:architecture -- --files packages/family-domain/src packages/lan-dom
 cargo lint-architecture crates/agent-protocol/src/lan_pairing.rs crates/agent-service/src/lan_pairing.rs
 ```
 
-If the touched slice includes `packages/parent-domain` frontage or
-`tamper-uninstall-artifact-status`, run focused architecture gates there too.
+If the touched slice includes `packages/parent-domain` frontage or `tamper-uninstall-artifact-status`, run focused architecture gates there too.
+
+Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
+
+## Command ownership notes
+
+- `schema-domain` owns canonical trust/device/step-up/recovery/entitlement/tamper handoff shapes when contracts cross package/crate/app/plan boundaries.
+- `family-domain` proves household/role/action authorization helpers only. It is not a platform device-trust runtime.
+- `lan-domain` proves LAN pairing/selected-device contracts only. It is not the trust root.
+- `agent-protocol` and `agent-service` are protocol/service proof only when selected.
+- Setup, account, data custody, payment, package distribution, remote access, policy, and portal scopes run only when the selected workpack explicitly touches their typed handoff.
+- Plan-local tests prove route and document truth unless the selected workpack names real runtime behavior and proof artifacts.
+
+## Device Trust E2E meaning
+
+Do not use one proof family to claim the whole device-trust path. For this plan, E2E has separate meanings:
+
+```text
+trust source-of-truth E2E: actor/account/household/device registration -> trust state -> revocation/expiry/no-child-control boundaries.
+local key sealing E2E: trust subject -> platform store/wrapper -> sealed key lifecycle -> wrong user/device/key negatives -> no universal key.
+parent step-up E2E: parent account + household role + action -> platform approval assertion -> nonce/expiry/audit proof.
+phone QR approval E2E: desktop challenge -> phone approval -> action/household/parent/device/target binding -> replay/expiry rejection.
+entitlement-device binding E2E: signed entitlement snapshot -> trusted device binding -> expiry/revocation/replay checks -> no license-only unlock.
+recovery reset/re-pair E2E: encrypted recovery bundle -> wrong household/device/key negatives -> revocation preserved -> re-pair state.
+child tamper/uninstall E2E: parent-authorized request -> trust revocation -> package/runtime handoff -> residual/manual-required state.
+dependency adoption E2E: dependency candidate -> license/security/maintenance/supply-chain review -> adoption or rejection proof.
+route gate E2E: accepted proof roots + carried blockers -> adjacent handoffs -> route/index sync -> manual-required gap register.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Every device-trust proof slice must preserve product-safe logging and local harness logging.
+
+Product/runtime-safe logging:
+
+```text
+redact protected auth material, sealed key bytes, recovery payloads, QR private values, entitlement signing material, private device identifiers beyond opaque refs, and support-private diagnostics unless explicitly selected for proof
+log trust subject, device role, actor role, trust state, sealed-key state, platform store, step-up state, QR challenge state, entitlement binding state, recovery state, tamper/uninstall state, revocation state, replay state, platform note, proof ref, manual-required note, and no-claim boundary when safe
+separate login/session, setup, LAN pairing, package install, license, trust, key sealing, step-up, QR approval, recovery, tamper/uninstall, and route-gate states
+never treat document tests, route tests, login logs, LAN logs, package logs, or license logs as trust proof without selected runtime proof or exact blocker
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, trust subject, device role, platform, exit code, result, artifact pointer, diagnostics summary, blocker class, manual-required note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
 
 ## Host and platform proof expectations
 
@@ -129,7 +178,10 @@ route gate
 ```text
 login alone not trust proof
 license alone not unlock proof
+LAN pairing not trust root
+package install/copy not trust proof
 wrong household/device blocked
+wrong key blocked
 revoked/expired state visible
 manual-required state visible
 mock proof not product proof

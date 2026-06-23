@@ -1,19 +1,21 @@
 import {
   AgentCommandEnvelopeSchema,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-  AgentProtocolSchemaVersion,
   decodeAgentMessageId,
   decodeAgentTimestamp,
   decodeSerializedAgentMessage,
   type AgentCommandEnvelope,
   type AgentCommandName,
   type AgentEventEnvelope,
+  type AgentProtocolLogFields,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import {
+  AgentProtocolSchemaVersion,
   type AgentMessageId,
   type AgentMessageTarget,
-  type AgentProtocolLogFields,
   type SerializedAgentMessage,
-} from './contracts';
+} from '@ocentra-parent/schema-domain/event-primitives';
 
 type AgentMessageCodecGlobal = typeof globalThis & {
   readonly crypto?: {

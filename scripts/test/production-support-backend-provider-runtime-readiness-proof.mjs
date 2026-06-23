@@ -148,8 +148,7 @@ function assertReadModel(readModel) {
 
 async function assertPackageExports() {
   const contract = await import('@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness');
-  const readModel =
-    await import('@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness-read-model');
+  const readModel = await import('@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness-read-model');
   assert.equal(typeof contract.SupportBackendProviderRuntimeReadinessReadModelSchema.parse, 'function');
   assert.equal(readModel.SupportBackendProviderRuntimeReadinessReadModel.entries.length, 8);
 }

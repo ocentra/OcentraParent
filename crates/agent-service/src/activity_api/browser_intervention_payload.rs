@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserInterventionReadModel, BrowserInterventionRow, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::browser_intervention::{
+    BrowserInterventionReadModel, BrowserInterventionRow,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
 

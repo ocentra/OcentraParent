@@ -93,4 +93,3 @@ function readModelStateForAuditRollbackHandoff(
   }
   return AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState.BlockedByCompilerDecision;
 }
-

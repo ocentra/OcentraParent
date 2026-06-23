@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentOwnedSyncExportDataClassSchema,
   type ParentOwnedSyncExportDataClass,
@@ -39,11 +34,17 @@ export const StatelessReportCompilerNonClaimSchema = withParser(
 const StatelessReportCompilerRequestIdSchema = brandedNonEmptyStringSchema('StatelessReportCompilerRequestId');
 const StatelessReportCompilerStatusRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerStatusRef');
 const StatelessReportCompilerResultRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerResultRef');
-const StatelessReportCompilerConnectorStatusRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerConnectorStatusRef');
+const StatelessReportCompilerConnectorStatusRefSchema = brandedNonEmptyStringSchema(
+  'StatelessReportCompilerConnectorStatusRef'
+);
 const StatelessReportCompilerCursorRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerCursorRef');
-const StatelessReportCompilerDestinationRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerDestinationRef');
+const StatelessReportCompilerDestinationRefSchema = brandedNonEmptyStringSchema(
+  'StatelessReportCompilerDestinationRef'
+);
 const StatelessReportCompilerPolicyRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerPolicyRef');
-const StatelessReportCompilerTempArtifactRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerTempArtifactRef');
+const StatelessReportCompilerTempArtifactRefSchema = brandedNonEmptyStringSchema(
+  'StatelessReportCompilerTempArtifactRef'
+);
 
 const FinalStatuses = ['succeeded', 'failed', 'expired', 'manual-required'] as const;
 const FailureStatuses = ['failed', 'expired', 'manual-required'] as const;
@@ -499,4 +500,3 @@ function tempArtifacts(deleted: boolean) {
     deletionConfirmed: deleted,
   };
 }
-

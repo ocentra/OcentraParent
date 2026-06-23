@@ -1,16 +1,27 @@
 use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryInput;
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, EnforcementIntent, EnforcementIntentSource,
-    LogFieldValue, LogFields, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyTarget, PolicyTargetType,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementIntent;
+use ocentra_parent_agent_protocol::enforcement::EnforcementIntentSource;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+
+type EnforcementDeviceRefText = String;
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct EnforcementCommandPayload {
     pub input: EnforcementBoundaryInput,
     pub process_id: Option<u32>,
-    pub device_id: String,
+    pub device_id: EnforcementDeviceRefText,
     pub platform: String,
 }
 
@@ -86,9 +97,10 @@ fn parse_policy_payload(
 ) -> Result<EnforcementPolicyPayload, &'static str> {
     let policy_decision_id =
         required_string(payload, constants::field::POLICY_DECISION_ID)?.to_string();
-    let policy_version = required_string(payload, constants::field::POLICY_VERSION)
-        .map_err(|_| constants::enforcement::REJECTION_POLICY_VERSION_REQUIRED)?
-        .to_string();
+    let policy_version = match required_string(payload, constants::field::POLICY_VERSION) {
+        Ok(policy_version) => policy_version.to_string(),
+        Err(_) => return Err(constants::enforcement::REJECTION_POLICY_VERSION_REQUIRED),
+    };
     let target_id = required_string(payload, constants::field::TARGET_ID)?.to_string();
     let target_value = required_string(payload, constants::field::POLICY_TARGET_VALUE)?.to_string();
     let target_type = policy_target_type(required_string(

@@ -5,9 +5,10 @@ use ocentra_parent_agent_core::{
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityIngestStatus, LogFieldValue,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},

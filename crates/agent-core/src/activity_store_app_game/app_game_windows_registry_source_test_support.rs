@@ -3,14 +3,16 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, journal::ActivityJournalLine, APP_GAME_TEST_DISPLAY_LABEL,
-    APP_GAME_WINDOWS_REGISTRY_DISPLAY_NAME_VALUE, APP_GAME_WINDOWS_REGISTRY_DWORD_ENABLED_VALUE,
-    APP_GAME_WINDOWS_REGISTRY_DWORD_PREFIX, APP_GAME_WINDOWS_REGISTRY_EXPORT_HEADER,
-    APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION, APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE,
-    APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE, APP_GAME_WINDOWS_REGISTRY_SYSTEM_COMPONENT_VALUE,
-    APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_WINDOWS_REGISTRY_DISPLAY_NAME_VALUE,
+    APP_GAME_WINDOWS_REGISTRY_DWORD_ENABLED_VALUE, APP_GAME_WINDOWS_REGISTRY_DWORD_PREFIX,
+    APP_GAME_WINDOWS_REGISTRY_EXPORT_HEADER, APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION,
+    APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE, APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE,
+    APP_GAME_WINDOWS_REGISTRY_SYSTEM_COMPONENT_VALUE, APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 
 use crate::{
     activity_store::ActivityStore,
@@ -75,32 +77,36 @@ pub(super) fn registry_export_path(root: &Path) -> PathBuf {
 
 pub(super) fn write_registry_export(path: &Path, export: String) {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+        fs::create_dir_all(parent)
+            .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_CAPTURE_RECORDS));
     }
-    fs::write(path, export).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::write(path, export)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_CAPTURE_RECORDS));
 }
 
 pub(super) fn append_and_replay(
-    events: &[ocentra_parent_agent_protocol::ActivityEvent],
+    events: &[ActivityEvent],
 ) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path();
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.clone(), key.clone())
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS)),
         );
     }
-    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader = ActivityJournal::open(path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

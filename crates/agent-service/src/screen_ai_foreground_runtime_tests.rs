@@ -1,5 +1,6 @@
 use std::{
     fs,
+    io::Error as IoError,
     path::PathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
@@ -7,10 +8,11 @@ use std::{
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore, window_capture::ForegroundWindowObservation,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, SCREEN_CATEGORY_UNKNOWN,
-    SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX,
-    SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV,
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    SCREEN_CATEGORY_UNKNOWN, SCREEN_PROVIDER_SERVICE_METADATA,
+    SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX, SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV,
 };
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
@@ -24,6 +26,8 @@ use super::{
 };
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+type TestResult = Result<(), IoError>;
 
 #[test]
 fn screen_foreground_runtime_is_disabled_without_explicit_parent_setting() {
@@ -54,7 +58,7 @@ fn screen_foreground_key_prefers_real_window_id_and_rejects_degraded_state() {
 }
 
 #[test]
-fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() {
+fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() -> TestResult {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     let config = ScreenAiForegroundRuntimeConfig {
         screen_analysis_enabled: true,
@@ -65,7 +69,7 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
         max_ticks: Some(1),
         max_pending_queue_records: 3,
         temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
@@ -82,24 +86,67 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
         ),
         1,
     )
-    .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    .map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_INGESTS
+        ))
+    })?;
 
     let queue_file = config
         .queue_dir
         .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
-    let queue_record =
-        fs::read_to_string(queue_file).expect(constants::error::ACTIVITY_STORE_OPENS);
-    assert!(queue_record.contains(&queue_job_id));
-    assert!(!queue_record.contains(constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER));
+    let queue_record = fs::read_to_string(queue_file).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let queue_lines = queue_record.lines().collect::<Vec<_>>();
+    assert_eq!(queue_lines.len(), 1);
+    let queue_entry: serde_json::Value =
+        serde_json::from_str(queue_lines[0]).map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::AGENT_EVENT_SERIALIZES
+            ))
+        })?;
+    let ciphertext = queue_entry
+        .get(constants::field::CIPHERTEXT)
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| IoError::other(format!("missing {}", constants::field::CIPHERTEXT)))?;
 
-    let store =
-        ActivityStore::open(&config.store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    assert_eq!(
+        queue_entry
+            .get(constants::field::SCREEN_QUEUE_JOB_ID)
+            .and_then(serde_json::Value::as_str),
+        Some(queue_job_id.as_str())
+    );
+    assert_eq!(
+        queue_entry
+            .get(constants::field::STATUS)
+            .and_then(serde_json::Value::as_str),
+        Some(ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED)
+    );
+    assert_ne!(ciphertext, constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER);
+
+    let store = ActivityStore::open(&config.store_path).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
 
     assert_eq!(summary.returned, 1);
     assert_eq!(
@@ -115,6 +162,8 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
         summary.results[0].capture_reason,
         constants::activity_capture::SCREEN_TRIGGER_NATIVE_APP_FOREGROUND_START
     );
+
+    Ok(())
 }
 
 fn captured_test_image() -> CapturedScreenImage {

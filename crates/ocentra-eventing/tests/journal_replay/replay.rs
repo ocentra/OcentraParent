@@ -88,7 +88,10 @@ async fn replay_rejects_tampered_hash_chain_payload() {
 
     match result {
         Err(EventingError::JournalCorruptLine { line: 1, reason }) => {
-            assert!(reason.contains("current hash mismatch"));
+            assert_eq!(
+                reason.split(": expected ").next(),
+                Some("journal hash-chain current hash mismatch at sequence 1")
+            );
         }
         _other => std::process::abort(),
     }

@@ -1,17 +1,15 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ScreenOptionalVisibilityModeSchemaVersion = 1;
 
 export const ScreenOptionalVisibilitySettingIdSchema = brandedNonEmptyStringSchema('ScreenOptionalVisibilitySettingId');
-export const ScreenOptionalVisibilityApprovalRefSchema = brandedNonEmptyStringSchema('ScreenOptionalVisibilityApprovalRef');
+export const ScreenOptionalVisibilityApprovalRefSchema = brandedNonEmptyStringSchema(
+  'ScreenOptionalVisibilityApprovalRef'
+);
 export const ScreenOptionalVisibilityAuditRefSchema = brandedNonEmptyStringSchema('ScreenOptionalVisibilityAuditRef');
-export const ScreenOptionalVisibilityPlatformProofRefSchema =
-  brandedNonEmptyStringSchema('ScreenOptionalVisibilityPlatformProofRef');
+export const ScreenOptionalVisibilityPlatformProofRefSchema = brandedNonEmptyStringSchema(
+  'ScreenOptionalVisibilityPlatformProofRef'
+);
 export const ScreenOptionalVisibilityExportRefSchema = brandedNonEmptyStringSchema('ScreenOptionalVisibilityExportRef');
 
 export const ScreenRawScreenshotRetentionModeSchema = withParser(
@@ -24,9 +22,7 @@ export const ScreenLiveViewTransportModeSchema = withParser(
   Schema.Literal('none', 'lanMutualAuth', 'relayEndToEndEncrypted')
 );
 
-export const ScreenOptionalVisibilityDisclosureStateSchema = withParser(
-  Schema.Literal('notRequired', 'requiredShown')
-);
+export const ScreenOptionalVisibilityDisclosureStateSchema = withParser(Schema.Literal('notRequired', 'requiredShown'));
 
 export const ScreenOptionalVisibilityPlatformProofStateSchema = withParser(
   Schema.Literal('notRequired', 'missing', 'operatorVerified')

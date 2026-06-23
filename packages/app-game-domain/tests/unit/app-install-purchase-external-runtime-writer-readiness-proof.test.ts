@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeWriterReadinessProofSchema,
   AppInstallPurchaseExternalRuntimeWriterReadinessRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeWriterReadinessProof,
-} from '../../src/app-install-purchase-external-runtime-writer-readiness-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-writer-readiness-proof';
 
 describe('app install and purchase external runtime writer readiness proof', () => {
   acceptsExternalRuntimeWriterReadinessRowsWithoutDeliveryClaims();

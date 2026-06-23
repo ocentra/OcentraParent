@@ -108,11 +108,9 @@ function buildParentSurfaceReadModel(parentSurface, providerReadModel, preferenc
         ...providerRow.providerStatusBoundaryEntry.auditRefs,
         ...preferenceRow.notificationPreferenceStatusEntry.auditRefs,
       ],
-      manualProofRequirements: [
-        ...providerRow.manualProofRequirements,
-        ...preferenceRow.manualProofRequirements,
-      ],
-      minimalSurfacePayloadBoundary: 'Parent surface rows remain manual or unavailable visibility only without rendered UI.',
+      manualProofRequirements: [...providerRow.manualProofRequirements, ...preferenceRow.manualProofRequirements],
+      minimalSurfacePayloadBoundary:
+        'Parent surface rows remain manual or unavailable visibility only without rendered UI.',
       sensitiveDetailIncluded: false,
       providerDeliveryClaimed: false,
       providerReceiptClaimed: false,

@@ -1,8 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind,
-    ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::network_capture::{collect_network_snapshot, NetworkObservation};
 use crate::network_capture_event_fields::{

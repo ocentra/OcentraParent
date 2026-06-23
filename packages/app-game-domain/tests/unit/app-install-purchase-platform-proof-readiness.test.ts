@@ -4,7 +4,7 @@ import {
   AppInstallPurchasePlatformProofReadinessProofSchema,
   AppInstallPurchasePlatformProofReadinessRowSchema,
   summarizeAppInstallPurchasePlatformProofReadiness,
-} from '../../src/app-install-purchase-platform-proof-readiness';
+} from '@ocentra-parent/schema-domain/app-install-purchase-platform-proof-readiness';
 
 describe('app install and purchase platform proof readiness', () => {
   acceptsPlatformProofReadinessRowsWithoutPlatformClaims();

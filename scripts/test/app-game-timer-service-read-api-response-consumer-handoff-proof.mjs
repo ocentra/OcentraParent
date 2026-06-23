@@ -53,7 +53,8 @@ runNpm([
   'app-game-timer-service-read-api-response-handoff',
 ]);
 
-const contract = await import('@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-consumer-handoff');
+const contract =
+  await import('@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-consumer-handoff');
 const serviceReadApiResponseHandoffContract =
   await import('@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-handoff');
 const sourceServiceReadApiResponseHandoff =
@@ -143,8 +144,6 @@ function pickNonClaims(serviceReadApiResponseConsumerHandoff) {
     serviceEventEmitted: serviceReadApiResponseConsumerHandoff.serviceEventEmitted,
     serviceReadApiImplemented: serviceReadApiResponseConsumerHandoff.serviceReadApiImplemented,
     serviceReadApiResponseImplemented: serviceReadApiResponseConsumerHandoff.serviceReadApiResponseImplemented,
-    serviceReadApiResponseConsumerImplemented:
-      serviceReadApiResponseConsumerHandoff.serviceReadApiResponseConsumerImplemented,
     serviceReadApiResponseConsumerImplemented:
       serviceReadApiResponseConsumerHandoff.serviceReadApiResponseConsumerImplemented,
     agentProtocolImplemented: serviceReadApiResponseConsumerHandoff.agentProtocolImplemented,

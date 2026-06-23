@@ -2,11 +2,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 
 function buildDiagnosticId(runId, commandId, key) {
-  return `diag-${crypto
-    .createHash('sha256')
-    .update(`${runId}:${commandId}:${key}`)
-    .digest('hex')
-    .slice(0, 16)}`;
+  return `diag-${crypto.createHash('sha256').update(`${runId}:${commandId}:${key}`).digest('hex').slice(0, 16)}`;
 }
 
 function severityFromToken(token) {
@@ -152,11 +148,7 @@ function parseEslintDiagnostics(store, context) {
       continue;
     }
 
-    if (
-      !item.text.startsWith(' ') &&
-      !item.text.startsWith('\t') &&
-      /\.(?:[cm]?[jt]sx?)$/i.test(trimmed)
-    ) {
+    if (!item.text.startsWith(' ') && !item.text.startsWith('\t') && /\.(?:[cm]?[jt]sx?)$/i.test(trimmed)) {
       currentFile = normalizeFile(trimmed);
       continue;
     }
@@ -217,7 +209,8 @@ function parsePolicyDiagnostics(store, context) {
   for (const item of context.lines) {
     const lower = item.text.toLowerCase();
     const isReexport = lower.includes('re-export') || lower.includes('no-reexport');
-    const isPolicy = lower.includes('guard failed') || lower.includes('validation bypass') || lower.includes('import boundary');
+    const isPolicy =
+      lower.includes('guard failed') || lower.includes('validation bypass') || lower.includes('import boundary');
 
     if (!isReexport && !isPolicy) {
       continue;

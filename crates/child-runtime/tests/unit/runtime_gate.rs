@@ -31,6 +31,16 @@ use ocentra_storage_custody_core::storage_custody::{
     StorageCustodyInput, StorageCustodyLocation,
 };
 
+trait ResultRequiredExt<T, E> {
+    fn required(self, context: &str) -> T;
+}
+
+impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    }
+}
+
 #[test]
 fn child_runtime_preflight_allows_start_when_identity_setup_entitlement_and_storage_are_valid() {
     let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(
@@ -225,11 +235,11 @@ fn child_runtime_preflight_request_records_typed_decision_event() {
         aggregate_id: ocentra_child_runtime::ChildRuntimeAggregateId::parse(
             "child-runtime-device-default",
         )
-        .expect("child runtime aggregate"),
+        .required("child runtime aggregate"),
         request_id: ocentra_child_runtime::ChildRuntimePreflightRequestId::parse(
             "child-runtime-preflight-default",
         )
-        .expect("child runtime preflight request"),
+        .required("child runtime preflight request"),
         input: valid_child_runtime_preflight_input(),
     };
 
@@ -244,7 +254,7 @@ fn child_runtime_preflight_request_records_typed_decision_event() {
     assert_eq!(
         request
             .contract()
-            .expect("child runtime preflight request contract")
+            .required("child runtime preflight request contract")
             .event_type
             .as_str(),
         ocentra_child_runtime::CHILD_RUNTIME_PREFLIGHT_REQUESTED_EVENT_TYPE
@@ -252,7 +262,7 @@ fn child_runtime_preflight_request_records_typed_decision_event() {
     assert_eq!(
         decision
             .contract()
-            .expect("child runtime preflight decision contract")
+            .required("child runtime preflight decision contract")
             .event_type
             .as_str(),
         ocentra_child_runtime::CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE

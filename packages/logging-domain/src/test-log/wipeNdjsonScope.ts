@@ -85,11 +85,7 @@ export function wipeNdjsonScope(options: WipeNdjsonScopeOptions): WipeNdjsonScop
       continue;
     }
 
-    fs.writeFileSync(
-      filePath,
-      `${keptEntries.map((entry) => JSON.stringify(entry)).join('\n')}\n`,
-      'utf8'
-    );
+    fs.writeFileSync(filePath, `${keptEntries.map((entry) => JSON.stringify(entry)).join('\n')}\n`, 'utf8');
     rewrittenFiles.push(filePath);
   }
 

@@ -6,11 +6,12 @@ use crate::{
     NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
     NetworkEvidencePolicyMappingInput,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn android_vpn_service_gate_allows_physical_device_ready_without_device_owner_claim() {
     let proof = plan_network_android_vpn_service_gate(physical_device_ready_input(false))
-        .expect("complete Android VpnService gate should become physical-device proof-ready");
+        .expect_value("complete Android VpnService gate should become physical-device proof-ready");
 
     assert_eq!(
         proof.gate_state,
@@ -41,7 +42,7 @@ fn android_vpn_service_gate_allows_physical_device_ready_without_device_owner_cl
 #[test]
 fn android_vpn_service_gate_requires_device_owner_proof_when_claimed() {
     let proof = plan_network_android_vpn_service_gate(physical_device_ready_input(true))
-        .expect("Device Owner-required gate should accept explicit proof ref");
+        .expect_value("Device Owner-required gate should accept explicit proof ref");
     assert_eq!(
         proof.gate_state,
         NetworkAndroidVpnServiceGateState::PhysicalDeviceProofReady
@@ -58,7 +59,7 @@ fn android_vpn_service_gate_requires_device_owner_proof_when_claimed() {
         device_owner_proof_ref: None,
         ..physical_device_ready_input(false)
     })
-    .expect("missing Device Owner proof should stay reportable");
+    .expect_value("missing Device Owner proof should stay reportable");
     assert_eq!(
         missing.gate_state,
         NetworkAndroidVpnServiceGateState::ManualRequired
@@ -84,7 +85,7 @@ fn android_vpn_service_gate_research_only_is_non_executable_without_artifacts() 
         audit_event_ref: None,
         ..physical_device_ready_input(false)
     })
-    .expect("research-only Android VpnService gate should be allowed without artifacts");
+    .expect_value("research-only Android VpnService gate should be allowed without artifacts");
 
     assert_eq!(
         proof.gate_state,
@@ -120,7 +121,7 @@ fn android_vpn_service_gate_routes_weak_or_non_block_policy_to_manual_required()
         policy_mapping: policy_mapping(NetworkEvidenceGrade::B, NetworkEvidencePolicyAction::Block),
         ..physical_device_ready_input(false)
     })
-    .expect("grade B block policy handoff should not become Android VpnService proof-ready");
+    .expect_value("grade B block policy handoff should not become Android VpnService proof-ready");
 
     assert_eq!(
         weak.gate_state,
@@ -138,7 +139,9 @@ fn android_vpn_service_gate_routes_weak_or_non_block_policy_to_manual_required()
         policy_mapping: policy_mapping(NetworkEvidenceGrade::A, NetworkEvidencePolicyAction::Limit),
         ..physical_device_ready_input(false)
     })
-    .expect("non-block mapped actions should stay outside the Android VpnService proof boundary");
+    .expect_value(
+        "non-block mapped actions should stay outside the Android VpnService proof boundary",
+    );
     assert_eq!(
         limit.gate_state,
         NetworkAndroidVpnServiceGateState::ManualRequired
@@ -155,7 +158,7 @@ fn android_vpn_service_gate_marks_manual_required_or_unavailable_capability_with
         capability_state: NetworkAndroidVpnServiceCapabilityState::ManualRequired,
         ..physical_device_ready_input(false)
     })
-    .expect("manual-required Android VpnService capability should stay reportable");
+    .expect_value("manual-required Android VpnService capability should stay reportable");
     assert_eq!(
         manual.gate_state,
         NetworkAndroidVpnServiceGateState::ManualRequired
@@ -170,7 +173,7 @@ fn android_vpn_service_gate_marks_manual_required_or_unavailable_capability_with
         capability_state: NetworkAndroidVpnServiceCapabilityState::Unavailable,
         ..physical_device_ready_input(false)
     })
-    .expect("unavailable Android VpnService capability should stay reportable");
+    .expect_value("unavailable Android VpnService capability should stay reportable");
     assert_eq!(
         unavailable.gate_state,
         NetworkAndroidVpnServiceGateState::Unavailable
@@ -324,5 +327,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

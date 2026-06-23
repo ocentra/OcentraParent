@@ -4,6 +4,14 @@
 
 Close the loop on route sync, proof storage, and PR-ready readiness.
 
+## Ownership boundary
+
+```text
+WP07 aggregates payment-subscription-plan proof roots only.
+cloudflare-control-plane-plan, account, device-trust, data-custody, setup, portal, policy, and support/admin owner surfaces remain separate unless their handoff proof is explicitly accepted.
+CI evidence supports proof but does not replace selected runtime or artifact proof.
+```
+
 ## First-touch surface
 
 - `output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-validation-command-log.md`
@@ -38,6 +46,32 @@ Close the loop on route sync, proof storage, and PR-ready readiness.
 - Proof artifacts include at least one negative case and one rollback or teardown case.
 - Proof artifacts map to the exact assertion IDs for the selected workpack.
 
+## Required rollout fields
+
+The selected rollout proof must name, at minimum:
+
+```text
+rollout_gate_id
+accepted_proof_roots
+missing_proof_roots
+carried_blockers
+cloudflare_handoff_state
+provider_region_state
+webhook_state
+ledger_state
+entitlement_state
+dashboard_state
+support_admin_state
+security_privacy_state
+rollback_teardown_state
+claims_allowed
+claims_blocked
+manual_required_gaps
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
 ## Proof IDs
 
 - `payment-route.plan-sync`
@@ -60,9 +94,12 @@ Close the loop on route sync, proof storage, and PR-ready readiness.
 - Reject stale route or workpack indexes.
 - Reject PR-ready claims without proof pointers.
 - Reject proof manifests that do not name commands run.
+- Reject assertion-matrix completion as runtime proof.
+- Reject Cloudflare scaffold as payment runtime proof.
 
 ## Failure conditions
 
 - Do not mark PR-ready without the linked proof path and validation command log.
 - Do not let checklist entries masquerade as proof storage.
 - Do not claim route closure when the plan index is stale.
+- Do not claim broad readiness while any required runtime proof root is missing or carried as blocker.

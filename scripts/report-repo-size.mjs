@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { extname, join } from 'node:path';
 
 const outputDir = join(process.cwd(), 'target', 'repo-size');
@@ -66,10 +66,7 @@ const configExtensions = new Set([
   '.cfg',
   '.conf',
 ]);
-const generatedExtensions = new Set([
-  '.min.js',
-  '.min.css',
-]);
+const generatedExtensions = new Set(['.min.js', '.min.css']);
 const binaryExtensions = new Set([
   '.png',
   '.jpg',
@@ -99,14 +96,7 @@ const binaryExtensions = new Set([
   '.sqlite',
   '.duckdb',
 ]);
-const orderedCategories = [
-  'Code',
-  'Tests',
-  'Docs',
-  'Config / CI / Scripts',
-  'Generated / ignored',
-  'Other',
-];
+const orderedCategories = ['Code', 'Tests', 'Docs', 'Config / CI / Scripts', 'Generated / ignored', 'Other'];
 
 function normalizePath(filePath) {
   return filePath.replaceAll('\\', '/');
@@ -198,11 +188,45 @@ function isLikelyBinary(filePath, fileContents) {
   return binaryExtensions.has(extname(filePath)) || fileContents.includes('\u0000');
 }
 
+function hasErrorCode(error, code) {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === code;
+}
+
+function readTrackedFile(absolutePath) {
+  try {
+    return {
+      kind: 'file',
+      contents: readFileSync(absolutePath, 'utf8'),
+    };
+  } catch (error) {
+    if (hasErrorCode(error, 'ENOENT')) {
+      return { kind: 'missing' };
+    }
+    if (!hasErrorCode(error, 'EISDIR') && !hasErrorCode(error, 'EPERM') && !hasErrorCode(error, 'EACCES')) {
+      throw error;
+    }
+  }
+
+  try {
+    const stats = statSync(absolutePath);
+    if (stats.isDirectory()) {
+      return { kind: 'directory' };
+    }
+  } catch (error) {
+    if (hasErrorCode(error, 'ENOENT')) {
+      return { kind: 'missing' };
+    }
+    throw error;
+  }
+
+  throw new Error(`unable to read tracked file ${normalizePath(absolutePath)}`);
+}
+
 function measureTrackedFile(filePath) {
   const category = categoryFor(filePath);
   const absolutePath = join(process.cwd(), filePath);
-
-  if (!existsSync(absolutePath)) {
+  const trackedFile = readTrackedFile(absolutePath);
+  if (trackedFile.kind === 'missing') {
     return {
       category,
       total: 0,
@@ -214,7 +238,7 @@ function measureTrackedFile(filePath) {
     };
   }
 
-  if (statSync(absolutePath).isDirectory()) {
+  if (trackedFile.kind === 'directory') {
     return {
       category,
       total: 0,
@@ -226,7 +250,7 @@ function measureTrackedFile(filePath) {
     };
   }
 
-  const contents = readFileSync(absolutePath, 'utf8');
+  const contents = trackedFile.contents;
 
   if (isLikelyBinary(filePath, contents)) {
     return {

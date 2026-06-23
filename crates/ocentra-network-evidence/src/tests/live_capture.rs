@@ -2,11 +2,12 @@ use crate::{
     plan_network_live_capture_proof, NetworkLiveCapturePlatform, NetworkLiveCaptureProofError,
     NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState, NetworkLiveCaptureRequiredArtifact,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn live_capture_gate_allows_proof_ready_with_driver_permission_custody_and_quota_refs() {
     let proof = plan_network_live_capture_proof(proof_ready_input())
-        .expect("complete local capture artifacts should be proof-ready");
+        .expect_value("complete local capture artifacts should be proof-ready");
 
     assert_eq!(proof.proof_state, NetworkLiveCaptureProofState::ProofReady);
     assert!(proof.capture_ready);
@@ -38,7 +39,7 @@ fn live_capture_gate_stays_manual_required_without_permission_quota_and_custody(
         custody_ref: None,
         ..proof_ready_input()
     })
-    .expect("missing artifacts should produce manual-required proof state");
+    .expect_value("missing artifacts should produce manual-required proof state");
 
     assert_eq!(
         proof.proof_state,
@@ -62,7 +63,7 @@ fn live_capture_gate_preserves_unavailable_and_degraded_states() {
         platform_available: false,
         ..proof_ready_input()
     })
-    .expect("unavailable platform should still report proof state");
+    .expect_value("unavailable platform should still report proof state");
     assert_eq!(
         unavailable.proof_state,
         NetworkLiveCaptureProofState::Unavailable
@@ -73,7 +74,7 @@ fn live_capture_gate_preserves_unavailable_and_degraded_states() {
         adapter_degraded: true,
         ..proof_ready_input()
     })
-    .expect("degraded adapter should still report proof state");
+    .expect_value("degraded adapter should still report proof state");
     assert_eq!(degraded.proof_state, NetworkLiveCaptureProofState::Degraded);
     assert!(!degraded.capture_ready);
 }

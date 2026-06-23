@@ -1,16 +1,15 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 const TrackingAndroidPhysicalDeviceRuntimeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingAndroidPhysicalDeviceRuntimeRefSchema = brandedNonEmptyStringSchema('TrackingAndroidPhysicalDeviceRuntimeRef');
+export const TrackingAndroidPhysicalDeviceRuntimeRefSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidPhysicalDeviceRuntimeRef'
+);
 
-export const TrackingAndroidPhysicalDeviceRuntimeRowIdSchema = brandedNonEmptyStringSchema('TrackingAndroidPhysicalDeviceRuntimeRowId');
+export const TrackingAndroidPhysicalDeviceRuntimeRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidPhysicalDeviceRuntimeRowId'
+);
 
 export const TrackingAndroidPhysicalDeviceRuntimeStatusSchema = Schema.Literal(
   'android-physical-device-runtime-observed-product-gaps-remain'
@@ -384,4 +383,3 @@ function androidPhysicalDeviceRuntimeClaimsAreHonest(row: TrackingAndroidPhysica
     row.productClaimReady === false
   );
 }
-

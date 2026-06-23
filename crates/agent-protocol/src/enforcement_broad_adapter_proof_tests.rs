@@ -21,13 +21,14 @@ fn broad_adapter_runtime_surfaces_have_stable_protocol_strings() {
         V08BroadAdapterRuntimeSurface::AndroidMobileRuntimeManualGate,
         V08BroadAdapterRuntimeSurface::IosMobileRuntimeManualGate,
     ];
-    let serialized =
-        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized
             .as_array()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .len(),
         10
     );
@@ -93,9 +94,13 @@ fn broad_adapter_runtime_read_model_serializes_honest_non_claims() {
         ],
     };
     let reparsed = serde_json::from_value::<V08BroadAdapterRuntimeProofReadModel>(
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let claim_counts = count_claim_states(&reparsed.entries);
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);

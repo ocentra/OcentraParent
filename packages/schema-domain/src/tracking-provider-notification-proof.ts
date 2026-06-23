@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -39,8 +34,12 @@ export const TrackingProviderNotificationProofNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingProviderNotificationProofNonClaims)
 );
 
-export const TrackingProviderNotificationProofIdSchema = brandedNonEmptyStringSchema('TrackingProviderNotificationProofId');
-export const TrackingProviderNotificationProofReferenceSchema = brandedNonEmptyStringSchema('TrackingProviderNotificationProofReference');
+export const TrackingProviderNotificationProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingProviderNotificationProofId'
+);
+export const TrackingProviderNotificationProofReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingProviderNotificationProofReference'
+);
 
 export const TrackingProviderNotificationStatusKindSchema = withParser(
   Schema.Literal('provider-adapter-required', 'manual-required', 'unavailable')
@@ -310,4 +309,3 @@ const countStatusKind = (
 
 export const decodeTrackingProviderNotificationProofReadModel = (input: unknown) =>
   TrackingProviderNotificationProofReadModelSchema.parse(input);
-

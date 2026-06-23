@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeProofReadModel } from './app-install-purchase-runtime-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const PlatformArtifactSchemaVersion = 'app-install-purchase-platform-artifact-proof';
@@ -66,10 +61,14 @@ const AppInstallPurchasePlatformArtifactNonClaimSchema = withParser(Schema.Liter
 const PlatformArtifactRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactRef');
 const PlatformArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactRowId');
 const PlatformArtifactSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactSourceRowId');
-const PlatformArtifactPackageSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactPackageSourceRowId');
+const PlatformArtifactPackageSourceRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePlatformArtifactPackageSourceRowId'
+);
 const PlatformArtifactProofRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactProofRef');
 const PlatformArtifactReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactReportRef');
-const PlatformArtifactClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactClaimBoundary');
+const PlatformArtifactClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePlatformArtifactClaimBoundary'
+);
 
 const PlatformStoreArtifactRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchasePlatformArtifactProofSchemaVersionSchema,
@@ -320,4 +319,3 @@ function artifactBoundaryIsExplicit(boundary: typeof PlatformArtifactClaimBounda
     boundary.includes('not generic app blocking')
   );
 }
-

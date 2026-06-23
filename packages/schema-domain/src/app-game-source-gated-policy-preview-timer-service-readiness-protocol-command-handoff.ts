@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -32,10 +27,12 @@ export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommand
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffRowId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffContractRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffContractRef');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRef');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRef');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRef'
+);
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRef'
+);
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolServiceHandlerRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolServiceHandlerRef');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandSummaryRefSchema =

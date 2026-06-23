@@ -60,11 +60,11 @@ async function main() {
     packageExportState: 'not-claimed-new-public-export-deferred',
     evidence: {
       manualEvidencePacketContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
       sourcePlatformProofReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-proof-readiness.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-proof-readiness.ts',
       sourceProviderStorePreflightContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-manual-evidence-packet-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

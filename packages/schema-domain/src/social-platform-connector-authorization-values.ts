@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const SocialPlatformConnectorAuthorizationSchemaVersionSchema = withParser(
@@ -93,4 +88,3 @@ export const SocialPlatformConnectorBoundarySchema = brandedNonEmptyStringSchema
 export type SocialPlatformConnectorProvider = Infer<typeof SocialPlatformConnectorProviderSchema>;
 export type SocialPlatformConnectorAuthorizationState = Infer<typeof SocialPlatformConnectorAuthorizationStateSchema>;
 export type SocialPlatformConnectorProofState = Infer<typeof SocialPlatformConnectorProofStateSchema>;
-

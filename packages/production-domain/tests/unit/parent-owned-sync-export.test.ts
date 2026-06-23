@@ -268,9 +268,7 @@ function deleteResultFor(resultState: 'pending') {
 
 function recoveryBundleFor(state: 'bundlePreviewOnly' | 'bundleWrongHousehold' | 'delete-pending') {
   const bundle = ParentOwnedSyncExportContractProofReadModel.recoveryBundles.find((candidate) =>
-    state === 'delete-pending'
-      ? candidate.handoff.handoffState === state
-      : candidate.bundleState === state
+    state === 'delete-pending' ? candidate.handoff.handoffState === state : candidate.bundleState === state
   );
   if (bundle === undefined) {
     throw new Error(`missing sync export recovery bundle: ${state}`);

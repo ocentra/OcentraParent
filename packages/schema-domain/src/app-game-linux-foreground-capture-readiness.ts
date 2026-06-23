@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { type AppGameLinuxWslRuntimeProof } from './app-game-linux-wsl-runtime-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -192,4 +187,3 @@ function linuxForegroundCaptureStateIsConsistent(readiness: AppGameLinuxForegrou
     readiness.sourceState === 'wslg-display-sockets-observed'
   );
 }
-

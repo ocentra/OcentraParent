@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::TrackingReadModel;
+use ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModel;
 use ocentra_tracking_core::read_model::tracking_read_model_for_connection;
 
 use crate::{ActivityStore, ActivityStoreError};

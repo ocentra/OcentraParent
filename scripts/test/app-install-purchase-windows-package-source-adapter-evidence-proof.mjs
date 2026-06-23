@@ -74,14 +74,15 @@ async function main() {
     checklistState: 'updated-app-install-purchase-approval-row',
     evidence: {
       windowsPackageSourceAdapterEvidenceContract:
-        'packages/app-game-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
+        'packages/schema-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
       windowsPackageSourceRuntimeHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
+        'packages/schema-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
       sourcePlatformAdapterEvidenceGapContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
       sourcePackageSourceAdapterExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-windows-package-source-adapter-evidence.test.ts',
+        'packages/schema-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-windows-package-source-adapter-evidence.test.ts',
       hostEvidenceArtifact: relative(repoRoot, hostEvidencePath),
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

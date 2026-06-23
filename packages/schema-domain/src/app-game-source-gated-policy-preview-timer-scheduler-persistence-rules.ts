@@ -145,4 +145,3 @@ export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceMatchesRunt
   (runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.BlockedByCompilerDecision &&
     schedulerPersistenceState ===
       AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState.BlockedByCompilerDecision);
-

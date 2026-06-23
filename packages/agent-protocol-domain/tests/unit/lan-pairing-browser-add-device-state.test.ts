@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AgentLanBrowserAddDeviceReadModelSchema, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentLanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/agent-lan-add-device';
 
 describe('agent protocol browser-first LAN add-device state', () => {
   it('parses the service event read model D can consume without portal fixtures', () => {

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   EnforcementAdapterKind,
   EnforcementAdapterKindSchema,
@@ -30,12 +25,24 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-export const EnforcementProcessPackageIdentityBridgeIdSchema = brandedNonEmptyStringSchema('EnforcementProcessPackageIdentityBridgeId');
-export const EnforcementProcessPackageIdentityMatrixIdSchema = brandedNonEmptyStringSchema('EnforcementProcessPackageIdentityMatrixId');
-export const EnforcementProcessPackageEvidenceRequirementSchema = brandedNonEmptyStringSchema('EnforcementProcessPackageEvidenceRequirement');
-export const EnforcementProcessPackageManualStepSchema = brandedNonEmptyStringSchema('EnforcementProcessPackageManualStep');
-export const EnforcementProcessPackageAcceptanceSignalSchema = brandedNonEmptyStringSchema('EnforcementProcessPackageAcceptanceSignal');
-export const EnforcementProcessPackageUnsafeUpgradeExampleSchema = brandedNonEmptyStringSchema('EnforcementProcessPackageUnsafeUpgradeExample');
+export const EnforcementProcessPackageIdentityBridgeIdSchema = brandedNonEmptyStringSchema(
+  'EnforcementProcessPackageIdentityBridgeId'
+);
+export const EnforcementProcessPackageIdentityMatrixIdSchema = brandedNonEmptyStringSchema(
+  'EnforcementProcessPackageIdentityMatrixId'
+);
+export const EnforcementProcessPackageEvidenceRequirementSchema = brandedNonEmptyStringSchema(
+  'EnforcementProcessPackageEvidenceRequirement'
+);
+export const EnforcementProcessPackageManualStepSchema = brandedNonEmptyStringSchema(
+  'EnforcementProcessPackageManualStep'
+);
+export const EnforcementProcessPackageAcceptanceSignalSchema = brandedNonEmptyStringSchema(
+  'EnforcementProcessPackageAcceptanceSignal'
+);
+export const EnforcementProcessPackageUnsafeUpgradeExampleSchema = brandedNonEmptyStringSchema(
+  'EnforcementProcessPackageUnsafeUpgradeExample'
+);
 export const EnforcementProcessPackageFallbackSchema = brandedNonEmptyStringSchema('EnforcementProcessPackageFallback');
 
 export const EnforcementProcessPackageProofPointSchema = withParser(
@@ -486,4 +493,3 @@ export const decodeEnforcementProcessPackageIdentityBridgeEntry = Schema.decodeU
 export const decodeEnforcementProcessPackageIdentityMatrix = Schema.decodeUnknownSync(
   EnforcementProcessPackageIdentityMatrixSchema
 );
-

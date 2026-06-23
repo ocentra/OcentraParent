@@ -40,7 +40,7 @@ fn parent_and_child_event_namespace_constants_are_unique_and_prefixed() {
     assert_unique(&child_events);
 
     for event in parent_events {
-        assert!(!child_events.contains(&event));
+        assert!(child_events.iter().all(|child_event| *child_event != event));
     }
 }
 
@@ -128,7 +128,7 @@ fn parent_action_contract_rejects_missing_parent_intent_ref() {
 
     let parsed = serde_json::from_value::<ParentActionReceivedEvent>(event);
 
-    assert!(parsed.is_err());
+    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
 }
 
 fn assert_namespace(events: &[&str], namespace: &str) {
@@ -139,7 +139,13 @@ fn assert_namespace(events: &[&str], namespace: &str) {
 
 fn assert_unique(events: &[&str]) {
     for (index, event) in events.iter().enumerate() {
-        assert!(!events[..index].contains(event));
+        assert_eq!(
+            events[..index]
+                .iter()
+                .filter(|candidate| *candidate == event)
+                .count(),
+            0
+        );
     }
 }
 
@@ -147,7 +153,9 @@ fn serialized_field<T>(value: &T, field: &str, nested: &str) -> serde_json::Valu
 where
     T: serde::Serialize,
 {
-    let serialized = serde_json::to_value(value).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(value).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     if nested.is_empty() {
         return serialized[field].clone();
     }

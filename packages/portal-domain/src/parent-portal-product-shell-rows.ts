@@ -8,7 +8,10 @@ export function parentPortalProductShellRows(input: ParentPortalServiceStateInpu
   return productShellRowSpecs().map((spec) => rowFromSignal(spec, signals[spec.signalKind]));
 }
 
-function rowFromSignal(spec: ReturnType<typeof productShellRowSpecs>[number], signal: ProductShellSignal): ParentPortalRow {
+function rowFromSignal(
+  spec: ReturnType<typeof productShellRowSpecs>[number],
+  signal: ProductShellSignal
+): ParentPortalRow {
   return {
     label: spec.label,
     order: spec.order,

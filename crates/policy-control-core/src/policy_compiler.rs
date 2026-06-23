@@ -2,6 +2,9 @@
 
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
@@ -10,7 +13,7 @@ use crate::policy_source::{
     ParentPolicyRule, ParentPolicySourceDocument, PolicyAuditReferenceId, PolicyChildProfileId,
     PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata,
     PolicyRollbackRef, PolicyRuleAction, PolicyRuleId, PolicyRuleTarget, PolicyScheduleId,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicyTargetKind, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyVersion,
 };
 
 const POLICY_COMPILER_SCHEMA_VERSION_VALUE: u16 = 1;
@@ -134,7 +137,7 @@ pub struct DomainCompiledPolicyArtifact {
     pub policy_version: PolicyVersion,
     pub consumer_policy_version: PolicyVersion,
     pub source_document_id: ParentPolicyDocumentId,
-    pub source_status: PolicySourceDocumentStatus,
+    pub source_status: PolicySourceStatus,
     pub domain: PolicyCompilerDomain,
     pub delivery_target: PolicyCompilerDeliveryTarget,
     pub support_matrix: PolicyCompilerSupportMatrix,
@@ -586,13 +589,10 @@ fn all_policy_target_kinds() -> [PolicyTargetKind; 6] {
 }
 
 fn assert_source_status_can_compile(
-    surface: crate::policy_source::PolicySourceWriteSurface,
-    status: PolicySourceDocumentStatus,
+    surface: PolicySourceSurface,
+    status: PolicySourceStatus,
 ) -> Result<(), EventingError> {
-    if matches!(
-        surface,
-        crate::policy_source::PolicySourceWriteSurface::DomainCache
-    ) {
+    if matches!(surface, PolicySourceSurface::DomainCache) {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_SOURCE_SURFACE,
             value: policy_control::source::SURFACE_DOMAIN_CACHE.to_string(),
@@ -601,7 +601,7 @@ fn assert_source_status_can_compile(
 
     if matches!(
         status,
-        PolicySourceDocumentStatus::Draft | PolicySourceDocumentStatus::Preview
+        PolicySourceStatus::Draft | PolicySourceStatus::Preview
     ) {
         return Err(EventingError::InvalidValue {
             field: policy_control::compiler::FIELD_SOURCE_STATUS,

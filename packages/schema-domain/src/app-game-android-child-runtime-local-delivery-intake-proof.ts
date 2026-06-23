@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalDeliveryIntakeProofSchemaVersionSchema = withParser(
@@ -42,7 +37,9 @@ export const AppGameAndroidChildRuntimeLocalDeliveryGapSchema = withParser(
   )
 );
 
-const AndroidChildRuntimeLocalDeliveryProofIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalDeliveryProofId');
+const AndroidChildRuntimeLocalDeliveryProofIdSchema = brandedNonEmptyStringSchema(
+  'AppGameAndroidChildRuntimeLocalDeliveryProofId'
+);
 
 const AppGameAndroidChildRuntimeLocalDeliveryIntakeProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalDeliveryIntakeProofSchemaVersionSchema,
@@ -180,6 +177,15 @@ function androidChildRuntimeLocalDeliveryProofRefs(input: {
 
 function androidChildRuntimeLocalDeliveryProofIsHonest(proof: AndroidChildRuntimeLocalDeliveryCandidate): boolean {
   return (
+    androidChildRuntimeLocalDeliveryStateIsHonest(proof) &&
+    androidChildRuntimeLocalDeliveryProofRefsArePresent(proof) &&
+    androidChildRuntimeLocalDeliveryOpenGapsArePresent(proof) &&
+    androidChildRuntimeLocalDeliveryClaimsRemainScoped(proof)
+  );
+}
+
+function androidChildRuntimeLocalDeliveryStateIsHonest(proof: AndroidChildRuntimeLocalDeliveryCandidate): boolean {
+  return (
     proof.deliveryIntakeState === 'package-local-delivery-intake-recorded' &&
     proof.deliveryReadbackState === 'package-local-delivery-readback-observed' &&
     proof.receiptChannelState === 'package-local-receipt-channel-recorded' &&
@@ -191,21 +197,38 @@ function androidChildRuntimeLocalDeliveryProofIsHonest(proof: AndroidChildRuntim
     proof.packageLocalChannelRecordCount === 1 &&
     proof.localReceiptRecordCount === 1 &&
     proof.localReceiptAckRecordCount === 1 &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-intake-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-readback-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-receiver-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-activity-trigger-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-receipt-channel-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-write-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-ack-write-ref') &&
-    proof.openGaps.includes('android-child-runtime-service-delivery-ingestion-not-proved') &&
-    proof.openGaps.includes('android-child-runtime-service-receipt-ingestion-not-proved') &&
-    proof.openGaps.includes('android-provider-delivery-not-executed') &&
-    proof.openGaps.includes('android-platform-delivery-channel-not-proved-outside-package') &&
-    proof.openGaps.includes('android-adapter-dispatch-not-proved') &&
-    proof.openGaps.includes('android-platform-enforcement-not-proved') &&
-    proof.openGaps.includes('android-raw-private-source-rows-not-included') &&
-    proof.packageLocalDeliveryExecuted &&
+    proof.packageLocalDeliveryExecuted
+  );
+}
+
+function androidChildRuntimeLocalDeliveryProofRefsArePresent(
+  proof: AndroidChildRuntimeLocalDeliveryCandidate
+): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-child-runtime-package-local-delivery-intake-ref',
+    'android-child-runtime-package-local-delivery-readback-ref',
+    'android-child-runtime-package-local-delivery-receiver-ref',
+    'android-child-runtime-package-local-delivery-activity-trigger-ref',
+    'android-child-runtime-package-local-receipt-channel-ref',
+    'android-child-runtime-local-receipt-write-ref',
+    'android-child-runtime-local-receipt-ack-write-ref',
+  ] as const);
+}
+
+function androidChildRuntimeLocalDeliveryOpenGapsArePresent(proof: AndroidChildRuntimeLocalDeliveryCandidate): boolean {
+  return includesAll(proof.openGaps, [
+    'android-child-runtime-service-delivery-ingestion-not-proved',
+    'android-child-runtime-service-receipt-ingestion-not-proved',
+    'android-provider-delivery-not-executed',
+    'android-platform-delivery-channel-not-proved-outside-package',
+    'android-adapter-dispatch-not-proved',
+    'android-platform-enforcement-not-proved',
+    'android-raw-private-source-rows-not-included',
+  ] as const);
+}
+
+function androidChildRuntimeLocalDeliveryClaimsRemainScoped(proof: AndroidChildRuntimeLocalDeliveryCandidate): boolean {
+  return (
     !proof.serviceDeliveryIngested &&
     !proof.serviceReceiptIngested &&
     !proof.providerDeliveryExecuted &&
@@ -216,3 +239,6 @@ function androidChildRuntimeLocalDeliveryProofIsHonest(proof: AndroidChildRuntim
   );
 }
 
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

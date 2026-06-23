@@ -1,11 +1,10 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { PolicyActionSchema, PolicyDecisionIdSchema } from './policy-contracts';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from './family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPlatformSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
 import { ParentEvidenceReferenceSchema } from './family-references';
 
 const V08SupportedAdapterRuntimeBoundarySchema = withParser(
@@ -90,12 +89,20 @@ const V08SupportedAdapterRefusalReasonSchema = withParser(
   )
 );
 
-export const ScreenAiAdapterReadinessReadModelIdSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessReadModelId');
+export const ScreenAiAdapterReadinessReadModelIdSchema = brandedNonEmptyStringSchema(
+  'ScreenAiAdapterReadinessReadModelId'
+);
 export const ScreenAiAdapterReadinessRowIdSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessRowId');
-export const ScreenAiAdapterReadinessArtifactRefSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessArtifactRef');
-export const ScreenAiAdapterReadinessRequirementSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessRequirement');
+export const ScreenAiAdapterReadinessArtifactRefSchema = brandedNonEmptyStringSchema(
+  'ScreenAiAdapterReadinessArtifactRef'
+);
+export const ScreenAiAdapterReadinessRequirementSchema = brandedNonEmptyStringSchema(
+  'ScreenAiAdapterReadinessRequirement'
+);
 export const ScreenAiAdapterReadinessBoundarySchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessBoundary');
-export const ScreenAiAdapterCompletionResultRefSchema = brandedNonEmptyStringSchema('ScreenAiAdapterCompletionResultRef');
+export const ScreenAiAdapterCompletionResultRefSchema = brandedNonEmptyStringSchema(
+  'ScreenAiAdapterCompletionResultRef'
+);
 
 export const ScreenAiAdapterReadinessRuntimeBoundarySchema = withParser(
   Schema.Union(V08SupportedAdapterRuntimeBoundarySchema, Schema.Literal('windows-screen-owned-process-block'))
@@ -472,4 +479,3 @@ export type ScreenAiAdapterReadinessClaimFlags = Infer<typeof ScreenAiAdapterRea
 export type ScreenAiAdapterReadinessRow = Infer<typeof ScreenAiAdapterReadinessRowSchema>;
 export type ScreenAiAdapterReadinessReadModel = Infer<typeof ScreenAiAdapterReadinessReadModelSchema>;
 export type ScreenAiAdapterCompletionArtifact = Infer<typeof ScreenAiAdapterCompletionArtifactSchema>;
-

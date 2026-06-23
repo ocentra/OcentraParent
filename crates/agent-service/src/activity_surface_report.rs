@@ -1,10 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
     ActivityReportFrequency, ActivityReportRequest, ActivityReportSection,
     ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
     ActivityReportSourceState, ActivitySurfaceScope, ActivitySurfaceScopeKind,
-    ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::{
     activity_family_sources::default_family_fanout_record,
@@ -22,24 +23,24 @@ pub(crate) fn report_document(
     }
 
     match snapshot {
-        Some(snapshot) => report_document_from_snapshot(request, snapshot, family_sources),
+        Some(snapshot) => report_document_from_snapshot(request, &snapshot, family_sources),
         None => unavailable_report_document(request),
     }
 }
 
 fn report_document_from_snapshot(
     request: ActivityReportRequest,
-    snapshot: ActivitySurfaceStoreSnapshot,
+    snapshot: &ActivitySurfaceStoreSnapshot,
     family_sources: Vec<ActivityReportSourceState>,
 ) -> ActivityReportDocument {
     let generated_at = timestamp_now();
-    let source_state = if snapshot_has_rows(&snapshot) {
+    let source_state = if snapshot_has_rows(snapshot) {
         ActivityReadModelState::Ready
     } else {
         ActivityReadModelState::Empty
     };
     let source_states =
-        source_states_for_request(&request.scope, &snapshot, source_state, family_sources);
+        source_states_for_request(&request.scope, snapshot, source_state, family_sources);
     let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, &generated_at),

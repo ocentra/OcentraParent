@@ -62,8 +62,8 @@ async function main() {
     commands,
     evidence: {
       approvedApiEntitlementContract:
-        'packages/app-game-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
-      sourceChildArtifactContract: 'packages/app-game-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
+      sourceChildArtifactContract: 'packages/schema-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approved-api-entitlement-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

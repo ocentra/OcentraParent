@@ -1,3 +1,4 @@
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanAiProviderRoutingState, LanChildAgentResponse, LanPairingAuditEvent,
     LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingChallenge,
@@ -15,9 +16,9 @@ use ocentra_parent_agent_protocol::lan_pairing_support::{
     LanPairingProofMode, LanPairingRestartBehavior, LanPairingRouteRequirement,
     LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
 };
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, ParentEvidenceReference, ParentEvidenceReferenceKind,
-};
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::ParentEvidenceReferenceKind;
 
 #[test]
 fn lan_pairing_contracts_serialize_to_typescript_shapes() {
@@ -57,10 +58,15 @@ fn lan_pairing_contracts_serialize_to_typescript_shapes() {
         responded_at: constants::lan_pairing::OBSERVED_AT.to_string(),
     };
 
-    let proof_json = serde_json::to_value(proof).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let entry_json = serde_json::to_value(entry).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let response_json =
-        serde_json::to_value(response).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let proof_json = serde_json::to_value(proof).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let entry_json = serde_json::to_value(entry).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let response_json = serde_json::to_value(response).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         proof_json["proofDigest"],
@@ -90,18 +96,16 @@ fn lan_pairing_audit_event_records_rejection_reason_without_raw_secret() {
         evidence_references: vec![evidence()],
     };
 
-    let event_json = serde_json::to_value(event).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let event_text =
-        serde_json::to_string(&event_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
-
+    let event_json = serde_json::to_value(event).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     assert_eq!(event_json["eventType"], "control-rejected");
     assert_eq!(event_json["rejectionReason"], "wrong-origin");
     assert_eq!(
         event_json["evidenceReferences"][0]["evidenceReferenceId"],
         constants::lan_pairing::EVIDENCE_REFERENCE_ID
     );
-    assert!(!event_text.contains("rawToken"));
-    assert!(!event_text.contains("rawEvidence"));
+    assert_json_surface_excludes_markers(&event_json, &["rawToken", "rawEvidence"]);
 }
 
 #[test]
@@ -142,13 +146,16 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_websocket_ceremony_exp
         proof_preview_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
     };
 
-    let discovery_json =
-        serde_json::to_value(discovery).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let discovery_json = serde_json::to_value(discovery).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let challenge_request_json = challenge_request_json();
-    let challenge_json =
-        serde_json::to_value(challenge).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let preview_json =
-        serde_json::to_value(preview).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let challenge_json = serde_json::to_value(challenge).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let preview_json = serde_json::to_value(preview).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         discovery_json["discoveryStatus"],
@@ -189,11 +196,10 @@ fn challenge_request_json() -> serde_json::Value {
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
     })
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn assert_lan_discovery_surface_has_no_sensitive_markers(value: &serde_json::Value) {
-    let serialized = serde_json::to_string(value).expect(constants::error::AGENT_EVENT_SERIALIZES);
     for marker in [
         "activity.sqlite",
         "activity.ndjson",
@@ -207,7 +213,32 @@ fn assert_lan_discovery_surface_has_no_sensitive_markers(value: &serde_json::Val
         "rawToken",
         "sqlitePath",
     ] {
-        assert!(!serialized.contains(marker));
+        assert!(
+            !json_surface_contains_marker(value, marker),
+            "unexpected sensitive marker `{marker}` present in {value}"
+        );
+    }
+}
+
+fn json_surface_contains_marker(value: &serde_json::Value, marker: &str) -> bool {
+    match value {
+        serde_json::Value::String(text) => text.contains(marker),
+        serde_json::Value::Array(values) => values
+            .iter()
+            .any(|nested_value| json_surface_contains_marker(nested_value, marker)),
+        serde_json::Value::Object(entries) => entries.iter().any(|(key, nested_value)| {
+            key.contains(marker) || json_surface_contains_marker(nested_value, marker)
+        }),
+        _ => false,
+    }
+}
+
+fn assert_json_surface_excludes_markers(value: &serde_json::Value, markers: &[&str]) {
+    for marker in markers {
+        assert!(
+            !json_surface_contains_marker(value, marker),
+            "unexpected sensitive marker `{marker}` present in {value}"
+        );
     }
 }
 
@@ -245,9 +276,12 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
         evidence_references: vec![evidence()],
     };
 
-    let selected_json =
-        serde_json::to_value(selected).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let intent_json = serde_json::to_value(intent).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let selected_json = serde_json::to_value(selected).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let intent_json = serde_json::to_value(intent).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(selected_json["networkMode"], "local-network");
     assert_eq!(selected_json["reachability"], "stale");
@@ -285,17 +319,18 @@ fn lan_pairing_parent_intent_and_child_response_cover_rule_query_approval_spine(
         responded_at: constants::lan_pairing::OBSERVED_AT.to_string(),
     };
 
-    let rule_query_json =
-        serde_json::to_value(rule_query).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let rule_update_json =
-        serde_json::to_value(rule_update).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let approval_decision_json =
-        serde_json::to_value(approval_decision).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let rejected_json =
-        serde_json::to_value(rejected).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let rejected_text =
-        serde_json::to_string(&rejected_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
-
+    let rule_query_json = serde_json::to_value(rule_query).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let rule_update_json = serde_json::to_value(rule_update).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let approval_decision_json = serde_json::to_value(approval_decision).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let rejected_json = serde_json::to_value(rejected).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     assert_eq!(
         rule_query_json["intentKind"],
         constants::value::LAN_INTENT_RULE_QUERY
@@ -316,15 +351,16 @@ fn lan_pairing_parent_intent_and_child_response_cover_rule_query_approval_spine(
         rejected_json["rejectionReason"],
         constants::value::LAN_REASON_WRONG_ORIGIN
     );
-    assert!(!rejected_text.contains("rawEvidence"));
+    assert_json_surface_excludes_markers(&rejected_json, &["rawEvidence"]);
 }
 
 #[test]
 fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_claims() {
     let support = websocket_runtime_support_surface();
 
-    let support_json =
-        serde_json::to_value(support).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let support_json = serde_json::to_value(support).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(support_json["transport"], "websocket");
     assert_eq!(
@@ -418,10 +454,14 @@ fn websocket_runtime_support_surface() -> LanPairingRuntimeSupportSurface {
 #[test]
 fn lan_pairing_runtime_support_surface_serializes_local_registry_persistence() {
     let persistence_json = serde_json::to_value(LanPairingPersistenceMode::LocalJsonRegistry)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     let restart_json =
         serde_json::to_value(LanPairingRestartBehavior::RestoreTrustedRegistryUnselected)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+            });
 
     assert_eq!(
         persistence_json,
@@ -479,12 +519,15 @@ fn lan_pairing_registry_snapshot_and_route_decision_make_selection_explicit() {
         decided_at: constants::lan_pairing::OBSERVED_AT.to_string(),
     };
 
-    let snapshot_json =
-        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let selection_json =
-        serde_json::to_value(selection).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let rejected_json =
-        serde_json::to_value(rejected).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let snapshot_json = serde_json::to_value(snapshot).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let selection_json = serde_json::to_value(selection).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let rejected_json = serde_json::to_value(rejected).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(snapshot_json["authenticationState"], "paired");
     assert_eq!(

@@ -1,10 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    policy_constants, ParentPlatform, V08EnforcementProductControlCapabilityName,
-    V08EnforcementProductControlCapabilityStatus, V08EnforcementProductControlClaimState,
-    V08EnforcementProductControlDevicePolicyState, V08EnforcementProductControlExecutionState,
-    V08EnforcementProductControlParentAction, V08EnforcementProductControlSpineEntry,
-    V08EnforcementProductControlSurface, V08EnforcementProductControlSurfaceKind,
-};
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlCapabilityName;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlCapabilityStatus;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlClaimState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlDevicePolicyState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlExecutionState;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlParentAction;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineEntry;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSurface;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSurfaceKind;
+use ocentra_parent_agent_protocol::policy_constants;
 
 pub(super) fn linked_entry(spec: LinkedEntrySpec<'_>) -> V08EnforcementProductControlSpineEntry {
     linked_with_manual_entry(LinkedManualEntrySpec {
@@ -68,6 +72,7 @@ pub(super) fn linked_with_manual_entry(
     })
 }
 
+#[derive(Clone, Copy)]
 pub(super) struct LinkedEntrySpec<'a> {
     pub(super) entry_id: &'static str,
     pub(super) surface: V08EnforcementProductControlSurface,
@@ -84,6 +89,7 @@ pub(super) struct LinkedEntrySpec<'a> {
     pub(super) generated_at: &'a str,
 }
 
+#[derive(Clone, Copy)]
 pub(super) struct ManualEntrySpec<'a> {
     pub(super) entry_id: &'static str,
     pub(super) surface: V08EnforcementProductControlSurface,
@@ -95,6 +101,7 @@ pub(super) struct ManualEntrySpec<'a> {
     pub(super) generated_at: &'a str,
 }
 
+#[derive(Clone, Copy)]
 pub(super) struct LinkedManualEntrySpec<'a> {
     pub(super) entry_id: &'static str,
     pub(super) surface: V08EnforcementProductControlSurface,
@@ -113,6 +120,7 @@ pub(super) struct LinkedManualEntrySpec<'a> {
     pub(super) generated_at: &'a str,
 }
 
+#[derive(Clone, Copy)]
 pub(super) struct ProductEntrySpec<'a> {
     pub(super) entry_id: &'static str,
     pub(super) surface: V08EnforcementProductControlSurface,

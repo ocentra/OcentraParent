@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  authorizeSessionCredentialIssuance,
-  authorizeSessionTokenAction,
-} from '../../src/session-lifecycle';
+import { authorizeSessionCredentialIssuance, authorizeSessionTokenAction } from '../../src/session-lifecycle';
 import {
   SessionActivityState,
   SessionActivityStateSchema,
@@ -22,23 +19,22 @@ import {
   TokenReplayState,
   TokenValidityWindowState,
 } from '@ocentra-parent/schema-domain/family-session-lifecycle';
-import {
-  AuditRequirementState,
-  SessionFreshnessState,
-} from '@ocentra-parent/schema-domain/family-household-authority';
+import { AuditRequirementState, SessionFreshnessState } from '@ocentra-parent/schema-domain/family-household-authority';
 
 describe('family session lifecycle contracts', () => {
   registerSessionLifecycleParsingTests();
-  registerSessionCredentialScopeTests();
+  registerSessionCredentialActionScopeTests();
+  registerSessionCredentialIssuanceScopeTests();
   registerSessionBoundaryTests();
-  registerSessionStateTests();
+  registerSessionTerminalStateTests();
+  registerBrowserSessionIssuanceTests();
   registerSessionFreshnessTests();
   registerSessionSchemaBoundaryTests();
 });
 
 function activeSessionToken(
-  credentialKind: typeof SessionCredentialKind[keyof typeof SessionCredentialKind],
-  action: typeof SessionLifecycleAction[keyof typeof SessionLifecycleAction]
+  credentialKind: (typeof SessionCredentialKind)[keyof typeof SessionCredentialKind],
+  action: (typeof SessionLifecycleAction)[keyof typeof SessionLifecycleAction]
 ) {
   return SessionTokenInputSchema.parse({
     credentialKind,
@@ -51,8 +47,8 @@ function activeSessionToken(
 }
 
 function issuanceInput(
-  issuanceAction: typeof SessionCredentialIssuanceAction[keyof typeof SessionCredentialIssuanceAction],
-  issuedCredentialKind: typeof SessionCredentialKind[keyof typeof SessionCredentialKind],
+  issuanceAction: (typeof SessionCredentialIssuanceAction)[keyof typeof SessionCredentialIssuanceAction],
+  issuedCredentialKind: (typeof SessionCredentialKind)[keyof typeof SessionCredentialKind],
   sourceSession: ReturnType<typeof activeSessionToken> | null
 ) {
   return SessionCredentialIssuanceInputSchema.parse({
@@ -112,7 +108,7 @@ function registerSessionLifecycleParsingTests(): void {
   });
 }
 
-function registerSessionCredentialScopeTests(): void {
+function registerSessionCredentialActionScopeTests(): void {
   it('authorizeSessionTokenAction keeps credential kinds scoped to their matching actions', () => {
     expectAuthorized(
       authorizeSessionTokenAction(
@@ -144,8 +140,10 @@ function registerSessionCredentialScopeTests(): void {
       AuditRequirementState.Required
     );
   });
+}
 
-  it('keeps issuance kinds separated across browser sessions, device credentials, invite tokens, recovery tokens, and remote grants', () => {
+function registerSessionCredentialIssuanceScopeTests(): void {
+  it('creates browser sessions without a source session', () => {
     expectIssuanceAuthorized(
       authorizeSessionCredentialIssuance(
         issuanceInput(
@@ -156,77 +154,32 @@ function registerSessionCredentialScopeTests(): void {
       ),
       SessionCredentialIssuanceState.Created
     );
+  });
 
-    expectIssuanceAuthorized(
-      authorizeSessionCredentialIssuance(
-        issuanceInput(
-          SessionCredentialIssuanceAction.IssueDeviceCredential,
-          SessionCredentialKind.DeviceCredential,
-          activeSessionToken(
-            SessionCredentialKind.BrowserUserSession,
-            SessionLifecycleAction.PerformPrivilegedUserAction
-          )
-        )
-      ),
-      SessionCredentialIssuanceState.Issued
+  it('issues device, invite, recovery, pairing, and remote credentials from an active browser session', () => {
+    expectIssuedFromPrivilegedBrowserSession(
+      SessionCredentialIssuanceAction.IssueDeviceCredential,
+      SessionCredentialKind.DeviceCredential
     );
-
-    expectIssuanceAuthorized(
-      authorizeSessionCredentialIssuance(
-        issuanceInput(
-          SessionCredentialIssuanceAction.IssueInviteToken,
-          SessionCredentialKind.InviteToken,
-          activeSessionToken(
-            SessionCredentialKind.BrowserUserSession,
-            SessionLifecycleAction.PerformPrivilegedUserAction
-          )
-        )
-      ),
-      SessionCredentialIssuanceState.Issued
+    expectIssuedFromPrivilegedBrowserSession(
+      SessionCredentialIssuanceAction.IssueInviteToken,
+      SessionCredentialKind.InviteToken
     );
-
-    expectIssuanceAuthorized(
-      authorizeSessionCredentialIssuance(
-        issuanceInput(
-          SessionCredentialIssuanceAction.IssueRecoveryToken,
-          SessionCredentialKind.RecoveryToken,
-          activeSessionToken(
-            SessionCredentialKind.BrowserUserSession,
-            SessionLifecycleAction.PerformPrivilegedUserAction
-          )
-        )
-      ),
-      SessionCredentialIssuanceState.Issued
+    expectIssuedFromPrivilegedBrowserSession(
+      SessionCredentialIssuanceAction.IssueRecoveryToken,
+      SessionCredentialKind.RecoveryToken
     );
-
-    expectIssuanceAuthorized(
-      authorizeSessionCredentialIssuance(
-        issuanceInput(
-          SessionCredentialIssuanceAction.IssuePairingToken,
-          SessionCredentialKind.PairingToken,
-          activeSessionToken(
-            SessionCredentialKind.BrowserUserSession,
-            SessionLifecycleAction.PerformPrivilegedUserAction
-          )
-        )
-      ),
-      SessionCredentialIssuanceState.Issued
+    expectIssuedFromPrivilegedBrowserSession(
+      SessionCredentialIssuanceAction.IssuePairingToken,
+      SessionCredentialKind.PairingToken
     );
-
-    expectIssuanceAuthorized(
-      authorizeSessionCredentialIssuance(
-        issuanceInput(
-          SessionCredentialIssuanceAction.IssueRemoteSessionGrant,
-          SessionCredentialKind.RemoteSessionGrant,
-          activeSessionToken(
-            SessionCredentialKind.BrowserUserSession,
-            SessionLifecycleAction.PerformPrivilegedUserAction
-          )
-        )
-      ),
-      SessionCredentialIssuanceState.Issued
+    expectIssuedFromPrivilegedBrowserSession(
+      SessionCredentialIssuanceAction.IssueRemoteSessionGrant,
+      SessionCredentialKind.RemoteSessionGrant
     );
+  });
 
+  it('rejects mismatched issuance kinds and missing source sessions', () => {
     expectIssuanceRejected(
       authorizeSessionCredentialIssuance(
         issuanceInput(
@@ -302,7 +255,7 @@ function registerSessionBoundaryTests(): void {
   });
 }
 
-function registerSessionStateTests(): void {
+function registerSessionTerminalStateTests(): void {
   it('authorizeSessionTokenAction treats logout, revocation, and global revoke as terminal states', () => {
     expectRejected(
       authorizeSessionTokenAction({
@@ -337,7 +290,9 @@ function registerSessionStateTests(): void {
       SessionTokenFailureReason.SessionGloballyRevoked
     );
   });
+}
 
+function registerBrowserSessionIssuanceTests(): void {
   it('creates browser sessions and rotates refresh sessions only from active browser state', () => {
     expectIssuanceAuthorized(
       authorizeSessionCredentialIssuance(
@@ -355,10 +310,7 @@ function registerSessionStateTests(): void {
         issuanceInput(
           SessionCredentialIssuanceAction.RotateBrowserSession,
           SessionCredentialKind.BrowserUserSession,
-          activeSessionToken(
-            SessionCredentialKind.BrowserUserSession,
-            SessionLifecycleAction.RefreshBrowserSession
-          )
+          activeSessionToken(SessionCredentialKind.BrowserUserSession, SessionLifecycleAction.RefreshBrowserSession)
         )
       ),
       SessionCredentialIssuanceState.Rotated
@@ -366,17 +318,10 @@ function registerSessionStateTests(): void {
 
     expectIssuanceRejected(
       authorizeSessionCredentialIssuance(
-        issuanceInput(
-          SessionCredentialIssuanceAction.RotateBrowserSession,
-          SessionCredentialKind.BrowserUserSession,
-          {
-            ...activeSessionToken(
-              SessionCredentialKind.BrowserUserSession,
-              SessionLifecycleAction.RefreshBrowserSession
-            ),
-            activityState: SessionActivityState.Revoked,
-          }
-        )
+        issuanceInput(SessionCredentialIssuanceAction.RotateBrowserSession, SessionCredentialKind.BrowserUserSession, {
+          ...activeSessionToken(SessionCredentialKind.BrowserUserSession, SessionLifecycleAction.RefreshBrowserSession),
+          activityState: SessionActivityState.Revoked,
+        })
       ),
       SessionTokenFailureReason.SessionRevoked
     );
@@ -420,7 +365,7 @@ function registerSessionSchemaBoundaryTests(): void {
 
 function expectAuthorized(
   decision: ReturnType<typeof authorizeSessionTokenAction>,
-  auditRequirementState: typeof AuditRequirementState[keyof typeof AuditRequirementState]
+  auditRequirementState: (typeof AuditRequirementState)[keyof typeof AuditRequirementState]
 ): void {
   expect(decision).toEqual({
     authorizationState: SessionTokenAuthorizationState.Authorized,
@@ -432,8 +377,8 @@ function expectAuthorized(
 
 function expectRejected(
   decision: ReturnType<typeof authorizeSessionTokenAction>,
-  auditRequirementState: typeof AuditRequirementState[keyof typeof AuditRequirementState],
-  failureReason: typeof SessionTokenFailureReason[keyof typeof SessionTokenFailureReason]
+  auditRequirementState: (typeof AuditRequirementState)[keyof typeof AuditRequirementState],
+  failureReason: (typeof SessionTokenFailureReason)[keyof typeof SessionTokenFailureReason]
 ): void {
   expect(decision).toEqual({
     authorizationState: SessionTokenAuthorizationState.Rejected,
@@ -445,7 +390,7 @@ function expectRejected(
 
 function expectIssuanceAuthorized(
   decision: ReturnType<typeof authorizeSessionCredentialIssuance>,
-  issuanceState: typeof SessionCredentialIssuanceState[keyof typeof SessionCredentialIssuanceState]
+  issuanceState: (typeof SessionCredentialIssuanceState)[keyof typeof SessionCredentialIssuanceState]
 ): void {
   expect(decision).toEqual({
     issuanceState,
@@ -457,7 +402,7 @@ function expectIssuanceAuthorized(
 
 function expectIssuanceRejected(
   decision: ReturnType<typeof authorizeSessionCredentialIssuance>,
-  failureReason: typeof SessionTokenFailureReason[keyof typeof SessionTokenFailureReason]
+  failureReason: (typeof SessionTokenFailureReason)[keyof typeof SessionTokenFailureReason]
 ): void {
   expect(decision).toEqual({
     issuanceState: SessionCredentialIssuanceState.Rejected,
@@ -465,4 +410,20 @@ function expectIssuanceRejected(
     auditRedactionState: TokenAuditRedactionState.Redacted,
     failureReason,
   });
+}
+
+function expectIssuedFromPrivilegedBrowserSession(
+  issuanceAction: (typeof SessionCredentialIssuanceAction)[keyof typeof SessionCredentialIssuanceAction],
+  issuedCredentialKind: (typeof SessionCredentialKind)[keyof typeof SessionCredentialKind]
+): void {
+  expectIssuanceAuthorized(
+    authorizeSessionCredentialIssuance(
+      issuanceInput(
+        issuanceAction,
+        issuedCredentialKind,
+        activeSessionToken(SessionCredentialKind.BrowserUserSession, SessionLifecycleAction.PerformPrivilegedUserAction)
+      )
+    ),
+    SessionCredentialIssuanceState.Issued
+  );
 }

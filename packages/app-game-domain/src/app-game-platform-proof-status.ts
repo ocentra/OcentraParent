@@ -1,36 +1,30 @@
-import {
-  Schema,
-  brandedNonEmptyStringSchema,
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePlatformProofStatusGapSchema,
   AppGamePlatformProofStatusReadModelSchema,
-  AppGamePlatformProofStatusRefSchema,
   type AppGamePlatformProofStatusReadModel,
   type AppGamePlatformProofStatusRow,
 } from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
-import { type AppGameAndroidAccessibilityOverlayPreflightReadModel } from './app-game-android-accessibility-overlay-preflight';
-import { type AppGameAndroidAccessibilityRuntimeProof } from './app-game-android-accessibility-runtime-proof';
-import { type AppGameAndroidAuthorityPreflightReadModel } from './app-game-android-authority-preflight';
-import { type AppGameAndroidPhysicalDeviceProof } from './app-game-android-physical-device-proof';
-import { type AppGameAndroidUsageEventsReplayReadModel } from './app-game-android-usage-events-replay';
-import { type AppGameAppleCiPlatformProofPreflightReadModel } from './app-game-apple-ci-platform-proof-preflight';
-import { type AppGameLinuxActiveWindowToolProof } from './app-game-linux-active-window-tool-proof';
-import { type AppGameLinuxDockerHostPreflightReadModel } from './app-game-linux-docker-host-preflight';
-import { type AppGameLinuxForegroundCaptureReadiness } from './app-game-linux-foreground-capture-readiness';
-import { type AppGameLinuxWslRuntimeProof } from './app-game-linux-wsl-runtime-proof';
-import { type AppGameWindowsBroadBlockingAuthorityPreflightReadModel } from './app-game-windows-broad-blocking-authority-preflight';
-import { type AppGameWindowsLocalPolicyEvidenceProof } from './app-game-windows-local-policy-evidence-proof';
+import { type AppGameAndroidAccessibilityOverlayPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-android-accessibility-overlay-preflight';
+import { type AppGameAndroidAccessibilityRuntimeProof } from '@ocentra-parent/schema-domain/app-game-android-accessibility-runtime-proof';
+import { type AppGameAndroidAuthorityPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-android-authority-preflight';
+import { type AppGameAndroidPhysicalDeviceProof } from '@ocentra-parent/schema-domain/app-game-android-physical-device-proof';
+import { type AppGameAndroidUsageEventsReplayReadModel } from '@ocentra-parent/schema-domain/app-game-android-usage-events-replay';
+import { type AppGameAppleCiPlatformProofPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-apple-ci-platform-proof-preflight';
+import { type AppGameLinuxActiveWindowToolProof } from '@ocentra-parent/schema-domain/app-game-linux-active-window-tool-proof';
+import { type AppGameLinuxDockerHostPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-linux-docker-host-preflight';
+import { type AppGameLinuxForegroundCaptureReadiness } from '@ocentra-parent/schema-domain/app-game-linux-foreground-capture-readiness';
+import { type AppGameLinuxWslRuntimeProof } from '@ocentra-parent/schema-domain/app-game-linux-wsl-runtime-proof';
+import { type AppGameWindowsBroadBlockingAuthorityPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-windows-broad-blocking-authority-preflight';
+import { type AppGameWindowsLocalPolicyEvidenceProof } from '@ocentra-parent/schema-domain/app-game-windows-local-policy-evidence-proof';
 
 const PlatformProofStatusLabelSchema = brandedNonEmptyStringSchema('AppGamePlatformProofStatusLabel');
 const decodePlatformProofStatusLabel = Schema.decodeUnknownSync(PlatformProofStatusLabelSchema);
 
 type AppGamePlatformProofStatusGap = typeof AppGamePlatformProofStatusGapSchema.Type;
-type AppGamePlatformProofStatusRef = typeof AppGamePlatformProofStatusRefSchema.Type;
+type AppGamePlatformProofStatusRef = AppGamePlatformProofStatusRow['proofRefs'][number];
 
-const decodeAppGamePlatformProofStatusReadModel = Schema.decodeUnknownSync(
-  AppGamePlatformProofStatusReadModelSchema
-);
+const decodeAppGamePlatformProofStatusReadModel = Schema.decodeUnknownSync(AppGamePlatformProofStatusReadModelSchema);
 
 export function createAppGamePlatformProofStatusReadModel(input: {
   readonly androidProof: AppGameAndroidPhysicalDeviceProof;
@@ -236,34 +230,45 @@ function androidOpenGaps(
   accessibilityRuntimeProof?: AppGameAndroidAccessibilityRuntimeProof
 ) {
   const gaps: AppGamePlatformProofStatusGap[] = ['cross-platform-child-delivery-not-proved'];
-  if (proof.deviceOwnerState === 'not-device-owner') {
-    gaps.push('android-device-owner-not-proved');
+  const conditionalGaps: ReadonlyArray<readonly [boolean, AppGamePlatformProofStatusGap]> = [
+    [proof.deviceOwnerState === 'not-device-owner', 'android-device-owner-not-proved'],
+    [proof.profileOwnerState === 'not-profile-owner', 'android-profile-owner-not-proved'],
+    [androidUsageEventsNotProved(proof), 'android-usage-events-not-proved'],
+    [!replay?.durableReplayReady, 'android-durable-usage-events-replay-not-proved'],
+    [androidReplayConsumerMissing(replay), 'android-child-runtime-replay-consumer-not-attached'],
+    [!authorityPreflight, 'android-authority-preflight-not-attached'],
+    [
+      androidAccessibilityOverlayNotProved(accessibilityOverlayPreflight, accessibilityRuntimeProof),
+      'android-accessibility-overlay-not-proved',
+    ],
+    [!proof.hideSuspendClaimed, 'android-hide-suspend-not-proved'],
+  ];
+
+  for (const [condition, gap] of conditionalGaps) {
+    if (condition) {
+      gaps.push(gap);
+    }
   }
-  if (proof.profileOwnerState === 'not-profile-owner') {
-    gaps.push('android-profile-owner-not-proved');
-  }
-  if (proof.usageEventsDumpState !== 'usage-events-dump-observed' || !proof.foregroundEvidenceObserved) {
-    gaps.push('android-usage-events-not-proved');
-  }
-  if (!replay?.durableReplayReady) {
-    gaps.push('android-durable-usage-events-replay-not-proved');
-  }
-  if (replay?.openGaps.includes('android-child-runtime-replay-consumer-not-attached')) {
-    gaps.push('android-child-runtime-replay-consumer-not-attached');
-  }
-  if (!authorityPreflight) {
-    gaps.push('android-authority-preflight-not-attached');
-  }
-  if (
-    accessibilityOverlayPreflight?.openBlockers.includes('android-overlay-runtime-not-proved') ||
-    accessibilityRuntimeProof?.openGaps.includes('android-accessibility-overlay-runtime-not-proved')
-  ) {
-    gaps.push('android-accessibility-overlay-not-proved');
-  }
-  if (!proof.hideSuspendClaimed) {
-    gaps.push('android-hide-suspend-not-proved');
-  }
+
   return gaps;
+}
+
+function androidUsageEventsNotProved(proof: AppGameAndroidPhysicalDeviceProof) {
+  return proof.usageEventsDumpState !== 'usage-events-dump-observed' || !proof.foregroundEvidenceObserved;
+}
+
+function androidReplayConsumerMissing(replay?: AppGameAndroidUsageEventsReplayReadModel) {
+  return replay?.openGaps.includes('android-child-runtime-replay-consumer-not-attached') === true;
+}
+
+function androidAccessibilityOverlayNotProved(
+  accessibilityOverlayPreflight?: AppGameAndroidAccessibilityOverlayPreflightReadModel,
+  accessibilityRuntimeProof?: AppGameAndroidAccessibilityRuntimeProof
+) {
+  return (
+    accessibilityOverlayPreflight?.openBlockers.includes('android-overlay-runtime-not-proved') === true ||
+    accessibilityRuntimeProof?.openGaps.includes('android-accessibility-overlay-runtime-not-proved') === true
+  );
 }
 
 function androidOwnerProofAttached(

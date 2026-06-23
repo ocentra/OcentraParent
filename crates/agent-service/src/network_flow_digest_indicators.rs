@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowIndicator, ActivityNetworkFlowObservation,
-    ActivityNetworkFlowRollup,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowIndicator;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowRollup;
 
 const NETWORK_FLOW_INDICATOR_LIMIT: usize = 5;
 
@@ -133,7 +133,7 @@ fn push_once(
     indicators: &mut Vec<ActivityNetworkFlowIndicator>,
     condition: bool,
     kind: &str,
-    label: &str,
+    indicator_text: &str,
     observation: &ActivityNetworkFlowObservation,
 ) {
     if !condition || indicators.iter().any(|indicator| indicator.kind == kind) {
@@ -141,7 +141,7 @@ fn push_once(
     }
     indicators.push(ActivityNetworkFlowIndicator {
         kind: kind.to_string(),
-        label: label.to_string(),
+        label: indicator_text.to_string(),
         observed_at: observation.observed_at.clone(),
         evidence_ids: evidence_ids(observation),
     });

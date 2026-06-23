@@ -74,9 +74,9 @@ describe('query-test-logs script', () => {
     expect(stats.totalLogs).toBe(1);
     expect(stats.errorLogs).toBe(1);
 
-    const failures = JSON.parse(
-      runQueryScript(['latest-failures', '--scope=parent-test'], tempDir)
-    ) as Array<{ message: string }>;
+    const failures = JSON.parse(runQueryScript(['latest-failures', '--scope=parent-test'], tempDir)) as Array<{
+      message: string;
+    }>;
     expect(failures).toHaveLength(1);
     expect(failures[0]?.message).toBe('queryable failure');
 

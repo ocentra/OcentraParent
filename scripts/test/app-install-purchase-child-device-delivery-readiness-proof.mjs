@@ -51,13 +51,13 @@ async function main() {
     commands,
     evidence: {
       childDeviceDeliveryReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts',
       sourceChildDeliveryRuntimeWriterContract:
-        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
       sourcePackageSourceAdapterExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
       sourcePlatformLimitationActionContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-child-device-delivery-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

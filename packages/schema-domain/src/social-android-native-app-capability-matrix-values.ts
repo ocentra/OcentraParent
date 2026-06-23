@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentEvidenceReferenceIdSchema } from './family-reference-primitives';
 
 export const SocialAndroidNativeAppCapabilityMatrixSchemaVersionSchema = withParser(
@@ -77,7 +72,9 @@ export const SocialAndroidNativeAppProofRefsSchema = Schema.Array(ParentEvidence
   Schema.filter((value) => value.length > 0 || 'Expected Android social native app proof refs')
 );
 
-export const SocialAndroidNativeAppCapabilityBoundarySchema = brandedNonEmptyStringSchema('SocialAndroidNativeAppCapabilityBoundary');
+export const SocialAndroidNativeAppCapabilityBoundarySchema = brandedNonEmptyStringSchema(
+  'SocialAndroidNativeAppCapabilityBoundary'
+);
 
 export type SocialAndroidNativeAppCapabilitySurface = Infer<typeof SocialAndroidNativeAppCapabilitySurfaceSchema>;
 export type SocialAndroidNativeAppCapabilityState = Infer<typeof SocialAndroidNativeAppCapabilityStateSchema>;

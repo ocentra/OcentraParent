@@ -4,9 +4,11 @@ use ocentra_parent_agent_core::{
     },
     household_ai_provider_route_state::{HouseholdAiProviderResourceState, HouseholdAiWorkClass},
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, LanParentIntentEnvelope, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 use crate::{fields::fields_from_pairs, lan_pairing::LanPairingRuntime};
 

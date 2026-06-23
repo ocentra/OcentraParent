@@ -1,15 +1,10 @@
 import type { ReactElement } from 'react';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
-import {
-  isPortalScreenSummaryRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { isPortalScreenSummaryRoute } from '@ocentra-parent/portal-domain/routes';
 import {
   createScreenSummaryPanelIntent,
   type ScreenSummaryPanelDetail,
@@ -29,7 +24,7 @@ export function ScreenSummaryRoutePanel({
   const intent = createScreenSummaryPanelIntent(liveActivity.activityScreenReadModel);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.ScreenAnalysis)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.ScreenAnalysis)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>

@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -17,11 +11,13 @@ import {
   type TrackingRetentionProductSettingsWritableExecutionRow,
 } from './tracking-retention-product-settings-writable-execution-proof';
 
-export const TrackingRetentionAppliedSettingsRuntimeBridgeRowIdSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionAppliedSettingsRuntimeBridgeRowId');
+export const TrackingRetentionAppliedSettingsRuntimeBridgeRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionAppliedSettingsRuntimeBridgeRowId'
+);
 
-export const TrackingRetentionAppliedSettingsRuntimeBridgeArtifactRefSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionAppliedSettingsRuntimeBridgeArtifactRef');
+export const TrackingRetentionAppliedSettingsRuntimeBridgeArtifactRefSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionAppliedSettingsRuntimeBridgeArtifactRef'
+);
 
 export const TrackingRetentionAppliedSettingsRuntimeBridgeStatusSchema = Schema.Literal(
   'local-applied-settings-observed',
@@ -243,4 +239,3 @@ function missingRuntimeArtifacts(inventory: TrackingRetentionRuntimeArtifactInve
     (artifact) => !presentArtifacts.has(artifact)
   );
 }
-

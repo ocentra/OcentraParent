@@ -15,7 +15,11 @@ import {
   AgentAppGameAdapterDispatchResultPayloadField,
 } from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-result';
 import { describe, expect, it } from 'vitest';
-import { AgentCommand, AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
+import {
+  AgentCommand,
+  AgentEvent,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   parseAgentAppGameAdapterDispatchExecuteEvent,

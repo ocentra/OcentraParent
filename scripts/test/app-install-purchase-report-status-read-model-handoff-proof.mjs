@@ -72,12 +72,13 @@ async function main() {
     docsState: 'feature-expectation-docs-updated-checklist-readme-sequenced-behind-current-locks',
     evidence: {
       reportStatusReadModelHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts',
       sourceRuntimeReportWriterDeliveryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
       sourceApprovalReportDomainContract:
-        'packages/app-game-domain/src/app-install-purchase-approval-report-domain-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-report-status-read-model-handoff-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-approval-report-domain-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-report-status-read-model-handoff-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md updated for report status read-model handoff proof.',
       expectationDoc:
         'docs/expectations/app-install-purchase-approval.md updated for report status read-model handoff proof.',

@@ -1,4 +1,4 @@
-use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::{envelope::DomainEvent, error::EventingError};
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -173,31 +173,21 @@ fn custody_sync_pending_keeps_runtime_blocked_but_marks_state_degraded() {
 }
 
 #[test]
-fn readiness_event_projects_typed_action_event() {
+fn readiness_event_projects_typed_action_event() -> Result<(), EventingError> {
     let readiness_event = provisioning_readiness_evaluated_event(
-        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)
-            .expect("provisioning aggregate id"),
-        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)
-            .expect("provisioning evaluation id"),
+        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)?,
+        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)?,
         ready_input(),
     );
 
     let action_event = provisioning_action_planned_event(readiness_event.clone());
 
     assert_eq!(
-        readiness_event
-            .contract()
-            .expect("provisioning readiness contract")
-            .event_type
-            .as_str(),
+        readiness_event.contract()?.event_type.as_str(),
         PROVISIONING_READINESS_EVENT_TYPE
     );
     assert_eq!(
-        action_event
-            .contract()
-            .expect("provisioning action contract")
-            .event_type
-            .as_str(),
+        action_event.contract()?.event_type.as_str(),
         PROVISIONING_ACTION_EVENT_TYPE
     );
     assert_eq!(action_event.aggregate_id, readiness_event.aggregate_id);
@@ -209,10 +199,13 @@ fn readiness_event_projects_typed_action_event() {
         ProvisioningActionPlanId::parse(action_event.action_plan_id.as_str()).is_ok(),
         "action plan id remains branded"
     );
+
+    Ok(())
 }
 
 #[test]
-fn bootstrap_audit_events_omit_raw_pairing_session_fields() {
+fn bootstrap_audit_events_omit_raw_pairing_session_fields() -> Result<(), Box<dyn std::error::Error>>
+{
     let family_context = ProvisioningFamilyContextInput {
         pairing_session_input: SessionTokenInput {
             replay_state: TokenReplayState::ReplayDetected,
@@ -222,10 +215,8 @@ fn bootstrap_audit_events_omit_raw_pairing_session_fields() {
     };
     let projected_input = derive_provisioning_readiness_input_from_family_context(family_context);
     let readiness_event = provisioning_readiness_evaluated_event(
-        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)
-            .expect("provisioning aggregate id"),
-        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)
-            .expect("provisioning evaluation id"),
+        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)?,
+        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)?,
         projected_input,
     );
     let action_event = provisioning_action_planned_event(readiness_event.clone());
@@ -243,8 +234,7 @@ fn bootstrap_audit_events_omit_raw_pairing_session_fields() {
         ProvisioningAuditState::Record
     );
 
-    let readiness_json =
-        serde_json::to_value(&readiness_event).expect("readiness event serializes");
+    let readiness_json = serde_json::to_value(&readiness_event)?;
     assert_eq!(
         readiness_json["input"]["pairing_lifecycle_state"],
         Value::String(String::from("replayed"))
@@ -260,7 +250,7 @@ fn bootstrap_audit_events_omit_raw_pairing_session_fields() {
         .get("validity_window_state")
         .is_none());
 
-    let action_json = serde_json::to_value(&action_event).expect("action event serializes");
+    let action_json = serde_json::to_value(&action_event)?;
     assert_eq!(
         action_json["action_plan"]["audit_state"],
         Value::String(String::from("record"))
@@ -271,6 +261,8 @@ fn bootstrap_audit_events_omit_raw_pairing_session_fields() {
     assert!(action_json["action_plan"]
         .get("validity_window_state")
         .is_none());
+
+    Ok(())
 }
 
 #[test]

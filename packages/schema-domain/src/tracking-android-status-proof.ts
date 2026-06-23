@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -14,7 +9,9 @@ const TrackingAndroidStatusNonNegativeIntegerSchema = Schema.Number.pipe(Schema.
 const TrackingAndroidBatteryPercentSchema = Schema.Number.pipe(Schema.int(), Schema.between(0, 100));
 
 export const TrackingAndroidStatusProofIdSchema = brandedNonEmptyStringSchema('TrackingAndroidStatusProofId');
-export const TrackingAndroidStatusProofReferenceSchema = brandedNonEmptyStringSchema('TrackingAndroidStatusProofReference');
+export const TrackingAndroidStatusProofReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidStatusProofReference'
+);
 
 export const TrackingAndroidStatusCaseSchema = withParser(
   Schema.Literal(
@@ -355,4 +352,3 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
-

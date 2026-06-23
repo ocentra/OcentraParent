@@ -1,8 +1,9 @@
 use std::fs::{read, remove_file};
+use std::path::{Path, PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityMemoryGraphEdgeKind, ParentEvidenceReferenceKind,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphEdgeKind;
+use ocentra_parent_agent_protocol::constants;
 
 use super::{
     activity_store_policy_preview_test_fixture::{active_window_event, browser_event},
@@ -11,19 +12,20 @@ use super::{
 
 #[test]
 fn activity_memory_graph_reads_visited_and_played_edges_from_sqlite() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let browser = browser_event();
     let game = active_window_event();
     store
-        .ingest_events(&[browser.clone(), game.clone()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .ingest_events(&[browser, game])
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
 
     let read_model = store
         .activity_memory_graph_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned_edge_count, 2);
     assert_eq!(read_model.returned_node_count, 3);
@@ -68,24 +70,26 @@ fn activity_memory_graph_replays_from_encrypted_journal_without_plaintext_leak()
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
     let mut journal = ActivityJournal::open(journal_path.clone(), key.clone())
-        .expect(constants::error::JOURNAL_OPENS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     journal
         .append(&browser_event())
-        .expect(constants::error::JOURNAL_APPENDS);
-    let journal_bytes = read(&journal_path).expect(constants::error::JOURNAL_READS);
-    let reader =
-        ActivityJournal::open(journal_path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS));
+    let journal_bytes =
+        read(&journal_path).unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_READS));
+    let reader = ActivityJournal::open(journal_path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let read_model = store
         .activity_memory_graph_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(read_model.returned_edge_count, 1);
@@ -95,14 +99,15 @@ fn activity_memory_graph_replays_from_encrypted_journal_without_plaintext_leak()
 
 #[test]
 fn activity_memory_graph_reports_empty_store_without_inventing_nodes() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     let read_model = store
         .activity_memory_graph_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned_edge_count, 0);
     assert_eq!(read_model.returned_node_count, 0);
@@ -116,14 +121,15 @@ fn activity_memory_graph_reports_empty_store_without_inventing_nodes() {
 
 #[test]
 fn activity_memory_graph_reports_omitted_edges_when_limit_is_reached() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     store
         .ingest_events(&[browser_event(), active_window_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
 
     let read_model = store
         .activity_memory_graph_read_model(1, constants::activity_store::TEST_SECOND_OBSERVED_AT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned_edge_count, 1);
     assert_eq!(read_model.omitted_edge_count, 1);
@@ -133,7 +139,7 @@ fn activity_memory_graph_reports_omitted_edges_when_limit_is_reached() {
     );
 }
 
-fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
+fn temp_path(suffix: &str, extension: &str) -> PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -145,17 +151,17 @@ fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_paths(journal_path: &std::path::PathBuf, store_path: &std::path::PathBuf) {
+fn cleanup_paths(journal_path: &Path, store_path: &Path) {
     let _ = remove_file(journal_path);
-    let mut store_wal_path = store_path.clone();
+    let mut store_wal_path = store_path.to_path_buf();
     store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);
-    let mut store_shm_path = store_path.clone();
+    let mut store_shm_path = store_path.to_path_buf();
     store_shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(store_shm_path);
     let _ = remove_file(store_path);
     for index in 1..=3 {
-        let mut rotated_path = journal_path.clone();
+        let mut rotated_path = journal_path.to_path_buf();
         let mut extension = index.to_string();
         extension.push(constants::delimiter::DOT);
         extension.push_str(constants::journal::FILE_EXTENSION);

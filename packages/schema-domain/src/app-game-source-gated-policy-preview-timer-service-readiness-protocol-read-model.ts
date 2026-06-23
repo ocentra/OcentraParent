@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -32,8 +27,9 @@ export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadMod
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRowId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelContractRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelContractRef');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolSummaryRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolSummaryRef');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolSummaryRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolSummaryRef'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState))

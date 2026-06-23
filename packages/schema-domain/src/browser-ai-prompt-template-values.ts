@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiPromptTemplateRegistryIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserAiPromptTemplateRegistryId')
@@ -47,4 +42,3 @@ export type BrowserAiPromptTemplateStatus = Infer<typeof BrowserAiPromptTemplate
 export type BrowserAiPromptTemplateSelectionDegradedState = Infer<
   typeof BrowserAiPromptTemplateSelectionDegradedStateSchema
 >;
-

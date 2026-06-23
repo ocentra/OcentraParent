@@ -3,11 +3,11 @@ import {
   AppGameAndroidUsageEventsRuntimePreflightReadModelSchema,
   createAppGameAndroidUsageEventsRuntimePreflightReadModel,
   summarizeAppGameAndroidUsageEventsRuntimePreflightReadModel,
-} from '../../src/app-game-android-usage-events-runtime-preflight';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-runtime-preflight';
 import {
   AppGameAndroidUsageEventsCommandName,
   AppGameAndroidUsageEventsEventName,
-} from '../../src/app-game-android-usage-events-contracts';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-contracts';
 
 describe('app-game Android UsageEvents runtime preflight', () => {
   it('keeps runtime collection blocked when UsageStats settings grant is still required', () => {

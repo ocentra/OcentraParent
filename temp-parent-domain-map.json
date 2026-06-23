@@ -497,9 +497,7 @@
   },
   {
     "script": "scripts/test\\billing-account-runtime-boundary-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/billing-account-runtime-boundary-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/billing-account-runtime-boundary-proof.ts"]
   },
   {
     "script": "scripts/test\\app-install-purchase-runtime-report-writer-delivery-proof.mjs",
@@ -519,9 +517,7 @@
   },
   {
     "script": "scripts/test\\billing-support-admin-boundary-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/billing-support-admin-boundary-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/billing-support-admin-boundary-proof.ts"]
   },
   {
     "script": "scripts/test\\app-install-purchase-store-status-handoff-proof.mjs",
@@ -529,15 +525,11 @@
   },
   {
     "script": "scripts/test\\billing-entitlement-runtime-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/billing-entitlement-runtime-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/billing-entitlement-runtime-proof.ts"]
   },
   {
     "script": "scripts/test\\billing-support-admin-status-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/billing-support-admin-status-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/billing-support-admin-status-proof.ts"]
   },
   {
     "script": "scripts/test\\browser-first-lan-discovery-add-device-state.mjs",
@@ -1029,9 +1021,7 @@
   },
   {
     "script": "scripts/test\\tracking-fixture-coverage-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-fixture-coverage-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-fixture-coverage-proof.ts"]
   },
   {
     "script": "scripts/test\\tracking-expected-place-alert-policy-proof.mjs",
@@ -1047,9 +1037,7 @@
   },
   {
     "script": "scripts/test\\tracking-local-platform-proof-batch.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-local-platform-proof-batch.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-local-platform-proof-batch.ts"]
   },
   {
     "script": "scripts/test\\tracking-missing-device-mode-proof.mjs",
@@ -1057,9 +1045,7 @@
   },
   {
     "script": "scripts/test\\tracking-place-category-ambiguity-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-place-category-ambiguity-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-place-category-ambiguity-proof.ts"]
   },
   {
     "script": "scripts/test\\tracking-plan-evidence-quality-gate-proof.mjs",
@@ -1067,9 +1053,7 @@
   },
   {
     "script": "scripts/test\\tracking-policy-compiler-runtime-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts"]
   },
   {
     "script": "scripts/test\\tracking-poi-provider-adapter-proof.mjs",
@@ -1077,33 +1061,23 @@
   },
   {
     "script": "scripts/test\\tracking-real-runtime-handoff-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-real-runtime-handoff-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-real-runtime-handoff-proof.ts"]
   },
   {
     "script": "scripts/test\\tracking-report-export-read-model-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-report-export-read-model-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-report-export-read-model-proof.ts"]
   },
   {
     "script": "scripts/test\\tracking-retention-settings-mutation-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-retention-settings-mutation-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-retention-settings-mutation-proof.ts"]
   },
   {
     "script": "scripts/test\\tracking-retention-settings-writer-boundary-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-retention-settings-writer-boundary-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-retention-settings-writer-boundary-proof.ts"]
   },
   {
     "script": "scripts/test\\tracking-unsupported-platform-manual-proof.mjs",
-    "hits": [
-      "packages/parent-domain/src/tracking-unsupported-platform-manual-proof.ts"
-    ]
+    "hits": ["packages/parent-domain/src/tracking-unsupported-platform-manual-proof.ts"]
   },
   {
     "script": "scripts/test\\v0-8-broad-os-adapter-proof-readiness.mjs",

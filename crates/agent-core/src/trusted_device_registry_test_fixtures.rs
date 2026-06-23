@@ -1,14 +1,36 @@
+use std::fmt::Debug;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
-    LanPairingDeviceRef, LanPairingIntentKind, LanPairingParentAuthority, LanPairingProof,
-    LanParentIntentEnvelope,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingDeviceRef, LanPairingIntentKind, LanPairingProof, LanParentIntentEnvelope,
 };
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
+};
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::TrustedDeviceRegistry;
 
 static TEMP_REGISTRY_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+pub(crate) fn agent_event_result<T, E>(result: Result<T, E>) -> T
+where
+    E: Debug,
+{
+    match result {
+        Ok(value) => value,
+        Err(error) => unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES),
+    }
+}
+
+pub(crate) fn agent_event_option<T>(result: Option<T>) -> T {
+    match result {
+        Some(value) => value,
+        None => unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES),
+    }
+}
 
 pub(crate) fn proof(expires_at: &str) -> LanPairingProof {
     proof_for(
@@ -30,14 +52,12 @@ pub(crate) fn selected_registry(expires_at: &str) -> TrustedDeviceRegistry {
         parent_device(),
         constants::lan_pairing::ISSUED_AT,
     );
-    registry
-        .select_pairing(
-            constants::lan_pairing::PAIRING_ID,
-            constants::lan_pairing::CHILD_DEVICE_ID,
-            constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
-            constants::lan_pairing::EXPIRES_AT,
-        )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    agent_event_result(registry.select_pairing(
+        constants::lan_pairing::PAIRING_ID,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+        constants::lan_pairing::EXPIRES_AT,
+    ));
     registry
 }
 

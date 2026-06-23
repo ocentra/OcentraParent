@@ -3,7 +3,7 @@ import {
   RequiredTrackingPhysicalDeviceArtifactPlans,
   TrackingPhysicalDeviceArtifactGateRowSchema,
   buildTrackingPhysicalDeviceArtifactGateProof,
-} from '../../src/tracking-physical-device-artifact-gate-proof';
+} from '@ocentra-parent/schema-domain/tracking-physical-device-artifact-gate-proof';
 
 describe('tracking physical device artifact gate proof', () => {
   it('keeps Android and iOS manual-required when physical artifacts are missing', () => {

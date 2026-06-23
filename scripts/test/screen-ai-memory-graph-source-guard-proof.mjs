@@ -20,9 +20,19 @@ async function main() {
   execFileSync(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']), {
     stdio: 'inherit',
   });
-  execFileSync(...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/screen-domain', '--', 'screen-ai-memory-graph-source-guard-proof.test.ts']), {
-    stdio: 'inherit',
-  });
+  execFileSync(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/screen-domain',
+      '--',
+      'screen-ai-memory-graph-source-guard-proof.test.ts',
+    ]),
+    {
+      stdio: 'inherit',
+    }
+  );
 
   const contract = await import(
     pathToFileURL(join(repoRoot, 'packages/schema-domain/dist/screen-ai-memory-graph-source-guard-proof.js')).href

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const SocialAuditExplanationReadModelSchemaVersionSchema = withParser(
   Schema.Literal('social-audit-explanation-read-model')
@@ -67,4 +62,3 @@ export const SocialAuditExplanationReasonSchema = withParser(
 
 export type SocialAuditExplanationEvidenceKind = Infer<typeof SocialAuditExplanationEvidenceKindSchema>;
 export type SocialAuditExplanationSubjectKind = Infer<typeof SocialAuditExplanationSubjectKindSchema>;
-

@@ -188,7 +188,8 @@ export function resolveScopedFiles(rawArgs, { scriptName, usageLines, roots, acc
 
   const uniqueFiles = [...new Set(candidates.map((file) => toPosix(file)).filter(Boolean))];
   const files = uniqueFiles.filter(
-    (file) => !isIgnoredPath(file) && isWithinRoots(file, roots) && acceptPath(file)
+    (file) =>
+      existsSync(repoAbsolutePath(file)) && !isIgnoredPath(file) && isWithinRoots(file, roots) && acceptPath(file)
   );
 
   return { ...scope, files };

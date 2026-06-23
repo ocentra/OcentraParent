@@ -1,27 +1,36 @@
 use serde_json::{Map, Value};
-use std::path::Path;
+use std::{io::Error as IoError, path::Path};
 
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiChatGenerationResult, LocalAiGenerationState, SCREEN_CATEGORY_SCHOOL,
-    SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_SERVICE_METADATA,
-    SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
-    SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
-    SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_WINRT_OCR_MODEL_ID, SCREEN_WINRT_OCR_RUNTIME_REF,
-    SCREEN_WINRT_OCR_TEMPLATE_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_SCHOOL;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_POLICY_CONFIDENCE_READY;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_OCR;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_PROVIDER_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_RUNTIME_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_WINRT_OCR_MODEL_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_WINRT_OCR_RUNTIME_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_WINRT_OCR_TEMPLATE_VERSION;
 
 use super::{
     adapter::parsed_generation_output_with_policy, adapter_process::is_windows_batch_adapter,
     config::ScreenOcrRedactionPolicy,
 };
 
+type TestResult = Result<(), IoError>;
+
 #[test]
-fn parsed_generation_output_preserves_local_ocr_runtime_metadata() {
+fn parsed_generation_output_preserves_local_ocr_runtime_metadata() -> TestResult {
     let parsed = parsed_generation_output_with_policy(
         &complete_generation(adapter_output_text(SCREEN_PROVIDER_LOCAL_OCR)),
         &ScreenOcrRedactionPolicy::default(),
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
 
     assert_eq!(parsed.provider_kind, SCREEN_PROVIDER_LOCAL_OCR);
     assert_eq!(parsed.model_runtime_ref, SCREEN_WINRT_OCR_RUNTIME_REF);
@@ -40,6 +49,8 @@ fn parsed_generation_output_preserves_local_ocr_runtime_metadata() {
     );
     assert_eq!(parsed.confidence, SCREEN_POLICY_CONFIDENCE_READY);
     assert!(parsed.policy_eligible);
+
+    Ok(())
 }
 
 #[test]
@@ -53,12 +64,12 @@ fn parsed_generation_output_rejects_unknown_provider_kind() {
 }
 
 #[test]
-fn parsed_generation_output_applies_service_ocr_redaction() {
+fn parsed_generation_output_applies_service_ocr_redaction() -> TestResult {
     let parsed = parsed_generation_output_with_policy(
         &complete_generation(sensitive_adapter_output_text()),
         &ScreenOcrRedactionPolicy::default(),
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
 
     assert_eq!(
         parsed.ocr_text_snippets,
@@ -82,10 +93,12 @@ fn parsed_generation_output_applies_service_ocr_redaction() {
         .redaction_notes
         .iter()
         .any(|note| note == constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_CREDENTIAL));
+
+    Ok(())
 }
 
 #[test]
-fn parsed_generation_output_respects_parent_selected_disabled_ocr_text() {
+fn parsed_generation_output_respects_parent_selected_disabled_ocr_text() -> TestResult {
     let parsed = parsed_generation_output_with_policy(
         &complete_generation(sensitive_adapter_output_text()),
         &ScreenOcrRedactionPolicy {
@@ -103,17 +116,19 @@ fn parsed_generation_output_respects_parent_selected_disabled_ocr_text() {
             setting_version: Some(1),
         },
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
 
     assert!(parsed.ocr_text_snippets.is_empty());
     assert_eq!(
         parsed.redaction_notes,
         vec![constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_DISABLED.to_string()]
     );
+
+    Ok(())
 }
 
 #[test]
-fn parsed_generation_output_respects_parent_selected_bounded_snippets() {
+fn parsed_generation_output_respects_parent_selected_bounded_snippets() -> TestResult {
     let parsed = parsed_generation_output_with_policy(
         &complete_generation(sensitive_adapter_output_text()),
         &ScreenOcrRedactionPolicy {
@@ -132,7 +147,7 @@ fn parsed_generation_output_respects_parent_selected_bounded_snippets() {
             setting_version: Some(2),
         },
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
 
     assert_eq!(
         parsed.ocr_text_snippets,
@@ -146,6 +161,8 @@ fn parsed_generation_output_respects_parent_selected_bounded_snippets() {
         .redaction_notes
         .iter()
         .any(|note| note == constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_CREDENTIAL));
+
+    Ok(())
 }
 
 #[test]

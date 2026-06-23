@@ -146,7 +146,7 @@ function surfaceState(
 }
 
 function validReadModel(): ChildAndroidStorageProtocolReadModel {
-  return {
+  return ChildAndroidStorageProtocolReadModelSchema.parse({
     schemaVersion: 'child-android-storage-protocol-capability-proof',
     protocolBridgeProof: {
       packageId: 'ca.ocentra.parent.agent',
@@ -181,10 +181,10 @@ function validReadModel(): ChildAndroidStorageProtocolReadModel {
       childAndroidStoragePersistence: 'device persistence requires emulator or physical-device artifacts',
     },
     updatedAt: '2026-05-31T00:00:00.000Z',
-  };
+  });
 }
 
-function storageSurfaces(): ChildAndroidStorageProtocolReadModel['storageSurfaces'] {
+function storageSurfaces() {
   return [
     storageSurface(
       'app-private-files',
@@ -256,16 +256,16 @@ function storageSurfaces(): ChildAndroidStorageProtocolReadModel['storageSurface
 }
 
 function storageSurface(
-  surface: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['surface'],
-  parentCapability: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['parentCapability'],
-  parentCapabilityStatus: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['parentCapabilityStatus'],
-  proofState: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['proofState'],
-  runtimeOwner: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['runtimeOwner'],
-  custody: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['custody'],
-  defaultStorageMode: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['defaultStorageMode'],
-  rawChildActivityStorage: ChildAndroidStorageProtocolReadModel['storageSurfaces'][number]['rawChildActivityStorage'],
+  surface: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  proofState: string,
+  runtimeOwner: string,
+  custody: string,
+  defaultStorageMode: string,
+  rawChildActivityStorage: string,
   proofRequirement: string
-): ChildAndroidStorageProtocolReadModel['storageSurfaces'][number] {
+) {
   return {
     surface,
     parentCapability,

@@ -90,8 +90,7 @@ export const AppGamePolicyCompilerRejectionReason = {
 type TargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
 type ProofKindValue = (typeof AppGamePolicyCompilerProofKind)[keyof typeof AppGamePolicyCompilerProofKind];
 type EvidenceStateValue = (typeof AppGamePolicyCompilerEvidenceState)[keyof typeof AppGamePolicyCompilerEvidenceState];
-type CapabilityStateValue =
-  (typeof PolicyCompilerCapabilityState)[keyof typeof PolicyCompilerCapabilityState];
+type CapabilityStateValue = (typeof PolicyCompilerCapabilityState)[keyof typeof PolicyCompilerCapabilityState];
 type AuthorityStateValue =
   (typeof AppGamePolicyCompilerAuthorityState)[keyof typeof AppGamePolicyCompilerAuthorityState];
 type RequestedActionValue =

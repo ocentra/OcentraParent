@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePolicyCompiledDecisionSchema,
@@ -34,7 +34,10 @@ import {
   PolicyRuleIdSchema,
   PolicyTargetSchema,
 } from '@ocentra-parent/schema-domain/policy-contracts';
-import { ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
+import {
+  ParentDeviceReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from '@ocentra-parent/schema-domain/family-references';
 import {
   ParentContractSchemaVersionSchema,
   ParentPolicyVersionSchema,
@@ -43,7 +46,9 @@ import {
 
 export const AppGamePolicyPreviewHandoffIdSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffId');
 export const AppGamePolicyPreviewHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffRowId');
-export const AppGamePolicyPreviewHandoffSourceContractRefSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffSourceContractRef');
+export const AppGamePolicyPreviewHandoffSourceContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGamePolicyPreviewHandoffSourceContractRef'
+);
 export const AppGamePolicyPreviewHandoffRuntimeClaimStateSchema = withParser(Schema.Literal('not-claimed'));
 export const AppGamePolicyPreviewHandoffAdapterDispatchStateSchema = withParser(Schema.Literal('not-dispatched'));
 
@@ -243,4 +248,3 @@ export const decodeAppGamePolicyPreviewHandoffReadModel = Schema.decodeUnknownSy
 );
 
 export { AppGamePolicyPreviewStatus, AppGamePolicyPreviewTargetDomain };
-

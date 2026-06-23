@@ -4,14 +4,22 @@ mod values;
 
 use builders::{device_from_discovery, device_from_registry};
 use merge::merge_device;
-use ocentra_parent_agent_protocol::{
-    constants, LanBrowserAddDeviceDiscoveryDevice, LanCanonicalHouseholdDevice,
-    LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceSource,
-    LanCanonicalHouseholdRouteState, LanDiscoveryEvidenceConfidence, LanDiscoveryEvidenceKind,
-    LanDiscoveryEvidenceRecord, LanDiscoveryEvidenceSource, LanHouseholdDeviceActionKind,
-    LanHouseholdDeviceDecision, LanPairingDeviceRef, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanTrustedDeviceRegistryEntry,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceSource;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdRouteState;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceConfidence;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceActionKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
 use values::{option_overlaps, surfaces_for};
 
 pub(crate) fn canonical_household_devices(

@@ -1,6 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
 
 const repoRoot = process.cwd();
@@ -28,15 +27,12 @@ async function main() {
       'tests/unit/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
-  const schemaReadinessModule = await import(
-    '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness'
-  );
+  const schemaReadinessModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness');
   commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness');
-  const schemaProviderStatusModule = await import(
-    '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-status-handoff'
-  );
+  const schemaProviderStatusModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-status-handoff');
   commands.push(
     'node import @ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-status-handoff'
   );
@@ -48,56 +44,19 @@ async function main() {
   }
 
   const module = schemaReadinessModule;
-  const childUxModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux.js')).href
-  );
-  const childUxRulesModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-rules.js')).href
-  );
-  const childUxHandoffModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-handoff.js')).href
-  );
-  const childUxLocalHandoffModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-local-handoff.js')).href
-  );
-  const childUxOutboxModule = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-local-outbox-bridge.js')
-    ).href
-  );
-  const childUxSchedulerModule = await import(
-    pathToFileURL(
-      join(
-        repoRoot,
-        'packages',
-        'app-game-domain',
-        'dist',
-        'app-game-child-facing-ux-local-outbox-scheduler-bridge.js'
-      )
-    ).href
-  );
-  const childUxProviderPreflightModule = await import(
-    pathToFileURL(
-      join(
-        repoRoot,
-        'packages',
-        'app-game-domain',
-        'dist',
-        'app-game-child-facing-ux-local-outbox-provider-preflight.js'
-      )
-    ).href
-  );
-  const providerStatusModule = await import(
-    pathToFileURL(
-      join(
-        repoRoot,
-        'packages',
-        'app-game-domain',
-        'dist',
-        'app-game-child-facing-ux-local-outbox-provider-status-handoff.js'
-      )
-    ).href
-  );
+  const childUxModule = await import('@ocentra-parent/schema-domain/app-game-child-facing-ux');
+  const childUxRulesModule = await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-rules');
+  const childUxHandoffModule = await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-handoff');
+  const childUxLocalHandoffModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-local-handoff');
+  const childUxOutboxModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-bridge');
+  const childUxSchedulerModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-scheduler-bridge');
+  const childUxProviderPreflightModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-preflight');
+  const providerStatusModule =
+    await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-status-handoff');
 
   const sourceReadModel = buildProviderStatusReadModel({
     childUxModule,
@@ -143,8 +102,9 @@ async function main() {
       providerStatusContract:
         'packages/schema-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
       providerStatusConsumer:
-        'packages/app-game-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
-      consumerTest: 'packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
+        'packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
+      consumerTest:
+        'packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
     },
     claimsProved: [
       'schema-domain owns the child-device delivery readiness and provider-status handoff contract surfaces',
@@ -173,7 +133,7 @@ async function main() {
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
       '- Readiness owner: packages/schema-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
       '- Provider-status contract: packages/schema-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
-      '- App-game provider-status consumer: packages/app-game-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
+      '- App-game provider-status consumer test: packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
       '',
       'Evidence:',
       '- schema-domain exports the child-device delivery readiness owner and provider-status handoff contract.',

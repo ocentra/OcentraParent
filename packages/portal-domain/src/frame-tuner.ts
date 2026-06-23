@@ -1,4 +1,4 @@
-import { decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 
 export const PortalFrameTuner = {
   Api: {

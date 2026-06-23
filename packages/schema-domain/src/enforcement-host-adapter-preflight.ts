@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   EnforcementAdapterKind,
   EnforcementAdapterKindSchema,
@@ -30,10 +25,16 @@ import {
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const EnforcementHostAdapterPreflightIdSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterPreflightId');
-export const EnforcementHostAdapterPreflightMatrixIdSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterPreflightMatrixId');
-export const EnforcementHostAdapterEvidenceRequirementSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterEvidenceRequirement');
+export const EnforcementHostAdapterPreflightMatrixIdSchema = brandedNonEmptyStringSchema(
+  'EnforcementHostAdapterPreflightMatrixId'
+);
+export const EnforcementHostAdapterEvidenceRequirementSchema = brandedNonEmptyStringSchema(
+  'EnforcementHostAdapterEvidenceRequirement'
+);
 export const EnforcementHostAdapterManualStepSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterManualStep');
-export const EnforcementHostAdapterRejectionReasonSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterRejectionReason');
+export const EnforcementHostAdapterRejectionReasonSchema = brandedNonEmptyStringSchema(
+  'EnforcementHostAdapterRejectionReason'
+);
 
 export const EnforcementHostAdapterPreflightGateSchema = withParser(
   Schema.Literal(
@@ -397,4 +398,3 @@ export const decodeEnforcementHostAdapterPreflightEntry = Schema.decodeUnknownSy
 export const decodeEnforcementHostAdapterPreflightMatrix = Schema.decodeUnknownSync(
   EnforcementHostAdapterPreflightMatrixSchema
 );
-

@@ -1,10 +1,15 @@
 use std::path::PathBuf;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityObservationMode, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityObservationMode,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use sysinfo::{ProcessesToUpdate, System};
 
 #[derive(Clone, Debug, PartialEq, Eq)]

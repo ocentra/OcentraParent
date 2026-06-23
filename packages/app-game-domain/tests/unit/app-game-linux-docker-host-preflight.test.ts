@@ -3,7 +3,7 @@ import {
   AppGameLinuxDockerHostPreflightReadModelSchema,
   createAppGameLinuxDockerHostPreflightReadModel,
   summarizeAppGameLinuxDockerHostPreflightReadModel,
-} from '../../src/app-game-linux-docker-host-preflight';
+} from '@ocentra-parent/schema-domain/app-game-linux-docker-host-preflight';
 
 describe('app-game Linux Docker host preflight', () => {
   it('records visible Docker host inventory as redacted readiness without enforcement claims', () => {

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import {
   type BrowserUrlShapeClassificationResult,
@@ -23,9 +18,7 @@ const SocialUrlPatternSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdS
   Schema.filter((value) => value.length > 0 || 'Expected social URL pattern source evidence ids')
 );
 
-export const BrowserSocialUrlPatternIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserSocialUrlPatternId')
-);
+export const BrowserSocialUrlPatternIdSchema = withParser(brandedNonEmptyStringSchema('BrowserSocialUrlPatternId'));
 
 const BrowserSocialUrlPatternInputBaseSchema = Schema.Struct({
   socialRouteEvidenceId: BrowserSocialRouteEvidenceIdSchema,
@@ -205,4 +198,3 @@ function matchesAnySegment(segments: readonly string[], candidates: readonly str
 function domainMatchesAny(domain: string, bases: readonly string[]) {
   return bases.some((base) => domain === base || domain.endsWith(`.${base}`));
 }
-

@@ -1,23 +1,22 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from './family-reference-primitives';
 
-export const PolicyControlApprovalNotificationBoundaryReadModelIdSchema =
-  brandedNonEmptyStringSchema('PolicyControlApprovalNotificationBoundaryReadModelId');
-export const PolicyControlApprovalNotificationBoundaryEntryIdSchema =
-  brandedNonEmptyStringSchema('PolicyControlApprovalNotificationBoundaryEntryId');
-export const PolicyControlApprovalNotificationBoundaryReferenceSchema =
-  brandedNonEmptyStringSchema('PolicyControlApprovalNotificationBoundaryReference');
-export const PolicyControlApprovalNotificationBoundaryRequirementSchema =
-  brandedNonEmptyStringSchema('PolicyControlApprovalNotificationBoundaryRequirement');
+export const PolicyControlApprovalNotificationBoundaryReadModelIdSchema = brandedNonEmptyStringSchema(
+  'PolicyControlApprovalNotificationBoundaryReadModelId'
+);
+export const PolicyControlApprovalNotificationBoundaryEntryIdSchema = brandedNonEmptyStringSchema(
+  'PolicyControlApprovalNotificationBoundaryEntryId'
+);
+export const PolicyControlApprovalNotificationBoundaryReferenceSchema = brandedNonEmptyStringSchema(
+  'PolicyControlApprovalNotificationBoundaryReference'
+);
+export const PolicyControlApprovalNotificationBoundaryRequirementSchema = brandedNonEmptyStringSchema(
+  'PolicyControlApprovalNotificationBoundaryRequirement'
+);
 
 const BoundaryCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NullableBoundaryReferenceSchema = Schema.Union(
@@ -131,56 +130,86 @@ function policyControlApprovalNotificationEntryIsHonest(
     return false;
   }
 
-  switch (entry.notificationState) {
-    case 'preview-only':
-      return (
-        entry.origin === 'assistant-draft' &&
-        entry.parentConfirmationRequired &&
-        !entry.parentReviewed &&
-        entry.portalQueueVisible &&
-        entry.approvalRef === null &&
-        entry.overrideRef === null &&
-        entry.overrideKind === null
-      );
-    case 'pending-parent-review':
-      return (
-        !entry.parentConfirmationRequired &&
-        !entry.parentReviewed &&
-        entry.portalQueueVisible &&
-        entry.approvalRef === null &&
-        entry.overrideRef === null &&
-        entry.overrideKind === null
-      );
-    case 'approved':
-    case 'modified':
-      return (
-        !entry.parentConfirmationRequired &&
-        entry.parentReviewed &&
-        entry.portalQueueVisible &&
-        entry.approvalRef !== null &&
-        entry.overrideRef !== null &&
-        entry.overrideKind !== null
-      );
-    case 'denied':
-      return (
-        !entry.parentConfirmationRequired &&
-        entry.parentReviewed &&
-        entry.portalQueueVisible &&
-        entry.approvalRef !== null &&
-        entry.overrideRef === null &&
-        entry.overrideKind === null
-      );
-    case 'expired-request':
-    case 'replay-rejected':
-      return (
-        !entry.parentConfirmationRequired &&
-        !entry.parentReviewed &&
-        !entry.portalQueueVisible &&
-        entry.approvalRef === null &&
-        entry.overrideRef === null &&
-        entry.overrideKind === null
-      );
-  }
+  return policyControlApprovalNotificationEntryValidators[entry.notificationState](entry);
+}
+
+const policyControlApprovalNotificationEntryValidators: Record<
+  PolicyControlApprovalNotificationBoundaryEntryCandidate['notificationState'],
+  (entry: PolicyControlApprovalNotificationBoundaryEntryCandidate) => boolean
+> = {
+  'preview-only': previewOnlyPolicyControlApprovalNotificationEntryIsHonest,
+  'pending-parent-review': pendingParentReviewPolicyControlApprovalNotificationEntryIsHonest,
+  approved: approvedOrModifiedPolicyControlApprovalNotificationEntryIsHonest,
+  denied: deniedPolicyControlApprovalNotificationEntryIsHonest,
+  modified: approvedOrModifiedPolicyControlApprovalNotificationEntryIsHonest,
+  'expired-request': expiredOrReplayRejectedPolicyControlApprovalNotificationEntryIsHonest,
+  'replay-rejected': expiredOrReplayRejectedPolicyControlApprovalNotificationEntryIsHonest,
+};
+
+function previewOnlyPolicyControlApprovalNotificationEntryIsHonest(
+  entry: PolicyControlApprovalNotificationBoundaryEntryCandidate
+): boolean {
+  return (
+    entry.origin === 'assistant-draft' &&
+    entry.parentConfirmationRequired &&
+    !entry.parentReviewed &&
+    entry.portalQueueVisible &&
+    entry.approvalRef === null &&
+    entry.overrideRef === null &&
+    entry.overrideKind === null
+  );
+}
+
+function pendingParentReviewPolicyControlApprovalNotificationEntryIsHonest(
+  entry: PolicyControlApprovalNotificationBoundaryEntryCandidate
+): boolean {
+  return (
+    !entry.parentConfirmationRequired &&
+    !entry.parentReviewed &&
+    entry.portalQueueVisible &&
+    entry.approvalRef === null &&
+    entry.overrideRef === null &&
+    entry.overrideKind === null
+  );
+}
+
+function approvedOrModifiedPolicyControlApprovalNotificationEntryIsHonest(
+  entry: PolicyControlApprovalNotificationBoundaryEntryCandidate
+): boolean {
+  return (
+    !entry.parentConfirmationRequired &&
+    entry.parentReviewed &&
+    entry.portalQueueVisible &&
+    entry.approvalRef !== null &&
+    entry.overrideRef !== null &&
+    entry.overrideKind !== null
+  );
+}
+
+function deniedPolicyControlApprovalNotificationEntryIsHonest(
+  entry: PolicyControlApprovalNotificationBoundaryEntryCandidate
+): boolean {
+  return (
+    !entry.parentConfirmationRequired &&
+    entry.parentReviewed &&
+    entry.portalQueueVisible &&
+    entry.approvalRef !== null &&
+    entry.overrideRef === null &&
+    entry.overrideKind === null
+  );
+}
+
+function expiredOrReplayRejectedPolicyControlApprovalNotificationEntryIsHonest(
+  entry: PolicyControlApprovalNotificationBoundaryEntryCandidate
+): boolean {
+  return (
+    !entry.parentConfirmationRequired &&
+    !entry.parentReviewed &&
+    !entry.portalQueueVisible &&
+    entry.approvalRef === null &&
+    entry.overrideRef === null &&
+    entry.overrideKind === null
+  );
 }
 
 type PolicyControlApprovalNotificationBoundaryReadModelCounts = {
@@ -232,15 +261,9 @@ function countEntries(
   return entries.filter((entry) => entry.notificationState === notificationState).length;
 }
 
-export type PolicyControlApprovalNotificationState = Infer<
-  typeof PolicyControlApprovalNotificationStateSchema
->;
-export type PolicyControlApprovalNotificationOrigin = Infer<
-  typeof PolicyControlApprovalNotificationOriginSchema
->;
-export type PolicyControlApprovalNotificationKind = Infer<
-  typeof PolicyControlApprovalNotificationKindSchema
->;
+export type PolicyControlApprovalNotificationState = Infer<typeof PolicyControlApprovalNotificationStateSchema>;
+export type PolicyControlApprovalNotificationOrigin = Infer<typeof PolicyControlApprovalNotificationOriginSchema>;
+export type PolicyControlApprovalNotificationKind = Infer<typeof PolicyControlApprovalNotificationKindSchema>;
 export type PolicyControlApprovalNotificationOverrideKind = Infer<
   typeof PolicyControlApprovalNotificationOverrideKindSchema
 >;

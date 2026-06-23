@@ -1,9 +1,9 @@
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingPolicyViolationDetectedEvent;
-use ocentra_parent_agent_protocol::{
-    tracking_alert_evaluation_id_from_violation_id, TrackingAlertEvaluationId, TrackingAlertSeverity,
-    TrackingEvidenceRef,
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_alert_evaluation_id_from_violation_id, TrackingAlertEvaluationId,
+    TrackingAlertSeverity, TrackingEvidenceRef,
 };
+use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingPolicyViolationDetectedEvent;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackingParentNotificationDecisionState {
@@ -74,5 +74,8 @@ fn alert_severity_for(
             }
         }
     };
-    TrackingAlertSeverity::parse(severity).expect(severity)
+    match TrackingAlertSeverity::parse(severity) {
+        Ok(parsed_severity) => parsed_severity,
+        Err(_) => unreachable!("tracking alert severity contract drift: {severity}"),
+    }
 }

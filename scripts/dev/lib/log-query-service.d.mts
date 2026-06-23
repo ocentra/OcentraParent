@@ -129,27 +129,27 @@ export interface ProofTraceGapResult extends ProofTraceResult {
   readonly unexpectedErrorRows: readonly ProofTraceRow[];
 }
 
-export function getLatestFailures(options?: {
-  readonly limit?: number;
-}): Promise<readonly Array<{
-  readonly runId: string;
-  readonly commandId: string | null;
-  readonly laneId: string | null;
-  readonly machine: string;
-  readonly workspace: string;
-  readonly cwd: string;
-  readonly command: readonly string[];
-  readonly startedAt: string;
-  readonly endedAt: string | null;
-  readonly durationMs: number;
-  readonly status: string;
-  readonly exitCode: number | null;
-  readonly stdoutArtifact: string | null;
-  readonly stderrArtifact: string | null;
-  readonly summary: string | null;
-  readonly diagnostics: readonly AgentEvidenceDiagnostic[];
-  readonly artifacts: readonly AgentEvidenceArtifact[];
-}>>;
+export function getLatestFailures(options?: { readonly limit?: number }): Promise<
+  readonly Array<{
+    readonly runId: string;
+    readonly commandId: string | null;
+    readonly laneId: string | null;
+    readonly machine: string;
+    readonly workspace: string;
+    readonly cwd: string;
+    readonly command: readonly string[];
+    readonly startedAt: string;
+    readonly endedAt: string | null;
+    readonly durationMs: number;
+    readonly status: string;
+    readonly exitCode: number | null;
+    readonly stdoutArtifact: string | null;
+    readonly stderrArtifact: string | null;
+    readonly summary: string | null;
+    readonly diagnostics: readonly AgentEvidenceDiagnostic[];
+    readonly artifacts: readonly AgentEvidenceArtifact[];
+  }>
+>;
 
 export function getRunDiagnostics(options: {
   readonly runId: string;

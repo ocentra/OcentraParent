@@ -1,12 +1,12 @@
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import {
   EventingAggregateKeySchema,
-  EventingCausationIdSchema,
-  EventingCorrelationIdSchema,
   EventingEnvelopeMetadataSchema,
-  EventingEventIdSchema,
   EventingIdempotencyKeySchema,
-  EventingRecordedAtSchema,
+  type EventingCausationId,
+  type EventingCorrelationId,
+  type EventingEventId,
+  type EventingRecordedAt,
 } from './eventing';
 import {
   ChildProfileIdSchema,
@@ -14,12 +14,7 @@ import {
   ParentDeviceIdSchema,
   ParentPolicyVersionSchema,
 } from './family-reference-primitives';
-import {
-  hasUniqueValues,
-  literalSchema,
-  literalValues,
-  parsedLiteralRecord,
-} from './policy-literal-contracts';
+import { hasUniqueValues, literalSchema, literalValues, parsedLiteralRecord } from './policy-literal-contracts';
 import {
   PolicyApprovalIdSchema,
   PolicyAuditReferenceIdSchema,
@@ -35,9 +30,7 @@ export const PolicyEventFamilyNamespaceLiteral = {
   Policy: 'policy',
 } as const;
 
-export const PolicyEventFamilyNamespaceSchema = withParser(
-  Schema.Literal(PolicyEventFamilyNamespaceLiteral.Policy)
-);
+export const PolicyEventFamilyNamespaceSchema = withParser(Schema.Literal(PolicyEventFamilyNamespaceLiteral.Policy));
 
 export const PolicyEventKindLiteral = {
   DraftCreated: 'policy.draft.created',
@@ -262,10 +255,10 @@ export type PolicyEventRequestId = typeof PolicyEventRequestIdSchema.Type;
 export type PolicyEventDeliveryId = typeof PolicyEventDeliveryIdSchema.Type;
 export type PolicyEventAggregateKey = typeof EventingAggregateKeySchema.Type;
 export type PolicyEventIdempotencyKey = typeof EventingIdempotencyKeySchema.Type;
-export type PolicyEventCorrelationId = typeof EventingCorrelationIdSchema.Type;
-export type PolicyEventCausationId = typeof EventingCausationIdSchema.Type;
-export type PolicyEventEventId = typeof EventingEventIdSchema.Type;
-export type PolicyEventRecordedAt = typeof EventingRecordedAtSchema.Type;
+export type PolicyEventCorrelationId = EventingCorrelationId;
+export type PolicyEventCausationId = EventingCausationId;
+export type PolicyEventEventId = EventingEventId;
+export type PolicyEventRecordedAt = EventingRecordedAt;
 
 export const PolicyEventFamilyNamespace = {
   Policy: PolicyEventFamilyNamespaceSchema.parse(PolicyEventFamilyNamespaceLiteral.Policy),
@@ -408,10 +401,7 @@ export function parsePolicyEventEnvelope(input: unknown): PolicyEventEnvelope {
   return PolicyEventEnvelopeSchema.parse(input);
 }
 
-export function applyPolicyEventReplay(
-  current: PolicyEventReplayRecord,
-  next: PolicyEvent
-): PolicyEventApplyOutcome {
+export function applyPolicyEventReplay(current: PolicyEventReplayRecord, next: PolicyEvent): PolicyEventApplyOutcome {
   const nextAggregateKey = policyEventAggregateKey(next);
   const nextIdempotencyKey = policyEventIdempotencyKey(next);
 
@@ -528,9 +518,7 @@ function policyEventIsConsistent(event: Infer<typeof PolicyEventBaseSchema>): bo
   return true;
 }
 
-function policyEventEnvelopeIsConsistent(
-  envelope: Infer<typeof PolicyEventEnvelopeBaseSchema>
-): boolean {
+function policyEventEnvelopeIsConsistent(envelope: Infer<typeof PolicyEventEnvelopeBaseSchema>): boolean {
   return (
     envelope.contract.eventType === envelope.payload.kind &&
     envelope.contract.schemaVersion === envelope.payload.schemaVersion &&
@@ -558,19 +546,9 @@ function policyEventKindReasonCodeValue(kind: PolicyEventKind): string {
 function policyEventAggregateKeyValue(scope: PolicyEventScope): string {
   switch (scope.scope) {
     case PolicyEventScopeLiteral.SourceDocument:
-      return joinPolicyEventKey([
-        'policy-source',
-        scope.householdId,
-        scope.sourceDocumentId,
-        scope.policyVersion,
-      ]);
+      return joinPolicyEventKey(['policy-source', scope.householdId, scope.sourceDocumentId, scope.policyVersion]);
     case PolicyEventScopeLiteral.Request:
-      return joinPolicyEventKey([
-        'policy-request',
-        scope.householdId,
-        scope.requestId,
-        scope.policyVersion,
-      ]);
+      return joinPolicyEventKey(['policy-request', scope.householdId, scope.requestId, scope.policyVersion]);
     case PolicyEventScopeLiteral.Approval:
       return joinPolicyEventKey([
         'policy-approval',

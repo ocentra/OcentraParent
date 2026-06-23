@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofSchema,
   AppInstallPurchaseChildDeviceDeliveryRuntimeWriterRowSchema,
   summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof,
-} from '../../src/app-install-purchase-child-device-delivery-runtime-writer-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-child-device-delivery-runtime-writer-proof';
 
 describe('app install and purchase child-device delivery runtime writer proof', () => {
   acceptsChildDeliveryRuntimeWriterRowsWithoutRuntimeClaims();

@@ -169,9 +169,7 @@ function assertTypedActivityAdapterStates() {
 
     const sendCurrentStep = () => {
       const step = steps[stepIndex];
-      socket.send(
-        JSON.stringify(createPortalSmokeCommandEnvelope(step.messageId, step.command, activityPayload()))
-      );
+      socket.send(JSON.stringify(createPortalSmokeCommandEnvelope(step.messageId, step.command, activityPayload())));
     };
 
     socket.addEventListener('open', sendCurrentStep);

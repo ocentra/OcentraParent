@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
@@ -13,11 +15,18 @@ use crate::network_event_runtime::{
     },
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
 #[tokio::test]
-async fn records_cross_process_replay_from_durable_envelopes_and_custody_refs() {
-    let report = prove_network_runtime_remote_delivery_cross_process_replay()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY);
+async fn records_cross_process_replay_from_durable_envelopes_and_custody_refs() -> TestResult {
+    let report: NetworkRuntimeRemoteDeliveryCrossProcessReplayReport = ok(
+        prove_network_runtime_remote_delivery_cross_process_replay().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY,
+    )?;
 
     assert_eq!(
         report.cross_process_replay_ref.as_str(),
@@ -56,15 +65,16 @@ async fn records_cross_process_replay_from_durable_envelopes_and_custody_refs() 
     assert!(report.cross_process_replay_implemented);
     assert_cross_process_replay_records(&report);
     assert_cross_process_replay_no_delivery_or_enforcement_claims(&report);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn rejects_source_readiness_that_already_claims_cross_process_replay() {
-    let mut readiness = prove_network_runtime_remote_delivery_cross_process_custody_readiness()
-        .await
-        .expect(
-            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS,
-        );
+async fn rejects_source_readiness_that_already_claims_cross_process_replay() -> TestResult {
+    let mut readiness = ok(
+        prove_network_runtime_remote_delivery_cross_process_custody_readiness().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS,
+    )?;
     readiness.cross_process_replay_implemented = true;
 
     let proof_result =
@@ -76,15 +86,16 @@ async fn rejects_source_readiness_that_already_claims_cross_process_replay() {
         proof_result,
         Err(NetworkRuntimeRemoteDeliveryCrossProcessReplayError::UnsupportedClaim)
     ));
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn rejects_replay_inputs_that_do_not_match_durable_envelopes() {
-    let mut readiness = prove_network_runtime_remote_delivery_cross_process_custody_readiness()
-        .await
-        .expect(
-            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS,
-        );
+async fn rejects_replay_inputs_that_do_not_match_durable_envelopes() -> TestResult {
+    let mut readiness = ok(
+        prove_network_runtime_remote_delivery_cross_process_custody_readiness().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS,
+    )?;
     readiness
         .provider_child_readiness
         .fixture_transport
@@ -102,6 +113,8 @@ async fn rejects_replay_inputs_that_do_not_match_durable_envelopes() {
         proof_result,
         Err(NetworkRuntimeRemoteDeliveryCrossProcessReplayError::ReplayRecordMismatch)
     ));
+
+    Ok(())
 }
 
 fn assert_cross_process_replay_records(

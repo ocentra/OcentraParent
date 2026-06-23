@@ -28,13 +28,14 @@ fn cross_platform_capability_surfaces_have_stable_protocol_strings() {
         V08CrossPlatformEnforcementCapabilitySurface::IosTestflightDistribution,
         V08CrossPlatformEnforcementCapabilitySurface::IosStoreDistribution,
     ];
-    let serialized =
-        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized
             .as_array()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .len(),
         15
     );
@@ -103,11 +104,14 @@ fn cross_platform_read_model_serializes_claim_boundaries_for_service_preview() {
             ),
         ],
     };
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let reparsed =
         serde_json::from_value::<V08CrossPlatformEnforcementCapabilityProofReadModel>(serialized)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            });
     let claim_counts = count_claim_states(&reparsed.entries);
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);

@@ -3,7 +3,7 @@ import {
   AppGameAndroidUsageEventsPackageRuntimeProofSchema,
   createAppGameAndroidUsageEventsPackageRuntimeProof,
   summarizeAppGameAndroidUsageEventsPackageRuntimeProof,
-} from '../../src/app-game-android-usage-events-package-runtime-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-package-runtime-proof';
 
 describe('app-game Android UsageEvents package runtime proof', () => {
   it('accepts installed and launched package runtime evidence while grant is still required', () => {

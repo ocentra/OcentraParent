@@ -64,10 +64,7 @@ const ReadModel = {
       childDeliveryClaimed: false,
       privateDiagnosticsClaimed: false,
       proofRefs: ['apple-ci-platform-proof-preflight-ref'],
-      openGaps: [
-        'ios-family-controls-not-proved',
-        'apple-platform-adapter-dispatch-blocked-before-ci-proof',
-      ],
+      openGaps: ['ios-family-controls-not-proved', 'apple-platform-adapter-dispatch-blocked-before-ci-proof'],
     },
   ],
 } as const;
@@ -99,7 +96,10 @@ describe('app-game platform proof status panel intent', () => {
         expect.objectContaining({ label: 'Platform', value: 'windows' }),
         expect.objectContaining({ label: 'Authority state', value: 'visibility-only' }),
         expect.objectContaining({ label: 'Host capability', value: 'available' }),
-        expect.objectContaining({ label: 'Host capability evidence', value: 'windows-local-policy-evidence-proof-ref' }),
+        expect.objectContaining({
+          label: 'Host capability evidence',
+          value: 'windows-local-policy-evidence-proof-ref',
+        }),
         expect.objectContaining({ label: 'Host capability probe', value: 'windows-host-local-probe-ref' }),
         expect.objectContaining({ label: 'Platform state', value: 'Not claimed' }),
       ])

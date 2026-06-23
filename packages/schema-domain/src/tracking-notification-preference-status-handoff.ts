@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -49,8 +43,12 @@ export const RequiredTrackingNotificationPreferenceStatusHandoffNonClaims = [
 export const TrackingNotificationPreferenceStatusHandoffNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationPreferenceStatusHandoffNonClaims)
 );
-export const TrackingNotificationPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferenceStatusHandoffId');
-export const TrackingNotificationPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferenceStatusHandoffReference');
+export const TrackingNotificationPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationPreferenceStatusHandoffId'
+);
+export const TrackingNotificationPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationPreferenceStatusHandoffReference'
+);
 
 const TrackingNotificationPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: TrackingNotificationPreferenceStatusHandoffReferenceSchema,
@@ -391,5 +389,3 @@ function countSourceStatus(
 ): number {
   return rows.filter((row) => row.sourcePreferenceStatus === status).length;
 }
-
-

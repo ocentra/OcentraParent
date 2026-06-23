@@ -67,15 +67,14 @@ async function main() {
     checklistState: 'product-capability-checklist-addendum-added',
     evidence: {
       dispatchExecutorReceiptContract:
-        'packages/app-game-domain/src/app-install-purchase-dispatch-executor-receipt-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-dispatch-executor-receipt-proof.ts',
       sourceExecutionReceiptGateContract:
-        'packages/app-game-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
-      contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-dispatch-executor-receipt-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-dispatch-executor-receipt-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-dispatch-executor-receipt-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-dispatch-executor-receipt-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
       output: relative(repoRoot, proofPath),

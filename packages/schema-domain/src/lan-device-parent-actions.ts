@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ChildProfileIdSchema, ParentActorIdSchema } from './family-reference-primitives';
 import { HouseholdCanonicalDeviceIdSchema } from './household-device-spine';
 import { LanPairingSchemaVersionSchema, LanPairingTimestampSchema } from './lan-pairing-values';
@@ -39,4 +33,3 @@ export type LanHouseholdDeviceActionId = typeof LanHouseholdDeviceActionIdSchema
 export type LanHouseholdDeviceActionKind = Infer<typeof LanHouseholdDeviceActionKindSchema>;
 export type LanHouseholdDeviceKind = Infer<typeof LanHouseholdDeviceKindSchema>;
 export type LanHouseholdDeviceDecision = Infer<typeof LanHouseholdDeviceDecisionSchema>;
-

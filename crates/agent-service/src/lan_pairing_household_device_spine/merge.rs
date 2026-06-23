@@ -1,17 +1,20 @@
 use super::values::surfaces_for;
-use ocentra_parent_agent_protocol::{
-    constants, LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceConfidence,
-    LanCanonicalHouseholdDeviceSource, LanCanonicalHouseholdNetworkIdentity,
-    LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface,
-    LanPairingProductionDiscoveryState, LanPairingTrustState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceConfidence;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceSource;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdNetworkIdentity;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdRouteState;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdSurface;
 
 pub(super) fn merge_device(
     existing: &mut LanCanonicalHouseholdDevice,
     incoming: LanCanonicalHouseholdDevice,
 ) {
     if existing.classification
-        != ocentra_parent_agent_protocol::LanCanonicalHouseholdDeviceClassification::ChildAgent
+        != ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification::ChildAgent
     {
         existing.classification = incoming.classification.clone();
     }
@@ -139,8 +142,8 @@ fn source_present(
 }
 
 fn merge_roles(
-    existing: &mut Vec<ocentra_parent_agent_protocol::LanCanonicalHouseholdDeviceRole>,
-    incoming: Vec<ocentra_parent_agent_protocol::LanCanonicalHouseholdDeviceRole>,
+    existing: &mut Vec<ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceRole>,
+    incoming: Vec<ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceRole>,
 ) {
     for role in incoming {
         if !existing.contains(&role) {
@@ -185,8 +188,8 @@ fn merge_strings(existing: &mut Vec<String>, incoming: Vec<String>) {
 }
 
 fn merge_evidence_records(
-    existing: &mut Vec<ocentra_parent_agent_protocol::LanDiscoveryEvidenceRecord>,
-    incoming: Vec<ocentra_parent_agent_protocol::LanDiscoveryEvidenceRecord>,
+    existing: &mut Vec<ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord>,
+    incoming: Vec<ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord>,
 ) {
     for record in incoming {
         if !existing

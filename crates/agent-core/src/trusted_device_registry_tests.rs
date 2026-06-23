@@ -1,13 +1,15 @@
 use std::fs::remove_file;
 
-use ocentra_parent_agent_protocol::{
-    constants, LanPairingAuthenticationState, LanPairingDeviceReachability,
-    LanPairingRejectionReason, LanPairingTrustState,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingAuthenticationState, LanPairingDeviceReachability, LanPairingRejectionReason,
+    LanPairingTrustState,
 };
 
 use crate::trusted_device_registry_test_fixtures::{
-    child_device, household_decision, intent, intent_for_pairing, intent_with_route, parent_device,
-    proof, proof_for, second_child_device, selected_registry, temp_registry_path,
+    agent_event_option, agent_event_result, child_device, household_decision, intent,
+    intent_for_pairing, intent_with_route, parent_device, proof, proof_for, second_child_device,
+    selected_registry, temp_registry_path,
 };
 use crate::TrustedDeviceRegistry;
 
@@ -21,22 +23,18 @@ fn trusted_device_registry_accepts_pairing_and_validates_intent() {
         parent_device(),
         constants::lan_pairing::ISSUED_AT,
     );
-    registry
-        .select_pairing(
-            constants::lan_pairing::PAIRING_ID,
-            constants::lan_pairing::CHILD_DEVICE_ID,
-            constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
-            constants::lan_pairing::EXPIRES_AT,
-        )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    registry
-        .select_pairing(
-            constants::lan_pairing::PAIRING_ID,
-            constants::lan_pairing::CHILD_DEVICE_ID,
-            constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
-            constants::lan_pairing::EXPIRES_AT,
-        )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    agent_event_result(registry.select_pairing(
+        constants::lan_pairing::PAIRING_ID,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+        constants::lan_pairing::EXPIRES_AT,
+    ));
+    agent_event_result(registry.select_pairing(
+        constants::lan_pairing::PAIRING_ID,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+        constants::lan_pairing::EXPIRES_AT,
+    ));
 
     let result = registry.validate_intent(
         &intent(
@@ -221,14 +219,12 @@ fn trusted_device_registry_requires_selected_device_for_multi_device_control() {
         Err(LanPairingRejectionReason::UnselectedDevice)
     );
 
-    let selected = registry
-        .select_pairing(
-            constants::lan_pairing::PAIRING_ID,
-            constants::lan_pairing::CHILD_DEVICE_ID,
-            constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
-            constants::lan_pairing::EXPIRES_AT,
-        )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let selected = agent_event_result(registry.select_pairing(
+        constants::lan_pairing::PAIRING_ID,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+        constants::lan_pairing::EXPIRES_AT,
+    ));
 
     assert_eq!(
         selected.selected_child_device_id,
@@ -268,14 +264,13 @@ fn trusted_device_registry_requires_selected_device_for_multi_device_control() {
 fn trusted_device_registry_reports_revoked_stale_and_offline_selected_state() {
     let mut stale_registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
     assert!(stale_registry.mark_selected_stale(constants::lan_pairing::EXPIRED_AT));
-    let stale_target = stale_registry
-        .selected_target_at(constants::lan_pairing::OBSERVED_AT)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let stale_target =
+        agent_event_option(stale_registry.selected_target_at(constants::lan_pairing::OBSERVED_AT));
     let mut offline_registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
     assert!(offline_registry.mark_selected_offline(constants::lan_pairing::OBSERVED_AT));
-    let offline_target = offline_registry
-        .selected_target_at(constants::lan_pairing::OBSERVED_AT)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let offline_target = agent_event_option(
+        offline_registry.selected_target_at(constants::lan_pairing::OBSERVED_AT),
+    );
     let mut revoked_registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
 
     assert_eq!(
@@ -342,9 +337,7 @@ fn trusted_device_registry_can_survive_restart_or_fail_closed_when_missing() {
         parent_device(),
         constants::lan_pairing::ISSUED_AT,
     );
-    registry
-        .save_json(&path)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    agent_event_result(registry.save_json(&path));
 
     let loaded = TrustedDeviceRegistry::load_json(&path);
     let missing_path = temp_registry_path();
@@ -366,15 +359,12 @@ fn trusted_device_registry_persists_selected_route_for_restart_recovery() {
     let path = temp_registry_path();
     let _ = remove_file(&path);
     let registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
-    registry
-        .save_json(&path)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    agent_event_result(registry.save_json(&path));
 
     let mut loaded = TrustedDeviceRegistry::load_json(&path);
     let _ = remove_file(&path);
-    let selected = loaded
-        .selected_target_at(constants::lan_pairing::OBSERVED_AT)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let selected =
+        agent_event_option(loaded.selected_target_at(constants::lan_pairing::OBSERVED_AT));
 
     assert_eq!(
         loaded.authentication_state(),
@@ -410,9 +400,7 @@ fn trusted_device_registry_persists_household_device_decisions_for_restart_recov
     let _ = remove_file(&path);
     let mut registry = TrustedDeviceRegistry::empty();
     registry.apply_household_device_decision(household_decision());
-    registry
-        .save_json(&path)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    agent_event_result(registry.save_json(&path));
 
     let loaded = TrustedDeviceRegistry::load_json(&path);
     let _ = remove_file(&path);

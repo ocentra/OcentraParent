@@ -46,7 +46,7 @@ const proof = {
   summary: summarize(proofModel.rows),
   productClaims: proofModel.productClaims,
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-ai-stored-ref-consumer-proof.ts',
+    source: 'packages/schema-domain/src/tracking-ai-stored-ref-consumer-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-ai-stored-ref-consumer-proof.test.ts',
     harness: 'scripts/test/tracking-ai-stored-ref-consumer-proof.mjs',
     evidence: 'test-results/tracking-ai-stored-ref-consumer-proof/proof.json',
@@ -70,7 +70,7 @@ console.log('tracking-ai-stored-ref-consumer-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-ai-stored-ref-consumer-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function summarize(rows) {

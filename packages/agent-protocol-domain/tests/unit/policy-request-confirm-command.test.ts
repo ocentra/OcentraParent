@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
-import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   PolicyRequestAssistantPreviewConfirmClaimState,
   PolicyRequestAssistantPreviewConfirmResultState,
@@ -18,8 +19,7 @@ function sampleResult(): PolicyRequestAssistantPreviewConfirmResult {
     assistantPreviewId: request.assistantPreviewId,
     resultState: PolicyRequestAssistantPreviewConfirmResultState.Confirmed,
     policyRequestStatus: AgentProtocolDefaults.PolicyPreview.RequestStatus.PendingParentReview,
-    policyAssistantConfirmationState:
-      AgentProtocolDefaults.PolicyPreview.AssistantConfirmationState.ParentConfirmed,
+    policyAssistantConfirmationState: AgentProtocolDefaults.PolicyPreview.AssistantConfirmationState.ParentConfirmed,
     policyAuditReferenceId: request.confirmationAuditReferenceId,
     confirmedAt: request.confirmedAt,
     rejectionReason: null,
@@ -67,8 +67,7 @@ it('parsePolicyRequestAssistantPreviewConfirmResultEvent: decodes the typed conf
     event: AgentEvent.PolicyRequestAssistantPreviewConfirmReported,
     severity: 'info',
     payload: {
-      [AgentProtocolDefaults.Field.PolicyRequestAssistantPreviewConfirmResult]:
-        JSON.stringify(result),
+      [AgentProtocolDefaults.Field.PolicyRequestAssistantPreviewConfirmResult]: JSON.stringify(result),
     },
     snapshot: null,
   });

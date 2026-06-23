@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AgentTrackingRetentionSettingsWriteDefaults } from './agent-tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
@@ -13,9 +8,13 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-export const TrackingReportExportReadModelPacketIdSchema = brandedNonEmptyStringSchema('TrackingReportExportReadModelPacketId');
+export const TrackingReportExportReadModelPacketIdSchema = brandedNonEmptyStringSchema(
+  'TrackingReportExportReadModelPacketId'
+);
 
-export const TrackingReportExportReadModelProofRefSchema = brandedNonEmptyStringSchema('TrackingReportExportReadModelProofRef');
+export const TrackingReportExportReadModelProofRefSchema = brandedNonEmptyStringSchema(
+  'TrackingReportExportReadModelProofRef'
+);
 
 export const TrackingReportExportReadModelKindSchema = withParser(
   Schema.Literal(
@@ -263,9 +262,7 @@ function packet(input: {
     dashboardRollupProofRefs: [
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
     ],
-    retentionSettingsProofRefs: [
-      ...AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
-    ],
+    retentionSettingsProofRefs: [...AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs],
     evidenceReferences: input.evidenceReferences,
     exportedRowCount: input.exportedRowCount,
     redactedEvidenceRefCount: input.redactedEvidenceRefCount,
@@ -300,4 +297,3 @@ function evidence(
     observedAt,
   });
 }
-

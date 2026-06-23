@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimProviderStoreProofSchema,
   AppInstallPurchaseProductClaimProviderStoreRowSchema,
   summarizeAppInstallPurchaseProductClaimProviderStoreProof,
-} from '../../src/app-install-purchase-product-claim-provider-store-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-provider-store-proof';
 
 describe('app install purchase product claim provider store proof', () => {
   acceptsProviderStoreProductClaimRowsWithoutExecutionClaims();

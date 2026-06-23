@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -61,10 +56,18 @@ export const V09HouseholdDiscoveryMobileControllerCloudRelayDecisionSchema = wit
   Schema.Literal('manual-decision-required')
 );
 
-export const V09HouseholdDiscoveryMobileControllerProofPathSchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerProofPath');
-export const V09HouseholdDiscoveryMobileControllerProofCommandSchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerProofCommand');
-export const V09HouseholdDiscoveryMobileControllerProofLabelSchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerProofLabel');
-export const V09HouseholdDiscoveryMobileControllerClaimBoundarySchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerClaimBoundary');
+export const V09HouseholdDiscoveryMobileControllerProofPathSchema = brandedNonEmptyStringSchema(
+  'V09HouseholdDiscoveryMobileControllerProofPath'
+);
+export const V09HouseholdDiscoveryMobileControllerProofCommandSchema = brandedNonEmptyStringSchema(
+  'V09HouseholdDiscoveryMobileControllerProofCommand'
+);
+export const V09HouseholdDiscoveryMobileControllerProofLabelSchema = brandedNonEmptyStringSchema(
+  'V09HouseholdDiscoveryMobileControllerProofLabel'
+);
+export const V09HouseholdDiscoveryMobileControllerClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'V09HouseholdDiscoveryMobileControllerClaimBoundary'
+);
 
 export const V09HouseholdDiscoveryMobileControllerSourceProofInputSchema = withParser(
   Schema.Struct({
@@ -429,4 +432,3 @@ export type V09HouseholdDiscoveryMobileControllerManualBoundary = Infer<
 export type V09HouseholdDiscoveryMobileControllerProductProofReadModel = Infer<
   typeof V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema
 >;
-

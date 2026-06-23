@@ -1,4 +1,4 @@
-import {
+import type {
   AgentCommandName,
   AgentEventName,
   AgentProtocolLogFields,

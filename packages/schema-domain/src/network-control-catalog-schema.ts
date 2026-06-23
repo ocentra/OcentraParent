@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from './effect';
+import { type Infer, brandedNonEmptyStringSchema, NonEmptyStringSchema, Schema, withParser } from './effect';
 
 import {
   ParentContractSchemaVersionSchema,
@@ -12,27 +6,13 @@ import {
   ParentTimestampSchema,
 } from './family-reference-primitives';
 
-export const NetworkControlCatalogIdSchema = withParser(
-  brandedNonEmptyStringSchema('NetworkControlCatalogId')
-);
-export const NetworkControlSectionIdSchema = withParser(
-  brandedNonEmptyStringSchema('NetworkControlSectionId')
-);
-export const NetworkControlGroupIdSchema = withParser(
-  brandedNonEmptyStringSchema('NetworkControlGroupId')
-);
-export const NetworkControlSettingIdSchema = withParser(
-  brandedNonEmptyStringSchema('NetworkControlSettingId')
-);
-export const NetworkControlOptionIdSchema = withParser(
-  brandedNonEmptyStringSchema('NetworkControlOptionId')
-);
-export const NetworkControlCapabilityIdSchema = withParser(
-  brandedNonEmptyStringSchema('NetworkControlCapabilityId')
-);
-export const NetworkControlWritesToPathSchema = withParser(
-  brandedNonEmptyStringSchema('NetworkControlWritesToPath')
-);
+export const NetworkControlCatalogIdSchema = withParser(brandedNonEmptyStringSchema('NetworkControlCatalogId'));
+export const NetworkControlSectionIdSchema = withParser(brandedNonEmptyStringSchema('NetworkControlSectionId'));
+export const NetworkControlGroupIdSchema = withParser(brandedNonEmptyStringSchema('NetworkControlGroupId'));
+export const NetworkControlSettingIdSchema = withParser(brandedNonEmptyStringSchema('NetworkControlSettingId'));
+export const NetworkControlOptionIdSchema = withParser(brandedNonEmptyStringSchema('NetworkControlOptionId'));
+export const NetworkControlCapabilityIdSchema = withParser(brandedNonEmptyStringSchema('NetworkControlCapabilityId'));
+export const NetworkControlWritesToPathSchema = withParser(brandedNonEmptyStringSchema('NetworkControlWritesToPath'));
 
 const NetworkControlSidePanelCategorySchema = withParser(Schema.Literal('network'));
 

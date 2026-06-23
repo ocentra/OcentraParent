@@ -3,8 +3,8 @@ import {
   TrackingChildRuntimeSnapshotRequirementsReadModelSchema,
   TrackingChildRuntimeSnapshotRequirementsRowSchema,
   buildTrackingChildRuntimeSnapshotRequirementsReadModel,
-} from '../../src/tracking-child-runtime-snapshot-requirements-proof';
-import { buildTrackingChildRuntimeExecutionReadinessReadModel } from '../../src/tracking-child-runtime-execution-readiness-proof';
+} from '@ocentra-parent/schema-domain/tracking-child-runtime-snapshot-requirements-proof';
+import { buildTrackingChildRuntimeExecutionReadinessReadModel } from '@ocentra-parent/schema-domain/tracking-child-runtime-execution-readiness-proof';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 describe('tracking child runtime snapshot requirements proof', () => {

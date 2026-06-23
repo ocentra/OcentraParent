@@ -67,17 +67,12 @@ async function main() {
 
 async function assertPackageExport() {
   const exportedModule = await import('@ocentra-parent/schema-domain/endpoint-sync-export');
-  assert.equal(
-    exportedModule.ParentOwnedSyncExportBoundaryState.RouteContract,
-    'defined'
-  );
+  assert.equal(exportedModule.ParentOwnedSyncExportBoundaryState.RouteContract, 'defined');
   return '@ocentra-parent/schema-domain/endpoint-sync-export';
 }
 
 async function assertBuiltContract() {
-  const modulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'schema-domain', 'dist', 'endpoint-sync-export.js')
-  );
+  const modulePath = pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'endpoint-sync-export.js'));
   const module = await import(modulePath.href);
 
   assert.deepEqual(module.ParentOwnedSyncExportApiPath, {

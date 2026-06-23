@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentEvidenceReferenceIdSchema } from './family-reference-primitives';
 
 export const SocialIosScreenTimeCapabilityMatrixSchemaVersionSchema = withParser(
@@ -87,7 +82,9 @@ export const SocialIosScreenTimeProofRefsSchema = Schema.Array(ParentEvidenceRef
   Schema.filter((value) => value.length > 0 || 'Expected iOS Screen Time proof refs')
 );
 
-export const SocialIosScreenTimeCapabilityBoundarySchema = brandedNonEmptyStringSchema('SocialIosScreenTimeCapabilityBoundary');
+export const SocialIosScreenTimeCapabilityBoundarySchema = brandedNonEmptyStringSchema(
+  'SocialIosScreenTimeCapabilityBoundary'
+);
 
 export type SocialIosScreenTimeCapabilitySurface = Infer<typeof SocialIosScreenTimeCapabilitySurfaceSchema>;
 export type SocialIosScreenTimeCapabilityState = Infer<typeof SocialIosScreenTimeCapabilityStateSchema>;

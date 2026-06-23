@@ -32,10 +32,8 @@ const SharedParentSurfaceStatusProofRefs = [
   'future-app-game-timer-service-readiness-response-consumer-parent-surface-status-proof',
 ] as const;
 const SharedServiceReadApiRef = 'future-service-readiness-read-api-contract';
-const SharedParentSurfaceReadModelRef =
-  'future-service-readiness-response-consumer-parent-surface-read-model-proof';
-const SharedParentSurfaceStatusRef =
-  'future-service-readiness-response-consumer-parent-surface-status-proof';
+const SharedParentSurfaceReadModelRef = 'future-service-readiness-response-consumer-parent-surface-read-model-proof';
+const SharedParentSurfaceStatusRef = 'future-service-readiness-response-consumer-parent-surface-status-proof';
 
 const StatusReadModelHandoffOptions = {
   schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -115,53 +113,51 @@ export function buildParentSurfaceReadModelHandoffFixture() {
 }
 
 function buildParentSurfaceStatusHandoffFixture() {
-  return AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffSchema.parse(
-    {
-      schemaVersion: ParentContractSchemaVersion.V0_6,
-      responseConsumerParentSurfaceStatusHandoffId:
-        'source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff-proof',
-      sourceResponseConsumerParentSurfaceReadModelHandoffId:
-        'source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof',
-      generatedAt: SharedGeneratedAt,
-      sourceContractRefs: [
-        'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff',
-        'docs/expectations/app-game-evidence.md',
-        'docs/expectations/enforcement.md',
-      ],
-      parentSurfaceStatusRef: SharedParentSurfaceStatusRef,
-      rows: [
-        buildStatusRow({
-          sourceRowId: 'seed-parent-surface-status-row-1',
-          targetDomain: 'native-app',
-          state:
-            AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffState.ParentSurfaceStatusProofRequired,
-          sourceEvidenceRef: 'app-game-source-freshness-evidence/native-app-ready',
-        }),
-        buildStatusRow({
-          sourceRowId: 'seed-parent-surface-status-row-2',
-          targetDomain: 'native-app',
-          state:
-            AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffState.BlockedBySourceFreshness,
-          sourceEvidenceRef: 'app-game-source-freshness-evidence/native-app-stale',
-        }),
-        buildStatusRow({
-          sourceRowId: 'seed-parent-surface-status-row-3',
-          targetDomain: 'native-game',
-          state:
-            AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffState.BlockedByCompilerDecision,
-          sourceEvidenceRef: 'app-game-source-freshness-evidence/native-game-compiler-blocked',
-        }),
-      ],
-      nativeAppRowCount: 2,
-      nativeGameRowCount: 1,
-      parentSurfaceStatusProofRequiredCount: 1,
-      blockedBySourceFreshnessCount: 1,
-      blockedByCompilerDecisionCount: 1,
-      responseConsumerParentSurfaceStatusHandoffNonClaims:
-        RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffNonClaims,
-      ...AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffNoClaimFlags,
-    }
-  );
+  return AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    responseConsumerParentSurfaceStatusHandoffId:
+      'source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff-proof',
+    sourceResponseConsumerParentSurfaceReadModelHandoffId:
+      'source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof',
+    generatedAt: SharedGeneratedAt,
+    sourceContractRefs: [
+      'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff',
+      'docs/expectations/app-game-evidence.md',
+      'docs/expectations/enforcement.md',
+    ],
+    parentSurfaceStatusRef: SharedParentSurfaceStatusRef,
+    rows: [
+      buildStatusRow({
+        sourceRowId: 'seed-parent-surface-status-row-1',
+        targetDomain: 'native-app',
+        state:
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffState.ParentSurfaceStatusProofRequired,
+        sourceEvidenceRef: 'app-game-source-freshness-evidence/native-app-ready',
+      }),
+      buildStatusRow({
+        sourceRowId: 'seed-parent-surface-status-row-2',
+        targetDomain: 'native-app',
+        state:
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffState.BlockedBySourceFreshness,
+        sourceEvidenceRef: 'app-game-source-freshness-evidence/native-app-stale',
+      }),
+      buildStatusRow({
+        sourceRowId: 'seed-parent-surface-status-row-3',
+        targetDomain: 'native-game',
+        state:
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffState.BlockedByCompilerDecision,
+        sourceEvidenceRef: 'app-game-source-freshness-evidence/native-game-compiler-blocked',
+      }),
+    ],
+    nativeAppRowCount: 2,
+    nativeGameRowCount: 1,
+    parentSurfaceStatusProofRequiredCount: 1,
+    blockedBySourceFreshnessCount: 1,
+    blockedByCompilerDecisionCount: 1,
+    responseConsumerParentSurfaceStatusHandoffNonClaims:
+      RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffNonClaims,
+    ...AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffNoClaimFlags,
+  });
 }
 
 function buildStatusRow({ sourceRowId, targetDomain, state, sourceEvidenceRef }: SeedStatusRowInput) {

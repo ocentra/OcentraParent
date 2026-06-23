@@ -1,11 +1,15 @@
 use std::fs::remove_file;
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    AppGameAdapterDispatchResultReadModel, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
-    APP_GAME_PARENT_PLATFORM_WINDOWS,
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
+use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_PARENT_PLATFORM_WINDOWS;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
 
@@ -83,14 +87,12 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
 
     #[cfg(not(windows))]
     assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 0);
-    let accepted = read_model
-        .rows
-        .iter()
-        .find(|row| {
-            row.dispatch_adapter_execution_result_id.as_deref()
-                == Some(constants::enforcement::TEST_RESULT_ID)
-        })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let Some(accepted) = read_model.rows.iter().find(|row| {
+        row.dispatch_adapter_execution_result_id.as_deref()
+            == Some(constants::enforcement::TEST_RESULT_ID)
+    }) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
     #[cfg(windows)]
     assert!(accepted.adapter_dispatch_executed_claimed);
 
@@ -316,25 +318,37 @@ fn enforcement_execute_payload() -> LogFields {
 }
 
 fn dispatch_result_read_model(
-    event: &ocentra_parent_agent_protocol::AgentEventEnvelope,
+    event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
 ) -> AppGameAdapterDispatchResultReadModel {
-    let value = event
+    let Some(value) = event
         .payload
         .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL)
         .and_then(string_log_value)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    serde_json::from_str(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+    let Ok(read_model) = serde_json::from_str(value) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    read_model
 }
 
 fn dispatch_execute_result(
-    event: &ocentra_parent_agent_protocol::AgentEventEnvelope,
+    event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
 ) -> serde_json::Value {
-    let value = event
+    let Some(value) = event
         .payload
         .get(constants::field::APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT)
         .and_then(string_log_value)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    serde_json::from_str(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+    let Ok(result) = serde_json::from_str(value) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    result
 }
 
 fn string_log_value(value: &LogFieldValue) -> Option<&str> {

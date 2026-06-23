@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -35,7 +29,9 @@ export const TrackingLocalExecutionStrategyStatusSchema = withParser(
 
 export const TrackingLocalExecutionStrategyRefSchema = brandedNonEmptyStringSchema('TrackingLocalExecutionStrategyRef');
 
-export const TrackingLocalExecutionStrategyCommandSchema = brandedNonEmptyStringSchema('TrackingLocalExecutionStrategyCommand');
+export const TrackingLocalExecutionStrategyCommandSchema = brandedNonEmptyStringSchema(
+  'TrackingLocalExecutionStrategyCommand'
+);
 
 export const TrackingLocalExecutionStrategyRowSchema = withParser(
   Schema.Struct({
@@ -239,4 +235,3 @@ function summaryFrom(rows: readonly TrackingLocalExecutionStrategyRow[]) {
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs.filter((ref) => ref.length > 0))];
 }
-

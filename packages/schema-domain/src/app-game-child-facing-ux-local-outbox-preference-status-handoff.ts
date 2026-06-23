@@ -1,9 +1,6 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { FamilyReferenceSchema } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   AppGameChildUxLocalOutboxPreferencePreflightStatus,
   AppGameChildUxLocalOutboxPreferencePreflightStatusSchema,
@@ -201,32 +198,62 @@ function childUxPreferenceStatusHandoffReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
 ): boolean {
   return (
+    childUxPreferenceStatusHandoffCountsAreHonest(readModel) &&
+    childUxPreferenceStatusHandoffCoverageIsHonest(readModel) &&
+    childUxPreferenceStatusHandoffNonClaimsArePresent(readModel) &&
+    childUxPreferenceStatusHandoffClaimsRemainScoped(readModel)
+  );
+}
+
+function childUxPreferenceStatusHandoffCountsAreHonest(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
+): boolean {
+  return (
     readModel.parentPreferenceManualSetupRequiredCount ===
       countParentPreferenceState(readModel.rows, 'manual-setup-required') &&
     readModel.quietHoursManualRequiredCount === countQuietHoursDecision(readModel.rows, 'manual-required') &&
     readModel.preferenceStatusUnavailableCount ===
-      countSourceStatus(readModel.rows, AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable) &&
-    RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims.every((claim) =>
-      readModel.handoffNonClaims.includes(claim)
-    ) &&
-    readModel.notificationRuleProviderRetryCoverageRefs.length ===
-      V3NotificationRuleProviderRetryContractReadModel.entries.length &&
-    !readModel.parentPreferenceUiClaimed &&
-    !readModel.parentFrequencyControlUiClaimed &&
-    !readModel.parentNotificationUiClaimed &&
-    !readModel.parentPreferenceMutationClaimed &&
-    !readModel.quietHoursTimerRuntimeClaimed &&
-    !readModel.providerDeliveryRuntimeClaimed &&
-    !readModel.providerReceiptIngestionClaimed &&
-    !readModel.providerCredentialsClaimed &&
-    !readModel.cloudRoutingClaimed &&
-    !readModel.childDeliveryClaimed &&
-    !readModel.retryExecutionRuntimeClaimed &&
-    !readModel.productionDurableOutboxStorageClaimed &&
-    !readModel.adapterDispatchClaimed &&
-    !readModel.platformEnforcementClaimed &&
-    !readModel.rawPrivateSourceRowsIncluded
+      countSourceStatus(readModel.rows, AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable)
   );
+}
+
+function childUxPreferenceStatusHandoffCoverageIsHonest(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
+): boolean {
+  return (
+    readModel.notificationRuleProviderRetryCoverageRefs.length ===
+    V3NotificationRuleProviderRetryContractReadModel.entries.length
+  );
+}
+
+function childUxPreferenceStatusHandoffNonClaimsArePresent(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
+): boolean {
+  return RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims.every((claim) =>
+    readModel.handoffNonClaims.includes(claim)
+  );
+}
+
+function childUxPreferenceStatusHandoffClaimsRemainScoped(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
+): boolean {
+  return [
+    readModel.parentPreferenceUiClaimed,
+    readModel.parentFrequencyControlUiClaimed,
+    readModel.parentNotificationUiClaimed,
+    readModel.parentPreferenceMutationClaimed,
+    readModel.quietHoursTimerRuntimeClaimed,
+    readModel.providerDeliveryRuntimeClaimed,
+    readModel.providerReceiptIngestionClaimed,
+    readModel.providerCredentialsClaimed,
+    readModel.cloudRoutingClaimed,
+    readModel.childDeliveryClaimed,
+    readModel.retryExecutionRuntimeClaimed,
+    readModel.productionDurableOutboxStorageClaimed,
+    readModel.adapterDispatchClaimed,
+    readModel.platformEnforcementClaimed,
+    readModel.rawPrivateSourceRowsIncluded,
+  ].every((claim) => claim === false);
 }
 
 const countParentPreferenceState = (

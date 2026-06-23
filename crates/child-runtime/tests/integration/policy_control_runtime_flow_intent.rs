@@ -4,16 +4,19 @@ use ocentra_child_runtime::policy_control_runtime_flow::{
     register_policy_control_request_handoff, resolve_policy_control_request_handoff,
 };
 use ocentra_eventing::error::EventingError;
+use ocentra_parent_agent_protocol::{
+    PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus, PolicySourceStatus,
+    PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence, PolicyDeliveryState,
     PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_request::{
     policy_request_schema_version, AssistantPolicyRequestConfirmation, ChildPolicyRequest,
-    ParentPolicyApproval, PolicyApprovalDecision, PolicyApprovalId,
-    PolicyAssistantConfirmationState, PolicyAssistantPreviewId, PolicyDurationMinutes,
-    PolicyRequestId, PolicyRequestKind, PolicyRequestOrigin, PolicyRequestScope,
-    PolicyRequestStatus, PolicyRequestSubmissionKey, PolicyRequestTarget, PolicyRequestTimestamp,
+    ParentPolicyApproval, PolicyApprovalDecision, PolicyApprovalId, PolicyAssistantPreviewId,
+    PolicyDurationMinutes, PolicyRequestId, PolicyRequestKind, PolicyRequestScope,
+    PolicyRequestSubmissionKey, PolicyRequestTarget, PolicyRequestTimestamp,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
@@ -23,17 +26,34 @@ use ocentra_policy_control_core::policy_source::{
     PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceActorState, PolicySourceDocumentStatus,
-    PolicySourceWriteSurface, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
-    PolicyVersion,
+    PolicyScheduleWindow, PolicySourceActorState, PolicyTargetKind, PolicyTargetReferenceId,
+    PolicyTimezoneName, PolicyVersion,
 };
 
+trait ResultRequiredExt<T, E> {
+    fn required(self, context: &str) -> T;
+    fn required_err(self, context: &str) -> E;
+}
+
+impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    }
+
+    fn required_err(self, context: &str) -> E {
+        match self {
+            Ok(_) => unreachable!("{context}"),
+            Err(error) => error,
+        }
+    }
+}
+
 fn timestamp(value: &str) -> PolicyRequestTimestamp {
-    PolicyRequestTimestamp::parse(value).expect("policy request timestamp")
+    PolicyRequestTimestamp::parse(value).required("policy request timestamp")
 }
 
 fn audit_ref(value: &str) -> PolicyAuditReferenceId {
-    PolicyAuditReferenceId::parse(value).expect("policy audit ref")
+    PolicyAuditReferenceId::parse(value).required("policy audit ref")
 }
 
 fn request_scope(kind: PolicyRequestKind, minutes: Option<u16>) -> PolicyRequestScope {
@@ -42,29 +62,29 @@ fn request_scope(kind: PolicyRequestKind, minutes: Option<u16>) -> PolicyRequest
         target: PolicyRequestTarget {
             kind: PolicyTargetKind::Category,
             reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                .expect("policy target ref"),
+                .required("policy target ref"),
         },
         requested_action: PolicyRuleAction::TimeLimit,
-        rule_id: Some(PolicyRuleId::parse("rule-school-night").expect("policy rule id")),
+        rule_id: Some(PolicyRuleId::parse("rule-school-night").required("policy rule id")),
         requested_bonus_minutes: minutes
             .map(PolicyDurationMinutes::new)
             .transpose()
-            .expect("policy duration"),
+            .required("policy duration"),
     }
 }
 
 fn child_request() -> ChildPolicyRequest {
     ChildPolicyRequest {
-        schema_version: policy_request_schema_version().expect("policy request schema version"),
-        request_id: PolicyRequestId::parse("request-bonus-time").expect("policy request id"),
+        schema_version: policy_request_schema_version().required("policy request schema version"),
+        request_id: PolicyRequestId::parse("request-bonus-time").required("policy request id"),
         submission_key: PolicyRequestSubmissionKey::parse("request-bonus-time-submit")
-            .expect("policy submission key"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("policy household id"),
-        child_profile_id: PolicyChildProfileId::parse("child-primary").expect("child profile id"),
-        device_id: Some(PolicyDeviceId::parse("device-laptop").expect("policy device id")),
+            .required("policy submission key"),
+        household_id: PolicyHouseholdId::parse("household-default").required("policy household id"),
+        child_profile_id: PolicyChildProfileId::parse("child-primary").required("child profile id"),
+        device_id: Some(PolicyDeviceId::parse("device-laptop").required("policy device id")),
         source_document_id: ParentPolicyDocumentId::parse("policy-source-default")
-            .expect("policy source id"),
-        policy_version: PolicyVersion::new(7).expect("policy version"),
+            .required("policy source id"),
+        policy_version: PolicyVersion::new(7).required("policy version"),
         origin: PolicyRequestOrigin::Child,
         assistant_preview_id: None,
         assistant_confirmation_state: PolicyAssistantConfirmationState::NotRequired,
@@ -83,13 +103,14 @@ fn assistant_preview_request() -> ChildPolicyRequest {
         origin: PolicyRequestOrigin::AssistantDraft,
         assistant_preview_id: Some(
             PolicyAssistantPreviewId::parse("assistant-preview-default")
-                .expect("assistant preview id"),
+                .required("assistant preview id"),
         ),
         assistant_confirmation_state: PolicyAssistantConfirmationState::ParentConfirmationRequired,
         status: PolicyRequestStatus::PreviewOnly,
-        request_id: PolicyRequestId::parse("request-assistant-preview").expect("policy request id"),
+        request_id: PolicyRequestId::parse("request-assistant-preview")
+            .required("policy request id"),
         submission_key: PolicyRequestSubmissionKey::parse("request-assistant-preview-submit")
-            .expect("policy submission key"),
+            .required("policy submission key"),
         scope: request_scope(PolicyRequestKind::AskParent, None),
         ..child_request()
     }
@@ -110,11 +131,11 @@ fn approval(
                 PolicyApprovalDecision::Expire => "expire",
             }
         ))
-        .expect("policy approval id"),
+        .required("policy approval id"),
         request_id: request.request_id.clone(),
         household_id: request.household_id.clone(),
         policy_version: request.policy_version,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+        actor_id: PolicyActorId::parse("actor-parent").required("policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
         actor_state: PolicySourceActorState::Active,
         decision,
@@ -129,39 +150,39 @@ fn approval(
 fn sample_policy_source_document() -> ParentPolicySourceDocument {
     ParentPolicySourceDocument {
         schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
+            .required("policy source schema version"),
         document_id: ParentPolicyDocumentId::parse("policy-source-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(7).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+            .required("policy source document id"),
+        household_id: PolicyHouseholdId::parse("household-default").required("household id"),
+        policy_version: PolicyVersion::new(7).required("policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: PolicyActorId::parse("actor-parent").required("policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
+        status: PolicySourceStatus::Confirmed,
         child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
+            PolicyChildProfileId::parse("child-primary").required("child profile id")
         ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        device_ids: vec![PolicyDeviceId::parse("device-laptop").required("policy device id")],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: PolicyRuleId::parse("rule-school-night-block").required("policy rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
                 reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                    .required("policy target reference"),
             },
             action: PolicyRuleAction::Block,
             schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
+                PolicyScheduleId::parse("schedule-school-night").required("policy schedule id"),
             ),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: PolicyReasonCode::parse("school-night").required("policy reason code"),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
             schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
+                .required("policy schedule id"),
             timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+                .required("policy timezone name"),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -196,8 +217,8 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
 
 fn sample_delivery_target() -> PolicyDeliveryTarget {
     PolicyDeliveryTarget {
-        child_profile_id: PolicyChildProfileId::parse("child-primary").expect("child profile id"),
-        device_id: PolicyDeviceId::parse("device-laptop").expect("policy device id"),
+        child_profile_id: PolicyChildProfileId::parse("child-primary").required("child profile id"),
+        device_id: PolicyDeviceId::parse("device-laptop").required("policy device id"),
         domain: PolicyConsumerDomain::Tracking,
     }
 }
@@ -205,7 +226,7 @@ fn sample_delivery_target() -> PolicyDeliveryTarget {
 #[test]
 fn request_handoff_makes_pending_review_parent_visible() {
     let report = register_policy_control_request_handoff(None, child_request())
-        .expect("registered child policy request handoff");
+        .required("registered child policy request handoff");
 
     assert_eq!(
         report.request.status,
@@ -221,7 +242,7 @@ fn request_handoff_makes_pending_review_parent_visible() {
 #[test]
 fn assistant_preview_and_confirmation_stay_gated_until_parent_review() {
     let preview = register_policy_control_request_handoff(None, assistant_preview_request())
-        .expect("registered assistant preview handoff");
+        .required("registered assistant preview handoff");
     assert_eq!(
         preview.parent_notification.state,
         ocentra_child_notification_core::policy_control_notification::PolicyControlNotificationState::PreviewOnly
@@ -230,14 +251,14 @@ fn assistant_preview_and_confirmation_stay_gated_until_parent_review() {
     let confirmed = confirm_policy_control_request_handoff(
         &preview.request,
         AssistantPolicyRequestConfirmation {
-            actor_id: PolicyActorId::parse("actor-parent").expect("actor id"),
+            actor_id: PolicyActorId::parse("actor-parent").required("actor id"),
             actor_role: ParentPolicyActorRole::Parent,
             actor_state: PolicySourceActorState::Active,
             confirmed_at: timestamp("2026-06-13T20:03:00Z"),
             audit_reference_id: audit_ref("audit-assistant-confirmed"),
         },
     )
-    .expect("confirmed assistant preview handoff");
+    .required("confirmed assistant preview handoff");
 
     assert_eq!(
         confirmed.request.status,
@@ -254,23 +275,23 @@ fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
         approval(&request, PolicyApprovalDecision::Grant),
         None,
     )
-    .expect("grant resolves handoff");
+    .required("grant resolves handoff");
     let compiled = compile_domain_policy_artifact(
         &sample_policy_source_document(),
         PolicyConsumerDomain::Tracking,
     )
-    .expect("compiled domain policy artifact");
+    .required("compiled domain policy artifact");
 
     let queued = queue_policy_control_delivery_handoff(
         &compiled,
         sample_delivery_target(),
         &resolved.request,
         resolved.temporary_override.as_ref(),
-        PolicyDeliveryId::parse("delivery-policy-household-default").expect("policy delivery id"),
-        PolicyDeliveryAttemptId::parse("attempt-queued").expect("policy attempt id"),
+        PolicyDeliveryId::parse("delivery-policy-household-default").required("policy delivery id"),
+        PolicyDeliveryAttemptId::parse("attempt-queued").required("policy attempt id"),
         vec![audit_ref("audit-policy-queued")],
     )
-    .expect("queued delivery handoff");
+    .required("queued delivery handoff");
 
     assert_eq!(
         queued.parent_notification.state,
@@ -293,8 +314,8 @@ fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
         &queued.delivery,
         PolicyDeliveryTransition {
             attempt_id: PolicyDeliveryAttemptId::parse("attempt-applied")
-                .expect("policy attempt id"),
-            sequence: PolicyDeliverySequence::new(2).expect("policy delivery sequence"),
+                .required("policy attempt id"),
+            sequence: PolicyDeliverySequence::new(2).required("policy delivery sequence"),
             state: PolicyDeliveryState::Applied,
             audit_reference_ids: vec![audit_ref("audit-policy-applied")],
             reason_code: None,
@@ -302,7 +323,7 @@ fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
             rollback_reference_state: None,
         },
     )
-    .expect("applied delivery handoff");
+    .required("applied delivery handoff");
 
     assert_eq!(
         applied.parent_notification.state,
@@ -316,13 +337,13 @@ fn replay_and_expire_paths_do_not_create_extra_delivery_truth() {
     let request = child_request();
     let parent_approval = approval(&request, PolicyApprovalDecision::Grant);
     let resolved = resolve_policy_control_request_handoff(&request, parent_approval.clone(), None)
-        .expect("grant resolves handoff");
+        .required("grant resolves handoff");
     let replay = resolve_policy_control_request_handoff(
         &resolved.request,
         parent_approval,
         resolved.temporary_override.as_ref(),
     )
-    .expect("replay is safe");
+    .required("replay is safe");
 
     assert_eq!(replay.request, resolved.request);
     assert_eq!(replay.temporary_override, resolved.temporary_override);
@@ -332,23 +353,23 @@ fn replay_and_expire_paths_do_not_create_extra_delivery_truth() {
         timestamp("2026-06-13T22:05:00Z"),
         audit_ref("audit-request-expired"),
     )
-    .expect("request expires");
+    .required("request expires");
 
     let compiled = compile_domain_policy_artifact(
         &sample_policy_source_document(),
         PolicyConsumerDomain::Tracking,
     )
-    .expect("compiled domain policy artifact");
+    .required("compiled domain policy artifact");
     let error = queue_policy_control_delivery_handoff(
         &compiled,
         sample_delivery_target(),
         &expired.request,
         None,
-        PolicyDeliveryId::parse("delivery-expired-request").expect("policy delivery id"),
-        PolicyDeliveryAttemptId::parse("attempt-expired").expect("policy attempt id"),
+        PolicyDeliveryId::parse("delivery-expired-request").required("policy delivery id"),
+        PolicyDeliveryAttemptId::parse("attempt-expired").required("policy attempt id"),
         vec![audit_ref("audit-policy-queued")],
     )
-    .expect_err("expired request cannot queue delivery handoff");
+    .required_err("expired request cannot queue delivery handoff");
 
     assert_eq!(
         error,
@@ -365,14 +386,14 @@ fn observer_and_revoked_parent_denials_survive_runtime_flow() {
     let observer_confirmation_error = confirm_policy_control_request_handoff(
         &preview,
         AssistantPolicyRequestConfirmation {
-            actor_id: PolicyActorId::parse("actor-observer").expect("actor id"),
+            actor_id: PolicyActorId::parse("actor-observer").required("actor id"),
             actor_role: ParentPolicyActorRole::Observer,
             actor_state: PolicySourceActorState::Active,
             confirmed_at: timestamp("2026-06-13T20:03:00Z"),
             audit_reference_id: audit_ref("audit-observer-confirm-attempt"),
         },
     )
-    .expect_err("observer cannot confirm preview through runtime flow");
+    .required_err("observer cannot confirm preview through runtime flow");
     assert_eq!(
         observer_confirmation_error,
         EventingError::InvalidValue {
@@ -384,12 +405,12 @@ fn observer_and_revoked_parent_denials_survive_runtime_flow() {
     let request = child_request();
     let mut revoked_parent_approval = approval(&request, PolicyApprovalDecision::Grant);
     revoked_parent_approval.actor_id =
-        PolicyActorId::parse("actor-revoked-parent").expect("actor id");
+        PolicyActorId::parse("actor-revoked-parent").required("actor id");
     revoked_parent_approval.actor_state = PolicySourceActorState::Revoked;
 
     let revoked_parent_error =
         resolve_policy_control_request_handoff(&request, revoked_parent_approval, None)
-            .expect_err("revoked parent cannot approve through runtime flow");
+            .required_err("revoked parent cannot approve through runtime flow");
     assert_eq!(
         revoked_parent_error,
         EventingError::InvalidValue {

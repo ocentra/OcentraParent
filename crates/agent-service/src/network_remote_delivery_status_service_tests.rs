@@ -1,17 +1,27 @@
+use std::{error::Error, io::Error as IoError};
+
 use ocentra_parent_agent_core::network_event_runtime::{
     remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
     remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state,
     remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryCrossProcessCustodyReadinessState;
 use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryExternalCrossProcessTransportState;
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
-    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
-    NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryProviderChildReadinessState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatus;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatusState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryTransportDispatchState;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use serde::de::DeserializeOwned;
 
 use crate::{
@@ -22,83 +32,119 @@ use crate::{
     websocket::handle_command_text_for_test,
 };
 
+type TestResult<T = ()> = Result<T, Box<dyn Error>>;
+
 #[tokio::test]
-async fn network_remote_delivery_status_payload_serializes_row10t_external_transport_status() {
+async fn network_remote_delivery_status_payload_serializes_row10t_external_transport_status(
+) -> TestResult {
     let payload = network_remote_delivery_status_payload()
         .await
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::AGENT_EVENT_SERIALIZES
+            ))
+        })?;
     let status: NetworkRemoteDeliveryStatus =
-        status_value(&payload, constants::field::NETWORK_REMOTE_DELIVERY_STATUS);
+        status_value(&payload, constants::field::NETWORK_REMOTE_DELIVERY_STATUS)?;
 
     assert_remote_delivery_status(&status);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_reuses_stable_row10t_status_snapshot() {
+async fn network_remote_delivery_status_payload_reuses_stable_row10t_status_snapshot() -> TestResult
+{
     let first_payload = network_remote_delivery_status_payload()
         .await
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::AGENT_EVENT_SERIALIZES
+            ))
+        })?;
     let second_payload = network_remote_delivery_status_payload()
         .await
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::AGENT_EVENT_SERIALIZES
+            ))
+        })?;
     let first_status: NetworkRemoteDeliveryStatus = status_value(
         &first_payload,
         constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
-    );
+    )?;
     let second_status: NetworkRemoteDeliveryStatus = status_value(
         &second_payload,
         constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
-    );
+    )?;
 
     assert_eq!(first_status, second_status);
     assert_remote_delivery_status(&first_status);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn websocket_network_remote_delivery_status_command_reports_payload() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+async fn websocket_network_remote_delivery_status_command_reports_payload() -> TestResult {
+    let body = serde_json::to_string(&command_envelope()).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::AGENT_EVENT_SERIALIZES
+        ))
+    })?;
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let status: NetworkRemoteDeliveryStatus = status_value(
         &event.payload,
         constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
-    );
+    )?;
 
     assert_eq!(
         event.event,
         AgentEventName::AgentNetworkRemoteDeliveryStatusReported
     );
     assert_remote_delivery_status(&status);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_and_order_mismatches() {
+async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_and_order_mismatches(
+) -> TestResult {
     let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
         .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE);
-    let outbox_report = report
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE
+            ))
+        })?;
+    let outbox_report = &report
         .no_enforcement_invariant
         .dispatch_readiness
-        .outbox_handoff
-        .clone();
+        .outbox_handoff;
 
     assert!(blocked_dispatch_records_match_outbox_candidates(
         &report,
-        &outbox_report
+        outbox_report
     ));
 
     let mut sequence_mismatch = report.clone();
     sequence_mismatch.blocked_dispatch_records[0].sequence += 1;
-    assert_blocked_dispatch_mismatch(&sequence_mismatch, &outbox_report);
+    assert_blocked_dispatch_mismatch(&sequence_mismatch, outbox_report);
 
     let mut outbox_ref_mismatch = report.clone();
     outbox_ref_mismatch.blocked_dispatch_records[0].outbox_ref =
         report.future_transport_seam_ref.clone();
-    assert_blocked_dispatch_mismatch(&outbox_ref_mismatch, &outbox_report);
+    assert_blocked_dispatch_mismatch(&outbox_ref_mismatch, outbox_report);
 
     let mut reordered_records = report.clone();
     reordered_records.blocked_dispatch_records.swap(0, 1);
-    assert_blocked_dispatch_mismatch(&reordered_records, &outbox_report);
+    assert_blocked_dispatch_mismatch(&reordered_records, outbox_report);
+
+    Ok(())
 }
 
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
@@ -473,13 +519,21 @@ fn command_envelope() -> AgentCommandEnvelope {
 }
 
 fn status_value<TStatus: DeserializeOwned>(
-    payload: &ocentra_parent_agent_protocol::LogFields,
+    payload: &ocentra_parent_agent_protocol::logging::LogFields,
     field: &str,
-) -> TStatus {
+) -> TestResult<TStatus> {
     match payload.get(field) {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::String(text)) => serde_json::from_str(text).map_err(|error| {
+            IoError::other(format!(
+                "{} ({field}): {error:?}",
+                constants::error::AGENT_EVENT_SERIALIZES
+            ))
+            .into()
+        }),
+        _ => Err(IoError::other(format!(
+            "{} ({field})",
+            constants::error::AGENT_EVENT_SERIALIZES
+        ))
+        .into()),
     }
 }

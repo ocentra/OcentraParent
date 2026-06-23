@@ -1,4 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::config_update_event::{
+    TrackingConfigEffectiveState, TrackingConfigUpdateRequest,
+};
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::{
     TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
     TrackingParentExportState, TrackingRemoteAiState, TrackingRemoteSyncState,
@@ -8,7 +11,6 @@ use ocentra_parent_agent_protocol::tracking::runtime_event::{
     default_tracking_runtime_config, TrackingAiBoundaryMode, TrackingNotificationMode,
     TrackingRuntimeEnabledState, TrackingRuntimeMode,
 };
-use ocentra_parent_agent_protocol::{TrackingConfigEffectiveState, TrackingConfigUpdateRequest};
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
@@ -102,7 +104,7 @@ pub fn apply_tracking_config_update(
         local_service_state_revision,
         effective_tracking_state: effective_tracking_state_for_request(
             request,
-            durable_settings_persistence_state.clone(),
+            durable_settings_persistence_state,
         ),
         durable_settings_persistence_state,
     }
@@ -116,9 +118,7 @@ pub fn tracking_retention_settings_durable_store_path() -> PathBuf {
 fn apply_local_tracking_config_state(request: &TrackingConfigUpdateRequest) -> u64 {
     let state = LOCAL_RETENTION_SETTINGS_STATE
         .get_or_init(|| Mutex::new(LocalRetentionSettingsState::default()));
-    let mut guard = state
-        .lock()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let mut guard = state.lock().unwrap_or_else(|poison| poison.into_inner());
     guard.revision += 1;
     guard.tracking_enabled_state = request.runtime_config.tracking_enabled_state.clone();
     guard.tracking_mode = request.runtime_config.tracking_mode.clone();
@@ -127,17 +127,10 @@ fn apply_local_tracking_config_state(request: &TrackingConfigUpdateRequest) -> u
     guard.retention_window_hours = request.retention_settings.requested_retention_window_hours;
     guard.delete_after_alert_resolution_state = request
         .retention_settings
-        .requested_delete_after_alert_resolution_state
-        .clone();
-    guard.parent_export_state = request
-        .retention_settings
-        .requested_parent_export_state
-        .clone();
-    guard.remote_sync_state = request
-        .retention_settings
-        .requested_remote_sync_state
-        .clone();
-    guard.remote_ai_state = request.retention_settings.requested_remote_ai_state.clone();
+        .requested_delete_after_alert_resolution_state;
+    guard.parent_export_state = request.retention_settings.requested_parent_export_state;
+    guard.remote_sync_state = request.retention_settings.requested_remote_sync_state;
+    guard.remote_ai_state = request.retention_settings.requested_remote_ai_state;
     guard.revision
 }
 
@@ -145,9 +138,7 @@ fn persist_local_retention_settings_state() -> TrackingDurableSettingsPersistenc
     let Some(state) = LOCAL_RETENTION_SETTINGS_STATE.get() else {
         return TrackingDurableSettingsPersistenceState::NotPersisted;
     };
-    let guard = state
-        .lock()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let guard = state.lock().unwrap_or_else(|poison| poison.into_inner());
     let record = LocalRetentionSettingsDurableRecord {
         revision: guard.revision,
         tracking_enabled_state: guard.tracking_enabled_state.clone(),
@@ -155,10 +146,10 @@ fn persist_local_retention_settings_state() -> TrackingDurableSettingsPersistenc
         ai_boundary_mode: guard.ai_boundary_mode.clone(),
         notification_mode: guard.notification_mode.clone(),
         retention_window_hours: guard.retention_window_hours,
-        delete_after_alert_resolution_state: guard.delete_after_alert_resolution_state.clone(),
-        parent_export_state: guard.parent_export_state.clone(),
-        remote_sync_state: guard.remote_sync_state.clone(),
-        remote_ai_state: guard.remote_ai_state.clone(),
+        delete_after_alert_resolution_state: guard.delete_after_alert_resolution_state,
+        parent_export_state: guard.parent_export_state,
+        remote_sync_state: guard.remote_sync_state,
+        remote_ai_state: guard.remote_ai_state,
     };
     let Ok(serialized) = serde_json::to_vec_pretty(&record) else {
         return TrackingDurableSettingsPersistenceState::NotPersisted;

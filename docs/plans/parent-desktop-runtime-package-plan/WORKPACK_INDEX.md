@@ -16,6 +16,8 @@
 
 The folder path remains `parent-desktop-runtime-package-plan`, but the canonical scope is parent client runtime distribution: web, desktop, Android parent, and iOS parent. Child agent runtime distribution belongs to `child-agent-runtime-distribution-plan`.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
 | open | [WP01 Parent Client Scope And Route Boundary](workpacks/01-parent-client-scope-and-route-boundary.md) | 0/10 | `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/` |
@@ -51,6 +53,12 @@ WP10 handles setup handoff contract only.
 WP11 is last and consumes all previous proof roots.
 ```
 
+## Status rules
+
+- If a workpack text says proof is recorded but this index says open, keep the row open until the proof root, checklist row, and PLAN_STATE are aligned.
+- Do not raise status from scaffold, source script presence, launch smoke, CI success, preview build, or package metadata alone.
+- Do not use one platform artifact to imply another platform artifact.
+
 ## Do not select
 
-Do not implement child agent runtime distribution, setup journey state machine, device trust, account identity, or portal shell UX in this plan.
+Do not implement child agent runtime distribution, setup journey state machine, device trust, account identity, payment behavior, policy behavior, remote access, data custody, child capture/enforcement adapters, or portal shell UX in this plan.

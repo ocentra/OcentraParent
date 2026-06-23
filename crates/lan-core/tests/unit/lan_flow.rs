@@ -1,4 +1,5 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_lan_core::lan_pairing::{
     evaluate_lan_discovery, lan_discovery_decision_recorded_event, LanAggregateId,
     LanDiscoveryActionState, LanDiscoveryDecisionId, LanDiscoveryInput, LanInterfaceState,
@@ -14,7 +15,7 @@ fn lan_observation_records_presence_evidence_and_requests_policy() {
     let evidence = ocentra_lan_core::lan_pairing::lan_evidence_recorded_event(&observed);
     let ai = ocentra_lan_core::lan_pairing::lan_ai_analysis_requested_event(&evidence);
     let policy = ocentra_lan_core::lan_pairing::lan_policy_evaluation_requested_event(&evidence)
-        .expect("LAN policy request is expected");
+        .expect_value("LAN policy request is expected");
 
     assert_eq!(
         observed.event_type,
@@ -47,7 +48,7 @@ fn lan_unknown_peer_requests_ai_before_policy() {
     );
     let evidence = ocentra_lan_core::lan_pairing::lan_evidence_recorded_event(&observed);
     let ai = ocentra_lan_core::lan_pairing::lan_ai_analysis_requested_event(&evidence)
-        .expect("unknown LAN peer requires AI boundary");
+        .expect_value("unknown LAN peer requires AI boundary");
     let policy = ocentra_lan_core::lan_pairing::lan_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(
@@ -137,9 +138,9 @@ fn lan_discovery_blocks_when_interface_is_unavailable() {
 #[test]
 fn lan_discovery_decision_is_recorded_as_typed_event() {
     let event = lan_discovery_decision_recorded_event(
-        LanAggregateId::parse("lan-child-default").expect("lan aggregate"),
+        LanAggregateId::parse("lan-child-default").expect_value("lan aggregate"),
         LanDiscoveryDecisionId::parse("lan-discovery-decision-default")
-            .expect("lan discovery decision"),
+            .expect_value("lan discovery decision"),
         LanDiscoveryInput {
             interface_state: LanInterfaceState::Available,
             peer_trust_state: LanPeerTrustState::Trusted,
@@ -152,7 +153,11 @@ fn lan_discovery_decision_is_recorded_as_typed_event() {
         LanDiscoveryActionState::AdvertiseAndListen
     );
     assert_eq!(
-        event.contract().expect("lan contract").event_type.as_str(),
+        event
+            .contract()
+            .expect_value("lan contract")
+            .event_type
+            .as_str(),
         "lan.discovery.decision-recorded"
     );
 }

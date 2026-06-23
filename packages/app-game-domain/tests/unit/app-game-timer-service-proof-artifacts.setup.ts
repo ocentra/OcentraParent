@@ -25,38 +25,20 @@ import { buildAppGameSourceGatedPolicyPreviewTimerStatus } from '../../src/app-g
 import { buildAppGameSourceFreshnessPreviewGateReadModel } from '../../src/app-game-source-freshness-preview-gate';
 import { AppGameSourceFreshnessPolicyConsumptionMatrix } from '../../src/app-game-source-freshness-policy-consumption-data';
 import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoff } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff';
-import {
-  buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModel,
-} from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model';
-import {
-  buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoff,
-} from '../../src/app-game-timer-service-event-handoff';
-import {
-  buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceHandoff,
-} from '../../src/app-game-timer-service-handoff';
-import {
-  buildAppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoff,
-} from '../../src/app-game-timer-service-read-api-response-consumer-parent-surface-handoff';
-import {
-  buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiHandoff,
-} from '../../src/app-game-timer-service-read-api-handoff';
-import {
-  buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiResponseConsumerHandoff,
-} from '../../src/app-game-timer-service-read-api-response-consumer-handoff';
-import {
-  buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiResponseHandoff,
-} from '../../src/app-game-timer-service-read-api-response-handoff';
-import {
-  buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadModelHandoff,
-} from '../../src/app-game-timer-service-read-model-handoff';
+import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModel } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model';
+import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoff } from '../../src/app-game-timer-service-event-handoff';
+import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceHandoff } from '../../src/app-game-timer-service-handoff';
+import { buildAppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoff } from '../../src/app-game-timer-service-read-api-response-consumer-parent-surface-handoff';
+import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiHandoff } from '../../src/app-game-timer-service-read-api-handoff';
+import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiResponseConsumerHandoff } from '../../src/app-game-timer-service-read-api-response-consumer-handoff';
+import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiResponseHandoff } from '../../src/app-game-timer-service-read-api-response-handoff';
+import { buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadModelHandoff } from '../../src/app-game-timer-service-read-model-handoff';
 import {
   PreviewOptions,
   appCompiledDecision,
   gameManualCompiledDecision,
 } from './app-game-policy-preview-handoff-fixtures';
-import {
-  buildParentSurfaceReadModelHandoffFixture,
-} from './app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-chain.fixtures';
+import { buildParentSurfaceReadModelHandoffFixture } from './app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-chain.fixtures';
 
 const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url));
 const testResultsRoot = join(repoRoot, 'test-results');
@@ -445,6 +427,12 @@ export default async function generateTimerServiceProofArtifacts() {
 }
 
 async function ensureTimerServiceProofArtifacts() {
+  const protocolArtifacts = buildProtocolArtifacts(buildSourceReadinessArtifacts());
+  const followthroughArtifacts = buildFollowthroughArtifacts();
+  await writeTimerServiceArtifacts(protocolArtifacts, followthroughArtifacts);
+}
+
+function buildSourceReadinessArtifacts() {
   const gateReadModel = buildAppGameSourceFreshnessPreviewGateReadModel(GateOptions, [
     {
       rowId: 'source-gate-row-ready-app',
@@ -462,7 +450,6 @@ async function ensureTimerServiceProofArtifacts() {
       compiledDecision: gameManualCompiledDecision,
     },
   ]);
-
   const sourceGatedReadModel = buildAppGameSourceGatedPolicyPreviewReadModel(ReadModelOptions, gateReadModel);
   const timerHandoff = buildAppGameSourceGatedPolicyPreviewTimerHandoff(TimerHandoffOptions, sourceGatedReadModel);
   const timerStatus = buildAppGameSourceGatedPolicyPreviewTimerStatus(TimerStatusOptions, timerHandoff);
@@ -494,19 +481,22 @@ async function ensureTimerServiceProofArtifacts() {
     ServiceReadinessReadModelOptions,
     serviceReadinessHandoff
   );
+  return { serviceReadinessReadModel };
+}
+
+function buildProtocolArtifacts(sourceArtifacts: ReturnType<typeof buildSourceReadinessArtifacts>) {
   const protocolHandoff = buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoff(
     ProtocolHandoffOptions,
-    serviceReadinessReadModel
+    sourceArtifacts.serviceReadinessReadModel
   );
   const protocolReadModel = buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModel(
     ProtocolReadModelOptions,
     protocolHandoff
   );
-  const protocolCommandHandoff =
-    buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoff(
-      ProtocolCommandHandoffOptions,
-      protocolReadModel
-    );
+  const protocolCommandHandoff = buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoff(
+    ProtocolCommandHandoffOptions,
+    protocolReadModel
+  );
   const serviceHandlerHandoff = buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoff(
     ServiceHandlerHandoffOptions,
     protocolCommandHandoff
@@ -544,11 +534,28 @@ async function ensureTimerServiceProofArtifacts() {
       ResponseConsumerParentSurfaceStatusReadModelHandoffOptions,
       responseConsumerParentSurfaceStatusHandoff
     );
+  return {
+    ...sourceArtifacts,
+    protocolHandoff,
+    protocolReadModel,
+    protocolCommandHandoff,
+    serviceHandlerHandoff,
+    serviceReadApiHandoff,
+    readApiResponseHandoff,
+    readApiResponseConsumerHandoff,
+    responseConsumerParentSurfaceHandoff,
+    responseConsumerParentSurfaceReadModelHandoff,
+    responseConsumerParentSurfaceStatusHandoff,
+    responseConsumerParentSurfaceStatusReadModelHandoff,
+  };
+}
 
-  const parentSurfaceReadModel = buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModel(
-    ParentSurfaceReadModelOptions,
-    buildParentSurfaceReadModelHandoffFixture()
-  );
+function buildFollowthroughArtifacts() {
+  const parentSurfaceReadModel =
+    buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModel(
+      ParentSurfaceReadModelOptions,
+      buildParentSurfaceReadModelHandoffFixture()
+    );
   const serviceHandoff =
     buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceHandoff(
       ServiceHandoffOptions,
@@ -583,93 +590,135 @@ async function ensureTimerServiceProofArtifacts() {
     TimerParentSurfaceHandoffOptions,
     serviceReadApiResponseConsumerHandoff2
   );
+  return {
+    parentSurfaceReadModel,
+    serviceHandoff,
+    serviceReadModelHandoff,
+    serviceEventHandoff,
+    serviceReadApiHandoff2,
+    serviceReadApiResponseHandoff2,
+    serviceReadApiResponseConsumerHandoff2,
+    timerParentSurfaceHandoff,
+  };
+}
 
+async function writeTimerServiceArtifacts(
+  protocolArtifacts: ReturnType<typeof buildProtocolArtifacts>,
+  followthroughArtifacts: ReturnType<typeof buildFollowthroughArtifacts>
+) {
   await Promise.all([
+    ...buildProtocolArtifactWrites(protocolArtifacts),
+    ...buildFollowthroughArtifactWrites(protocolArtifacts, followthroughArtifacts),
+  ]);
+}
+
+function buildProtocolArtifactWrites(protocolArtifacts: ReturnType<typeof buildProtocolArtifacts>) {
+  return [
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-read-model-proof',
       'timer-service-readiness-read-model.json',
-      serviceReadinessReadModel
+      protocolArtifacts.serviceReadinessReadModel
     ),
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-proof',
       'timer-service-readiness-protocol-handoff.json',
-      protocolHandoff
+      protocolArtifacts.protocolHandoff
     ),
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-proof',
       'timer-service-readiness-protocol-read-model.json',
-      protocolReadModel
+      protocolArtifacts.protocolReadModel
     ),
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-proof',
       'timer-service-readiness-protocol-command-handoff.json',
-      protocolCommandHandoff
+      protocolArtifacts.protocolCommandHandoff
     ),
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff-proof',
       'timer-service-readiness-service-handler-handoff.json',
-      serviceHandlerHandoff
+      protocolArtifacts.serviceHandlerHandoff
     ),
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff-proof',
       'timer-service-readiness-read-api-handoff.json',
-      serviceReadApiHandoff
+      protocolArtifacts.serviceReadApiHandoff
     ),
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-proof',
       'timer-service-readiness-read-api-response-handoff.json',
-      readApiResponseHandoff
+      protocolArtifacts.readApiResponseHandoff
     ),
     writeArtifact(
       'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-proof',
       'timer-service-readiness-read-api-response-consumer-handoff.json',
-      readApiResponseConsumerHandoff
+      protocolArtifacts.readApiResponseConsumerHandoff
     ),
-    writeArtifact('app-game-timer-parent-surface-proof', 'handoff.json', responseConsumerParentSurfaceHandoff),
+    writeArtifact(
+      'app-game-timer-parent-surface-proof',
+      'handoff.json',
+      protocolArtifacts.responseConsumerParentSurfaceHandoff
+    ),
     writeArtifact(
       'app-game-timer-parent-rm-proof',
       'handoff.json',
-      responseConsumerParentSurfaceReadModelHandoff
+      protocolArtifacts.responseConsumerParentSurfaceReadModelHandoff
     ),
     writeArtifact(
       'app-game-timer-parent-status-proof',
       'handoff.json',
-      responseConsumerParentSurfaceStatusHandoff
+      protocolArtifacts.responseConsumerParentSurfaceStatusHandoff
     ),
+  ];
+}
+
+function buildFollowthroughArtifactWrites(
+  protocolArtifacts: ReturnType<typeof buildProtocolArtifacts>,
+  followthroughArtifacts: ReturnType<typeof buildFollowthroughArtifacts>
+) {
+  return [
     writeArtifact(
       'app-game-timer-parent-read-model-proof',
       'handoff.json',
-      parentSurfaceReadModel
+      followthroughArtifacts.parentSurfaceReadModel
     ),
-    writeArtifact('app-game-timer-service-handoff-proof', 'handoff.json', serviceHandoff),
+    writeArtifact('app-game-timer-service-handoff-proof', 'handoff.json', followthroughArtifacts.serviceHandoff),
     writeArtifact(
       'app-game-timer-service-read-model-handoff-proof',
       'handoff.json',
-      serviceReadModelHandoff
+      followthroughArtifacts.serviceReadModelHandoff
     ),
-    writeArtifact('app-game-timer-service-event-handoff-proof', 'handoff.json', serviceEventHandoff),
-    writeArtifact('app-game-timer-service-read-api-handoff-proof', 'handoff.json', serviceReadApiHandoff2),
+    writeArtifact(
+      'app-game-timer-service-event-handoff-proof',
+      'handoff.json',
+      followthroughArtifacts.serviceEventHandoff
+    ),
+    writeArtifact(
+      'app-game-timer-service-read-api-handoff-proof',
+      'handoff.json',
+      followthroughArtifacts.serviceReadApiHandoff2
+    ),
     writeArtifact(
       'app-game-timer-service-read-api-response-handoff-proof',
       'handoff.json',
-      serviceReadApiResponseHandoff2
+      followthroughArtifacts.serviceReadApiResponseHandoff2
     ),
     writeArtifact(
       'app-game-timer-service-read-api-response-consumer-handoff-proof',
       'handoff.json',
-      serviceReadApiResponseConsumerHandoff2
+      followthroughArtifacts.serviceReadApiResponseConsumerHandoff2
     ),
     writeArtifact(
       'app-game-timer-service-read-api-response-consumer-parent-surface-handoff-proof',
       'handoff.json',
-      timerParentSurfaceHandoff
+      followthroughArtifacts.timerParentSurfaceHandoff
     ),
     writeArtifact(
       'app-game-timer-parent-status-rm-proof',
       'handoff.json',
-      responseConsumerParentSurfaceStatusReadModelHandoff
+      protocolArtifacts.responseConsumerParentSurfaceStatusReadModelHandoff
     ),
-  ]);
+  ];
 }
 
 async function writeArtifact(directoryName: string, fileName: string, value: unknown) {

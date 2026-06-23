@@ -32,7 +32,7 @@ async function main() {
 
   const proofModule = await tsImport(
     pathToFileURL(
-      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-physical-device-artifact-gate-proof.ts')
+      path.join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-physical-device-artifact-gate-proof.ts')
     ).href,
     import.meta.url
   );
@@ -220,7 +220,7 @@ function sourceSnapshot(proof) {
     `- artifactAcceptanceNoteCount: ${proof.summary.artifactAcceptanceNoteCount}`,
     '- physicalDeviceBehaviorClaimedRows: 0',
     '- productReadyRows: 0',
-    '- proof module: packages/tracking-domain/src/tracking-physical-device-artifact-gate-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-physical-device-artifact-gate-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-physical-device-artifact-gate-proof.test.ts',
     '- proof harness: scripts/test/tracking-physical-device-artifact-gate-proof.mjs',
     '',

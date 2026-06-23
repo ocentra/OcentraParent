@@ -2,12 +2,12 @@ import {
   BillingParentVisibleInvoiceRecoveryStateCountsSchema,
   BillingParentVisibleInvoiceVisibilityCountsSchema,
   BillingParentVisibleSummarySchema,
-  type BillingEntitlementContractProof as SharedBillingEntitlementContractProof,
   type BillingParentVisibleInvoiceRecoveryStateCounts,
   type BillingParentVisibleInvoiceVisibilityCounts,
   type BillingParentVisibleManualInvoiceState,
   type BillingParentVisibleSummary,
-} from './billing-entitlement';
+} from './billing-parent-visible-summary';
+import { type BillingEntitlementContractProof as SharedBillingEntitlementContractProof } from './billing-entitlement';
 import {
   BillingHostedReturnRoute,
   BillingPortalSessionResponseSchema,
@@ -46,9 +46,7 @@ const BillingParentVisibleForbiddenFieldNames = [
   'boundaryId',
 ] as const;
 
-const BillingParentVisibleForbiddenFieldSet = new Set<string>(
-  BillingParentVisibleForbiddenFieldNames
-);
+const BillingParentVisibleForbiddenFieldSet = new Set<string>(BillingParentVisibleForbiddenFieldNames);
 
 export function summarizeBillingFailureStates(
   failureStates: SharedBillingEntitlementContractProof['failureStates']
@@ -77,25 +75,23 @@ export function summarizeBillingFailureStates(
   return counts;
 }
 
-const BillingParentVisiblePortalSessionProofReadModel =
-  BillingPortalSessionResponseSchema.parse({
-    schemaVersion: 'billing-checkout-portal-boundary',
-    requestId: 'billing-parent-visible-portal-proof',
-    kind: 'billing-portal-session-create',
-    status: 'accepted',
-    hostedSessionId: 'portal-session-parent-visible-proof',
-    hostedUrl: 'https://billing.stripe.com/p/session/parent-visible-proof',
-    expiresAt: '2026-06-13T09:00:00.000Z',
-    rejectionReason: null,
-  });
+const BillingParentVisiblePortalSessionProofReadModel = BillingPortalSessionResponseSchema.parse({
+  schemaVersion: 'billing-checkout-portal-boundary',
+  requestId: 'billing-parent-visible-portal-proof',
+  kind: 'billing-portal-session-create',
+  status: 'accepted',
+  hostedSessionId: 'portal-session-parent-visible-proof',
+  hostedUrl: 'https://billing.stripe.com/p/session/parent-visible-proof',
+  expiresAt: '2026-06-13T09:00:00.000Z',
+  rejectionReason: null,
+});
 
-export const BillingParentVisibleSummaryReadModel =
-  buildParentBillingVisibleSummary(
-    BillingEntitlementContractProofReadModel,
-    BillingEntitlementRuntimeProofReadModel,
-    BillingInvoiceTaxRefundDisputeProofReadModel,
-    BillingParentVisiblePortalSessionProofReadModel
-  );
+export const BillingParentVisibleSummaryReadModel = buildParentBillingVisibleSummary(
+  BillingEntitlementContractProofReadModel,
+  BillingEntitlementRuntimeProofReadModel,
+  BillingInvoiceTaxRefundDisputeProofReadModel,
+  BillingParentVisiblePortalSessionProofReadModel
+);
 
 export function buildParentBillingVisibleSummary(
   contractProof: SharedBillingEntitlementContractProof,
@@ -113,33 +109,19 @@ export function buildParentBillingVisibleSummary(
       activeCount: countVisibleActiveBillingDevices(contractProof),
     },
     visibleFailureCounts: summarizeBillingFailureStates(contractProof.failureStates),
-    snapshotStates: summarizeParentVisibleRuntimeSnapshotStates(
-      runtimeProof.snapshotConsumptions
-    ),
-    deviceConsumptionStates:
-      summarizeParentVisibleRuntimeConsumptionStates(
-        runtimeProof.deviceLimitConsumptions
-      ),
+    snapshotStates: summarizeParentVisibleRuntimeSnapshotStates(runtimeProof.snapshotConsumptions),
+    deviceConsumptionStates: summarizeParentVisibleRuntimeConsumptionStates(runtimeProof.deviceLimitConsumptions),
     seatComposition: summarizeParentVisibleSeatComposition(contractProof),
-    referralCreditSummary:
-      summarizeParentVisibleReferralCreditSummary(contractProof),
+    referralCreditSummary: summarizeParentVisibleReferralCreditSummary(contractProof),
     licenseSnapshot: summarizeParentVisibleLicenseSnapshot(contractProof),
-    invoiceSummary: summarizeParentVisibleInvoiceSummary(
-      contractProof,
-      invoiceProof
-    ),
+    invoiceSummary: summarizeParentVisibleInvoiceSummary(contractProof, invoiceProof),
     portalHandoff: summarizeParentVisiblePortalHandoff(portalSession),
     changePlanAction: summarizeParentVisibleChangePlanAction(contractProof),
-    cancellationAction:
-      summarizeParentVisibleCancellationAction(contractProof, invoiceProof),
+    cancellationAction: summarizeParentVisibleCancellationAction(contractProof, invoiceProof),
     safetyNonClaims: {
-      noChildActivityCustody: contractProof.nonClaims.includes(
-        'no-child-activity-custody'
-      ),
+      noChildActivityCustody: contractProof.nonClaims.includes('no-child-activity-custody'),
       noPortalUi: contractProof.nonClaims.includes('no-portal-ui'),
-      noProductionBillingClaim: runtimeProof.nonClaims.includes(
-        'no-production-billing-claim'
-      ),
+      noProductionBillingClaim: runtimeProof.nonClaims.includes('no-production-billing-claim'),
     },
   });
 }
@@ -155,59 +137,36 @@ export function buildParentBillingVisibleSummaryForExpectedHousehold(
   portalSession: BillingPortalSessionResponse = BillingParentVisiblePortalSessionProofReadModel
 ): BillingParentVisibleSummary {
   if (
-    contractProof.entitlementSnapshot.parentAccount.parentAccountId !==
-      expected.parentAccountId ||
+    contractProof.entitlementSnapshot.parentAccount.parentAccountId !== expected.parentAccountId ||
     contractProof.entitlementSnapshot.family.familyId !== expected.familyId
   ) {
     throw new Error('wrong-household-denied');
   }
 
-  return buildParentBillingVisibleSummary(
-    contractProof,
-    runtimeProof,
-    invoiceProof,
-    portalSession
-  );
+  return buildParentBillingVisibleSummary(contractProof, runtimeProof, invoiceProof, portalSession);
 }
 
-export function isBillingSafeParentSummary(
-  summary: Record<string, unknown>
-): boolean {
-  return !containsForbiddenParentBillingField(
-    summary,
-    BillingParentVisibleForbiddenFieldSet
-  );
+export function isBillingSafeParentSummary(summary: Record<string, unknown>): boolean {
+  return !containsForbiddenParentBillingField(summary, BillingParentVisibleForbiddenFieldSet);
 }
 
-
-function countVisibleActiveBillingDevices(
-  contractProof: SharedBillingEntitlementContractProof
-): number {
+function countVisibleActiveBillingDevices(contractProof: SharedBillingEntitlementContractProof): number {
   return contractProof.deviceLimitDecisions.filter(
-    (
-      entry: SharedBillingEntitlementContractProof['deviceLimitDecisions'][number]
-    ) => entry.decision === 'allowed' || entry.decision === 'grace'
+    (entry: SharedBillingEntitlementContractProof['deviceLimitDecisions'][number]) =>
+      entry.decision === 'allowed' || entry.decision === 'grace'
   ).length;
 }
 
-function summarizeParentVisibleSeatComposition(
-  contractProof: SharedBillingEntitlementContractProof
-) {
+function summarizeParentVisibleSeatComposition(contractProof: SharedBillingEntitlementContractProof) {
   return {
-    baseChildDeviceLimit:
-      contractProof.entitlementSnapshot.baseChildDeviceLimit,
-    activeReferralCredits:
-      contractProof.entitlementSnapshot.activeReferralCredits,
-    paidExtraChildDeviceSeats:
-      contractProof.entitlementSnapshot.paidExtraChildDeviceSeats,
-    effectiveChildDeviceLimit:
-      contractProof.entitlementSnapshot.effectiveChildDeviceLimit,
+    baseChildDeviceLimit: contractProof.entitlementSnapshot.baseChildDeviceLimit,
+    activeReferralCredits: contractProof.entitlementSnapshot.activeReferralCredits,
+    paidExtraChildDeviceSeats: contractProof.entitlementSnapshot.paidExtraChildDeviceSeats,
+    effectiveChildDeviceLimit: contractProof.entitlementSnapshot.effectiveChildDeviceLimit,
   };
 }
 
-function summarizeParentVisibleRuntimeSnapshotStates(
-  rows: BillingEntitlementRuntimeProof['snapshotConsumptions']
-) {
+function summarizeParentVisibleRuntimeSnapshotStates(rows: BillingEntitlementRuntimeProof['snapshotConsumptions']) {
   const counts = {
     'snapshot-active': 0,
     'snapshot-stale': 0,
@@ -237,38 +196,25 @@ function summarizeParentVisibleRuntimeConsumptionStates(
   return counts;
 }
 
-function summarizeParentVisibleReferralCreditSummary(
-  contractProof: SharedBillingEntitlementContractProof
-) {
+function summarizeParentVisibleReferralCreditSummary(contractProof: SharedBillingEntitlementContractProof) {
   return {
-    activeQualifiedReferralParents:
-      contractProof.referralCreditSummary.activeQualifiedReferralParents,
-    activeReferralCredits:
-      contractProof.referralCreditSummary.activeReferralCredits,
-    pendingReferralInvites:
-      contractProof.referralCreditSummary.pendingReferralInvites,
-    revokedReferralCredits:
-      contractProof.referralCreditSummary.revokedReferralCredits,
+    activeQualifiedReferralParents: contractProof.referralCreditSummary.activeQualifiedReferralParents,
+    activeReferralCredits: contractProof.referralCreditSummary.activeReferralCredits,
+    pendingReferralInvites: contractProof.referralCreditSummary.pendingReferralInvites,
+    revokedReferralCredits: contractProof.referralCreditSummary.revokedReferralCredits,
   };
 }
 
-function summarizeParentVisibleLicenseSnapshot(
-  contractProof: SharedBillingEntitlementContractProof
-) {
+function summarizeParentVisibleLicenseSnapshot(contractProof: SharedBillingEntitlementContractProof) {
   return {
     source: contractProof.entitlementSnapshot.source,
     signatureState: contractProof.entitlementSnapshot.signatureState,
     subscriptionStatus: contractProof.entitlementSnapshot.subscriptionStatus,
-    parentVisibleState:
-      contractProof.entitlementSnapshot.failureState?.parentVisibleState ??
-      'available',
-    localSafetyBehavior:
-      contractProof.entitlementSnapshot.failureState?.localSafetyBehavior ??
-      'unchanged',
+    parentVisibleState: contractProof.entitlementSnapshot.failureState?.parentVisibleState ?? 'available',
+    localSafetyBehavior: contractProof.entitlementSnapshot.failureState?.localSafetyBehavior ?? 'unchanged',
     generatedAt: contractProof.entitlementSnapshot.generatedAt,
     expiresAt: contractProof.entitlementSnapshot.expiresAt,
-    failureKind:
-      contractProof.entitlementSnapshot.failureState?.failureKind ?? null,
+    failureKind: contractProof.entitlementSnapshot.failureState?.failureKind ?? null,
   };
 }
 
@@ -276,19 +222,13 @@ function summarizeParentVisibleInvoiceSummary(
   contractProof: SharedBillingEntitlementContractProof,
   invoiceProof: BillingInvoiceTaxRefundDisputeProof
 ) {
-  const representativeRow = representativeInvoiceLifecycleRow(
-    contractProof,
-    invoiceProof
-  );
+  const representativeRow = representativeInvoiceLifecycleRow(contractProof, invoiceProof);
   return {
     visibilityStates: summarizeInvoiceVisibilityStates(invoiceProof),
     recoveryStates: summarizeInvoiceRecoveryStates(invoiceProof),
     hostedInvoiceSurface: invoiceProof.hostedInvoiceClaim,
     providerMode: representativeRow.providerMode,
-    nextRenewalAt:
-      representativeRow.providerMode === 'stripe-hosted'
-        ? representativeRow.periodEnd
-        : null,
+    nextRenewalAt: representativeRow.providerMode === 'stripe-hosted' ? representativeRow.periodEnd : null,
     manualInvoiceState: summarizeParentVisibleManualInvoiceState(invoiceProof),
   };
 }
@@ -335,36 +275,28 @@ function summarizeParentVisibleManualInvoiceState(
   invoiceProof: BillingInvoiceTaxRefundDisputeProof
 ): BillingParentVisibleManualInvoiceState {
   const manualSupportRequiredCount = invoiceProof.rows.filter(
-    (row: BillingInvoiceTaxRefundDisputeRow) =>
-      row.invoiceVisibility === 'manual-support-required'
+    (row: BillingInvoiceTaxRefundDisputeRow) => row.invoiceVisibility === 'manual-support-required'
   ).length;
   const manualReviewStateCount = invoiceProof.rows.filter(
-    (row: BillingInvoiceTaxRefundDisputeRow) =>
-      row.parentVisibleState === 'manual-review'
+    (row: BillingInvoiceTaxRefundDisputeRow) => row.parentVisibleState === 'manual-review'
   ).length;
 
   return {
-    visible:
-      manualSupportRequiredCount > 0 || manualReviewStateCount > 0,
+    visible: manualSupportRequiredCount > 0 || manualReviewStateCount > 0,
     manualSupportRequiredCount,
     manualReviewStateCount,
   };
 }
 
-function summarizeParentVisiblePortalHandoff(
-  portalSession: BillingPortalSessionResponse
-) {
+function summarizeParentVisiblePortalHandoff(portalSession: BillingPortalSessionResponse) {
   return {
     sessionKind: portalSession.kind,
     returnPath: BillingHostedReturnRoute.PortalReturn.relativePath,
-    hostedUrlVisible:
-      portalSession.status === 'accepted' && portalSession.hostedUrl !== null,
+    hostedUrlVisible: portalSession.status === 'accepted' && portalSession.hostedUrl !== null,
   };
 }
 
-function summarizeParentVisibleChangePlanAction(
-  contractProof: SharedBillingEntitlementContractProof
-) {
+function summarizeParentVisibleChangePlanAction(contractProof: SharedBillingEntitlementContractProof) {
   return {
     selfServiceVisible: true as const,
     managedBy: 'billing-portal-session-create' as const,
@@ -377,14 +309,8 @@ function summarizeParentVisibleCancellationAction(
   contractProof: SharedBillingEntitlementContractProof,
   invoiceProof: BillingInvoiceTaxRefundDisputeProof
 ) {
-  const immediate = requiredInvoiceLifecycleRow(
-    invoiceProof,
-    'billing-invoice-cancel-immediate'
-  );
-  const periodEnd = requiredInvoiceLifecycleRow(
-    invoiceProof,
-    'billing-invoice-cancel-period-end'
-  );
+  const immediate = requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-cancel-immediate');
+  const periodEnd = requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-cancel-period-end');
 
   return {
     selfServiceVisible: true as const,
@@ -404,14 +330,8 @@ function representativeInvoiceLifecycleRow(
   contractProof: SharedBillingEntitlementContractProof,
   invoiceProof: BillingInvoiceTaxRefundDisputeProof
 ): BillingInvoiceTaxRefundDisputeRow {
-  if (
-    contractProof.entitlementSnapshot.failureState?.parentVisibleState ===
-    'manual-review'
-  ) {
-    return requiredInvoiceLifecycleRow(
-      invoiceProof,
-      'billing-tax-manual-support'
-    );
+  if (contractProof.entitlementSnapshot.failureState?.parentVisibleState === 'manual-review') {
+    return requiredInvoiceLifecycleRow(invoiceProof, 'billing-tax-manual-support');
   }
 
   switch (contractProof.entitlementSnapshot.subscriptionStatus) {
@@ -421,10 +341,7 @@ function representativeInvoiceLifecycleRow(
       return requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-unpaid');
     case 'cancelled':
     case 'expired':
-      return requiredInvoiceLifecycleRow(
-        invoiceProof,
-        'billing-invoice-cancel-immediate'
-      );
+      return requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-cancel-immediate');
     default:
       return requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-active');
   }
@@ -440,24 +357,16 @@ function requiredInvoiceLifecycleRow(
     | 'billing-invoice-cancel-immediate'
     | 'billing-invoice-cancel-period-end'
 ): BillingInvoiceTaxRefundDisputeRow {
-  const row = invoiceProof.rows.find(
-    (entry: BillingInvoiceTaxRefundDisputeRow) =>
-      entry.boundaryId === boundaryId
-  );
+  const row = invoiceProof.rows.find((entry: BillingInvoiceTaxRefundDisputeRow) => entry.boundaryId === boundaryId);
   if (row === undefined) {
     throw new Error(`missing invoice lifecycle row: ${boundaryId}`);
   }
   return row;
 }
 
-function containsForbiddenParentBillingField(
-  value: unknown,
-  forbiddenFields: ReadonlySet<string>
-): boolean {
+function containsForbiddenParentBillingField(value: unknown, forbiddenFields: ReadonlySet<string>): boolean {
   if (Array.isArray(value)) {
-    return value.some((entry) =>
-      containsForbiddenParentBillingField(entry, forbiddenFields)
-    );
+    return value.some((entry) => containsForbiddenParentBillingField(entry, forbiddenFields));
   }
 
   if (typeof value !== 'object' || value === null) {
@@ -466,8 +375,6 @@ function containsForbiddenParentBillingField(
 
   const record = value as Record<string, unknown>;
   return Object.entries(record).some(
-    ([key, entry]) =>
-      forbiddenFields.has(key) ||
-      containsForbiddenParentBillingField(entry, forbiddenFields)
+    ([key, entry]) => forbiddenFields.has(key) || containsForbiddenParentBillingField(entry, forbiddenFields)
   );
 }

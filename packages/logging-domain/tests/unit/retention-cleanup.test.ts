@@ -36,18 +36,18 @@ function makeTestEntry(runId: string, timestamp: number) {
   };
 }
 
-describe('retention cleanup', () => {
-  const tempDirs: string[] = [];
+const retentionCleanupTempDirs: string[] = [];
 
-  afterEach(() => {
-    for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      fs.rmSync(tempDir, { force: true, recursive: true });
-    }
-  });
+afterEach(() => {
+  for (const tempDir of retentionCleanupTempDirs.splice(0, retentionCleanupTempDirs.length)) {
+    fs.rmSync(tempDir, { force: true, recursive: true });
+  }
+});
 
+describe('retention cleanup test-log runs', () => {
   it('keeps only the newest test runs for a scope', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
-    tempDirs.push(tempDir);
+    retentionCleanupTempDirs.push(tempDir);
 
     appendTestLogEntries([makeTestEntry('run-old', 1)], tempDir);
     appendTestLogEntries([makeTestEntry('run-new', 2)], tempDir);
@@ -68,10 +68,12 @@ describe('retention cleanup', () => {
     expect(remaining).toHaveLength(1);
     expect(path.basename(remaining[0]!)).toBe('run-new.ndjson');
   });
+});
 
+describe('retention cleanup app-log sessions', () => {
   it('keeps only the newest app-log sessions for a scope', async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
-    tempDirs.push(tempDir);
+    retentionCleanupTempDirs.push(tempDir);
 
     const firstStorage = createAppLogStorage({
       scope: TestLogScope.ParentCodex,

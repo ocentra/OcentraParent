@@ -15,7 +15,7 @@ const sourceFiles = [
   'crates/agent-protocol/src/network_flow_tests.rs',
   'crates/agent-service/src/network_remote_delivery_status_payload.rs',
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
-  'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/agent-protocol-defaults.ts',
   'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
@@ -204,7 +204,7 @@ function assertSourceContracts() {
   const protocolTests = readText('crates/agent-protocol/src/network_flow_tests.rs');
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
-  const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const tsDefaults = readText('packages/schema-domain/src/agent-protocol-defaults.ts');
   const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
   const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
   const tsTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
@@ -223,6 +223,7 @@ function assertSourceContracts() {
     [servicePayload, 'fixture_transport'],
     [serviceTests, 'assert_remote_delivery_fixture_transport_status'],
     [tsDefaults, 'FixtureTransportRef'],
+    [tsParser, 'parseAgentNetworkRemoteDeliveryStatusEvent'],
     [tsTests, 'fixtureTransportRef'],
     [schemaStatus, 'dispatchAttemptCount: Schema.Literal(0)'],
     [protocolReadme, 'row10l fixture transport'],

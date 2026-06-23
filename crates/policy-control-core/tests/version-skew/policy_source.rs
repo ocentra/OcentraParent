@@ -1,3 +1,7 @@
+use super::TestResult;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_source::{
     parent_policy_source_schema_version, register_parent_policy_source_document,
     rollback_parent_policy_source_document, supersede_parent_policy_source_document,
@@ -7,8 +11,8 @@ use ocentra_policy_control_core::policy_source::{
     PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 use serde_json::Value;
 
@@ -33,49 +37,74 @@ fn sample_policy_schedule_time_budget() -> PolicyScheduleTimeBudget {
     }
 }
 
-fn sample_policy_source_document(version: u64) -> ParentPolicySourceDocument {
-    ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-household-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(version).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+fn sample_policy_source_document(version: u64) -> TestResult<ParentPolicySourceDocument> {
+    Ok(ParentPolicySourceDocument {
+        schema_version: test_ok!(
+            parent_policy_source_schema_version(),
+            "policy source schema version"
+        ),
+        document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-household-default"),
+            "policy source document id"
+        ),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(version), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        status: PolicySourceStatus::Confirmed,
+        child_profile_ids: vec![test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        )],
+        device_ids: vec![test_ok!(
+            PolicyDeviceId::parse("device-laptop"),
+            "policy device id"
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: test_ok!(
+                PolicyRuleId::parse("rule-school-night-block"),
+                "policy rule id"
+            ),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("category-gaming"),
+                    "policy target reference"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
-            ),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: test_ok!(
+                PolicyReasonCode::parse("school-night"),
+                "policy reason code"
+            ),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id"
+            ),
+            timezone_name: test_ok!(
+                PolicyTimezoneName::parse("America/Toronto"),
+                "policy timezone name"
+            ),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: sample_policy_schedule_time_budget(),
         }],
-        audit_reference_ids: vec![
-            PolicyAuditReferenceId::parse("audit-policy-confirmed").expect("policy audit ref")
-        ],
+        audit_reference_ids: vec![test_ok!(
+            PolicyAuditReferenceId::parse("audit-policy-confirmed"),
+            "policy audit ref"
+        )],
         superseded_by_policy_version: None,
         rollback_ref: None,
         retention: PolicyRetentionMetadata {
@@ -83,92 +112,123 @@ fn sample_policy_source_document(version: u64) -> ParentPolicySourceDocument {
             delete_allowed: true,
             sync_allowed: false,
         },
-    }
+    })
 }
 
-fn sample_policy_source_payload(version: u64) -> Value {
-    serde_json::to_value(sample_policy_source_document(version)).expect("policy source payload")
+fn sample_policy_source_payload(version: u64) -> TestResult<Value> {
+    Ok(test_ok!(
+        serde_json::to_value(sample_policy_source_document(version)?),
+        "policy source payload"
+    ))
 }
 
 #[test]
-fn policy_source_serde_rejects_zero_schema_version() {
-    let mut payload = sample_policy_source_payload(1);
+fn policy_source_serde_rejects_zero_schema_version() -> TestResult {
+    let mut payload = sample_policy_source_payload(1)?;
     payload["schema_version"] = Value::from(0_u64);
 
-    let error = serde_json::from_value::<ParentPolicySourceDocument>(payload)
-        .expect_err("policy source schema version zero must be rejected");
+    let error = test_err!(
+        serde_json::from_value::<ParentPolicySourceDocument>(payload),
+        "policy source schema version zero must be rejected"
+    );
 
     assert!(error
         .to_string()
         .contains("event schema version must be nonzero"));
+    Ok(())
 }
 
 #[test]
-fn policy_source_serde_rejects_schedule_payload_without_time_budget() {
-    let mut payload = sample_policy_source_payload(1);
-    let schedules = payload
-        .get_mut("schedules")
-        .and_then(Value::as_array_mut)
-        .expect("schedule payload array");
-    let schedule = schedules
-        .first_mut()
-        .and_then(Value::as_object_mut)
-        .expect("schedule payload object");
+fn policy_source_serde_rejects_schedule_payload_without_time_budget() -> TestResult {
+    let mut payload = sample_policy_source_payload(1)?;
+    let schedules = test_some!(
+        payload.get_mut("schedules").and_then(Value::as_array_mut),
+        "schedule payload array"
+    );
+    let schedule = test_some!(
+        schedules.first_mut().and_then(Value::as_object_mut),
+        "schedule payload object"
+    );
     schedule.remove("time_budget");
 
-    let error = serde_json::from_value::<ParentPolicySourceDocument>(payload)
-        .expect_err("schedule payloads must include a time_budget block");
+    let error = test_err!(
+        serde_json::from_value::<ParentPolicySourceDocument>(payload),
+        "schedule payloads must include a time_budget block"
+    );
 
     assert!(error.to_string().contains("time_budget"));
+    Ok(())
 }
 
 #[test]
-fn stale_policy_version_is_rejected_during_registration() {
-    let existing = sample_policy_source_document(4);
-    let candidate = sample_policy_source_document(3);
+fn stale_policy_version_is_rejected_during_registration() -> TestResult {
+    let existing = sample_policy_source_document(4)?;
+    let candidate = sample_policy_source_document(3)?;
 
-    let error = register_parent_policy_source_document(Some(&existing), candidate)
-        .expect_err("older policy version cannot replace current source truth");
+    let error = test_err!(
+        register_parent_policy_source_document(Some(&existing), candidate),
+        "older policy version cannot replace current source truth"
+    );
     assert!(error.to_string().contains("stale policy version"));
+    Ok(())
 }
 
 #[test]
-fn supersede_rejects_non_newer_replacement_versions() {
-    let current = sample_policy_source_document(4);
+fn supersede_rejects_non_newer_replacement_versions() -> TestResult {
+    let current = sample_policy_source_document(4)?;
 
-    let error = supersede_parent_policy_source_document(
-        &current,
-        PolicyVersion::new(4).expect("policy version"),
-        PolicyAuditReferenceId::parse("audit-policy-superseded").expect("policy audit ref"),
-    )
-    .expect_err("replacement policy version must be newer than current source version");
+    let error = test_err!(
+        supersede_parent_policy_source_document(
+            &current,
+            test_ok!(PolicyVersion::new(4), "policy version"),
+            test_ok!(
+                PolicyAuditReferenceId::parse("audit-policy-superseded"),
+                "policy audit ref"
+            ),
+        ),
+        "replacement policy version must be newer than current source version"
+    );
 
     assert!(error
         .to_string()
         .contains("policy_source.superseded_by_policy_version"));
+    Ok(())
 }
 
 #[test]
-fn rollback_rejects_non_older_restored_versions() {
-    let current = sample_policy_source_document(4);
+fn rollback_rejects_non_older_restored_versions() -> TestResult {
+    let current = sample_policy_source_document(4)?;
     let rollback_ref = PolicyRollbackRef {
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        rolled_back_document_id: ParentPolicyDocumentId::parse("policy-source-household-default")
-            .expect("policy source document id"),
-        rolled_back_policy_version: PolicyVersion::new(4).expect("policy version"),
-        restored_document_id: ParentPolicyDocumentId::parse("policy-source-household-previous")
-            .expect("policy source document id"),
-        restored_policy_version: PolicyVersion::new(4).expect("policy version"),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        rolled_back_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-household-default"),
+            "policy source document id"
+        ),
+        rolled_back_policy_version: test_ok!(PolicyVersion::new(4), "policy version"),
+        restored_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-household-previous"),
+            "policy source document id"
+        ),
+        restored_policy_version: test_ok!(PolicyVersion::new(4), "policy version"),
     };
 
-    let error = rollback_parent_policy_source_document(
-        &current,
-        &rollback_ref,
-        PolicyAuditReferenceId::parse("audit-policy-rolled-back").expect("policy audit ref"),
-    )
-    .expect_err("restored policy version must be older than the rolled-back source version");
+    let error = test_err!(
+        rollback_parent_policy_source_document(
+            &current,
+            &rollback_ref,
+            test_ok!(
+                PolicyAuditReferenceId::parse("audit-policy-rolled-back"),
+                "policy audit ref"
+            ),
+        ),
+        "restored policy version must be older than the rolled-back source version"
+    );
 
     assert!(error
         .to_string()
         .contains("policy_source.rollback_ref.restored_policy_version"));
+    Ok(())
 }

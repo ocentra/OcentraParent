@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   TrackingChildRuntimeExecutionReadinessReadModelSchema,
   type TrackingChildRuntimeExecutionReadinessRow,
@@ -40,9 +34,13 @@ export const TrackingChildRuntimeSnapshotRequirementsNonClaimSchema = withParser
   Schema.Literal(...RequiredTrackingChildRuntimeSnapshotRequirementsNonClaims)
 );
 
-export const TrackingChildRuntimeSnapshotRequirementsIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeSnapshotRequirementsId');
+export const TrackingChildRuntimeSnapshotRequirementsIdSchema = brandedNonEmptyStringSchema(
+  'TrackingChildRuntimeSnapshotRequirementsId'
+);
 
-export const TrackingChildRuntimeSnapshotRequirementsRowIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeSnapshotRequirementsRowId');
+export const TrackingChildRuntimeSnapshotRequirementsRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingChildRuntimeSnapshotRequirementsRowId'
+);
 
 const TrackingChildRuntimeSnapshotRequirementsRowBaseSchema = Schema.Struct({
   rowId: TrackingChildRuntimeSnapshotRequirementsRowIdSchema,
@@ -285,4 +283,3 @@ function trackingChildRuntimeSnapshotRequirementsReadModelNonClaimsAreHonest(
     readModel.productReadyClaimed === false
   );
 }
-

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseParentReviewActionProofReadModel } from './app-install-purchase-parent-review-action-proof';
 import { AppInstallPurchasePlatformAdapterBoundaryProofReadModel } from './app-install-purchase-platform-adapter-boundary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -67,10 +62,18 @@ const AppInstallPurchaseParentActionRuntimeHandoffNonClaimSchema = withParser(
   Schema.Literal(...RequiredParentActionRuntimeHandoffNonClaims)
 );
 
-const ParentActionRuntimeHandoffRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffRowId');
-const ParentActionRuntimeHandoffRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffRef');
-const ParentActionRuntimeHandoffAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffAuditRef');
-const ParentActionRuntimeHandoffClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffClaimBoundary');
+const ParentActionRuntimeHandoffRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionRuntimeHandoffRowId'
+);
+const ParentActionRuntimeHandoffRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionRuntimeHandoffRef'
+);
+const ParentActionRuntimeHandoffAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionRuntimeHandoffAuditRef'
+);
+const ParentActionRuntimeHandoffClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionRuntimeHandoffClaimBoundary'
+);
 
 const ParentActionRuntimeHandoffRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseParentActionRuntimeHandoffProofSchemaVersionSchema,
@@ -284,4 +287,3 @@ function parentActionRuntimeHandoffBoundaryIsExplicit(
 ): boolean {
   return RequiredParentActionRuntimeHandoffBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

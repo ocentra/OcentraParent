@@ -1,20 +1,27 @@
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
-use ocentra_parent_agent_protocol::{
-    constants::{
-        enforcement, v08_os_adapter_product_proof as proof, windows_adapter_artifact_gate,
-        windows_adapter_capability,
-    },
-    policy_constants,
-    windows_adapter_artifact_gate::WindowsAdapterArtifactGateProof,
-    EnforcementAdapterKind, EnforcementBroadAdapterCapability,
-    EnforcementBroadAdapterReadinessEntry, EnforcementBroadOsAdapterReadinessMatrix,
-    EnforcementCapabilityState, EnforcementReadinessProofLevel, EnforcementReadinessRuntimeOwner,
-    EnforcementReadinessState, EnforcementResultStatus, EnforcementRollbackState,
-    V08OsAdapterProductProofAuditState, V08OsAdapterProductProofEntry,
-    V08OsAdapterProductProofParentOverrideState, V08OsAdapterProductProofReadModel,
-    V08OsAdapterProductProofSurface, V08OsAdapterProductProofTimerRecoveryState,
-    WindowsAdapterCapabilityProof,
-};
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::constants::v08_os_adapter_product_proof as proof;
+use ocentra_parent_agent_protocol::constants::windows_adapter_artifact_gate;
+use ocentra_parent_agent_protocol::constants::windows_adapter_capability;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAdapterKind;
+use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
+use ocentra_parent_agent_protocol::enforcement::EnforcementResultStatus;
+use ocentra_parent_agent_protocol::enforcement::EnforcementRollbackState;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofAuditState;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofEntry;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofParentOverrideState;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofSurface;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofTimerRecoveryState;
+use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementBroadAdapterCapability;
+use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementBroadAdapterReadinessEntry;
+use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementBroadOsAdapterReadinessMatrix;
+use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementReadinessProofLevel;
+use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementReadinessRuntimeOwner;
+use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementReadinessState;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::windows_adapter_artifact_gate::WindowsAdapterArtifactGateProof;
+use ocentra_parent_agent_protocol::windows_adapter_capability::WindowsAdapterCapabilityProof;
 
 use crate::{
     windows_adapter_artifact_gate_read_model::windows_adapter_artifact_gate_proof,
@@ -66,11 +73,13 @@ struct EntrySpec<'a> {
     fallback_behavior: &'a str,
 }
 
+#[derive(Clone, Copy)]
 struct EntryProofLinks<'a> {
     capability_entry_id: &'a str,
     artifact_gate_entry_id: &'a str,
 }
 
+#[derive(Clone, Copy)]
 struct EntryProofText<'a> {
     capability_requirement: &'a str,
     proof_requirement: &'a str,
@@ -445,7 +454,9 @@ fn readiness_entry(
         .entries
         .iter()
         .find(|entry| entry.capability == capability)
-        .expect(enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER)
+        .unwrap_or_else(|| {
+            panic!("{}", enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER)
+        })
 }
 
 fn assert_links(
@@ -458,14 +469,16 @@ fn assert_links(
             .entries
             .iter()
             .find(|entry| entry.proof_entry_id == **entry_id)
-            .expect(windows_adapter_capability::READ_MODEL_ID_V0_8);
+            .unwrap_or_else(|| panic!("{}", windows_adapter_capability::READ_MODEL_ID_V0_8));
     }
     for entry_id in &spec.linked_artifact_gate_entry_ids {
         artifact_gate
             .entries
             .iter()
             .find(|entry| entry.gate_entry_id == **entry_id)
-            .expect(windows_adapter_artifact_gate::READ_MODEL_ID_V0_8);
+            .unwrap_or_else(|| {
+                panic!("{}", windows_adapter_artifact_gate::READ_MODEL_ID_V0_8)
+            });
     }
 }
 

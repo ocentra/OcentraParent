@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { EnforcementAdapterKindSchema, EnforcementCapabilityStateSchema, EnforcementModeSchema } from './enforcement';
 import {
   ParentActionReferenceSchema,
@@ -31,15 +26,25 @@ import {
   V08EnforcementProductControlParentActionSchema,
 } from './v0-8-enforcement-product-control-spine';
 
-export const EnforcementPolicyDispatchReadModelIdSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchReadModelId');
+export const EnforcementPolicyDispatchReadModelIdSchema = brandedNonEmptyStringSchema(
+  'EnforcementPolicyDispatchReadModelId'
+);
 export const EnforcementPolicyDispatchIntentIdSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchIntentId');
-export const EnforcementPolicyDispatchDecisionRefSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchDecisionRef');
-export const EnforcementPolicyDispatchScheduleRefSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchScheduleRef');
+export const EnforcementPolicyDispatchDecisionRefSchema = brandedNonEmptyStringSchema(
+  'EnforcementPolicyDispatchDecisionRef'
+);
+export const EnforcementPolicyDispatchScheduleRefSchema = brandedNonEmptyStringSchema(
+  'EnforcementPolicyDispatchScheduleRef'
+);
 export const EnforcementPolicyDispatchRouteRefSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchRouteRef');
 export const EnforcementPolicyDispatchTimerRefSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchTimerRef');
 export const EnforcementPolicyDispatchAuditRefSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchAuditRef');
-export const EnforcementPolicyDispatchChildReasonRefSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchChildReasonRef');
-export const EnforcementPolicyDispatchCapabilityMatrixIdSchema = brandedNonEmptyStringSchema('EnforcementPolicyDispatchCapabilityMatrixId');
+export const EnforcementPolicyDispatchChildReasonRefSchema = brandedNonEmptyStringSchema(
+  'EnforcementPolicyDispatchChildReasonRef'
+);
+export const EnforcementPolicyDispatchCapabilityMatrixIdSchema = brandedNonEmptyStringSchema(
+  'EnforcementPolicyDispatchCapabilityMatrixId'
+);
 
 export const EnforcementPolicyDispatchSourceStateSchema = withParser(
   Schema.Literal('ready', 'stale', 'offline', 'missing', 'wrong-device', 'wrong-route', 'unavailable')
@@ -149,9 +154,9 @@ export const EnforcementPolicyDispatchIntentSchema = withParser(
     .pipe(
       Schema.filter(
         (intent) =>
-          hasDispatchReferencePrefix(intent.policyDecisionId, 'policy-') &&
-          hasDispatchReferencePrefix(intent.policyDecisionRef, 'decision-') &&
-          hasDispatchReferencePrefix(intent.scheduleRef, 'schedule-') ||
+          (hasDispatchReferencePrefix(intent.policyDecisionId, 'policy-') &&
+            hasDispatchReferencePrefix(intent.policyDecisionRef, 'decision-') &&
+            hasDispatchReferencePrefix(intent.scheduleRef, 'schedule-')) ||
           'Expected dispatch intents to keep stable policy decision and schedule references'
       )
     )
@@ -572,4 +577,3 @@ function policyActionForParentAction(action: typeof V08EnforcementProductControl
       return 'allow';
   }
 }
-

@@ -2,9 +2,9 @@ import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-com
 import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import type { LogFieldValue } from '@ocentra-parent/schema-domain/logging-contracts';
-import { PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 import {
   detailFromValue,
@@ -184,21 +184,21 @@ function readModelDetail(readModel: PortalPolicyPreviewReadModel | null, field: 
 
 function policyMode(dryRun: boolean | null): LogFieldValue {
   if (dryRun === false) {
-    return PortalText.Resolve(PortalTextToken.PolicyModeActive);
+    return resolvePortalDevText(PortalDevTextToken.PolicyModeActive);
   }
-  return PortalText.Resolve(PortalTextToken.PolicyModeAdvisory);
+  return resolvePortalDevText(PortalDevTextToken.PolicyModeAdvisory);
 }
 
 function linkedPolicyDecision(value: LogFieldValue | undefined): LogFieldValue | undefined {
   if (value === undefined || value === null) {
     return value;
   }
-  return PortalText.Resolve(PortalTextToken.ProductSurfaceWired);
+  return resolvePortalDevText(PortalDevTextToken.ProductSurfaceWired);
 }
 
 function linkedActivityRecord(value: LogFieldValue | undefined): LogFieldValue | undefined {
   if (value === undefined || value === null) {
     return value;
   }
-  return PortalText.Resolve(PortalTextToken.ProductStatusLocalOnly);
+  return resolvePortalDevText(PortalDevTextToken.ProductStatusLocalOnly);
 }

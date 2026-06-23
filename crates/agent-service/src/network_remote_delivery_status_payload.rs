@@ -18,11 +18,16 @@ use ocentra_parent_agent_core::network_event_runtime::{
         NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
-    NetworkRemoteDeliveryTransportDispatchState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatus;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatusState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryTransportDispatchState;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 use tokio::sync::OnceCell;
 
 use crate::{
@@ -72,7 +77,7 @@ pub(crate) async fn build_network_remote_delivery_status_report(
 
 pub(crate) async fn network_remote_delivery_status_payload() -> Result<LogFields, ()> {
     let status = network_remote_delivery_status().await?;
-    let serialized = serde_json::to_string(&status).map_err(|_| ())?;
+    let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
     Ok(fields_from_pairs(vec![(
         constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
         LogFieldValue::String(serialized),
@@ -84,15 +89,15 @@ async fn network_remote_delivery_status() -> Result<&'static NetworkRemoteDelive
         .get_or_try_init(|| async {
             let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
                 .await
-                .map_err(|_| ())?;
+                .map_err(|_error| ())?;
             let delete_export_report =
                 prove_network_runtime_remote_delivery_delete_export_propagation()
                     .await
-                    .map_err(|_| ())?;
+                    .map_err(|_error| ())?;
             let external_cross_process_transport =
                 prove_network_runtime_remote_delivery_external_cross_process_transport()
                     .await
-                    .map_err(|_| ())?;
+                    .map_err(|_error| ())?;
             let cross_process_replay = &external_cross_process_transport.cross_process_replay;
             Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
                 &report,

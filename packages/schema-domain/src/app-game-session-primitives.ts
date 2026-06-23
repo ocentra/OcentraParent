@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const AppGameSessionRollupDateSchema = brandedNonEmptyStringSchema('AppGameSessionRollupDate');
 

@@ -53,7 +53,7 @@ const proof = {
       'docs/product-capability-checklist.md updated for the app-install store manual evidence proof while keeping provider/store execution gaps explicit',
   },
   evidence: {
-    source: 'packages/app-game-domain/src/app-install-purchase-store-manual-evidence-proof.ts',
+    source: 'packages/schema-domain/src/app-install-purchase-store-manual-evidence-proof.ts',
     tests: 'packages/app-game-domain/tests/unit/app-install-purchase-store-manual-evidence-proof.test.ts',
     output: 'test-results/app-install-purchase-store-manual-evidence-proof/proof.json',
   },

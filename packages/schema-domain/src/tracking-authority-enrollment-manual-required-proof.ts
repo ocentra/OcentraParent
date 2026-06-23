@@ -1,16 +1,12 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
 export const TrackingAuthorityEnrollmentRowIdSchema = brandedNonEmptyStringSchema('TrackingAuthorityEnrollmentRowId');
 
-export const TrackingAuthorityEnrollmentProofRefSchema = brandedNonEmptyStringSchema('TrackingAuthorityEnrollmentProofRef');
+export const TrackingAuthorityEnrollmentProofRefSchema = brandedNonEmptyStringSchema(
+  'TrackingAuthorityEnrollmentProofRef'
+);
 
 export const TrackingAuthorityEnrollmentPlatformSchema = Schema.Literal('android', 'ios', 'desktop');
 
@@ -164,4 +160,3 @@ function evidenceRefsForMode(mode: (typeof RequiredTrackingAuthorityEnrollmentMo
 function manualCommandForMode(mode: (typeof RequiredTrackingAuthorityEnrollmentModes)[number]) {
   return `collect tracking authority evidence for ${mode} with enrolled device, capability grant, screenshot/log bundle, and parent-visible status row`;
 }
-

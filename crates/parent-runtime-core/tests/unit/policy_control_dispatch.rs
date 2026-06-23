@@ -1,4 +1,7 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_parent_runtime_core::policy_control_dispatch::{
     parent_runtime_policy_control_dispatch_evaluated_event, route_parent_policy_control_delivery,
     route_parent_policy_control_delivery_from_origin, ParentPolicyControlAcknowledgementState,
@@ -24,8 +27,8 @@ use ocentra_policy_control_core::policy_source::{
     PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
 #[test]
@@ -82,21 +85,27 @@ fn untrusted_origin_blocks_policy_delivery_before_child_runtime_publish() {
 #[test]
 fn degraded_delivery_can_be_republished_after_offline_state_clears() {
     let queued = sample_queued_delivery();
-    let offline = apply_policy_delivery_transition(
-        &queued,
-        PolicyDeliveryTransition {
-            attempt_id: PolicyDeliveryAttemptId::parse("attempt-offline")
-                .expect("policy delivery attempt id"),
-            sequence: ocentra_policy_control_core::policy_delivery::PolicyDeliverySequence::new(2)
-                .expect("policy delivery sequence"),
-            state: PolicyDeliveryState::Offline,
-            audit_reference_ids: vec![audit_ref("audit-policy-offline")],
-            reason_code: Some(reason("child-offline")),
-            superseded_by_policy_version: None,
-            rollback_reference_state: None,
-        },
+    let offline = result_or_panic(
+        apply_policy_delivery_transition(
+            &queued,
+            PolicyDeliveryTransition {
+                attempt_id: result_or_panic(
+                    PolicyDeliveryAttemptId::parse("attempt-offline"),
+                    "policy delivery attempt id",
+                ),
+                sequence: result_or_panic(
+                    ocentra_policy_control_core::policy_delivery::PolicyDeliverySequence::new(2),
+                    "policy delivery sequence",
+                ),
+                state: PolicyDeliveryState::Offline,
+                audit_reference_ids: vec![audit_ref("audit-policy-offline")],
+                reason_code: Some(reason("child-offline")),
+                superseded_by_policy_version: None,
+                rollback_reference_state: None,
+            },
+        ),
+        "offline transition",
     )
-    .expect("offline transition")
     .into_record();
     let decision = authorized_decision_event();
 
@@ -119,9 +128,7 @@ fn degraded_delivery_can_be_republished_after_offline_state_clears() {
         ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState::Degraded
     );
     assert_eq!(
-        dispatch
-            .contract()
-            .expect("policy control dispatch contract")
+        result_or_panic(dispatch.contract(), "policy control dispatch contract")
             .event_type
             .as_str(),
         PARENT_RUNTIME_POLICY_CONTROL_DISPATCH_EVALUATED_EVENT_TYPE
@@ -130,40 +137,64 @@ fn degraded_delivery_can_be_republished_after_offline_state_clears() {
 
 fn sample_policy_source_document() -> ParentPolicySourceDocument {
     ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-household-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(3).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+        schema_version: result_or_panic(
+            parent_policy_source_schema_version(),
+            "policy source schema version",
+        ),
+        document_id: result_or_panic(
+            ParentPolicyDocumentId::parse("policy-source-household-default"),
+            "policy source document id",
+        ),
+        household_id: result_or_panic(
+            PolicyHouseholdId::parse("household-default"),
+            "household id",
+        ),
+        policy_version: result_or_panic(PolicyVersion::new(3), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: result_or_panic(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        status: PolicySourceStatus::Confirmed,
+        child_profile_ids: vec![result_or_panic(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id",
+        )],
+        device_ids: vec![result_or_panic(
+            PolicyDeviceId::parse("device-laptop"),
+            "policy device id",
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: result_or_panic(
+                PolicyRuleId::parse("rule-school-night-block"),
+                "policy rule id",
+            ),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                reference_id: result_or_panic(
+                    PolicyTargetReferenceId::parse("category-gaming"),
+                    "policy target reference",
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
-            ),
+            schedule_id: Some(result_or_panic(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id",
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: result_or_panic(
+                PolicyReasonCode::parse("school-night"),
+                "policy reason code",
+            ),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+            schedule_id: result_or_panic(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id",
+            ),
+            timezone_name: result_or_panic(
+                PolicyTimezoneName::parse("America/Toronto"),
+                "policy timezone name",
+            ),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -197,37 +228,56 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
 }
 
 fn sample_queued_delivery() -> ocentra_policy_control_core::policy_delivery::PolicyDeliveryRecord {
-    let compiled = compile_domain_policy_artifact(
-        &sample_policy_source_document(),
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled domain policy artifact");
+    let compiled = result_or_panic(
+        compile_domain_policy_artifact(
+            &sample_policy_source_document(),
+            PolicyConsumerDomain::Tracking,
+        ),
+        "compiled domain policy artifact",
+    );
 
-    queue_policy_delivery(
-        &compiled,
-        PolicyDeliveryTarget {
-            child_profile_id: PolicyChildProfileId::parse("child-primary")
-                .expect("child profile id"),
-            device_id: PolicyDeviceId::parse("device-laptop").expect("policy device id"),
-            domain: PolicyConsumerDomain::Tracking,
-        },
-        PolicyDeliveryId::parse("delivery-policy-household-default").expect("policy delivery id"),
-        PolicyDeliveryAttemptId::parse("attempt-queued").expect("policy attempt id"),
-        vec![audit_ref("audit-policy-queued")],
+    result_or_panic(
+        queue_policy_delivery(
+            &compiled,
+            PolicyDeliveryTarget {
+                child_profile_id: result_or_panic(
+                    PolicyChildProfileId::parse("child-primary"),
+                    "child profile id",
+                ),
+                device_id: result_or_panic(
+                    PolicyDeviceId::parse("device-laptop"),
+                    "policy device id",
+                ),
+                domain: PolicyConsumerDomain::Tracking,
+            },
+            result_or_panic(
+                PolicyDeliveryId::parse("delivery-policy-household-default"),
+                "policy delivery id",
+            ),
+            result_or_panic(
+                PolicyDeliveryAttemptId::parse("attempt-queued"),
+                "policy attempt id",
+            ),
+            vec![audit_ref("audit-policy-queued")],
+        ),
+        "queued policy delivery",
     )
-    .expect("queued policy delivery")
 }
 
 fn authorized_decision_event() -> PolicyDecisionResolvedEvent {
     PolicyDecisionResolvedEvent {
-        aggregate_id: PolicyControlAggregateId::parse(
-            "policy-control-aggregate:child-primary:tracking",
-        )
-        .expect("policy control aggregate id"),
-        decision_id: PolicyControlDecisionId::parse("policy-control-decision-1")
-            .expect("policy control decision id"),
-        source_request_id: PolicyControlRequestId::parse("policy-control-request-1")
-            .expect("policy control request id"),
+        aggregate_id: result_or_panic(
+            PolicyControlAggregateId::parse("policy-control-aggregate:child-primary:tracking"),
+            "policy control aggregate id",
+        ),
+        decision_id: result_or_panic(
+            PolicyControlDecisionId::parse("policy-control-decision-1"),
+            "policy control decision id",
+        ),
+        source_request_id: result_or_panic(
+            PolicyControlRequestId::parse("policy-control-request-1"),
+            "policy control request id",
+        ),
         decision: PolicyControlDecision {
             action_authorization_state: PolicyActionAuthorizationState::Authorized,
             enforcement_execution_state: PolicyEnforcementExecutionState::MayExecute,
@@ -241,9 +291,19 @@ fn authorized_decision_event() -> PolicyDecisionResolvedEvent {
 }
 
 fn audit_ref(value: &str) -> PolicyAuditReferenceId {
-    PolicyAuditReferenceId::parse(value).expect("policy audit ref")
+    result_or_panic(PolicyAuditReferenceId::parse(value), "policy audit ref")
 }
 
 fn reason(value: &str) -> PolicyReasonCode {
-    PolicyReasonCode::parse(value).expect("policy reason code")
+    result_or_panic(PolicyReasonCode::parse(value), "policy reason code")
+}
+
+fn result_or_panic<T, E>(result: Result<T, E>, context: &'static str) -> T
+where
+    E: std::fmt::Debug,
+{
+    match result {
+        Ok(value) => value,
+        Err(error) => unreachable!("{context}: {error:?}"),
+    }
 }

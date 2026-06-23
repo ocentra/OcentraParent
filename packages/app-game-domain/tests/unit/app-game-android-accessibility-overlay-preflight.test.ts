@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { decodeAppGameAndroidPhysicalDeviceProof } from '../../src/app-game-android-physical-device-proof';
+import { decodeAppGameAndroidPhysicalDeviceProof } from '@ocentra-parent/schema-domain/app-game-android-physical-device-proof';
 import {
   AppGameAndroidAccessibilityOverlayPreflightReadModelSchema,
   AppGameAndroidAccessibilitySettingsSampleSchema,
   createAppGameAndroidAccessibilityOverlayPreflightReadModel,
   summarizeAppGameAndroidAccessibilityOverlayPreflightReadModel,
-} from '../../src/app-game-android-accessibility-overlay-preflight';
+} from '@ocentra-parent/schema-domain/app-game-android-accessibility-overlay-preflight';
 
 describe('app-game Android Accessibility overlay preflight', () => {
   keepsOverlayActionsBlockedWithoutEnabledService();

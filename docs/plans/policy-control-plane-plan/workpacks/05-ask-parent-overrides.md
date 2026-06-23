@@ -6,6 +6,17 @@ Owns: child request lifecycle, parent approval lifecycle, bonus time, temporary 
 
 Handoff: AI may draft but cannot approve. Parent confirmation is required before any override becomes policy.
 
+## Ownership boundary
+
+```text
+policy-control-plane-plan owns ask-parent and override state machines, approval contract, expiry, replay defense, scope limits, audit, and no-claim boundaries.
+account-identity-family-plan owns parent/observer/revoked role authority.
+device-trust-bootstrap-plan owns high-risk parent presence/step-up when selected.
+ai-plan owns draft suggestions only; AI cannot confirm or apply policy.
+notification plan owns notification delivery handoff.
+domain/enforcement plans own runtime apply behavior after confirmed policy handoff.
+```
+
 ## Required lifecycle
 
 ```text
@@ -23,6 +34,32 @@ applied
 rolledBack
 manualRequired
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+request_id
+child_actor_state
+parent_actor_state
+observer_state
+revoked_parent_state
+assistant_draft_state
+parent_confirmation_state
+expiry_state
+double_submit_state
+replay_state
+override_scope_state
+bonus_time_state
+notification_handoff_state
+audit_ref
+rollback_state
+manual_required_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required proof IDs
 
@@ -66,4 +103,4 @@ override has no expiry
 
 ## Failure
 
-Do not let the AI or child request path write policy or enforcement state without parent confirmation and audit.
+Do not let the AI or child request path write policy or enforcement state without parent confirmation and audit. Keep WP05 open until parent confirmation, assistant/portal integration, notification handoff, expiry/replay proof, and audit proof exist or are carried as explicit blockers.

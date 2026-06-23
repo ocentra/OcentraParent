@@ -59,7 +59,10 @@ export const ScreenAnalysisParentSettingSchema = withParser(
     Schema.filter(
       (value) =>
         value.screenAnalysisEnabled ||
-        (!value.cadenceCaptureEnabled && !value.strictModeEnabled && !value.triggerCaptureEnabled && !value.policyUseEnabled) ||
+        (!value.cadenceCaptureEnabled &&
+          !value.strictModeEnabled &&
+          !value.triggerCaptureEnabled &&
+          !value.policyUseEnabled) ||
         'Expected disabled screen analysis settings to keep capture and policy use disabled'
     ),
     Schema.filter(
@@ -83,19 +86,27 @@ export const ScreenAnalysisParentSettingSchema = withParser(
     Schema.filter(
       (value) =>
         value.ocrTextEnabled ||
-        (value.ocrTextSnippetLimit === 0 && value.redactionMode === 'disabled' && value.ocrTextRetentionMode === 'disabled' && !value.piiRedactionEnabled) ||
+        (value.ocrTextSnippetLimit === 0 &&
+          value.redactionMode === 'disabled' &&
+          value.ocrTextRetentionMode === 'disabled' &&
+          !value.piiRedactionEnabled) ||
         'Expected disabled OCR text settings to retain no snippets or PII redaction mode'
     ),
     Schema.filter(
       (value) =>
         !value.ocrTextEnabled ||
-        (value.ocrTextSnippetLimit > 0 && value.redactionMode !== 'disabled' && value.ocrTextRetentionMode !== 'disabled') ||
+        (value.ocrTextSnippetLimit > 0 &&
+          value.redactionMode !== 'disabled' &&
+          value.ocrTextRetentionMode !== 'disabled') ||
         'Expected enabled OCR text settings to select explicit snippet retention and redaction behavior'
     ),
     Schema.filter(
       (value) =>
         !value.retainRawImage ||
-        (value.screenAnalysisEnabled && value.temporaryImageTtlSeconds <= ApprovedRawRetentionMaxTtlSeconds && value.deleteAfterSuccess && value.deleteAfterExpiry) ||
+        (value.screenAnalysisEnabled &&
+          value.temporaryImageTtlSeconds <= ApprovedRawRetentionMaxTtlSeconds &&
+          value.deleteAfterSuccess &&
+          value.deleteAfterExpiry) ||
         'Expected raw screenshot retention to require parent-enabled local short TTL custody with deletion after success and expiry'
     )
   )
@@ -134,13 +145,17 @@ export const ScreenEvidenceRemoteBoundarySettingSchema = withParser(
     Schema.filter(
       (value) =>
         value.remoteSummaryMode !== 'parentApprovedRedactedSummary' ||
-        (value.parentApprovedRemoteSummary && value.remoteSummaryApprovalRef !== null && value.remoteSummaryDestinationCustodyState === 'parent-owned-export') ||
+        (value.parentApprovedRemoteSummary &&
+          value.remoteSummaryApprovalRef !== null &&
+          value.remoteSummaryDestinationCustodyState === 'parent-owned-export') ||
         'Expected remote screen summaries to require parent approval, audit ref, and parent-owned export custody'
     ),
     Schema.filter(
       (value) =>
         value.remoteSummaryMode !== 'disabled' ||
-        (!value.parentApprovedRemoteSummary && value.remoteSummaryApprovalRef === null && value.remoteSummaryDestinationCustodyState === 'unavailable') ||
+        (!value.parentApprovedRemoteSummary &&
+          value.remoteSummaryApprovalRef === null &&
+          value.remoteSummaryDestinationCustodyState === 'unavailable') ||
         'Expected disabled remote screen summaries to have no approval ref or destination custody'
     ),
     Schema.filter(

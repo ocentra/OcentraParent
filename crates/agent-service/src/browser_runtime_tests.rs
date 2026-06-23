@@ -4,12 +4,17 @@ use ocentra_parent_agent_core::browser_managed_discovery::BrowserUnmanagedProces
 use ocentra_parent_agent_core::browser_managed_session::{
     BrowserManagedLaunch, BrowserManagedLaunchPlan,
 };
-use ocentra_parent_agent_protocol::{
-    constants, BrowserCapabilityStatus, BrowserChannel, BrowserFamily,
+use ocentra_parent_agent_protocol as parent_protocol;
+use ocentra_parent_agent_protocol::browser::{
+    BrowserCapabilityStatus, BrowserChannel, BrowserFamily,
+};
+use ocentra_parent_agent_protocol::browser_managed::{
     BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry, BrowserManagedState,
     BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionConfidence,
-    BrowserUnmanagedDetectionReason, BrowserUnmanagedProcessKind, LogFieldValue,
+    BrowserUnmanagedDetectionReason, BrowserUnmanagedProcessKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     browser_payload::browser_managed_status_payload,
@@ -245,7 +250,7 @@ fn launch_result() -> BrowserManagedLaunch {
 
 fn profile_store_entry() -> BrowserManagedProfileStoreEntry {
     BrowserManagedProfileStoreEntry {
-        schema_version: ocentra_parent_agent_protocol::BROWSER_EVIDENCE_SCHEMA_VERSION,
+        schema_version: parent_protocol::BROWSER_EVIDENCE_SCHEMA_VERSION,
         profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
         profile_path_ref: constants::browser::PROFILE_PATH_REF_MANAGED.to_string(),
         profile_root_ref: constants::browser::PROFILE_ROOT_REF_MANAGED.to_string(),
@@ -254,7 +259,8 @@ fn profile_store_entry() -> BrowserManagedProfileStoreEntry {
         browser_family: BrowserFamily::Chrome,
         browser_channel: BrowserChannel::Stable,
         lifecycle_state: BrowserManagedProfileLifecycleState::Ready,
-        custody_label: ocentra_parent_agent_protocol::BrowserCustodyLabel::ChildDeviceLocal,
+        custody_label:
+            ocentra_parent_agent_protocol::browser::BrowserCustodyLabel::ChildDeviceLocal,
         policy_revision: constants::browser::PROFILE_POLICY_REVISION_DEV.to_string(),
         created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         updated_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),

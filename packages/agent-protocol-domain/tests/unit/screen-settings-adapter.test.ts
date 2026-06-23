@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   createScreenSettingsCommand,
   createScreenSettingsCommandPayload,

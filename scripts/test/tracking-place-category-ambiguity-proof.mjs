@@ -15,6 +15,7 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
@@ -30,7 +31,7 @@ run('cmd', [
 
 const tracking = await importSchemaDist('tracking-location-policy.js');
 const adapter = await importDist('tracking-poi-provider-adapter.js');
-const categoryProof = await importDist('tracking-place-category-ambiguity-proof.js');
+const categoryProof = await importSchemaDist('tracking-place-category-ambiguity-proof.js');
 const searchInput = adapter.TrackingGooglePlacesNearbySearchInputSchema.parse(sourceSearchInput(tracking, adapter));
 const multipleReadModel = adapter.buildGooglePlacesNearbyReadModel(searchInput, multipleCandidateResponse());
 const lowAccuracyReadModel = adapter.buildGooglePlacesNearbyReadModel(
@@ -71,7 +72,7 @@ const proof = {
     automaticActionClaimed: false,
   },
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-place-category-ambiguity-proof.ts',
+    source: 'packages/schema-domain/src/tracking-place-category-ambiguity-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-place-category-ambiguity-proof.test.ts',
     harness: 'scripts/test/tracking-place-category-ambiguity-proof.mjs',
     evidence: 'test-results/tracking-place-category-ambiguity-proof/proof.json',
@@ -206,6 +207,7 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-place-category-ambiguity-proof tracking-poi-provider-adapter: PASS',
       '- Multiple nearby candidates remain manual-required review rows.',

@@ -23,13 +23,55 @@ Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects `docs/p
 - Task: work only the assigned slice for this plan.
 - Route first from `PLAN_STATE.md`.
 - Choose exactly one workpack.
+- Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
 - Do not inspect sibling plans unless the selected workpack names a handoff.
 - Proof must contain command log, negative case, artifact path, updated row, and skipped-risk note when applicable.
 - Do not claim child tamper/uninstall, device-owner, or respawn behavior from parent client proof.
 
+## Ownership, Import, And Boundary Contract
+
+This plan owns packaging and distribution proof for child runtime artifacts. It does not own the parent client package, the setup journey, account identity, policy behavior, AI behavior, enforcement adapters, notification delivery, portal display, LAN protocol behavior, or data custody.
+
+Module roles:
+
+```text
+schema-domain: canonical shared child package, child runtime, platform capability, device-owner, managed-profile, supervision, artifact, signing, setup-trust-handoff, and release-gate shapes when those shapes cross package, crate, app, or plan boundaries.
+child-runtime-domain: child runtime package-boundary metadata/helper surface. Shared child runtime contracts live in schema-domain.
+agent-protocol and agent-service: runtime/protocol proof only when the selected workpack names child runtime, service health, package lifecycle protocol, or service-manager proof.
+scripts/release: artifact build/checksum/signing-packaging proof only. Package scripts do not prove install, runtime, respawn, uninstall, setup, transport, or platform readiness by themselves.
+setup-install-provisioning-plan: setup journey owner; this plan consumes only typed setup-to-child-install handoff state.
+device-trust-bootstrap-plan: trusted-device bootstrap, local sealed trust, and device trust material owner.
+parent-client-runtime-distribution-plan: parent client artifact/distribution owner. Parent proof cannot close child artifact rows.
+policy, enforcement, AI, portal, notification, LAN, remote, account, payment, and data-custody plans: sibling behavior, display, transport, identity, billing, or custody owners only. They must not re-own child package/distribution truth.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+canonical schema-domain child-runtime/package/platform-capability/setup-trust-handoff/artifact/signing/release-gate shapes
+neutral event/evidence/logging/protocol primitives
+child-runtime-domain package-info and approved metadata helpers
+agent-protocol/agent-service public surfaces only when runtime/protocol proof is selected
+release script outputs and artifact manifests when package proof is selected
+```
+
+Forbidden direct imports and claims:
+
+```text
+parent-client runtime internals used as child package proof
+setup UI or parent bootstrap internals used as child install/package proof
+policy, enforcement, AI, portal, notification, LAN, remote, account, payment, or data-custody runtime behavior imported into this plan's package proof
+Android debug APK proof upgraded into device-owner, managed-profile, privileged capability, runtime background, transport, or store distribution proof
+iOS simulator or provisioning proof upgraded into background-service parity or supervision parity
+package build/checksum/signing proof upgraded into install, runtime health, respawn, uninstall, transport, policy, enforcement, or setup readiness
+platform unsupported/manual-required states hidden or collapsed into ready states
+```
+
+If child distribution work needs setup, device trust, policy, enforcement, notification, portal, LAN, remote, account, or data custody behavior, it must use typed evidence, commands, events, requests, read models, artifact manifests, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+
 ## Research gate
 
-Before DONE or PR_READY, inspect:
+Before DONE or PR_READY, inspect only the selected slice of:
 
 - the current child-service/runtime implementation in the repo
 - the package scripts for Windows, macOS, Linux, Android, and iOS distribution
@@ -59,22 +101,23 @@ Before DONE or PR_READY, inspect:
 
 - Child agent distribution is separate from parent client distribution.
 - Windows, macOS, and Linux rows may support managed respawn and uninstall resistance through the platform service manager or package manager.
-- Android rows may support device-owner or managed-profile states where the platform allows them.
+- Android rows may support device-owner or managed-profile states only where platform setup and proof allow them.
 - iOS rows must stay honest about supervision, provisioning, and background-service limits.
 - Signing, store, and device-owner claims must be explicit per artifact.
-- Parent-authorized uninstall is a platform and custody claim, not a stealth claim.
+- Parent-authorized uninstall is a platform and custody claim, not a hidden persistence claim.
 
 ## Handoffs
 
 - `setup-install-provisioning-plan` owns the setup journey and device-trust handoff into install state.
 - `parent-client-runtime-distribution-plan` owns the parent client distribution boundary.
 - `device-trust-bootstrap-plan` owns trusted-device bootstrap and local sealed trust.
-- `app-plan` owns the child local-service/runtime implementation surface.
+- `child-agent-local-service`/child runtime owners own local-service runtime behavior; this plan packages and proves distribution boundaries.
 
 ## Failure conditions
 
 - Do not claim parent client parity from child package proof.
 - Do not hide platform-specific device-owner or provisioning gaps.
 - Do not claim respawn where the platform cannot prove it.
-- Do not conflate uninstall resistance with stealth persistence.
+- Do not conflate uninstall resistance with hidden persistence.
 - Do not hide manual-required gaps.
+- Do not mark package readiness from artifact build, checksum, package script, setup UI, or parent client proof alone.

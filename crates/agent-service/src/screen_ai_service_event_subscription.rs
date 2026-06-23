@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
@@ -9,7 +9,8 @@ use ocentra_eventing::{
     ids::TargetHandler,
 };
 use ocentra_parent_agent_core::screen_event_runtime::ScreenRuntimeReport;
-use ocentra_parent_agent_protocol::{constants, ActivityScreenReadModelRow};
+use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
+use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 use crate::screen_ai_service_event_bridge::{
@@ -106,18 +107,18 @@ pub(crate) struct ScreenAiServiceEventSubscriptionState {
 impl ScreenAiServiceEventSubscriptionState {
     #[cfg(test)]
     pub(crate) fn dispatches(&self) -> Vec<ScreenAiServiceEventSubscriptionDispatch> {
-        self.dispatches
-            .lock()
-            .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_RECORDS)
-            .clone()
+        lock_recover(&self.dispatches).clone()
     }
 
     fn record(&self, dispatch: ScreenAiServiceEventSubscriptionDispatch) {
-        self.dispatches
-            .lock()
-            .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_RECORDS)
-            .push(dispatch);
+        lock_recover(&self.dispatches).push(dispatch);
     }
+}
+
+fn lock_recover<T>(value: &Arc<Mutex<T>>) -> MutexGuard<'_, T> {
+    value
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

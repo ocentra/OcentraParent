@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  screenChildDisclosureProofSnapshots,
-} from '@ocentra-parent/schema-domain/screen-child-disclosure';
+import { screenChildDisclosureProofSnapshots } from '@ocentra-parent/schema-domain/screen-child-disclosure';
 import {
   createScreenChildDisclosurePageModel,
   renderScreenChildDisclosurePage,

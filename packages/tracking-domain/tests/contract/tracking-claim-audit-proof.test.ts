@@ -3,7 +3,7 @@ import {
   RequiredTrackingClaimAuditPlans,
   TrackingClaimAuditRowSchema,
   buildTrackingClaimAuditProof,
-} from '../../src/tracking-claim-audit-proof';
+} from '@ocentra-parent/schema-domain/tracking-claim-audit-proof';
 
 const GeneratedAt = '2026-06-08T04:05:00.000Z';
 

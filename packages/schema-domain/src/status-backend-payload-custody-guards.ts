@@ -4,10 +4,7 @@ import type {
   StatusBackendPayloadCustodyEntryCandidate,
   StatusBackendPayloadCustodyState,
 } from './status-backend-payload-custody.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function statusBackendPayloadCustodyEntryIsSafe(
   entry: StatusBackendPayloadCustodyEntryCandidate,

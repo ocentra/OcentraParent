@@ -1,7 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
-    LogFields, SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind, ACTIVITY_SCHEMA_VERSION,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::screen_evidence::{
+    SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
     SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL,
     SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED, SCREEN_POLICY_CONFIDENCE_READY,
     SCREEN_PROVIDER_LOCAL_VISION, SCREEN_QUEUE_STATUS_FAILED,
@@ -11,17 +15,18 @@ use super::ActivityStore;
 
 #[test]
 fn activity_store_reports_screen_summary_from_local_ai_events() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     store
         .ingest_events(&[screen_summary_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(summary.returned, 1);
     assert_eq!(
@@ -48,7 +53,7 @@ fn activity_store_reports_screen_summary_from_local_ai_events() {
     let result = summary
         .results
         .first()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     assert_eq!(
         result.policy_decision_ref,
         Some(constants::activity_store::TEST_POLICY_DECISION_ID.to_string())
@@ -81,14 +86,15 @@ fn activity_store_reports_screen_summary_from_local_ai_events() {
 
 #[test]
 fn activity_store_reports_empty_screen_summary_without_inventing_results() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(summary.returned, 0);
     assert_eq!(summary.latest_result_id, None);
@@ -97,17 +103,18 @@ fn activity_store_reports_empty_screen_summary_without_inventing_results() {
 
 #[test]
 fn activity_store_surfaces_screen_delete_failed_queue_health() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     store
         .ingest_events(&[delete_failed_screen_summary_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(summary.returned, 1);
     assert_eq!(summary.queue_health.delete_failed_count, 1);
@@ -124,17 +131,18 @@ fn activity_store_surfaces_screen_delete_failed_queue_health() {
 
 #[test]
 fn activity_store_skips_incomplete_screen_summary_rows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     store
         .ingest_events(&[incomplete_screen_summary_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(summary.returned, 0);
     assert_eq!(summary.results.len(), 0);
@@ -337,7 +345,7 @@ fn incomplete_screen_summary_event() -> ActivityEvent {
 
 fn screen_event(fields: LogFields) -> ActivityEvent {
     ActivityEvent {
-        schema_version: ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION,
+        schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED.to_string(),
         observed_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         source: ActivitySource {

@@ -5,16 +5,29 @@ use std::{
 };
 
 use base64::prelude::{Engine as _, BASE64_STANDARD};
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiAdapterBoundary, LocalAiCapabilityFlag, LocalAiChatGenerationResult,
-    LocalAiDegradedState, LocalAiExecutionState, LocalAiGenerationState, LocalAiModelLoadState,
-    LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass,
-    LocalModelRuntimeStatus, ScreenAnalysisResult, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
-    SCREEN_SERVICE_ANALYSIS_FIELD_IMAGE_BASE64, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
-    SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
-    SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiCapabilityFlag;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiModelLoadState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterBoundary;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiExecutionState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderPrivacyMode;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderSource;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisResult;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_OCR;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_FIELD_IMAGE_BASE64;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_PROVIDER_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_RUNTIME_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use serde_json::{Map, Value};
 use tokio::{io::AsyncWriteExt, time::timeout};
 
@@ -50,8 +63,10 @@ pub(super) async fn run_adapter(
         return unavailable_generation(config, image, 0);
     }
     let request = adapter_request(image, metadata);
-    let request_bytes =
-        serde_json::to_vec(&request).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let request_bytes = match serde_json::to_vec(&request) {
+        Ok(bytes) => bytes,
+        Err(_) => return failed_generation(config, image, 0, 0),
+    };
     let started = Instant::now();
     let mut process = adapter_process_command(command);
     let mut child = match process

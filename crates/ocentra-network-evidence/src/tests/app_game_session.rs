@@ -5,6 +5,7 @@ use crate::{
     NetworkAppGameSessionCorrelationInput, NetworkAppGameSessionCorrelationState,
     NetworkAppGameStoredSessionEvidence, NetworkEvidenceGrade,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_session_correlation_confirms_foreground_session_from_stored_refs() {
@@ -12,7 +13,7 @@ fn app_game_session_correlation_confirms_foreground_session_from_stored_refs() {
         NetworkAppGameEvidenceKind::KnownGame,
         NetworkAppGameForegroundState::KnownForeground,
     )))
-    .expect("stored foreground session should confirm app/game correlation");
+    .expect_value("stored foreground session should confirm app/game correlation");
 
     assert_eq!(
         correlation.state,
@@ -44,7 +45,7 @@ fn app_game_session_correlation_confirms_running_session_without_foreground() {
         NetworkAppGameEvidenceKind::KnownApp,
         NetworkAppGameForegroundState::KnownBackground,
     )))
-    .expect("stored running session should confirm app/game correlation");
+    .expect_value("stored running session should confirm app/game correlation");
 
     assert_eq!(
         correlation.state,
@@ -68,7 +69,7 @@ fn app_game_session_correlation_guards_launcher_only_evidence() {
     launcher.display_name = Some("Steam".to_owned());
 
     let correlation = correlate_app_game_foreground_session(input(launcher))
-        .expect("launcher-only rows should be guarded");
+        .expect_value("launcher-only rows should be guarded");
 
     assert_eq!(
         correlation.state,
@@ -89,7 +90,7 @@ fn app_game_session_correlation_keeps_candidates_and_missing_evidence_non_author
         NetworkAppGameEvidenceKind::AppGameCandidate,
         NetworkAppGameForegroundState::Unknown,
     )))
-    .expect("candidate should remain review-only");
+    .expect_value("candidate should remain review-only");
     assert_eq!(
         candidate.state,
         NetworkAppGameSessionCorrelationState::CandidateNeedsReview
@@ -104,7 +105,7 @@ fn app_game_session_correlation_keeps_candidates_and_missing_evidence_non_author
         network_flow_ref: "network-flow-1".to_owned(),
         stored_session: None,
     })
-    .expect("missing session should be explicit");
+    .expect_value("missing session should be explicit");
     assert_eq!(
         missing.state,
         NetworkAppGameSessionCorrelationState::NoSessionEvidence
@@ -122,7 +123,7 @@ fn app_game_session_correlation_marks_adapter_unavailable() {
     unavailable.adapter_available = false;
 
     let correlation = correlate_app_game_foreground_session(input(unavailable))
-        .expect("unavailable adapter should be explicit");
+        .expect_value("unavailable adapter should be explicit");
 
     assert_eq!(
         correlation.state,

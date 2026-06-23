@@ -19,10 +19,11 @@
 1. Confirm branch and assignment.
 2. Open `WORKPACK_INDEX.md`.
 3. Select exactly one workpack.
-4. Open only that workpack.
-5. Use `TEST_PROOF_EXPECTATIONS.md` and `PROOF_INDEX.md` for proof obligations.
-6. Implement narrow source/docs/test changes.
-7. Update `CHECKLIST_INDEX.md`, selected workpack, and `PLAN_STATE.md` only after proof exists.
+4. Read `workpacks/00-owner-boundary-proof-gate.md` to apply current owner/import/proof rules.
+5. Open only the selected workpack.
+6. Use `TEST_PROOF_EXPECTATIONS.md` and `PROOF_INDEX.md` for proof obligations.
+7. Implement narrow source/docs/test changes.
+8. Update `CHECKLIST_INDEX.md`, selected workpack, and `PLAN_STATE.md` only after proof exists.
 
 ## Highest-priority queue
 
@@ -72,7 +73,7 @@ Expected result:
 invite state machine
 co-parent/observer/child-device invite scopes
 single-use/expiry/revocation/replay proof
-recovery flows for forgotten login, lost parent device, compromised account, child reinstall, transfer
+recovery flows for forgotten login, lost parent device, compromised-account, child reinstall, transfer
 data custody handoff for delete/export
 ```
 
@@ -115,6 +116,7 @@ explicit request-safety blocker carried forward without fake-green closure
 - UI implementation is blocked until the required contract shape exists or a stub/blocker proof is written.
 - Payment/policy/remote/device-trust integration is blocked until WP06 route gate proof exists.
 - Any claim involving secure auth/session requires WP03 and WP06 proof.
+- Any selected workpack that conflicts with `workpacks/00-owner-boundary-proof-gate.md` must be updated or blocked before source changes.
 
 ## PR readiness guard
 

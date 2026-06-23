@@ -1,9 +1,3 @@
-#![allow(
-    clippy::map_err_ignore,
-    clippy::needless_pass_by_value,
-    clippy::redundant_clone
-)]
-
 pub mod action_result;
 pub mod adapter_capability_status;
 pub mod ai_audit;
@@ -53,6 +47,7 @@ pub mod windows_wfp_gate;
 pub mod zeek;
 
 mod adapter_capability_status_values;
+mod lab_execution_common;
 mod platform_claim_values;
 mod process_support;
 
@@ -367,3 +362,77 @@ use self::{
         NetworkZeekTlsRow, NetworkZeekVisibilityState,
     },
 };
+
+#[cfg(test)]
+#[test]
+fn clippy_test_export_touchpoints() {
+    use core::any::TypeId;
+
+    let _ = build_network_adapter_capability_status;
+    let _ = prove_network_android_physical_target;
+    let _ = build_network_platform_claim_manifest;
+    let _ = flow_packets_from_pcap;
+    let _ = udp_payload_from_ethernet_ipv4;
+
+    let _ = TypeId::of::<DnsMessage>();
+    let _ = TypeId::of::<DnsObservation>();
+    let _ = TypeId::of::<DnsQuestion>();
+    let _ = TypeId::of::<DnsResourceRecord>();
+    let _ = TypeId::of::<DomainCategoryError>();
+    let _ = TypeId::of::<EncryptedDnsCandidate>();
+    let _ = TypeId::of::<EthernetFrameMetadata>();
+    let _ = TypeId::of::<HttpHostObservation>();
+    let _ = TypeId::of::<HttpHostParseError>();
+    let _ = TypeId::of::<Ipv4PacketMetadata>();
+    let _ = TypeId::of::<NetworkActivityClassification>();
+    let _ = TypeId::of::<NetworkAdapterCapabilityStatusEntry>();
+    let _ = TypeId::of::<NetworkAiAuditRecommendation>();
+    let _ = TypeId::of::<NetworkAnalyzerAlertRecord>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetBoundaryReason>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetError>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetExpected>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetField>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetInput>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetMismatch>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetObserved>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetProof>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetState>();
+    let _ = TypeId::of::<NetworkAndroidPhysicalTargetUnsupportedClaims>();
+    let _ = TypeId::of::<NetworkEndToEndPipelineProof>();
+    let _ = TypeId::of::<NetworkEvidenceCascadeDecision>();
+    let _ = TypeId::of::<NetworkFlowError>();
+    let _ = TypeId::of::<NetworkFlowKey>();
+    let _ = TypeId::of::<NetworkFlowSession>();
+    let _ = TypeId::of::<NetworkFlowSummary>();
+    let _ = TypeId::of::<NetworkLinuxNftablesLabExecutionProof>();
+    let _ = TypeId::of::<NetworkLinuxNftablesLabExecutionState>();
+    let _ = TypeId::of::<NetworkLiveCaptureExecutionProof>();
+    let _ = TypeId::of::<NetworkLocalAiQueueJob>();
+    let _ = TypeId::of::<NetworkLocalPlatformProbeProof>();
+    let _ = TypeId::of::<NetworkParentNotificationCandidate>();
+    let _ = TypeId::of::<NetworkPerformanceBenchmarkProof>();
+    let _ = TypeId::of::<NetworkPlatformClaimManifestError>();
+    let _ = TypeId::of::<NetworkPlatformClaimManifestInput>();
+    let _ = TypeId::of::<NetworkPlatformClaimProofSource>();
+    let _ = TypeId::of::<NetworkPlatformUnsupportedClaims>();
+    let _ = TypeId::of::<NetworkRawCaptureStorageProof>();
+    let _ = TypeId::of::<NetworkReadinessProof>();
+    let _ = TypeId::of::<NetworkReplaySummary>();
+    let _ = TypeId::of::<NetworkRetentionDeleteExportProof>();
+    let _ = TypeId::of::<NetworkScreenSummaryTriggerJob>();
+    let _ = TypeId::of::<NetworkSignatureAlertIngestionProof>();
+    let _ = TypeId::of::<NetworkWindowsFirewallLabExecutionProof>();
+    let _ = TypeId::of::<NetworkWindowsFirewallLabExecutionState>();
+    let _ = TypeId::of::<NetworkZeekAnalyzerProof>();
+    let _ = TypeId::of::<NetworkZeekConnectionRow>();
+    let _ = TypeId::of::<NetworkZeekDnsRow>();
+    let _ = TypeId::of::<NetworkZeekHttpRow>();
+    let _ = TypeId::of::<NetworkZeekTlsRow>();
+    let _ = TypeId::of::<NormalizedDomainEvidence>();
+    let _ = TypeId::of::<ParsedNetworkPacket>();
+    let _ = TypeId::of::<PcapPacket>();
+    let _ = TypeId::of::<QuicVisibilityLimitation>();
+    let _ = TypeId::of::<TlsClientHelloError>();
+    let _ = TypeId::of::<TlsClientHelloVisibility>();
+    let _ = TypeId::of::<UdpPayloadView>();
+}

@@ -5,9 +5,9 @@ import {
   AgentEvent,
   AgentEventEnvelopeSchema,
   AgentLanPairingSupportedWebSocketCommand,
-  AgentPairingProofSchema,
-  AgentProtocolDefaults,
-} from '../../src/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentPairingProofSchema } from '@ocentra-parent/schema-domain/agent-lan';
 import {
   AgentLanBrowserRuntimeCommandNameLiteral,
   AgentLanBrowserRuntimeEventNameLiteral,
@@ -369,15 +369,9 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
 });
 
 it('AgentProtocolDefaults.Field: exposes network product path ref fields', () => {
-  expect(AgentProtocolDefaults.Field.NetworkProductPathAnalyzerAlertRefs).toBe(
-    'networkProductPathAnalyzerAlertRefs'
-  );
-  expect(AgentProtocolDefaults.Field.NetworkProductPathAiDetectionRefs).toBe(
-    'networkProductPathAiDetectionRefs'
-  );
-  expect(AgentProtocolDefaults.Field.NetworkProductPathRiskBudgetRefs).toBe(
-    'networkProductPathRiskBudgetRefs'
-  );
+  expect(AgentProtocolDefaults.Field.NetworkProductPathAnalyzerAlertRefs).toBe('networkProductPathAnalyzerAlertRefs');
+  expect(AgentProtocolDefaults.Field.NetworkProductPathAiDetectionRefs).toBe('networkProductPathAiDetectionRefs');
+  expect(AgentProtocolDefaults.Field.NetworkProductPathRiskBudgetRefs).toBe('networkProductPathRiskBudgetRefs');
 });
 
 it('AgentProtocolDefaults.PolicyPreview: exposes portal policy preview parser values', () => {

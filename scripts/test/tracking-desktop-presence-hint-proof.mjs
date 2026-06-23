@@ -50,7 +50,7 @@ const proof = {
     productionBehaviorClaimed: false,
   },
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-desktop-presence-hint-proof.ts',
+    source: 'packages/schema-domain/src/tracking-desktop-presence-hint-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-desktop-presence-hint-proof.test.ts',
     harness: 'scripts/test/tracking-desktop-presence-hint-proof.mjs',
     evidence: 'test-results/tracking-desktop-presence-hint-proof/proof.json',
@@ -68,7 +68,7 @@ console.log('tracking-desktop-presence-hint-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-desktop-presence-hint-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function assertProof(proof) {

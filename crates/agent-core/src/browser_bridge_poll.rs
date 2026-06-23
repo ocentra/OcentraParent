@@ -1,10 +1,12 @@
 use std::net::SocketAddr;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, BrowserActiveProofSource, BrowserActiveTabState,
-    BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-    BrowserQueryVisibilityLabel,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::constants;
 use serde_json::Value;
 
 use crate::{

@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofSchema,
   AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProof,
-} from '../../src/app-install-purchase-external-runtime-writer-delivery-blocker-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof';
 
 describe('app install and purchase external runtime writer delivery blocker proof', () => {
   acceptsDeliveryBlockerRowsWithoutDeliveryClaims();

@@ -8,7 +8,8 @@ use ocentra_eventing::{
     envelope::DomainEvent, envelope::EventContract, ids::AggregateKey, ids::EventType,
     ids::IdempotencyKey, ids::SchemaVersion,
 };
-use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
+use ocentra_parent_agent_protocol::constants;
 #[cfg(test)]
 use serde::{Deserialize, Serialize};
 

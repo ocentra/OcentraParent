@@ -1,7 +1,4 @@
-import {
-  ScreenControlOptionIdSchema,
-  ScreenControlRuleIdSchema,
-} from './screen-control-catalog-schema';
+import { ScreenControlOptionIdSchema, ScreenControlRuleIdSchema } from './screen-control-catalog-schema';
 import type {
   ScreenControlCatalogCapabilityState,
   ScreenControlCatalogCardKind,
@@ -420,10 +417,23 @@ function slug(value: string): string {
   const normalized = value
     .toLowerCase()
     .replace(/&/gu, ' and ')
-    .replace(/[^a-z0-9]+/gu, '-')
-    .replace(/^-+|-+$/gu, '')
-    .replace(/-{2,}/gu, '-');
-  return normalized.length > 0 ? normalized : 'option';
+    .replace(/[^a-z0-9]+/gu, '-');
+
+  const trimmed = trimEdgeHyphens(normalized);
+
+  return trimmed.length > 0 ? trimmed : 'option';
+}
+
+function trimEdgeHyphens(value: string): string {
+  let start = 0;
+  let end = value.length;
+  while (start < end && value.charCodeAt(start) === 45) {
+    start += 1;
+  }
+  while (end > start && value.charCodeAt(end - 1) === 45) {
+    end -= 1;
+  }
+  return start === 0 && end === value.length ? value : value.slice(start, end);
 }
 
 function lowerFirst(value: string): string {

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentActionReferenceSchema,
   ParentActorReferenceSchema,
@@ -500,4 +495,3 @@ export const EnforcementAuditEventKind = {
   Unavailable: EnforcementAuditEventKindSchema.parse('unavailable'),
   Cancelled: EnforcementAuditEventKindSchema.parse('cancelled'),
 } as const;
-

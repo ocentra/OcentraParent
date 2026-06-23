@@ -1,9 +1,9 @@
-const PREFIX = "[cloudflare-control-plane]";
+const PREFIX = '[cloudflare-control-plane]';
 
 export function failWithBlocker(scope: string, blocker: string, nextStep: string): never {
   const payload = {
     scope,
-    status: "manual-required",
+    status: 'manual-required',
     blocker,
     nextStep,
   };

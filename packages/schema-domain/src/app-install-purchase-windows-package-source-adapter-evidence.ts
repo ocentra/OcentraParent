@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel } from './app-install-purchase-platform-adapter-evidence-gap-proof';
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
@@ -743,4 +743,3 @@ function windowsPackageSourceRuntimeHandoffProofIsHonest(
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
-

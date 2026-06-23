@@ -14,7 +14,7 @@
 
 Task: define the billing, subscription, referral, and entitlement architecture for the parent product on top of the shared Cloudflare control-plane prerequisite. This plan is the single owner for monetization architecture; do not split a second subscription plan.
 
-Context: `cloudflare-control-plane-plan` now owns the repo-local `infra/cloudflare/` module, its bindings, auth boundary, route manifest, local dev loop, test runner, and deployment model. This plan consumes that module and owns monetization semantics: checkout meaning, referral meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning. Parent should reuse the shared control-plane pattern, not the game economy model.
+Context: `cloudflare-control-plane-plan` owns the repo-local `infra/cloudflare/` module, its bindings, auth boundary, route manifest, local dev loop, test runner, and deployment model. This plan consumes that module and owns monetization semantics: checkout meaning, referral meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning. Parent should reuse the shared control-plane pattern, not the game economy model.
 
 Scope: subscription plans, starter bundle, child-device seats, referral credits, provider adapters, checkout and portal sessions, billing dashboard surfaces, support/admin billing ops, invoices/tax/refunds/disputes, webhook lifecycle, app-owned ledgers, signed entitlement snapshots, and proof.
 
@@ -26,6 +26,56 @@ Out of scope: account identity policy, device trust implementation, install/prov
 - Work only the selected workpack plus its proof rows and route-sync docs; prefer concrete billing/entitlement proof over implementation prose.
 - For each claimed row, capture failure state, evidence path, negative test, rollback path, and adjacent handoff before marking done.
 - Stop condition: no DONE/PR_READY for subscriptions without webhook idempotency proof, entitlement correctness, provider/region closure, and billing artifact traceability.
+- Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+
+## Ownership, Import, And Boundary Contract
+
+This plan owns monetization semantics and payment-domain proof. It does not own the shared Cloudflare runtime scaffold, account identity, device trust, data custody, setup/install, policy decisions, enforcement execution, child telemetry, or generic portal shell UX.
+
+Module roles:
+
+```text
+billing-domain: TypeScript billing account, pricing, entitlement, referral, dashboard, support-admin, provider-facing contract, and proof-consumer surfaces. Public exports remain authoritative only when they exist.
+billing-core: Rust webhook intake, provider lifecycle classification, event/idempotency, dispute/manual-review, and downstream entitlement update requirement helpers.
+cloudflare-control-plane-plan: shared Worker/API runtime module, bindings, auth states, route manifest, local dev/test shape, deployment promotion, and payment handoff proof.
+infra/cloudflare: Cloudflare runtime surface owned by cloudflare-control-plane-plan; payment consumes only approved billing route groups and handoff contracts.
+schema-domain: canonical shared billing/payment/entitlement shapes when contracts cross package, app, crate, or plan boundaries.
+account-identity-family-plan and family-domain: account, household, role, session, and parent authority owners.
+device-trust-bootstrap-plan: trusted-device binding and local sealed trust owner for signed entitlement consumption.
+data-custody-storage-plan: billing-record retention, export, deletion, privacy, and custody owner.
+portal-domain/apps/portal/parent-domain: projection, dashboard, and parent-surface proof only when selected; they do not own billing truth.
+policy-control-plane-plan and enforcement-control plans: policy decisions and enforcement behavior that consume entitlement state only after account, payment, and device-trust authority are proven.
+```
+
+Direct imports are allowed only for explicit public helper surfaces:
+
+```text
+billing-domain public contracts/helpers when selected by the workpack
+billing-core public Rust lifecycle/eventing helpers when selected by the workpack
+schema-domain canonical billing/payment/entitlement shapes
+Cloudflare route/handoff contracts produced by cloudflare-control-plane-plan
+account/device-trust/data-custody/portal public handoff contracts only when the selected workpack names them
+neutral event/evidence/logging/protocol helpers that do not own product behavior
+```
+
+Forbidden direct imports and claims:
+
+```text
+Cloudflare runtime internals imported to bypass the shared control-plane handoff
+provider checkout redirect upgraded into paid access
+provider event payload upgraded into app entitlement without server verification and ledger write
+provider truth upgraded into product authority
+entitlement snapshot upgraded into root trust
+billing-domain tests upgraded into parent dashboard proof
+support/admin search upgraded into unrestricted support authority
+regional provider docs upgraded into launch readiness
+referral invite upgraded into referral credit without qualification proof
+assertion matrix completeness upgraded into runtime proof
+client code receiving provider or webhook secrets
+provider metadata containing private child activity or child telemetry
+```
+
+If payment work needs account identity, device trust, data custody, setup, portal UX, policy, enforcement, Cloudflare runtime behavior, or child telemetry behavior, it must use typed handoffs, proof roots, and explicit no-claim boundaries. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
 
 ## Research Gate
 

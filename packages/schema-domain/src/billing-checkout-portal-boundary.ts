@@ -1,9 +1,5 @@
 import { type Infer, Schema, withParser } from './effect';
-import {
-  FamilyReferenceSchema,
-  ParentAccountReferenceSchema,
-  ParentActorReferenceSchema,
-} from './family-references';
+import { FamilyReferenceSchema, ParentAccountReferenceSchema, ParentActorReferenceSchema } from './family-references';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { BillingPlanIdSchema } from './billing-entitlement-values';
 import {
@@ -187,9 +183,7 @@ export const BillingHostedReturnRoute = {
   }),
 } as const;
 
-function billingHostedReturnRoutePath(
-  routeId: BillingHostedReturnRouteId
-): string {
+function billingHostedReturnRoutePath(routeId: BillingHostedReturnRouteId): string {
   return BillingHostedRoutePathById[routeId];
 }
 

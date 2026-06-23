@@ -45,7 +45,7 @@ async function main() {
       'app-game-android-child-runtime-local-notification-request-queue-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -100,7 +100,7 @@ async function main() {
       join(
         repoRoot,
         'packages',
-        'app-game-domain',
+        'schema-domain',
         'dist',
         'app-game-android-child-runtime-local-notification-request-queue-proof.js'
       )
@@ -122,7 +122,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-notification-request-queue-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-child-runtime-local-notification-request-queue-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-notification-request-queue-proof.test.ts',
       androidQueueRuntime:
@@ -139,7 +139,7 @@ async function main() {
     claimsProved: [
       'Android child package records package-local ask-parent request queue evidence after the notification action path',
       'Android child package records package-local request readback and drain markers through internal app storage',
-      'App-game-domain records only action/queue/readback/drain proof refs and keeps service ingestion, approval round trip, provider delivery, adapter dispatch, platform enforcement, and raw private source rows unclaimed',
+      'The centralized request-queue proof records only action/queue/readback/drain refs and keeps service ingestion, approval round trip, provider delivery, adapter dispatch, platform enforcement, and raw private source rows unclaimed',
     ],
     claimsNotProved: [
       'Service request ingestion',

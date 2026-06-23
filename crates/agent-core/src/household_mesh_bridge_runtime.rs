@@ -64,6 +64,15 @@ fn household_mesh_bridge_event_payload_from_input(
 ) -> HouseholdMeshBridgeEventPayload {
     let export_decision = bridge_export_decision_for_input(input);
     let bridge_message = bridge_message_for_phase(phase, input, &export_decision);
+    let HouseholdMeshLanMessage {
+        local_event_ref,
+        lan_message_type,
+        family_id,
+        target_child_device_id,
+        source_peer_id,
+        idempotency_key,
+        ..
+    } = bridge_message;
     let import_validation = matches!(
         phase,
         HouseholdMeshBridgePhase::LanMessageReceived
@@ -86,12 +95,12 @@ fn household_mesh_bridge_event_payload_from_input(
         envelope_state: bridge_event_state(phase),
         direction: bridge_direction_for_phase(phase),
         local_event_type: input.local_event_type.clone(),
-        local_event_ref: bridge_message.local_event_ref.clone(),
-        lan_message_type: bridge_message.lan_message_type.clone(),
-        family_id: bridge_message.family_id.clone(),
-        target_child_device_id: bridge_message.target_child_device_id.clone(),
-        source_peer_id: bridge_message.source_peer_id.clone(),
-        idempotency_key: bridge_message.idempotency_key.clone(),
+        local_event_ref,
+        lan_message_type,
+        family_id,
+        target_child_device_id,
+        source_peer_id,
+        idempotency_key,
         outbound_message_id: input.outbound_message_id.clone(),
         inbound_message_id: input.inbound_message.message_id.clone(),
         child_agent_peer_id: input.child_agent_peer_id.clone(),
@@ -144,7 +153,7 @@ pub fn validate_household_mesh_bridge_import(
             .map(String::as_str)
             .collect::<Vec<_>>();
         match validate_incoming_lan_message(
-            envelope.message.clone(),
+            &envelope.message,
             &envelope.expected_family_id,
             &envelope.expected_target_child_device_id,
             envelope.received_at_epoch_seconds,
@@ -242,8 +251,10 @@ fn bridge_export_decision_for_input(
         &input.child_agent_peer_id,
         &input.outbound_message_id,
         &input.outbound_idempotency_key,
-        constants::household_mesh::TEST_BRIDGE_SENT_AT_EPOCH_SECONDS,
-        constants::household_mesh::TEST_BRIDGE_STALE_AFTER_SECONDS,
+        (
+            constants::household_mesh::TEST_BRIDGE_SENT_AT_EPOCH_SECONDS,
+            constants::household_mesh::TEST_BRIDGE_STALE_AFTER_SECONDS,
+        ),
     )
 }
 

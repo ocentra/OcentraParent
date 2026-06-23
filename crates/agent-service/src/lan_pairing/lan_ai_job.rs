@@ -1,7 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LanPairingRejectionReason,
-    LanParentIntentEnvelope, LogFieldValue, LogFields, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
@@ -25,7 +30,7 @@ pub(crate) fn lan_ai_provider_status_get(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload) {
+    let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_observer_read_intent(&runtime, observed_origin, &intent))
         {
@@ -45,7 +50,7 @@ pub(crate) fn lan_ai_provider_status_get(
             Err(reason) => lan_ai_rejection_event(
                 &runtime,
                 command,
-                reason,
+                &reason,
                 Some(&intent),
                 observed_origin,
                 constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
@@ -54,117 +59,122 @@ pub(crate) fn lan_ai_provider_status_get(
         Err(reason) => lan_ai_rejection_event(
             &runtime,
             command,
-            reason,
+            &reason,
             None,
             observed_origin,
             constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
         ),
-    }
+    };
+    drop(origin);
+    drop(runtime);
+    event
 }
 
 pub(crate) fn lan_ai_job_submit(
-    runtime: LanPairingRuntime,
-    origin: Option<String>,
+    runtime: &LanPairingRuntime,
+    origin: Option<&str>,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let observed_origin = origin.as_deref();
     match parse_intent(&command.payload) {
-        Ok(intent) => match validate_command_target(&runtime, &command, &intent)
-            .and_then(|()| validate_authorized_lan_ai_job(&runtime, observed_origin, &intent))
+        Ok(intent) => match validate_command_target(runtime, &command, &intent)
+            .and_then(|()| validate_authorized_lan_ai_job(runtime, origin, &intent))
         {
-            Ok(()) => lan_ai_job_routed_event(runtime, command, &intent, observed_origin),
+            Ok(()) => lan_ai_job_routed_event(runtime, command, &intent, origin),
             Err(reason) => lan_ai_rejection_event(
-                &runtime,
+                runtime,
                 command,
-                reason,
+                &reason,
                 Some(&intent),
-                observed_origin,
+                origin,
                 constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
             ),
         },
         Err(reason) => lan_ai_rejection_event(
-            &runtime,
+            runtime,
             command,
-            reason,
+            &reason,
             None,
-            observed_origin,
+            origin,
             constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
         ),
     }
 }
 
 fn lan_ai_job_routed_event(
-    runtime: LanPairingRuntime,
+    runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
     origin: Option<&str>,
 ) -> AgentEventEnvelope {
     if !runtime.lan_ai_provider_available() {
-        return lan_ai_job_degraded_event(&runtime, command, intent, origin);
-    }
-
-    let requested_capability = payload_string(
-        &command.payload,
-        constants::field::LOCAL_AI_CAPABILITY_FLAGS,
-    )
-    .unwrap_or(constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION)
-    .to_string();
-    if !runtime.lan_ai_provider_supports_capability(&requested_capability) {
-        let mut event = lan_ai_rejection_event(
-            &runtime,
-            command,
-            LanPairingRejectionReason::LanAiJobUnauthorized,
-            Some(intent),
-            origin,
-            constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
-        );
-        event.payload.insert(
-            constants::field::LAN_AI_PROVIDER_ROUTING_STATE.to_string(),
-            LogFieldValue::String(
-                constants::value::LAN_AI_PROVIDER_ROUTING_UNSUPPORTED_CAPABILITY.to_string(),
-            ),
-        );
-        return event;
-    }
-
-    let job_id = lan_ai_job_id(&command, intent);
-    match runtime.claim_lan_ai_job_lease(&job_id) {
-        Ok(LanAiJobLeaseTransition::Claimed(lease)) => {
-            let completed_lease = runtime.complete_lan_ai_job_lease(&job_id).unwrap_or(lease);
-            lan_ai_job_completed_event(
-                &runtime,
+        lan_ai_job_degraded_event(runtime, command, intent, origin)
+    } else {
+        let requested_capability = payload_string(
+            &command.payload,
+            constants::field::LOCAL_AI_CAPABILITY_FLAGS,
+        )
+        .unwrap_or(constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION)
+        .to_string();
+        if !runtime.lan_ai_provider_supports_capability(&requested_capability) {
+            let mut event = lan_ai_rejection_event(
+                runtime,
                 command,
-                intent,
+                &LanPairingRejectionReason::LanAiJobUnauthorized,
+                Some(intent),
                 origin,
-                &requested_capability,
-                &completed_lease,
-            )
+                constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
+            );
+            event.payload.insert(
+                constants::field::LAN_AI_PROVIDER_ROUTING_STATE.to_string(),
+                LogFieldValue::String(
+                    constants::value::LAN_AI_PROVIDER_ROUTING_UNSUPPORTED_CAPABILITY.to_string(),
+                ),
+            );
+            event
+        } else {
+            let job_id = lan_ai_job_id(&command, intent);
+            match runtime.claim_lan_ai_job_lease(&job_id) {
+                Ok(LanAiJobLeaseTransition::Claimed(lease)) => {
+                    let completed_lease =
+                        runtime.complete_lan_ai_job_lease(&job_id).unwrap_or(lease);
+                    lan_ai_job_completed_event(
+                        runtime,
+                        command,
+                        intent,
+                        origin,
+                        &requested_capability,
+                        &completed_lease,
+                    )
+                }
+                Ok(LanAiJobLeaseTransition::DuplicateCompleted(lease)) => {
+                    lan_ai_job_completed_event(
+                        runtime,
+                        command,
+                        intent,
+                        origin,
+                        &requested_capability,
+                        &lease,
+                    )
+                }
+                Ok(LanAiJobLeaseTransition::DuplicateActiveRejected(lease)) => {
+                    lan_ai_job_duplicate_rejected_event(runtime, command, intent, origin, &lease)
+                }
+                Ok(LanAiJobLeaseTransition::ExpiredRequeued(lease)) => {
+                    lan_ai_job_lease_state_event(runtime, command, intent, origin, &lease)
+                }
+                Ok(LanAiJobLeaseTransition::DeadLettered(lease)) => {
+                    lan_ai_job_lease_state_event(runtime, command, intent, origin, &lease)
+                }
+                Err(reason) => lan_ai_rejection_event(
+                    runtime,
+                    command,
+                    &reason,
+                    Some(intent),
+                    origin,
+                    constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
+                ),
+            }
         }
-        Ok(LanAiJobLeaseTransition::DuplicateCompleted(lease)) => lan_ai_job_completed_event(
-            &runtime,
-            command,
-            intent,
-            origin,
-            &requested_capability,
-            &lease,
-        ),
-        Ok(LanAiJobLeaseTransition::DuplicateActiveRejected(lease)) => {
-            lan_ai_job_duplicate_rejected_event(&runtime, command, intent, origin, &lease)
-        }
-        Ok(LanAiJobLeaseTransition::ExpiredRequeued(lease)) => {
-            lan_ai_job_lease_state_event(&runtime, command, intent, origin, &lease)
-        }
-        Ok(LanAiJobLeaseTransition::DeadLettered(lease)) => {
-            lan_ai_job_lease_state_event(&runtime, command, intent, origin, &lease)
-        }
-        Err(reason) => lan_ai_rejection_event(
-            &runtime,
-            command,
-            reason,
-            Some(intent),
-            origin,
-            constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
-        ),
     }
 }
 
@@ -204,18 +214,18 @@ fn lan_ai_job_degraded_event(
 fn lan_ai_rejection_event(
     runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
-    reason: LanPairingRejectionReason,
+    reason: &LanPairingRejectionReason,
     intent: Option<&LanParentIntentEnvelope>,
     origin: Option<&str>,
     audit_event_type: &'static str,
 ) -> AgentEventEnvelope {
     let mut payload = match intent {
         Some(intent) => {
-            controller_lease_audit_fields(&command, intent, origin, audit_event_type, Some(&reason))
+            controller_lease_audit_fields(&command, intent, origin, audit_event_type, Some(reason))
         }
-        None => rejected_control_audit_fields(&command, &reason, None, origin),
+        None => rejected_control_audit_fields(&command, reason, None, origin),
     };
-    payload.extend(lan_ai_provider_fields_for_rejection(runtime, &reason));
+    payload.extend(lan_ai_provider_fields_for_rejection(runtime, reason));
     payload.extend(lan_ai_job_rejected_fields(&command, intent));
     build_event(
         constants::event_id::COMMAND_REJECTED,
@@ -376,8 +386,8 @@ fn local_ai_result_id(intent: &LanParentIntentEnvelope) -> String {
     result_id
 }
 
-fn payload_string<'a>(fields: &'a LogFields, key: &str) -> Option<&'a str> {
-    fields.get(key).and_then(|value| match value {
+fn payload_string<'a>(fields: &'a LogFields, field_name: &str) -> Option<&'a str> {
+    fields.get(field_name).and_then(|value| match value {
         LogFieldValue::String(value) if !value.is_empty() => Some(value.as_str()),
         _ => None,
     })

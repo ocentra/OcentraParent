@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseLimitationSummaryProofSchema,
   AppInstallPurchaseLimitationSummaryRowSchema,
   summarizeAppInstallPurchaseLimitationSummaryProof,
-} from '../../src/app-install-purchase-limitation-summary-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-limitation-summary-proof';
 
 describe('app install and purchase limitation summary proof', () => {
   acceptsLimitationSummaryRowsWithoutRuntimeOrProviderClaims();

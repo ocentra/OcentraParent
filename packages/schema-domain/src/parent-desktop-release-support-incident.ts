@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { parentDesktopReleaseSupportIncidentHandoffIsHonest } from './parent-desktop-release-support-incident-guards';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -65,10 +60,18 @@ export const ParentDesktopReleaseSupportIncidentDiagnosticReferenceKindSchema = 
   Schema.Literal('proof-json', 'package-preview-workflow', 'redaction-summary', 'manual-runbook', 'support-status-row')
 );
 
-export const ParentDesktopReleaseSupportIncidentIdSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentId');
-export const ParentDesktopReleaseSupportIncidentLabelSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentLabel');
-export const ParentDesktopReleaseSupportIncidentReferenceSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentReference');
-export const ParentDesktopReleaseSupportIncidentNonClaimSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentNonClaim');
+export const ParentDesktopReleaseSupportIncidentIdSchema = brandedNonEmptyStringSchema(
+  'ParentDesktopReleaseSupportIncidentId'
+);
+export const ParentDesktopReleaseSupportIncidentLabelSchema = brandedNonEmptyStringSchema(
+  'ParentDesktopReleaseSupportIncidentLabel'
+);
+export const ParentDesktopReleaseSupportIncidentReferenceSchema = brandedNonEmptyStringSchema(
+  'ParentDesktopReleaseSupportIncidentReference'
+);
+export const ParentDesktopReleaseSupportIncidentNonClaimSchema = brandedNonEmptyStringSchema(
+  'ParentDesktopReleaseSupportIncidentNonClaim'
+);
 
 export const ParentDesktopReleaseSupportIncidentMetadataSchema = withParser(
   Schema.Struct({

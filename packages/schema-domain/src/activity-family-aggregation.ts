@@ -13,11 +13,7 @@ import {
   type ActivityReportSourceState,
   type ActivityReportSourceStateSummary,
 } from './activity-surface';
-import {
-  ActivityDeviceIdSchema,
-  ActivityTimestampSchema,
-  type ActivityDeviceId,
-} from './evidence-primitives';
+import { ActivityDeviceIdSchema, ActivityTimestampSchema, type ActivityDeviceId } from './evidence-primitives';
 
 type ActivityFamilyAggregationReadModelState = ReturnType<typeof ActivityReadModelStateSchema.parse>;
 type ActivityFamilyAggregationHistory = ReturnType<typeof ActivityHistoricalReportListSchema.parse>;

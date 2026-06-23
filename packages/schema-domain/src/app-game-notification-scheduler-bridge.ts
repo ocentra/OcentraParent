@@ -1,9 +1,4 @@
-﻿import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+﻿import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameNotificationLocalOutboxBridgeReadModelSchema,
   AppGameNotificationLocalOutboxBridgeStatus,
@@ -251,4 +246,3 @@ const countRows = (
   rows: ReadonlyArray<{ readonly status: AppGameNotificationSchedulerBridgeStatus }>,
   status: AppGameNotificationSchedulerBridgeStatus
 ): number => rows.filter((row) => row.status === status).length;
-

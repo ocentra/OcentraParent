@@ -4,7 +4,7 @@ import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
 } from '@ocentra-parent/portal-domain/parent-assistant-chat';
 import { PARENT_PORTAL_NAV_LABELS } from '@ocentra-parent/portal-domain/parent-portal-nav';
-import { PortalRouteSchema } from '@ocentra-parent/portal-domain/routes';
+import { PortalRouteSchema } from '@ocentra-parent/schema-domain/portal-contracts';
 import { parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
 
 const productRoutes = [
@@ -515,15 +515,17 @@ async function assertActivityReportSurface(page: Page, surface: ReturnType<Page[
 async function assertSupportContactRoute(page: Page): Promise<void> {
   await page.goto('/#/diagnostics');
   const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface.locator('text').filter({ hasText: 'Support / Contact' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'NEW MESSAGE' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'REPLY EMAIL' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'SUBJECT' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'MESSAGE' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'SEND MESSAGE' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'SAVE DRAFT' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'diagnostic' })).toHaveCount(0);
-  await expect(surface.locator('text').filter({ hasText: 'Response path' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { exact: true, name: 'Device diagnostics' })).toBeVisible();
+  await expect(page.getByRole('button', { exact: true, name: 'Copy diagnostics' })).toBeVisible();
+  await expectSurfaceTextToContain(surface, 'DIAGNOSTICS');
+  await expectSurfaceTextToContain(
+    surface,
+    'Support messages are parent-authored and sent only when the parent chooses.'
+  );
+  await expectSurfaceTextToContain(surface, 'CURRENT AREA');
+  await expectSurfaceTextToContain(surface, 'SUPPORT');
+  await expectSurfaceTextToContain(surface, 'DATA CUSTODY');
+  await expectSurfaceTextToContain(surface, 'LOCAL FIRST');
 }
 
 async function assertCollapsedActivitySubsurfaceRemoved(

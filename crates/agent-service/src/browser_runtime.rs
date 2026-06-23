@@ -14,10 +14,15 @@ use ocentra_parent_agent_core::{
     },
     process_capture::collect_process_snapshot,
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, BrowserCapabilityStatus,
-    BrowserChannel, BrowserFamily, BrowserManagedSessionStatus, LogLevel,
-};
+use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
+use ocentra_parent_agent_protocol::browser::BrowserChannel;
+use ocentra_parent_agent_protocol::browser::BrowserFamily;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     activity_capture::record_activity_events_to_paths,
@@ -186,10 +191,10 @@ fn first_unmanaged_browser_process() -> Option<BrowserUnmanagedProcessObservatio
 
 fn configured_bridge_port() -> Result<Option<u16>, &'static str> {
     match env::var(constants::env_var::MANAGED_BROWSER_BRIDGE_PORT) {
-        Ok(port) => port
-            .parse::<u16>()
-            .map(Some)
-            .map_err(|_| constants::value::MANAGED_BROWSER_INVALID_BRIDGE_PORT),
+        Ok(port) => port.parse::<u16>().map(Some).map_err(|error| {
+            let _ = error;
+            constants::value::MANAGED_BROWSER_INVALID_BRIDGE_PORT
+        }),
         Err(env::VarError::NotPresent) => Ok(None),
         Err(_) => Err(constants::value::MANAGED_BROWSER_INVALID_BRIDGE_PORT),
     }

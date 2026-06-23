@@ -3,10 +3,6 @@ import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 
-test.skip(
-  process.env['BROWSER_PARENT_EXPLANATION_UI_PROOF'] !== '1',
-  'Dedicated browser parent explanation UI proof only.'
-);
 test.setTimeout(120_000);
 
 const portalShellReadyTimeoutMs = 90_000;
@@ -22,15 +18,17 @@ const accessibilitySummaryPath = path.join(
   'accessibility-summary.json'
 );
 
-test('browser route renders evidence-backed parent explanation bundle', async ({ page }) => {
-  const browserFailures = collectBrowserFailures(page);
+if (process.env['BROWSER_PARENT_EXPLANATION_UI_PROOF'] === '1') {
+  test('browser route renders evidence-backed parent explanation bundle', async ({ page }) => {
+    const browserFailures = collectBrowserFailures(page);
 
-  await assertParentExplanationRoute(page);
-  await captureParentExplanationScreenshots(page);
-  await writeAccessibilitySummary(await collectAccessibilitySummary(page));
+    await assertParentExplanationRoute(page);
+    await captureParentExplanationScreenshots(page);
+    await writeAccessibilitySummary(await collectAccessibilitySummary(page));
 
-  expect(browserFailures).toEqual([]);
-});
+    expect(browserFailures).toEqual([]);
+  });
+}
 
 async function assertParentExplanationRoute(page: Page): Promise<void> {
   await page.goto('/#/browser');

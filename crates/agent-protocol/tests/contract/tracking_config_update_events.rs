@@ -1,19 +1,25 @@
 use ocentra_eventing::envelope::DomainEvent;
-use ocentra_parent_agent_protocol::{
-    child_tracking_config_updated_event_from_parent, constants,
-    default_tracking_config_update_request,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::tracking::config_update_event::{
+    child_tracking_config_updated_event_from_parent, default_tracking_config_update_request,
     parent_tracking_config_updated_event_from_command,
     tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
     tracking_config_change_rejected_event, tracking_config_change_requested_event,
     tracking_config_policy_decision_completed_event,
     tracking_config_policy_evaluation_requested_event,
     tracking_config_portal_read_model_updated_event,
-    tracking_config_update_applied_event_from_child, AgentCommandEnvelope, AgentCommandName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields, TrackingConfigAuditOutcome,
-    TrackingConfigPolicyDecisionState, TrackingConfigPortalUpdateKind, TrackingPolicyRuleRef,
-    TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
-    TrackingConfigUpdateResponseState,
-    TrackingDurableSettingsPersistenceState,
+    tracking_config_update_applied_event_from_child, TrackingConfigAuditOutcome,
+    TrackingConfigEffectiveState, TrackingConfigPolicyDecisionState,
+    TrackingConfigPortalUpdateKind, TrackingConfigUpdateEventName,
+    TrackingConfigUpdateResponseState, TRACKING_CONFIG_UPDATE_SCHEMA_VERSION,
+};
+use ocentra_parent_agent_protocol::tracking::identifiers::TrackingPolicyRuleRef;
+use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::TrackingDurableSettingsPersistenceState;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute, AGENT_TRANSPORT_SCHEMA_VERSION,
 };
 
 #[test]
@@ -250,7 +256,7 @@ fn tracking_config_change_rejection_chain_serializes_manual_required_surface_sta
 
 fn command_envelope(command_id: &str) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
-        schema_version: ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION,
+        schema_version: AGENT_TRANSPORT_SCHEMA_VERSION,
         message_id: command_id.to_owned(),
         sent_at: constants::tracking_retention_settings_write::ACCEPTED_AT.to_string(),
         source: AgentPeer {
@@ -259,9 +265,7 @@ fn command_envelope(command_id: &str) -> AgentCommandEnvelope {
         },
         target: AgentMessageTarget {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform:
-                ocentra_parent_agent_protocol::policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS
-                    .to_string(),
+            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
             route: AgentRoute::Localhost,
         },
         command: AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,

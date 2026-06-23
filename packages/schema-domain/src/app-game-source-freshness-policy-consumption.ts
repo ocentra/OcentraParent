@@ -32,12 +32,8 @@ export const AppGameSourceFreshnessPolicyRequestIdSchema = brandedNonEmptyString
 export const AppGameSourceFreshnessPolicyReadinessIdSchema = brandedNonEmptyStringSchema(
   'AppGameSourceFreshnessPolicyReadinessId'
 );
-export const AppGameSourceFreshnessTargetRefSchema = brandedNonEmptyStringSchema(
-  'AppGameSourceFreshnessTargetRef'
-);
-export const AppGameSourceFreshnessEvidenceRefSchema = brandedNonEmptyStringSchema(
-  'AppGameSourceFreshnessEvidenceRef'
-);
+export const AppGameSourceFreshnessTargetRefSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessTargetRef');
+export const AppGameSourceFreshnessEvidenceRefSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessEvidenceRef');
 export const AppGameSourceFreshnessMatrixIdSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessMatrixId');
 
 export const AppGameSourceFreshnessPolicyTargetKindSchema = withParser(

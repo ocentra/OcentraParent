@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 import {
   BrowserAiAnalysisSchemaVersion,
   BrowserUrlAiAnalysisInputSchema,
@@ -472,7 +467,9 @@ function browserResultMatchesInput(row: ScreenAiBrowserTriggerProofRowCandidate)
 
 function screenEvidenceIsLinked(row: ScreenAiBrowserTriggerProofRowCandidate): boolean {
   const screenEvidenceIds = new Set(
-    row.screenAnalysis.sourceEvidenceRefs.map((reference: ScreenAnalysisResult['sourceEvidenceRefs'][number]) => reference.evidenceId)
+    row.screenAnalysis.sourceEvidenceRefs.map(
+      (reference: ScreenAnalysisResult['sourceEvidenceRefs'][number]) => reference.evidenceId
+    )
   );
   return (
     row.browserInput.screenEvidenceRefs.length > 0 &&
@@ -519,4 +516,3 @@ function screenAiBrowserTriggerProofMatrixIsComplete(rows: readonly ScreenAiBrow
     rows.some((row) => row.triggerState === 'unavailable')
   );
 }
-

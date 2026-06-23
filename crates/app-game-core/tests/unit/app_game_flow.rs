@@ -7,8 +7,11 @@ fn app_game_observation_records_evidence_and_requests_policy_not_ai() {
     let observed = ocentra_app_game_core::default_app_game_observed_event();
     let evidence = ocentra_app_game_core::app_game_evidence_recorded_event(&observed);
     let ai = ocentra_app_game_core::app_game_ai_analysis_requested_event(&evidence);
-    let policy = ocentra_app_game_core::app_game_policy_evaluation_requested_event(&evidence)
-        .expect("app game policy request is expected");
+    let policy = ocentra_app_game_core::app_game_policy_evaluation_requested_event(&evidence);
+    assert!(policy.is_some(), "app game policy request is expected");
+    let Some(policy) = policy else {
+        return;
+    };
 
     assert_eq!(
         observed.event_type,
@@ -40,8 +43,14 @@ fn app_game_ambiguous_usage_requests_ai_before_policy() {
         ocentra_app_game_core::AppGameObservationIntent::AmbiguousUsageRequiresAi,
     );
     let evidence = ocentra_app_game_core::app_game_evidence_recorded_event(&observed);
-    let ai = ocentra_app_game_core::app_game_ai_analysis_requested_event(&evidence)
-        .expect("ambiguous app game usage requires AI boundary");
+    let ai = ocentra_app_game_core::app_game_ai_analysis_requested_event(&evidence);
+    assert!(
+        ai.is_some(),
+        "ambiguous app game usage requires AI boundary"
+    );
+    let Some(ai) = ai else {
+        return;
+    };
     let policy = ocentra_app_game_core::app_game_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(

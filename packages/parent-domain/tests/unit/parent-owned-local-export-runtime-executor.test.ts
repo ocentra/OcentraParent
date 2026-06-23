@@ -33,7 +33,9 @@ describe('parent-owned local export runtime executor', () => {
 
     const runtimeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'parent-local-export-runtime-'));
     tempDirectories.push(runtimeRoot);
-    const exportFixture = ParentOwnedLocalExportRuntimeProofReadModel.jobs.find((job) => job.state === 'export-written');
+    const exportFixture = ParentOwnedLocalExportRuntimeProofReadModel.jobs.find(
+      (job) => job.state === 'export-written'
+    );
     if (exportFixture === undefined || exportFixture.output === null) {
       throw new Error('missing export-written fixture');
     }

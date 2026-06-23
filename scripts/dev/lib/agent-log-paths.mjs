@@ -61,12 +61,7 @@ export function getNdjsonFilePath(stream, scope = getEvidenceScope(), date = new
 
 export function getArtifactDir(runId, commandId, scope = getEvidenceScope()) {
   return ensureDirectory(
-    path.join(
-      getScopeRoot(scope),
-      'artifacts',
-      sanitizePathSegment(runId),
-      sanitizePathSegment(commandId)
-    )
+    path.join(getScopeRoot(scope), 'artifacts', sanitizePathSegment(runId), sanitizePathSegment(commandId))
   );
 }
 

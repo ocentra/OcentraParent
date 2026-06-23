@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameCategoryRiskPolicyAdapterDispatchState,
   AppGameCategoryRiskPolicyCandidateAction,
@@ -28,8 +23,12 @@ import { ParentContractSchemaVersionSchema } from './family-reference-primitives
 
 export const AppGameCategoryRiskPolicyRouteIdSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicyRouteId');
 export const AppGameCategoryCandidateRefSchema = brandedNonEmptyStringSchema('AppGameCategoryCandidateRef');
-export const AppGameCategoryRiskPolicySourceRefSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicySourceRef');
-export const AppGameCategoryRiskPolicyAiDigestRefSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicyAiDigestRef');
+export const AppGameCategoryRiskPolicySourceRefSchema = brandedNonEmptyStringSchema(
+  'AppGameCategoryRiskPolicySourceRef'
+);
+export const AppGameCategoryRiskPolicyAiDigestRefSchema = brandedNonEmptyStringSchema(
+  'AppGameCategoryRiskPolicyAiDigestRef'
+);
 export const AppGameCategoryRiskPolicyConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 
 export const AppGameCategoryRiskPolicyRouteFamilySchema = withParser(

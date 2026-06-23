@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentEvidenceReferenceIdSchema } from './family-reference-primitives';
 
 export const BrowserGameApprovalRequestIdSchema = withParser(

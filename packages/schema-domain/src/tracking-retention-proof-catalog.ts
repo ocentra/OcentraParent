@@ -16,8 +16,7 @@ export const TrackingRetentionProofRefs = {
     'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json',
   LocalServiceState:
     'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json',
-  DurableSettings:
-    'output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json',
+  DurableSettings: 'output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json',
   ProductSettingsWritableExecution:
     'output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json',
 } as const;

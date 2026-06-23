@@ -5,7 +5,10 @@ import { resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..');
 const matrixPath = resolve(repoRoot, 'docs/plans/device-trust-bootstrap-plan/DEPENDENCY_RESEARCH_AND_ADOPTION.md');
-const workpackPath = resolve(repoRoot, 'docs/plans/device-trust-bootstrap-plan/workpacks/08-open-source-dependency-adoption.md');
+const workpackPath = resolve(
+  repoRoot,
+  'docs/plans/device-trust-bootstrap-plan/workpacks/08-open-source-dependency-adoption.md'
+);
 
 test('dependency adoption keeps trust roots explicit and candidate decisions visible', () => {
   const matrix = readFileSync(matrixPath, 'utf8');

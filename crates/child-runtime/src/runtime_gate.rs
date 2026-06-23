@@ -205,12 +205,14 @@ pub fn evaluate_child_runtime_preflight(
 pub fn record_child_runtime_preflight_decision(
     event: &ChildRuntimePreflightRequestedEvent,
 ) -> ChildRuntimePreflightDecisionRecordedEvent {
+    let decision_id = ChildRuntimePreflightDecisionId::parse(child_runtime_preflight_decision_ref(
+        &event.request_id,
+    ))
+    .unwrap_or_else(|error| unreachable!("{ERROR_CHILD_RUNTIME_PREFLIGHT_DECISION_ID}: {error:?}"));
+
     ChildRuntimePreflightDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
-        decision_id: ChildRuntimePreflightDecisionId::parse(child_runtime_preflight_decision_ref(
-            &event.request_id,
-        ))
-        .expect(ERROR_CHILD_RUNTIME_PREFLIGHT_DECISION_ID),
+        decision_id,
         source_request_id: event.request_id.clone(),
         decision: evaluate_child_runtime_preflight(event.input),
     }

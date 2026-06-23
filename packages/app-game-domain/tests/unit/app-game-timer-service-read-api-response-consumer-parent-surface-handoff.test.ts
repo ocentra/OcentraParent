@@ -5,7 +5,7 @@ import {
   AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffSchema,
   buildAppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoff,
 } from '../../src/app-game-timer-service-read-api-response-consumer-parent-surface-handoff';
-import { AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffState } from '../../src/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules';
+import { AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffState } from '@ocentra-parent/schema-domain/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamResponseConsumerHandoffPath = new URL(

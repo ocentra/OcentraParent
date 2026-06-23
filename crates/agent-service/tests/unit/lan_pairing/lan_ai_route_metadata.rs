@@ -1,9 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandName, AgentEventName, DeviceRoleRuntimeReadModel,
-    DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim, DeviceRuntimeRole,
-    DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState, DeviceRuntimeSurface,
-    LanPairingParentAuthority, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeAiProviderState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeLocalAiClaim;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleEntry;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     lan_pairing::LanPairingRuntime,

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidUsageEventsPackageRuntimeProofSchemaVersionSchema = withParser(
@@ -163,18 +158,39 @@ function packageRuntimeProofIsHonest(readModel: PackageRuntimeCandidate): boolea
     readModel.sampleState === 'sample-unavailable';
 
   return (
+    packageRuntimeStateIsHonest(readModel) &&
+    grantAndSampleConsistent &&
+    packageRuntimeProofRefsArePresent(readModel) &&
+    packageRuntimeOpenGapsArePresent(readModel)
+  );
+}
+
+function packageRuntimeStateIsHonest(readModel: PackageRuntimeCandidate): boolean {
+  return (
     readModel.packageId === 'ca.ocentra.parent.agent' &&
     readModel.installedState === 'package-installed' &&
     readModel.launchState === 'package-launch-observed' &&
     readModel.uiStateObserved &&
-    readModel.appOpsObserved &&
-    grantAndSampleConsistent &&
-    readModel.proofRefs.includes('android-physical-adb-device-ref') &&
-    readModel.proofRefs.includes('android-package-install-ref') &&
-    readModel.proofRefs.includes('android-package-launch-ui-ref') &&
-    readModel.proofRefs.includes('android-usage-stats-appops-preflight-ref') &&
-    readModel.openGaps.includes('android-child-runtime-delivery-not-proved') &&
-    readModel.openGaps.includes('android-platform-enforcement-not-proved')
+    readModel.appOpsObserved
   );
 }
 
+function packageRuntimeProofRefsArePresent(readModel: PackageRuntimeCandidate): boolean {
+  return includesAll(readModel.proofRefs, [
+    'android-physical-adb-device-ref',
+    'android-package-install-ref',
+    'android-package-launch-ui-ref',
+    'android-usage-stats-appops-preflight-ref',
+  ] as const);
+}
+
+function packageRuntimeOpenGapsArePresent(readModel: PackageRuntimeCandidate): boolean {
+  return includesAll(readModel.openGaps, [
+    'android-child-runtime-delivery-not-proved',
+    'android-platform-enforcement-not-proved',
+  ] as const);
+}
+
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

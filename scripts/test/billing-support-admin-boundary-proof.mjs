@@ -169,7 +169,9 @@ function relativePath(path) {
 }
 
 function summarizeValues(values) {
-  return Object.fromEntries(values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map()));
+  return Object.fromEntries(
+    values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map())
+  );
 }
 
 function npmCommand(args) {

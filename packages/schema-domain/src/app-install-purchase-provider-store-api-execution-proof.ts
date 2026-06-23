@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel } from './app-install-purchase-product-claim-platform-limitation-fallback-proof';
 import { AppInstallPurchaseProductClaimProviderStoreProofReadModel } from './app-install-purchase-product-claim-provider-store-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -423,4 +418,3 @@ function providerStoreApiExecutionProofIsHonest(proof: AppInstallPurchaseProvide
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
-

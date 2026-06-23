@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema, type LocalAiSafetyResult } from './local-ai';
 import {
   LocalAiDegradedState,
@@ -16,9 +11,15 @@ import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './a
 import { PolicyAction, PolicyReasonCodeSchema } from './policy-contracts';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from './family-reference-primitives';
 
-export const LocalAiDeterministicClassifierRunIdSchema = brandedNonEmptyStringSchema('LocalAiDeterministicClassifierRunId');
-export const LocalAiDeterministicClassifierTraceRefSchema = brandedNonEmptyStringSchema('LocalAiDeterministicClassifierTraceRef');
-export const LocalAiDeterministicClassifierNonClaimSchema = brandedNonEmptyStringSchema('LocalAiDeterministicClassifierNonClaim');
+export const LocalAiDeterministicClassifierRunIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiDeterministicClassifierRunId'
+);
+export const LocalAiDeterministicClassifierTraceRefSchema = brandedNonEmptyStringSchema(
+  'LocalAiDeterministicClassifierTraceRef'
+);
+export const LocalAiDeterministicClassifierNonClaimSchema = brandedNonEmptyStringSchema(
+  'LocalAiDeterministicClassifierNonClaim'
+);
 
 export const LocalAiDeterministicClassifierStateSchema = withParser(
   Schema.Literal('classified', 'low-confidence', 'missing-evidence', 'runtime-unavailable')
@@ -333,4 +334,3 @@ function deterministicClassifierMatchesReferenceCounts(
     candidate.result.parentRuleReferences.length === candidate.parentRuleReferenceCount
   );
 }
-

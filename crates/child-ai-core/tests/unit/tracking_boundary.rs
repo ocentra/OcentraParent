@@ -1,9 +1,12 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_evidence::PrivatePayloadState;
-use ocentra_parent_agent_protocol::{
-    constants, TrackingAiAnalysisRequestedEvent, TrackingAiPurpose, TrackingAiRequestId,
-    TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef,
-    TrackingParentActionRequirement, TrackingUncertaintyCode,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    TrackingAiPurpose, TrackingAiRequestId, TrackingChildDeviceId, TrackingChildProfileId,
+    TrackingEvidenceRef, TrackingReasonCode, TrackingTimestamp, TrackingUncertaintyCode,
+};
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingAiAnalysisRequestedEvent, TrackingParentActionRequirement,
 };
 
 fn tracking_ai_request_fixture() -> TrackingAiAnalysisRequestedEvent {
@@ -11,31 +14,66 @@ fn tracking_ai_request_fixture() -> TrackingAiAnalysisRequestedEvent {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID
+            )
+        }),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID
+            )
+        }),
         ai_request_id: TrackingAiRequestId::parse(
             constants::tracking_runtime::DEFAULT_AI_REQUEST_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_AI_REQUEST_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_AI_REQUEST_ID
+            )
+        }),
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
-        source_observed_at: ocentra_parent_agent_protocol::TrackingTimestamp::parse(
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_EVIDENCE_REF
+            )
+        })],
+        source_observed_at: TrackingTimestamp::parse(
             constants::tracking_runtime::DEFAULT_OBSERVED_AT,
         )
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_OBSERVED_AT
+            )
+        }),
         uncertainty_code: TrackingUncertaintyCode::parse(
             constants::tracking_runtime::UNCERTAINTY_CODE_NEARBY_PLACE_CLASSIFICATION_REQUIRED,
         )
-        .expect(constants::tracking_runtime::UNCERTAINTY_CODE_NEARBY_PLACE_CLASSIFICATION_REQUIRED),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::UNCERTAINTY_CODE_NEARBY_PLACE_CLASSIFICATION_REQUIRED
+            )
+        }),
         allowed_analysis_purpose: TrackingAiPurpose::parse(
             constants::tracking_runtime::ALLOWED_AI_PURPOSE_NEARBY_PLACE_CLASSIFICATION,
         )
-        .expect(constants::tracking_runtime::ALLOWED_AI_PURPOSE_NEARBY_PLACE_CLASSIFICATION),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::ALLOWED_AI_PURPOSE_NEARBY_PLACE_CLASSIFICATION
+            )
+        }),
         parent_action_requirement: TrackingParentActionRequirement::Required,
         private_payload_state: PrivatePayloadState::Excluded,
     }
@@ -46,7 +84,7 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
     let request = tracking_ai_request_fixture();
 
     let result = ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request)
-        .expect("valid request");
+        .unwrap_or_else(|error| unreachable!("valid request: {error:?}"));
 
     assert_eq!(result.child_device_id, request.child_device_id);
     assert_eq!(result.child_profile_id, request.child_profile_id);
@@ -83,10 +121,15 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
     );
     assert_eq!(
         result.reason_codes,
-        vec![ocentra_parent_agent_protocol::TrackingReasonCode::parse(
+        vec![TrackingReasonCode::parse(
             constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE
         )
-        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE)]
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE
+            )
+        })]
     );
     assert_eq!(
         result.parent_action_requirement,
@@ -102,10 +145,15 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
 fn tracking_ai_classification_rejects_unsupported_analysis_purpose() {
     let mut request = tracking_ai_request_fixture();
     request.allowed_analysis_purpose = TrackingAiPurpose::parse("unsupported-purpose")
-        .expect("unsupported purpose literal should still parse");
+        .unwrap_or_else(|error| {
+            unreachable!("unsupported purpose literal should still parse: {error:?}")
+        });
 
-    let error = ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request)
-        .expect_err("must reject");
+    let error =
+        match ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request) {
+            Err(error) => error,
+            Ok(_) => unreachable!("must reject"),
+        };
 
     assert_eq!(
         error,
@@ -120,10 +168,15 @@ fn tracking_ai_classification_rejects_unsupported_analysis_purpose() {
 fn tracking_ai_classification_rejects_unexpected_uncertainty_code() {
     let mut request = tracking_ai_request_fixture();
     request.uncertainty_code = TrackingUncertaintyCode::parse("unexpected-uncertainty")
-        .expect("unexpected uncertainty literal should still parse");
+        .unwrap_or_else(|error| {
+            unreachable!("unexpected uncertainty literal should still parse: {error:?}")
+        });
 
-    let error = ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request)
-        .expect_err("must reject");
+    let error =
+        match ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request) {
+            Err(error) => error,
+            Ok(_) => unreachable!("must reject"),
+        };
 
     assert_eq!(
         error,
@@ -139,8 +192,11 @@ fn tracking_ai_classification_rejects_private_payload_inclusion() {
     let mut request = tracking_ai_request_fixture();
     request.private_payload_state = PrivatePayloadState::Included;
 
-    let error = ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request)
-        .expect_err("must reject");
+    let error =
+        match ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request) {
+            Err(error) => error,
+            Ok(_) => unreachable!("must reject"),
+        };
 
     assert_eq!(
         error,
@@ -156,8 +212,11 @@ fn tracking_ai_classification_rejects_missing_evidence_refs() {
     let mut request = tracking_ai_request_fixture();
     request.evidence_refs.clear();
 
-    let error = ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request)
-        .expect_err("must reject");
+    let error =
+        match ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(&request) {
+            Err(error) => error,
+            Ok(_) => unreachable!("must reject"),
+        };
 
     assert_eq!(
         error,

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   BrowserAiConfidenceSchema,
   BrowserAiDegradedStateSchema,
@@ -36,9 +31,9 @@ import {
   ActivitySubjectIdSchema,
   ActivityTimestampSchema,
 } from '@ocentra-parent/schema-domain/evidence-primitives';
+import { SocialVideoSourcePrivacyEvidenceIdSchema } from '@ocentra-parent/schema-domain/agent-social-video-source-privacy';
 import {
   SocialVideoPermittedDownstreamUseSchema,
-  SocialVideoSourcePrivacyEvidenceIdSchema,
   SocialVideoSourcePrivacySummarySchema,
   SocialVideoSourcePrivacyTargetKindSchema,
   type SocialVideoSourcePrivacySummary,
@@ -407,4 +402,3 @@ function uniqueRefs(...valueGroups: ReadonlyArray<ReadonlyArray<unknown>>) {
   }
   return refs;
 }
-

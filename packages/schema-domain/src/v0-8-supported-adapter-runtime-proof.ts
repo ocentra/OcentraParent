@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -15,25 +10,19 @@ import {
   V08IntegrityAlertStatusBridgeReadModelSchema,
   decodeV08IntegrityAlertStatusBridgeReadModel,
 } from './v0-8-integrity-alert-status-bridge';
-import type {
-  V08IntegrityAlertStatusBridgeReadModel as V08IntegrityAlertStatusBridgeReadModelType,
-} from './v0-8-integrity-alert-status-bridge';
+import type { V08IntegrityAlertStatusBridgeReadModel as V08IntegrityAlertStatusBridgeReadModelType } from './v0-8-integrity-alert-status-bridge';
 import {
   V08NotificationProviderStatusBoundaryReadModel as ImportedV08NotificationProviderStatusBoundaryReadModel,
   V08NotificationProviderStatusBoundaryReadModelSchema,
   decodeV08NotificationProviderStatusBoundaryReadModel,
 } from '@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary';
-import type {
-  V08NotificationProviderStatusBoundaryReadModel as V08NotificationProviderStatusBoundaryReadModelType,
-} from '@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary';
+import type { V08NotificationProviderStatusBoundaryReadModel as V08NotificationProviderStatusBoundaryReadModelType } from '@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary';
 import {
   V08EnforcementIntegrityRuntimeAuditReadModel as ImportedV08EnforcementIntegrityRuntimeAuditReadModel,
   V08EnforcementIntegrityRuntimeAuditReadModelSchema,
   decodeV08EnforcementIntegrityRuntimeAuditReadModel,
 } from './v0-8-enforcement-integrity-runtime-audit';
-import type {
-  V08EnforcementIntegrityRuntimeAuditReadModel as V08EnforcementIntegrityRuntimeAuditReadModelType,
-} from './v0-8-enforcement-integrity-runtime-audit';
+import type { V08EnforcementIntegrityRuntimeAuditReadModel as V08EnforcementIntegrityRuntimeAuditReadModelType } from './v0-8-enforcement-integrity-runtime-audit';
 
 export {
   V08IntegrityAlertStatusBridgeReadModelSchema,
@@ -50,12 +39,24 @@ export type V08NotificationProviderStatusBoundaryReadModel = V08NotificationProv
 export const V08EnforcementIntegrityRuntimeAuditReadModel = ImportedV08EnforcementIntegrityRuntimeAuditReadModel;
 export type V08EnforcementIntegrityRuntimeAuditReadModel = V08EnforcementIntegrityRuntimeAuditReadModelType;
 
-export const V08SupportedAdapterRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofReadModelId');
-export const V08SupportedAdapterRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofEntryId');
-export const V08SupportedAdapterRuntimeProofReferenceSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofReference');
-export const V08SupportedAdapterRuntimeProofRequirementSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofRequirement');
-export const V08SupportedAdapterRuntimeProofBoundarySchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofBoundary');
-export const V08SupportedAdapterRuntimeProofFallbackSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofFallback');
+export const V08SupportedAdapterRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08SupportedAdapterRuntimeProofReadModelId'
+);
+export const V08SupportedAdapterRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08SupportedAdapterRuntimeProofEntryId'
+);
+export const V08SupportedAdapterRuntimeProofReferenceSchema = brandedNonEmptyStringSchema(
+  'V08SupportedAdapterRuntimeProofReference'
+);
+export const V08SupportedAdapterRuntimeProofRequirementSchema = brandedNonEmptyStringSchema(
+  'V08SupportedAdapterRuntimeProofRequirement'
+);
+export const V08SupportedAdapterRuntimeProofBoundarySchema = brandedNonEmptyStringSchema(
+  'V08SupportedAdapterRuntimeProofBoundary'
+);
+export const V08SupportedAdapterRuntimeProofFallbackSchema = brandedNonEmptyStringSchema(
+  'V08SupportedAdapterRuntimeProofFallback'
+);
 
 export const V08SupportedAdapterRuntimeBoundarySchema = withParser(
   Schema.Literal(
@@ -711,4 +712,3 @@ export const decodeV08SupportedAdapterRuntimeProofEntry = Schema.decodeUnknownSy
 export const decodeV08SupportedAdapterRuntimeProofReadModel = Schema.decodeUnknownSync(
   V08SupportedAdapterRuntimeProofReadModelSchema
 );
-

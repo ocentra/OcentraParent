@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -23,12 +18,15 @@ import {
 } from './app-game-source-gated-policy-preview-timer-scheduler-persistence-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceId');
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowId');
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRef');
+export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRef'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState))
@@ -259,5 +257,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence = Sc
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState };
-
-

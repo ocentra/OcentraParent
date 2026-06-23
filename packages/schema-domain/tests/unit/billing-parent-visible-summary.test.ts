@@ -125,10 +125,7 @@ describe('billing parent-visible summary contracts centralized in schema-domain'
     provesParentVisibleSummary
   );
 
-  it(
-    'rejects parent summaries that smuggle raw child-device or provider payload details',
-    rejectsUnsafeParentSummary
-  );
+  it('rejects parent summaries that smuggle raw child-device or provider payload details', rejectsUnsafeParentSummary);
 
   it(
     'denies parent billing summaries when the requested household context does not match the entitlement snapshot owner',
@@ -137,10 +134,7 @@ describe('billing parent-visible summary contracts centralized in schema-domain'
 });
 
 function provesParentVisibleSummary() {
-  const parentVisibleSummary = buildParentBillingVisibleSummary(
-    readContractProof(),
-    readRuntimeProof()
-  );
+  const parentVisibleSummary = buildParentBillingVisibleSummary(readContractProof(), readRuntimeProof());
 
   expect(parentVisibleSummary).toEqual(expectedParentVisibleSummary);
 
@@ -155,14 +149,10 @@ function provesParentVisibleSummary() {
 }
 
 function rejectsUnsafeParentSummary() {
-  const safeSummary = buildParentBillingVisibleSummary(
-    readContractProof(),
-    readRuntimeProof()
-  );
+  const safeSummary = buildParentBillingVisibleSummary(readContractProof(), readRuntimeProof());
   const unsafeSummary = {
     ...safeSummary,
-    auditReference:
-      BillingInvoiceTaxRefundDisputeProofReadModel.rows[0].auditReference,
+    auditReference: BillingInvoiceTaxRefundDisputeProofReadModel.rows[0].auditReference,
   };
 
   expect(isBillingSafeParentSummary(safeSummary)).toBe(true);
@@ -170,29 +160,19 @@ function rejectsUnsafeParentSummary() {
 }
 
 function deniesWrongHouseholdSummary() {
-  const allowedSummary = buildParentBillingVisibleSummaryForExpectedHousehold(
-    readContractProof(),
-    readRuntimeProof(),
-    {
-      parentAccountId: 'parent-account-billing-entitlement-proof-1',
-      familyId: 'family-billing-entitlement-proof-1',
-    }
-  );
+  const allowedSummary = buildParentBillingVisibleSummaryForExpectedHousehold(readContractProof(), readRuntimeProof(), {
+    parentAccountId: 'parent-account-billing-entitlement-proof-1',
+    familyId: 'family-billing-entitlement-proof-1',
+  });
 
-  expect(allowedSummary.parentAccountId).toBe(
-    'parent-account-billing-entitlement-proof-1'
-  );
+  expect(allowedSummary.parentAccountId).toBe('parent-account-billing-entitlement-proof-1');
   expect(allowedSummary.familyId).toBe('family-billing-entitlement-proof-1');
 
   expect(() =>
-    buildParentBillingVisibleSummaryForExpectedHousehold(
-      readContractProof(),
-      readRuntimeProof(),
-      {
-        parentAccountId: 'parent-account-billing-entitlement-proof-1',
-        familyId: 'family-billing-entitlement-proof-2',
-      }
-    )
+    buildParentBillingVisibleSummaryForExpectedHousehold(readContractProof(), readRuntimeProof(), {
+      parentAccountId: 'parent-account-billing-entitlement-proof-1',
+      familyId: 'family-billing-entitlement-proof-2',
+    })
   ).toThrow('wrong-household-denied');
 }
 

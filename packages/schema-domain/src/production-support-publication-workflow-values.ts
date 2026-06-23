@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportPublicationWorkflowSchemaVersionSchema = withParser(
   Schema.Literal('production-support-publication-workflow-proof')
@@ -81,8 +77,12 @@ export const ProductionSupportPublicationWorkflowNonClaimSchema = withParser(
   )
 );
 
-export const PublicationWorkflowReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportPublicationWorkflowReference');
-export const PublicationWorkflowRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportPublicationWorkflowRequirement');
+export const PublicationWorkflowReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportPublicationWorkflowReference'
+);
+export const PublicationWorkflowRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportPublicationWorkflowRequirement'
+);
 
 export const ForbiddenPublicationWorkflowDataClasses = [
   'child-activity-evidence',
@@ -118,4 +118,3 @@ export const RequiredPublicationWorkflowNonClaims = [
   'no-legal-disclosure-execution',
   'no-remote-support-session',
 ] as const;
-

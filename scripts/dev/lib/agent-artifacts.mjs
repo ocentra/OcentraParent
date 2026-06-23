@@ -18,15 +18,7 @@ function artifactId(kind, digest) {
   return `${kind}-${digest.slice(0, 12)}`;
 }
 
-export function writeTextArtifact({
-  scope,
-  runId,
-  commandId,
-  kind,
-  fileName,
-  content,
-  createdAt,
-}) {
+export function writeTextArtifact({ scope, runId, commandId, kind, fileName, content, createdAt }) {
   const filePath = getArtifactFilePath(runId, commandId, fileName, scope);
   fs.writeFileSync(filePath, content, 'utf8');
   const digest = sha256(content);
@@ -45,13 +37,7 @@ export function writeTextArtifact({
   };
 }
 
-export function writeMetadataArtifact({
-  scope,
-  runId,
-  commandId,
-  metadata,
-  createdAt,
-}) {
+export function writeMetadataArtifact({ scope, runId, commandId, metadata, createdAt }) {
   return writeTextArtifact({
     scope,
     runId,

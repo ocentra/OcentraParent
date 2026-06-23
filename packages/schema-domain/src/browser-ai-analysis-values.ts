@@ -1,40 +1,21 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserUrlAiAnalysisRequestIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserUrlAiAnalysisRequestId')
 );
-export const BrowserUrlAiAnalysisIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserUrlAiAnalysisId')
-);
-export const BrowserAiPromptTemplateIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiPromptTemplateId')
-);
+export const BrowserUrlAiAnalysisIdSchema = withParser(brandedNonEmptyStringSchema('BrowserUrlAiAnalysisId'));
+export const BrowserAiPromptTemplateIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiPromptTemplateId'));
 export const BrowserAiPromptTemplateVersionSchema = withParser(
   brandedNonEmptyStringSchema('BrowserAiPromptTemplateVersion')
 );
-export const BrowserAiModelRuntimeRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiModelRuntimeRef')
-);
-export const BrowserPolicyVersionRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserPolicyVersionRef')
-);
-export const BrowserParentRuleRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserParentRuleRef')
-);
-export const BrowserScheduleContextRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserScheduleContextRef')
-);
+export const BrowserAiModelRuntimeRefSchema = withParser(brandedNonEmptyStringSchema('BrowserAiModelRuntimeRef'));
+export const BrowserPolicyVersionRefSchema = withParser(brandedNonEmptyStringSchema('BrowserPolicyVersionRef'));
+export const BrowserParentRuleRefSchema = withParser(brandedNonEmptyStringSchema('BrowserParentRuleRef'));
+export const BrowserScheduleContextRefSchema = withParser(brandedNonEmptyStringSchema('BrowserScheduleContextRef'));
 export const BrowserEvidenceBackedContentRefSchema = withParser(
   brandedNonEmptyStringSchema('BrowserEvidenceBackedContentRef')
 );
-export const BrowserKnowledgeGraphRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserKnowledgeGraphRef')
-);
+export const BrowserKnowledgeGraphRefSchema = withParser(brandedNonEmptyStringSchema('BrowserKnowledgeGraphRef'));
 
 export const BrowserAiRequestedTaskSchema = withParser(
   Schema.Literal(
@@ -123,4 +104,3 @@ export const BrowserVideoKindSchema = withParser(
 
 export type BrowserContentCategory = Infer<typeof BrowserContentCategorySchema>;
 export type BrowserContentModifier = Infer<typeof BrowserContentModifierSchema>;
-

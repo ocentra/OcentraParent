@@ -1,23 +1,41 @@
+use std::fmt::Debug;
+
 use super::*;
-use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
-    EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
-    EnforcementUnavailableReason, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyDecision,
-    PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementCapabilityState,
+    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementIntent,
+    EnforcementIntentSource, EnforcementMode, EnforcementPermissionState, EnforcementResultStatus,
+    EnforcementRollbackState, EnforcementUnavailableReason, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants as policy;
+
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
 
 #[test]
-fn audit_event_mirrors_unavailable_result_capability_and_status_boundary() {
+fn audit_event_mirrors_unavailable_result_capability_and_status_boundary() -> TestResult {
     let mut input = boundary_input(policy_decision(), degraded_capability());
     input.adapter_outcome = Some(unavailable_adapter_outcome(
         EnforcementUnavailableReason::AdapterUnavailable,
         policy::TEST_EVALUATED_AT,
     ));
 
-    let outcome = evaluate_enforcement_boundary(input).expect(enforcement::AUDIT_UNAVAILABLE);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        enforcement::AUDIT_UNAVAILABLE,
+    )?;
 
     assert_eq!(
         outcome.audit_event.audit_event_kind.as_protocol_str(),
@@ -37,10 +55,12 @@ fn audit_event_mirrors_unavailable_result_capability_and_status_boundary() {
         Some(enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE)
     );
     assert_eq!(outcome.adapter_request, None);
+
+    Ok(())
 }
 
 #[test]
-fn failed_adapter_result_records_failed_audit_without_unavailable_status() {
+fn failed_adapter_result_records_failed_audit_without_unavailable_status() -> TestResult {
     let mut input = boundary_input(policy_decision(), supported_capability());
     input.adapter_outcome = Some(EnforcementAdapterOutcome {
         status: EnforcementResultStatus::Failed,
@@ -52,7 +72,10 @@ fn failed_adapter_result_records_failed_audit_without_unavailable_status() {
         rollback_state: EnforcementRollbackState::Failed,
     });
 
-    let outcome = evaluate_enforcement_boundary(input).expect(enforcement::AUDIT_FAILED);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        enforcement::AUDIT_FAILED,
+    )?;
 
     assert_eq!(
         outcome.audit_event.audit_event_kind.as_protocol_str(),
@@ -61,6 +84,8 @@ fn failed_adapter_result_records_failed_audit_without_unavailable_status() {
     assert_eq!(outcome.audit_event.capability, outcome.result.capability);
     assert_eq!(outcome.result.unavailable_status, None);
     assert_eq!(outcome.audit_event.unavailable_status, None);
+
+    Ok(())
 }
 
 fn boundary_input(

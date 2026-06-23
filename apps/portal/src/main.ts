@@ -3,19 +3,10 @@ import { createRoot } from 'react-dom/client';
 import { decodeAgentWebSocketUrl } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
-import {
-  PortalDom,
-  PortalEnvironment,
-  PortalText,
-  PortalTextToken,
-  type PortalThemeValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import {
-  PortalRoute,
-  PortalRouteSchema,
-  PortalRoutes,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom, PortalEnvironment, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import { PortalRoutes, portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
 import { writePortalDevLog } from './dev-logger';
 import { fadePortalBackgroundBootLayer, removePortalBackgroundBootLayer } from './portal-background-boot';
 import { PortalBackgroundDevTool } from './PortalBackgroundDevTool';
@@ -94,11 +85,9 @@ function updateTheme(theme: PortalThemeValue): void {
 }
 
 function getRoute(): PortalRouteValue {
-  const routeHash = window.location.hash.replace(/^#\/?/u, PortalDom.EmptyHashRoute);
-  const route = routeHash.split(PortalDom.HashQuerySeparator)[0] ?? PortalDom.EmptyHashRoute;
-  const parsedRoute = PortalRouteSchema.safeParse(route);
-  if (parsedRoute.success && PortalRoutes.some((portalRoute) => portalRoute === parsedRoute.data)) {
-    return parsedRoute.data;
+  const route = portalRouteFromHashPath(window.location.hash);
+  if (route !== null && PortalRoutes.some((portalRoute) => portalRoute === route)) {
+    return route;
   }
   replaceHashIfNeeded(PortalRoute.Overview);
   return PortalRoute.Overview;
@@ -115,7 +104,7 @@ function replaceHashIfNeeded(route: PortalRouteValue): void {
 function requirePortalRoot(): HTMLDivElement {
   const rootElement = document.querySelector<HTMLDivElement>(PortalDom.RootSelector);
   if (rootElement === null) {
-    throw new Error(PortalText.Resolve(PortalTextToken.RootMissing));
+    throw new Error(resolvePortalDevText(PortalDevTextToken.RootMissing));
   }
   return rootElement;
 }

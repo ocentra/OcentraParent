@@ -6,13 +6,15 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
     ActivityReportFrequency, ActivityReportSection, ActivityReportSectionKind,
     ActivityReportSourceLabel, ActivityReportSourceReachabilityState, ActivityReportSourceState,
     ActivityReportSourceStateSummary, ActivitySavedReportState, ActivitySurfaceRequest,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::activity_surface_report_store::{history_list_from_dir, save_report_document_to_dir};
 
@@ -23,15 +25,19 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     let report_dir = TempReportDir::new();
     let family_saved = save_report_document_to_dir(
         report(family_scope(), family_source_states()),
-        report_dir.path(),
+        &report_dir.path(),
     );
     let device_saved = save_report_document_to_dir(
         report(device_scope(), device_source_states()),
-        report_dir.path(),
+        &report_dir.path(),
     );
 
-    let family_metadata = family_saved.saved_metadata.as_ref().unwrap();
-    let device_metadata = device_saved.saved_metadata.as_ref().unwrap();
+    let Some(family_metadata) = family_saved.saved_metadata.as_ref() else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+    let Some(device_metadata) = device_saved.saved_metadata.as_ref() else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
 
     assert_eq!(family_metadata.saved_state, ActivitySavedReportState::Saved);
     assert_eq!(device_metadata.saved_state, ActivitySavedReportState::Saved);
@@ -52,8 +58,8 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     );
     assert!(!family_metadata.raw_child_evidence_included);
 
-    let family_history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
-    let device_history = history_list_from_dir(surface_request(device_scope()), report_dir.path());
+    let family_history = history_list_from_dir(surface_request(family_scope()), &report_dir.path());
+    let device_history = history_list_from_dir(surface_request(device_scope()), &report_dir.path());
 
     assert_eq!(family_history.state, ActivityReadModelState::Ready);
     assert_eq!(device_history.state, ActivityReadModelState::Ready);
@@ -93,13 +99,17 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
 #[test]
 fn activity_report_history_returns_storage_unavailable_for_unreadable_storage_path() {
     let report_dir = TempReportDir::new();
-    write(
-        report_dir.path(),
-        constants::activity_surface::SUMMARY_STORE_UNAVAILABLE,
-    )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    assert!(
+        write(
+            report_dir.path(),
+            constants::activity_surface::SUMMARY_STORE_UNAVAILABLE,
+        )
+        .is_ok(),
+        "{}",
+        constants::error::AGENT_EVENT_SERIALIZES
+    );
 
-    let history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
+    let history = history_list_from_dir(surface_request(family_scope()), &report_dir.path());
 
     assert_eq!(history.state, ActivityReadModelState::Unavailable);
     assert_eq!(
@@ -118,18 +128,22 @@ fn activity_report_history_marks_partial_parse_failures_as_degraded() {
     let report_dir = TempReportDir::new();
     save_report_document_to_dir(
         report(family_scope(), family_source_states()),
-        report_dir.path(),
+        &report_dir.path(),
     );
     let mut rejected = report_dir.path();
     rejected.push(constants::activity_surface::REPORT_ID_FALLBACK);
     rejected.set_extension(constants::activity_surface::REPORT_FILE_EXTENSION);
-    write(
-        rejected,
-        constants::activity_surface::SUMMARY_STORE_UNAVAILABLE,
-    )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    assert!(
+        write(
+            rejected,
+            constants::activity_surface::SUMMARY_STORE_UNAVAILABLE,
+        )
+        .is_ok(),
+        "{}",
+        constants::error::AGENT_EVENT_SERIALIZES
+    );
 
-    let history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
+    let history = history_list_from_dir(surface_request(family_scope()), &report_dir.path());
 
     assert_eq!(history.state, ActivityReadModelState::Ready);
     assert_eq!(history.storage_state, ActivitySavedReportState::Degraded);
@@ -145,15 +159,15 @@ fn activity_report_history_filters_saved_reports_to_requested_range() {
     let report_dir = TempReportDir::new();
     save_report_document_to_dir(
         report(family_scope(), family_source_states()),
-        report_dir.path(),
+        &report_dir.path(),
     );
     let mut future_report = report(family_scope(), family_source_states());
     future_report.report_id = constants::activity_surface::REPORT_ID_WEEKLY.to_string();
     future_report.range_start = constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string();
     future_report.range_end = constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string();
-    save_report_document_to_dir(future_report, report_dir.path());
+    save_report_document_to_dir(future_report, &report_dir.path());
 
-    let history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
+    let history = history_list_from_dir(surface_request(family_scope()), &report_dir.path());
 
     assert_eq!(history.state, ActivityReadModelState::Ready);
     assert_eq!(history.reports.len(), 1);
@@ -305,13 +319,13 @@ fn device_source_states() -> Vec<ActivityReportSourceState> {
 }
 
 fn source_record(
-    device_id: &str,
+    source_device_ref: &str,
     reachability_state: ActivityReportSourceReachabilityState,
     state: ActivityReadModelState,
     reason: &str,
 ) -> ActivityReportSourceState {
     ActivityReportSourceState {
-        device_id: device_id.to_string(),
+        device_id: source_device_ref.to_string(),
         reachability_state,
         state,
         reason: Some(reason.to_string()),

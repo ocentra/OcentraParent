@@ -1,8 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants::{self},
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, AppGameAdapterDispatchPreflightRow,
-    AppGameAdapterDispatchResultReadModel, AppGameAdapterDispatchResultRow, LogFieldValue,
-    LogFields, LogLevel, APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_BLOCKED,
+use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::{
+    AppGameAdapterDispatchPreflightRow, APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE,
+    APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY, APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID,
+    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_DEGRADED,
+    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
+    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_UNAVAILABLE,
+    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_UNSUPPORTED,
+    APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS,
+};
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
+    AppGameAdapterDispatchResultReadModel, AppGameAdapterDispatchResultRow,
+    APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING,
     APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_REPORTED,
     APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_REF_PREFIX,
@@ -17,18 +25,12 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_MANUAL_REQUIRED,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_UNAVAILABLE,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_UNSUPPORTED,
-    APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE,
     APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED,
     APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID,
     APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF,
     APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_RECORDED,
-    APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY, APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_DEGRADED,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_UNAVAILABLE,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_UNSUPPORTED,
     APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER,
     APP_GAME_ADAPTER_DISPATCH_RESULT_CUSTODY_PREFLIGHT_AND_COMMAND,
@@ -39,8 +41,12 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_SCOPED_TIMER,
     APP_GAME_ADAPTER_DISPATCH_RESULT_OWNED_PROCESS_ID,
     APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID, APP_GAME_ADAPTER_DISPATCH_RESULT_ROW_ID_PREFIX,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_STATUS_PARTIAL, APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS,
-    APP_GAME_SCHEMA_VERSION,
+    APP_GAME_ADAPTER_DISPATCH_RESULT_STATUS_PARTIAL,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use super::app_game_adapter_dispatch_preflight_payload::app_game_adapter_dispatch_preflight_read_model;
@@ -220,9 +226,7 @@ pub fn app_game_adapter_dispatch_result_payload(
         ),
         (
             constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ])
 }
@@ -266,12 +270,12 @@ fn dispatch_result_row(
         dispatch_command_timer_refs: command.dispatch_command_timer_refs,
         dispatch_execution_audit_state: audit.state,
         dispatch_execution_audit_decision: audit.decision,
-        dispatch_execution_audit_id: audit.id,
+        dispatch_execution_audit_id: audit.audit_ref,
         dispatch_execution_audit_refs: audit.refs,
         dispatch_adapter_execution_state: adapter_execution.state,
         dispatch_adapter_execution_decision: adapter_execution.decision,
         dispatch_adapter_execution_result_id: adapter_execution.result_id,
-        dispatch_adapter_execution_status: adapter_execution.status,
+        dispatch_adapter_execution_status: adapter_execution.status_text,
         dispatch_adapter_execution_adapter_result_code: adapter_execution.adapter_result_code,
         dispatch_adapter_execution_audit_event_id: adapter_execution.audit_event_id,
         dispatch_adapter_execution_refs: adapter_execution.refs,
@@ -313,10 +317,14 @@ struct CommandHandoffFields {
     dispatch_command_timer_refs: Vec<String>,
 }
 
+type ExecutionAuditRefText = Option<String>;
+type AdapterExecutionStatusText = Option<String>;
+type DispatchExecutionStatusText = String;
+
 struct ExecutionAuditFields {
     state: String,
     decision: String,
-    id: Option<String>,
+    audit_ref: ExecutionAuditRefText,
     refs: Vec<String>,
 }
 
@@ -324,7 +332,7 @@ struct AdapterExecutionFields {
     state: String,
     decision: String,
     result_id: Option<String>,
-    status: Option<String>,
+    status_text: AdapterExecutionStatusText,
     adapter_result_code: Option<String>,
     audit_event_id: Option<String>,
     refs: Vec<String>,
@@ -335,7 +343,7 @@ struct AdapterExecutionFields {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AppGameAdapterDispatchExecutionEvidence {
     pub result_id: String,
-    pub status: String,
+    pub status_text: DispatchExecutionStatusText,
     pub adapter_result_code: String,
     pub audit_event_id: String,
 }
@@ -345,7 +353,7 @@ pub fn app_game_adapter_dispatch_execution_evidence_from_payload(
 ) -> Result<AppGameAdapterDispatchExecutionEvidence, &'static str> {
     Ok(AppGameAdapterDispatchExecutionEvidence {
         result_id: required_string(payload, constants::field::ENFORCEMENT_RESULT_ID)?.to_string(),
-        status: required_string(payload, constants::field::ENFORCEMENT_STATUS)?.to_string(),
+        status_text: required_string(payload, constants::field::ENFORCEMENT_STATUS)?.to_string(),
         adapter_result_code: required_string(
             payload,
             constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE,
@@ -397,14 +405,14 @@ fn execution_audit_fields(accepted: bool) -> ExecutionAuditFields {
         return ExecutionAuditFields {
             state: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_RECORDED.to_string(),
             decision: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED.to_string(),
-            id: Some(APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID.to_string()),
+            audit_ref: Some(APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID.to_string()),
             refs: vec![APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF.to_string()],
         };
     }
     ExecutionAuditFields {
         state: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_BLOCKED.to_string(),
         decision: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_BLOCKED.to_string(),
-        id: None,
+        audit_ref: None,
         refs: Vec::new(),
     }
 }
@@ -434,12 +442,12 @@ fn adapter_execution_fields(
         state: APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_REPORTED.to_string(),
         decision: APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_REPORTED.to_string(),
         result_id: Some(evidence.result_id.clone()),
-        status: Some(evidence.status.clone()),
+        status_text: Some(evidence.status_text.clone()),
         adapter_result_code: Some(evidence.adapter_result_code.clone()),
         audit_event_id: Some(evidence.audit_event_id.clone()),
         refs: vec![execution_ref],
-        executed_claimed: evidence.status == constants::enforcement::RESULT_ACTUALLY_ENFORCED,
-        platform_enforcement_claimed: evidence.status
+        executed_claimed: evidence.status_text == constants::enforcement::RESULT_ACTUALLY_ENFORCED,
+        platform_enforcement_claimed: evidence.status_text
             == constants::enforcement::RESULT_ACTUALLY_ENFORCED,
     }
 }
@@ -449,7 +457,7 @@ fn empty_adapter_execution_fields(state: &str, decision: &str) -> AdapterExecuti
         state: state.to_string(),
         decision: decision.to_string(),
         result_id: None,
-        status: None,
+        status_text: None,
         adapter_result_code: None,
         audit_event_id: None,
         refs: Vec::new(),

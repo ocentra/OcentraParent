@@ -2,52 +2,54 @@ use std::{env, path::PathBuf};
 
 use ocentra_parent_agent_protocol::constants;
 
-pub(crate) fn env_path(key: &str) -> Option<PathBuf> {
-    env_value(key).map(PathBuf::from)
+pub(crate) fn env_path(env_var_name: &str) -> Option<PathBuf> {
+    env_value(env_var_name).map(PathBuf::from)
 }
 
-pub(crate) fn env_value(key: &str) -> Option<String> {
-    env::var(key).ok().filter(|value| !value.trim().is_empty())
+pub(crate) fn env_value(env_var_name: &str) -> Option<String> {
+    env::var(env_var_name)
+        .ok()
+        .filter(|value| !value.trim().is_empty())
 }
 
-pub(crate) fn env_flag(key: &str) -> bool {
-    env_value(key)
+pub(crate) fn env_flag(env_var_name: &str) -> bool {
+    env_value(env_var_name)
         .map(|value| value.eq_ignore_ascii_case(constants::value::TRUE))
         .unwrap_or(false)
 }
 
-pub(crate) fn env_u64(key: &str, fallback: u64) -> u64 {
-    env_value(key)
+pub(crate) fn env_u64(env_var_name: &str, fallback: u64) -> u64 {
+    env_value(env_var_name)
         .and_then(|value| value.parse::<u64>().ok())
         .unwrap_or(fallback)
 }
 
-pub(crate) fn env_u32(key: &str, fallback: u32) -> u32 {
-    env_value(key)
+pub(crate) fn env_u32(env_var_name: &str, fallback: u32) -> u32 {
+    env_value(env_var_name)
         .and_then(|value| value.parse::<u32>().ok())
         .unwrap_or(fallback)
 }
 
-pub(crate) fn env_llama_device(key: &str) -> Option<String> {
-    env_value(key).filter(|value| is_safe_llama_selector(value))
+pub(crate) fn env_llama_device(env_var_name: &str) -> Option<String> {
+    env_value(env_var_name).filter(|value| is_safe_llama_selector(value))
 }
 
-pub(crate) fn env_llama_gpu_layers(key: &str) -> Option<String> {
-    env_value(key).filter(|value| {
+pub(crate) fn env_llama_gpu_layers(env_var_name: &str) -> Option<String> {
+    env_value(env_var_name).filter(|value| {
         value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL
             || value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_AUTO
             || value.parse::<u32>().is_ok()
     })
 }
 
-pub(crate) fn env_llama_release_tag(key: &str) -> String {
-    env_value(key)
+pub(crate) fn env_llama_release_tag(env_var_name: &str) -> String {
+    env_value(env_var_name)
         .filter(|value| is_safe_llama_release_tag(value))
         .unwrap_or_else(|| constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG.to_string())
 }
 
-pub(crate) fn env_local_ai_model_id(key: &str) -> String {
-    env_value(key)
+pub(crate) fn env_local_ai_model_id(env_var_name: &str) -> String {
+    env_value(env_var_name)
         .filter(|value| is_safe_local_ai_model_id(value))
         .unwrap_or_else(|| constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string())
 }

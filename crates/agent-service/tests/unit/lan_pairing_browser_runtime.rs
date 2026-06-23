@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    LanPairingProductionDiscoveryState, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName,
 };
 use serde_json::Value;
 
@@ -161,9 +163,12 @@ async fn paired_runtime_scan_exposes_registry_and_selected_readiness() {
 
 fn read_model_payload(payload: &LogFields) -> Value {
     match payload.get(constants::field::LAN_ADD_DEVICE_READ_MODEL) {
-        Some(LogFieldValue::String(value)) => {
-            serde_json::from_str(value).expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-        }
+        Some(LogFieldValue::String(value)) => serde_json::from_str(value).unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
+            )
+        }),
         _ => serde_json::json!({}),
     }
 }

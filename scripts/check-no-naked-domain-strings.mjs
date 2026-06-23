@@ -1,5 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import { repoAbsolutePath, resolveScopedFiles } from './check-architecture-scope.mjs';
 
 const repoRoot = process.cwd();
 const sourceRoots = ['apps', 'packages'];
@@ -9,6 +12,8 @@ const manualBrandPattern = /\b(?:export\s+)?type\s+\w+\s*=\s*string\s*&\s*\{\s*r
 const nakedDomainTypeAliasPattern =
   /^\s*export\s+type\s+(\w*(?:Id|ID|Path|Key|Name|Hash|URL|Url|Type|Slug|Route|Label|Title|Description|Status|Version)\w*)\s*=\s*string\s*;/u;
 const findings = [];
+const scriptName = 'node scripts/check-no-naked-domain-strings.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
 
 function toPosix(path) {
   return path.split(sep).join('/');
@@ -19,7 +24,7 @@ function shouldSkip(path) {
   return relativePath.split('/').some((part) => ignoredSegments.has(part));
 }
 
-function walk(dir) {
+function walk(dir, files) {
   if (!existsSync(dir) || shouldSkip(dir)) {
     return;
   }
@@ -30,11 +35,11 @@ function walk(dir) {
       continue;
     }
     if (entry.isDirectory()) {
-      walk(path);
+      walk(path, files);
       continue;
     }
     if (sourceExtension.test(entry.name)) {
-      checkFile(path);
+      files.push(path);
     }
   }
 }
@@ -60,16 +65,48 @@ function checkFile(path) {
   });
 }
 
-for (const root of sourceRoots) {
-  walk(join(repoRoot, root));
-}
-
-if (findings.length > 0) {
-  console.error('Naked domain string aliases are not allowed. Use Effect Schema brands plus decode helpers.');
-  for (const finding of findings) {
-    console.error(`${finding.path}:${finding.line} ${finding.reason}: ${finding.text}`);
+function collectFullFiles() {
+  const files = [];
+  for (const root of sourceRoots) {
+    walk(join(repoRoot, root), files);
   }
-  process.exit(1);
+  return files;
 }
 
-console.log('No manual string brands or naked domain string aliases found.');
+function collectScopedFiles(rawArgs) {
+  const scope = resolveScopedFiles(rawArgs, {
+    scriptName,
+    usageLines,
+    roots: sourceRoots,
+    acceptPath: (filePath) => sourceExtension.test(filePath),
+  });
+
+  if (scope.mode === 'skip') {
+    return [];
+  }
+
+  return scope.files.map((filePath) => repoAbsolutePath(filePath));
+}
+
+export function main(rawArgs = process.argv.slice(2)) {
+  findings.length = 0;
+  const files = rawArgs.length === 0 ? collectFullFiles() : collectScopedFiles(rawArgs);
+
+  for (const file of files) {
+    checkFile(file);
+  }
+
+  if (findings.length > 0) {
+    console.error('Naked domain string aliases are not allowed. Use Effect Schema brands plus decode helpers.');
+    for (const finding of findings) {
+      console.error(`${finding.path}:${finding.line} ${finding.reason}: ${finding.text}`);
+    }
+    process.exit(1);
+  }
+
+  console.log(`No manual string brands or naked domain string aliases found across ${files.length} checked files.`);
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGameCloudGateRequestIdSchema = withParser(
@@ -119,4 +114,3 @@ export type BrowserGameCloudGateReasonCode = Infer<typeof BrowserGameCloudGateRe
 export type BrowserGameCloudGateState = Infer<typeof BrowserGameCloudGateStateSchema>;
 export type BrowserGameCloudGateSubject = Infer<typeof BrowserGameCloudGateSubjectSchema>;
 export type BrowserGameCloudGateSignalKind = Infer<typeof BrowserGameCloudGateSignalKindSchema>;
-

@@ -1,7 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentEventEnvelope, AgentEventName, AgentLogSnapshot, AgentPeer, AgentPeerRole,
-    LogFields, LogLevel, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{AgentLogSnapshot, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentEventEnvelope, AgentEventName, AgentPeer, AgentPeerRole,
 };
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::time::timestamp_now;
 
@@ -44,7 +46,9 @@ pub fn portal_peer() -> AgentPeer {
 
 #[cfg(test)]
 mod tests {
-    use ocentra_parent_agent_protocol::{constants, AgentEventName, LogFieldValue, LogLevel};
+    use ocentra_parent_agent_protocol::constants;
+    use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
+    use ocentra_parent_agent_protocol::transport::AgentEventName;
 
     use crate::{
         event_builder::{build_event, portal_peer},

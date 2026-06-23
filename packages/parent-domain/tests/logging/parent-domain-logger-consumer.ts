@@ -1,5 +1,6 @@
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
-import { getStackTrace, type StackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
+import type { StackTrace } from '@ocentra-parent/schema-domain/logging-contracts';
+import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 
 export class ParentDomainLoggerConsumer {
   private readonly log = Logger.instance;

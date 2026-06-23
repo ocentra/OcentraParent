@@ -21,14 +21,7 @@ await Promise.all([
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 runCommand(
-  ...npmCommand([
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/screen-domain',
-    '--',
-    'screen-vlm-execution-readiness',
-  ])
+  ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/screen-domain', '--', 'screen-vlm-execution-readiness'])
 );
 
 const {

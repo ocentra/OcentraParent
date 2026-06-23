@@ -26,10 +26,27 @@ interface McpResponse {
   };
 }
 
-function runMcp(
-  args: readonly string[],
-  env: NodeJS.ProcessEnv = process.env
-): CliResult {
+interface ProofTraceSmokeResult {
+  readonly proofId: string;
+  readonly scope: string;
+  readonly staleProofRemoved: boolean;
+  readonly rows: ReadonlyArray<{ readonly traceStep: string }>;
+  readonly gapSummary: {
+    readonly matchedSteps: number;
+    readonly missingSteps: number;
+    readonly outOfOrderSteps: number;
+    readonly unexpectedWarnOrErrorRows: number;
+  };
+  readonly cli: {
+    readonly proofTrace: string;
+    readonly proofTraceGaps: string;
+  };
+}
+
+const ExpectedProofTraceSteps = ['portal.route.opened', 'portal.action.clicked', 'portal.ui.rendered'] as const;
+const mcpQueryTempDirs: string[] = [];
+
+function runMcp(args: readonly string[], env: NodeJS.ProcessEnv = process.env): CliResult {
   const result = spawnSync(
     process.execPath,
     [path.join(workspaceRoot(), 'scripts/dev/mcp-logging-server.mjs'), ...args],
@@ -176,6 +193,28 @@ function createProofInventoryFixture(rootDir: string): void {
   );
 }
 
+function makeLoggingEnv(rootDir: string): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    OCENTRA_PARENT_LOG_DIR: rootDir,
+  };
+}
+
+function expectProofTraceSmokeResult(smoke: ProofTraceSmokeResult): void {
+  expect(smoke.scope).toBe('parent-portal');
+  expect(smoke.proofId).toBe('wp10-proof-trace-smoke');
+  expect(smoke.staleProofRemoved).toBe(true);
+  expect(smoke.rows.map((row) => row.traceStep)).toEqual(ExpectedProofTraceSteps);
+  expect(smoke.gapSummary).toEqual({
+    matchedSteps: 3,
+    missingSteps: 0,
+    outOfOrderSteps: 0,
+    unexpectedWarnOrErrorRows: 0,
+  });
+  expect(smoke.cli.proofTrace).toContain(`proof_id: ${smoke.proofId}`);
+  expect(smoke.cli.proofTraceGaps).toContain('matched_steps: 3');
+}
+
 async function removeDirWithRetries(dirPath: string): Promise<void> {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
@@ -191,15 +230,53 @@ async function removeDirWithRetries(dirPath: string): Promise<void> {
   }
 }
 
-describe('logging-domain MCP query interface', () => {
-  const tempDirs: string[] = [];
+async function expectProofTraceMcpAlignment(env: NodeJS.ProcessEnv, smoke: ProofTraceSmokeResult): Promise<void> {
+  await withMcpServer(env, async (call) => {
+    const initialize = await call('initialize', {});
+    expect(initialize.error).toBeUndefined();
 
-  afterEach(async () => {
-    for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      await removeDirWithRetries(tempDir);
-    }
+    const traceCall = await call('tools/call', {
+      name: 'get_proof_trace',
+      arguments: {
+        scope: smoke.scope,
+        proofId: smoke.proofId,
+        limit: 10,
+      },
+    });
+    expect(traceCall.error).toBeUndefined();
+    const trace = traceCall.result?.structuredContent as {
+      readonly rows: ReadonlyArray<{ readonly traceStep: string }>;
+    };
+    expect(trace.rows.map((row) => row.traceStep)).toEqual(ExpectedProofTraceSteps);
+
+    const gapCall = await call('tools/call', {
+      name: 'query_proof_trace',
+      arguments: {
+        scope: smoke.scope,
+        proofId: smoke.proofId,
+        expectedSteps: [...ExpectedProofTraceSteps],
+        limit: 10,
+      },
+    });
+    expect(gapCall.error).toBeUndefined();
+    const gapResult = gapCall.result?.structuredContent as {
+      readonly matchedSteps: ReadonlyArray<unknown>;
+      readonly missingSteps: ReadonlyArray<unknown>;
+      readonly outOfOrderSteps: ReadonlyArray<unknown>;
+    };
+    expect(gapResult.matchedSteps).toHaveLength(3);
+    expect(gapResult.missingSteps).toHaveLength(0);
+    expect(gapResult.outOfOrderSteps).toHaveLength(0);
   });
+}
 
+afterEach(async () => {
+  for (const tempDir of mcpQueryTempDirs.splice(0, mcpQueryTempDirs.length)) {
+    await removeDirWithRetries(tempDir);
+  }
+});
+
+describe('logging-domain MCP query interface tool listing', () => {
   it('lists the expected tools', () => {
     const result = runMcp(['--list-tools']);
     expect(result.status).toBe(0);
@@ -232,104 +309,26 @@ describe('logging-domain MCP query interface', () => {
     expect(latest[0]?.runId).toContain('run-');
     expect(latest[0]?.status).toBe('failed');
   });
+});
 
+describe('logging-domain MCP query interface proof trace', () => {
   it('makes proof-trace smoke honest in a clean workspace and keeps MCP plus CLI semantics aligned', async () => {
     const structuredRoot = makeTempDir('mcp-proof-trace-smoke-');
-    tempDirs.push(structuredRoot);
-    const env = {
-      ...process.env,
-      OCENTRA_PARENT_LOG_DIR: structuredRoot,
-    };
+    mcpQueryTempDirs.push(structuredRoot);
+    const env = makeLoggingEnv(structuredRoot);
 
     const result = runMcp(['--smoke', 'proof-trace', '--smoke-root', structuredRoot], env);
     expect(result.status).toBe(0);
 
-    const smoke = JSON.parse(result.stdout) as {
-      readonly proofId: string;
-      readonly scope: string;
-      readonly staleProofRemoved: boolean;
-      readonly rows: ReadonlyArray<{ readonly traceStep: string }>;
-      readonly gapSummary: {
-        readonly matchedSteps: number;
-        readonly missingSteps: number;
-        readonly outOfOrderSteps: number;
-        readonly unexpectedWarnOrErrorRows: number;
-      };
-      readonly cli: {
-        readonly proofTrace: string;
-        readonly proofTraceGaps: string;
-      };
-    };
-
-    expect(smoke.scope).toBe('parent-portal');
-    expect(smoke.proofId).toBe('wp10-proof-trace-smoke');
-    expect(smoke.staleProofRemoved).toBe(true);
-    expect(smoke.rows.map((row) => row.traceStep)).toEqual([
-      'portal.route.opened',
-      'portal.action.clicked',
-      'portal.ui.rendered',
-    ]);
-    expect(smoke.gapSummary).toEqual({
-      matchedSteps: 3,
-      missingSteps: 0,
-      outOfOrderSteps: 0,
-      unexpectedWarnOrErrorRows: 0,
-    });
-    expect(smoke.cli.proofTrace).toContain(`proof_id: ${smoke.proofId}`);
-    expect(smoke.cli.proofTraceGaps).toContain('matched_steps: 3');
-
-    await withMcpServer(env, async (call) => {
-      const initialize = await call('initialize', {});
-      expect(initialize.error).toBeUndefined();
-
-      const traceCall = await call('tools/call', {
-        name: 'get_proof_trace',
-        arguments: {
-          scope: smoke.scope,
-          proofId: smoke.proofId,
-          limit: 10,
-        },
-      });
-      expect(traceCall.error).toBeUndefined();
-      const trace = traceCall.result?.structuredContent as { readonly rows: ReadonlyArray<{ readonly traceStep: string }> };
-      expect(trace.rows.map((row) => row.traceStep)).toEqual([
-        'portal.route.opened',
-        'portal.action.clicked',
-        'portal.ui.rendered',
-      ]);
-
-      const gapCall = await call('tools/call', {
-        name: 'query_proof_trace',
-        arguments: {
-          scope: smoke.scope,
-          proofId: smoke.proofId,
-          expectedSteps: [
-            'portal.route.opened',
-            'portal.action.clicked',
-            'portal.ui.rendered',
-          ],
-          limit: 10,
-        },
-      });
-      expect(gapCall.error).toBeUndefined();
-      const gapResult = gapCall.result?.structuredContent as {
-        readonly matchedSteps: ReadonlyArray<unknown>;
-        readonly missingSteps: ReadonlyArray<unknown>;
-        readonly outOfOrderSteps: ReadonlyArray<unknown>;
-      };
-      expect(gapResult.matchedSteps).toHaveLength(3);
-      expect(gapResult.missingSteps).toHaveLength(0);
-      expect(gapResult.outOfOrderSteps).toHaveLength(0);
-    });
+    const smoke = JSON.parse(result.stdout) as ProofTraceSmokeResult;
+    expectProofTraceSmokeResult(smoke);
+    await expectProofTraceMcpAlignment(env, smoke);
   });
 
   it('surfaces unknown proof-trace scopes as MCP errors', async () => {
     const structuredRoot = makeTempDir('mcp-proof-trace-missing-scope-');
-    tempDirs.push(structuredRoot);
-    const env = {
-      ...process.env,
-      OCENTRA_PARENT_LOG_DIR: structuredRoot,
-    };
+    mcpQueryTempDirs.push(structuredRoot);
+    const env = makeLoggingEnv(structuredRoot);
 
     await withMcpServer(env, async (call) => {
       const response = await call('tools/call', {
@@ -341,14 +340,13 @@ describe('logging-domain MCP query interface', () => {
       expect(response.error?.message).toContain('No proof trace rows found for scope "parent-missing".');
     });
   });
+});
 
+describe('logging-domain MCP query interface artifact slices', () => {
   it('rejects artifact-slice abuse outside the local logging roots', async () => {
     const structuredRoot = makeTempDir('mcp-artifact-slice-abuse-');
-    tempDirs.push(structuredRoot);
-    const env = {
-      ...process.env,
-      OCENTRA_PARENT_LOG_DIR: structuredRoot,
-    };
+    mcpQueryTempDirs.push(structuredRoot);
+    const env = makeLoggingEnv(structuredRoot);
 
     await withMcpServer(env, async (call) => {
       const response = await call('tools/call', {
@@ -365,11 +363,8 @@ describe('logging-domain MCP query interface', () => {
 
   it('clamps artifact-slice requests to the bounded max-lines window', async () => {
     const structuredRoot = makeTempDir('mcp-artifact-slice-clamp-');
-    tempDirs.push(structuredRoot);
-    const env = {
-      ...process.env,
-      OCENTRA_PARENT_LOG_DIR: structuredRoot,
-    };
+    mcpQueryTempDirs.push(structuredRoot);
+    const env = makeLoggingEnv(structuredRoot);
     const artifactPath = path.join(structuredRoot, 'manual-artifact.txt');
     fs.writeFileSync(artifactPath, 'line1\nline2\nline3\nline4\nline5\n', 'utf8');
 
@@ -396,10 +391,12 @@ describe('logging-domain MCP query interface', () => {
       expect(slice.lines).toEqual(['line2', 'line3']);
     });
   });
+});
 
+describe('logging-domain MCP query interface proof inventory', () => {
   it('surfaces stale or missing logging proof inventory through MCP and smoke mode', async () => {
     const workspaceFixture = makeTempDir('mcp-proof-inventory-');
-    tempDirs.push(workspaceFixture);
+    mcpQueryTempDirs.push(workspaceFixture);
     createProofInventoryFixture(workspaceFixture);
 
     const env = {

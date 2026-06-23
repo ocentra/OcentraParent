@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const ScreenManagedBrowserCdpCaptureSchemaVersion = 1;
 export const ScreenManagedBrowserCdpMaxPixels = 4_000_000;

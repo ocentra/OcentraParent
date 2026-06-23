@@ -1,17 +1,16 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
 const TrackingAndroidSystemGeofenceCounterSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingAndroidSystemGeofenceProofIdSchema = brandedNonEmptyStringSchema('TrackingAndroidSystemGeofenceProofId');
+export const TrackingAndroidSystemGeofenceProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidSystemGeofenceProofId'
+);
 
-export const TrackingAndroidSystemGeofenceArtifactRefSchema = brandedNonEmptyStringSchema('TrackingAndroidSystemGeofenceArtifactRef');
+export const TrackingAndroidSystemGeofenceArtifactRefSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidSystemGeofenceArtifactRef'
+);
 
 export const TrackingAndroidSystemGeofenceBlockerSchema = Schema.Literal(
   'system-proximity-broadcast-counter-zero',
@@ -213,4 +212,3 @@ function numberFrom(value: unknown): number {
   }
   return value;
 }
-

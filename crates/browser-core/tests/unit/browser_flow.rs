@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
@@ -8,7 +9,7 @@ fn browser_observation_records_evidence_and_requests_ai_boundary() {
     let observed = ocentra_browser_core::default_browser_observed_event();
     let evidence = ocentra_browser_core::browser_evidence_recorded_event(&observed);
     let ai = ocentra_browser_core::browser_ai_analysis_requested_event(&evidence)
-        .expect("browser AI request is expected");
+        .expect_value("browser AI request is expected");
     let policy = ocentra_browser_core::browser_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(
@@ -44,7 +45,7 @@ fn browser_known_policy_navigation_bypasses_ai_boundary() {
     let evidence = ocentra_browser_core::browser_evidence_recorded_event(&observed);
     let ai = ocentra_browser_core::browser_ai_analysis_requested_event(&evidence);
     let policy = ocentra_browser_core::browser_policy_evaluation_requested_event(&evidence)
-        .expect("known browser policy navigation requests policy directly");
+        .expect_value("known browser policy navigation requests policy directly");
 
     assert_eq!(
         evidence.ai_analysis_requirement,

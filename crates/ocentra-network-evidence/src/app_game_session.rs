@@ -126,7 +126,7 @@ pub fn correlate_app_game_foreground_session(
 
     if !session.adapter_available {
         return Ok(app_game_session_correlation(
-            input.network_flow_ref,
+            &input.network_flow_ref,
             session,
             NetworkAppGameSessionCorrelationState::AdapterUnavailable,
             NetworkAppGameSessionCorrelationBasis::AdapterUnavailable,
@@ -137,7 +137,7 @@ pub fn correlate_app_game_foreground_session(
 
     if session.evidence_kind == NetworkAppGameEvidenceKind::LauncherOnly {
         return Ok(app_game_session_correlation(
-            input.network_flow_ref,
+            &input.network_flow_ref,
             session,
             NetworkAppGameSessionCorrelationState::LauncherOnlyGuarded,
             NetworkAppGameSessionCorrelationBasis::LauncherOnlyEvidence,
@@ -151,7 +151,7 @@ pub fn correlate_app_game_foreground_session(
             if session.foreground_state == NetworkAppGameForegroundState::KnownForeground =>
         {
             Ok(app_game_session_correlation(
-                input.network_flow_ref,
+                &input.network_flow_ref,
                 session,
                 NetworkAppGameSessionCorrelationState::ForegroundSessionConfirmed,
                 NetworkAppGameSessionCorrelationBasis::StoredForegroundEvidence,
@@ -161,7 +161,7 @@ pub fn correlate_app_game_foreground_session(
         }
         NetworkAppGameEvidenceKind::KnownGame | NetworkAppGameEvidenceKind::KnownApp => {
             Ok(app_game_session_correlation(
-                input.network_flow_ref,
+                &input.network_flow_ref,
                 session,
                 NetworkAppGameSessionCorrelationState::RunningSessionConfirmed,
                 NetworkAppGameSessionCorrelationBasis::StoredSessionSummary,
@@ -170,7 +170,7 @@ pub fn correlate_app_game_foreground_session(
             ))
         }
         NetworkAppGameEvidenceKind::AppGameCandidate => Ok(app_game_session_correlation(
-            input.network_flow_ref,
+            &input.network_flow_ref,
             session,
             NetworkAppGameSessionCorrelationState::CandidateNeedsReview,
             NetworkAppGameSessionCorrelationBasis::CandidateStoredEvidence,
@@ -178,26 +178,28 @@ pub fn correlate_app_game_foreground_session(
             NetworkEvidenceGrade::D,
         )),
         NetworkAppGameEvidenceKind::UnknownProcess => Ok(app_game_session_correlation(
-            input.network_flow_ref,
+            &input.network_flow_ref,
             session,
             NetworkAppGameSessionCorrelationState::NoSessionEvidence,
             NetworkAppGameSessionCorrelationBasis::MissingStoredEvidence,
             false,
             NetworkEvidenceGrade::D,
         )),
-        NetworkAppGameEvidenceKind::LauncherOnly => unreachable!(),
+        NetworkAppGameEvidenceKind::LauncherOnly => unreachable!(
+            "launcher-only evidence should return from the guarded branch before session correlation matching"
+        ),
     }
 }
 
 fn app_game_session_correlation(
-    network_flow_ref: String,
+    network_flow_ref: &str,
     session: NetworkAppGameStoredSessionEvidence,
     state: NetworkAppGameSessionCorrelationState,
     basis: NetworkAppGameSessionCorrelationBasis,
     launcher_only_guarded: bool,
     evidence_grade: NetworkEvidenceGrade,
 ) -> NetworkAppGameSessionCorrelation {
-    let evidence_refs = evidence_refs(&network_flow_ref, &session);
+    let evidence_refs = evidence_refs(network_flow_ref, &session);
     NetworkAppGameSessionCorrelation {
         state,
         basis,

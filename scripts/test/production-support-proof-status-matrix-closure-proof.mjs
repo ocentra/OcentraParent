@@ -51,7 +51,8 @@ async function main() {
       contract: 'packages/schema-domain/src/production-support-proof-status-matrix-closure-proof.ts',
       values: 'packages/schema-domain/src/production-support-proof-status-matrix-closure-values.ts',
       readModel: 'packages/schema-domain/src/production-support-proof-status-matrix-closure-read-model.ts',
-      contractTest: 'packages/production-domain/tests/unit/production-support-proof-status-matrix-closure-proof.test.ts',
+      contractTest:
+        'packages/production-domain/tests/unit/production-support-proof-status-matrix-closure-proof.test.ts',
       proofHarness: 'scripts/test/production-support-proof-status-matrix-closure-proof.mjs',
       linkedProofs,
       documentation,
@@ -190,10 +191,7 @@ async function readModelIds(packageDirectory, modules) {
 }
 
 async function assertDocumentationProof() {
-  const docs = [
-    'docs/features/production-distribution-support.md',
-    'docs/product-capability-checklist.md',
-  ];
+  const docs = ['docs/features/production-distribution-support.md', 'docs/product-capability-checklist.md'];
   for (const path of docs) {
     assertIncludes(await readRepoFile(path), proofMode, `${path} proof note`);
   }

@@ -309,13 +309,24 @@ mod tests {
             foreground_state: AppGameForegroundState::Background,
             classification_state: AppGameClassificationState::InventoryOnly,
         };
-
-        let recorded = app_game_runtime_decision_recorded_event(
-            AppGameAggregateId::parse("app-game.aggregate.child-device-1").expect("aggregate id"),
-            AppGameRuntimeDecisionId::parse("app-game.runtime-decision-1")
-                .expect("decision id"),
-            input,
+        let aggregate_id_result = AppGameAggregateId::parse("app-game.aggregate.child-device-1");
+        assert!(
+            aggregate_id_result.is_ok(),
+            "aggregate id parses: {aggregate_id_result:?}"
         );
+        let Ok(aggregate_id) = aggregate_id_result else {
+            return;
+        };
+        let decision_id_result = AppGameRuntimeDecisionId::parse("app-game.runtime-decision-1");
+        assert!(
+            decision_id_result.is_ok(),
+            "decision id parses: {decision_id_result:?}"
+        );
+        let Ok(decision_id) = decision_id_result else {
+            return;
+        };
+
+        let recorded = app_game_runtime_decision_recorded_event(aggregate_id, decision_id, input);
 
         assert_eq!(
             recorded.decision.observation_intent,
@@ -325,12 +336,16 @@ mod tests {
             recorded.decision.runtime_action_state,
             AppGameRuntimeActionState::RecordInventory
         );
+        let contract_result = recorded.contract();
+        assert!(
+            contract_result.is_ok(),
+            "app-game runtime contract parses: {contract_result:?}"
+        );
+        let Ok(contract) = contract_result else {
+            return;
+        };
         assert_eq!(
-            recorded
-                .contract()
-                .expect("app-game runtime contract")
-                .event_type
-                .as_str(),
+            contract.event_type.as_str(),
             "app-game.runtime.decision-recorded"
         );
     }

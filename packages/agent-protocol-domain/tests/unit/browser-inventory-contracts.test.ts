@@ -1,5 +1,10 @@
 import { expect, it } from 'vitest';
-import { AgentCommand, AgentCommandEnvelopeSchema, AgentEvent, AgentEventEnvelopeSchema } from '../../src/contracts';
+import {
+  AgentCommand,
+  AgentCommandEnvelopeSchema,
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 it('AgentCommand: exposes browser inventory read-model command constant', () => {
   expect(AgentCommand.BrowserInventoryReadModelGet).toBe('agent.browser.inventory.read-model.get');

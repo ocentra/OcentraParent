@@ -163,6 +163,7 @@ Every proof root must include a command log:
 command: <exact command>
 exit: <code>
 result: pass | fail | blocked
+artifact: <path or n/a>
 notes: <short note>
 ```
 
@@ -174,6 +175,39 @@ required environment:
 why this does not prove completion:
 next command:
 ```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: logging-domain-parity
+workpack: <workpack id and name>
+owner: logging-domain | logging-core | scripts-dev | portal | agent-service | mcp | proof-trace | validation | docs-only
+scope: parent-test | parent-codex | parent-portal | parent-agent-service | proof-trace | mcp | local-dev | n/a
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+artifact_ref: <artifact pointer or n/a>
+log_source: <source id or n/a>
+log_context: <context id or n/a>
+bridge_state: not-tested | sent | received | rejected | unavailable | blocked | n/a
+ndjson_state: not-tested | written | ingested | malformed-rejected | stale | n/a
+duckdb_state: not-tested | ensured | rebuilt | ingested | queried | stale | missing | n/a
+mcp_tool: latest-failures | run-diagnostics | artifact-slice | proof-trace | source-context | proof-inventory | other | n/a
+proof_trace_id: <proof trace id or n/a>
+correlation_id: <correlation id or n/a>
+retention_state: not-tested | kept | wiped | expired | stale-rejected | n/a
+validation_state: not-tested | passed | failed | blocked | external-owner | n/a
+manual_required_note: <manual-required gap or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <artifact pointer, proof file, test result path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index. Store long command output, proof JSON, test reports, MCP smoke output, query output, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
 
 ## No-claim language
 
@@ -189,6 +223,9 @@ MCP logging interface complete
 logger instrumentation complete for the whole repo
 log retention policy complete for all products
 proof-trace coverage for all product flows
+portal logging fully migrated
+agent-service logging fully migrated
+missing proof roots restored by query proof alone
 ```
 
 unless the assigned workpack acceptance criteria and validation scripts prove it.

@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   TrackingPlatformProofRouteStateSchema,
   TrackingPolicyAuditRefSchema,
@@ -12,7 +6,9 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-export const TrackingUnsupportedPlatformManualProofRowIdSchema = brandedNonEmptyStringSchema('TrackingUnsupportedPlatformManualProofRowId');
+export const TrackingUnsupportedPlatformManualProofRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingUnsupportedPlatformManualProofRowId'
+);
 
 export const TrackingUnsupportedPlatformManualProofPlatformSchema = withParser(
   Schema.Literal('android', 'ios', 'windows', 'macos', 'linux', 'web')
@@ -212,4 +208,3 @@ function manualProofCommandFor(
   }
   return `collect ${platform} ${surface} ${renderedState} tracking proof before product claim`;
 }
-

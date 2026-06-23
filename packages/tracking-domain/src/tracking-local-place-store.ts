@@ -1,6 +1,4 @@
-import {
-  ActivityEvidenceRefSchema,
-} from '@ocentra-parent/schema-domain/evidence-contracts';
+import { ActivityEvidenceRefSchema } from '@ocentra-parent/schema-domain/evidence-contracts';
 import {
   TrackingNearbyPlaceEvidenceSchema,
   TrackingParentDefinedPlaceSchema,

@@ -64,16 +64,14 @@ async function main() {
     packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'updated-docs-product-capability-checklist-install-purchase-row',
     evidence: {
-      executionReceiptGateContract:
-        'packages/app-game-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
+      executionReceiptGateContract: 'packages/schema-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
       sourceExternalRuntimeWriterTransportExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-transport-execution-proof.ts',
-      contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-execution-receipt-gate-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-external-runtime-writer-transport-execution-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-execution-receipt-gate-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-execution-receipt-gate-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-execution-receipt-gate-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
       output: relative(repoRoot, proofPath),

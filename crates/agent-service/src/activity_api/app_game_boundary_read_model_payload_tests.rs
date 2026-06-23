@@ -1,13 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, AppGameEvidenceClaim,
-    AppGamePlatformAuthorityMatrix, AppGameServiceReadModel, LogFieldValue,
-    APP_GAME_BOUNDARY_KIND_EVIDENCE_CLAIM, APP_GAME_BOUNDARY_KIND_PLATFORM_AUTHORITY_ROW,
-    APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
-    APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    self, AppGameEvidenceClaim, AppGameServiceReadModel,
 };
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    self, AppGamePlatformAuthorityMatrix,
+};
+use ocentra_parent_agent_protocol::app_game_boundary_read_model::{self, AppGameBoundaryReadModel};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
@@ -33,8 +33,9 @@ fn app_game_boundary_payload_contains_dedicated_counts_and_citations() {
     let read_model = app_game_boundary_read_model_from_service_model(service_model());
     let payload = app_game_boundary_read_model_payload(&read_model);
     let read_model_json = string_payload(&payload, constants::field::APP_GAME_BOUNDARY_READ_MODEL);
-    let decoded: ocentra_parent_agent_protocol::AppGameBoundaryReadModel =
-        serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let Ok(decoded) = serde_json::from_str::<AppGameBoundaryReadModel>(read_model_json) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
 
     assert_eq!(decoded.returned, 3);
     assert_eq!(decoded.evidence_claim_row_count, 1);
@@ -42,7 +43,7 @@ fn app_game_boundary_payload_contains_dedicated_counts_and_citations() {
     assert_eq!(decoded.platform_authority_row_count, 1);
     assert_eq!(
         decoded.rows[0].boundary_kind,
-        APP_GAME_BOUNDARY_KIND_EVIDENCE_CLAIM
+        app_game_boundary_read_model::APP_GAME_BOUNDARY_KIND_EVIDENCE_CLAIM
     );
     assert_eq!(
         decoded.rows[0].evidence_reference_ids,
@@ -53,7 +54,7 @@ fn app_game_boundary_payload_contains_dedicated_counts_and_citations() {
     );
     assert_eq!(
         decoded.rows[2].boundary_kind,
-        APP_GAME_BOUNDARY_KIND_PLATFORM_AUTHORITY_ROW
+        app_game_boundary_read_model::APP_GAME_BOUNDARY_KIND_PLATFORM_AUTHORITY_ROW
     );
     assert_eq!(
         decoded.rows[2].evidence_reference_ids,
@@ -63,12 +64,12 @@ fn app_game_boundary_payload_contains_dedicated_counts_and_citations() {
 
 fn service_model() -> AppGameServiceReadModel {
     AppGameServiceReadModel {
-        schema_version: APP_GAME_SCHEMA_VERSION,
+        schema_version: app_game::APP_GAME_SCHEMA_VERSION,
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
-        custody_label: APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE.to_string(),
-        replay_state: APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED.to_string(),
-        capability_status: APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED.to_string(),
+        custody_label: app_game::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE.to_string(),
+        replay_state: app_game::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED.to_string(),
+        capability_status: app_game::APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED.to_string(),
         inventory_returned: 0,
         running_now_returned: 0,
         foreground_now_returned: 0,
@@ -96,17 +97,17 @@ fn service_model() -> AppGameServiceReadModel {
 
 fn evidence_claim() -> AppGameEvidenceClaim {
     AppGameEvidenceClaim {
-        schema_version: APP_GAME_SCHEMA_VERSION,
+        schema_version: app_game::APP_GAME_SCHEMA_VERSION,
         claim_id: APP_GAME_TEST_EVIDENCE_CLAIM_ID.to_string(),
         observed_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         claim_kind: APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY.to_string(),
         observation_mode: APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN.to_string(),
-        display_name: APP_GAME_TEST_DISPLAY_LABEL.to_string(),
+        display_name: app_game::APP_GAME_TEST_DISPLAY_LABEL.to_string(),
         identity_strength: APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED.to_string(),
-        classification_state: APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string(),
-        catalog_ready_state: APP_GAME_CATALOG_READY.to_string(),
-        runtime_state: APP_GAME_RUNTIME_NOT_CLAIMED.to_string(),
-        foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
+        classification_state: app_game::APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string(),
+        catalog_ready_state: app_game::APP_GAME_CATALOG_READY.to_string(),
+        runtime_state: app_game::APP_GAME_RUNTIME_NOT_CLAIMED.to_string(),
+        foreground_state: app_game::APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
         inventory_entry_id: None,
         process_identity: None,
         launcher_ref: None,
@@ -117,18 +118,18 @@ fn evidence_claim() -> AppGameEvidenceClaim {
 }
 
 fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
-    serde_json::from_value(serde_json::json!({
-        "schemaVersion": ocentra_parent_agent_protocol::APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+    let Ok(matrix) = serde_json::from_value(serde_json::json!({
+        "schemaVersion": app_game_authority_classifier::APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
         "matrixId": APP_GAME_TEST_PLATFORM_MATRIX_ID,
         "rows": [{
-            "schemaVersion": ocentra_parent_agent_protocol::APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+            "schemaVersion": app_game_authority_classifier::APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
             "rowId": APP_GAME_TEST_WINDOWS_ROW_ID,
-            "platform": ocentra_parent_agent_protocol::APP_GAME_PARENT_PLATFORM_WINDOWS,
-            "action": APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH,
-            "authorityTier": APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
+            "platform": app_game_authority_classifier::APP_GAME_PARENT_PLATFORM_WINDOWS,
+            "action": app_game_authority_classifier::APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH,
+            "authorityTier": app_game_authority_classifier::APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
             "setupState": APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED,
             "proofState": APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED,
-            "capabilityState": ocentra_parent_agent_protocol::APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
+            "capabilityState": app_game_authority_classifier::APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
             "parentVisibleState": APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED,
             "parentVisibleLimitation": APP_GAME_TEST_WINDOWS_LIMITATION,
             "canExecuteAdapter": false,
@@ -141,8 +142,11 @@ fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
             "lastCheckedAt": APP_GAME_TEST_TIMESTAMP
         }],
         "generatedAt": APP_GAME_TEST_TIMESTAMP
-    }))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    })) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    matrix
 }
 
 fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
@@ -154,9 +158,13 @@ fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
     }
 }
 
-fn string_payload<'a>(payload: &'a ocentra_parent_agent_protocol::LogFields, key: &str) -> &'a str {
-    match payload.get(key) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
-    }
+fn string_payload<'a>(
+    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
+    field_name: &str,
+) -> &'a str {
+    let Some(LogFieldValue::String(value)) = payload.get(field_name) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    value.as_str()
 }

@@ -5,10 +5,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from './family-reference-primitives';
-import {
-  FamilyReferenceSchema,
-  ParentActorReferenceSchema,
-} from './family-references';
+import { FamilyReferenceSchema, ParentActorReferenceSchema } from './family-references';
 
 export const ChildProfileSchema = withParser(
   Schema.Struct({

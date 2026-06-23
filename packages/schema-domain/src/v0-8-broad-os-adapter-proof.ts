@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   EnforcementAdapterKind,
   EnforcementAdapterKindSchema,
@@ -31,7 +26,9 @@ export const V08BroadOsAdapterProofReadModelIdSchema = brandedNonEmptyStringSche
 export const V08BroadOsAdapterProofEntryIdSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofEntryId');
 export const V08BroadOsAdapterProofReferenceSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofReference');
 export const V08BroadOsAdapterProofRequirementSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofRequirement');
-export const V08BroadOsAdapterProofClaimBoundarySchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofClaimBoundary');
+export const V08BroadOsAdapterProofClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'V08BroadOsAdapterProofClaimBoundary'
+);
 export const V08BroadOsAdapterProofFallbackSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofFallback');
 
 export const V08BroadOsAdapterProofSurfaceSchema = withParser(
@@ -501,4 +498,3 @@ function proofEntry(entry: V08BroadOsAdapterProofEntryInput): V08BroadOsAdapterP
 
 export const decodeV08BroadOsAdapterProofEntry = Schema.decodeUnknownSync(V08BroadOsAdapterProofEntrySchema);
 export const decodeV08BroadOsAdapterProofReadModel = Schema.decodeUnknownSync(V08BroadOsAdapterProofReadModelSchema);
-

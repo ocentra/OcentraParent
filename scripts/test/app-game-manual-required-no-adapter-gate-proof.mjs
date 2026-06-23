@@ -51,15 +51,15 @@ async function main() {
   ]);
 
   const broadGateSource = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gates.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gates.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
@@ -214,9 +214,9 @@ async function main() {
     gateState: 'prevented-by-manual-required-and-blocked-before-adapter-contracts',
     evidence: {
       broadBlockingGate:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gates.ts requires unproved platform blocking to remain manual-required, unavailable, or not-claimed before adapter dispatch.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gates.ts requires unproved platform blocking to remain manual-required, unavailable, or not-claimed before adapter dispatch.',
       broadBlockingGateData:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts sets manual gates to blocked-before-adapter, canCallAdapter=false, supportedModes=[], and broadBlockingClaimed=false.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gate-data.ts sets manual gates to blocked-before-adapter, canCallAdapter=false, supportedModes=[], and broadBlockingClaimed=false.',
       broadBlockingGateTests:
         'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts rejects manual-required/unavailable rows that try canCallAdapter=true or dispatch-eligible.',
       previewHandoff:

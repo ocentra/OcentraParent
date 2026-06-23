@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameSourceGatedPolicyPreviewReadModelIdSchema,
   AppGameSourceGatedPolicyPreviewReadModelRowIdSchema,
@@ -26,8 +21,12 @@ import {
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerHandoffIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerHandoffId');
-export const AppGameSourceGatedPolicyPreviewTimerHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerHandoffRowId');
+export const AppGameSourceGatedPolicyPreviewTimerHandoffIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerHandoffId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerHandoffRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerHandoffRowId'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerHandoffStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerHandoffState))
@@ -205,5 +204,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerHandoff = Schema.decodeUn
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerHandoffState };
-
-

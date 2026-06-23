@@ -1,14 +1,10 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 const ClaimLeaseCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const ClaimLeasePositiveCountSchema = Schema.Number.pipe(Schema.positive(), Schema.int());
 
-export const HouseholdAiProviderClaimLeaseProofIdSchema = brandedNonEmptyStringSchema('HouseholdAiProviderClaimLeaseProofId');
+export const HouseholdAiProviderClaimLeaseProofIdSchema = brandedNonEmptyStringSchema(
+  'HouseholdAiProviderClaimLeaseProofId'
+);
 
 export const HouseholdAiProviderLeaseStateSchema = withParser(
   Schema.Literal('queued', 'claimed', 'duplicate-rejected', 'expired-requeued', 'dead-lettered')
@@ -252,4 +248,3 @@ function duplicateMessagesAreIdempotent(proof: HouseholdAiProviderClaimLeaseProo
 export const decodeHouseholdAiProviderClaimLeaseProof = Schema.decodeUnknownSync(
   HouseholdAiProviderClaimLeaseProofSchema
 );
-

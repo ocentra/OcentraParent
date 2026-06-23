@@ -1,6 +1,7 @@
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import type { ParentPortalContent, ParentPortalRow } from './parent-portal-data';
 import { PARENT_PORTAL_NAV_LABELS } from './parent-portal-nav';
-import { PortalRoute, portalRouteHashPath } from './routes';
+import { portalRouteHashPath } from './routes';
 
 export const PARENT_PORTAL_MANAGE_ROWS: ParentPortalRow[] = [
   {
@@ -636,6 +637,17 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     subcategory: 'Family defaults',
     controlCode: 8,
     routePath: portalRouteHashPath(PortalRoute.SettingsRules),
+  },
+  {
+    id: 'dev-proof-panels',
+    name: PARENT_PORTAL_NAV_LABELS.ProofPanels,
+    detail: 'Tracking, network, and policy proof panels',
+    icon: 'audit',
+    tone: 'purple',
+    category: 'Dev tools',
+    subcategory: 'Route proof panels',
+    controlCode: 9,
+    routePath: portalRouteHashPath(PortalRoute.ProofPanels),
   },
   {
     id: 'dev-commands',

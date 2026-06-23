@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeWriterTransportPreflightProofSchema,
   AppInstallPurchaseExternalRuntimeWriterTransportPreflightRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeWriterTransportPreflightProof,
-} from '../../src/app-install-purchase-external-runtime-writer-transport-preflight-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-writer-transport-preflight-proof';
 
 describe('app install and purchase external runtime writer transport preflight proof', () => {
   acceptsExternalRuntimeWriterTransportPreflightRowsWithoutDeliveryClaims();

@@ -30,6 +30,8 @@ output/parent-client-runtime-distribution-plan-proof/10-setup-handoff-contracts/
 output/parent-client-runtime-distribution-plan-proof/11-proof-ci-release-gate/
 ```
 
+`docs/proof/parent-desktop-runtime-package-plan/` is compatibility-only for old references. New proof should use the `output/parent-client-runtime-distribution-plan-proof/<workpack>/` root.
+
 ## Required universal proof files
 
 Every proof root needs:
@@ -59,6 +61,38 @@ required environment:
 why this does not prove completion:
 next command:
 ```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: parent-client-runtime-distribution-plan
+workpack: <workpack id and name>
+owner: apps-portal | portal-domain | parent-domain | scripts-dev | scripts-release | setup-handoff | child-runtime-handoff | device-trust-handoff | docs-only
+artifact_kind: web | desktop | parent-android | parent-ios | route-bridge | signing-store | update-rollback | launch-smoke | setup-handoff | release-gate | n/a
+platform: web | windows | macos | linux | android | ios | cross-platform | n/a
+package_state: not-tested | scaffold | built | packaged | installed | blocked | manual-required | n/a
+signing_state: not-tested | unsigned | self-signed | signed | blocked | manual-required | n/a
+store_state: not-tested | unpublished | uploaded | reviewed | published | blocked | manual-required | n/a
+notarization_state: not-tested | not-notarized | submitted | notarized | blocked | manual-required | n/a
+launch_state: not-tested | launched | degraded | failed | blocked | manual-required | n/a
+route_bridge_state: not-tested | defined | connected | degraded | blocked | n/a
+setup_handoff_state: not-tested | request-defined | response-defined | setup-owner-required | blocked | n/a
+update_state: not-tested | channel-defined | checksum-proved | sbom-proved | blocked | manual-required | n/a
+rollback_state: not-tested | proved | blocked | manual-required | n/a
+manual_required_note: <manual-required gap or n/a>
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <stdout/stderr artifact pointer, proof file, test result path, package artifact path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store package logs, build output, signing/store notes, screenshots, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
 
 ## No-claim language
 

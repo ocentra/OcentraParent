@@ -6,7 +6,10 @@ import { parseTestLogScopeOrDefault } from '@ocentra-parent/schema-domain/test-l
 
 function getFlag(name: string): string | undefined {
   const prefix = `--${name}=`;
-  return process.argv.slice(2).find((arg) => arg.startsWith(prefix))?.slice(prefix.length);
+  return process.argv
+    .slice(2)
+    .find((arg) => arg.startsWith(prefix))
+    ?.slice(prefix.length);
 }
 
 const scope = parseTestLogScopeOrDefault(getFlag('scope'));

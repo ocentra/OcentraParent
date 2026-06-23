@@ -20,6 +20,55 @@ This plan upgrades OcentraParent logging from a mostly schema/proof-contract pac
 
 No external `docs/features/*` or `docs/expectations/*` files are routed by this plan today. The numbered plan docs in this folder are the routed source-of-truth inputs.
 
+## Current ownership interpretation
+
+```text
+packages/logging-domain:
+  TypeScript local logging helpers, bridge transport/server, NDJSON writers, DuckDB/query helpers, log-control/wipe/retention helpers, MCP query helpers, and proof-trace helper surfaces.
+
+crates/logging-core:
+  Rust NDJSON/artifact/dev-log/diagnostic/redaction/source/context helper crate.
+
+scripts/dev:
+  Local agent wrapper, query, evidence, MCP, and proof-trace entrypoints used by Codex/local development flows.
+
+apps/portal:
+  Dev-log producer/consumer path only when selected; portal owns UI/projection and cannot become the logging system owner.
+
+crates/agent-service:
+  Rust service producer/consumer path only when selected; agent-service owns service runtime behavior and consumes logging-core helpers.
+
+cloudflare-control-plane-plan:
+  Backend/Cloudflare infra logging owner when Cloudflare runtime logging is selected.
+
+Product/support telemetry owners:
+  Product-safe logging, support diagnostics, retention policy, and customer-facing telemetry policy remain outside this local parity plan unless a selected handoff names them.
+```
+
+## Current coupling risks
+
+```text
+- Local developer/agent evidence is not production telemetry readiness.
+- MCP smoke proof is not full MCP interface readiness.
+- Proof-trace smoke proof is not all product-flow proof coverage.
+- Portal dev logger proof is not repo-wide portal instrumentation.
+- Agent-service startup/dev-log proof is not full Rust logging adoption.
+- Logging-domain package parity is not product runtime logging readiness.
+- Proof-inventory query proof detects missing/stale roots; it does not restore or close missing roots by itself.
+- Proof roots alone do not close checklist/workpack rows without focused commands and no-claim boundaries.
+```
+
+## Current proof interpretation
+
+```text
+output/logging-domain-parity-proof/<workpack>/ is the active proof route.
+test-results/logging-domain-parity-* roots are supporting result roots and must exist before cited.
+WP03, WP06, WP07, WP08, and WP10 have canonical proof roots in this checkout.
+WP07 and WP10 proof roots exist, but checklist/workpack closeout remains open.
+WP08 is a bounded partial-proof for portal dev logger, logging-domain source/context storage/query, and agent-service startup/dev-log only.
+WP06 remains partial-proof while the root routing validation failure is outside this delegated logging-owned slice.
+```
+
 ## Current source docs
 
 The source docs are routed through workpacks:
@@ -47,7 +96,7 @@ WP02 TypeScript package parity: source/tests present, but the named proof root i
 WP03 parent architecture/routing: the portal dev-log consumer slice now has a canonical proof root, parent scopes are defined in the logging package, and focused portal/logging checks pass; the broader workpack remains open only for the Rust-side agent-service mapping row outside this delegated slice
 WP04 Rust logging core: source/tests present, but the named proof root is absent in this checkout
 WP05 local validation evidence: source/tests/smokes present, but the named proof root is absent in this checkout
-WP06 validation/enforcement: root checker scripts, wrapper scripts, and local evidence smoke are present; logging-owned proof-inventory query surfaces now detect missing/stale proof roots and stale closeout claims through agent-query/MCP plus focused tests, and the canonical WP06 proof root is present; full focused validation remains open because npm run validate:logging still fails at lint:dev-log-routing against an unimplemented portal endpoint outside this delegated slice
+WP06 validation/enforcement: root checker scripts, wrapper scripts, and local evidence smoke are present; logging-owned proof-inventory query surfaces now detect missing/stale proof roots and stale closeout claims through agent-query/MCP plus focused tests, and the canonical WP06 proof root is present; full focused validation remains open because one root routing check fails against an owning surface outside this delegated slice
 WP07 MCP query interface: server, integration coverage, and canonical MCP proof roots are present; fresh-root latest-failures/run-diagnostics/artifact-slice plus CLI parity now prove the deterministic local evidence path, but checklist/workpack closeout is still open
 WP08 logger instrumentation/adoption: a canonical partial-proof root now exists for the portal dev logger path, logging-domain storage/query path, and agent-service startup/dev-log path; repo-wide adoption is still not proved
 WP09 log control/retention/bridge lifecycle: source/tests present, but the named proof root is absent in this checkout
@@ -77,7 +126,7 @@ PR-ready: false
 - Recreate or remove the remaining claimed proof roots under output/logging-domain-parity-proof/*
 - Recreate or remove the remaining claimed test-results/logging-domain-parity-* roots
 - Reconcile the remaining WP07/WP10 checklist closeout and keep WP08 scoped to its canonical partial-proof boundary instead of inflating it to repo-wide adoption
-- Decide whether "done" in this plan means source present, proof present, or both; the current docs mix those states
+- Decide whether done in this plan means source present, proof present, or both; the current docs mix those states
 - Close the remaining WP03 Rust-side route claim and hand off the root dev-log-routing failure to the owning portal/agent-service slice before claiming full WP06 focused-validation closure
 ```
 
@@ -92,6 +141,8 @@ agent-service logging migrated
 proof trace coverage for product flows
 production telemetry readiness
 product runtime logging readiness
+full MCP logging interface completion
+repo-wide instrumentation adoption
 ```
 
 ## Workpack summary
@@ -112,3 +163,4 @@ Current default execution order:
 - Do not change source before selecting one workpack.
 - Do not claim DONE without focused commands and proof artifacts.
 - Do not add more proof-only read models as a substitute for bridge/NDJSON/DuckDB/query/MCP/instrumentation/proof-trace implementation.
+- Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.

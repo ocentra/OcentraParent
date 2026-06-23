@@ -1,10 +1,6 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
-import {
-  AgentDeviceIdSchema,
-  AgentProtocolSchemaVersion,
-  AgentTimestampSchema,
-} from './event-primitives';
-import { AgentLanPairingRouteIdSchema } from './agent-lan';
+import { AgentLanPairingRouteIdSchema } from './agent-lan-primitives';
+import { AgentDeviceIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from './event-primitives';
 
 export const AgentLanPairingChallengeRequestSchema = withParser(
   Schema.Struct({
@@ -18,6 +14,4 @@ export const AgentLanPairingChallengeRequestSchema = withParser(
   })
 );
 
-export type AgentLanPairingChallengeRequest = Infer<
-  typeof AgentLanPairingChallengeRequestSchema
->;
+export type AgentLanPairingChallengeRequest = Infer<typeof AgentLanPairingChallengeRequestSchema>;

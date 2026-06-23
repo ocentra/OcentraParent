@@ -11,14 +11,47 @@ Read next:
 - `../../eventing-plan/AGENTS.md` only for reusable eventing obligations
 - `../TEST_PROOF_EXPECTATIONS.md`
 
-Expected outcome:
+## Ownership boundary
+
+```text
+schema-domain owns canonical shared TypeScript network contracts.
+network-domain is metadata/proof-consumer unless explicit public exports exist.
+ocentra-network-evidence owns Rust evidence/proof helper logic.
+agent-protocol, agent-core, and agent-service own protocol/runtime/service proof only when selected.
+eventing-plan owns reusable local event bus semantics only.
+policy-control-plane-plan owns policy decision semantics.
+v0-8-enforcement-control-plan owns enforcement authority and action execution.
+```
+
+## Expected outcome
 
 - NetworkFlowEvidence, NetworkDomainEvidence, NetworkActivityClassification, NetworkEvidenceGrade, and NetworkPolicyAction boundaries are schema-backed and versioned.
 - Rust protocol parity is defined where network contracts cross the child service boundary.
 - Network events consume reusable typed eventing instead of inventing `NetworkEventBus`, private dispatch registry, retry queue, or request registry.
 - Authority limits are explicit: network evidence can inform policy but cannot directly enforce.
 
-Expected tests/proof:
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+schema_owner
+rust_owner
+protocol_owner
+eventing_owner
+evidence_grade_state
+policy_handoff_state
+enforcement_authority_state
+private_bus_state
+schema_fixture_ref
+rust_parity_ref
+eventing_workpack_ref
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
+## Expected tests/proof
 
 - `network.contract.schema-unit`
 - `network.contract.schema-fuzz`
@@ -27,11 +60,13 @@ Expected tests/proof:
 - `network.eventing.integration-contract`
 - Proof includes eventing workpack reference, schema fixture path, and no-private-bus audit.
 
-Failure conditions:
+## Failure conditions
 
-- Do not claim exact content, exact URL, exact video, or private message truth from network-only evidence.
+- Do not claim exact content, exact URL, exact video, search text, or private message truth from network-only evidence.
 - Do not allow AI/network observations to publish enforcement commands.
 - Do not use the giant settings inventory as implementation proof.
+- Do not use `network-domain` package metadata as canonical schema ownership proof.
+- Do not use schema proof as Rust parity, eventing, service runtime, or platform proof.
 
 ## Current slice note
 

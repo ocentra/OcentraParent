@@ -59,6 +59,43 @@ child activity data storage/export/delete -> data-custody-storage-plan
 LAN transport and remote transport -> lan-plan / remote-access-plan
 ```
 
+## Ownership, Import, And Boundary Contract
+
+The account/family authority surface is shared by many features, but this plan must not become a hidden cross-feature runtime dependency.
+
+Module roles:
+
+```text
+schema-domain: canonical shared schema, brand, parser, and encoded-shape owner when account/family shapes cross package, crate, app, or plan boundaries.
+family-domain: TypeScript helper/projection package that consumes canonical schema-domain contracts and exposes only approved account/family helper surfaces.
+family-identity-core: Rust parity/runtime authority boundary for account, household, role, device, session, and invite/recovery primitives.
+setup-domain and provisioning-core: setup/provisioning consumers; they do not own account/family authority.
+portal-domain and apps/portal: parent-visible projections/renderers; they do not own account runtime, household truth, device trust, or child activity state.
+Cloudflare control-plane runtime: account-family persistence/adapter implementation target after provider/schema decisions; it must not move family truth into an IdP.
+payment, policy, data-custody, device-trust, LAN, and remote plans: handoff consumers only; they must not re-own or duplicate account/family authority.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public authority contracts:
+
+```text
+canonical schema-domain shapes, brands, parsers, and literals
+neutral protocol/event/evidence/logging/capability primitives
+approved public family-domain helper exports for account/family authority consumption
+approved Rust parity crates when the selected workpack names Rust parity proof
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports:
+
+```text
+sibling feature owner packages or crates for runtime behavior
+private source files from another plan's owning package/crate
+peer feature contracts when the shape should live in schema-domain or a neutral shared boundary
+setup, payment, policy, data-custody, device-trust, LAN, remote, or portal internals to satisfy account/family authority
+```
+
+If two feature owners need the same shape, promote or consume it through the neutral shared schema/protocol/evidence/event/read-model boundary. If behavior crosses ownership, use a typed command, event, request, read model, or proof handoff. Do not solve cross-plan behavior by importing another feature's runtime internals.
+
 ## Required read order
 
 1. `PLAN_STATE.md`

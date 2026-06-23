@@ -48,11 +48,11 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       platformPreclaimContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts',
       sourcePortalTestReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
       sourcePlatformProofReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-proof-readiness.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-proof-readiness.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-platform-preclaim-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
@@ -60,7 +60,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/app-game-domain/package.json',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-preclaim-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-product-claim-platform-preclaim-proof',
       output: relative(repoRoot, proofPath),
     },
     platformPreclaimSummary: summary,

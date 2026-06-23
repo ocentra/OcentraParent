@@ -67,14 +67,9 @@ export const BillingAccountRuntimeFailureStateSchema = withParser(
 
 const BillingAccountRuntimeManualInvoiceStateStruct = Schema.Struct({
   visible: Schema.Boolean,
-  invoiceState: Schema.Union(
-    Schema.Literal('manual-support-required'),
-    Schema.Null
-  ),
+  invoiceState: Schema.Union(Schema.Literal('manual-support-required'), Schema.Null),
 });
-type BillingAccountRuntimeManualInvoiceStateShape = Infer<
-  typeof BillingAccountRuntimeManualInvoiceStateStruct
->;
+type BillingAccountRuntimeManualInvoiceStateShape = Infer<typeof BillingAccountRuntimeManualInvoiceStateStruct>;
 
 export const BillingAccountRuntimeManualInvoiceStateSchema = withParser(
   BillingAccountRuntimeManualInvoiceStateStruct.pipe(
@@ -249,9 +244,7 @@ export const BillingAccountRuntimeBoundaryProofSchema = withParser(
 export type BillingAccountRuntimeStatusRow = Infer<typeof BillingAccountRuntimeStatusRowSchema>;
 export type BillingAccountRuntimeOperationRow = Infer<typeof BillingAccountRuntimeOperationRowSchema>;
 export type BillingAccountRuntimeFailureState = Infer<typeof BillingAccountRuntimeFailureStateSchema>;
-export type BillingAccountRuntimeManualInvoiceState = Infer<
-  typeof BillingAccountRuntimeManualInvoiceStateSchema
->;
+export type BillingAccountRuntimeManualInvoiceState = Infer<typeof BillingAccountRuntimeManualInvoiceStateSchema>;
 export type BillingAccountRuntimeEntitlementSigningBoundary = Infer<
   typeof BillingAccountRuntimeEntitlementSigningBoundarySchema
 >;
@@ -309,10 +302,7 @@ function billingAccountRuntimeBoundaryProofIsHonest(proof: {
     proof.accountStatusRows.some((row) => row.accountStatus === 'active') &&
     proof.accountStatusRows.some((row) => row.accountStatus === 'provider-unavailable' && row.failureState !== null) &&
     proof.accountStatusRows.some(
-      (row) =>
-        row.providerMode === 'stripe-hosted' &&
-        row.nextRenewalAt !== null &&
-        !row.manualInvoiceState.visible
+      (row) => row.providerMode === 'stripe-hosted' && row.nextRenewalAt !== null && !row.manualInvoiceState.visible
     ) &&
     proof.accountStatusRows.some(
       (row) =>

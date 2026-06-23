@@ -1,16 +1,22 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants::{self, enforcement, v08_os_adapter_product_proof as proof},
-    policy_constants, EnforcementReadinessState, V08OsAdapterProductProofAuditState,
-    V08OsAdapterProductProofEntry, V08OsAdapterProductProofParentOverrideState,
-    V08OsAdapterProductProofSurface, V08OsAdapterProductProofTimerRecoveryState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::constants::v08_os_adapter_product_proof as proof;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofAuditState;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofEntry;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofParentOverrideState;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofSurface;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofTimerRecoveryState;
+use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementReadinessState;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_os_adapter_product_proof_read_model::v08_os_adapter_product_proof_read_model;
 
 mod product_control_api_tests;
 mod product_control_spine_tests;
+
+type TestResult = Result<(), String>;
 
 #[test]
 fn product_proof_read_model_captures_v0_8_adapter_boundaries() {
@@ -85,14 +91,17 @@ fn product_proof_read_model_preserves_lifecycle_and_audit_states() {
 }
 
 #[test]
-fn product_proof_read_model_serializes_for_runtime_preview() {
+fn product_proof_read_model_serializes_for_runtime_preview() -> TestResult {
     let read_model = v08_os_adapter_product_proof_read_model(policy_constants::TEST_EVALUATED_AT);
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let reparsed = serde_json::from_value::<
-        ocentra_parent_agent_protocol::V08OsAdapterProductProofReadModel,
-    >(serialized)
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = ok(
+        serde_json::to_value(read_model),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    let reparsed = ok(serde_json::from_value::<
+        ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofReadModel,
+    >(serialized),
+    constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
     let unmanaged_exact = entry_for(
         &reparsed.entries,
         V08OsAdapterProductProofSurface::UnmanagedBrowserExactEvidence,
@@ -110,6 +119,8 @@ fn product_proof_read_model_serializes_for_runtime_preview() {
     assert!(unmanaged_exact.linked_artifact_gate_entry_ids.contains(
         &constants::windows_adapter_artifact_gate::ENTRY_ID_UNMANAGED_BROWSER_TARGET.to_string()
     ));
+
+    Ok(())
 }
 
 fn entry_for(
@@ -119,7 +130,7 @@ fn entry_for(
     entries
         .iter()
         .find(|entry| entry.surface == surface)
-        .expect(proof::READ_MODEL_ID)
+        .unwrap_or_else(|| panic!("{}", proof::READ_MODEL_ID))
 }
 
 fn count_readiness(entries: &[V08OsAdapterProductProofEntry]) -> BTreeMap<&'static str, usize> {
@@ -193,4 +204,8 @@ fn expected_audit_state() -> V08OsAdapterProductProofAuditState {
 #[cfg(not(windows))]
 fn expected_audit_state() -> V08OsAdapterProductProofAuditState {
     V08OsAdapterProductProofAuditState::Unavailable
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

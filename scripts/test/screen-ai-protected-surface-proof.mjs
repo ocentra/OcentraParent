@@ -13,8 +13,7 @@ runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen
 const { ScreenAnalysisResultSchema } = await import('../../packages/schema-domain/dist/screen-evidence-result.js');
 const { ScreenCapabilitySnapshotSchema } =
   await import('../../packages/schema-domain/dist/screen-evidence-settings.js');
-const { ScreenEvidenceSchemaVersion } =
-  await import('../../packages/schema-domain/dist/screen-evidence-primitives.js');
+const { ScreenEvidenceSchemaVersion } = await import('../../packages/schema-domain/dist/screen-evidence-primitives.js');
 
 const observedAt = '2026-06-03T21:10:00.000Z';
 const evidenceRef = {

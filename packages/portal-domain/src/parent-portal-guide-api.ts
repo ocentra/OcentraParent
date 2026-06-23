@@ -1,4 +1,5 @@
-import { PortalRoute, portalRouteHashPath } from './routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
+import { portalRouteHashPath } from './routes';
 import type { ParentPortalGuideTopic } from './parent-portal-guide-types';
 
 export const PARENT_PORTAL_API_GUIDES: readonly ParentPortalGuideTopic[] = [

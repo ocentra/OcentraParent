@@ -1,15 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    SocialSourceCustodyMutationSnapshot, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::SocialSourceCustodyMutationSnapshot;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
 
 #[tokio::test]
 async fn social_source_custody_mutation_command_returns_applied_service_snapshot() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope())
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let mutation =
         mutation_payload(&event.payload[constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION]);
@@ -59,8 +63,8 @@ fn command_envelope() -> AgentCommandEnvelope {
 fn mutation_payload(value: &LogFieldValue) -> SocialSourceCustodyMutationSnapshot {
     match value {
         LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

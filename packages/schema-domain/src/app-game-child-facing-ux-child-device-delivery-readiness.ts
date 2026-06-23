@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameChildUxLocalOutboxProviderStatusHandoffReadModelSchema,
   type AppGameChildUxLocalOutboxProviderStatusHandoffReadModel,
@@ -60,7 +55,9 @@ export const RequiredAppGameChildDeviceDeliveryReadinessNonClaims = [
 ] as const;
 
 const ChildDeviceDeliveryReadinessIdSchema = brandedNonEmptyStringSchema('AppGameChildDeviceDeliveryReadinessId');
-const ChildDeviceDeliveryReadinessReferenceSchema = brandedNonEmptyStringSchema('AppGameChildDeviceDeliveryReadinessReference');
+const ChildDeviceDeliveryReadinessReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameChildDeviceDeliveryReadinessReference'
+);
 
 const AppGameChildDeviceDeliveryReadinessRowBaseSchema = Schema.Struct({
   deliveryReadinessRowId: ChildDeviceDeliveryReadinessReferenceSchema,
@@ -257,4 +254,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.deliveryReadinessStatus === status).length;
 }
-

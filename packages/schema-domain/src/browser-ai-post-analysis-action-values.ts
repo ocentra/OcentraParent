@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiPostAnalysisActionPlanIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserAiPostAnalysisActionPlanId')
@@ -37,4 +32,3 @@ export const BrowserAiPostAnalysisDeliveryStateSchema = withParser(
 
 export type BrowserAiPostAnalysisActionLabel = Infer<typeof BrowserAiPostAnalysisActionLabelSchema>;
 export type BrowserAiPostAnalysisDeliveryState = Infer<typeof BrowserAiPostAnalysisDeliveryStateSchema>;
-

@@ -1,9 +1,12 @@
 use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryOutcome;
-use ocentra_parent_agent_protocol::{
-    constants, EnforcementAction, EnforcementAdapterResultCode, EnforcementAuditEvent,
-    EnforcementAuditEventKind, EnforcementResult, EnforcementResultStatus,
-    EnforcementRollbackState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAction;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAdapterResultCode;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditEvent;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditEventKind;
+use ocentra_parent_agent_protocol::enforcement::EnforcementResult;
+use ocentra_parent_agent_protocol::enforcement::EnforcementResultStatus;
+use ocentra_parent_agent_protocol::enforcement::EnforcementRollbackState;
 
 use crate::enforcement_payload::EnforcementCommandPayload;
 

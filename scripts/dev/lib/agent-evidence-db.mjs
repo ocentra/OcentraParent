@@ -1,12 +1,7 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 
-import {
-  getDuckDbPath,
-  getEvidenceScope,
-  getManifestPath,
-  listNdjsonFiles,
-} from './agent-log-paths.mjs';
+import { getDuckDbPath, getEvidenceScope, getManifestPath, listNdjsonFiles } from './agent-log-paths.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -148,10 +143,16 @@ async function ensureSchema(connection) {
   await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_runs_run_id ON agent_runs(run_id)');
   await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_runs_status ON agent_runs(status)');
   await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_runs_started_at ON agent_runs(started_at)');
-  await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_diagnostics_signature ON agent_diagnostics(signature)');
+  await runAsync(
+    connection,
+    'CREATE INDEX IF NOT EXISTS idx_agent_diagnostics_signature ON agent_diagnostics(signature)'
+  );
   await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_diagnostics_file ON agent_diagnostics(file)');
   await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_diagnostics_kind ON agent_diagnostics(kind)');
-  await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_diagnostics_severity ON agent_diagnostics(severity)');
+  await runAsync(
+    connection,
+    'CREATE INDEX IF NOT EXISTS idx_agent_diagnostics_severity ON agent_diagnostics(severity)'
+  );
   await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_diagnostics_run_id ON agent_diagnostics(run_id)');
   await runAsync(connection, 'CREATE INDEX IF NOT EXISTS idx_agent_artifacts_run_id ON agent_artifacts(run_id)');
 }
@@ -191,11 +192,7 @@ function changedFiles(scope, force) {
   const changed = files.filter((filePath) => {
     const existing = manifest[filePath];
     const current = fileMeta(filePath);
-    return (
-      existing == null ||
-      existing.size !== current.size ||
-      existing.modifiedMs !== current.modifiedMs
-    );
+    return existing == null || existing.size !== current.size || existing.modifiedMs !== current.modifiedMs;
   });
 
   return { files: changed, manifest };

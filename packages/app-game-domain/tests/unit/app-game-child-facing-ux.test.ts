@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameChildUxCardSchema } from '../../src/app-game-child-facing-ux';
+import { AppGameChildUxCardSchema } from '@ocentra-parent/schema-domain/app-game-child-facing-ux';
 import {
   AppGameChildUxCapabilityState,
   AppGameChildUxClaimState,
@@ -9,7 +9,11 @@ import {
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
 } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+  ParentPlatform,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T09:24:00Z';
 

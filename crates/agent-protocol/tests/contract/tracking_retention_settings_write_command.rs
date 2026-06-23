@@ -1,30 +1,42 @@
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::request::{EventResponseContract, RequestEvent};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::config_update_event::{
+    TrackingConfigEffectiveState, TrackingConfigUpdateResponseState,
+};
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    TrackingCheckInId, TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef,
+    TrackingPolicyViolationId, TrackingReasonCode, TrackingTimestamp,
+};
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::{
     tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
     tracking_mutation_proof_ref, tracking_read_model_proof_ref, tracking_retention_accepted_at,
     tracking_retention_command_id, tracking_retention_settings_kind,
-    tracking_retention_write_state_accepted, tracking_writer_intent_ref,
+    tracking_retention_write_state_accepted, tracking_writer_intent_ref, TrackingConfigAckState,
+    TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
+    TrackingExecutionClaimState, TrackingParentExportState, TrackingRemoteAiState,
+    TrackingRemoteSyncState, TrackingRetentionSettingsWriteRequest,
+    TrackingRetentionSettingsWriteResult, TRACKING_RETENTION_SETTINGS_WRITE_SCHEMA_VERSION,
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandName, AgentEventName, TrackingChildCheckInDeliveryState,
-    TrackingChildCheckInRequestReceipt, TrackingChildCheckInRequestState,
-    TrackingChildCheckInRequestedEvent, TrackingConfigAckState, TrackingConfigEffectiveState,
-    TrackingConfigUpdateResponseState, TrackingDeleteAfterAlertResolutionState,
-    TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState,
-    TrackingParentExportState, TrackingPolicyViolationId, TrackingReasonCode,
-    TrackingRemoteAiState, TrackingRemoteSyncState, TrackingRetentionSettingsWriteRequest,
-    TrackingRetentionSettingsWriteResult, TrackingTimestamp, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingChildCheckInDeliveryState, TrackingChildCheckInRequestReceipt,
+    TrackingChildCheckInRequestState, TrackingChildCheckInRequestedEvent,
+    TRACKING_RUNTIME_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::transport::{AgentCommandName, AgentEventName};
 
 #[test]
 fn retention_settings_write_command_and_event_names_serialize_to_contract_shape() {
     let command =
         serde_json::to_value(AgentCommandName::AgentActivityTrackingRetentionSettingsWrite)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            });
     let event =
         serde_json::to_value(AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            });
 
     assert_eq!(command, "agent.activity.tracking.retention-settings.write");
     assert_eq!(
@@ -36,7 +48,7 @@ fn retention_settings_write_command_and_event_names_serialize_to_contract_shape(
 #[test]
 fn retention_settings_write_request_serializes_without_remote_overclaims() {
     let request = TrackingRetentionSettingsWriteRequest {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        schema_version: TRACKING_RETENTION_SETTINGS_WRITE_SCHEMA_VERSION,
         command_id: tracking_retention_command_id(),
         settings_kind: tracking_retention_settings_kind(),
         requested_retention_window_hours: Some(168),
@@ -56,9 +68,14 @@ fn retention_settings_write_request_serializes_without_remote_overclaims() {
         ],
     };
 
-    let serialized = serde_json::to_value(request).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(request).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
-    assert_eq!(serialized["schemaVersion"], AGENT_PROTOCOL_SCHEMA_VERSION);
+    assert_eq!(
+        serialized["schemaVersion"],
+        TRACKING_RETENTION_SETTINGS_WRITE_SCHEMA_VERSION
+    );
     assert_eq!(serialized["requestedRetentionWindowHours"], 168);
     assert_eq!(serialized["requestedRemoteSyncState"], "disabled");
     assert_eq!(serialized["requestedRemoteAiState"], "disabled");
@@ -79,7 +96,7 @@ fn retention_settings_write_request_serializes_without_remote_overclaims() {
 #[test]
 fn retention_settings_write_result_serializes_local_execution_without_product_overclaims() {
     let result = TrackingRetentionSettingsWriteResult {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        schema_version: TRACKING_RETENTION_SETTINGS_WRITE_SCHEMA_VERSION,
         command_id: tracking_retention_command_id(),
         settings_kind: tracking_retention_settings_kind(),
         write_state: tracking_retention_write_state_accepted(),
@@ -115,9 +132,14 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
         product_claim_state: TrackingExecutionClaimState::Unclaimed,
     };
 
-    let serialized = serde_json::to_value(result).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(result).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
-    assert_eq!(serialized["schemaVersion"], AGENT_PROTOCOL_SCHEMA_VERSION);
+    assert_eq!(
+        serialized["schemaVersion"],
+        TRACKING_RETENTION_SETTINGS_WRITE_SCHEMA_VERSION
+    );
     assert_eq!(
         serialized["sourceMutationProofRefs"][0],
         constants::tracking_retention_settings_write::MUTATION_PROOF_REF
@@ -154,42 +176,76 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
 #[test]
 fn child_check_in_request_contract_serializes_with_check_in_id_as_request_id() {
     let request = TrackingChildCheckInRequestedEvent {
-        child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId::parse(
+        child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
-        child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId::parse(
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID
+            )
+        }),
+        child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
-        check_in_id: ocentra_parent_agent_protocol::TrackingCheckInId::parse(
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID
+            )
+        }),
+        check_in_id: TrackingCheckInId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
+            )
+        }),
         requested_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+            .unwrap_or_else(|error| {
+                unreachable!(
+                    "{}: {error:?}",
+                    constants::tracking_runtime::DEFAULT_OBSERVED_AT
+                )
+            }),
         request_state: TrackingChildCheckInRequestState::Pending,
         delivery_state: TrackingChildCheckInDeliveryState::Queued,
         related_alert_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+            )
+        }),
         include_location_if_permitted: true,
-        expires_at: TrackingTimestamp::parse("2026-06-12T12:05:00Z").expect("2026-06-12T12:05:00Z"),
-        evidence_refs: vec![ocentra_parent_agent_protocol::TrackingEvidenceRef::parse(
+        expires_at: TrackingTimestamp::parse("2026-06-12T12:05:00Z")
+            .unwrap_or_else(|error| unreachable!("2026-06-12T12:05:00Z: {error:?}")),
+        evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_EVIDENCE_REF
+            )
+        })],
         audit_refs: vec![String::from("audit.tracking.child-check-in.request")],
     };
 
-    let serialized =
-        serde_json::to_value(&request).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(&request).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         request
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            })
             .event_type
             .as_str(),
         constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE
@@ -197,7 +253,9 @@ fn child_check_in_request_contract_serializes_with_check_in_id_as_request_id() {
     assert_eq!(
         request
             .request_id()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            })
             .as_str(),
         constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
     );
@@ -218,44 +276,75 @@ fn child_check_in_request_contract_serializes_with_check_in_id_as_request_id() {
 #[test]
 fn child_check_in_request_receipt_serializes_delivery_receipt_state_and_reason() {
     let receipt = TrackingChildCheckInRequestReceipt {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId::parse(
+        schema_version: TRACKING_RUNTIME_SCHEMA_VERSION,
+        child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
-        child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId::parse(
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID
+            )
+        }),
+        child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
-        check_in_id: ocentra_parent_agent_protocol::TrackingCheckInId::parse(
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID
+            )
+        }),
+        check_in_id: TrackingCheckInId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
+            )
+        }),
         related_alert_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+            )
+        }),
         request_state: TrackingChildCheckInRequestState::Pending,
         delivery_state: TrackingChildCheckInDeliveryState::Duplicate,
         receipt_recorded_at: TrackingTimestamp::parse(
             constants::tracking_runtime::DEFAULT_OBSERVED_AT,
         )
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::tracking_runtime::DEFAULT_OBSERVED_AT
+            )
+        }),
         reason_code: Some(
             TrackingReasonCode::parse(
                 constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST,
             )
-            .expect(constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST),
+            .unwrap_or_else(|error| {
+                unreachable!(
+                    "{}: {error:?}",
+                    constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST
+                )
+            }),
         ),
     };
 
-    let serialized =
-        serde_json::to_value(&receipt).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(&receipt).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
-    receipt
-        .validate()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    assert_eq!(serialized["schemaVersion"], AGENT_PROTOCOL_SCHEMA_VERSION);
+    receipt.validate().unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    assert_eq!(serialized["schemaVersion"], TRACKING_RUNTIME_SCHEMA_VERSION);
     assert_eq!(
         serialized["deliveryState"],
         constants::tracking_runtime::CHILD_CHECK_IN_DELIVERY_STATE_DUPLICATE

@@ -63,4 +63,3 @@ export type BillingAccountRuntimeStatus = Infer<typeof BillingAccountRuntimeStat
 export type BillingAccountRuntimeOperation = Infer<typeof BillingAccountRuntimeOperationSchema>;
 export type BillingAccountBackendRuntimeState = Infer<typeof BillingAccountBackendRuntimeStateSchema>;
 export type BillingAccountRuntimeNonClaim = Infer<typeof BillingAccountRuntimeNonClaimSchema>;
-

@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimStoreUpgradeReadinessProofSchema,
   AppInstallPurchaseProductClaimStoreUpgradeReadinessRowSchema,
   summarizeAppInstallPurchaseProductClaimStoreUpgradeReadinessProof,
-} from '../../src/app-install-purchase-product-claim-store-upgrade-readiness-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof';
 
 describe('app install purchase product claim store upgrade readiness proof', () => {
   acceptsStoreUpgradeReadinessRowsWithoutProductClaimApproval();

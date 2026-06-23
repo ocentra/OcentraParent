@@ -4,18 +4,12 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   SocialAuditExplanationEventIdSchema,
   SocialAuditExplanationSnapshotIdSchema,
 } from './social-audit-explanation-read-model-values';
-import {
-  SocialDashboardPanelIdSchema,
-  SocialDashboardPanelSeveritySchema,
-} from './social-dashboard-ux-values';
+import { SocialDashboardPanelIdSchema, SocialDashboardPanelSeveritySchema } from './social-dashboard-ux-values';
 import {
   SocialAlertReportAdapterDispatchState,
   SocialAlertReportAdapterDispatchStateSchema,
@@ -104,15 +98,13 @@ export const SocialAlertReportIntentSchema = withParser(
   SocialAlertReportIntentBaseSchema.pipe(
     Schema.filter(
       (intent) =>
-        socialAlertReportReasonMatchesKind(intent) ||
-        'Expected social alert/report reason code to match intent kind'
+        socialAlertReportReasonMatchesKind(intent) || 'Expected social alert/report reason code to match intent kind'
     )
   )
     .pipe(
       Schema.filter(
         (intent) =>
-          socialAlertReportCopyMatchesKind(intent) ||
-          'Expected social alert/report copy tokens to match intent kind'
+          socialAlertReportCopyMatchesKind(intent) || 'Expected social alert/report copy tokens to match intent kind'
       )
     )
     .pipe(
@@ -255,8 +247,7 @@ function socialAlertReportStatusIsHonest(intent: SocialAlertReportIntentCandidat
     );
   }
   return (
-    intent.deliveryClaimState === SocialAlertReportDeliveryClaimState.NotClaimed &&
-    intent.localOutboxRecordRef === null
+    intent.deliveryClaimState === SocialAlertReportDeliveryClaimState.NotClaimed && intent.localOutboxRecordRef === null
   );
 }
 

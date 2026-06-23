@@ -167,9 +167,7 @@ const {
   BrowserUrlIntelligenceMemorySchemaVersion,
   BrowserUrlShapeClassificationResultSchema,
   BrowserUrlShapeSchemaVersion,
-} = await import(
-  pathToFileURL(join(repoRoot, 'packages/schema-domain/dist/browser-url-intelligence-schemas.js')).href
-);
+} = await import(pathToFileURL(join(repoRoot, 'packages/schema-domain/dist/browser-url-intelligence-schemas.js')).href);
 
 const fetchedRoutes = await Promise.all(liveRouteCases.map(fetchLiveRoute));
 const routeProofs = liveRouteCases.map((routeCase, index) => {
@@ -416,11 +414,11 @@ function decodeEntities(value) {
     return null;
   }
   return value
-    .replace(/&amp;/giu, '&')
     .replace(/&lt;/giu, '<')
     .replace(/&gt;/giu, '>')
     .replace(/&quot;/giu, '"')
-    .replace(/&#39;/giu, "'");
+    .replace(/&#39;/giu, "'")
+    .replace(/&amp;/giu, '&');
 }
 
 function memoryHit() {

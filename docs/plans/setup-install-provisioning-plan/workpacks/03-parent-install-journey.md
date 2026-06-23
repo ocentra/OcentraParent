@@ -18,6 +18,14 @@
 
 Define how a parent gets from family site/account state to a parent app/controller install journey with honest platform, version, bootstrap, integrity, and recovery states.
 
+## Ownership boundary
+
+```text
+setup-install-provisioning-plan owns parent-visible bootstrap/install journey state, platform matrix, version/integrity labels, and runtime-distribution handoff.
+parent-desktop-runtime-package-plan owns package build, signing, notarization, store delivery, update, rollback, installer checksum/signature execution, and production publishing.
+payment-subscription-plan owns entitlement if a package route depends on billing.
+```
+
 ## Required inputs
 
 ```text
@@ -52,6 +60,34 @@ update server
 rollback implementation
 payment entitlement
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+parent_bootstrap_state
+platform_matrix_state
+download_state
+version_display_state
+integrity_display_state
+unsupported_state
+manual_required_state
+update_required_state
+runtime_distribution_handoff_state
+package_wrapper_state
+support_recovery_state
+signed_installer_state
+notarization_state
+store_delivery_state
+update_rollback_state
+payment_entitlement_state
+no_package_ready_claim
+no_product_install_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required output
 

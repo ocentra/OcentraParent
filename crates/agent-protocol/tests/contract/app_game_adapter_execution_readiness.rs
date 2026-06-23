@@ -1,11 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    AgentCommandName, AgentEventName, AppGameAdapterExecutionReadinessReadModel,
-    AppGameAdapterExecutionReadinessRow, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
-    APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID,
-    APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_APP, APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
-    APP_GAME_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::AgentCommandName;
+use ocentra_parent_agent_protocol::AgentEventName;
+use ocentra_parent_agent_protocol::AppGameAdapterExecutionReadinessReadModel;
+use ocentra_parent_agent_protocol::AppGameAdapterExecutionReadinessRow;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_PRODUCT_NATIVE_APP;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME;
+use ocentra_parent_agent_protocol::APP_GAME_SCHEMA_VERSION;
 
 #[test]
 fn app_game_adapter_execution_readiness_command_and_event_names_are_stable() {
@@ -13,14 +16,24 @@ fn app_game_adapter_execution_readiness_command_and_event_names_are_stable() {
         serde_json::to_value(
             AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
         )
-        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error}",
+                ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
+            )
+        }),
         "agent.activity.app-game.adapter-execution-readiness.read-model.get"
     );
     assert_eq!(
         serde_json::to_value(
             AgentEventName::AgentActivityAppGameAdapterExecutionReadinessReadModelReported
         )
-        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error}",
+                ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
+            )
+        }),
         "agent.activity.app-game.adapter-execution-readiness.read-model.reported"
     );
 }
@@ -89,10 +102,19 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
     };
 
     let reparsed = serde_json::from_value::<AppGameAdapterExecutionReadinessReadModel>(
-        serde_json::to_value(read_model)
-            .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model).unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error}",
+                ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
+            )
+        }),
     )
-    .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|error| {
+        unreachable!(
+            "{}: {error}",
+            ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
+        )
+    });
 
     assert_eq!(
         reparsed.read_model_id,

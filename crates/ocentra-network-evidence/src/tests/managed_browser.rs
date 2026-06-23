@@ -3,6 +3,7 @@ use crate::{
     ManagedBrowserCorrelationError, ManagedBrowserCorrelationInput, ManagedBrowserCorrelationState,
     ManagedBrowserPageEvidence, NetworkEvidenceGrade, NetworkManagedBrowserFlowEvidence,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn managed_browser_correlation_uses_browser_url_for_matching_domain() {
@@ -10,7 +11,7 @@ fn managed_browser_correlation_uses_browser_url_for_matching_domain() {
         network_flow: network_flow(Some("video.example.test")),
         managed_browser: Some(browser_evidence("video.example.test")),
     })
-    .expect("matching managed browser evidence should confirm exact url");
+    .expect_value("matching managed browser evidence should confirm exact url");
 
     assert_eq!(
         correlation.state,
@@ -38,7 +39,7 @@ fn managed_browser_correlation_keeps_network_domain_without_exact_url() {
         network_flow: network_flow(Some("video.example.test")),
         managed_browser: None,
     })
-    .expect("network domain alone should remain domain-only");
+    .expect_value("network domain alone should remain domain-only");
 
     assert_eq!(
         correlation.state,
@@ -63,7 +64,7 @@ fn managed_browser_correlation_rejects_mismatched_browser_domain() {
         network_flow: network_flow(Some("video.example.test")),
         managed_browser: Some(browser_evidence("social.example.test")),
     })
-    .expect("mismatched browser evidence should not confirm url");
+    .expect_value("mismatched browser evidence should not confirm url");
 
     assert_eq!(
         correlation.state,
@@ -84,7 +85,7 @@ fn managed_browser_correlation_requires_browser_evidence_for_exact_url() {
         network_flow: network_flow(None),
         managed_browser: None,
     })
-    .expect("missing browser evidence should keep exact url unavailable");
+    .expect_value("missing browser evidence should keep exact url unavailable");
 
     assert_eq!(
         correlation.state,

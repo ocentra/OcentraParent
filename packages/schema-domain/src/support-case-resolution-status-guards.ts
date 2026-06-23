@@ -4,10 +4,7 @@ import type {
   SupportCaseResolutionStatusEntryCandidate,
   SupportCaseResolutionStatusState,
 } from './support-case-resolution-status.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function supportCaseResolutionStatusEntryIsSafe(
   entry: SupportCaseResolutionStatusEntryCandidate,

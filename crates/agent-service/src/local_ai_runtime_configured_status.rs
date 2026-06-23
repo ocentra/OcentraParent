@@ -1,9 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiAdapterBoundary, LocalAiAdapterProbeState, LocalAiAdapterReadinessState,
-    LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiExecutionState, LocalAiModelLoadState,
-    LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode, LocalAiProviderSource,
-    LocalAiResourceClass, LocalModelRuntimeStatus, LocalProviderAdapterProbe,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiCapabilityFlag;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiModelLoadState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalProviderAdapterProbe;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterBoundary;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterProbeState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterReadinessState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiExecutionState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderConfigurationState;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderPrivacyMode;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderSource;
 
 use crate::{
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,

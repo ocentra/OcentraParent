@@ -1,3 +1,7 @@
+use super::TestResult;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_conflict::{
     detect_policy_conflicts, has_blocking_policy_conflicts, PolicyConflictKind,
     PolicyConflictPrecedenceState, PolicyConflictSeverity,
@@ -10,60 +14,79 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
-fn sample_policy_source_document() -> ParentPolicySourceDocument {
-    ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-conflict")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(3).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+fn sample_policy_source_document() -> TestResult<ParentPolicySourceDocument> {
+    Ok(ParentPolicySourceDocument {
+        schema_version: test_ok!(
+            parent_policy_source_schema_version(),
+            "policy source schema version"
+        ),
+        document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-conflict"),
+            "policy source document id"
+        ),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(3), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("device id")],
+        status: PolicySourceStatus::Confirmed,
+        child_profile_ids: vec![test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        )],
+        device_ids: vec![test_ok!(
+            PolicyDeviceId::parse("device-laptop"),
+            "device id"
+        )],
         rules: vec![
             ParentPolicyRule {
-                rule_id: PolicyRuleId::parse("rule-app-block").expect("rule id"),
+                rule_id: test_ok!(PolicyRuleId::parse("rule-app-block"), "rule id"),
                 target: PolicyRuleTarget {
                     kind: PolicyTargetKind::App,
-                    reference_id: PolicyTargetReferenceId::parse("app-minecraft")
-                        .expect("target ref"),
+                    reference_id: test_ok!(
+                        PolicyTargetReferenceId::parse("app-minecraft"),
+                        "target ref"
+                    ),
                 },
                 action: PolicyRuleAction::Block,
-                schedule_id: Some(PolicyScheduleId::parse("schedule-night").expect("schedule id")),
+                schedule_id: Some(test_ok!(
+                    PolicyScheduleId::parse("schedule-night"),
+                    "schedule id"
+                )),
                 priority: 100,
-                reason_code: PolicyReasonCode::parse("school-night").expect("reason code"),
+                reason_code: test_ok!(PolicyReasonCode::parse("school-night"), "reason code"),
                 enabled: true,
             },
             ParentPolicyRule {
-                rule_id: PolicyRuleId::parse("rule-app-warn").expect("rule id"),
+                rule_id: test_ok!(PolicyRuleId::parse("rule-app-warn"), "rule id"),
                 target: PolicyRuleTarget {
                     kind: PolicyTargetKind::App,
-                    reference_id: PolicyTargetReferenceId::parse("app-minecraft")
-                        .expect("target ref"),
+                    reference_id: test_ok!(
+                        PolicyTargetReferenceId::parse("app-minecraft"),
+                        "target ref"
+                    ),
                 },
                 action: PolicyRuleAction::Warn,
-                schedule_id: Some(
-                    PolicyScheduleId::parse("schedule-overlap").expect("schedule id"),
-                ),
+                schedule_id: Some(test_ok!(
+                    PolicyScheduleId::parse("schedule-overlap"),
+                    "schedule id"
+                )),
                 priority: 90,
-                reason_code: PolicyReasonCode::parse("preview-warning").expect("reason code"),
+                reason_code: test_ok!(PolicyReasonCode::parse("preview-warning"), "reason code"),
                 enabled: true,
             },
         ],
         schedules: vec![
             PolicyScheduleWindow {
-                schedule_id: PolicyScheduleId::parse("schedule-night").expect("schedule id"),
-                timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone"),
+                schedule_id: test_ok!(PolicyScheduleId::parse("schedule-night"), "schedule id"),
+                timezone_name: test_ok!(PolicyTimezoneName::parse("America/Toronto"), "timezone"),
                 starts_at: "21:00".to_string(),
                 ends_at: "07:00".to_string(),
                 time_budget: PolicyScheduleTimeBudget {
@@ -86,8 +109,8 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
                 },
             },
             PolicyScheduleWindow {
-                schedule_id: PolicyScheduleId::parse("schedule-overlap").expect("schedule id"),
-                timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone"),
+                schedule_id: test_ok!(PolicyScheduleId::parse("schedule-overlap"), "schedule id"),
+                timezone_name: test_ok!(PolicyTimezoneName::parse("America/Toronto"), "timezone"),
                 starts_at: "22:00".to_string(),
                 ends_at: "06:00".to_string(),
                 time_budget: PolicyScheduleTimeBudget {
@@ -110,9 +133,10 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
                 },
             },
         ],
-        audit_reference_ids: vec![
-            PolicyAuditReferenceId::parse("audit-policy-confirmed").expect("audit ref")
-        ],
+        audit_reference_ids: vec![test_ok!(
+            PolicyAuditReferenceId::parse("audit-policy-confirmed"),
+            "audit ref"
+        )],
         superseded_by_policy_version: None,
         rollback_ref: None,
         retention: PolicyRetentionMetadata {
@@ -120,19 +144,26 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
             delete_allowed: true,
             sync_allowed: false,
         },
-    }
+    })
 }
 
-fn sample_policy_rollback_ref() -> PolicyRollbackRef {
-    PolicyRollbackRef {
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        rolled_back_document_id: ParentPolicyDocumentId::parse("policy-source-conflict")
-            .expect("policy source document id"),
-        rolled_back_policy_version: PolicyVersion::new(3).expect("policy version"),
-        restored_document_id: ParentPolicyDocumentId::parse("policy-source-conflict-previous")
-            .expect("policy source document id"),
-        restored_policy_version: PolicyVersion::new(2).expect("policy version"),
-    }
+fn sample_policy_rollback_ref() -> TestResult<PolicyRollbackRef> {
+    Ok(PolicyRollbackRef {
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        rolled_back_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-conflict"),
+            "policy source document id"
+        ),
+        rolled_back_policy_version: test_ok!(PolicyVersion::new(3), "policy version"),
+        restored_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-conflict-previous"),
+            "policy source document id"
+        ),
+        restored_policy_version: test_ok!(PolicyVersion::new(2), "policy version"),
+    })
 }
 
 fn apply_spring_forward_schedule_boundary(schedule: &mut PolicyScheduleWindow) {
@@ -166,10 +197,10 @@ fn assert_conflict_tracks_source_context(
 }
 
 #[test]
-fn higher_priority_rule_wins_for_overlapping_target_actions() {
-    let document = sample_policy_source_document();
+fn higher_priority_rule_wins_for_overlapping_target_actions() -> TestResult {
+    let document = sample_policy_source_document()?;
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 1);
     assert_eq!(conflicts[0].kind, PolicyConflictKind::OverlappingActions);
@@ -185,20 +216,21 @@ fn higher_priority_rule_wins_for_overlapping_target_actions() {
         conflicts[0]
             .winning_rule_id
             .as_ref()
-            .expect("winning rule")
+            .ok_or_else(|| std::io::Error::other("winning rule"))?
             .as_str(),
         "rule-app-block"
     );
     assert_conflict_tracks_source_context(&conflicts[0], &document);
     assert!(!has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }
 
 #[test]
-fn equal_priority_overlap_requires_manual_review() {
-    let mut document = sample_policy_source_document();
+fn equal_priority_overlap_requires_manual_review() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.rules[1].priority = document.rules[0].priority;
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 1);
     assert_eq!(conflicts[0].kind, PolicyConflictKind::EqualPriority);
@@ -209,15 +241,16 @@ fn equal_priority_overlap_requires_manual_review() {
     assert_eq!(conflicts[0].severity, PolicyConflictSeverity::Blocking);
     assert_conflict_tracks_source_context(&conflicts[0], &document);
     assert!(has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }
 
 #[test]
-fn timezone_mismatch_conflict_stays_explicit_and_manual_required() {
-    let mut document = sample_policy_source_document();
+fn timezone_mismatch_conflict_stays_explicit_and_manual_required() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.schedules[1].timezone_name =
-        PolicyTimezoneName::parse("America/Vancouver").expect("timezone");
+        test_ok!(PolicyTimezoneName::parse("America/Vancouver"), "timezone");
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 1);
     assert_eq!(conflicts[0].kind, PolicyConflictKind::TimezoneBoundary);
@@ -231,25 +264,32 @@ fn timezone_mismatch_conflict_stays_explicit_and_manual_required() {
     assert!(conflicts[0].losing_rule_id.is_none());
     assert_conflict_tracks_source_context(&conflicts[0], &document);
     assert!(has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }
 
 #[test]
-fn device_targets_missing_from_household_inventory_are_blocking() {
-    let mut document = sample_policy_source_document();
+fn device_targets_missing_from_household_inventory_are_blocking() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.rules.push(ParentPolicyRule {
-        rule_id: PolicyRuleId::parse("rule-device-curfew").expect("rule id"),
+        rule_id: test_ok!(PolicyRuleId::parse("rule-device-curfew"), "rule id"),
         target: PolicyRuleTarget {
             kind: PolicyTargetKind::Device,
-            reference_id: PolicyTargetReferenceId::parse("device-tablet").expect("target ref"),
+            reference_id: test_ok!(
+                PolicyTargetReferenceId::parse("device-tablet"),
+                "target ref"
+            ),
         },
         action: PolicyRuleAction::Block,
-        schedule_id: Some(PolicyScheduleId::parse("schedule-night").expect("schedule id")),
+        schedule_id: Some(test_ok!(
+            PolicyScheduleId::parse("schedule-night"),
+            "schedule id"
+        )),
         priority: 110,
-        reason_code: PolicyReasonCode::parse("device-curfew").expect("reason code"),
+        reason_code: test_ok!(PolicyReasonCode::parse("device-curfew"), "reason code"),
         enabled: true,
     });
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 2);
     assert!(conflicts.iter().any(|conflict| {
@@ -260,15 +300,16 @@ fn device_targets_missing_from_household_inventory_are_blocking() {
         .iter()
         .for_each(|conflict| assert_conflict_tracks_source_context(conflict, &document));
     assert!(has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }
 
 #[test]
-fn rolled_back_source_conflicts_preserve_rollback_context() {
-    let mut document = sample_policy_source_document();
-    document.status = PolicySourceDocumentStatus::RolledBack;
-    document.rollback_ref = Some(sample_policy_rollback_ref());
+fn rolled_back_source_conflicts_preserve_rollback_context() -> TestResult {
+    let mut document = sample_policy_source_document()?;
+    document.status = PolicySourceStatus::RolledBack;
+    document.rollback_ref = Some(sample_policy_rollback_ref()?);
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 1);
     assert_conflict_tracks_source_context(&conflicts[0], &document);
@@ -276,29 +317,31 @@ fn rolled_back_source_conflicts_preserve_rollback_context() {
         conflicts[0]
             .rollback_ref
             .as_ref()
-            .expect("rollback ref")
+            .ok_or_else(|| std::io::Error::other("rollback ref"))?
             .restored_policy_version,
-        PolicyVersion::new(2).expect("policy version")
+        test_ok!(PolicyVersion::new(2), "policy version")
     );
+    Ok(())
 }
 
 #[test]
-fn disabled_rule_does_not_create_conflict_noise() {
-    let mut document = sample_policy_source_document();
+fn disabled_rule_does_not_create_conflict_noise() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.rules[1].enabled = false;
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert!(conflicts.is_empty());
+    Ok(())
 }
 
 #[test]
-fn nonexistent_local_time_stays_explicit_and_blocking() {
-    let mut document = sample_policy_source_document();
+fn nonexistent_local_time_stays_explicit_and_blocking() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.rules[1].enabled = false;
     apply_spring_forward_schedule_boundary(&mut document.schedules[0]);
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 1);
     assert_eq!(conflicts[0].kind, PolicyConflictKind::NonexistentLocalTime);
@@ -314,15 +357,16 @@ fn nonexistent_local_time_stays_explicit_and_blocking() {
     assert_eq!(conflicts[0].reason_code.as_str(), "nonexistent-local-time");
     assert_conflict_tracks_source_context(&conflicts[0], &document);
     assert!(has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }
 
 #[test]
-fn ambiguous_local_time_stays_explicit_and_blocking() {
-    let mut document = sample_policy_source_document();
+fn ambiguous_local_time_stays_explicit_and_blocking() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.rules[1].enabled = false;
     apply_fall_back_schedule_boundary(&mut document.schedules[0]);
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 1);
     assert_eq!(conflicts[0].kind, PolicyConflictKind::AmbiguousLocalTime);
@@ -338,15 +382,16 @@ fn ambiguous_local_time_stays_explicit_and_blocking() {
     assert_eq!(conflicts[0].reason_code.as_str(), "ambiguous-local-time");
     assert_conflict_tracks_source_context(&conflicts[0], &document);
     assert!(has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }
 
 #[test]
-fn manual_clock_source_stays_explicit_clock_skew_conflict() {
-    let mut document = sample_policy_source_document();
+fn manual_clock_source_stays_explicit_clock_skew_conflict() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.rules[1].enabled = false;
     document.schedules[0].time_budget.clock_source = PolicyScheduleClockSource::ManualRequired;
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert_eq!(conflicts.len(), 1);
     assert_eq!(conflicts[0].kind, PolicyConflictKind::ClockSkew);
@@ -362,16 +407,18 @@ fn manual_clock_source_stays_explicit_clock_skew_conflict() {
     assert_eq!(conflicts[0].reason_code.as_str(), "clock-skew");
     assert_conflict_tracks_source_context(&conflicts[0], &document);
     assert!(has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }
 
 #[test]
-fn child_device_clock_source_does_not_auto_create_clock_skew_conflict() {
-    let mut document = sample_policy_source_document();
+fn child_device_clock_source_does_not_auto_create_clock_skew_conflict() -> TestResult {
+    let mut document = sample_policy_source_document()?;
     document.rules[1].enabled = false;
     document.schedules[0].time_budget.clock_source = PolicyScheduleClockSource::ChildDevice;
 
-    let conflicts = detect_policy_conflicts(&document).expect("policy conflicts");
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
 
     assert!(conflicts.is_empty());
     assert!(!has_blocking_policy_conflicts(&conflicts));
+    Ok(())
 }

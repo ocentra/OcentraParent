@@ -1,8 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanBrowserAddDeviceScanSummary, LanDiscoverySourceMatrix, LanDiscoverySourceStatus,
-    LanPairingProductionDiscoveryState, LanPlanWorkpackId, LanPlanWorkpackStatusRow,
-    V09ProductionDiscoveryHouseholdProofState, V09ProductionDiscoveryHouseholdRuntimeOwner,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdProofState;
+use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdRuntimeOwner;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceMatrix;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanDiscoverySourceStatus;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanPlanWorkpackId;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::LanPlanWorkpackStatusRow;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceScanSummary;
 
 mod source_rows;
 use source_rows::source_rows;
@@ -60,7 +64,7 @@ fn core_workpack_rows(
                 discovery_state: neighbor_state(scan_summary),
                 proof_state: V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
                 runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
-                status: LanDiscoverySourceStatus::Partial,
+                source_status: LanDiscoverySourceStatus::Partial,
                 read_model_visible: true,
                 required_artifact_summary: None,
             },
@@ -155,30 +159,36 @@ fn closeout_workpack_rows() -> Vec<LanPlanWorkpackStatusRow> {
     ]
 }
 
-fn ci_workpack(workpack_id: LanPlanWorkpackId, title: &str) -> LanPlanWorkpackStatusRow {
+fn ci_workpack(
+    workpack_id: LanPlanWorkpackId,
+    workpack_title: &str,
+) -> LanPlanWorkpackStatusRow {
     workpack(
         workpack_id,
-        title,
+        workpack_title,
         WorkpackDetails {
             discovery_state: LanPairingProductionDiscoveryState::Discovered,
             proof_state: V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
             runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
-            status: LanDiscoverySourceStatus::Implemented,
+            source_status: LanDiscoverySourceStatus::Implemented,
             read_model_visible: true,
             required_artifact_summary: None,
         },
     )
 }
 
-fn partial_workpack(workpack_id: LanPlanWorkpackId, title: &str) -> LanPlanWorkpackStatusRow {
+fn partial_workpack(
+    workpack_id: LanPlanWorkpackId,
+    workpack_title: &str,
+) -> LanPlanWorkpackStatusRow {
     workpack(
         workpack_id,
-        title,
+        workpack_title,
         WorkpackDetails {
             discovery_state: LanPairingProductionDiscoveryState::Pending,
             proof_state: V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
             runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
-            status: LanDiscoverySourceStatus::Partial,
+            source_status: LanDiscoverySourceStatus::Partial,
             read_model_visible: true,
             required_artifact_summary: None,
         },
@@ -187,17 +197,17 @@ fn partial_workpack(workpack_id: LanPlanWorkpackId, title: &str) -> LanPlanWorkp
 
 fn manual_workpack(
     workpack_id: LanPlanWorkpackId,
-    title: &str,
+    workpack_title: &str,
     artifact: &str,
 ) -> LanPlanWorkpackStatusRow {
     workpack(
         workpack_id,
-        title,
+        workpack_title,
         WorkpackDetails {
             discovery_state: LanPairingProductionDiscoveryState::ManualRequired,
             proof_state: V09ProductionDiscoveryHouseholdProofState::ManualRequired,
             runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::ManualProof,
-            status: LanDiscoverySourceStatus::ManualRequired,
+            source_status: LanDiscoverySourceStatus::ManualRequired,
             read_model_visible: true,
             required_artifact_summary: Some(artifact.to_string()),
         },
@@ -206,17 +216,17 @@ fn manual_workpack(
 
 fn not_implemented_workpack(
     workpack_id: LanPlanWorkpackId,
-    title: &str,
+    workpack_title: &str,
     artifact: &str,
 ) -> LanPlanWorkpackStatusRow {
     workpack(
         workpack_id,
-        title,
+        workpack_title,
         WorkpackDetails {
             discovery_state: LanPairingProductionDiscoveryState::Unavailable,
             proof_state: V09ProductionDiscoveryHouseholdProofState::NotImplemented,
             runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::ManualProof,
-            status: LanDiscoverySourceStatus::NotImplemented,
+            source_status: LanDiscoverySourceStatus::NotImplemented,
             read_model_visible: true,
             required_artifact_summary: Some(artifact.to_string()),
         },
@@ -227,24 +237,24 @@ struct WorkpackDetails {
     discovery_state: LanPairingProductionDiscoveryState,
     proof_state: V09ProductionDiscoveryHouseholdProofState,
     runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner,
-    status: LanDiscoverySourceStatus,
+    source_status: LanDiscoverySourceStatus,
     read_model_visible: bool,
     required_artifact_summary: Option<String>,
 }
 
 fn workpack(
     workpack_id: LanPlanWorkpackId,
-    title: &str,
+    workpack_title: &str,
     details: WorkpackDetails,
 ) -> LanPlanWorkpackStatusRow {
     LanPlanWorkpackStatusRow {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         workpack_id,
-        title: title.to_string(),
+        title: workpack_title.to_string(),
         discovery_state: details.discovery_state,
         proof_state: details.proof_state,
         runtime_owner: details.runtime_owner,
-        status: details.status,
+        status: details.source_status,
         read_model_visible: details.read_model_visible,
         required_artifact_summary: details.required_artifact_summary,
     }

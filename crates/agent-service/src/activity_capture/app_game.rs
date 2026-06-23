@@ -14,9 +14,9 @@ use ocentra_parent_agent_core::activity_store_app_game::{
     live_windows_registry_inventory_journal_events_from_roots,
     live_windows_store_package_journal_events_from_roots,
 };
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
 #[cfg(any(windows, test))]
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::ActivityEvent;
 
 use super::ActivityCaptureError;
 

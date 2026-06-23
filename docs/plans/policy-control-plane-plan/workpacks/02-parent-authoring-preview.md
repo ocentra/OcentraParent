@@ -6,6 +6,16 @@ Owns: templates, manual rule creation, preview, confirmation, conflict visibilit
 
 Handoff: portal UX owns the rendered surfaces. AI may draft only. This workpack defines the expected policy-authoring contract, not styling.
 
+## Ownership boundary
+
+```text
+policy-control-plane-plan owns authoring contract, preview states, confirmation requirements, no-claim boundaries, and proof route.
+portal-ux-household-surfaces-plan owns rendered UI surfaces and accessibility implementation.
+ai-plan owns draft suggestions only; AI cannot confirm or apply policy.
+account-identity-family-plan owns parent actor/session authority.
+device-trust-bootstrap-plan owns high-risk step-up where selected.
+```
+
 ## Required UI states
 
 ```text
@@ -43,6 +53,30 @@ expired
 - Unsupported, offline, stale, and manualRequired states stay visible.
 - AI drafts remain preview-only until parent confirmation.
 - Mobile and accessibility coverage are required, not implied.
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+authoring_surface_state
+template_state
+manual_rule_state
+preview_state
+conflict_state
+unsupported_state
+stale_offline_state
+manual_required_state
+confirmation_state
+cancel_mutation_state
+assistant_draft_state
+mobile_accessibility_state
+portal_handoff_state
+no_enforcement_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required proof IDs
 
@@ -90,3 +124,5 @@ docs/proof/policy-control-plane-plan/02-assistant-draft-preview-only-proof.md
 ## Failure
 
 Do not let the policy UI save ambiguous rules without preview, explanation, or conflict handling, and do not treat assistant-drafted text as applied policy.
+
+Keep WP02 open until targeted portal/authoring/preview proof exists or dependency blockers are explicitly carried.

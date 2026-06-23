@@ -6,11 +6,14 @@ use crate::{
     NetworkAppleNetworkExtensionRequiredArtifact, NetworkEvidenceGrade,
     NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn apple_network_extension_gate_allows_entitlement_ready_without_supervision_claim() {
     let proof = plan_network_apple_network_extension_gate(apple_device_ready_input(false))
-        .expect("complete Apple Network Extension gate should become entitlement-proof ready");
+        .expect_value(
+            "complete Apple Network Extension gate should become entitlement-proof ready",
+        );
 
     assert_eq!(
         proof.gate_state,
@@ -42,7 +45,7 @@ fn apple_network_extension_gate_allows_entitlement_ready_without_supervision_cla
 #[test]
 fn apple_network_extension_gate_requires_supervision_or_mdm_proof_when_claimed() {
     let proof = plan_network_apple_network_extension_gate(apple_device_ready_input(true))
-        .expect("supervision-required gate should accept explicit proof ref");
+        .expect_value("supervision-required gate should accept explicit proof ref");
     assert_eq!(
         proof.gate_state,
         NetworkAppleNetworkExtensionGateState::AppleEntitlementProofReady
@@ -60,7 +63,7 @@ fn apple_network_extension_gate_requires_supervision_or_mdm_proof_when_claimed()
             supervision_or_mdm_proof_ref: None,
             ..apple_device_ready_input(false)
         })
-        .expect("missing supervision proof should stay reportable");
+        .expect_value("missing supervision proof should stay reportable");
     assert_eq!(
         missing.gate_state,
         NetworkAppleNetworkExtensionGateState::ManualRequired
@@ -87,7 +90,7 @@ fn apple_network_extension_gate_research_only_is_non_executable_without_artifact
         audit_event_ref: None,
         ..apple_device_ready_input(false)
     })
-    .expect("research-only Apple Network Extension gate should be allowed without artifacts");
+    .expect_value("research-only Apple Network Extension gate should be allowed without artifacts");
 
     assert_eq!(
         proof.gate_state,
@@ -124,7 +127,7 @@ fn apple_network_extension_gate_routes_weak_or_non_block_policy_to_manual_requir
         policy_mapping: policy_mapping(NetworkEvidenceGrade::B, NetworkEvidencePolicyAction::Block),
         ..apple_device_ready_input(false)
     })
-    .expect("grade B block policy handoff should not become Apple proof-ready");
+    .expect_value("grade B block policy handoff should not become Apple proof-ready");
 
     assert_eq!(
         weak.gate_state,
@@ -142,7 +145,7 @@ fn apple_network_extension_gate_routes_weak_or_non_block_policy_to_manual_requir
         policy_mapping: policy_mapping(NetworkEvidenceGrade::A, NetworkEvidencePolicyAction::Limit),
         ..apple_device_ready_input(false)
     })
-    .expect("non-block mapped actions should stay outside the Apple proof boundary");
+    .expect_value("non-block mapped actions should stay outside the Apple proof boundary");
     assert_eq!(
         limit.gate_state,
         NetworkAppleNetworkExtensionGateState::ManualRequired
@@ -159,7 +162,7 @@ fn apple_network_extension_gate_marks_manual_required_or_unavailable_capability_
         capability_state: NetworkAppleNetworkExtensionCapabilityState::ManualRequired,
         ..apple_device_ready_input(false)
     })
-    .expect("manual-required Apple capability should stay reportable");
+    .expect_value("manual-required Apple capability should stay reportable");
     assert_eq!(
         manual.gate_state,
         NetworkAppleNetworkExtensionGateState::ManualRequired
@@ -175,7 +178,7 @@ fn apple_network_extension_gate_marks_manual_required_or_unavailable_capability_
             capability_state: NetworkAppleNetworkExtensionCapabilityState::Unavailable,
             ..apple_device_ready_input(false)
         })
-        .expect("unavailable Apple capability should stay reportable");
+        .expect_value("unavailable Apple capability should stay reportable");
     assert_eq!(
         unavailable.gate_state,
         NetworkAppleNetworkExtensionGateState::Unavailable
@@ -337,5 +340,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

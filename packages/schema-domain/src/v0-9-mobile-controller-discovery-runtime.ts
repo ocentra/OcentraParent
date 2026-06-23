@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -18,7 +13,11 @@ import {
   ParentMobilePlatformSchema,
   ParentMobileServiceAvailabilityStateSchema,
 } from './parent-mobile-runtime';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from './family-reference-primitives';
+import {
+  ParentDeviceIdSchema,
+  ParentEvidenceReferenceIdSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
 
 export const V09MobileControllerDiscoveryRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('v0.9-mobile-controller-discovery-runtime')
@@ -183,4 +182,3 @@ export type V09RuntimeClaimBoundaries = Infer<typeof V09RuntimeClaimBoundariesSc
 export type V09MobileControllerDiscoveryRuntimeReadModel = Infer<
   typeof V09MobileControllerDiscoveryRuntimeReadModelSchema
 >;
-

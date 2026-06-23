@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import { parseAgentSocialDashboardReadModelEvent } from '../../src/social-dashboard-read-model';
 

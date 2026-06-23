@@ -6,7 +6,8 @@ import {
   V08SupportedAdapterRuntimeProofReadModelSchema,
   type V08SupportedAdapterRuntimeProofReadModel,
 } from '@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from './contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type EnforcementSupportedAdapterRuntimeProofParseResult =
   | {

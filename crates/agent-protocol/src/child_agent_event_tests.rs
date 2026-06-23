@@ -98,14 +98,16 @@ fn child_command_contract_rejects_missing_child_command_ref() {
 
     let parsed = serde_json::from_value::<ChildCommandReceivedEvent>(event);
 
-    assert!(parsed.is_err());
+    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
 }
 
 fn serialized_field<T>(value: &T, field: &str, nested: &str) -> serde_json::Value
 where
     T: serde::Serialize,
 {
-    let serialized = serde_json::to_value(value).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(value).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     if nested.is_empty() {
         return serialized[field].clone();
     }

@@ -1,8 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    LocalAiModelCacheHealth, LocalAiModelCacheState, LocalAiModelCacheStatus,
-    LocalAiModelCacheUnavailableReason, LocalAiModelDownloadStatus,
-    LocalAiModelManifestIntegrityState, LocalAiModelSourcePolicy,
-};
+use ocentra_parent_agent_protocol::local_ai_runtime::cache::LocalAiModelCacheHealth;
+use ocentra_parent_agent_protocol::local_ai_runtime::cache::LocalAiModelCacheState;
+use ocentra_parent_agent_protocol::local_ai_runtime::cache::LocalAiModelDownloadStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::cache::LocalAiModelManifestIntegrityState;
+use ocentra_parent_agent_protocol::local_ai_runtime::cache::LocalAiModelSourcePolicy;
+use ocentra_parent_agent_protocol::local_ai_runtime::cache_reasons::LocalAiModelCacheUnavailableReason;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalAiModelCacheStatus;
 
 use crate::local_ai_runtime_config::LocalAiRuntimeConfigSnapshot;
 

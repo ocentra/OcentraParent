@@ -42,9 +42,9 @@ const ChildRuntimeTransportReceiptReadModel = {
 
 describe('schema-domain app-game child runtime transport receipt contract', () => {
   it('parses the canonical read-model sample', () => {
-    expect(AgentAppGameChildRuntimeTransportReceiptReadModelSchema.parse(ChildRuntimeTransportReceiptReadModel)).toEqual(
-      ChildRuntimeTransportReceiptReadModel
-    );
+    expect(
+      AgentAppGameChildRuntimeTransportReceiptReadModelSchema.parse(ChildRuntimeTransportReceiptReadModel)
+    ).toEqual(ChildRuntimeTransportReceiptReadModel);
   });
 
   it('matches the Rust parity manifest', () => {
@@ -52,9 +52,7 @@ describe('schema-domain app-game child runtime transport receipt contract', () =
       new URL('../../../../crates/agent-protocol/src/app_game_child_runtime_transport_receipt.rs', import.meta.url),
       'utf8'
     );
-    const match = rustSource.match(
-      /APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PARITY_MANIFEST: &str = r#"(.*?)"#;/su
-    );
+    const match = rustSource.match(/APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PARITY_MANIFEST: &str = r#"(.*?)"#;/su);
 
     expect(match).not.toBeNull();
     expect(JSON.parse(match![1])).toEqual(AgentAppGameChildRuntimeTransportReceiptParityManifest);

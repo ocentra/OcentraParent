@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import {
   dataExportDeleteLifecycleCoversRequiredStates,
@@ -145,4 +140,3 @@ export const decodeDataExportDeleteLifecycleEntry = Schema.decodeUnknownSync(Dat
 export const decodeDataExportDeleteLifecycleReadModel = Schema.decodeUnknownSync(
   DataExportDeleteLifecycleReadModelSchema
 );
-

@@ -30,8 +30,7 @@ async function main() {
 
   const { V08BroadOsAdapterRuntimeProofReadModel } =
     await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-runtime-proof');
-  const { V08BroadOsAdapterProofReadModel } =
-    await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-proof');
+  const { V08BroadOsAdapterProofReadModel } = await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-proof');
   const { V08BrowserDomainAdapterProofReadModel } =
     await import('@ocentra-parent/schema-domain/v0-8-browser-domain-adapter-proof');
   const { V08OsAdapterManualArtifactGateReadModel } =

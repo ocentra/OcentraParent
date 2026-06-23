@@ -1,13 +1,20 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LocalAiChatGenerationResult, LocalAiGenerationState, LogFieldValue,
-    ScreenAnalysisResult, ACTIVITY_SCHEMA_VERSION, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED, SCREEN_PROVIDER_LOCAL_OCR,
-    SCREEN_PROVIDER_LOCAL_VISION, SCREEN_SERVICE_ANALYSIS_EVENT_ID_PREFIX,
-    SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX,
-    SCREEN_SERVICE_ANALYSIS_SOURCE_ID,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::{
+    generation::LocalAiChatGenerationResult, lifecycle::LocalAiGenerationState,
+};
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenAnalysisResult, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CUSTODY_JOURNAL,
+    SCREEN_DELETION_DELETED, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
+    SCREEN_SERVICE_ANALYSIS_EVENT_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX,
+    SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_SOURCE_ID,
+};
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
 
 use crate::fields::fields_from_pairs;
 
@@ -252,7 +259,7 @@ fn bool_field(key: &'static str, value: bool) -> (&'static str, LogFieldValue) {
 mod tests {
     use serde_json::{Map, Value};
 
-    use ocentra_parent_agent_protocol::{
+    use ocentra_parent_agent_protocol::screen_evidence::{
         SCREEN_CATEGORY_SCHOOL, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR,
         SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
         SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
@@ -317,7 +324,9 @@ mod tests {
     fn queued_image() -> QueuedScreenImage {
         QueuedScreenImage {
             queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-            custody_state: ocentra_parent_agent_protocol::SCREEN_CUSTODY_TEMP_QUEUE.to_string(),
+            custody_state:
+                ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_TEMP_QUEUE
+                    .to_string(),
             image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
             image_bytes: constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER
                 .as_bytes()
@@ -396,7 +405,7 @@ mod tests {
     fn string_value<'a>(event: &'a ActivityEvent, field: &str) -> &'a str {
         match event.fields.get(field) {
             Some(LogFieldValue::String(value)) => value,
-            _ => unreachable!(),
+            _ => panic!(),
         }
     }
 }

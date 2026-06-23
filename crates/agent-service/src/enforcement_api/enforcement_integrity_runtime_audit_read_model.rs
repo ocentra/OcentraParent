@@ -1,12 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_enforcement_integrity_runtime_audit as proof, policy_constants, ParentPlatform,
-    V08EnforcementIntegrityRuntimeAuditAuditState, V08EnforcementIntegrityRuntimeAuditChildState,
-    V08EnforcementIntegrityRuntimeAuditEntry, V08EnforcementIntegrityRuntimeAuditExecution,
-    V08EnforcementIntegrityRuntimeAuditIntegrityState,
-    V08EnforcementIntegrityRuntimeAuditIntentState, V08EnforcementIntegrityRuntimeAuditReadModel,
-    V08EnforcementIntegrityRuntimeAuditResult, V08EnforcementIntegrityRuntimeAuditRollbackState,
-    V08EnforcementIntegrityRuntimeAuditSurface, V08EnforcementIntegrityRuntimeAuditTimerState,
-};
+use ocentra_parent_agent_protocol::constants::v08_enforcement_integrity_runtime_audit as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditAuditState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditChildState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditEntry;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditExecution;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditIntegrityState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditIntentState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditReadModel;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditResult;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditRollbackState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditSurface;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditTimerState;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use super::integrity_alert_status_bridge_read_model::v08_integrity_alert_status_bridge_read_model;
 use super::notification_provider_status_boundary_read_model::v08_notification_provider_status_boundary_read_model;
@@ -62,6 +67,7 @@ struct EntrySpec {
     boundary: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct SupportedSpecInput {
     audit_entry_id: &'static str,
     result: V08EnforcementIntegrityRuntimeAuditResult,
@@ -72,6 +78,7 @@ struct SupportedSpecInput {
     boundary: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct NoExecutionSpecInput {
     audit_entry_id: &'static str,
     surface: V08EnforcementIntegrityRuntimeAuditSurface,
@@ -83,6 +90,7 @@ struct NoExecutionSpecInput {
     boundary: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct IntegrityUnavailableSpecInput {
     audit_entry_id: &'static str,
     surface: V08EnforcementIntegrityRuntimeAuditSurface,

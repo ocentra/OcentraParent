@@ -16,7 +16,14 @@ await mkdir(proofDir, { recursive: true });
 
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
-runNpm(['run', 'test', '--workspace', '@ocentra-parent/tracking-domain', '--', 'tracking-android-status-proof.test.ts']);
+runNpm([
+  'run',
+  'test',
+  '--workspace',
+  '@ocentra-parent/tracking-domain',
+  '--',
+  'tracking-android-status-proof.test.ts',
+]);
 
 const proofModule = await importDist('tracking-android-status-proof.js');
 const readModel = proofModule.buildTrackingAndroidStatusProofReadModel(
@@ -47,7 +54,7 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-android-status-proof.ts',
+    source: 'packages/schema-domain/src/tracking-android-status-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-android-status-proof.test.ts',
     harness: 'scripts/test/tracking-android-status-proof.mjs',
     evidence: 'test-results/tracking-android-status-proof/proof.json',
@@ -65,7 +72,7 @@ console.log('tracking-android-status-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-android-status-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function androidStatusRows() {

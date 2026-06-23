@@ -5,11 +5,12 @@ use crate::{
     NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
     NetworkEvidencePolicyMappingInput,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn dns_adapter_allows_apply_ready_with_policy_capability_artifacts_and_audit_refs() {
     let proof = plan_network_dns_adapter_proof(apply_ready_input(NetworkDnsAdapterAction::Block))
-        .expect("complete DNS adapter proof should become apply-ready");
+        .expect_value("complete DNS adapter proof should become apply-ready");
 
     assert_eq!(proof.proof_state, NetworkDnsAdapterProofState::ApplyReady);
     assert_eq!(proof.target_domain, "video.example.test");
@@ -55,7 +56,7 @@ fn dns_adapter_allows_apply_ready_with_policy_capability_artifacts_and_audit_ref
 fn dns_adapter_redirect_requires_a_domain_target_and_preserves_no_content_claims() {
     let proof =
         plan_network_dns_adapter_proof(apply_ready_input(NetworkDnsAdapterAction::Redirect))
-            .expect("redirect proof should require and normalize a redirect target domain");
+            .expect_value("redirect proof should require and normalize a redirect target domain");
 
     assert_eq!(proof.proof_state, NetworkDnsAdapterProofState::ApplyReady);
     assert_eq!(proof.target_domain, "video.example.test");
@@ -88,7 +89,7 @@ fn dns_adapter_dry_run_is_non_executable_without_adapter_artifacts() {
         audit_event_ref: None,
         ..apply_ready_input(NetworkDnsAdapterAction::Block)
     })
-    .expect("dry-run DNS adapter proof should be allowed without apply artifacts");
+    .expect_value("dry-run DNS adapter proof should be allowed without apply artifacts");
 
     assert_eq!(proof.proof_state, NetworkDnsAdapterProofState::DryRun);
     assert_eq!(
@@ -119,7 +120,7 @@ fn dns_adapter_routes_weak_or_parent_review_policy_to_manual_required() {
         policy_mapping: policy_mapping(NetworkEvidenceGrade::B, NetworkEvidencePolicyAction::Block),
         ..apply_ready_input(NetworkDnsAdapterAction::Block)
     })
-    .expect("grade B block policy handoff should not become DNS apply-ready");
+    .expect_value("grade B block policy handoff should not become DNS apply-ready");
 
     assert_eq!(
         proof.proof_state,
@@ -138,7 +139,7 @@ fn dns_adapter_routes_weak_or_parent_review_policy_to_manual_required() {
         policy_mapping: policy_mapping(NetworkEvidenceGrade::D, NetworkEvidencePolicyAction::Block),
         ..apply_ready_input(NetworkDnsAdapterAction::Block)
     })
-    .expect("grade D network evidence should stay non-enforcing");
+    .expect_value("grade D network evidence should stay non-enforcing");
     assert_eq!(
         observe.proof_state,
         NetworkDnsAdapterProofState::ManualRequired
@@ -155,7 +156,7 @@ fn dns_adapter_marks_capability_manual_required_or_unavailable_without_commands(
         capability_state: NetworkDnsAdapterCapabilityState::ManualRequired,
         ..apply_ready_input(NetworkDnsAdapterAction::Block)
     })
-    .expect("manual-required capability should stay reportable");
+    .expect_value("manual-required capability should stay reportable");
     assert_eq!(
         manual.proof_state,
         NetworkDnsAdapterProofState::ManualRequired
@@ -170,7 +171,7 @@ fn dns_adapter_marks_capability_manual_required_or_unavailable_without_commands(
         capability_state: NetworkDnsAdapterCapabilityState::Unavailable,
         ..apply_ready_input(NetworkDnsAdapterAction::Block)
     })
-    .expect("unavailable capability should stay reportable");
+    .expect_value("unavailable capability should stay reportable");
     assert_eq!(
         unavailable.proof_state,
         NetworkDnsAdapterProofState::Unavailable
@@ -193,7 +194,7 @@ fn dns_adapter_requires_authorization_capability_apply_result_rollback_and_audit
         audit_event_ref: None,
         ..apply_ready_input(NetworkDnsAdapterAction::Block)
     })
-    .expect("missing DNS adapter artifacts should produce a manual-required proof");
+    .expect_value("missing DNS adapter artifacts should produce a manual-required proof");
 
     assert_eq!(
         proof.proof_state,
@@ -303,5 +304,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

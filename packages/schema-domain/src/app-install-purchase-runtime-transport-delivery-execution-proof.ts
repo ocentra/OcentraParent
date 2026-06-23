@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeDeliveryReceiptBoundaryProofReadModel } from './app-install-purchase-runtime-delivery-receipt-boundary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -86,10 +81,18 @@ const RuntimeTransportDeliveryExecutionIntegrationClaimSchema = withParser(Schem
 const RuntimeTransportDeliveryExecutionAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const RuntimeTransportDeliveryExecutionCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const RuntimeTransportDeliveryExecutionRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionRowId');
-const RuntimeTransportDeliveryExecutionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionRef');
-const RuntimeTransportDeliveryExecutionAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionAuditRef');
-const RuntimeTransportDeliveryExecutionBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionBoundary');
+const RuntimeTransportDeliveryExecutionRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeTransportDeliveryExecutionRowId'
+);
+const RuntimeTransportDeliveryExecutionRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeTransportDeliveryExecutionRef'
+);
+const RuntimeTransportDeliveryExecutionAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeTransportDeliveryExecutionAuditRef'
+);
+const RuntimeTransportDeliveryExecutionBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeTransportDeliveryExecutionBoundary'
+);
 
 const RuntimeTransportDeliveryExecutionRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeTransportDeliveryExecutionProofSchemaVersionSchema,
@@ -383,4 +386,3 @@ function runtimeTransportDeliveryExecutionBoundaryIsExplicit(
 ): boolean {
   return RuntimeTransportDeliveryExecutionBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

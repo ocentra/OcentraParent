@@ -4,7 +4,7 @@ import {
   AppGamePlatformAuthorityMatrixSchema,
   AppGamePlatformAuthorityRowSchema,
   AppGamePlatformAuthorityTier,
-} from '../../src/app-game-control-platform-authority';
+} from '@ocentra-parent/schema-domain/app-game-control-platform-authority';
 import { EnforcementCapabilityState, EnforcementMode } from '@ocentra-parent/schema-domain/enforcement';
 import { ParentContractSchemaVersion, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 

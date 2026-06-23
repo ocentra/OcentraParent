@@ -1,19 +1,15 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
-export const NotificationAuditHistoryReadModelIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryReadModelId');
+export const NotificationAuditHistoryReadModelIdSchema = brandedNonEmptyStringSchema(
+  'NotificationAuditHistoryReadModelId'
+);
 export const NotificationAuditHistoryEntryIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryEntryId');
 export const NotificationAuditHistoryReferenceSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryReference');
-export const NotificationAuditHistoryRequirementSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryRequirement');
+export const NotificationAuditHistoryRequirementSchema = brandedNonEmptyStringSchema(
+  'NotificationAuditHistoryRequirement'
+);
 export const NotificationAuditHistoryTimestampSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryTimestamp');
 
 export const NotificationAuditHistoryProviderStatusSchema = withParser(
@@ -428,4 +424,3 @@ export const decodeNotificationAuditHistoryEntry = Schema.decodeUnknownSync(Noti
 export const decodeNotificationAuditHistoryReadModel = Schema.decodeUnknownSync(
   NotificationAuditHistoryReadModelSchema
 );
-

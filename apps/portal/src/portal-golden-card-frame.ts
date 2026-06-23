@@ -1,4 +1,5 @@
-import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
   createGoldenFrameFrameOnlySvgDataUri,

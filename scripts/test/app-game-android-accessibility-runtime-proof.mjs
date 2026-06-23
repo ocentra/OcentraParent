@@ -55,7 +55,7 @@ async function main() {
       'app-game-android-accessibility-runtime-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -86,7 +86,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-accessibility-runtime-proof.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-accessibility-runtime-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidAccessibilityRuntimeProof({
@@ -117,7 +117,7 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java',
       manifest: 'platforms/android/agent/app/src/main/AndroidManifest.xml',
       serviceConfig: 'platforms/android/agent/app/src/main/res/xml/app_game_accessibility_service.xml',
-      contract: 'packages/app-game-domain/src/app-game-android-accessibility-runtime-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-accessibility-runtime-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-accessibility-runtime-proof.test.ts',
       packageInstall: 'adb install -r target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
       packageLaunch: `adb shell am start -n ${activityId}`,
@@ -128,7 +128,7 @@ async function main() {
       'Android debug package declares an Ocentra AccessibilityService bound by android.permission.BIND_ACCESSIBILITY_SERVICE',
       'The service config listens only for window state changes and does not request window-content retrieval',
       'MainActivity exposes parent-safe Accessibility declaration/runtime/sample states after package install and launch',
-      'App-game-domain records declaration/UI/settings evidence without raw event rows, raw service names, raw overlay content, adapter dispatch, platform enforcement, or child-device delivery claims',
+      'The centralized runtime proof records declaration/UI/settings evidence without raw event rows, raw service names, raw overlay content, adapter dispatch, platform enforcement, or child-device delivery claims',
     ],
     claimsNotProved: [
       'Accessibility service enablement if Android settings does not include the package-local service',

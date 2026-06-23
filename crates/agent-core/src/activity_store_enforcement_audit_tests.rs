@@ -1,23 +1,26 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
+use std::fmt::Debug;
+
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::ActivityStore;
 
 #[test]
 fn activity_store_reads_latest_enforcement_audit_fields() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
-    store
-        .ingest_events(&[enforcement_audit_event(
+    let store = open_in_memory_store();
+    ingest_enforcement_events(
+        &store,
+        &[enforcement_audit_event(
             constants::enforcement::TEST_AUDIT_EVENT_ID,
             constants::enforcement::TEST_RESULT_ID,
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let fields = store
-        .latest_enforcement_audit_fields()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        )],
+    );
+    let fields = latest_enforcement_audit_fields(&store);
 
     assert_eq!(
         fields.get(constants::field::ENFORCEMENT_RESULT_ID),
@@ -35,9 +38,10 @@ fn activity_store_reads_latest_enforcement_audit_fields() {
 
 #[test]
 fn activity_store_reads_most_recent_enforcement_audit_fields_only() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
-    store
-        .ingest_events(&[
+    let store = open_in_memory_store();
+    ingest_enforcement_events(
+        &store,
+        &[
             enforcement_audit_event(
                 constants::enforcement::TEST_AUDIT_EVENT_ID,
                 constants::enforcement::TEST_RESULT_ID,
@@ -46,12 +50,9 @@ fn activity_store_reads_most_recent_enforcement_audit_fields_only() {
                 constants::enforcement::TEST_TIMER_EVENT_ID,
                 constants::enforcement::TEST_TIMER_STATE_ID,
             ),
-        ])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let fields = store
-        .latest_enforcement_audit_fields()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ],
+    );
+    let fields = latest_enforcement_audit_fields(&store);
 
     assert_eq!(
         fields.get(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
@@ -69,14 +70,60 @@ fn activity_store_reads_most_recent_enforcement_audit_fields_only() {
 
 #[test]
 fn activity_store_returns_no_enforcement_audit_fields_when_empty() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = open_in_memory_store();
 
     assert_eq!(
-        store
-            .latest_enforcement_audit_fields()
-            .expect(constants::error::ACTIVITY_STORE_QUERIES),
+        activity_store_query(store.latest_enforcement_audit_fields()),
         None
     );
+}
+
+fn open_in_memory_store() -> ActivityStore {
+    activity_store_open(ActivityStore::open_in_memory())
+}
+
+fn ingest_enforcement_events(store: &ActivityStore, events: &[ActivityEvent]) {
+    activity_store_ingest(store.ingest_events(events));
+}
+
+fn latest_enforcement_audit_fields(store: &ActivityStore) -> LogFields {
+    match activity_store_query(store.latest_enforcement_audit_fields()) {
+        Some(fields) => fields,
+        None => unreachable!(
+            "{}: missing enforcement audit fields",
+            constants::error::ACTIVITY_STORE_QUERIES
+        ),
+    }
+}
+
+fn activity_store_open<T, E>(result: Result<T, E>) -> T
+where
+    E: Debug,
+{
+    match result {
+        Ok(value) => value,
+        Err(error) => unreachable!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS),
+    }
+}
+
+fn activity_store_ingest<T, E>(result: Result<T, E>) -> T
+where
+    E: Debug,
+{
+    match result {
+        Ok(value) => value,
+        Err(error) => unreachable!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS),
+    }
+}
+
+fn activity_store_query<T, E>(result: Result<T, E>) -> T
+where
+    E: Debug,
+{
+    match result {
+        Ok(value) => value,
+        Err(error) => unreachable!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES),
+    }
 }
 
 fn enforcement_audit_event(event_id: &str, result_id: &str) -> ActivityEvent {

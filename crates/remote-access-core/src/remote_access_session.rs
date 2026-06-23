@@ -8,6 +8,7 @@
 
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
@@ -260,7 +261,7 @@ pub fn resolve_remote_access_session_request(
         authorization_id: RemoteAccessAuthorizationId::parse(remote_access_authorization_ref(
             &event.session_id,
         ))
-        .expect(ERROR_REMOTE_ACCESS_AUTHORIZATION_ID),
+        .expect_value(ERROR_REMOTE_ACCESS_AUTHORIZATION_ID),
         source_session_id: event.session_id.clone(),
         decision: evaluate_remote_access_session(event.request),
         effect_plan: plan_remote_access_session_effects(event.request),

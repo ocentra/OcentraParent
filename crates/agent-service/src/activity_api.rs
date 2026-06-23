@@ -26,9 +26,13 @@ use ocentra_parent_agent_core::{
     process_capture::{collect_process_snapshot, ProcessObservation},
     tracking::tracking_read_model_for_store,
 };
-use ocentra_parent_agent_protocol::{
-    constants, tracking_read_model_payload, ActivityIngestStatus, ActivityRecentSummary,
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
+use ocentra_parent_agent_protocol::activity_query::{ActivityIngestStatus, ActivityRecentSummary};
+use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::tracking_read_model_payload;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 pub(crate) mod activity_memory_graph_report;
@@ -362,7 +366,7 @@ async fn load_browser_inventory_read_model() -> BrowserInventoryReadModel {
     tokio::task::spawn_blocking(move || {
         let process_observations =
             collect_process_snapshot(constants::browser::PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY);
-        browser_inventory_read_model_from_service_defaults(generated_at, process_observations)
+        browser_inventory_read_model_from_service_defaults(&generated_at, &process_observations)
     })
     .await
     .unwrap_or_else(|_| {
@@ -371,17 +375,17 @@ async fn load_browser_inventory_read_model() -> BrowserInventoryReadModel {
 }
 
 pub(crate) fn browser_inventory_read_model_from_service_defaults(
-    generated_at: String,
-    process_observations: Vec<ProcessObservation>,
+    generated_at: &str,
+    process_observations: &[ProcessObservation],
 ) -> BrowserInventoryReadModel {
     let candidate_paths = system_browser_candidate_paths();
     let mut observations =
-        windows_browser_inventory_observations(&candidate_paths, &process_observations, None);
+        windows_browser_inventory_observations(&candidate_paths, process_observations, None);
     let package_identities = live_windows_browser_package_entries_with_limit(
         constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
     );
     observations.extend(windows_browser_package_observations(&package_identities));
-    browser_inventory_read_model_from_windows_inventory(generated_at, &observations)
+    browser_inventory_read_model_from_windows_inventory(generated_at.to_string(), &observations)
 }
 
 async fn load_activity_ingest_status() -> Option<ActivityIngestStatus> {
@@ -409,7 +413,7 @@ async fn load_activity_recent_summary() -> Option<ActivityRecentSummary> {
 }
 
 pub(crate) async fn load_browser_evidence_read_model(
-) -> Option<ocentra_parent_agent_protocol::BrowserEvidenceReadModel> {
+) -> Option<ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path).ok()?;
@@ -426,7 +430,7 @@ pub(crate) async fn load_browser_evidence_read_model(
 }
 
 pub(crate) async fn load_network_flow_read_model(
-) -> Option<ocentra_parent_agent_protocol::ActivityNetworkFlowReadModel> {
+) -> Option<ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path).ok()?;
@@ -443,7 +447,7 @@ pub(crate) async fn load_network_flow_read_model(
 }
 
 async fn load_activity_tracking_read_model(
-) -> Option<ocentra_parent_agent_protocol::TrackingReadModel> {
+) -> Option<ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path).ok()?;

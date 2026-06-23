@@ -73,18 +73,34 @@ const FreeSnapshot = entitlementSnapshot(
   ],
   null
 );
-const CoreSnapshot = entitlementSnapshot('pricing-core-snapshot', CorePlan, 'active', 'signed-local-snapshot', 'signed', [
-  featureDecision('local-evidence-capture', 'local-only', 'within-plan', true, 'local-only'),
-  featureDecision('evidence-export-access', 'local-only', 'within-plan', true, 'local-only'),
-  featureDecision('multi-device-sync', 'available', 'within-plan', false, 'unchanged'),
-  featureDecision('advanced-reports', 'available', 'within-plan', false, 'unchanged'),
-], null);
-const PlusSnapshot = entitlementSnapshot('pricing-plus-snapshot', PlusPlan, 'active', 'signed-local-snapshot', 'signed', [
-  featureDecision('local-evidence-capture', 'local-only', 'within-plan', true, 'local-only'),
-  featureDecision('evidence-export-access', 'local-only', 'within-plan', true, 'local-only'),
-  featureDecision('multi-device-sync', 'available', 'within-plan', false, 'unchanged'),
-  featureDecision('advanced-reports', 'available', 'within-plan', false, 'unchanged'),
-], null);
+const CoreSnapshot = entitlementSnapshot(
+  'pricing-core-snapshot',
+  CorePlan,
+  'active',
+  'signed-local-snapshot',
+  'signed',
+  [
+    featureDecision('local-evidence-capture', 'local-only', 'within-plan', true, 'local-only'),
+    featureDecision('evidence-export-access', 'local-only', 'within-plan', true, 'local-only'),
+    featureDecision('multi-device-sync', 'available', 'within-plan', false, 'unchanged'),
+    featureDecision('advanced-reports', 'available', 'within-plan', false, 'unchanged'),
+  ],
+  null
+);
+const PlusSnapshot = entitlementSnapshot(
+  'pricing-plus-snapshot',
+  PlusPlan,
+  'active',
+  'signed-local-snapshot',
+  'signed',
+  [
+    featureDecision('local-evidence-capture', 'local-only', 'within-plan', true, 'local-only'),
+    featureDecision('evidence-export-access', 'local-only', 'within-plan', true, 'local-only'),
+    featureDecision('multi-device-sync', 'available', 'within-plan', false, 'unchanged'),
+    featureDecision('advanced-reports', 'available', 'within-plan', false, 'unchanged'),
+  ],
+  null
+);
 
 const TrialSnapshot = entitlementSnapshot(
   'pricing-core-trial-snapshot',
@@ -136,13 +152,7 @@ const ManualReviewSnapshot = entitlementSnapshot(
   'manual-required',
   [
     featureDecision('local-evidence-capture', 'local-only', 'manual-review', true, 'manual-review-with-local-safety'),
-    featureDecision(
-      'evidence-export-access',
-      'local-only',
-      'manual-review',
-      true,
-      'manual-review-with-local-safety'
-    ),
+    featureDecision('evidence-export-access', 'local-only', 'manual-review', true, 'manual-review-with-local-safety'),
     featureDecision('multi-device-sync', 'manual-required', 'manual-review', false, 'manual-review-with-local-safety'),
     featureDecision('advanced-reports', 'manual-required', 'manual-review', false, 'manual-review-with-local-safety'),
   ],
@@ -230,7 +240,9 @@ export const BillingPricingMatrixProofReadModel = BillingPricingMatrixProofSchem
     freePlan: FreePlan,
     degradedSnapshot: FreeDegradedSnapshot,
     safetyCriticalPlanFeatures: FreePlan.featureEntitlements.filter((feature) => feature.safetyCritical),
-    safetyCriticalSnapshotDecisions: FreeDegradedSnapshot.featureDecisions.filter((decision) => decision.safetyCritical),
+    safetyCriticalSnapshotDecisions: FreeDegradedSnapshot.featureDecisions.filter(
+      (decision) => decision.safetyCritical
+    ),
   },
   entitlementSourceOwner: {
     authoritativeSourceOwner: 'billing-backend',

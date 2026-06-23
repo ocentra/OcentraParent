@@ -1,5 +1,8 @@
 use std::{env, path::PathBuf};
 
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
+    APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
+};
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
 
 pub(super) struct HostCapabilitySignals {
@@ -44,9 +47,9 @@ impl HostCapabilitySignals {
 
     pub(super) fn android_state(&self) -> &'static str {
         if self.android_adb {
-            return ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
+            return APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
         }
-        ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
+        APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
     }
 
     pub(super) fn linux_evidence_refs(&self) -> Vec<&'static str> {
@@ -73,9 +76,9 @@ impl HostCapabilitySignals {
 
     pub(super) fn linux_state(&self) -> &'static str {
         if self.linux_wsl || self.linux_docker {
-            return ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
+            return APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
         }
-        ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
+        APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
     }
 }
 
@@ -137,8 +140,9 @@ fn windows_executable_candidate_names(_executable: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
-    use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED;
+    use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
+        APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
+    };
 
     use super::*;
 

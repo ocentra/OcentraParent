@@ -10,7 +10,8 @@ use ocentra_parent_agent_core::{
     },
     browser_windows_inventory_source::live_windows_browser_inventory_candidate_paths_with_limit,
 };
-use ocentra_parent_agent_protocol::{constants, BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::constants;
 
 pub(crate) fn managed_browser_executable_path() -> Option<PathBuf> {
     match env::var(constants::env_var::MANAGED_BROWSER_EXECUTABLE) {
@@ -41,8 +42,10 @@ pub(crate) fn managed_browser_profile_store(
         now: crate::time::timestamp_now(),
     };
 
-    create_or_repair_managed_browser_profile_store(&config)
-        .map_err(|_| constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING)
+    create_or_repair_managed_browser_profile_store(&config).map_err(|error| {
+        let _ = error;
+        constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING
+    })
 }
 
 fn first_installed_managed_browser() -> Option<BrowserManagedInstallCandidate> {

@@ -1,24 +1,29 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     local_ai_chat_generation_request::parse_generation_request,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
 };
 
+type TestResult = Result<(), String>;
+
 #[test]
 fn parse_generation_request_rejects_missing_prompt() {
     let command = command_with_payload(LogFields::new());
     let config = LocalAiRuntimeConfigSnapshot::unconfigured();
 
-    let error = parse_generation_request(&command, &config)
-        .expect_err(constants::local_ai_runtime::UNAVAILABLE_REASON_COMMAND_PAYLOAD_INVALID);
-
-    assert_eq!(
-        error,
-        constants::local_ai_runtime::UNAVAILABLE_REASON_COMMAND_PAYLOAD_INVALID
+    assert_request_error(
+        &parse_generation_request(&command, &config),
+        constants::local_ai_runtime::UNAVAILABLE_REASON_COMMAND_PAYLOAD_INVALID,
     );
 }
 
@@ -34,17 +39,14 @@ fn parse_generation_request_rejects_oversized_prompt() {
     let command = command_with_payload(payload);
     let config = LocalAiRuntimeConfigSnapshot::unconfigured();
 
-    let error = parse_generation_request(&command, &config)
-        .expect_err(constants::local_ai_runtime::UNAVAILABLE_REASON_PROMPT_TOO_LARGE);
-
-    assert_eq!(
-        error,
-        constants::local_ai_runtime::UNAVAILABLE_REASON_PROMPT_TOO_LARGE
+    assert_request_error(
+        &parse_generation_request(&command, &config),
+        constants::local_ai_runtime::UNAVAILABLE_REASON_PROMPT_TOO_LARGE,
     );
 }
 
 #[test]
-fn parse_generation_request_uses_default_gemma_model_when_payload_omits_model_id() {
+fn parse_generation_request_uses_default_gemma_model_when_payload_omits_model_id() -> TestResult {
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::LOCAL_AI_PROMPT.to_string(),
@@ -53,13 +55,17 @@ fn parse_generation_request_uses_default_gemma_model_when_payload_omits_model_id
     let command = command_with_payload(payload);
     let config = LocalAiRuntimeConfigSnapshot::unconfigured();
 
-    let request = parse_generation_request(&command, &config)
-        .expect(constants::error::LOCAL_AI_CHAT_REQUEST_PARSES);
+    let request = ok(
+        parse_generation_request(&command, &config),
+        constants::error::LOCAL_AI_CHAT_REQUEST_PARSES,
+    )?;
 
     assert_eq!(
         request.model_id,
         constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4
     );
+
+    Ok(())
 }
 
 #[test]
@@ -76,13 +82,21 @@ fn parse_generation_request_rejects_invalid_model_id_field() {
     let command = command_with_payload(payload);
     let config = LocalAiRuntimeConfigSnapshot::unconfigured();
 
-    let error = parse_generation_request(&command, &config)
-        .expect_err(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID);
-
-    assert_eq!(
-        error,
-        constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID
+    assert_request_error(
+        &parse_generation_request(&command, &config),
+        constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID,
     );
+}
+
+fn assert_request_error<T>(result: &Result<T, &'static str>, expected: &str) {
+    assert!(
+        result.is_err(),
+        "{}",
+        constants::error::LOCAL_AI_CHAT_REQUEST_PARSES
+    );
+    if let Err(error) = result {
+        assert_eq!(*error, expected);
+    }
 }
 
 fn command_with_payload(payload: LogFields) -> AgentCommandEnvelope {
@@ -102,4 +116,8 @@ fn command_with_payload(payload: LogFields) -> AgentCommandEnvelope {
         command: AgentCommandName::AgentLocalAiChatGenerate,
         payload,
     }
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

@@ -1,4 +1,4 @@
-# Next Actions
+# Payment Subscription Next Actions
 
 ## Current slice
 
@@ -8,8 +8,7 @@
 
 ## Ordered queue
 
-Queue statuses below describe runtime execution order. They do not reduce the
-engineering-spec score of this plan.
+Queue statuses below describe runtime execution order. They do not reduce the engineering-spec score of this plan.
 
 | Order | Slice | Status | First-touch surface | Next action | Exit gate |
 |---|---|---|---|---|---|
@@ -19,7 +18,7 @@ engineering-spec score of this plan.
 | 03 | Provider strategy and regional matrix | pending | `packages/billing-domain/src/billing-checkout-portal-boundary.ts` | Read WP08 and WP09 docs; confirm provider ordering and manual-required regions. | Provider order and regional matrix are explicit. |
 | 04 | Hosted checkout/customer portal/invoice model | pending | `packages/billing-domain/src/billing-checkout-portal-boundary.ts` | Read WP02 and WP05 docs; prove checkout, portal, and invoice flows with negative cases. | Redirect-success is not entitlement proof; invoice states are explicit. |
 | 05 | Provider webhook lifecycle and idempotency | pending | `crates/billing-core/src/billing_subscription.rs` | Read WP03 docs and proof rows; capture replay, duplicate, and dead-letter evidence. | Signature, idempotency, and reconciliation are explicit. |
-| 06 | Referral qualification and anti-abuse lifecycle | pending | `packages/billing-domain/src/billing-entitlement.ts` | Read WP10 docs; keep household invites separate from referral credits. | Qualification, abuse rejection, and lost-credit behavior are explicit. |
+| 06 | Referral qualification and anti-abuse lifecycle | pending | `packages/billing-domain/src/billing-entitlement.ts` | Read WP10 docs; keep household invites separate from referral credits. | Qualification, review, and lost-credit behavior are explicit. |
 | 07 | App-owned billing/referral/entitlement ledgers | pending | `packages/billing-domain/src/billing-entitlement-runtime-proof.ts` | Read WP04 docs; ensure ledgers explain every seat without provider truth. | Ledger rows and projections explain access. |
 | 08 | Signed EntitlementSnapshot and device-bound license gates | pending | `crates/entitlement-core/src/lib.rs` | Read WP04 snapshot docs; prove wrong-household and wrong-device rejection. | Snapshot signature and device binding are explicit. |
 | 09 | Parent website billing dashboard | pending | `packages/parent-domain/src/billing-entitlement.ts` | Read WP11 docs; keep the parent view redacted and billing-only. | Parent view shows billing state without child/private data; the targeted proof test exists, but parent-domain build/import failure still blocks execution. |
@@ -31,8 +30,9 @@ engineering-spec score of this plan.
 ## Working rules
 
 - Move exactly one row to `in_progress` when execution starts.
+- Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
 - Do not start a payment runtime slice while row 00 still lacks handoff proof.
 - If proof artifacts live inside the plan folder, move them out before claiming progress.
-- Do not shrink, merge away, or reinterpret test scope outside
-  `REQUIRED_TEST_ASSERTION_MATRIX.md`.
-- Keep `PLAN_EXECUTION_SCORECARD.md` and `SOURCE_SURFACE_STATUS_MATRIX.md` aligned with the live queue and remaining manual-required gaps.
+- Do not shrink, merge away, or reinterpret test scope outside `REQUIRED_TEST_ASSERTION_MATRIX.md`.
+- Keep `PLAN_EXECUTION_SCORECARD.md`, `SOURCE_SURFACE_STATUS_MATRIX.md`, `WORKPACK_INDEX.md`, and proof routes aligned with the live queue and remaining manual-required gaps.
+- Treat first-touch `packages/billing-domain/src/**` and `packages/parent-domain/src/**` files as implementation targets, not public API proof, unless public exports exist and are selected.

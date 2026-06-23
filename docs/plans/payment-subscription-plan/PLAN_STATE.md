@@ -1,10 +1,62 @@
 # Payment Subscription Plan State
 
-Status: engineering-grade monetization spec is complete, but runtime execution
-remains blocked behind the shared Cloudflare control-plane handoff; implementation
-and proof remain open.
+Status: engineering-grade monetization spec is complete, but runtime execution remains blocked behind the shared Cloudflare control-plane handoff; implementation and proof remain open.
 
 Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the reusable games Cloudflare deep dive summarized in `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
+
+## Current ownership interpretation
+
+```text
+billing-domain:
+  TypeScript billing account, entitlement, support-admin, and payment-facing contract/proof-consumer surfaces. Public package exports are authoritative only where they exist; internal first-touch files are implementation targets, not public API by themselves.
+
+billing-core:
+  Rust provider webhook intake, subscription lifecycle classification, event/idempotency, dispute/manual-review state, and downstream entitlement update helper logic.
+
+cloudflare-control-plane-plan:
+  Owner of infra/cloudflare, shared Worker/API scaffold, auth, bindings, local dev/test, deploy promotion, and payment handoff proof.
+
+schema-domain:
+  Canonical shared billing/payment/entitlement shapes when they cross package, app, crate, or plan boundaries.
+
+account-identity-family-plan:
+  Account, household, role, session, and parent authority owner.
+
+device-trust-bootstrap-plan:
+  Trusted-device binding and local sealed trust owner for signed entitlement consumption.
+
+data-custody-storage-plan:
+  Billing-record privacy, retention, export, deletion, and custody owner.
+
+portal-domain/apps/portal/parent-domain:
+  Parent dashboard and projection surfaces only when selected; they do not own billing truth.
+
+policy-control-plane-plan:
+  Consumer of proven entitlement state after account, payment, and device-trust authority are proven.
+```
+
+## Current coupling risks
+
+```text
+- Cloudflare route presence is not payment runtime readiness.
+- Checkout redirect success is not paid access.
+- Provider payloads are not app authority without server verification and ledger writes.
+- Provider state is not the root of entitlement.
+- Signed entitlement snapshots are derived artifacts, not the root of trust.
+- Billing-domain tests are not parent dashboard proof unless the targeted parent-surface proof runs.
+- Support/admin search is not support authority without role, redaction, and audit proof.
+- Assertion matrix completeness is not runtime proof.
+- Regional/provider documentation is not launch readiness.
+```
+
+## Current proof interpretation
+
+```text
+output/payment-subscription-plan-proof/<workpack>/ is the canonical proof root.
+The upstream Cloudflare handoff gate is output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md.
+All runtime payment rows remain open until selected code, tests, negative cases, rollback/teardown notes, validation logs, and proof bundles exist.
+WP00 blocks all runtime payment work until the handoff proof or exact blocker is recorded.
+```
 
 Current Parent direction:
 
@@ -14,10 +66,7 @@ Current Parent direction:
 - Razorpay remains the India-native adapter; PayPal remains the secondary wallet/subscription adapter; Apple and Google remain channel adapters, not the root billing authority.
 - App-owned billing, referral, and entitlement ledgers remain the access authority.
 - Signed entitlement snapshots remain derived artifacts consumed by trusted devices, not the root of trust.
-- The payment spec now includes an exhaustive assertion matrix keyed to every
-  required workpack test and proof ID, plus explicit spec-versus-runtime
-  boundaries for dashboard, support/admin, regional, referral, and lifecycle
-  slices.
+- The payment spec now includes an exhaustive assertion matrix keyed to every required workpack test and proof ID, plus explicit spec-versus-runtime boundaries for dashboard, support/admin, regional, referral, and lifecycle slices.
 - `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` exists, but the targeted parent-surface proof remains blocked until `@ocentra-parent/parent-domain` builds cleanly enough to run it; do not overclaim parent-surface proof from billing-domain tests.
 - The canonical payment proof root is `output/payment-subscription-plan-proof/`; any proof reference outside that root is legacy drift, and the WP00 upstream handoff gate is `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`.
 
@@ -34,8 +83,8 @@ Current Parent direction:
 ## HID Execution Guard
 
 - Scope and completion source:
-  - follow `PLAN_EXECUTION_BLUEPRINT.md`, then this plan's assigned `WORKPACK_INDEX.md`, `NEXT_ACTIONS.md`, and `SOURCE_SURFACE_STATUS_MATRIX.md`.
-  - do not mark this plan complete from checklist deltas or scaffold existence alone.
+  - follow `PLAN_EXECUTION_BLUEPRINT.md`, then this plan's assigned `WORKPACK_INDEX.md`, `NEXT_ACTIONS.md`, `WORKPACK_FAMILIES.md` when needed, and `SOURCE_SURFACE_STATUS_MATRIX.md`.
+  - do not mark this plan complete from checklist deltas, assertion matrix completeness, scaffold existence, or provider docs alone.
 - Before any checked update, attach:
   - a real test run log or explicit blocker from the assigned implementation boundary,
   - a proof path under `output/payment-subscription-plan-proof/`.

@@ -51,12 +51,13 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       platformAdapterEvidenceGapContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
       sourceProviderStoreApiExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-api-execution-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-api-execution-proof.ts',
       sourcePlatformProofReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-proof-readiness.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-proof-readiness.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',

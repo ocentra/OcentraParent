@@ -1,10 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanDiscoverySourceAuthority, LanDiscoverySourceKind, LanDiscoverySourceMatrix,
-    LanDiscoverySourceRow, LanDiscoverySourceRuntimePath, LanDiscoverySourceStatus,
-    LanDiscoverySourceUiSurface, LanPairingProductionDiscoveryState, LanPlanWorkpackId,
-    LanPlanWorkpackStatusRow, V09ProductionDiscoveryHouseholdProofState,
-    V09ProductionDiscoveryHouseholdRuntimeOwner, LAN_PAIRING_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::LanDiscoverySourceAuthority;
+use ocentra_parent_agent_protocol::LanDiscoverySourceKind;
+use ocentra_parent_agent_protocol::LanDiscoverySourceMatrix;
+use ocentra_parent_agent_protocol::LanDiscoverySourceRow;
+use ocentra_parent_agent_protocol::LanDiscoverySourceRuntimePath;
+use ocentra_parent_agent_protocol::LanDiscoverySourceStatus;
+use ocentra_parent_agent_protocol::LanDiscoverySourceUiSurface;
+use ocentra_parent_agent_protocol::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::LanPlanWorkpackId;
+use ocentra_parent_agent_protocol::LanPlanWorkpackStatusRow;
+use ocentra_parent_agent_protocol::V09ProductionDiscoveryHouseholdProofState;
+use ocentra_parent_agent_protocol::V09ProductionDiscoveryHouseholdRuntimeOwner;
+use ocentra_parent_agent_protocol::LAN_PAIRING_SCHEMA_VERSION;
 
 pub(super) fn source_matrix_fixture() -> LanDiscoverySourceMatrix {
     LanDiscoverySourceMatrix {
@@ -28,7 +35,10 @@ pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
     assert_eq!(
         value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS]
             .as_array()
-            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            .unwrap_or_else(|| unreachable!(
+                "{}",
+                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
+            ))
             .len(),
         20
     );

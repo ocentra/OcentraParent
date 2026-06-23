@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { AppGamePlatformExtensionRoutingMatrix } from '../../src/app-game-platform-extension-routing-data';
 import {
   AppGamePlatformExtensionRoutingMatrixSchema,
   AppGamePlatformExtensionRoutingRowSchema,
   type AppGamePlatformExtensionProofFile,
   type AppGamePlatformExtensionProofKind,
-} from '../../src/app-game-platform-extension-routing';
+} from '@ocentra-parent/schema-domain/app-game-platform-extension-routing';
+import { AppGamePlatformExtensionRoutingMatrix } from '@ocentra-parent/schema-domain/app-game-platform-extension-routing-data';
 
 const rowFor = (rowId: string) => {
   const row = AppGamePlatformExtensionRoutingMatrix.rows.find((candidate) => candidate.rowId === rowId);

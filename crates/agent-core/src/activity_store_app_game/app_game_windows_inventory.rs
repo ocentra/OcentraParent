@@ -1,7 +1,8 @@
 use std::collections::HashSet;
 
-use ocentra_parent_agent_protocol::{
-    ActivityEvidenceRef, AppGameInventoryCategoryCandidate, AppGameInventoryEvidenceRow,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameInventoryCategoryCandidate, AppGameInventoryEvidenceRow,
     APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
     APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED, APP_GAME_CAPABILITY_STATUS_STALE,
     APP_GAME_CAPABILITY_STATUS_UNAVAILABLE, APP_GAME_CATALOG_PERMISSION_LIMITED,

@@ -1,5 +1,3 @@
-#![allow(clippy::panic)]
-
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
@@ -18,6 +16,15 @@ use super::retention_settings_write_command::{
 };
 use super::runtime_event::{default_tracking_runtime_config, TrackingRuntimeConfig};
 use crate::{constants, AgentCommandEnvelope, AgentRoute, AGENT_PROTOCOL_SCHEMA_VERSION};
+
+pub const TRACKING_CONFIG_UPDATE_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
+
+fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
+    match result {
+        Ok(value) => value,
+        Err(_) => unreachable!("{}", message),
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -118,15 +125,14 @@ impl TrackingConfigUpdateTarget {
     pub fn from_command(command: &AgentCommandEnvelope) -> Self {
         Self {
             scope: TrackingConfigUpdateTargetScope::ChildDevice,
-            device_id: TrackingTargetDeviceId::parse(command.target.device_id.clone())
-                .unwrap_or_else(|_| panic!("{}", constants::peer::LOCAL_DEV_AGENT)),
-            platform: TrackingTargetPlatform::parse(command.target.platform.clone())
-                .unwrap_or_else(|_| {
-                    panic!(
-                        "{}",
-                        constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE
-                    )
-                }),
+            device_id: parse_or_panic(
+                TrackingTargetDeviceId::parse(command.target.device_id.clone()),
+                constants::peer::LOCAL_DEV_AGENT,
+            ),
+            platform: parse_or_panic(
+                TrackingTargetPlatform::parse(command.target.platform.clone()),
+                constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE,
+            ),
             route: command.target.route.clone(),
         }
     }
@@ -638,16 +644,13 @@ pub fn tracking_config_portal_read_model_updated_event(
     visible_unavailable: bool,
 ) -> TrackingConfigPortalReadModelUpdatedEvent {
     TrackingConfigPortalReadModelUpdatedEvent {
-        read_model_ref: TrackingReadModelEventId::parse(tracking_config_flow_event_ref(
-            &audit_event.source_command_id,
-            "portal-read-model-updated",
-        ))
-        .unwrap_or_else(|_| {
-            panic!(
-                "{}",
-                constants::tracking_config_update::READ_MODEL_UPDATE_KIND_TRACKING_CONFIG_STATE
-            )
-        }),
+        read_model_ref: parse_or_panic(
+            TrackingReadModelEventId::parse(tracking_config_flow_event_ref(
+                &audit_event.source_command_id,
+                "portal-read-model-updated",
+            )),
+            constants::tracking_config_update::READ_MODEL_UPDATE_KIND_TRACKING_CONFIG_STATE,
+        ),
         previous_event_ref: audit_event.audit_entry_ref.clone(),
         audit_entry_ref: audit_event.audit_entry_ref.clone(),
         source_command_id: audit_event.source_command_id.clone(),
@@ -664,15 +667,14 @@ pub fn parent_tracking_config_updated_event_from_command(
 ) -> ParentTrackingConfigUpdatedEvent {
     ParentTrackingConfigUpdatedEvent {
         source_command_id: request.command_id.clone(),
-        source_message_id: TrackingSourceMessageId::parse(command.message_id.clone())
-            .unwrap_or_else(|_| {
-                panic!(
-                    "{}",
-                    constants::tracking_retention_settings_write::COMMAND_ID
-                )
-            }),
-        source_peer_id: TrackingSourcePeerId::parse(command.source.peer_id.clone())
-            .unwrap_or_else(|_| panic!("{}", constants::peer::PORTAL_DEV)),
+        source_message_id: parse_or_panic(
+            TrackingSourceMessageId::parse(command.message_id.clone()),
+            constants::tracking_retention_settings_write::COMMAND_ID,
+        ),
+        source_peer_id: parse_or_panic(
+            TrackingSourcePeerId::parse(command.source.peer_id.clone()),
+            constants::peer::PORTAL_DEV,
+        ),
         target: TrackingConfigUpdateTarget::from_command(command),
         config: request,
     }
@@ -738,11 +740,8 @@ fn tracking_config_flow_idempotency_key(
 }
 
 fn tracking_config_accepted_at() -> TrackingAcceptedAt {
-    TrackingAcceptedAt::parse(constants::tracking_retention_settings_write::ACCEPTED_AT)
-        .unwrap_or_else(|_| {
-            panic!(
-                "{}",
-                constants::tracking_retention_settings_write::ACCEPTED_AT
-            )
-        })
+    parse_or_panic(
+        TrackingAcceptedAt::parse(constants::tracking_retention_settings_write::ACCEPTED_AT),
+        constants::tracking_retention_settings_write::ACCEPTED_AT,
+    )
 }

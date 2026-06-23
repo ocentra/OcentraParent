@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -45,7 +41,9 @@ export const AppGameControlUnansweredFallbackSchema = withParser(
   Schema.Literal('deny', 'expire', 'observe-only', 'manual-required')
 );
 
-export const AppGameControlApprovalFlowReferenceSchema = brandedNonEmptyStringSchema('AppGameControlApprovalFlowReference');
+export const AppGameControlApprovalFlowReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameControlApprovalFlowReference'
+);
 
 export const AppGameControlSettingReferenceSchema = withParser(
   Schema.Struct({
@@ -67,4 +65,3 @@ export const AppGameControlApprovalCandidateSchema = withParser(
     )
   )
 );
-

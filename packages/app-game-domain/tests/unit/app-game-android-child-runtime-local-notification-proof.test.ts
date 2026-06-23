@@ -3,7 +3,7 @@ import {
   AppGameAndroidChildRuntimeLocalNotificationProofSchema,
   createAppGameAndroidChildRuntimeLocalNotificationProof,
   summarizeAppGameAndroidChildRuntimeLocalNotificationProof,
-} from '../../src/app-game-android-child-runtime-local-notification-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-child-runtime-local-notification-proof';
 
 describe('app-game Android child runtime local notification proof', () => {
   it('accepts package-local channel, notification post, and marker readback evidence', () => {

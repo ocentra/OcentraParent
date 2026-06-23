@@ -5,11 +5,12 @@ use crate::{
     NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
     NetworkAiDetectionResult, NetworkAiDetectionRiskLevel,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn ai_audit_report_generates_parent_readable_narrative_with_cited_refs() {
     let report =
-        build_network_ai_audit_report(audit_input(detection_results(vec![detection_case(
+        build_network_ai_audit_report(&audit_input(detection_results(vec![detection_case(
             "detect-signature-1",
             NetworkAiDetectionLabel::SignatureThreat,
             NetworkAiDetectionLabel::SignatureThreat,
@@ -18,7 +19,7 @@ fn ai_audit_report_generates_parent_readable_narrative_with_cited_refs() {
             NetworkAiDetectionRiskLevel::Critical,
             vec!["analyzer-alert-critical"],
         )])))
-        .expect("high-risk detection should produce a parent-readable audit");
+        .expect_value("high-risk detection should produce a parent-readable audit");
 
     assert_eq!(report.narrative_state, NetworkAiAuditNarrativeState::Ready);
     assert_eq!(
@@ -65,7 +66,7 @@ fn ai_audit_report_generates_parent_readable_narrative_with_cited_refs() {
 #[test]
 fn ai_audit_report_recommends_confirmation_for_uncertain_detection() {
     let report =
-        build_network_ai_audit_report(audit_input(detection_results(vec![detection_case(
+        build_network_ai_audit_report(&audit_input(detection_results(vec![detection_case(
             "detect-unknown-1",
             NetworkAiDetectionLabel::UnknownHighVolume,
             NetworkAiDetectionLabel::Unknown,
@@ -74,7 +75,7 @@ fn ai_audit_report_recommends_confirmation_for_uncertain_detection() {
             NetworkAiDetectionRiskLevel::Unknown,
             vec![],
         )])))
-        .expect("uncertain detection should produce advisory confirmation");
+        .expect_value("uncertain detection should produce advisory confirmation");
 
     assert_eq!(
         report.narrative_state,
@@ -107,7 +108,7 @@ fn ai_audit_report_recommends_confirmation_for_uncertain_detection() {
 #[test]
 fn ai_audit_report_uses_monitor_only_for_non_high_risk_cited_detection() {
     let report =
-        build_network_ai_audit_report(audit_input(detection_results(vec![detection_case(
+        build_network_ai_audit_report(&audit_input(detection_results(vec![detection_case(
             "detect-update-1",
             NetworkAiDetectionLabel::BenignExpected,
             NetworkAiDetectionLabel::BenignExpected,
@@ -116,7 +117,7 @@ fn ai_audit_report_uses_monitor_only_for_non_high_risk_cited_detection() {
             NetworkAiDetectionRiskLevel::Low,
             vec![],
         )])))
-        .expect("benign cited detection should produce monitor-only audit");
+        .expect_value("benign cited detection should produce monitor-only audit");
 
     assert_eq!(
         report.narrative_state,
@@ -134,28 +135,28 @@ fn ai_audit_report_uses_monitor_only_for_non_high_risk_cited_detection() {
 #[test]
 fn ai_audit_report_rejects_unsupported_content_and_authority_claims() {
     assert_eq!(
-        build_network_ai_audit_report(NetworkAiAuditReportInput {
+        build_network_ai_audit_report(&NetworkAiAuditReportInput {
             remote_ai_claimed: true,
             ..audit_input(detection_results(vec![passing_detection_case()]))
         }),
         Err(NetworkAiAuditReportError::RemoteAiClaimRejected)
     );
     assert_eq!(
-        build_network_ai_audit_report(NetworkAiAuditReportInput {
+        build_network_ai_audit_report(&NetworkAiAuditReportInput {
             exact_url_claimed: true,
             ..audit_input(detection_results(vec![passing_detection_case()]))
         }),
         Err(NetworkAiAuditReportError::ExactUrlClaimRejected)
     );
     assert_eq!(
-        build_network_ai_audit_report(NetworkAiAuditReportInput {
+        build_network_ai_audit_report(&NetworkAiAuditReportInput {
             private_message_claimed: true,
             ..audit_input(detection_results(vec![passing_detection_case()]))
         }),
         Err(NetworkAiAuditReportError::PrivateMessageClaimRejected)
     );
     assert_eq!(
-        build_network_ai_audit_report(NetworkAiAuditReportInput {
+        build_network_ai_audit_report(&NetworkAiAuditReportInput {
             policy_authority_claimed: true,
             ..audit_input(detection_results(vec![passing_detection_case()]))
         }),
@@ -163,10 +164,10 @@ fn ai_audit_report_rejects_unsupported_content_and_authority_claims() {
     );
     let mut detection = detection_results(vec![passing_detection_case()])
         .pop()
-        .expect("test detection exists");
+        .expect_value("test detection exists");
     detection.adapter_authority = true;
     assert_eq!(
-        build_network_ai_audit_report(audit_input(vec![detection])),
+        build_network_ai_audit_report(&audit_input(vec![detection])),
         Err(NetworkAiAuditReportError::AdapterAuthorityClaimRejected)
     );
 }
@@ -174,21 +175,21 @@ fn ai_audit_report_rejects_unsupported_content_and_authority_claims() {
 #[test]
 fn ai_audit_report_rejects_missing_citations_and_duplicate_detections() {
     assert_eq!(
-        build_network_ai_audit_report(NetworkAiAuditReportInput {
+        build_network_ai_audit_report(&NetworkAiAuditReportInput {
             audit_report_ref: " ".to_owned(),
             ..audit_input(detection_results(vec![passing_detection_case()]))
         }),
         Err(NetworkAiAuditReportError::EmptyAuditReportRef)
     );
     assert_eq!(
-        build_network_ai_audit_report(NetworkAiAuditReportInput {
+        build_network_ai_audit_report(&NetworkAiAuditReportInput {
             detection_results: vec![],
             ..audit_input(detection_results(vec![passing_detection_case()]))
         }),
         Err(NetworkAiAuditReportError::EmptyDetectionResults)
     );
     assert_eq!(
-        build_network_ai_audit_report(NetworkAiAuditReportInput {
+        build_network_ai_audit_report(&NetworkAiAuditReportInput {
             parent_rule_refs: vec![],
             ..audit_input(detection_results(vec![passing_detection_case()]))
         }),
@@ -197,7 +198,7 @@ fn ai_audit_report_rejects_missing_citations_and_duplicate_detections() {
 
     let duplicate = detection_results(vec![passing_detection_case()]);
     assert_eq!(
-        build_network_ai_audit_report(audit_input(vec![
+        build_network_ai_audit_report(&audit_input(vec![
             duplicate[0].clone(),
             duplicate[0].clone()
         ])),
@@ -230,7 +231,7 @@ fn audit_input(detection_results: Vec<NetworkAiDetectionResult>) -> NetworkAiAud
 }
 
 fn detection_results(cases: Vec<NetworkAiDetectionFixtureCase>) -> Vec<NetworkAiDetectionResult> {
-    evaluate_network_ai_detection_fixtures(NetworkAiDetectionEvaluationInput {
+    evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
         evaluation_run_ref: "ai-detection-eval-row47".to_owned(),
         fixture_set_ref: "network-ai-fixtures-row47".to_owned(),
         model_card_ref: "local-ai-model-card-network-row47".to_owned(),
@@ -250,7 +251,7 @@ fn detection_results(cases: Vec<NetworkAiDetectionFixtureCase>) -> Vec<NetworkAi
         adapter_authority_claimed: false,
         enforcement_command_claimed: false,
     })
-    .expect("detection fixture should evaluate")
+    .expect_value("detection fixture should evaluate")
     .results
 }
 

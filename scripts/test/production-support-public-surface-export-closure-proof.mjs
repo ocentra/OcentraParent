@@ -103,7 +103,9 @@ async function assertPackageExports() {
   const productionPackageJson = JSON.parse(await readRepoFile('packages/production-domain/package.json'));
   const schemaPackageJson = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
   const missingSchemaExports = expectedSchemaExports.filter((exportPath) => !schemaPackageJson.exports[exportPath]);
-  const retiredLocalExports = expectedSchemaExports.filter((exportPath) => productionPackageJson.exports[exportPath] !== null);
+  const retiredLocalExports = expectedSchemaExports.filter(
+    (exportPath) => productionPackageJson.exports[exportPath] !== null
+  );
   assert.deepEqual(productionPackageJson.exports['./*'], {
     import: './dist/src/*.js',
     types: './dist/src/*.d.ts',
@@ -147,7 +149,11 @@ async function assertProductionReleasePublicStatus() {
   assert.equal(proof.publicSupportRuntimeClaim, 'not-implemented');
   assert.equal(proof.childActivityCustodyClaim, 'not-implemented');
 
-  return { exportPath: './production-release-public-status-proof', owner: 'schema-domain', rowCount: proof.surfaces.length };
+  return {
+    exportPath: './production-release-public-status-proof',
+    owner: 'schema-domain',
+    rowCount: proof.surfaces.length,
+  };
 }
 
 async function assertProductionReleasePublicStatusFreshness() {
@@ -303,10 +309,7 @@ async function importBuiltSchemaDomainModule(moduleName) {
 }
 
 async function assertDocumentationProof() {
-  const docs = [
-    'docs/features/production-distribution-support.md',
-    'docs/product-capability-checklist.md',
-  ];
+  const docs = ['docs/features/production-distribution-support.md', 'docs/product-capability-checklist.md'];
   for (const path of docs) {
     assertIncludes(await readRepoFile(path), proofMode, `${path} proof note`);
   }

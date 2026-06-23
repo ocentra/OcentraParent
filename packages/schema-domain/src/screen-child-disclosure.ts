@@ -51,17 +51,10 @@ export const ScreenChildDisclosureStateSchema = withParser(
   )
 );
 
-export const ScreenChildDisclosureToneSchema = withParser(
-  Schema.Literal('calm', 'informational')
-);
+export const ScreenChildDisclosureToneSchema = withParser(Schema.Literal('calm', 'informational'));
 
 export const ScreenChildDisclosureSurfaceSchema = withParser(
-  Schema.Literal(
-    'child-agent-status-chip',
-    'child-agent-capture-banner',
-    'platform-permission-prompt',
-    'modeled-only'
-  )
+  Schema.Literal('child-agent-status-chip', 'child-agent-capture-banner', 'platform-permission-prompt', 'modeled-only')
 );
 
 export const ScreenChildDisclosureTextTokenSchema = withParser(
@@ -164,10 +157,7 @@ export function screenChildDisclosureProofSnapshots(): ReadonlyArray<ScreenChild
       surface: 'child-agent-status-chip',
     }),
     ScreenChildDisclosureSnapshotSchema.parse({
-      ...baseDisclosureSnapshot(
-        'screen-child-disclosure-summary-ready',
-        'deletedSummaryReady'
-      ),
+      ...baseDisclosureSnapshot('screen-child-disclosure-summary-ready', 'deletedSummaryReady'),
       capabilityStatus: 'ready',
       captureScope: 'activeWindow',
       queueStatus: 'deleted',
@@ -177,9 +167,7 @@ export function screenChildDisclosureProofSnapshots(): ReadonlyArray<ScreenChild
   ];
 }
 
-function screenChildDisclosureSnapshotIsConsistent(
-  value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>
-) {
+function screenChildDisclosureSnapshotIsConsistent(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
   if (!stateMatchesPrimaryToken(value.state, value.primaryTextToken)) {
     return false;
   }
@@ -190,16 +178,10 @@ function screenChildDisclosureSnapshotIsConsistent(
     return activeCaptureStateIsVisibleAndReady(value);
   }
   if (value.state === 'protectedSurface') {
-    return (
-      value.capabilityStatus === 'protectedSurface' &&
-      value.queueStatus === 'protectedSurface'
-    );
+    return value.capabilityStatus === 'protectedSurface' && value.queueStatus === 'protectedSurface';
   }
   if (value.state === 'permissionRequired') {
-    return (
-      value.capabilityStatus === 'permissionRequired' ||
-      value.capabilityStatus === 'permissionLimited'
-    );
+    return value.capabilityStatus === 'permissionRequired' || value.capabilityStatus === 'permissionLimited';
   }
   if (value.state === 'deletedSummaryReady') {
     return deletedSummaryStateHasDeletedCustody(value);
@@ -210,9 +192,7 @@ function screenChildDisclosureSnapshotIsConsistent(
   return value.captureActive === false;
 }
 
-function disabledStateDoesNotCapture(
-  value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>
-) {
+function disabledStateDoesNotCapture(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
   return (
     value.state === 'disabledByParent' &&
     !value.cadenceCaptureEnabled &&
@@ -222,9 +202,7 @@ function disabledStateDoesNotCapture(
   );
 }
 
-function activeCaptureStateIsVisibleAndReady(
-  value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>
-) {
+function activeCaptureStateIsVisibleAndReady(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
   return (
     value.state === 'captureActive' &&
     value.screenAnalysisEnabled &&
@@ -234,27 +212,19 @@ function activeCaptureStateIsVisibleAndReady(
   );
 }
 
-function deletedSummaryStateHasDeletedCustody(
-  value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>
-) {
+function deletedSummaryStateHasDeletedCustody(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
   return (
     (value.deletionState === 'deleted' || value.deletionState === 'expiredDeleted') &&
-    (value.custodyState === 'child-device-query-store' ||
-      value.custodyState === 'child-device-journal') &&
+    (value.custodyState === 'child-device-query-store' || value.custodyState === 'child-device-journal') &&
     !value.captureActive
   );
 }
 
-function stateMatchesPrimaryToken(
-  state: ScreenChildDisclosureState,
-  token: ScreenChildDisclosureTextToken
-) {
+function stateMatchesPrimaryToken(state: ScreenChildDisclosureState, token: ScreenChildDisclosureTextToken) {
   return stateToPrimaryToken(state) === token;
 }
 
-function stateToPrimaryToken(
-  state: ScreenChildDisclosureState
-): ScreenChildDisclosureTextToken {
+function stateToPrimaryToken(state: ScreenChildDisclosureState): ScreenChildDisclosureTextToken {
   switch (state) {
     case 'disabledByParent':
       return ScreenChildDisclosureTextToken.Disabled;
@@ -275,10 +245,7 @@ function stateToPrimaryToken(
   }
 }
 
-function baseDisclosureSnapshot(
-  snapshotId: string,
-  state: ScreenChildDisclosureState
-) {
+function baseDisclosureSnapshot(snapshotId: string, state: ScreenChildDisclosureState) {
   return {
     schemaVersion: ScreenEvidenceSchemaVersion,
     snapshotId,

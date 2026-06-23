@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/schema-domain/network-flow';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { networkEvidenceDrawerSummary } from '@ocentra-parent/portal-domain/network-evidence-drawer';
-import {
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   AgentNetworkRuntimeEventSchemaVersion,
@@ -172,7 +169,10 @@ function registerNetworkEvidenceDrawerTests(): void {
       policyPreviewEvent(),
       networkRuntimeEventChainEvent(),
     ]);
-    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel, networkEvidenceDrawerSummaryContext(state));
+    const summary = networkEvidenceDrawerSummary(
+      state.networkFlowReadModel,
+      networkEvidenceDrawerSummaryContext(state)
+    );
 
     expect(summary.evidenceId).toBe(NetworkEvidenceDrawerProof.eventId);
     expect(summary.sourceAdapter).toBe('windows-network-snapshot');
@@ -201,7 +201,10 @@ function registerNetworkEvidenceDrawerTests(): void {
 
   it('falls back to policy preview refs when no runtime refs were streamed', () => {
     const state = resolveLiveActivityState([networkFlowEvent(), policyPreviewEvent()]);
-    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel, networkEvidenceDrawerSummaryContext(state));
+    const summary = networkEvidenceDrawerSummary(
+      state.networkFlowReadModel,
+      networkEvidenceDrawerSummaryContext(state)
+    );
 
     expect(summary.analyzerAlertRef).toBe('Not reported');
     expect(summary.detectionResultRef).toBe('Not reported');

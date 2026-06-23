@@ -1,13 +1,18 @@
+#![cfg(test)]
+
+use ocentra_parent_agent_protocol::constants::{self, local_ai_runtime_provider_proof as proof};
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerQueue;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerStatus;
 use ocentra_parent_agent_protocol::local_ai_runtime_provider_proof::{
     LocalAiRuntimeProviderProofEntry, LocalAiRuntimeProviderProofReadModel,
     LocalAiRuntimeProviderProofRequirement, LocalAiRuntimeProviderProofStatus,
 };
-use ocentra_parent_agent_protocol::{
-    constants::{self, local_ai_runtime_provider_proof as proof},
-    policy_constants, DeviceRuntimeRole, LocalAiDegradedState, LocalAiProviderSchedulerJobClass,
-    LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerQueue,
-    LocalAiProviderSchedulerStatus, LocalAiResourceClass,
-};
+use ocentra_parent_agent_protocol::policy_constants;
 
 pub(crate) fn local_ai_runtime_provider_proof_read_model(
     generated_at: &str,
@@ -287,7 +292,7 @@ fn unavailable_provider_status(generated_at: &str) -> LocalAiProviderSchedulerSt
     LocalAiProviderSchedulerStatus {
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         singleton_scope:
-            ocentra_parent_agent_protocol::LocalAiProviderSingletonScope::PhysicalDevice,
+            ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSingletonScope::PhysicalDevice,
         provider_id: constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED.to_string(),
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_DEV_UNCONFIGURED
             .to_string(),

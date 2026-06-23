@@ -4,7 +4,7 @@ import {
   TrackingAiProviderRoutingProofRowSchema,
   buildTrackingAiProviderRoutingProofRows,
   summarizeTrackingAiProviderRoutingProof,
-} from '../../src/tracking-ai-provider-routing-proof';
+} from '@ocentra-parent/schema-domain/tracking-ai-provider-routing-proof';
 
 describe('tracking AI provider routing proof', () => {
   it('keeps child-local AI as the default child safety route', () => {

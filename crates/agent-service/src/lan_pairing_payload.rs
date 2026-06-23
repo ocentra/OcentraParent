@@ -1,9 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
-    LanPairingChallengeRequest, LanPairingIntentKind, LanPairingParentAuthority, LanPairingProof,
-    LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields,
-    ParentEvidenceReference, ParentEvidenceReferenceKind,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingChallengeRequest;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingIntentKind;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceActionKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::lan_pairing::controller_lease::LanControllerLeaseState;
 
@@ -230,27 +237,36 @@ fn required_parent_authority(
 
 fn required_anonymous_string(
     fields: &LogFields,
-    key: &str,
+    field_name: &str,
 ) -> Result<String, LanPairingRejectionReason> {
-    required_string(fields, key).map_err(|_| LanPairingRejectionReason::Anonymous)
+    required_string(fields, field_name).map_err(|reason| {
+        let _ = reason;
+        LanPairingRejectionReason::Anonymous
+    })
 }
 
 fn required_controller_lease_string(
     fields: &LogFields,
-    key: &str,
+    field_name: &str,
 ) -> Result<String, LanPairingRejectionReason> {
-    required_string(fields, key).map_err(|_| LanPairingRejectionReason::ControllerLeaseMissing)
+    required_string(fields, field_name).map_err(|reason| {
+        let _ = reason;
+        LanPairingRejectionReason::ControllerLeaseMissing
+    })
 }
 
-fn optional_string(fields: &LogFields, key: &str) -> Option<String> {
-    match fields.get(key) {
+fn optional_string(fields: &LogFields, field_name: &str) -> Option<String> {
+    match fields.get(field_name) {
         Some(LogFieldValue::String(value)) if !value.is_empty() => Some(value.clone()),
         _ => None,
     }
 }
 
-fn required_string(fields: &LogFields, key: &str) -> Result<String, LanPairingRejectionReason> {
-    match fields.get(key) {
+fn required_string(
+    fields: &LogFields,
+    field_name: &str,
+) -> Result<String, LanPairingRejectionReason> {
+    match fields.get(field_name) {
         Some(LogFieldValue::String(value)) if !value.is_empty() => Ok(value.clone()),
         _ => Err(LanPairingRejectionReason::Malformed),
     }

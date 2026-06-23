@@ -1,6 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiChatGenerationResult, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::fields::fields_from_pairs;
 

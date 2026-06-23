@@ -27,11 +27,11 @@ async function main() {
   ]);
 
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
@@ -126,9 +126,9 @@ async function main() {
     gateState: 'prevented-by-linux-unavailable-mechanism-distro-session-proof-gate',
     evidence: {
       linuxGate:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts defines linux-hard-block-mechanism-unavailable as Linux block-launch, manual-required, adapter-unavailable, admin-or-root-required, canCallAdapter=false, and broadBlockingClaimed=false.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gate-data.ts defines linux-hard-block-mechanism-unavailable as Linux block-launch, manual-required, adapter-unavailable, admin-or-root-required, canCallAdapter=false, and broadBlockingClaimed=false.',
       linuxGateRules:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires setup, authority, rollback, audit, and Linux mechanism/distro/session proof before broad block upgrades.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires setup, authority, rollback, audit, and Linux mechanism/distro/session proof before broad block upgrades.',
       linuxGateTests:
         'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts asserts Linux hard-block gates require mechanism, distro, and session proof.',
       catalogBoundary:

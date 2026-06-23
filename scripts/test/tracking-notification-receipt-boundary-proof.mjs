@@ -121,10 +121,8 @@ async function buildProof() {
       harness: 'scripts/test/tracking-notification-receipt-boundary-proof.mjs',
       evidence: 'test-results/tracking-notification-receipt-boundary-proof/proof.json',
       focusedProofRoot: 'output/tracking-plan-proof/tracking-notification-receipt-boundary-proof',
-      wp26:
-        'output/tracking-plan-proof/26-alert-severity-and-notification-model/22-notification-receipt-boundary-proof.json',
-      wp33:
-        'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json',
+      wp26: 'output/tracking-plan-proof/26-alert-severity-and-notification-model/22-notification-receipt-boundary-proof.json',
+      wp33: 'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json',
     },
     readModel,
   };

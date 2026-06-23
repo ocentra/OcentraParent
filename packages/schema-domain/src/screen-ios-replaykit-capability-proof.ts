@@ -1,18 +1,11 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ActivityTimestampSchema } from './evidence-primitives';
 import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
 import { ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
 
 export const ScreenIosReplayKitCapabilitySchemaVersion = 1;
 
-const ScreenIosReplayKitDocRefSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenIosReplayKitDocRef')
-);
+const ScreenIosReplayKitDocRefSchema = withParser(brandedNonEmptyStringSchema('ScreenIosReplayKitDocRef'));
 const ScreenIosReplayKitReasonSchema = withParser(ScreenEvidenceReasonSchema);
 const OptionalScreenIosReplayKitProofRefSchema = Schema.Union(
   ScreenOptionalVisibilityPlatformProofRefSchema,
@@ -237,4 +230,3 @@ export type ScreenIosReplayKitCaptureState = Infer<typeof ScreenIosReplayKitCapt
 export type ScreenIosReplayKitProofState = Infer<typeof ScreenIosReplayKitProofStateSchema>;
 export type ScreenIosReplayKitCapabilityRow = Infer<typeof ScreenIosReplayKitCapabilityRowSchema>;
 export type ScreenIosReplayKitCapabilityProof = Infer<typeof ScreenIosReplayKitCapabilityProofSchema>;
-

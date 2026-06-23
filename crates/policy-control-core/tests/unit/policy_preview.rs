@@ -1,8 +1,11 @@
+use super::TestResult;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyPreviewFindingKind, PolicyPreviewTargetState, PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_authority::PolicyManualReviewState;
 use ocentra_policy_control_core::policy_preview::{
     policy_preview_schema_version, preview_parent_policy_before_save, PolicyPreviewExplanationCode,
-    PolicyPreviewFindingKind, PolicyPreviewRequest, PolicyPreviewRequestId, PolicyPreviewSaveState,
-    PolicyPreviewTargetInput, PolicyPreviewTargetState,
+    PolicyPreviewRequest, PolicyPreviewRequestId, PolicyPreviewSaveState, PolicyPreviewTargetInput,
 };
 use ocentra_policy_control_core::policy_source::{
     parent_policy_source_schema_version, ParentPolicyActorRole, ParentPolicyDocumentId,
@@ -12,59 +15,84 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
-fn sample_preview_request(preview_acknowledged: bool) -> PolicyPreviewRequest {
-    PolicyPreviewRequest {
-        schema_version: policy_preview_schema_version().expect("policy preview schema version"),
-        request_id: PolicyPreviewRequestId::parse("policy-preview-default")
-            .expect("policy preview request id"),
-        candidate_document: sample_policy_document(),
+fn sample_preview_request(preview_acknowledged: bool) -> TestResult<PolicyPreviewRequest> {
+    Ok(PolicyPreviewRequest {
+        schema_version: test_ok!(
+            policy_preview_schema_version(),
+            "policy preview schema version"
+        ),
+        request_id: test_ok!(
+            PolicyPreviewRequestId::parse("policy-preview-default"),
+            "policy preview request id"
+        ),
+        candidate_document: sample_policy_document()?,
         current_document: None,
         preview_acknowledged,
         target_inputs: vec![sample_target_input(
             PolicyPreviewTargetState::Supported,
             "target-supported",
-        )],
-    }
+        )?],
+    })
 }
 
-fn sample_policy_document() -> ParentPolicySourceDocument {
-    ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-draft-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(3).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("actor id"),
+fn sample_policy_document() -> TestResult<ParentPolicySourceDocument> {
+    Ok(ParentPolicySourceDocument {
+        schema_version: test_ok!(
+            parent_policy_source_schema_version(),
+            "policy source schema version"
+        ),
+        document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-draft-default"),
+            "policy source document id"
+        ),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(3), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Draft,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("device id")],
+        status: PolicySourceStatus::Draft,
+        child_profile_ids: vec![test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        )],
+        device_ids: vec![test_ok!(
+            PolicyDeviceId::parse("device-laptop"),
+            "device id"
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-school-night-block"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("target reference id"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("category-gaming"),
+                    "target reference id"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("schedule id"),
-            ),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule id"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("school-night"), "reason code"),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night").expect("schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone name"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule id"
+            ),
+            timezone_name: test_ok!(
+                PolicyTimezoneName::parse("America/Toronto"),
+                "timezone name"
+            ),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -94,24 +122,28 @@ fn sample_policy_document() -> ParentPolicySourceDocument {
             delete_allowed: true,
             sync_allowed: false,
         },
-    }
+    })
 }
 
 fn sample_target_input(
     state: PolicyPreviewTargetState,
     explanation_code: &str,
-) -> PolicyPreviewTargetInput {
-    PolicyPreviewTargetInput {
+) -> TestResult<PolicyPreviewTargetInput> {
+    Ok(PolicyPreviewTargetInput {
         target: PolicyRuleTarget {
             kind: PolicyTargetKind::Category,
-            reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                .expect("target reference id"),
+            reference_id: test_ok!(
+                PolicyTargetReferenceId::parse("category-gaming"),
+                "target reference id"
+            ),
         },
         domain: PolicyConsumerDomain::App,
         state,
-        explanation_code: PolicyPreviewExplanationCode::parse(explanation_code)
-            .expect("preview explanation code"),
-    }
+        explanation_code: test_ok!(
+            PolicyPreviewExplanationCode::parse(explanation_code),
+            "preview explanation code"
+        ),
+    })
 }
 
 fn apply_spring_forward_schedule_boundary(schedule: &mut PolicyScheduleWindow) {
@@ -131,9 +163,12 @@ fn apply_fall_back_schedule_boundary(schedule: &mut PolicyScheduleWindow) {
 }
 
 #[test]
-fn preview_must_be_acknowledged_before_save_is_ready() {
-    let result = preview_parent_policy_before_save(&sample_preview_request(false))
-        .expect("policy preview result");
+fn preview_must_be_acknowledged_before_save_is_ready() -> TestResult {
+    let request = sample_preview_request(false)?;
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::PreviewRequired);
     assert_eq!(
@@ -141,26 +176,33 @@ fn preview_must_be_acknowledged_before_save_is_ready() {
         PolicyManualReviewState::NotRequired
     );
     assert!(result.findings.is_empty());
+    Ok(())
 }
 
 #[test]
-fn overlapping_rules_are_reported_as_visible_conflicts() {
-    let mut request = sample_preview_request(true);
+fn overlapping_rules_are_reported_as_visible_conflicts() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.candidate_document.rules.push(ParentPolicyRule {
-        rule_id: PolicyRuleId::parse("rule-bedtime-warn").expect("rule id"),
+        rule_id: test_ok!(PolicyRuleId::parse("rule-bedtime-warn"), "rule id"),
         target: request.candidate_document.rules[0].target.clone(),
         action: PolicyRuleAction::Warn,
-        schedule_id: Some(PolicyScheduleId::parse("schedule-bedtime").expect("schedule id")),
+        schedule_id: Some(test_ok!(
+            PolicyScheduleId::parse("schedule-bedtime"),
+            "schedule id"
+        )),
         priority: 90,
-        reason_code: PolicyReasonCode::parse("bedtime").expect("reason code"),
+        reason_code: test_ok!(PolicyReasonCode::parse("bedtime"), "reason code"),
         enabled: true,
     });
     request
         .candidate_document
         .schedules
         .push(PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-bedtime").expect("schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone name"),
+            schedule_id: test_ok!(PolicyScheduleId::parse("schedule-bedtime"), "schedule id"),
+            timezone_name: test_ok!(
+                PolicyTimezoneName::parse("America/Toronto"),
+                "timezone name"
+            ),
             starts_at: "22:00".to_string(),
             ends_at: "06:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -183,8 +225,10 @@ fn overlapping_rules_are_reported_as_visible_conflicts() {
             },
         });
 
-    let result =
-        preview_parent_policy_before_save(&request).expect("policy preview conflict result");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview conflict result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(result.findings.len(), 1);
@@ -198,26 +242,33 @@ fn overlapping_rules_are_reported_as_visible_conflicts() {
         result.manual_review_state,
         PolicyManualReviewState::Required
     );
+    Ok(())
 }
 
 #[test]
-fn timezone_boundary_conflict_is_visible_before_save() {
-    let mut request = sample_preview_request(true);
+fn timezone_boundary_conflict_is_visible_before_save() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.candidate_document.rules.push(ParentPolicyRule {
-        rule_id: PolicyRuleId::parse("rule-bedtime-warn").expect("rule id"),
+        rule_id: test_ok!(PolicyRuleId::parse("rule-bedtime-warn"), "rule id"),
         target: request.candidate_document.rules[0].target.clone(),
         action: PolicyRuleAction::Warn,
-        schedule_id: Some(PolicyScheduleId::parse("schedule-bedtime").expect("schedule id")),
+        schedule_id: Some(test_ok!(
+            PolicyScheduleId::parse("schedule-bedtime"),
+            "schedule id"
+        )),
         priority: 90,
-        reason_code: PolicyReasonCode::parse("preview-warning").expect("reason code"),
+        reason_code: test_ok!(PolicyReasonCode::parse("preview-warning"), "reason code"),
         enabled: true,
     });
     request
         .candidate_document
         .schedules
         .push(PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-bedtime").expect("schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Vancouver").expect("timezone name"),
+            schedule_id: test_ok!(PolicyScheduleId::parse("schedule-bedtime"), "schedule id"),
+            timezone_name: test_ok!(
+                PolicyTimezoneName::parse("America/Vancouver"),
+                "timezone name"
+            ),
             starts_at: "22:00".to_string(),
             ends_at: "06:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -240,8 +291,10 @@ fn timezone_boundary_conflict_is_visible_before_save() {
             },
         });
 
-    let result = preview_parent_policy_before_save(&request)
-        .expect("policy preview timezone-boundary result");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview timezone-boundary result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(result.findings.len(), 1);
@@ -254,18 +307,21 @@ fn timezone_boundary_conflict_is_visible_before_save() {
         result.manual_review_state,
         PolicyManualReviewState::Required
     );
+    Ok(())
 }
 
 #[test]
-fn unsupported_target_state_is_visible_and_blocks_save() {
-    let mut request = sample_preview_request(true);
+fn unsupported_target_state_is_visible_and_blocks_save() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.target_inputs = vec![sample_target_input(
         PolicyPreviewTargetState::Unsupported,
         "unsupported-platform",
-    )];
+    )?];
 
-    let result =
-        preview_parent_policy_before_save(&request).expect("policy preview unsupported result");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview unsupported result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -280,17 +336,21 @@ fn unsupported_target_state_is_visible_and_blocks_save() {
         result.manual_review_state,
         PolicyManualReviewState::NotRequired
     );
+    Ok(())
 }
 
 #[test]
-fn manual_required_target_state_stays_visible_in_preview() {
-    let mut request = sample_preview_request(true);
+fn manual_required_target_state_stays_visible_in_preview() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.target_inputs = vec![sample_target_input(
         PolicyPreviewTargetState::ManualRequired,
         "device-offline-manual-review",
-    )];
+    )?];
 
-    let result = preview_parent_policy_before_save(&request).expect("policy preview manual result");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview manual result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -305,18 +365,21 @@ fn manual_required_target_state_stays_visible_in_preview() {
         result.manual_review_state,
         PolicyManualReviewState::Required
     );
+    Ok(())
 }
 
 #[test]
-fn offline_target_state_stays_visible_and_blocks_save() {
-    let mut request = sample_preview_request(true);
+fn offline_target_state_stays_visible_and_blocks_save() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.target_inputs = vec![sample_target_input(
         PolicyPreviewTargetState::Offline,
         "offline-child",
-    )];
+    )?];
 
-    let result =
-        preview_parent_policy_before_save(&request).expect("policy preview offline result");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview offline result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -335,17 +398,21 @@ fn offline_target_state_stays_visible_and_blocks_save() {
         result.manual_review_state,
         PolicyManualReviewState::Required
     );
+    Ok(())
 }
 
 #[test]
-fn stale_target_state_stays_visible_in_preview() {
-    let mut request = sample_preview_request(true);
+fn stale_target_state_stays_visible_in_preview() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.target_inputs = vec![sample_target_input(
         PolicyPreviewTargetState::Stale,
         "stale-target-snapshot",
-    )];
+    )?];
 
-    let result = preview_parent_policy_before_save(&request).expect("policy preview stale result");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview stale result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -360,15 +427,18 @@ fn stale_target_state_stays_visible_in_preview() {
         result.manual_review_state,
         PolicyManualReviewState::Required
     );
+    Ok(())
 }
 
 #[test]
-fn nonexistent_local_time_finding_blocks_preview_before_save() {
-    let mut request = sample_preview_request(true);
+fn nonexistent_local_time_finding_blocks_preview_before_save() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     apply_spring_forward_schedule_boundary(&mut request.candidate_document.schedules[0]);
 
-    let result =
-        preview_parent_policy_before_save(&request).expect("policy preview nonexistent-local");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview nonexistent-local"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -394,15 +464,18 @@ fn nonexistent_local_time_finding_blocks_preview_before_save() {
         result.findings[0].explanation_code.as_str(),
         "nonexistent-local-time"
     );
+    Ok(())
 }
 
 #[test]
-fn ambiguous_local_time_finding_blocks_preview_before_save() {
-    let mut request = sample_preview_request(true);
+fn ambiguous_local_time_finding_blocks_preview_before_save() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     apply_fall_back_schedule_boundary(&mut request.candidate_document.schedules[0]);
 
-    let result =
-        preview_parent_policy_before_save(&request).expect("policy preview ambiguous-local");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview ambiguous-local"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -428,16 +501,20 @@ fn ambiguous_local_time_finding_blocks_preview_before_save() {
         result.findings[0].explanation_code.as_str(),
         "ambiguous-local-time"
     );
+    Ok(())
 }
 
 #[test]
-fn manual_clock_source_surfaces_explicit_clock_skew_before_save() {
-    let mut request = sample_preview_request(true);
+fn manual_clock_source_surfaces_explicit_clock_skew_before_save() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.candidate_document.schedules[0]
         .time_budget
         .clock_source = PolicyScheduleClockSource::ManualRequired;
 
-    let result = preview_parent_policy_before_save(&request).expect("policy preview clock-skew");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview clock-skew"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -457,17 +534,20 @@ fn manual_clock_source_surfaces_explicit_clock_skew_before_save() {
         "schedule-school-night"
     );
     assert_eq!(result.findings[0].explanation_code.as_str(), "clock-skew");
+    Ok(())
 }
 
 #[test]
-fn child_device_clock_source_does_not_auto_surface_clock_skew_before_save() {
-    let mut request = sample_preview_request(true);
+fn child_device_clock_source_does_not_auto_surface_clock_skew_before_save() -> TestResult {
+    let mut request = sample_preview_request(true)?;
     request.candidate_document.schedules[0]
         .time_budget
         .clock_source = PolicyScheduleClockSource::ChildDevice;
 
-    let result =
-        preview_parent_policy_before_save(&request).expect("policy preview child-device result");
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview child-device result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::ReadyToSave);
     assert_eq!(
@@ -475,4 +555,5 @@ fn child_device_clock_source_does_not_auto_surface_clock_skew_before_save() {
         PolicyManualReviewState::NotRequired
     );
     assert!(result.findings.is_empty());
+    Ok(())
 }

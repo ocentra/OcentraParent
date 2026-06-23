@@ -3,6 +3,7 @@ use crate::{
     NetworkTransferClassification, NetworkTransferClassifierError, NetworkTransferClassifierInput,
     NetworkTransferIndicator, NetworkTransferIndicatorEvidence, NetworkTransferUncertainty,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn transfer_classifier_flags_remote_desktop_candidate() {
@@ -15,7 +16,7 @@ fn transfer_classifier_flags_remote_desktop_candidate() {
                 observed_bytes: Some(42_000),
             }],
         })
-        .expect("remote desktop indicator should classify");
+        .expect_value("remote desktop indicator should classify");
 
     assert_transfer_classification(
         &classification,
@@ -37,7 +38,7 @@ fn transfer_classifier_flags_torrent_candidate() {
                 observed_bytes: None,
             }],
         })
-        .expect("torrent indicator should classify");
+        .expect_value("torrent indicator should classify");
 
     assert_transfer_classification(
         &classification,
@@ -59,7 +60,7 @@ fn transfer_classifier_flags_large_download_without_file_name_claim() {
                 observed_bytes: Some(4_294_967_296),
             }],
         })
-        .expect("large download indicator should classify");
+        .expect_value("large download indicator should classify");
 
     assert_transfer_classification(
         &classification,
@@ -82,7 +83,7 @@ fn transfer_classifier_keeps_unattributed_high_volume_uncertain() {
                 observed_bytes: Some(8_589_934_592),
             }],
         })
-        .expect("unattributed high volume should remain uncertain");
+        .expect_value("unattributed high volume should remain uncertain");
 
     assert_eq!(
         classification.activity_kind,

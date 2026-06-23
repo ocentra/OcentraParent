@@ -1,9 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus,
-    BrowserChannel, BrowserCustodyLabel, BrowserEvidenceReadModel, BrowserFamily,
-    BrowserQueryVisibilityLabel, BrowserTabEvidence, LogFieldValue, LogFields,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserTabEvidence;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;

@@ -1,7 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiModelCacheStatus, LocalModelRuntimeStatus, LocalProviderAdapterProbe,
-    LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalAiModelCacheStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalProviderAdapterProbe;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::fields::fields_from_pairs;
 

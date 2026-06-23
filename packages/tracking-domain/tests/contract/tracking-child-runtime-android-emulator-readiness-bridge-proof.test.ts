@@ -3,7 +3,7 @@ import {
   RequiredTrackingChildRuntimeAndroidEmulatorBridgeSourceRefs,
   TrackingChildRuntimeAndroidEmulatorBridgeRowSchema,
   buildTrackingChildRuntimeAndroidEmulatorBridgeProof,
-} from '../../src/tracking-child-runtime-android-emulator-readiness-bridge-proof';
+} from '@ocentra-parent/schema-domain/tracking-child-runtime-android-emulator-readiness-bridge-proof';
 
 const GeneratedAt = '2026-06-08T05:20:00.000Z';
 

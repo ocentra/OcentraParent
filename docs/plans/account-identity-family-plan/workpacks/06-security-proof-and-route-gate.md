@@ -21,6 +21,7 @@ Aggregate security, misuse, route-sync, and no-overclaim proof before account/id
 ## Required inputs
 
 ```text
+workpacks/00-owner-boundary-proof-gate.md
 PROOF_INDEX.md
 TEST_PROOF_EXPECTATIONS.md
 CHECKLIST_INDEX.md
@@ -34,6 +35,18 @@ output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/
 
 If any prior proof root is missing, this workpack records a blocker and does not claim readiness.
 
+## Current owner/import/proof constraints
+
+This workpack is an aggregation gate. It must not implement new auth, setup, policy, payment, custody, LAN, remote, device-trust, Cloudflare, or portal runtime behavior.
+
+```text
+schema-domain/family-domain/family-identity-core: consumed only as prior account/family proof surfaces.
+setup-install/cloudflare/payment/policy/data-custody/device-trust/LAN/remote/portal UX: adjacent consumer routes only.
+WP06: proof aggregation, manual-required gap register, and route-sync evidence.
+```
+
+Allowed edits are proof/status/docs and explicitly selected route-sync notes. Do not import or modify adjacent runtime internals to make the route gate green. If a sibling route is not ready, record a blocker or manual-required entry.
+
 ## Required proof pack
 
 ```text
@@ -43,7 +56,7 @@ session/token lifecycle proof
 invite/recovery lifecycle proof
 device ownership authZ proof
 setup UI proof or explicit UI blocker
-origin/state-changing request safety proof or blocker
+state-changing request safety proof or blocker
 logging/redaction proof
 manual-required gap register
 route sync proof
@@ -138,37 +151,11 @@ Any adjacent plan not yet updated must be listed in `08-manual-required-gap-regi
 
 ```text
 Workpack id and branch: WP06 Security Proof And Route Gate / codex/tracking-plan-full-continuation-a
+Current branch note: this historical completion record predates the plan-harness branch. On codex/plan-harness-update, treat it as prior proof evidence only; new edits must follow workpacks/00-owner-boundary-proof-gate.md, TEST_PROOF_EXPECTATIONS.md, and PROOF_INDEX.md.
 Current status: complete for the local proof-gate aggregation slice. `00-security-proof-pack.md`, `01-authn-negative-proof.md`, `02-authz-matrix-proof.md`, `03-token-replay-proof.md`, `04-recovery-abuse-proof.md`, `05-origin-csrf-open-redirect-proof.md`, `06-route-sync-proof.md`, `07-logging-redaction-proof.md`, `08-manual-required-gap-register.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/`.
 Prior proof roots consumed: `output/account-identity-family-plan-proof/01-auth-provider-decision/`; `output/account-identity-family-plan-proof/02-identity-household-role-model/`; `output/account-identity-family-plan-proof/03-session-token-lifecycle/`; `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/`; `output/account-identity-family-plan-proof/05-device-ownership-authz/`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/`.
 Route-sync status: adjacent consumer boundaries for setup-install, Cloudflare, payment, policy, data custody, device trust, LAN, remote, and portal UX are now consumed from the account proof roots. WP07 is no longer blocked; the real setup-route proof root is part of this gate pack. Browser request-safety remains an explicit blocker because this slice still does not own a real browser request consumer.
-Touched files:
-- `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
-- `docs/plans/account-identity-family-plan/PLAN_STATE.md`
-- `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
-- `docs/plans/account-identity-family-plan/NEXT_ACTIONS.md`
-- `docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/01-authn-negative-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/02-authz-matrix-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/03-token-replay-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/04-recovery-abuse-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/07-logging-redaction-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`
 Validation commands and results: see `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`. This slice re-used prior focused command logs from WP01-WP05 and WP07, then ran docs/proof-slice verification only.
-Proof artifacts:
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/01-authn-negative-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/02-authz-matrix-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/03-token-replay-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/04-recovery-abuse-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/07-logging-redaction-proof.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md`
-- `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`
 Manual-required gaps: browser request-safety remains blocked until a later slice owns a real browser request consumer; account identity adapter/runtime implementation and D1/DO/KV schema proof remain open; Cloudflare worker/runtime proof, payment execution, policy execution, data-custody execution, device-trust bootstrap, LAN transport, remote transport, and broader portal UX/runtime remain owned by adjacent plans.
 No-claim boundaries: do not claim PR_READY; do not claim product-ready account/family flow; do not claim Cloudflare runtime, payment runtime, policy runtime, data-custody execution, device-trust bootstrap, LAN transport, or remote transport readiness from this WP06 closure.
 ```

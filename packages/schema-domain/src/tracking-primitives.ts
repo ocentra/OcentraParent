@@ -1,9 +1,4 @@
-import {
-  NonEmptyStringSchema,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const TrackingNonNegativeNumberSchema = Schema.Number.pipe(Schema.nonNegative());
 export const TrackingNonNegativeIntegerSchema = TrackingNonNegativeNumberSchema.pipe(Schema.int());

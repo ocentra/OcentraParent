@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { NetworkEvidenceDrawerProof } from '../tests/network-evidence-drawer-proof-fixture';
 
 test.setTimeout(120_000);
@@ -29,8 +29,9 @@ test('network evidence drawer renders service-backed refs without unsupported cl
     ([hashPrefix, route]) => {
       window.location.hash = `${hashPrefix}${route}`;
     },
-    [PortalDom.HashPrefix, PortalRoute.NetworkActivity] as const
+    [PortalDom.HashPrefix, PortalRoute.ProofPanels] as const
   );
+  await page.getByRole('button', { exact: true, name: 'Network activity' }).click();
   const networkPanel = page.getByRole('region', { name: 'Network activity' });
   await expect(networkPanel).toBeVisible({ timeout: shellReadyTimeoutMs });
   await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.evidenceId)).toBeVisible({

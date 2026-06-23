@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidUsageEventsCountSampleSchemaVersionSchema = withParser(
@@ -147,4 +142,3 @@ function countSampleReadModelIsHonest(readModel: CountSampleCandidate): boolean 
     readModel.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
-

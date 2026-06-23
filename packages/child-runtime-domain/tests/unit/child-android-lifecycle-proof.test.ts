@@ -108,7 +108,7 @@ function capabilityState(
 }
 
 function validReadModel(): ChildAndroidLifecycleReadModel {
-  return {
+  return ChildAndroidLifecycleReadModelSchema.parse({
     schemaVersion: 'child-android-protocol-package-lifecycle-proof',
     packageProof: {
       packageId: 'ca.ocentra.parent.agent',
@@ -165,10 +165,10 @@ function validReadModel(): ChildAndroidLifecycleReadModel {
       storeDistribution: 'planned; Google Play signing and release tracks are not wired',
     },
     updatedAt: '2026-05-31T00:00:00.000Z',
-  };
+  });
 }
 
-function capabilityProofs(): ChildAndroidLifecycleReadModel['capabilityProofs'] {
+function capabilityProofs() {
   return [
     ...ciMechanicalCapabilityProofs(),
     ...manualCapabilityProofs(),
@@ -182,7 +182,7 @@ function capabilityProofs(): ChildAndroidLifecycleReadModel['capabilityProofs'] 
   ];
 }
 
-function ciMechanicalCapabilityProofs(): ChildAndroidLifecycleReadModel['capabilityProofs'] {
+function ciMechanicalCapabilityProofs() {
   return [
     capabilityProof(
       'foreground-mobile-service',
@@ -222,7 +222,7 @@ function ciMechanicalCapabilityProofs(): ChildAndroidLifecycleReadModel['capabil
   ];
 }
 
-function manualCapabilityProofs(): ChildAndroidLifecycleReadModel['capabilityProofs'] {
+function manualCapabilityProofs() {
   return [
     capabilityProof(
       'usage-stats',
@@ -262,7 +262,7 @@ function manualCapabilityProofs(): ChildAndroidLifecycleReadModel['capabilityPro
   ];
 }
 
-function lifecycleAssertions(): ChildAndroidLifecycleReadModel['packageLifecycleAssertions'] {
+function lifecycleAssertions() {
   return [
     lifecycleAssertion('debug-apk-build', 'ci-mechanical-proof', 'android-package-build'),
     lifecycleAssertion('checksum', 'ci-mechanical-proof', 'android-package-build'),
@@ -278,12 +278,12 @@ function lifecycleAssertions(): ChildAndroidLifecycleReadModel['packageLifecycle
 }
 
 function capabilityProof(
-  capability: ChildAndroidLifecycleReadModel['capabilityProofs'][number]['capability'],
-  parentCapabilityStatus: ChildAndroidLifecycleReadModel['capabilityProofs'][number]['parentCapabilityStatus'],
-  proofState: ChildAndroidLifecycleReadModel['capabilityProofs'][number]['proofState'],
-  runtimeOwner: ChildAndroidLifecycleReadModel['capabilityProofs'][number]['runtimeOwner'],
+  capability: string,
+  parentCapabilityStatus: string,
+  proofState: string,
+  runtimeOwner: string,
   proofRequirement: string
-): ChildAndroidLifecycleReadModel['capabilityProofs'][number] {
+) {
   return {
     capability,
     parentCapability: capability,
@@ -295,11 +295,7 @@ function capabilityProof(
   };
 }
 
-function lifecycleAssertion(
-  phase: ChildAndroidLifecycleReadModel['packageLifecycleAssertions'][number]['phase'],
-  proofState: ChildAndroidLifecycleReadModel['packageLifecycleAssertions'][number]['proofState'],
-  runtimeOwner: ChildAndroidLifecycleReadModel['packageLifecycleAssertions'][number]['runtimeOwner']
-): ChildAndroidLifecycleReadModel['packageLifecycleAssertions'][number] {
+function lifecycleAssertion(phase: string, proofState: string, runtimeOwner: string) {
   return {
     phase,
     proofState,
@@ -309,11 +305,7 @@ function lifecycleAssertion(
   };
 }
 
-function permissionProof(
-  permission: ChildAndroidLifecycleReadModel['permissionProofs'][number]['permission'],
-  declarationState: ChildAndroidLifecycleReadModel['permissionProofs'][number]['declarationState'],
-  runtimeGrantState: ChildAndroidLifecycleReadModel['permissionProofs'][number]['runtimeGrantState']
-): ChildAndroidLifecycleReadModel['permissionProofs'][number] {
+function permissionProof(permission: string, declarationState: string, runtimeGrantState: string) {
   return {
     permission,
     declarationState,

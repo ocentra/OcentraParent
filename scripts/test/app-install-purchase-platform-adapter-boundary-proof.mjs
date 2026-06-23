@@ -61,10 +61,10 @@ async function main() {
     commands,
     evidence: {
       platformAdapterBoundaryContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
       sourceApprovedApiEntitlementContract:
-        'packages/app-game-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
-      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
+      sourceReportRuntimeContract: 'packages/schema-domain/src/app-install-purchase-report-runtime-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-boundary-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

@@ -15,7 +15,9 @@ export const AppGameAndroidUsageEventsEventNameLiteral = {
 
 export const AppGameAndroidUsageEventsEventName = {
   CapabilityReported: EventingEventTypeSchema.parse(AppGameAndroidUsageEventsEventNameLiteral.CapabilityReported),
-  ReplayBoundaryReported: EventingEventTypeSchema.parse(AppGameAndroidUsageEventsEventNameLiteral.ReplayBoundaryReported),
+  ReplayBoundaryReported: EventingEventTypeSchema.parse(
+    AppGameAndroidUsageEventsEventNameLiteral.ReplayBoundaryReported
+  ),
   RuntimePreflightReported: EventingEventTypeSchema.parse(
     AppGameAndroidUsageEventsEventNameLiteral.RuntimePreflightReported
   ),

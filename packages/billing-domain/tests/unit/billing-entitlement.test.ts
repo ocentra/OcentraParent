@@ -12,9 +12,7 @@ import {
   BillingSubscriptionStatusProofRowSchema,
   BillingSyncEventSchema,
 } from '@ocentra-parent/schema-domain/billing-entitlement';
-import {
-  BillingEntitlementContractProofReadModel
-} from '@ocentra-parent/schema-domain/billing-entitlement-proof';
+import { BillingEntitlementContractProofReadModel } from '@ocentra-parent/schema-domain/billing-entitlement-proof';
 
 describe('billing entitlement contracts', () => {
   acceptsBillingEntitlementProofWithoutProviderClaims();
@@ -294,9 +292,7 @@ function rejectsProofOverclaims(): void {
       { ...proof, childActivityCustodyClaim: 'supported' },
       {
         ...proof,
-        nonClaims: proof.nonClaims.filter(
-          (claim: (typeof proof.nonClaims)[number]) => claim !== 'no-safety-shutdown'
-        ),
+        nonClaims: proof.nonClaims.filter((claim: (typeof proof.nonClaims)[number]) => claim !== 'no-safety-shutdown'),
       },
     ]) {
       expect(BillingEntitlementContractProofSchema.safeParse(invalidProof).success).toBe(false);

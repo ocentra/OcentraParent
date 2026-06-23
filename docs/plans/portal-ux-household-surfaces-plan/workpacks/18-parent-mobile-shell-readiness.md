@@ -14,21 +14,45 @@
 
 <!-- /agent-capsule -->
 
-Sources: [20-step plan](../portal-ux-household-surfaces-20-step-plan.md),
-[test blueprint](../portal-ux-household-surfaces-test-blueprint.md),
-[UI/UX guide](../ui-ux-requirements-guide.md), and [folder README](../README.md).
+Sources: [20-step plan](../portal-ux-household-surfaces-20-step-plan.md), [test blueprint](../portal-ux-household-surfaces-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), and [folder README](../README.md).
+
+## Ownership boundary
+
+```text
+portal UX owns responsive, touch-friendly, small-width parent portal presentation patterns.
+parent-client-runtime-distribution-plan owns parent mobile Android/iOS package/runtime distribution proof.
+child-agent-runtime-distribution-plan owns child mobile agent/runtime proof.
+```
 
 ## Where We Are
 
-Parent mobile is scaffold/proof-first. The portal should prepare reusable
-patterns without claiming mobile child-agent parity.
-Installable parent mobile Android/iOS package-preview targets now exist as
-separate scaffold apps from child-agent mobile previews.
+Parent mobile is scaffold/proof-first. The portal should prepare reusable patterns without claiming mobile child-agent parity.
+
+Installable parent mobile Android/iOS package-preview targets now exist as separate scaffold apps from child-agent mobile previews.
 
 ## Where We Want To Be
 
-Source-state, selected-device, policy, activity, approval, and report patterns
-can map to parent mobile shells later.
+Source-state, selected-device, policy, activity, approval, and report patterns can map to parent mobile shells later.
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+route
+viewport
+responsive_state
+touch_target_state
+source_label_state
+authority_label_state
+desktop_assumption_state
+parent_mobile_package_boundary_state
+child_agent_mobile_boundary_state
+manual_required_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Requirement Checklist
 
@@ -36,14 +60,21 @@ can map to parent mobile shells later.
 - [ ] Preserve source/authority labels on small widths.
 - [ ] Avoid desktop-only assumptions in reusable components.
 - [ ] Label mobile runtime gaps honestly.
-- [ ] Track parent mobile Android/iOS package-preview CI targets separately
-      from child-agent mobile previews.
+- [ ] Track parent mobile Android/iOS package-preview CI targets separately from child-agent mobile previews.
 - [ ] Test narrow widths for key workflows.
 
 ## Acceptance And Proof
 
-Responsive portal proof supports future parent mobile UX without claiming child
-mobile support.
+Responsive portal proof supports future parent mobile UX without claiming child mobile support.
+
+Proof must distinguish responsive portal layout, parent mobile shell/package boundaries, and child-agent mobile boundaries.
+
+## Failure conditions
+
+- Do not claim parent mobile runtime readiness from responsive web proof.
+- Do not claim child mobile support from parent mobile shell proof.
+- Do not hide manual-required mobile/platform gaps.
+- Do not omit source/authority labels on narrow widths.
 
 ## Parallel Ownership Notes
 

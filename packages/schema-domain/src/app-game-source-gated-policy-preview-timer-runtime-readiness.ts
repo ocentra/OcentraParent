@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import {
@@ -23,12 +18,15 @@ import {
 } from './app-game-source-gated-policy-preview-timer-runtime-readiness-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessId');
-export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowId');
-export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessContractRef');
+export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessContractRef'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState))
@@ -236,5 +234,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness = Schema
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState };
-
-

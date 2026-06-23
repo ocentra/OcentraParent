@@ -84,8 +84,8 @@ async function main() {
     ],
     evidence: {
       browserContractTest: 'packages/browser-domain/tests/unit/social-audit-explanation-read-model.test.ts',
-      protocolContracts: 'packages/agent-protocol-domain/src/contracts.ts',
-      protocolDefaults: 'packages/agent-protocol-domain/src/defaults.ts',
+      protocolContracts: 'packages/schema-domain/src/agent-command-event-contracts.ts',
+      protocolDefaults: 'packages/schema-domain/src/agent-protocol-defaults.ts',
       protocolTest: 'packages/agent-protocol-domain/tests/unit/social-audit-explanation-read-model.test.ts',
       schemaDomain: 'packages/schema-domain/src/social-audit-explanation-read-model.ts',
       rustProtocol: 'crates/agent-protocol/src/social_audit_explanation_read_model.rs',

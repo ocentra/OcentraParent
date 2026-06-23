@@ -8,14 +8,14 @@ Correlation: `policy-control-plane-plan / WP03 / policy-wp03-compiler-proof-bund
 
 - `npm run test --workspace @ocentra-parent/policy-domain -- tests/unit/policy-compiler.test.ts tests/unit/policy-schedule-boundaries.test.ts tests/unit/policy-event.test.ts`
 - `cargo test -p ocentra-policy-control-core`
-- `npm run lint:architecture -- --files packages/schema-domain/src/policy.ts packages/schema-domain/src/policy-compiler.ts packages/schema-domain/src/policy-event.ts packages/policy-domain/tests/unit/policy-compiler.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-event.test.ts`
+- `npm run lint:architecture -- --files packages/policy-domain/src/policy.ts packages/policy-domain/src/policy-compiler.ts packages/policy-domain/src/policy-event.ts packages/policy-domain/tests/unit/policy-compiler.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-event.test.ts`
 - `cargo lint-architecture crates/policy-control-core/src/policy_source.rs crates/policy-control-core/src/policy_compiler.rs crates/policy-control-core/src/policy_event.rs crates/policy-control-core/tests/unit crates/policy-control-core/tests/version-skew`
 
 All commands passed on this checkout on 2026-06-17.
 
 ## Owner source surfaces
 
-- `packages/schema-domain/src/policy-compiler.ts` defines the compiled artifact contract, support-matrix shape, no-claim labels, audit refs, and supersede-versus-rollback exclusivity.
+- `packages/policy-domain/src/policy-compiler.ts` defines the compiled artifact contract, support-matrix shape, no-claim labels, audit refs, and supersede-versus-rollback exclusivity.
 - `crates/policy-control-core/src/policy_compiler.rs` defines `compile_app_game_policy`, `compile_browser_policy`, `compile_network_policy`, `compile_tracking_policy`, `compile_screen_policy`, `compile_ai_policy_context`, `compile_enforcement_policy_hints`, `compile_notification_ask_parent_policy`, deterministic artifact IDs, explicit delivery targets, support-matrix checks, and compiler no-claim labels.
 - `crates/policy-control-core/src/policy_source.rs` gates compilation on validated source truth and preserves `audit_reference_ids`, `superseded_by_policy_version`, and `rollback_ref` on compiled artifacts.
 

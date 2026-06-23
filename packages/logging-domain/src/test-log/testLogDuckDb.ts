@@ -1,16 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import {
-  getChangedFiles,
-  removeManifest,
-  updateManifest,
-} from './ingestManifest';
-import {
-  getDbDir,
-  getTestLogScopeDir,
-  listNdjsonFiles,
-} from './ndjsonPaths';
+import { getChangedFiles, removeManifest, updateManifest } from './ingestManifest';
+import { getDbDir, getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
 import {
   type StoredTestLogLine,
@@ -32,10 +24,7 @@ type DuckDbDatabase = {
 };
 
 type DuckDbModule = {
-  readonly Database: new (
-    filename: string,
-    callback: (error: Error | null) => void
-  ) => DuckDbDatabase;
+  readonly Database: new (filename: string, callback: (error: Error | null) => void) => DuckDbDatabase;
 };
 
 export interface IngestResult {
@@ -109,11 +98,7 @@ function runAsync(connection: DuckDbConnection, sql: string, ...params: unknown[
   });
 }
 
-function allAsync<T extends object>(
-  connection: DuckDbConnection,
-  sql: string,
-  ...params: unknown[]
-): Promise<T[]> {
+function allAsync<T extends object>(connection: DuckDbConnection, sql: string, ...params: unknown[]): Promise<T[]> {
   return new Promise((resolve, reject) => {
     connection.all(sql, ...params, (error: Error | null, rows: T[]) => {
       if (error != null) {
@@ -260,14 +245,8 @@ export class TestLogDuckDb {
       )`
     );
 
-    await runAsync(
-      this.connection,
-      'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_level ON test_logs(scope, level)'
-    );
-    await runAsync(
-      this.connection,
-      'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_run ON test_logs(scope, run_id)'
-    );
+    await runAsync(this.connection, 'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_level ON test_logs(scope, level)');
+    await runAsync(this.connection, 'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_run ON test_logs(scope, run_id)');
   }
 
   async reset(): Promise<void> {
@@ -334,11 +313,7 @@ export class TestLogDuckDb {
     return logs.length;
   }
 
-  async ingestFromScope(
-    scope: TestLogScopeType,
-    rootDir?: string,
-    rebuild = false
-  ): Promise<IngestResult> {
+  async ingestFromScope(scope: TestLogScopeType, rootDir?: string, rebuild = false): Promise<IngestResult> {
     const logsDir = getTestLogScopeDir(scope, rootDir);
 
     if (rebuild) {

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 import {
   LanHouseholdManualProofGateSchema,
   LanHouseholdProductProofStateSchema,
@@ -134,4 +129,3 @@ export type V09ProductionDiscoveryHouseholdManualChecklistItem = Infer<
 export type V09ProductionDiscoveryHouseholdProofReadModel = Infer<
   typeof V09ProductionDiscoveryHouseholdProofReadModelSchema
 >;
-

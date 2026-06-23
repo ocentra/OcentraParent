@@ -1,11 +1,18 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
-    LanPairingDeviceReachability, LanPairingProductionDiscoveryState, LanPairingRejectionReason,
-    LanPairingResponseState, LanPairingTrustState, LanSelectedDeviceReadiness,
-    LanSignedDiscoveryRelayCustodyLabel, LanSignedDiscoveryRelayRouteSafetyCheck,
-    LanSignedDiscoveryRelayRouteSafetyRow, LanTrustedDeviceRegistryEntry,
-    V09ProductionDiscoveryHouseholdProofState, V09ProductionDiscoveryHouseholdRuntimeOwner,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingResponseState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry;
+use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdProofState;
+use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdRuntimeOwner;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::signed_discovery_relay_spine::LanSignedDiscoveryRelayCustodyLabel;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::signed_discovery_relay_spine::LanSignedDiscoveryRelayRouteSafetyCheck;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::signed_discovery_relay_spine::LanSignedDiscoveryRelayRouteSafetyRow;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceActionKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanSelectedDeviceReadiness;
 
 pub(super) fn route_safety_rows(
     trusted_device_registry: &[LanTrustedDeviceRegistryEntry],
@@ -89,7 +96,7 @@ fn parent_decision_rows(
             Some(route_id.clone()),
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Assign,
+                &LanHouseholdDeviceActionKind::Assign,
             ),
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PARENT_ASSIGNMENT,
         ),
@@ -98,7 +105,7 @@ fn parent_decision_rows(
             Some(route_id.clone()),
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Rename,
+                &LanHouseholdDeviceActionKind::Rename,
             ),
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PARENT_RENAME,
         ),
@@ -107,7 +114,7 @@ fn parent_decision_rows(
             Some(route_id.clone()),
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Ignore,
+                &LanHouseholdDeviceActionKind::Ignore,
             ),
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PARENT_IGNORE,
         ),
@@ -116,7 +123,7 @@ fn parent_decision_rows(
             Some(route_id.clone()),
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Restore,
+                &LanHouseholdDeviceActionKind::Restore,
             ),
             constants::lan_pairing::HOUSEHOLD_ACTION_RESTORE,
         ),
@@ -125,7 +132,7 @@ fn parent_decision_rows(
             Some(route_id.clone()),
             decision_state(
                 household_device_decisions,
-                LanHouseholdDeviceActionKind::Trust,
+                &LanHouseholdDeviceActionKind::Trust,
             ),
             constants::lan_pairing::HOUSEHOLD_ACTION_TRUST,
         ),
@@ -246,11 +253,11 @@ fn offline_selected_state(
 
 fn decision_state(
     household_device_decisions: &[LanHouseholdDeviceDecision],
-    action_kind: LanHouseholdDeviceActionKind,
+    action_kind: &LanHouseholdDeviceActionKind,
 ) -> LanPairingProductionDiscoveryState {
     if household_device_decisions
         .iter()
-        .any(|decision| decision.action_kind == action_kind && decision.revoked_at.is_none())
+        .any(|decision| decision.action_kind == *action_kind && decision.revoked_at.is_none())
     {
         LanPairingProductionDiscoveryState::Discovered
     } else {

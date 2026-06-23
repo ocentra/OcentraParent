@@ -5,16 +5,49 @@ use ocentra_eventing::{
     ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::TargetHandler,
     request::RequestCompletionOutcome,
 };
-use ocentra_parent_agent_protocol::{
-    constants, tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
     tracking_evaluation_id_from_observation_id, tracking_evidence_ref_from_observation_id,
     tracking_notification_id_from_violation_id, tracking_transition_id_from_observation_id,
-    tracking_violation_id_from_ai_request_and_rule_ref, TrackingAlertSeverity,
-    TrackingCheckInState, TrackingChildCheckInDeliveryState, TrackingChildCheckInRequestState,
-    TrackingChildCheckInRequestedEvent, TrackingExpectedPlaceState, TrackingPolicyViolationId,
-    TrackingReasonCode, TrackingTimestamp, TrackingTransitionKind,
+    tracking_violation_id_from_ai_request_and_rule_ref, TrackingAlertSeverity, TrackingCheckInId,
+    TrackingCheckInState, TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef,
+    TrackingExpectedPlaceState, TrackingPolicyViolationId, TrackingReasonCode, TrackingTimestamp,
+    TrackingTransitionKind,
+};
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingChildCheckInDeliveryState, TrackingChildCheckInRequestState,
+    TrackingChildCheckInRequestedEvent,
 };
 use ocentra_tracking_core::alerting::TrackingParentNotificationDecisionState;
+
+trait OptionRequiredExt<T> {
+    fn required(self, context: &str) -> T;
+}
+
+impl<T> OptionRequiredExt<T> for Option<T> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|| unreachable!("{context}"))
+    }
+}
+
+trait ResultRequiredExt<T, E> {
+    fn required(self, context: &str) -> T;
+    fn required_err(self, context: &str) -> E;
+}
+
+impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    }
+
+    fn required_err(self, context: &str) -> E {
+        match self {
+            Ok(_) => unreachable!("{context}"),
+            Err(error) => error,
+        }
+    }
+}
 
 #[tokio::test]
 async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_events() {
@@ -22,222 +55,182 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
         ocentra_tracking_core::runtime_flow::default_location_observed_event(),
     )
     .await
-    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    assert_tracking_runtime_observation_branches(&flow_report);
+    assert_tracking_runtime_policy_branches(&flow_report);
+}
+
+fn assert_tracking_runtime_observation_branches(
+    flow_report: &ocentra_child_runtime::TrackingRuntimeEventFlowReport,
+) {
+    assert_tracking_runtime_event_identity(flow_report);
+    assert_tracking_runtime_event_derivatives(flow_report);
+}
+
+fn assert_tracking_runtime_event_identity(
+    flow_report: &ocentra_child_runtime::TrackingRuntimeEventFlowReport,
+) {
     let expected_evidence_ref = tracking_evidence_ref_from_observation_id(
         &flow_report.evidence_recorded.source_observation_id,
     );
+    let ai_request = flow_report
+        .ai_analysis_requested
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     assert_eq!(
-        flow_report
-            .ai_analysis_requested
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .evidence_refs,
+        ai_request.evidence_refs,
         vec![expected_evidence_ref.clone()]
     );
     assert_eq!(
         flow_report.evidence_recorded.source_observed_at,
-        ocentra_parent_agent_protocol::TrackingTimestamp::parse(
-            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+        TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            .required(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
     );
     assert_eq!(
         flow_report.evidence_recorded.evidence_ref,
         expected_evidence_ref
     );
     assert_eq!(
-        flow_report
-            .ai_analysis_requested
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .ai_request_id,
+        ai_request.ai_request_id,
         tracking_ai_request_id_from_evidence_ref(&flow_report.evidence_recorded.evidence_ref)
     );
     assert_eq!(
-        flow_report
-            .ai_analysis_requested
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .source_observed_at,
+        ai_request.source_observed_at,
         flow_report.evidence_recorded.source_observed_at
     );
+}
+
+fn assert_tracking_runtime_event_derivatives(
+    flow_report: &ocentra_child_runtime::TrackingRuntimeEventFlowReport,
+) {
+    let ai_request = flow_report
+        .ai_analysis_requested
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let geofence = flow_report
+        .geofence_transition_detected
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let expected_place = flow_report
+        .expected_place_state_evaluated
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let check_in = flow_report
+        .child_check_in_recorded
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let nearby_place = flow_report
+        .nearby_place_classified
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
     assert_eq!(
-        flow_report
-            .geofence_transition_detected
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .transition_kind,
+        geofence.transition_kind,
         TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
+            .required(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
     );
     assert_eq!(
-        flow_report
-            .geofence_transition_detected
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .transition_id,
+        geofence.transition_id,
         tracking_transition_id_from_observation_id(
             &flow_report.evidence_recorded.source_observation_id
         )
     );
     assert_eq!(
-        flow_report
-            .expected_place_state_evaluated
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .expected_place_state,
+        expected_place.expected_place_state,
         TrackingExpectedPlaceState::parse(
             constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN
         )
-        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN)
+        .required(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN)
     );
     assert_eq!(
-        flow_report
-            .expected_place_state_evaluated
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .evaluation_id,
+        expected_place.evaluation_id,
         tracking_evaluation_id_from_observation_id(
             &flow_report.evidence_recorded.source_observation_id
         )
     );
     assert_eq!(
-        flow_report
-            .child_check_in_recorded
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .check_in_state,
+        check_in.check_in_state,
         TrackingCheckInState::parse(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
-            .expect(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
+            .required(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
     );
     assert_eq!(
-        flow_report
-            .child_check_in_recorded
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .check_in_id,
+        check_in.check_in_id,
         tracking_check_in_id_from_observation_id(
             &flow_report.evidence_recorded.source_observation_id
         )
     );
+    assert_eq!(nearby_place.source_ai_request_id, ai_request.ai_request_id);
     assert_eq!(
-        flow_report
-            .nearby_place_classified
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .source_ai_request_id,
-        flow_report
-            .ai_analysis_requested
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .ai_request_id
-    );
-    assert_eq!(
-        flow_report
-            .nearby_place_classified
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .source_location_evidence_ref,
+        nearby_place.source_location_evidence_ref,
         flow_report.evidence_recorded.evidence_ref
     );
     assert_eq!(
-        flow_report
-            .nearby_place_classified
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .source_observed_at,
+        nearby_place.source_observed_at,
         flow_report.evidence_recorded.source_observed_at
     );
     assert_eq!(
-        flow_report
-            .nearby_place_classified
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .provider_kind,
+        nearby_place.provider_kind,
         constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE
     );
     assert_eq!(
-        flow_report
-            .nearby_place_classified
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .ambiguity_state,
+        nearby_place.ambiguity_state,
         constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR
     );
+}
+
+fn assert_tracking_runtime_policy_branches(
+    flow_report: &ocentra_child_runtime::TrackingRuntimeEventFlowReport,
+) {
+    let ai_request = flow_report
+        .ai_analysis_requested
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let nearby_place = flow_report
+        .nearby_place_classified
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let ai_boundary_decision = flow_report
+        .ai_boundary_decision
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let alert_decision = flow_report
+        .alert_decision
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let policy_violation = flow_report
+        .policy_violation_detected
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let parent_notification = flow_report
+        .parent_notification_requested
+        .as_ref()
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
     assert_eq!(
-        flow_report
-            .ai_boundary_decision
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .decision_state,
+        ai_boundary_decision.decision_state,
         constants::tracking_runtime::AI_RESULT_ACCEPTED_AS_EVIDENCE
     );
     assert_eq!(
-        flow_report
-            .alert_decision
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .severity,
+        alert_decision.severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
-            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .required(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+    );
+    assert_eq!(policy_violation.evidence_refs, nearby_place.evidence_refs);
+    assert_eq!(
+        parent_notification.source_policy_violation_id,
+        policy_violation.violation_id
     );
     assert_eq!(
-        flow_report
-            .policy_violation_detected
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .evidence_refs,
-        flow_report
-            .nearby_place_classified
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .evidence_refs
-    );
-    assert_eq!(
-        flow_report
-            .parent_notification_requested
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .source_policy_violation_id,
-        flow_report
-            .policy_violation_detected
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .violation_id
-    );
-    assert_eq!(
-        flow_report
-            .policy_violation_detected
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .violation_id,
+        policy_violation.violation_id,
         tracking_violation_id_from_ai_request_and_rule_ref(
-            &flow_report
-                .ai_analysis_requested
-                .as_ref()
-                .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-                .ai_request_id,
-            &flow_report
-                .policy_violation_detected
-                .as_ref()
-                .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-                .policy_rule_ref,
+            &ai_request.ai_request_id,
+            &policy_violation.policy_rule_ref,
         )
     );
     assert_eq!(
-        flow_report
-            .parent_notification_requested
-            .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .notification_id,
-        tracking_notification_id_from_violation_id(
-            &flow_report
-                .policy_violation_detected
-                .as_ref()
-                .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-                .violation_id,
-        )
+        parent_notification.notification_id,
+        tracking_notification_id_from_violation_id(&policy_violation.violation_id)
     );
 }
 
@@ -245,7 +238,7 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
 async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::new()
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let metrics_before = runtime_flow.metrics_snapshot().await;
 
     let flow_report = runtime_flow
@@ -253,7 +246,7 @@ async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
             ocentra_tracking_core::runtime_flow::default_location_observed_event(),
         )
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let metrics_after = runtime_flow.metrics_snapshot().await;
 
     assert_eq!(metrics_before.subscription_count, 6);
@@ -282,28 +275,28 @@ async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
     assert_eq!(
         flow_report
             .geofence_transition_detected
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
         vec![flow_report.evidence_recorded.evidence_ref.clone()]
     );
     assert_eq!(
         flow_report
             .expected_place_state_evaluated
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
         vec![flow_report.evidence_recorded.evidence_ref.clone()]
     );
     assert_eq!(
         flow_report
             .child_check_in_recorded
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .source_observation_id,
         flow_report.evidence_recorded.source_observation_id
     );
     assert_eq!(
         flow_report
             .ai_analysis_requested
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
         vec![flow_report.evidence_recorded.evidence_ref.clone()]
     );
@@ -311,12 +304,12 @@ async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
         flow_report
             .policy_violation_detected
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
         flow_report
             .parent_notification_requested
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs
     );
 }
@@ -327,7 +320,7 @@ async fn tracking_runtime_flow_can_route_away_from_expected_place_without_ai_bou
         ocentra_tracking_core::runtime_flow::default_away_from_expected_place_location_observed_event(),
     )
     .await
-    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     assert!(flow_report.ai_analysis_requested.is_none());
     assert!(flow_report.nearby_place_classified.is_none());
@@ -336,53 +329,53 @@ async fn tracking_runtime_flow_can_route_away_from_expected_place_without_ai_bou
         flow_report
             .alert_decision
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
-            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .required(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
     );
     assert_eq!(
         flow_report
             .geofence_transition_detected
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .transition_kind,
         TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT)
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT)
+            .required(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT)
     );
     assert_eq!(
         flow_report
             .expected_place_state_evaluated
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .expected_place_state,
         TrackingExpectedPlaceState::parse(
             constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE
         )
-        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE)
+        .required(constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE)
     );
     assert_eq!(
         flow_report
             .policy_violation_detected
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
         flow_report
             .expected_place_state_evaluated
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs
     );
     assert_eq!(
         flow_report
             .parent_notification_requested
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .source_policy_violation_id,
         flow_report
             .policy_violation_detected
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .violation_id
     );
 }
@@ -391,25 +384,54 @@ async fn tracking_runtime_flow_can_route_away_from_expected_place_without_ai_bou
 async fn tracking_runtime_flow_clears_optional_state_between_observations() {
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::new()
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let first_report = runtime_flow
         .publish_location_observed(
             ocentra_tracking_core::runtime_flow::default_location_observed_event(),
         )
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let second_report = runtime_flow
         .publish_location_observed(
             ocentra_tracking_core::runtime_flow::default_at_expected_place_location_observed_event(
             ),
         )
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
-    assert!(first_report.ai_analysis_requested.is_some());
-    assert!(first_report.policy_violation_detected.is_some());
-    assert!(first_report.parent_notification_requested.is_some());
+    assert_eq!(
+        first_report
+            .ai_analysis_requested
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        vec![first_report.evidence_recorded.evidence_ref.clone()]
+    );
+    assert_eq!(
+        first_report
+            .policy_violation_detected
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        first_report
+            .expected_place_state_evaluated
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs
+    );
+    assert_eq!(
+        first_report
+            .parent_notification_requested
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_policy_violation_id,
+        first_report
+            .policy_violation_detected
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .violation_id
+    );
     assert!(second_report.ai_analysis_requested.is_none());
     assert!(second_report.nearby_place_classified.is_none());
     assert!(second_report.ai_boundary_decision.is_none());
@@ -420,12 +442,12 @@ async fn tracking_runtime_flow_clears_optional_state_between_observations() {
         second_report
             .expected_place_state_evaluated
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .expected_place_state,
         TrackingExpectedPlaceState::parse(
             constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED
         )
-        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED)
+        .required(constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED)
     );
 }
 
@@ -433,48 +455,70 @@ async fn tracking_runtime_flow_clears_optional_state_between_observations() {
 async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repeated_violation() {
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::new()
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let first_report = runtime_flow
         .publish_location_observed(
             ocentra_tracking_core::runtime_flow::default_location_observed_event(),
         )
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let second_report = runtime_flow
         .publish_location_observed(
             ocentra_tracking_core::runtime_flow::default_location_observed_event(),
         )
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     assert_eq!(
         first_report
             .alert_decision
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .parent_notification_state,
         TrackingParentNotificationDecisionState::Allowed
     );
-    assert!(first_report.parent_notification_requested.is_some());
     assert_eq!(
-        second_report
-            .alert_decision
+        first_report
+            .parent_notification_requested
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-            .severity,
-        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
-            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_policy_violation_id,
+        first_report
+            .policy_violation_detected
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .violation_id
     );
     assert_eq!(
         second_report
             .alert_decision
             .as_ref()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .severity,
+        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .required(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+    );
+    assert_eq!(
+        second_report
+            .alert_decision
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .parent_notification_state,
         TrackingParentNotificationDecisionState::SuppressedDuplicate
     );
-    assert!(second_report.policy_violation_detected.is_some());
+    assert_eq!(
+        second_report
+            .policy_violation_detected
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        second_report
+            .expected_place_state_evaluated
+            .as_ref()
+            .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs
+    );
     assert!(second_report.parent_notification_requested.is_none());
 }
 
@@ -485,7 +529,7 @@ async fn tracking_runtime_flow_rejects_invalid_location_before_recording_evidenc
 
     let error = ocentra_child_runtime::publish_child_tracking_location_observed_event(observed)
         .await
-        .expect_err("invalid tracking observation should fail");
+        .required_err("invalid tracking observation should fail");
 
     assert_eq!(
         error,
@@ -501,7 +545,7 @@ async fn tracking_runtime_flow_marks_duplicate_parent_requested_check_in_receipt
     let bus = EventBus::new();
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let request = parent_requested_check_in_event(
         TrackingChildCheckInDeliveryState::Queued,
         TrackingChildCheckInRequestState::Pending,
@@ -516,7 +560,7 @@ async fn tracking_runtime_flow_marks_duplicate_parent_requested_check_in_receipt
         ),
     )
     .await
-    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     bus.publish(
         request,
         parent_requested_check_in_metadata(
@@ -525,11 +569,11 @@ async fn tracking_runtime_flow_marks_duplicate_parent_requested_check_in_receipt
         ),
     )
     .await
-    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let (_, _, receipt, completion) = runtime_flow
         .latest_parent_requested_check_in()
-        .expect("duplicate request should be recorded");
+        .required("duplicate request should be recorded");
 
     assert_eq!(
         receipt.delivery_state,
@@ -541,7 +585,7 @@ async fn tracking_runtime_flow_marks_duplicate_parent_requested_check_in_receipt
             TrackingReasonCode::parse(
                 constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST,
             )
-            .expect(constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST),
+            .required(constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST),
         )
     );
     assert_eq!(completion.outcome, RequestCompletionOutcome::Late);
@@ -552,7 +596,7 @@ async fn tracking_runtime_flow_marks_stale_parent_requested_check_in_receipts() 
     let bus = EventBus::new();
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let request = parent_requested_check_in_event(
         TrackingChildCheckInDeliveryState::Queued,
         TrackingChildCheckInRequestState::Pending,
@@ -567,11 +611,11 @@ async fn tracking_runtime_flow_marks_stale_parent_requested_check_in_receipts() 
         ),
     )
     .await
-    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let (_, _, receipt, completion) = runtime_flow
         .latest_parent_requested_check_in()
-        .expect("stale request should be recorded");
+        .required("stale request should be recorded");
 
     assert_eq!(
         receipt.delivery_state,
@@ -581,7 +625,7 @@ async fn tracking_runtime_flow_marks_stale_parent_requested_check_in_receipts() 
         receipt.reason_code,
         Some(
             TrackingReasonCode::parse(constants::tracking_runtime::REASON_STALE_CHECK_IN_REQUEST)
-                .expect(constants::tracking_runtime::REASON_STALE_CHECK_IN_REQUEST),
+                .required(constants::tracking_runtime::REASON_STALE_CHECK_IN_REQUEST),
         )
     );
     assert_eq!(completion.outcome, RequestCompletionOutcome::Late);
@@ -592,7 +636,7 @@ async fn tracking_runtime_flow_marks_unsupported_parent_requested_check_in_deliv
     let bus = EventBus::new();
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
         .await
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let request = parent_requested_check_in_event(
         TrackingChildCheckInDeliveryState::Requested,
         TrackingChildCheckInRequestState::Pending,
@@ -607,11 +651,11 @@ async fn tracking_runtime_flow_marks_unsupported_parent_requested_check_in_deliv
         ),
     )
     .await
-    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let (_, _, receipt, completion) = runtime_flow
         .latest_parent_requested_check_in()
-        .expect("unsupported delivery should be recorded");
+        .required("unsupported delivery should be recorded");
 
     assert_eq!(
         receipt.delivery_state,
@@ -623,7 +667,7 @@ async fn tracking_runtime_flow_marks_unsupported_parent_requested_check_in_deliv
             TrackingReasonCode::parse(
                 constants::tracking_runtime::REASON_UNSUPPORTED_CHECK_IN_DELIVERY,
             )
-            .expect(constants::tracking_runtime::REASON_UNSUPPORTED_CHECK_IN_DELIVERY),
+            .required(constants::tracking_runtime::REASON_UNSUPPORTED_CHECK_IN_DELIVERY),
         )
     );
     assert_eq!(completion.outcome, RequestCompletionOutcome::Late);
@@ -635,32 +679,32 @@ fn parent_requested_check_in_event(
     expires_at: &str,
 ) -> TrackingChildCheckInRequestedEvent {
     TrackingChildCheckInRequestedEvent {
-        child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId::parse(
+        child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
-        child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId::parse(
+        .required(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
-        check_in_id: ocentra_parent_agent_protocol::TrackingCheckInId::parse(
+        .required(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        check_in_id: TrackingCheckInId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
+        .required(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
         requested_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+            .required(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         request_state,
         delivery_state,
         related_alert_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        .required(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
         include_location_if_permitted: true,
-        expires_at: TrackingTimestamp::parse(expires_at).expect(expires_at),
-        evidence_refs: vec![ocentra_parent_agent_protocol::TrackingEvidenceRef::parse(
+        expires_at: TrackingTimestamp::parse(expires_at).required(expires_at),
+        evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        .required(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
         audit_refs: vec![String::from("audit.tracking.child-check-in.request")],
     }
 }
@@ -673,25 +717,27 @@ fn parent_requested_check_in_metadata(check_in_id: &str, observed_at: &str) -> E
             constants::tracking_runtime::CORRELATION_PREFIX,
             check_in_id
         ))
-        .expect(constants::tracking_runtime::CORRELATION_PREFIX),
+        .required(constants::tracking_runtime::CORRELATION_PREFIX),
         EventSource::new(
             EventCustody::parse(constants::eventing_source::CUSTODY_LOCAL_JOURNAL)
-                .expect(constants::eventing_source::CUSTODY_LOCAL_JOURNAL),
+                .required(constants::eventing_source::CUSTODY_LOCAL_JOURNAL),
             RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)
-                .expect(constants::eventing_source::ROLE_CONTROLLER),
+                .required(constants::eventing_source::ROLE_CONTROLLER),
             SourceService::parse(constants::peer::LOCAL_DEV_AGENT)
-                .expect(constants::peer::LOCAL_DEV_AGENT),
+                .required(constants::peer::LOCAL_DEV_AGENT),
             SourceComponent::parse(constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME)
-                .expect(constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME),
+                .required(constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME),
             RuntimeInstanceId::parse(constants::peer::PORTAL_DEV)
-                .expect(constants::peer::PORTAL_DEV),
+                .required(constants::peer::PORTAL_DEV),
         ),
-        RecordedAt::parse(observed_at).expect(observed_at),
+        RecordedAt::parse(observed_at).required(observed_at),
         Some(
             TargetHandler::parse(
                 constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER,
             )
-            .expect(constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER),
+            .required(
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER,
+            ),
         ),
     )
 }

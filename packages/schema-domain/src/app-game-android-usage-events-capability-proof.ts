@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   AppGameAndroidUsageEventsCommandName,
@@ -150,22 +145,59 @@ function androidUsageEventsCapabilityReadModelIsHonest(
   readModel: AppGameAndroidUsageEventsCapabilityCandidate
 ): boolean {
   return (
+    androidUsageEventsCapabilityStateIsHonest(readModel) &&
+    androidUsageEventsCapabilityCommandsAndEventsArePresent(readModel) &&
+    androidUsageEventsCapabilityProofRefsArePresent(readModel) &&
+    androidUsageEventsCapabilityOpenGapsArePresent(readModel)
+  );
+}
+
+function androidUsageEventsCapabilityStateIsHonest(readModel: AppGameAndroidUsageEventsCapabilityCandidate): boolean {
+  return (
     readModel.packageId === 'ca.ocentra.parent.agent' &&
     readModel.nativeBridgeClass === 'ca.ocentra.parent.agent.AppGameAndroidUsageEventsCapabilityProof' &&
     readModel.usageEventsBridgeState === 'package-local-scaffold' &&
     readModel.permissionState === 'settings-grant-required' &&
     readModel.eventCollectionState === 'runtime-grant-not-proved' &&
-    readModel.replayConsumerState === 'parent-domain-boundary-only' &&
-    readModel.commands.includes(AppGameAndroidUsageEventsCommandName.CapabilityGet) &&
-    readModel.commands.includes(AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet) &&
-    readModel.events.includes(AppGameAndroidUsageEventsEventName.CapabilityReported) &&
-    readModel.events.includes(AppGameAndroidUsageEventsEventName.ReplayBoundaryReported) &&
-    readModel.proofRefs.includes('android-usage-events-capability-bridge-ref') &&
-    readModel.proofRefs.includes('android-package-local-usage-events-proof-ref') &&
-    readModel.openGaps.includes('android-usage-stats-settings-grant-not-proved') &&
-    readModel.openGaps.includes('android-usage-events-runtime-collection-not-proved') &&
-    readModel.openGaps.includes('android-child-runtime-delivery-not-proved') &&
-    readModel.openGaps.includes('android-platform-enforcement-not-proved')
+    readModel.replayConsumerState === 'parent-domain-boundary-only'
   );
 }
 
+function androidUsageEventsCapabilityCommandsAndEventsArePresent(
+  readModel: AppGameAndroidUsageEventsCapabilityCandidate
+): boolean {
+  return (
+    includesAll(readModel.commands, [
+      AppGameAndroidUsageEventsCommandName.CapabilityGet,
+      AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet,
+    ] as const) &&
+    includesAll(readModel.events, [
+      AppGameAndroidUsageEventsEventName.CapabilityReported,
+      AppGameAndroidUsageEventsEventName.ReplayBoundaryReported,
+    ] as const)
+  );
+}
+
+function androidUsageEventsCapabilityProofRefsArePresent(
+  readModel: AppGameAndroidUsageEventsCapabilityCandidate
+): boolean {
+  return includesAll(readModel.proofRefs, [
+    'android-usage-events-capability-bridge-ref',
+    'android-package-local-usage-events-proof-ref',
+  ] as const);
+}
+
+function androidUsageEventsCapabilityOpenGapsArePresent(
+  readModel: AppGameAndroidUsageEventsCapabilityCandidate
+): boolean {
+  return includesAll(readModel.openGaps, [
+    'android-usage-stats-settings-grant-not-proved',
+    'android-usage-events-runtime-collection-not-proved',
+    'android-child-runtime-delivery-not-proved',
+    'android-platform-enforcement-not-proved',
+  ] as const);
+}
+
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

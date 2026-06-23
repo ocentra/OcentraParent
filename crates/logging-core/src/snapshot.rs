@@ -8,7 +8,8 @@ pub const SNAPSHOT_SCHEMA_VERSION: u16 = 1;
 #[serde(rename_all = "camelCase")]
 pub struct LogSnapshot {
     pub schema_version: u16,
-    pub status: String,
+    #[serde(rename = "status")]
+    pub snapshot_state: String,
     #[serde(default)]
     pub entries: Vec<ParentLogEvent>,
 }

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   ChildProfileReferenceSchema,
@@ -169,7 +164,11 @@ const householdMembershipStateValues = [
   HouseholdMembershipStateLiteral.Revoked,
   HouseholdMembershipStateLiteral.Disabled,
 ] as const;
-const deviceRoleValues = [DeviceRoleLiteral.ParentController, DeviceRoleLiteral.ParentObserver, DeviceRoleLiteral.ChildAgent] as const;
+const deviceRoleValues = [
+  DeviceRoleLiteral.ParentController,
+  DeviceRoleLiteral.ParentObserver,
+  DeviceRoleLiteral.ChildAgent,
+] as const;
 const deviceTrustStateValues = [
   DeviceTrustStateLiteral.Pending,
   DeviceTrustStateLiteral.Trusted,
@@ -201,7 +200,10 @@ const householdAuthorizationStateValues = [
   HouseholdAuthorizationStateLiteral.Authorized,
   HouseholdAuthorizationStateLiteral.Rejected,
 ] as const;
-const auditRequirementStateValues = [AuditRequirementStateLiteral.Required, AuditRequirementStateLiteral.NotRequired] as const;
+const auditRequirementStateValues = [
+  AuditRequirementStateLiteral.Required,
+  AuditRequirementStateLiteral.NotRequired,
+] as const;
 const elevatedConfirmationStateValues = [
   ElevatedConfirmationStateLiteral.Required,
   ElevatedConfirmationStateLiteral.NotRequired,
@@ -478,8 +480,12 @@ export const ParentStepUpMethod = {
 export const ParentStepUpValidationFailureReason = {
   Required: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.Required),
   Expired: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.Expired),
-  WrongHousehold: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.WrongHousehold),
-  WrongAccount: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.WrongAccount),
+  WrongHousehold: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.WrongHousehold
+  ),
+  WrongAccount: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.WrongAccount
+  ),
   WrongAction: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.WrongAction),
   WrongDevice: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.WrongDevice),
   WrongTarget: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.WrongTarget),
@@ -488,17 +494,27 @@ export const ParentStepUpValidationFailureReason = {
   ),
 } as const;
 export const HouseholdAuthorizationFailureReason = {
-  ExternalHousehold: HouseholdAuthorizationFailureReasonSchema.parse(HouseholdAuthorizationFailureReasonLiteral.ExternalHousehold),
+  ExternalHousehold: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.ExternalHousehold
+  ),
   MembershipNotActive: HouseholdAuthorizationFailureReasonSchema.parse(
     HouseholdAuthorizationFailureReasonLiteral.MembershipNotActive
   ),
-  AccountNotActive: HouseholdAuthorizationFailureReasonSchema.parse(HouseholdAuthorizationFailureReasonLiteral.AccountNotActive),
-  DeviceNotTrusted: HouseholdAuthorizationFailureReasonSchema.parse(HouseholdAuthorizationFailureReasonLiteral.DeviceNotTrusted),
-  SessionNotFresh: HouseholdAuthorizationFailureReasonSchema.parse(HouseholdAuthorizationFailureReasonLiteral.SessionNotFresh),
+  AccountNotActive: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.AccountNotActive
+  ),
+  DeviceNotTrusted: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.DeviceNotTrusted
+  ),
+  SessionNotFresh: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.SessionNotFresh
+  ),
   ChildProfileNotBound: HouseholdAuthorizationFailureReasonSchema.parse(
     HouseholdAuthorizationFailureReasonLiteral.ChildProfileNotBound
   ),
-  WrongDeviceScope: HouseholdAuthorizationFailureReasonSchema.parse(HouseholdAuthorizationFailureReasonLiteral.WrongDeviceScope),
+  WrongDeviceScope: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.WrongDeviceScope
+  ),
   MissingCapabilityGrant: HouseholdAuthorizationFailureReasonSchema.parse(
     HouseholdAuthorizationFailureReasonLiteral.MissingCapabilityGrant
   ),

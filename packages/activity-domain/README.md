@@ -4,7 +4,7 @@ Thin package boundary for activity-domain metadata and focused proof coverage.
 
 ## Public Surface
 
-- `./package-info` via [src/package-info.ts](C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\packages\activity-domain\src\package-info.ts)
+- `./package-info` via [src/package-info.ts](C:\Users\sujan.codex\worktrees\ocentra-parent-codex-a\OcentraParent\packages\activity-domain\src\package-info.ts)
 
 ## What Stays Here
 

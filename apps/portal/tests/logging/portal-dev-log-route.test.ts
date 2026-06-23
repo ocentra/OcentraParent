@@ -1,12 +1,14 @@
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import { DevLogBridge, DevLogEndpoint, DevLogMessage, type LogFields } from '@ocentra-parent/schema-domain/logging-contracts';
-import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import {
-  resolvePortalDevLogBridgeUrl,
-  sendPortalDevLog,
-} from '../../src/dev-logger';
+  DevLogBridge,
+  DevLogEndpoint,
+  DevLogMessage,
+  type LogFields,
+} from '@ocentra-parent/schema-domain/logging-contracts';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { resolvePortalDevLogBridgeUrl, sendPortalDevLog } from '../../src/dev-logger';
 
 async function closeServer(server: ReturnType<typeof createServer>): Promise<void> {
   await new Promise<void>((resolve, reject) => {
@@ -33,6 +35,13 @@ describe('portal dev log routing', () => {
     }
   });
 
+  portalDevLogBridgeUrlTests();
+  portalDevLogBridgeWriteTests(servers);
+  portalDevLogFallbackTests(servers);
+  portalDevLogUnavailableTests();
+});
+
+function portalDevLogBridgeUrlTests(): void {
   it('resolvePortalDevLogBridgeUrl: prefers injected runtime config and otherwise falls back to the bridge default', () => {
     expect(resolvePortalDevLogBridgeUrl({})).toBe(DevLogBridge.DefaultUrl);
     expect(
@@ -41,7 +50,9 @@ describe('portal dev log routing', () => {
       })
     ).toBe('http://127.0.0.1:4999');
   });
+}
 
+function portalDevLogBridgeWriteTests(servers: Array<ReturnType<typeof createServer>>): void {
   it('sendPortalDevLog: writes bridge-compatible portal rows through the configured local bridge', async () => {
     let healthChecks = 0;
     let receivedBody = '';
@@ -76,11 +87,7 @@ describe('portal dev log routing', () => {
     const address = server.address() as AddressInfo;
     const fields: LogFields = { agentWebSocketUrl: 'ws://127.0.0.1:4477/api/dev/ws' };
 
-    const sent = await sendPortalDevLog(
-      DevLogMessage.PortalStarted,
-      fields,
-      `http://127.0.0.1:${address.port}`
-    );
+    const sent = await sendPortalDevLog(DevLogMessage.PortalStarted, fields, `http://127.0.0.1:${address.port}`);
 
     expect(sent).toBe(true);
     expect(healthChecks).toBe(1);
@@ -111,7 +118,9 @@ describe('portal dev log routing', () => {
     expect(payload[0]?.log.file_path).toContain('dev-logger.ts');
     expect(JSON.parse(payload[0]?.log.data ?? '{}')).toMatchObject(fields);
   });
+}
 
+function portalDevLogFallbackTests(servers: Array<ReturnType<typeof createServer>>): void {
   it('sendPortalDevLog: falls back to the same-origin compatibility endpoint when the bridge is unavailable', async () => {
     let receivedBody = '';
     const server = createServer((request, response) => {
@@ -153,14 +162,12 @@ describe('portal dev log routing', () => {
       fields,
     });
   });
+}
 
+function portalDevLogUnavailableTests(): void {
   it('sendPortalDevLog: returns false when the bridge is unavailable', async () => {
-    const sent = await sendPortalDevLog(
-      DevLogMessage.PortalStarted,
-      {},
-      'http://127.0.0.1:1'
-    );
+    const sent = await sendPortalDevLog(DevLogMessage.PortalStarted, {}, 'http://127.0.0.1:1');
 
     expect(sent).toBe(false);
   });
-});
+}

@@ -68,7 +68,9 @@ export const LocalModelRuntimeStatusSchema = withParser(LocalModelRuntimeStatusB
 export const LocalProviderAdapterProbeSchema = withParser(
   LocalProviderAdapterProbeBaseSchema.pipe(
     Schema.filter(
-      (probe) => localProviderAdapterProbeReadinessIsConsistent(probe) || 'Expected local provider adapter readiness to match execution permission'
+      (probe) =>
+        localProviderAdapterProbeReadinessIsConsistent(probe) ||
+        'Expected local provider adapter readiness to match execution permission'
     )
   )
 );
@@ -86,7 +88,10 @@ function localProviderAdapterProbeReadinessIsConsistent(probe: LocalProviderAdap
       probe.unavailableReason === null
     );
   }
-  return probe.executionAllowed === false && (probe.probeState === 'probe-failed' || probe.configurationState === 'local-provider-config-invalid');
+  return (
+    probe.executionAllowed === false &&
+    (probe.probeState === 'probe-failed' || probe.configurationState === 'local-provider-config-invalid')
+  );
 }
 
 export const LocalProviderCapabilitySchema = withParser(

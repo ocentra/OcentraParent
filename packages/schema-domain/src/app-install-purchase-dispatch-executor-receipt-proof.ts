@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExecutionReceiptGateProofReadModel } from './app-install-purchase-execution-receipt-gate-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -73,10 +68,16 @@ const DispatchExecutorReceiptIntegrationClaimSchema = withParser(Schema.Literal(
 const DispatchExecutorReceiptAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const DispatchExecutorReceiptCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const DispatchExecutorReceiptRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptRowId');
+const DispatchExecutorReceiptRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseDispatchExecutorReceiptRowId'
+);
 const DispatchExecutorReceiptRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptRef');
-const DispatchExecutorReceiptAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptAuditRef');
-const DispatchExecutorReceiptBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptBoundary');
+const DispatchExecutorReceiptAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseDispatchExecutorReceiptAuditRef'
+);
+const DispatchExecutorReceiptBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseDispatchExecutorReceiptBoundary'
+);
 
 const DispatchExecutorReceiptRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseDispatchExecutorReceiptProofSchemaVersionSchema,
@@ -307,4 +308,3 @@ function dispatchExecutorReceiptBoundaryIsExplicit(
 ): boolean {
   return DispatchExecutorReceiptBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

@@ -78,6 +78,31 @@ Required artifacts:
 16-validation-commands.log
 ```
 
+## Vertical-slice proof boundary
+
+WP10 proves one selected proof-trace vertical path plus reusable helpers. It does not prove all product proof-trace routes, all Playwright ownership, full UI coverage, or product feature completion.
+
+Required proof fields:
+
+```text
+proof_trace_id
+selected_path
+source_context_state
+proof_mode_enable_state
+proof_mode_disable_state
+flush_ingest_state
+ordered_trace_state
+missing_step_state
+out_of_order_state
+cli_query_state
+mcp_query_state
+retention_wipe_state
+product_flow_scope
+no_claim
+```
+
+If an equivalent non-Playwright UI-to-result smoke is used, record that explicitly and do not claim Playwright-specific coverage.
+
 ## Checklist rows
 
 - [ ] Proof trace mode controls added.
@@ -181,6 +206,8 @@ What this does not yet prove:
 - every product proof-trace route
 - Playwright-specific ownership for the current equivalent UI-to-result smoke artifact
 - full WP10 checklist closeout
+- full product UI coverage
+- product feature completion
 ```
 
 Required next step for truthful closeout:
@@ -188,4 +215,5 @@ Required next step for truthful closeout:
 ```text
 - use the restored WP10 proof roots when closing WP03 and WP06 so downstream docs stop implying missing proof data
 - keep WP10 claims scoped to one selected vertical proof-trace path plus reusable helpers
+- either mark checklist rows with proof references or keep them open as partial-proof
 ```

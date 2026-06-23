@@ -6,7 +6,7 @@ use crate::{
     ParentDeviceReference, ParentEvidenceReference,
 };
 
-pub(crate) mod provider_route;
+pub mod provider_route;
 
 use provider_route::ParentAssistantProviderRoute;
 

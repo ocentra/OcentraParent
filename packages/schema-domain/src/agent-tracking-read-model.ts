@@ -1,11 +1,6 @@
 import { ActivityQuerySchemaVersion } from './activity-query';
 import { ActivityEvidenceRefSchema } from './evidence-contracts';
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from './effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
 
 const TrackingProtocolCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NullableTrackingProtocolText = Schema.Union(NonEmptyStringSchema, Schema.Null);

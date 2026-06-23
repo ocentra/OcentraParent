@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   BillingSupportAdminChildActivityCustodyExcludedSchema,
   BillingSupportAdminEvidenceExportRetainedSchema,
@@ -11,7 +6,8 @@ import {
   BillingSupportAdminPortalUiNotImplementedSchema,
   BillingSupportAdminProviderNotExecutedSchema,
   BillingSupportAdminSharedDataClassValues,
-  BillingSupportAdminSharedNonClaimValues,} from './billing-support-admin-common-values';
+  BillingSupportAdminSharedNonClaimValues,
+} from './billing-support-admin-common-values';
 
 export const BillingSupportAdminStatusSchemaVersionSchema = withParser(
   Schema.Literal('billing-support-admin-status-proof')
@@ -39,9 +35,7 @@ const BillingSupportAdminStatusNonClaimValues = [
   'no-billing-provider-contact-execution',
   'no-account-lookup-execution',
 ] as const;
-export const BillingSupportAdminStatusRowSchema = withParser(
-  Schema.Literal(...BillingSupportAdminStatusRowValues)
-);
+export const BillingSupportAdminStatusRowSchema = withParser(Schema.Literal(...BillingSupportAdminStatusRowValues));
 export const BillingSupportAdminStatusRuntimeStateSchema = withParser(
   Schema.Literal(...BillingSupportAdminStatusRuntimeStateValues)
 );
@@ -68,11 +62,12 @@ export const BillingSupportAdminStatusChildActivityCustodyClaimSchema =
   BillingSupportAdminChildActivityCustodyExcludedSchema;
 
 export const BillingSupportAdminStatusIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminStatusId');
-export const BillingSupportAdminStatusAuditReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminStatusAuditReference');
+export const BillingSupportAdminStatusAuditReferenceSchema = brandedNonEmptyStringSchema(
+  'BillingSupportAdminStatusAuditReference'
+);
 
 export type BillingSupportAdminStatusRow = Infer<typeof BillingSupportAdminStatusRowSchema>;
 export type BillingSupportAdminStatusRuntimeState = Infer<typeof BillingSupportAdminStatusRuntimeStateSchema>;
 export type BillingSupportAdminStatusDataClass = Infer<typeof BillingSupportAdminStatusDataClassSchema>;
 export type BillingSupportAdminStatusNonClaim = Infer<typeof BillingSupportAdminStatusNonClaimSchema>;
 export type BillingSupportAdminStatusProofRef = Infer<typeof BillingSupportAdminStatusProofRefSchema>;
-

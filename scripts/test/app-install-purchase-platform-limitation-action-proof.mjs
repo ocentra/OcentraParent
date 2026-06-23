@@ -77,13 +77,12 @@ async function main() {
     docsState: 'feature-expectation-docs-updated-checklist-readme-not-touched',
     evidence: {
       platformLimitationActionContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
       sourceProviderStoreReportStatusContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-report-status-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-report-status-proof.ts',
       sourceReportStatusReadModelContract:
-        'packages/app-game-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts',
-      contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-platform-limitation-action-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-limitation-action-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md updated for platform limitation action proof.',
       expectationDoc:
         'docs/expectations/app-install-purchase-approval.md updated for platform limitation action proof.',

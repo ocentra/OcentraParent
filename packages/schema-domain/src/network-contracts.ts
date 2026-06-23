@@ -29,14 +29,35 @@ export const ActivityNetworkClaimScopeSchema = withParser(
   )
 );
 export const ActivityNetworkUnsupportedClaimSchema = withParser(
-  Schema.Literal('exact-url', 'exact-video', 'private-message', 'search-query', 'page-content', 'screen-activity', 'decrypted-payload')
+  Schema.Literal(
+    'exact-url',
+    'exact-video',
+    'private-message',
+    'search-query',
+    'page-content',
+    'screen-activity',
+    'decrypted-payload'
+  )
 );
 export const ActivityNetworkEvidenceGradeSchema = withParser(Schema.Literal('A', 'B', 'C', 'D'));
 export const ActivityNetworkDomainEvidenceSourceSchema = withParser(
   Schema.Literal('dns-query', 'dns-response', 'tls-sni', 'http-host', 'reverse-lookup', 'ip-only', 'unavailable')
 );
 export const ActivityNetworkActivityClassificationKindSchema = withParser(
-  Schema.Literal('social', 'video', 'game', 'cloud-gaming', 'vpn-proxy-tunnel', 'tor', 'remote-desktop', 'torrent', 'download', 'update', 'school-productivity', 'unknown')
+  Schema.Literal(
+    'social',
+    'video',
+    'game',
+    'cloud-gaming',
+    'vpn-proxy-tunnel',
+    'tor',
+    'remote-desktop',
+    'torrent',
+    'download',
+    'update',
+    'school-productivity',
+    'unknown'
+  )
 );
 export const ActivityNetworkAdapterCapabilityStateSchema = withParser(
   Schema.Literal('proved-available', 'manual-required', 'unavailable', 'dry-run-only')
@@ -62,8 +83,13 @@ export const ActivityNetworkFlowEvidenceSchema = withParser(
     unsupportedClaimAttempts: Schema.Array(ActivityNetworkUnsupportedClaimSchema),
     evidence: NonEmptyNetworkEvidenceRefs,
   }).pipe(
-    Schema.filter((flow) => flow.claimScopes.length > 0 || 'Expected network flow evidence to declare at least one supported claim scope'),
-    Schema.filter((flow) => flow.unsupportedClaimAttempts.length === 0 || 'Network-only evidence cannot claim private content')
+    Schema.filter(
+      (flow) =>
+        flow.claimScopes.length > 0 || 'Expected network flow evidence to declare at least one supported claim scope'
+    ),
+    Schema.filter(
+      (flow) => flow.unsupportedClaimAttempts.length === 0 || 'Network-only evidence cannot claim private content'
+    )
   )
 );
 
@@ -116,7 +142,9 @@ export const ActivityNetworkActivityClassificationSchema = withParser(
     evidenceIds: Schema.Array(ActivityEvidenceIdSchema),
     evidence: NonEmptyNetworkEvidenceRefs,
   }).pipe(
-    Schema.filter((entry) => entry.evidenceIds.length > 0 || 'Expected network activity classification to cite source evidence ids'),
+    Schema.filter(
+      (entry) => entry.evidenceIds.length > 0 || 'Expected network activity classification to cite source evidence ids'
+    ),
     Schema.filter(
       (entry) =>
         entry.kind !== 'unknown' ||
@@ -133,8 +161,18 @@ export const ActivityNetworkAdapterCapabilitySchema = withParser(
     proofRefs: Schema.Array(ActivityEvidenceRefSchema),
     manualRequiredReason: Schema.Union(NonEmptyStringSchema, Schema.Null),
   }).pipe(
-    Schema.filter((entry) => entry.state !== 'proved-available' || entry.proofRefs.length > 0 || 'Expected proved network adapter capability to cite proof refs'),
-    Schema.filter((entry) => (entry.state !== 'manual-required' && entry.state !== 'unavailable') || entry.manualRequiredReason !== null || 'Expected manual-required or unavailable network capability to include a reason')
+    Schema.filter(
+      (entry) =>
+        entry.state !== 'proved-available' ||
+        entry.proofRefs.length > 0 ||
+        'Expected proved network adapter capability to cite proof refs'
+    ),
+    Schema.filter(
+      (entry) =>
+        (entry.state !== 'manual-required' && entry.state !== 'unavailable') ||
+        entry.manualRequiredReason !== null ||
+        'Expected manual-required or unavailable network capability to include a reason'
+    )
   )
 );
 
@@ -158,9 +196,16 @@ export const ActivityNetworkPolicyActionSchema = withParser(
         entry.adapterCapability.state === 'proved-available' &&
         entry.policyDecisionRef !== null &&
         (entry.action === 'monitor' || entry.action === 'limit' || entry.action === 'block');
-      return entry.adapterCallAuthorized === canApply || 'Expected adapter authorization to match policy and proof state';
+      return (
+        entry.adapterCallAuthorized === canApply || 'Expected adapter authorization to match policy and proof state'
+      );
     }),
-    Schema.filter((entry) => entry.mode !== 'observe-only' || (entry.action === 'none' && entry.adapterCallAuthorized === false) || 'Expected observe-only network policy action to avoid adapter calls')
+    Schema.filter(
+      (entry) =>
+        entry.mode !== 'observe-only' ||
+        (entry.action === 'none' && entry.adapterCallAuthorized === false) ||
+        'Expected observe-only network policy action to avoid adapter calls'
+    )
   )
 );
 

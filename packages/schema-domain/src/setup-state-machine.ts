@@ -348,7 +348,10 @@ export function getAllowedSetupFirstRunTransitions(input: SetupFirstRunStateId):
   return SetupFirstRunStateIdArraySchema.parse(uniqueStateIds(nextStateIds));
 }
 
-export function canTransitionSetupFirstRunState(fromStateId: SetupFirstRunStateId, toStateId: SetupFirstRunStateId): boolean {
+export function canTransitionSetupFirstRunState(
+  fromStateId: SetupFirstRunStateId,
+  toStateId: SetupFirstRunStateId
+): boolean {
   const from = SetupFirstRunStateIdSchema.parse(fromStateId);
   const to = SetupFirstRunStateIdSchema.parse(toStateId);
 
@@ -386,9 +389,7 @@ export function transitionSetupFirstRunState(input: SetupFirstRunTransitionReque
   }
 
   if (!canTransitionSetupFirstRunState(transition.fromStateId, transition.toStateId)) {
-    throw new Error(
-      `Invalid setup first-run transition from ${transition.fromStateId} to ${transition.toStateId}.`
-    );
+    throw new Error(`Invalid setup first-run transition from ${transition.fromStateId} to ${transition.toStateId}.`);
   }
 
   const resolvedState = resolveSetupFirstRunState({

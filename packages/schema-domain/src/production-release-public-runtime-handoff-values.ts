@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionReleasePublicRuntimeHandoffSchemaVersionSchema = withParser(
   Schema.Literal('production-release-public-runtime-handoff-proof')
@@ -108,8 +104,12 @@ export const ProductionReleasePublicRuntimeExecutionClaimSchema = withParser(
   Schema.Literal('not-executed', 'manual-required', 'promotion-required', 'executed')
 );
 
-export const PublicRuntimeHandoffReferenceSchema = brandedNonEmptyStringSchema('ProductionReleasePublicRuntimeHandoffReference');
-export const PublicRuntimeHandoffRequirementSchema = brandedNonEmptyStringSchema('ProductionReleasePublicRuntimeHandoffRequirement');
+export const PublicRuntimeHandoffReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionReleasePublicRuntimeHandoffReference'
+);
+export const PublicRuntimeHandoffRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionReleasePublicRuntimeHandoffRequirement'
+);
 
 export const ForbiddenPublicRuntimeDataClasses = [
   'child-activity-evidence',
@@ -153,4 +153,3 @@ export const RequiredPublicRuntimeNonClaims = [
   'no-child-activity-custody',
   'no-real-device-store-proof',
 ] as const;
-

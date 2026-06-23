@@ -21,15 +21,18 @@ Define parent invite, co-parent invite, observer invite, child-device invite/pai
 ## Required inputs
 
 ```text
+workpacks/00-owner-boundary-proof-gate.md
 workpacks/01-auth-provider-decision.md
 workpacks/02-identity-household-role-model.md
 workpacks/03-session-token-lifecycle.md
 RESEARCH_AND_DECISIONS.md
 docs/expectations/family-setup.md
 docs/expectations/data-custody.md
+packages/schema-domain setup/invite/recovery exports when shared shape changes are required
 packages/family-domain/src/setup-lifecycle.ts
 packages/family-domain/src/session-lifecycle.ts
 packages/family-domain/tests/unit/setup-lifecycle.test.ts
+packages/setup-domain/** only when setup consumer proof is selected
 ```
 
 ## Required lifecycle
@@ -69,12 +72,30 @@ rate-limit behavior exists or is explicitly blocked
 Likely paths:
 
 ```text
+packages/schema-domain/** only when canonical shared setup/invite/recovery shapes change
 packages/family-domain/src/setup-lifecycle.ts
 packages/family-domain/src/session-lifecycle.ts
 packages/family-domain/src/household-authority.ts
 packages/family-domain/tests/unit/setup-lifecycle.test.ts
 packages/family-domain/tests/unit/session-lifecycle.test.ts
+packages/setup-domain/** only when setup consumer proof is selected
 ```
+
+## Current owner/import/proof constraints
+
+This workpack owns invite/recovery lifecycle contracts and handoff proof. It does not own storage export/delete execution, support tooling, setup UI polish, or provider/session runtime implementation.
+
+```text
+schema-domain: canonical shared invite/recovery/setup handoff shapes when cross-boundary.
+family-domain: helper/projection and TypeScript lifecycle tests.
+setup-domain: consumer proof only when selected.
+data-custody-storage-plan: export/delete execution owner.
+support/admin tooling: external owner unless explicitly selected.
+```
+
+Allowed direct imports are limited to `schema-domain`, neutral protocol/evidence/logging/capability primitives, approved `family-domain`/`setup-domain` helpers when selected, and pure common helpers. Do not import data-custody or support tooling runtime internals to prove lifecycle handoff.
+
+Proof must state that delete/export is authorization/handoff only, not custody execution. It must also include negative cases for expired/revoked/reused/wrong-household/wrong-role invites and recovery misuse.
 
 ## Required proof root
 
@@ -118,6 +139,14 @@ npm run test --workspace @ocentra-parent/family-domain -- recovery
 npm run lint:architecture -- --files packages/family-domain
 ```
 
+If canonical schema or setup consumer proof changes:
+
+```bash
+npm run build --workspace @ocentra-parent/schema-domain
+npm run build --workspace @ocentra-parent/setup-domain
+npm run test --workspace @ocentra-parent/setup-domain -- family
+```
+
 ## Negative cases
 
 - Expired invite denied.
@@ -125,7 +154,7 @@ npm run lint:architecture -- --files packages/family-domain
 - Reused invite denied.
 - Wrong-household invite denied.
 - Wrong-role invite denied.
-- Recovery request cannot bypass owner authority.
+- Recovery request cannot replace owner authority.
 - Support recovery cannot act as owner without explicit audited support state.
 - Delete/export request is not executed by account plan.
 
@@ -136,6 +165,7 @@ Actual storage export/delete mechanics stay in `data-custody-storage-plan`. Supp
 ## Fill before DONE
 
 - Workpack id and branch: `WP04 Invites Recovery Lifecycle`; `codex/tracking-plan-full-continuation-a`.
+- Current branch note: this historical completion record predates the plan-harness branch. On `codex/plan-harness-update`, treat it as prior proof evidence only; new edits must follow `workpacks/00-owner-boundary-proof-gate.md`, `TEST_PROOF_EXPECTATIONS.md`, and `PROOF_INDEX.md`.
 - Current status: complete for the local contract/proof slice. `00-invite-state-machine-proof.md`, `01-invite-negative-proof.md`, `02-recovery-state-machine-proof.md`, `03-recovery-abuse-proof.md`, `04-delete-export-handoff-proof.md`, `05-support-recovery-audit-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/`.
 - Contract/source changes in this slice: `packages/family-domain/tests/unit/setup-lifecycle.test.ts` had already been repaired to include the live anti-abuse schema inputs, and `packages/family-domain/src/setup-lifecycle.ts` needed one local exhaustiveness repair so the WP04 build gate could pass truthfully.
 - Touched files:

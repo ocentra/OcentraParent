@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LocalAiStoredEvidenceContextBuildInputSchema,
   type LocalAiEvidenceContextBuildResult,
@@ -205,4 +200,3 @@ function localAiParentRuleContextBuilderProofIsReady(proof: LocalAiParentRuleCon
     proof.validationSummary.enforcementRows === 0
   );
 }
-

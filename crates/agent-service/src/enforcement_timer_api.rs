@@ -4,10 +4,15 @@ use ocentra_parent_agent_core::enforcement_app_time_limit::{
 use ocentra_parent_agent_core::enforcement_timer_state::{
     cancelled_timer_outcome, expired_timer_outcome, restart_recovered_timer_outcome,
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    EnforcementActiveTimerState, LogFieldValue, LogFields, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     enforcement_api::EnforcementJournalPaths,

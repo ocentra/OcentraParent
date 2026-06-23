@@ -32,10 +32,10 @@ pub enum CommandLine {
 
 pub fn parse_args() -> Result<CommandLine, UpdaterError> {
     let args = env::args().skip(1).collect::<Vec<_>>();
-    parse_args_from(args)
+    parse_args_from(&args)
 }
 
-pub fn parse_args_from(args: Vec<String>) -> Result<CommandLine, UpdaterError> {
+pub fn parse_args_from(args: &[String]) -> Result<CommandLine, UpdaterError> {
     let Some(command) = args.first() else {
         return Err(UpdaterError::Usage("expected updater command".to_owned()));
     };
@@ -71,7 +71,9 @@ pub fn parse_args_from(args: Vec<String>) -> Result<CommandLine, UpdaterError> {
                 DEFAULT_INTERVAL_SECONDS.to_string(),
             )?
             .parse()
-            .map_err(|_| UpdaterError::Usage("--interval-seconds must be an integer".to_owned()))?,
+            .map_err(|error| {
+                UpdaterError::Usage(format!("--interval-seconds must be an integer: {error}"))
+            })?,
         }),
         value => Err(UpdaterError::Usage(format!(
             "unknown updater command: {value}"
@@ -114,7 +116,7 @@ mod tests {
 
     #[test]
     fn parse_run_once_dry_run_command() {
-        let parsed = parse_args_from(vec![
+        let args = vec![
             "run-once".to_owned(),
             "--manifest-url".to_owned(),
             "https://github.com/ocentra/OcentraParent/releases/latest/download/latest-windows.json"
@@ -122,20 +124,27 @@ mod tests {
             "--dry-run".to_owned(),
             "--current-version".to_owned(),
             "0.1.0".to_owned(),
-        ])
-        .expect("args parse");
+        ];
+        let parsed_result = parse_args_from(&args);
+        assert!(
+            parsed_result.is_ok(),
+            "args parse failed: {parsed_result:?}"
+        );
+        let Ok(parsed) = parsed_result else {
+            return;
+        };
 
-        match parsed {
-            CommandLine::RunOnce {
-                manifest_url,
-                dry_run,
-                current_version,
-            } => {
-                assert!(dry_run);
-                assert_eq!(manifest_url, DEFAULT_MANIFEST_URL);
-                assert_eq!(current_version, "0.1.0");
-            }
-            _ => panic!("expected run-once command"),
+        if let CommandLine::RunOnce {
+            manifest_url,
+            dry_run,
+            current_version,
+        } = parsed
+        {
+            assert!(dry_run);
+            assert_eq!(manifest_url, DEFAULT_MANIFEST_URL);
+            assert_eq!(current_version, "0.1.0");
+        } else {
+            assert!(matches!(parsed, CommandLine::RunOnce { .. }));
         }
     }
 }

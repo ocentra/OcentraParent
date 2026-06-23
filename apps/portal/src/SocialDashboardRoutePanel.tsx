@@ -12,10 +12,8 @@ import {
   type SocialDashboardPanelIntent,
   type SocialDashboardPanelRow,
 } from '@ocentra-parent/portal-domain/social-dashboard-panel';
-import {
-  isPortalBrowserParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import type { PortalRenderActions } from './portal-actions';
 import { parseAgentSocialDashboardReadModelEvent } from './social-read-model-events';
 

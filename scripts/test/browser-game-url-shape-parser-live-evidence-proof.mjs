@@ -3,10 +3,8 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 
-import {
-  BrowserGameUrlShapeParseResultSchema,
-} from '@ocentra-parent/schema-domain/browser-game-url-shape-parser';
-import { parseBrowserGameUrlShape } from '@ocentra-parent/browser-domain/browser-game-url-shape-parser';
+import { BrowserGameUrlShapeParseResultSchema } from '@ocentra-parent/schema-domain/browser-game-url-shape-parser';
+import { parseBrowserGameUrlShape } from '../../packages/browser-domain/dist/browser-game-url-shape-evaluator.js';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-url-shape-parser-live-evidence-proof';
@@ -66,7 +64,7 @@ const parseResults = captures.map(parseEvidenceFor);
 const negativeChecks = runNegativeChecks(parseResults[0].parseResult);
 
 if (!captures.every((capture) => capture.responseOk)) {
-  throw new Error('Expected all browser-game URL-shape public captures to return HTTP 2xx/3xx responses');
+  throw new Error('Expected all browser-game URL-shape live captures to return HTTP 2xx/3xx responses');
 }
 if (!parseResults.every((entry) => entry.parseResult.parseState === 'parsed')) {
   throw new Error('Expected every live browser-game URL-shape route to parse');
@@ -85,7 +83,7 @@ const proof = {
   branch,
   commit,
   baseCommit,
-  captureMode: 'real-public-browser-game-url-shape-parser',
+  captureMode: 'real-live-browser-game-url-shape-parser',
   targets: captures,
   parseResults,
   negativeChecks,

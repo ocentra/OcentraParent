@@ -1,6 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityIngestStatus, ActivityRecentSummary, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::activity_query::{ActivityIngestStatus, ActivityRecentSummary};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
 

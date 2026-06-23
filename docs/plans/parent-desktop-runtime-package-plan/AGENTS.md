@@ -23,22 +23,67 @@ Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects `docs/p
 - Task: work only the assigned slice for this plan.
 - Route first from `PLAN_STATE.md`.
 - Choose exactly one workpack.
+- Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
 - Do not inspect sibling plans unless the selected workpack names a handoff.
 - Proof must contain command log, negative case, artifact path, updated row, and skipped-risk note when applicable.
 - Do not claim desktop, web, Android, or iOS parity from scaffold or launch smoke alone.
 
+## Ownership, Import, And Boundary Contract
+
+This plan owns distribution proof for parent client artifacts. It does not own child-agent runtime distribution, setup journey state, account provider behavior, device trust bootstrap, policy behavior, billing behavior, remote access, data custody, or child capture/enforcement adapters.
+
+Module roles:
+
+```text
+apps/portal: parent web portal source/projection surface and web distribution target when selected.
+portal-domain: shared portal contracts/projections when the selected parent-client proof needs them.
+parent-domain: parent client package/handoff contracts only when public exports exist and the selected workpack names them.
+scripts/dev: parent desktop dev launch helpers and local launch proof anchors.
+scripts/release: package/build/proof helpers for parent desktop/mobile artifacts when selected.
+setup-install-provisioning-plan: setup journey, install readiness, first-run state, and setup-side handoff owner.
+child-agent-runtime-distribution-plan: child package/runtime, child package lifecycle, tamper/uninstall, and child-specific artifact owner.
+device-trust-bootstrap-plan: trusted-device bootstrap, local sealed trust, and parent presence/approval owner.
+account-identity-family-plan, payment-subscription-plan, policy-control-plane-plan, remote-access-plan, and data-custody-storage-plan: sibling owners for their respective product behavior and handoffs.
+```
+
+Direct imports are allowed only for explicit public helper surfaces:
+
+```text
+apps/portal and portal-domain public build/projection contracts when selected
+parent-domain public contract exports when they actually exist and are selected
+scripts/dev and scripts/release proof helpers for selected artifact proof
+neutral schema, evidence, logging, and protocol helpers that do not own sibling product behavior
+```
+
+Forbidden direct imports and claims:
+
+```text
+child-agent package/runtime internals imported into parent client distribution proof
+setup journey or account/device-trust internals imported to claim package readiness
+portal shell UX proof upgraded into distribution proof without build/artifact proof
+web build upgraded into production account portal readiness
+desktop launch smoke upgraded into desktop product readiness
+mobile scaffold upgraded into Android/iOS platform support
+package artifact upgraded into setup completion
+route bridge upgraded into child-agent authority
+unsigned, unnotarized, unpublished, or side-loaded artifacts upgraded into release readiness
+CI success upgraded into release proof without artifact, negative case, and rollback/no-claim evidence
+```
+
+If parent-client distribution needs setup, account, device trust, payment, policy, remote access, data custody, portal UX, or child runtime behavior, it must use typed handoffs, proof roots, and explicit no-claim boundaries. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
+
 ## Research gate
 
-Before DONE or PR_READY, inspect:
+Before DONE or PR_READY, inspect only the selected slice of:
 
 - the current repo parent client surfaces in `apps/portal`
 - the parent desktop launch and mobile proof scripts in `package.json`
-- official docs for Tauri v2 distribution and security capabilities
-- Windows signing / MSI / MSIX guidance
-- macOS signing / notarization / Developer ID guidance
-- Linux package / signing guidance
-- Android App Bundle / Play App Signing guidance
-- iOS signing / provisioning / TestFlight / App Store guidance
+- official docs for Tauri v2 distribution and security capabilities when desktop packaging is selected
+- Windows signing / MSI / MSIX guidance when Windows desktop release is selected
+- macOS signing / notarization / Developer ID guidance when macOS desktop release is selected
+- Linux package / signing guidance when Linux desktop release is selected
+- Android App Bundle / Play App Signing guidance when parent Android release is selected
+- iOS signing / provisioning / TestFlight / App Store guidance when parent iOS release is selected
 - Cloudflare Pages or Worker deploy docs if the web portal is hosted there
 
 ## Decision tree

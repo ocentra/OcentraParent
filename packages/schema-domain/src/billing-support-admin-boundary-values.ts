@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   BillingSupportAdminAuditReferenceSchema as BillingSupportAdminSharedAuditReferenceSchema,
   BillingSupportAdminChildActivityCustodyExcludedSchema,
@@ -11,7 +6,8 @@ import {
   BillingSupportAdminProviderNotExecutedSchema,
   BillingSupportAdminProviderSecretCustodyAbsentSchema,
   BillingSupportAdminSharedNonClaimValues,
-  BillingSupportAdminSharedDataClassSchema,} from './billing-support-admin-common-values';
+  BillingSupportAdminSharedDataClassSchema,
+} from './billing-support-admin-common-values';
 
 export const BillingSupportAdminSchemaVersionSchema = withParser(
   Schema.Literal('billing-support-admin-boundary-proof')
@@ -24,26 +20,18 @@ const BillingSupportAdminActionValues = [
   'entitlement-admin-override-manual-required',
   'refund-credit-manual-required',
 ] as const;
-const BillingSupportAdminRuntimeStateValues = [
-  'read-only-local-proof',
-  'manual-required',
-  'not-implemented',
-] as const;
+const BillingSupportAdminRuntimeStateValues = ['read-only-local-proof', 'manual-required', 'not-implemented'] as const;
 const BillingSupportAdminNonClaimValues = [
   ...BillingSupportAdminSharedNonClaimValues,
   'no-billing-provider-contact',
   'no-account-backend-admin-runtime',
 ] as const;
-export const BillingSupportAdminActionSchema = withParser(
-  Schema.Literal(...BillingSupportAdminActionValues)
-);
+export const BillingSupportAdminActionSchema = withParser(Schema.Literal(...BillingSupportAdminActionValues));
 export const BillingSupportAdminRuntimeStateSchema = withParser(
   Schema.Literal(...BillingSupportAdminRuntimeStateValues)
 );
 export const BillingSupportAdminDataClassSchema = BillingSupportAdminSharedDataClassSchema;
-export const BillingSupportAdminNonClaimSchema = withParser(
-  Schema.Literal(...BillingSupportAdminNonClaimValues)
-);
+export const BillingSupportAdminNonClaimSchema = withParser(Schema.Literal(...BillingSupportAdminNonClaimValues));
 export const BillingSupportAdminProviderSecretCustodySchema = BillingSupportAdminProviderSecretCustodyAbsentSchema;
 export const BillingSupportAdminPortalUiClaimSchema = BillingSupportAdminPortalUiNotImplementedSchema;
 export const BillingSupportAdminProviderContactClaimSchema = BillingSupportAdminProviderNotExecutedSchema;
@@ -58,4 +46,3 @@ export type BillingSupportAdminAction = Infer<typeof BillingSupportAdminActionSc
 export type BillingSupportAdminRuntimeState = Infer<typeof BillingSupportAdminRuntimeStateSchema>;
 export type BillingSupportAdminDataClass = Infer<typeof BillingSupportAdminDataClassSchema>;
 export type BillingSupportAdminNonClaim = Infer<typeof BillingSupportAdminNonClaimSchema>;
-

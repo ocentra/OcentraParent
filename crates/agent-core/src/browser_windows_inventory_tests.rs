@@ -1,10 +1,12 @@
-use std::path::PathBuf;
+use std::{fmt::Debug, path::PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, BrowserCapabilityStatus, BrowserExactUrlCapability, BrowserFamily,
-    BrowserInventoryInstallState, BrowserInventoryRunningState, BrowserManagementTier,
-    BrowserSupportTier,
-};
+use ocentra_parent_agent_protocol::browser::{BrowserCapabilityStatus, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_inventory::BrowserExactUrlCapability;
+use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryInstallState;
+use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryRunningState;
+use ocentra_parent_agent_protocol::browser_inventory::BrowserManagementTier;
+use ocentra_parent_agent_protocol::browser_inventory::BrowserSupportTier;
+use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     browser_windows_inventory_paths::{
@@ -15,8 +17,18 @@ use crate::{
     windows_browser_inventory_observations, ProcessObservation,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
+
 #[test]
-fn windows_browser_inventory_classifies_supported_managed_candidates() {
+fn windows_browser_inventory_classifies_supported_managed_candidates() -> TestResult {
     let root = temp_inventory_root(1);
     let edge = root
         .join(constants::browser::PATH_SEGMENT_MICROSOFT)
@@ -28,11 +40,10 @@ fn windows_browser_inventory_classifies_supported_managed_candidates() {
         .join(constants::browser::PATH_SEGMENT_CHROME_FOR_TESTING)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
-    create_executable_fixture(&edge);
-    create_executable_fixture(&chrome_testing);
+    create_executable_fixture(&edge)?;
+    create_executable_fixture(&chrome_testing)?;
 
-    let observations =
-        windows_browser_inventory_observations(&[edge.clone(), chrome_testing.clone()], &[], None);
+    let observations = windows_browser_inventory_observations(&[edge, chrome_testing], &[], None);
 
     assert_eq!(observations.len(), 2);
     assert!(observations.iter().any(|observation| {
@@ -48,17 +59,19 @@ fn windows_browser_inventory_classifies_supported_managed_candidates() {
     }));
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn windows_browser_inventory_marks_unproved_chromium_forks_manual_required() {
+fn windows_browser_inventory_marks_unproved_chromium_forks_manual_required() -> TestResult {
     let root = temp_inventory_root(2);
     let brave = root
         .join(constants::browser::PATH_SEGMENT_BRAVE_SOFTWARE)
         .join(constants::browser::PATH_SEGMENT_BRAVE_BROWSER)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_BRAVE_WINDOWS);
-    create_executable_fixture(&brave);
+    create_executable_fixture(&brave)?;
 
     let observations = windows_browser_inventory_observations(&[brave], &[], None);
 
@@ -75,16 +88,18 @@ fn windows_browser_inventory_marks_unproved_chromium_forks_manual_required() {
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn windows_browser_inventory_keeps_firefox_unsupported_until_later_adapter() {
+fn windows_browser_inventory_keeps_firefox_unsupported_until_later_adapter() -> TestResult {
     let root = temp_inventory_root(3);
     let firefox = root
         .join(constants::browser::PATH_SEGMENT_MOZILLA_FIREFOX)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_FIREFOX_WINDOWS);
-    create_executable_fixture(&firefox);
+    create_executable_fixture(&firefox)?;
 
     let observations = windows_browser_inventory_observations(&[firefox], &[], None);
 
@@ -104,6 +119,8 @@ fn windows_browser_inventory_keeps_firefox_unsupported_until_later_adapter() {
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
@@ -176,14 +193,14 @@ fn windows_browser_inventory_uses_process_executable_path_for_identity() {
 }
 
 #[test]
-fn windows_browser_inventory_collapses_installed_candidate_and_running_process() {
+fn windows_browser_inventory_collapses_installed_candidate_and_running_process() -> TestResult {
     let root = temp_inventory_root(5);
     let edge = root
         .join(constants::browser::PATH_SEGMENT_MICROSOFT)
         .join(constants::browser::PATH_SEGMENT_EDGE)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
-    create_executable_fixture(&edge);
+    create_executable_fixture(&edge)?;
     let process = ProcessObservation {
         pid: constants::browser::DEVTOOLS_TEST_UNMANAGED_PROCESS_ID,
         name: constants::browser::EXECUTABLE_MSEDGE_WINDOWS.to_string(),
@@ -224,6 +241,8 @@ fn windows_browser_inventory_collapses_installed_candidate_and_running_process()
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
@@ -336,7 +355,8 @@ fn windows_browser_inventory_generates_candidates_from_multiple_roots() {
 }
 
 #[test]
-fn windows_browser_inventory_derives_registry_candidates_from_display_icon_and_install_location() {
+fn windows_browser_inventory_derives_registry_candidates_from_display_icon_and_install_location(
+) -> TestResult {
     let root = temp_inventory_root(6);
     let edge = root
         .join(constants::browser::PATH_SEGMENT_MICROSOFT)
@@ -349,8 +369,8 @@ fn windows_browser_inventory_derives_registry_candidates_from_display_icon_and_i
     let chrome = chrome_root
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
-    create_executable_fixture(&edge);
-    create_executable_fixture(&chrome);
+    create_executable_fixture(&edge)?;
+    create_executable_fixture(&chrome)?;
     let mut display_icon = String::new();
     display_icon.push('"');
     display_icon.push_str(edge.to_string_lossy().as_ref());
@@ -383,17 +403,19 @@ fn windows_browser_inventory_derives_registry_candidates_from_display_icon_and_i
     }));
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn windows_browser_inventory_derives_shortcut_target_candidates_without_url_claims() {
+fn windows_browser_inventory_derives_shortcut_target_candidates_without_url_claims() -> TestResult {
     let root = temp_inventory_root(7);
     let brave = root
         .join(constants::browser::PATH_SEGMENT_BRAVE_SOFTWARE)
         .join(constants::browser::PATH_SEGMENT_BRAVE_BROWSER)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_BRAVE_WINDOWS);
-    create_executable_fixture(&brave);
+    create_executable_fixture(&brave)?;
     let mut target = String::new();
     target.push('"');
     target.push_str(brave.to_string_lossy().as_ref());
@@ -425,17 +447,19 @@ fn windows_browser_inventory_derives_shortcut_target_candidates_without_url_clai
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn windows_browser_inventory_derives_unquoted_command_targets_without_url_claims() {
+fn windows_browser_inventory_derives_unquoted_command_targets_without_url_claims() -> TestResult {
     let root = temp_inventory_root(8);
     let chrome = root
         .join(constants::browser::PATH_SEGMENT_GOOGLE)
         .join(constants::browser::PATH_SEGMENT_CHROME)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
-    create_executable_fixture(&chrome);
+    create_executable_fixture(&chrome)?;
     let mut target = String::new();
     target.push_str(chrome.to_string_lossy().as_ref());
     target.push(' ');
@@ -469,17 +493,19 @@ fn windows_browser_inventory_derives_unquoted_command_targets_without_url_claims
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn windows_browser_inventory_expands_env_var_targets_without_url_claims() {
+fn windows_browser_inventory_expands_env_var_targets_without_url_claims() -> TestResult {
     let root = temp_inventory_root(9);
     let chrome = root
         .join(constants::browser::PATH_SEGMENT_GOOGLE)
         .join(constants::browser::PATH_SEGMENT_CHROME)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
-    create_executable_fixture(&chrome);
+    create_executable_fixture(&chrome)?;
     let env_var_name = constants::env_var::AGENT_BROWSER_POLICY_STORE_PATH;
     let previous_env_var_value = std::env::var_os(env_var_name);
     std::env::set_var(env_var_name, &root);
@@ -531,10 +557,12 @@ fn windows_browser_inventory_expands_env_var_targets_without_url_claims() {
         std::env::remove_var(env_var_name);
     }
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn windows_browser_inventory_marks_windowsapps_path_as_packaged() {
+fn windows_browser_inventory_marks_windowsapps_path_as_packaged() -> TestResult {
     let test_root = temp_inventory_root(4);
     let root = test_root
         .join(constants::browser::PATH_SEGMENT_WINDOWS_APPS)
@@ -542,7 +570,7 @@ fn windows_browser_inventory_marks_windowsapps_path_as_packaged() {
         .join(constants::browser::PATH_SEGMENT_EDGE)
         .join(constants::browser::PATH_SEGMENT_APPLICATION);
     let edge = root.join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
-    create_executable_fixture(&edge);
+    create_executable_fixture(&edge)?;
 
     let observations =
         windows_browser_inventory_observations(std::slice::from_ref(&edge), &[], None);
@@ -559,6 +587,8 @@ fn windows_browser_inventory_marks_windowsapps_path_as_packaged() {
     );
 
     let _ = std::fs::remove_dir_all(test_root);
+
+    Ok(())
 }
 
 #[test]
@@ -580,11 +610,18 @@ fn temp_inventory_root(suffix: u32) -> PathBuf {
     root
 }
 
-fn create_executable_fixture(path: &PathBuf) {
-    std::fs::create_dir_all(
-        path.parent()
-            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
-    )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+fn create_executable_fixture(path: &PathBuf) -> TestResult {
+    ok(
+        std::fs::create_dir_all(some(
+            path.parent(),
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+        )?),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    ok(
+        std::fs::write(path, []),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+
+    Ok(())
 }

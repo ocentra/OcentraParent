@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
-import { AppLogSchemaVersion, type AppLogEntry, type AppLogQuery, type AppLogStats } from '@ocentra-parent/schema-domain/app-log/types';
 import {
-  appendAppLogEntries,
-  listAppLogSessionFiles,
-  pruneAppLogSessions,
-  readAppLogEntries,
-} from './appNdjsonWriter';
+  AppLogSchemaVersion,
+  type AppLogEntry,
+  type AppLogQuery,
+  type AppLogStats,
+} from '@ocentra-parent/schema-domain/app-log/types';
+import { appendAppLogEntries, listAppLogSessionFiles, pruneAppLogSessions, readAppLogEntries } from './appNdjsonWriter';
 import { LogLevel } from '@ocentra-parent/schema-domain/logging-contracts';
 import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
@@ -47,11 +47,7 @@ function makeSessionId(): string {
   return `session-${Date.now()}-${crypto.randomUUID()}`;
 }
 
-function normalizeEntry(
-  scope: TestLogScope,
-  sessionId: string,
-  entry: AppLogEntryInput
-): AppLogEntry {
+function normalizeEntry(scope: TestLogScope, sessionId: string, entry: AppLogEntryInput): AppLogEntry {
   return {
     schemaVersion: AppLogSchemaVersion,
     sessionId,

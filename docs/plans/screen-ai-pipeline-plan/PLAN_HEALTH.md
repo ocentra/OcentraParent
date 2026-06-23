@@ -39,17 +39,28 @@ This file records documentation health and consistency checks for the plan. Upda
 
 - Update the assigned workpack.
 - Update the relevant checklist row/section.
-- Update `PLAN_STATE.md` and `NEXT_ACTIONS.md` if the current state changed.
+- Update `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `PROOF_INDEX.md`, and `TEST_PROOF_EXPECTATIONS.md` if current state changes.
+- Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
 - Retain the proof artifacts the assigned workpack names under `output/screen-ai-pipeline-proof/`.
 - Add or update `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md` if the slice claims closure.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Do not claim READY while the retained proof root is missing.
+- Do not claim READY while `PLAN_PROOF_MANIFEST.md` is missing for a slice-close claim.
+- Do not claim READY from mock-only proof, source-only proof, or happy-path-only proof.
+- Do not claim READY from local capture without AI/context/result proof.
+- Do not claim READY from AI result without schema/policy gate proof.
+- Do not claim READY from policy decision without dry-run/action-boundary proof.
+- Do not claim READY from dry-run proof as enforcement proof.
+- Do not claim READY from live-operator artifact gate as a live rerun.
+- Do not claim READY from custody proof without deletion/retention evidence.
+- Do not claim feature completeness until the relevant E2E tier in `TEST_PROOF_EXPECTATIONS.md` is explicitly proven or blocked.
 
 ## Agent route walkthrough
 
 - Landing decision: root `AGENTS.md` routes OCR/VLM pipeline, screen-to-AI evidence handoff, model result validation, and safety evaluation work here.
 - Scope split: AI pipeline processing, output contracts, redaction, result validation, prompt safety, and proof datasets stay here. Raw capture mechanics stay in screen-plan; shared AI provider/runtime stays in ai-plan when named.
-- Minimum read set: assigned pipeline workpack, exact checklist row, `TEST_PROOF_EXPECTATIONS.md`, and only the AI/screen bridge docs named by that workpack.
+- Minimum read set: assigned pipeline workpack, exact checklist row, `WORKPACK_FAMILIES.md` only when owner/proof family is unclear, `TEST_PROOF_EXPECTATIONS.md`, and only the AI/screen bridge docs named by that workpack.
 - Test/proof decision: require OCR/VLM output invariants, prompt-injection, hallucination regression, temperature sensitivity, redaction/custody, safety-boundary, schema rejection, and degraded model proof where touched.
 - DONE blocker: no screen-AI claim may move unless proof shows validated outputs, no direct policy authority, no unredacted leak, and deterministic handoff to the owning policy boundary.
 
@@ -65,7 +76,7 @@ This file records documentation health and consistency checks for the plan. Upda
 ### Scope and ownership
 
 - Scope and ownership: this file governs documentation routing, state, and proof expectations for `screen-ai-pipeline-plan`.
-- Ownership path: this plan is coordinated via `screen-ai-pipeline-plan/AGENTS.md`, `screen-ai-pipeline-plan/PLAN_STATE.md`, and `screen-ai-pipeline-plan/NEXT_ACTIONS.md` plus selected workpack files.
+- Ownership path: this plan is coordinated via `screen-ai-pipeline-plan/AGENTS.md`, `screen-ai-pipeline-plan/PLAN_STATE.md`, `screen-ai-pipeline-plan/NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `WORKPACK_FAMILIES.md`, and selected workpack files.
 
 ### State
 
@@ -75,9 +86,15 @@ This file records documentation health and consistency checks for the plan. Upda
 ### Decision routes and failure controls
 
 - Decision route: follow this plan's AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
-- Failure controls: do not claim completion when retained proof is missing, proof shape/root expectations diverge, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+- Failure controls: do not claim completion when retained proof is missing, proof shape/root expectations diverge, checklist/workpack states diverge, architecture gates are red without blocker notes, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping
 
 - Required proof before READY: explicit links from workpack checklist rows, retained proof artifacts under `output/screen-ai-pipeline-proof/`, a plan proof manifest when slice closure is claimed, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
-- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.
+- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `PROOF_INDEX.md`, `TEST_PROOF_EXPECTATIONS.md`, `PLAN_HEALTH.md`, and the assigned plan workpack.
+
+## PR-ready rule
+
+The whole plan is PR-ready only when all ten workpacks either close with retained proof or carry exact blockers, proof-shape drift is resolved per selected workpack, and WP10 aggregates the final allowed/blocked claims.
+
+A partial PR may be ready only when one selected workpack is closed with proof artifacts, command logs, negative cases, no-claim language, and remaining open workpacks listed.

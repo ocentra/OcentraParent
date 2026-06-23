@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportPublicationExecutionStatusSchemaVersionSchema = withParser(
   Schema.Literal('production-support-publication-execution-status-proof')
@@ -90,8 +86,12 @@ export const ProductionSupportPublicationExecutionStatusNonClaimSchema = withPar
   )
 );
 
-export const PublicationExecutionStatusReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportPublicationExecutionStatusReference');
-export const PublicationExecutionStatusManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportPublicationExecutionStatusManualRequirement');
+export const PublicationExecutionStatusReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportPublicationExecutionStatusReference'
+);
+export const PublicationExecutionStatusManualRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportPublicationExecutionStatusManualRequirement'
+);
 
 export const ForbiddenPublicationExecutionStatusDataClasses = [
   'child-activity-evidence',
@@ -135,4 +135,3 @@ export const RequiredPublicationExecutionStatusNonClaims = [
   'no-provider-secret-custody',
   'no-status-backend-execution',
 ] as const;
-

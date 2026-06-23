@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_core::network_runtime::{
     evaluate_network_runtime, network_ai_analysis_requested_event, network_evidence_recorded_event,
     network_observed_event, network_policy_evaluation_requested_event, NetworkAdapterState,
@@ -42,9 +43,9 @@ fn runtime_policy_flow_aligns_with_child_domain_policy_chain() {
     assert!(ai_analysis_requested_event.is_none());
     assert_eq!(
         policy_evaluation_requested_event
-            .expect("policy request")
+            .expect_value("policy request")
             .evidence_refs,
-        vec![evidence_recorded_event.evidence_ref.clone()]
+        vec![evidence_recorded_event.evidence_ref]
     );
 }
 
@@ -78,9 +79,9 @@ fn runtime_unknown_route_aligns_with_ai_chain() {
     );
     assert_eq!(
         ai_analysis_requested_event
-            .expect("network ai request")
+            .expect_value("network ai request")
             .evidence_refs,
-        vec![evidence_recorded_event.evidence_ref.clone()]
+        vec![evidence_recorded_event.evidence_ref]
     );
     assert!(policy_evaluation_requested_event.is_none());
 }
@@ -140,9 +141,9 @@ fn runtime_decision_projects_the_protocol_owned_event_chain() {
     );
     assert_eq!(
         ai_analysis_requested_event
-            .expect("unknown route still requests ai")
+            .expect_value("unknown route still requests ai")
             .evidence_refs,
-        vec![evidence_recorded_event.evidence_ref.clone()]
+        vec![evidence_recorded_event.evidence_ref]
     );
     assert!(policy_evaluation_requested_event.is_none());
 }

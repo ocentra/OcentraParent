@@ -137,12 +137,9 @@ export const TrackingExpectedPlaceScheduleSchema = withParser(
     placeId: TrackingPlaceIdSchema,
     label: TrackingLabelSchema,
     windows: Schema.Array(TrackingTimeWindowSchema),
-    distanceToleranceMeters: Schema.optionalWith(
-      Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null),
-      {
-        default: () => null,
-      }
-    ),
+    distanceToleranceMeters: Schema.optionalWith(Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null), {
+      default: () => null,
+    }),
     lateGraceSeconds: TrackingNonNegativeIntegerSchema,
     earlyExitGraceSeconds: TrackingNonNegativeIntegerSchema,
     activeException: Schema.optionalWith(Schema.Union(TrackingExpectedPlaceActiveExceptionSchema, Schema.Null), {
@@ -164,12 +161,9 @@ export const TrackingExpectedPlaceDecisionSchema = withParser(
     }),
     locationEvidenceId: ActivityEvidenceIdSchema,
     outcome: TrackingExpectedPlaceOutcomeSchema,
-    distanceToleranceMeters: Schema.optionalWith(
-      Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null),
-      {
-        default: () => null,
-      }
-    ),
+    distanceToleranceMeters: Schema.optionalWith(Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null), {
+      default: () => null,
+    }),
     lateGraceSeconds: Schema.optionalWith(TrackingNonNegativeIntegerSchema, {
       default: () => 0,
     }),

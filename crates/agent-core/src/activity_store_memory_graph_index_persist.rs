@@ -1,8 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityMemoryGraphEdge, ActivityMemoryGraphEdgeKind, ActivityMemoryGraphNode,
-    ActivityMemoryGraphNodeKind, ActivityMemoryGraphReadModel, ActivityMemoryGraphTrace,
-    ParentEvidenceReferenceKind, ACTIVITY_MEMORY_GRAPH_INDEX_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphEdge;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphEdgeKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphNode;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphNodeKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphTrace;
+use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_INDEX_VERSION;
+use ocentra_parent_agent_protocol::constants;
 use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;

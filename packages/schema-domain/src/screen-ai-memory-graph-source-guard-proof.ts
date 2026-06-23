@@ -132,9 +132,7 @@ function screenAiMemoryGraphSourceGuardProofIsReady(proof: ScreenAiMemoryGraphSo
 
 export function buildScreenAiMemoryGraphSourceGuardProof(input: unknown): ScreenAiMemoryGraphSourceGuardProof {
   const parsed = ScreenAiMemoryGraphSourceGuardInputSchema.parse(input);
-  const contextResult = LocalAiEvidenceContextBuildResultSchema.parse(
-    buildLocalAiEvidenceContext(parsed.contextInput)
-  );
+  const contextResult = LocalAiEvidenceContextBuildResultSchema.parse(buildLocalAiEvidenceContext(parsed.contextInput));
   const context = contextResult.context;
   const sourceGuardSummary = {
     evidenceReferenceCount: context?.validationSummary.evidenceReferenceCount ?? 0,

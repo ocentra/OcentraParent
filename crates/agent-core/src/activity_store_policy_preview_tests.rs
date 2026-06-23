@@ -1,11 +1,23 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityEvent, ActivityEventKind, ActivityObserver,
-    ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyAssistantConfirmationState,
-    PolicyDecisionHandoffState, PolicyPreviewReadModelRow, PolicyPreviewTargetState,
-    PolicyRequestOrigin, PolicyRequestStatus, PolicySourceStatus, PolicySourceSurface,
-    PolicyTarget, PolicyTargetType, ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyAssistantConfirmationState;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModelRow;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewTargetState;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestOrigin;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicySourceStatus;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicySourceSurface;
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 use super::{
     activity_store_policy_preview_test_fixture::{
@@ -15,20 +27,27 @@ use super::{
     ActivityStore,
 };
 
-#[test]
-fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforcement() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
-    let event = browser_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+type TestResult = Result<(), String>;
 
-    let read_model = store
-        .policy_preview_read_model(
+#[test]
+fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforcement() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let event = browser_event();
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     assert_eq!(read_model.returned, 1);
     assert_eq!(
@@ -70,12 +89,17 @@ fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforceme
     assert_eq!(row.policy_approval_id, None);
     assert_eq!(row.policy_override_id, None);
     assert_eq!(row.policy_audit_reference_id, None);
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_prefers_explicit_target_fields_and_projects_policy_lifecycle() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
-    let mut fields = ocentra_parent_agent_protocol::LogFields::new();
+fn policy_preview_read_model_prefers_explicit_target_fields_and_projects_policy_lifecycle(
+) -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let mut fields = LogFields::new();
     fields.insert(
         constants::field::POLICY_TARGET_TYPE.to_string(),
         LogFieldValue::String(policy::TARGET_TYPE_APP.to_string()),
@@ -127,8 +151,8 @@ fn policy_preview_read_model_prefers_explicit_target_fields_and_projects_policy_
         LogFieldValue::String("audit.policy-request.confirmed".to_string()),
     );
 
-    store
-        .ingest_events(&[ActivityEvent {
+    ok(
+        store.ingest_events(&[ActivityEvent {
             schema_version: ACTIVITY_SCHEMA_VERSION,
             event_id: "audit.policy-request.confirmed".to_string(),
             observed_at: "2026-06-18T10:05:00Z".to_string(),
@@ -146,15 +170,17 @@ fn policy_preview_read_model_prefers_explicit_target_fields_and_projects_policy_
             },
             fields,
             evidence: Vec::new(),
-        }])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        }]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(row.target.target_type, PolicyTargetType::App);
@@ -189,18 +215,24 @@ fn policy_preview_read_model_prefers_explicit_target_fields_and_projects_policy_
         row.policy_audit_reference_id.as_deref(),
         Some("audit.policy-request.confirmed")
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement(
+) -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = network_flow_event();
     let network_evidence_id = event.evidence[0].evidence_id.clone();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context(
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context(
             PolicyTarget {
                 target_id: event.subject.subject_id.clone(),
                 target_type: PolicyTargetType::Domain,
@@ -210,15 +242,17 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
             vec![event.event_id.clone(), network_evidence_id.clone()],
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        )]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     assert_eq!(read_model.returned, 1);
     assert_eq!(
@@ -235,7 +269,7 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
     );
     assert_network_evidence_refs(row, &network_evidence_id);
     assert_network_parent_rule_refs(row, &network_evidence_id);
-    assert_grade_b_network_mapping(row);
+    assert_grade_b_network_mapping(row)?;
     assert_eq!(row.decision.action, PolicyAction::AskParent);
     assert_eq!(
         row.decision.reason_codes,
@@ -253,6 +287,7 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
         row.decision.enforcement_handoff_state,
         PolicyDecisionHandoffState::Disabled
     );
+    Ok(())
 }
 
 fn assert_network_evidence_refs(row: &PolicyPreviewReadModelRow, network_evidence_id: &str) {
@@ -284,8 +319,11 @@ fn assert_network_parent_rule_refs(row: &PolicyPreviewReadModelRow, network_evid
 }
 
 #[test]
-fn policy_preview_read_model_marks_unsupported_browser_targets_as_not_ready() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_marks_unsupported_browser_targets_as_not_ready() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let mut event = browser_event();
     event.fields.insert(
         constants::field::CAPABILITY_STATUS.to_string(),
@@ -299,16 +337,18 @@ fn policy_preview_read_model_marks_unsupported_browser_targets_as_not_ready() {
             constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string(),
         ),
     );
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(
@@ -323,26 +363,32 @@ fn policy_preview_read_model_marks_unsupported_browser_targets_as_not_ready() {
         row.policy_preview_finding_kinds.as_deref(),
         Some("unsupported-target")
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_marks_manual_required_browser_targets_as_not_ready() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_marks_manual_required_browser_targets_as_not_ready() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let mut event = browser_event();
     event.fields.insert(
         constants::field::CAPABILITY_STATUS.to_string(),
         LogFieldValue::String(constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING.to_string()),
     );
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
     assert_eq!(
@@ -357,17 +403,22 @@ fn policy_preview_read_model_marks_manual_required_browser_targets_as_not_ready(
         row.policy_preview_finding_kinds.as_deref(),
         Some("manual-required-target")
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_fails_closed_when_network_mapping_refs_are_malformed() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_fails_closed_when_network_mapping_refs_are_malformed() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = network_flow_event();
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context(
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context(
             PolicyTarget {
                 target_id: event.subject.subject_id.clone(),
                 target_type: PolicyTargetType::Domain,
@@ -376,19 +427,21 @@ fn policy_preview_read_model_fails_closed_when_network_mapping_refs_are_malforme
             constants::value::EMPTY,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![event.event_id.clone()],
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+            vec![event.event_id],
+        )]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     let row = &read_model.rows[0];
-    assert_grade_b_network_mapping(row);
+    assert_grade_b_network_mapping(row)?;
     assert_eq!(row.decision.action, PolicyAction::AskParent);
     assert_eq!(
         row.decision.reason_codes,
@@ -402,13 +455,14 @@ fn policy_preview_read_model_fails_closed_when_network_mapping_refs_are_malforme
         row.decision.enforcement_handoff_state,
         PolicyDecisionHandoffState::Disabled
     );
+    Ok(())
 }
 
-fn assert_grade_b_network_mapping(row: &PolicyPreviewReadModelRow) {
-    let network_mapping = row
-        .network_evidence_mapping
-        .as_ref()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+fn assert_grade_b_network_mapping(row: &PolicyPreviewReadModelRow) -> TestResult {
+    let network_mapping = some(
+        row.network_evidence_mapping.as_ref(),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
     assert_eq!(
         network_mapping.evidence_grade,
         policy::NETWORK_EVIDENCE_GRADE_B
@@ -421,18 +475,23 @@ fn assert_grade_b_network_mapping(row: &PolicyPreviewReadModelRow) {
     );
     assert!(!network_mapping.adapter_action_authorized);
     assert!(!network_mapping.enforcement_command_authorized);
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombstone() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombstone() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = network_flow_event();
     let deleted_event_id = event.event_id.clone();
-    store
-        .ingest_events(&[event, network_retention_deleted_event(&deleted_event_id)])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context(
+    ok(
+        store.ingest_events(&[event, network_retention_deleted_event(&deleted_event_id)]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context(
             PolicyTarget {
                 target_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
                 target_type: PolicyTargetType::Domain,
@@ -442,15 +501,17 @@ fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombston
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
             vec![deleted_event_id],
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        )]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.rows.len(), 0);
@@ -458,22 +519,27 @@ fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombston
         read_model.capability_status,
         policy::PREVIEW_CAPABILITY_NO_EVIDENCE
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_applies_retention_tombstones_before_limit() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_applies_retention_tombstones_before_limit() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
     let event = network_flow_event_at(constants::activity_store::TEST_THIRD_OBSERVED_AT, 1);
     let deleted_event_id = event.event_id.clone();
     let tombstone = network_retention_deleted_event_at(
         &deleted_event_id,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     );
-    store
-        .ingest_events(&[tombstone, event])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    store
-        .replace_parent_rule_contexts(&[parent_rule_context(
+    ok(
+        store.ingest_events(&[tombstone, event]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    ok(
+        store.replace_parent_rule_contexts(&[parent_rule_context(
             PolicyTarget {
                 target_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
                 target_type: PolicyTargetType::Domain,
@@ -483,12 +549,14 @@ fn policy_preview_read_model_applies_retention_tombstones_before_limit() {
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
             vec![deleted_event_id],
-        )])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        )]),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(1, constants::activity_store::TEST_THIRD_OBSERVED_AT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let read_model = ok(
+        store.policy_preview_read_model(1, constants::activity_store::TEST_THIRD_OBSERVED_AT),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.rows.len(), 0);
@@ -496,18 +564,23 @@ fn policy_preview_read_model_applies_retention_tombstones_before_limit() {
         read_model.capability_status,
         policy::PREVIEW_CAPABILITY_NO_EVIDENCE
     );
+    Ok(())
 }
 
 #[test]
-fn policy_preview_read_model_reports_empty_store_without_inventing_rows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn policy_preview_read_model_reports_empty_store_without_inventing_rows() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
 
-    let read_model = store
-        .policy_preview_read_model(
+    let read_model = ok(
+        store.policy_preview_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.rows.len(), 0);
@@ -515,4 +588,13 @@ fn policy_preview_read_model_reports_empty_store_without_inventing_rows() {
         read_model.capability_status,
         policy::PREVIEW_CAPABILITY_NO_EVIDENCE
     );
+    Ok(())
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
 }

@@ -1,9 +1,10 @@
 use std::env;
 
-use ocentra_parent_agent_protocol::{
-    constants, AgentIdentity, AgentLogEntry, AgentLogSnapshot, LogFieldValue, LogFields, LogLevel,
-    LogSource, LOG_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{
+    AgentIdentity, AgentLogEntry, AgentLogSnapshot, LogFieldValue, LogFields, LogLevel, LogSource,
 };
+use ocentra_parent_agent_protocol::LOG_SCHEMA_VERSION;
 
 use crate::time::timestamp_now;
 
@@ -39,6 +40,7 @@ pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
             service_version: env!("CARGO_PKG_VERSION").to_string(),
         },
         entries: vec![AgentLogEntry {
+            schema_version: LOG_SCHEMA_VERSION,
             id: constants::event_id::DEV_LOCALHOST_API_READY.to_string(),
             timestamp: timestamp_now(),
             level: LogLevel::Info,

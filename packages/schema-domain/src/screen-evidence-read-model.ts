@@ -51,14 +51,12 @@ export const ScreenEvidenceRecentSummarySchema = withParser(
     latestConfidence: Schema.Union(ScreenEvidenceConfidenceSchema, Schema.Null),
     latestImageDeletionState: Schema.Union(ScreenDeletionStateSchema, Schema.Null),
     latestPolicyEligible: Schema.Union(Schema.Boolean, Schema.Null),
-    latestPolicyDecisionRef: Schema.optionalWith(
-      Schema.Union(ScreenPolicyEvidenceRefSchema, Schema.Null),
-      { default: () => null }
-    ),
-    latestPolicyAction: Schema.optionalWith(
-      Schema.Union(ScreenPolicyEvidenceActionSchema, Schema.Null),
-      { default: () => null }
-    ),
+    latestPolicyDecisionRef: Schema.optionalWith(Schema.Union(ScreenPolicyEvidenceRefSchema, Schema.Null), {
+      default: () => null,
+    }),
+    latestPolicyAction: Schema.optionalWith(Schema.Union(ScreenPolicyEvidenceActionSchema, Schema.Null), {
+      default: () => null,
+    }),
     latestPolicyReasonCodes: Schema.optionalWith(ScreenPolicyEvidenceRefListSchema, {
       default: () => [],
     }),

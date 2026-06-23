@@ -26,8 +26,8 @@ fn suppressed_capture_stays_idle_without_handoffs() {
         ScreenContentSignalState::AmbiguousContent,
     );
 
-    let decision = evaluate_screen_runtime(input.clone());
-    let observed = screen_runtime_observed_event(input);
+    let decision = evaluate_screen_runtime(&input);
+    let observed = screen_runtime_observed_event(&input);
     let evidence = screen_evidence_recorded_event(&observed);
 
     assert_eq!(
@@ -48,7 +48,7 @@ fn suppressed_capture_stays_idle_without_handoffs() {
 }
 
 #[test]
-fn degraded_capture_requires_policy_without_ai() {
+fn degraded_capture_requires_policy_without_ai() -> Result<(), String> {
     let degraded = ScreenCaptureAttempt::Degraded(ScreenCaptureMetadata {
         status: ActivityCaptureCapabilityStatus::AccessDenied,
         scope: ScreenCaptureScope::ActiveWindow,
@@ -68,8 +68,8 @@ fn degraded_capture_requires_policy_without_ai() {
         ScreenContentSignalState::KnownPolicyState,
     );
 
-    let decision = evaluate_screen_runtime(input.clone());
-    let observed = screen_runtime_observed_event(input);
+    let decision = evaluate_screen_runtime(&input);
+    let observed = screen_runtime_observed_event(&input);
     let evidence = screen_evidence_recorded_event(&observed);
 
     assert_eq!(
@@ -81,16 +81,14 @@ fn degraded_capture_requires_policy_without_ai() {
         ScreenRuntimeActionState::RecordDegradedCapture
     );
     assert_eq!(screen_ai_analysis_requested_event(&evidence), None);
-    assert_eq!(
-        screen_policy_evaluation_requested_event(&evidence)
-            .expect("degraded capture should publish policy evidence")
-            .evidence_refs,
-        vec![evidence.evidence_ref]
-    );
+    let policy_request = screen_policy_evaluation_requested_event(&evidence)
+        .ok_or_else(|| String::from("degraded capture should publish policy evidence"))?;
+    assert_eq!(policy_request.evidence_refs, vec![evidence.evidence_ref]);
+    Ok(())
 }
 
 #[test]
-fn available_ambiguous_capture_routes_to_ai_boundary() {
+fn available_ambiguous_capture_routes_to_ai_boundary() -> Result<(), String> {
     let captured = captured_attempt();
     let input = screen_runtime_input_from_capture(
         ScreenCaptureScheduleDecision::EnqueueCapture {
@@ -101,8 +99,8 @@ fn available_ambiguous_capture_routes_to_ai_boundary() {
         ScreenContentSignalState::AmbiguousContent,
     );
 
-    let decision = evaluate_screen_runtime(input.clone());
-    let observed = screen_runtime_observed_event(input);
+    let decision = evaluate_screen_runtime(&input);
+    let observed = screen_runtime_observed_event(&input);
     let evidence = screen_evidence_recorded_event(&observed);
 
     assert_eq!(
@@ -113,17 +111,15 @@ fn available_ambiguous_capture_routes_to_ai_boundary() {
         decision.runtime_action_state,
         ScreenRuntimeActionState::RecordCapturedEvidence
     );
-    assert_eq!(
-        screen_ai_analysis_requested_event(&evidence)
-            .expect("ambiguous capture should request AI")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
     assert_eq!(screen_policy_evaluation_requested_event(&evidence), None);
+    let ai_request = screen_ai_analysis_requested_event(&evidence)
+        .ok_or_else(|| String::from("ambiguous capture should request AI"))?;
+    assert_eq!(ai_request.evidence_refs, vec![evidence.evidence_ref]);
+    Ok(())
 }
 
 #[test]
-fn available_known_policy_capture_publishes_policy_without_ai() {
+fn available_known_policy_capture_publishes_policy_without_ai() -> Result<(), String> {
     let captured = captured_attempt();
     let input = screen_runtime_input_from_capture(
         ScreenCaptureScheduleDecision::EnqueueCapture {
@@ -134,8 +130,8 @@ fn available_known_policy_capture_publishes_policy_without_ai() {
         ScreenContentSignalState::KnownPolicyState,
     );
 
-    let decision = evaluate_screen_runtime(input.clone());
-    let observed = screen_runtime_observed_event(input);
+    let decision = evaluate_screen_runtime(&input);
+    let observed = screen_runtime_observed_event(&input);
     let evidence = screen_evidence_recorded_event(&observed);
 
     assert_eq!(
@@ -143,16 +139,14 @@ fn available_known_policy_capture_publishes_policy_without_ai() {
         ScreenObservationIntent::KnownPolicyStateRequiresPolicy
     );
     assert_eq!(screen_ai_analysis_requested_event(&evidence), None);
-    assert_eq!(
-        screen_policy_evaluation_requested_event(&evidence)
-            .expect("known policy capture should publish policy evidence")
-            .evidence_refs,
-        vec![evidence.evidence_ref]
-    );
+    let policy_request = screen_policy_evaluation_requested_event(&evidence)
+        .ok_or_else(|| String::from("known policy capture should publish policy evidence"))?;
+    assert_eq!(policy_request.evidence_refs, vec![evidence.evidence_ref]);
+    Ok(())
 }
 
 #[test]
-fn runtime_decision_recorded_event_preserves_input_and_decision() {
+fn runtime_decision_recorded_event_preserves_input_and_decision() -> Result<(), String> {
     let input = screen_runtime_input_from_capture(
         ScreenCaptureScheduleDecision::EnqueueCapture {
             reason: ScreenCaptureScheduleTrigger::TimedCadence,
@@ -161,11 +155,11 @@ fn runtime_decision_recorded_event_preserves_input_and_decision() {
         Some(&captured_attempt()),
         ScreenContentSignalState::ObservationOnly,
     );
-    let event = screen_runtime_decision_recorded_event(
-        ScreenAggregateId::parse("screen.aggregate.1").expect("aggregate id"),
-        ScreenRuntimeDecisionId::parse("screen.runtime-decision.1").expect("decision id"),
-        input,
-    );
+    let aggregate_id = ScreenAggregateId::parse("screen.aggregate.1")
+        .map_err(|error| format!("aggregate id should parse: {error}"))?;
+    let decision_id = ScreenRuntimeDecisionId::parse("screen.runtime-decision.1")
+        .map_err(|error| format!("decision id should parse: {error}"))?;
+    let event = screen_runtime_decision_recorded_event(aggregate_id, decision_id, &input);
 
     assert_eq!(
         event.decision.runtime_action_state,
@@ -179,6 +173,7 @@ fn runtime_decision_recorded_event_preserves_input_and_decision() {
         event.decision.policy_handoff_state,
         ScreenPolicyHandoffState::DoNotPublish
     );
+    Ok(())
 }
 
 fn captured_attempt() -> ScreenCaptureAttempt {

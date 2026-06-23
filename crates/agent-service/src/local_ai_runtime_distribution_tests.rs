@@ -34,7 +34,7 @@ fn windows_x64_gpu_request_selects_vulkan_asset() {
         acceleration,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     )
-    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
 
     assert_eq!(acceleration, LlamaRuntimeAcceleration::Vulkan);
     assert_eq!(
@@ -69,7 +69,7 @@ fn windows_x64_cuda_device_selects_cuda_asset() {
         acceleration,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     )
-    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
 
     assert_eq!(acceleration, LlamaRuntimeAcceleration::Cuda);
     assert_eq!(
@@ -98,7 +98,7 @@ fn windows_x64_tensor_split_request_selects_vulkan_asset() {
         acceleration,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     )
-    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
 
     assert_eq!(acceleration, LlamaRuntimeAcceleration::Vulkan);
     assert_eq!(
@@ -118,7 +118,7 @@ fn linux_x64_cpu_request_selects_ubuntu_cpu_asset() {
         LlamaRuntimeAcceleration::Cpu,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     )
-    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
 
     assert_eq!(
         distribution.asset_name,
@@ -141,7 +141,7 @@ fn macos_arm64_request_selects_macos_asset() {
         LlamaRuntimeAcceleration::Cpu,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     )
-    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
 
     assert_eq!(
         distribution.asset_name,
@@ -160,7 +160,7 @@ fn extracted_runtime_path_uses_release_cache_directory() {
         LlamaRuntimeAcceleration::Vulkan,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     )
-    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
     let mut cache_root = PathBuf::new();
     cache_root.push(constants::local_ai_runtime::OCENTRA_PARENT_CACHE_DIR);
 
@@ -183,7 +183,7 @@ fn runtime_archive_path_uses_asset_name_under_runtime_cache() {
         LlamaRuntimeAcceleration::Vulkan,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     )
-    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
     let mut cache_root = PathBuf::new();
     cache_root.push(constants::local_ai_runtime::OCENTRA_PARENT_CACHE_DIR);
     let mut expected = cache_root.clone();

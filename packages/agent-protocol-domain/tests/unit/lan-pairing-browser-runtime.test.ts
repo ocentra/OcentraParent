@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentCommand,
   AgentEvent,
+  AgentLanPairingSupportedWebSocketCommand,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
   AgentLanBrowserAddDeviceRequestSchema,
   AgentLanBrowserDiscoveryScanRequestSchema,
   AgentLanBrowserRuntimeCommandSchema,
   AgentLanBrowserRuntimeEventSchema,
-  AgentLanPairingSupportedWebSocketCommand,
-} from '../../src/contracts';
+} from '@ocentra-parent/schema-domain/lan-pairing-browser-runtime';
 import {
   AgentLanBrowserRuntimeCommandNameLiteral,
   AgentLanBrowserRuntimeEventNameLiteral,

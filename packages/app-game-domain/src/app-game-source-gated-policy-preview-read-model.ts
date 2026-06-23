@@ -22,15 +22,11 @@ const AppGameSourceGatedPolicyPreviewReadModelSchema = SchemaDomainAppGameSource
 
 const AppGameSourceGatedPolicyPreviewReadModelOptionsSchema =
   SchemaDomainAppGameSourceGatedPolicyPreviewReadModelOptionsSchema;
-const AppGameSourceGatedPolicyPreviewReadModelRowSchema =
-  SchemaDomainAppGameSourceGatedPolicyPreviewReadModelRowSchema;
+const AppGameSourceGatedPolicyPreviewReadModelRowSchema = SchemaDomainAppGameSourceGatedPolicyPreviewReadModelRowSchema;
 
-type AppGameSourceGatedPolicyPreviewReadModelOptions =
-  SchemaDomainAppGameSourceGatedPolicyPreviewReadModelOptions;
-type AppGameSourceGatedPolicyPreviewReadModelRow =
-  SchemaDomainAppGameSourceGatedPolicyPreviewReadModelRow;
-type AppGameSourceGatedPolicyPreviewReadModel =
-  SchemaDomainAppGameSourceGatedPolicyPreviewReadModel;
+type AppGameSourceGatedPolicyPreviewReadModelOptions = SchemaDomainAppGameSourceGatedPolicyPreviewReadModelOptions;
+type AppGameSourceGatedPolicyPreviewReadModelRow = SchemaDomainAppGameSourceGatedPolicyPreviewReadModelRow;
+type AppGameSourceGatedPolicyPreviewReadModel = SchemaDomainAppGameSourceGatedPolicyPreviewReadModel;
 
 export function buildAppGameSourceGatedPolicyPreviewReadModel(
   optionsInput: unknown,
@@ -94,4 +90,3 @@ function projectionStateForGateRow(row: AppGameSourceFreshnessPreviewGateRow) {
       return AppGameSourceGatedPolicyPreviewReadModelProjectionState.CompilerManualRequiredVisible;
   }
 }
-

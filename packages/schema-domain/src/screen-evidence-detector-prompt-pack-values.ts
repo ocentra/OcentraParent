@@ -1,21 +1,12 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const ScreenDetectorPromptPackSchemaVersion = 1;
 
-export const ScreenDetectorPromptPackIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenDetectorPromptPackId')
-);
+export const ScreenDetectorPromptPackIdSchema = withParser(brandedNonEmptyStringSchema('ScreenDetectorPromptPackId'));
 export const ScreenDetectorPromptPackVersionSchema = withParser(
   brandedNonEmptyStringSchema('ScreenDetectorPromptPackVersion')
 );
-export const ScreenDetectorPromptHashRefSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenDetectorPromptHashRef')
-);
+export const ScreenDetectorPromptHashRefSchema = withParser(brandedNonEmptyStringSchema('ScreenDetectorPromptHashRef'));
 
 export const ScreenDetectorIdSchema = withParser(
   Schema.Literal(

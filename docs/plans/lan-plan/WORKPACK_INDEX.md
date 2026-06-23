@@ -14,6 +14,8 @@
 
 <!-- /agent-capsule -->
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 ## Authoritative Execution Workpacks
 
 | ID | State | Next class | Current truth |
@@ -50,3 +52,11 @@ These rows remain in the folder as draft follow-on material only. They are not a
 | `23` | frozen | follow-on pairing and route proof rewrite material; not part of current executable model |
 | `24` | frozen | portal/first-run handoff work; belongs to later household/setup/account execution, not current LAN completion |
 | `25` | frozen | later rollout/PR gate wrapper; not part of current authoritative LAN workpack model |
+
+## Selection Rules
+
+- Select exactly one authoritative workpack from `01-20` unless the assignment explicitly says to inspect frozen follow-on context.
+- If the selected workpack owner/proof family is unclear, classify it through `WORKPACK_FAMILIES.md`; do not scan every family.
+- Do not raise status from B1/B2 proof outside their explicit non-claims.
+- Do not use frozen `21-25` as current completion scope or PR_READY evidence.
+- Do not claim physical household, portal, service/runtime, signed hello/heartbeat, router/firewall, Android/mobile, or relay readiness from schema, unit, source-matrix, B1, or B2 proof alone.

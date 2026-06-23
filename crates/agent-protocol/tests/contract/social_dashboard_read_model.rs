@@ -1,11 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants, SocialDashboardClaimBoundaries, SocialDashboardPanel, SocialDashboardUxSnapshot,
-    SOCIAL_DASHBOARD_ACTION_OPEN_PARENT_APPROVAL, SOCIAL_DASHBOARD_CHILD_PROFILE_ID,
-    SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED, SOCIAL_DASHBOARD_FAMILY_ID,
-    SOCIAL_DASHBOARD_PANEL_ACCOUNT_APPROVAL_QUEUE, SOCIAL_DASHBOARD_REASON_PARENT_REVIEW_NEEDED,
-    SOCIAL_DASHBOARD_SCHEMA_VERSION, SOCIAL_DASHBOARD_SEVERITY_INFO,
-    SOCIAL_DASHBOARD_STATUS_READY_FOR_REVIEW,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::SocialDashboardClaimBoundaries;
+use ocentra_parent_agent_protocol::SocialDashboardPanel;
+use ocentra_parent_agent_protocol::SocialDashboardUxSnapshot;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_ACTION_OPEN_PARENT_APPROVAL;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CHILD_PROFILE_ID;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_FAMILY_ID;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_PANEL_ACCOUNT_APPROVAL_QUEUE;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_REASON_PARENT_REVIEW_NEEDED;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_SEVERITY_INFO;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_STATUS_READY_FOR_REVIEW;
 
 #[test]
 fn social_dashboard_snapshot_serializes_without_runtime_claims() {
@@ -37,8 +42,9 @@ fn social_dashboard_snapshot_serializes_without_runtime_claims() {
         claim_boundaries: not_claimed_boundaries(),
     };
 
-    let serialized =
-        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(snapshot).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["schemaVersion"], SOCIAL_DASHBOARD_SCHEMA_VERSION);
     assert!(serialized["custodyLabel"].is_null());

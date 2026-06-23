@@ -1,9 +1,10 @@
 import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   TrackingEvidenceDrawerHostedUiProofDetails,
@@ -23,13 +24,7 @@ import {
   type TrackingStatusServiceDataCoverage,
   type TrackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/tracking-status-panel';
-import {
-  trackingRetentionSettingsHostedUiProof,
-} from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
-import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
-import {
-  type TrackingStatusProofArtifact,
-} from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
+import { trackingRetentionSettingsHostedUiProof } from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
 import {
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,
@@ -46,11 +41,11 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
   intro.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.TrackingStatusSurface);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.TrackingStatusSurface);
 
   const body = document.createElement(PortalDom.Tags.Paragraph);
   body.className = PortalDom.Classes.CommandResultEmpty;
-  body.textContent = PortalText.Resolve(PortalTextToken.TrackingStatusSurfaceBody);
+  body.textContent = resolvePortalDevText(PortalDevTextToken.TrackingStatusSurfaceBody);
 
   intro.append(title, body);
   container.append(intro);

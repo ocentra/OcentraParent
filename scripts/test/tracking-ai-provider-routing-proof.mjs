@@ -50,7 +50,7 @@ const proof = {
     productionBehaviorClaimed: false,
   },
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-ai-provider-routing-proof.ts',
+    source: 'packages/schema-domain/src/tracking-ai-provider-routing-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-ai-provider-routing-proof.test.ts',
     harness: 'scripts/test/tracking-ai-provider-routing-proof.mjs',
     evidence: 'test-results/tracking-ai-provider-routing-proof/proof.json',
@@ -68,7 +68,7 @@ console.log('tracking-ai-provider-routing-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-ai-provider-routing-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function assertProof(proof) {

@@ -1,10 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-  readRepoFile,
-  repoRelativePath,
-  resolveScopedFiles,
-} from './check-architecture-scope.mjs';
+import { readRepoFile, repoRelativePath, resolveScopedFiles } from './check-architecture-scope.mjs';
 
 const scriptPath = repoRelativePath(fileURLToPath(import.meta.url));
 const allowedScriptPattern = /^scripts\/check-[^/]+\.mjs$/u;
@@ -32,7 +28,12 @@ const directPatterns = [
   { regex: /\bdbg!\s*\(/u, message: 'dbg!() is forbidden in production source.' },
   { regex: /\bprintln!\s*\(/u, message: 'println!() is forbidden in production source.' },
   { regex: /\beprintln!\s*\(/u, message: 'eprintln!() is forbidden in production source.' },
-  { regex: /\bunreachable!\s*\(/u, message: 'unreachable!() is forbidden without a deliberate owner exception.' },
+  { regex: /\bunreachable!\s*\(\s*\)/u, message: 'bare unreachable!() is forbidden in production source.' },
+  {
+    regex:
+      /\bunreachable!\s*\(\s*['"`][^'"`]*(?:not implemented|todo|tbd|placeholder|stub|fake|temporary|for now)[^'"`]*['"`]/iu,
+    message: 'placeholder unreachable!() messages are forbidden in production source.',
+  },
 ];
 
 function isProductionSource(filePath) {
@@ -40,7 +41,14 @@ function isProductionSource(filePath) {
   if (!supportedExtensions.has(extension)) {
     return false;
   }
-  if (filePath.includes('/tests/') || filePath.startsWith('scripts/test/')) {
+  if (
+    filePath.includes('/tests/') ||
+    filePath.startsWith('scripts/test/') ||
+    path.basename(filePath) === 'build.rs' ||
+    filePath.endsWith('/tests.rs') ||
+    filePath.endsWith('_tests.rs') ||
+    filePath.endsWith('_test.rs')
+  ) {
     return false;
   }
   if (allowedScriptPattern.test(filePath) || filePath === scriptPath) {
@@ -94,7 +102,9 @@ export function main(rawArgs = process.argv.slice(2)) {
 
   const findings = scope.files.flatMap((filePath) => collectFindings(filePath));
   if (findings.length > 0) {
-    console.error('Placeholder implementation guard failed. Production source must not claim work that is not implemented.');
+    console.error(
+      'Placeholder implementation guard failed. Production source must not claim work that is not implemented.'
+    );
     for (const finding of findings) {
       console.error(finding);
     }

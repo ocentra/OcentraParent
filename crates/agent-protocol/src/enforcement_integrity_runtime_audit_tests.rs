@@ -28,20 +28,25 @@ use crate::{
 #[test]
 fn enforcement_integrity_runtime_audit_serializes_stable_state_values() {
     assert_eq!(
-        serde_json::to_value(V08EnforcementIntegrityRuntimeAuditResult::RolledBack)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(V08EnforcementIntegrityRuntimeAuditResult::RolledBack).unwrap_or_else(
+            |error| { unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES) }
+        ),
         proof::RESULT_ROLLED_BACK
     );
     assert_eq!(
         serde_json::to_value(
             V08EnforcementIntegrityRuntimeAuditExecution::DryRunNoAdapterExecution
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
         proof::EXECUTION_DRY_RUN_NO_ADAPTER
     );
     assert_eq!(
         serde_json::to_value(V08EnforcementIntegrityRuntimeAuditIntegrityState::StaleHeartbeat)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            }),
         proof::INTEGRITY_STALE_HEARTBEAT
     );
 }
@@ -74,9 +79,13 @@ fn enforcement_integrity_runtime_audit_read_model_preserves_non_claim_flags() {
         notification_provider_status_boundary: provider_boundary_read_model(),
     };
     let reparsed = serde_json::from_value::<V08EnforcementIntegrityRuntimeAuditReadModel>(
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(reparsed.entries.len(), 2);

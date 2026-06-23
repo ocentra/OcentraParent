@@ -7,8 +7,8 @@ import {
   type SocialAlertReportProviderStatusRow,
   type SocialAlertReportReadModelSnapshot,
 } from '@ocentra-parent/schema-domain/agent-social-alert-report-read-model';
-import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { type DisplayText, decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDetails } from './details';
 
 export type SocialAlertReportPanelDetail = {

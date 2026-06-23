@@ -8,12 +8,13 @@ use crate::{
     NetworkPlatformClaimManifestProof, NetworkPlatformClaimManualFollowup,
     NetworkPlatformClaimState, NetworkPlatformClaimTarget,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn local_platform_probe_aligns_windows_android_linux_and_apple_status_rows() {
     let proof =
         build_network_local_platform_probe_proof(input_with_observations(expected_observations()))
-            .expect("local platform observations should align with adapter status");
+            .expect_value("local platform observations should align with adapter status");
 
     assert_eq!(proof.probe_ref, "local-platform-probe-ref-54");
     assert_eq!(proof.adapter_status_ref, "adapter-capability-status-ref-54");
@@ -134,7 +135,7 @@ fn adapter_status() -> NetworkAdapterCapabilityStatusProof {
         ui_policy_authority_claimed: false,
         broader_platform_capability_ux_claimed: false,
     })
-    .expect("manifest should produce adapter status")
+    .expect_value("manifest should produce adapter status")
 }
 
 fn manifest() -> NetworkPlatformClaimManifestProof {

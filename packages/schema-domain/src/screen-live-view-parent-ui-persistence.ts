@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { ScreenEvidenceParentSettingRefSchema } from './screen-evidence-primitives';
 import {

@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowObservation, ActivityNetworkFlowRollup,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowRollup;
 
 const NETWORK_FLOW_ROLLUP_LIMIT: usize = 5;
 
@@ -46,7 +46,7 @@ fn rollups_from_map(map: BTreeMap<String, RollupAccumulator>) -> Vec<ActivityNet
         .into_iter()
         .map(|(key, accumulator)| ActivityNetworkFlowRollup {
             key,
-            label: accumulator.label,
+            label: accumulator.display_text,
             connection_count: accumulator.connection_count,
             bytes_sent: accumulator.bytes_sent,
             bytes_received: accumulator.bytes_received,
@@ -96,7 +96,7 @@ fn destination_rollup_key(observation: &ActivityNetworkFlowObservation) -> Strin
 }
 
 fn endpoint_text(
-    endpoint: &ocentra_parent_agent_protocol::ActivityNetworkEndpoint,
+    endpoint: &ocentra_parent_agent_protocol::network_flow::ActivityNetworkEndpoint,
 ) -> Option<String> {
     let ip = endpoint.ip.as_ref()?;
     match endpoint.port {
@@ -118,7 +118,7 @@ fn prefixed_value(prefix: &str, value: &str) -> String {
 
 #[derive(Clone)]
 struct RollupAccumulator {
-    label: String,
+    display_text: String,
     connection_count: u64,
     bytes_sent: Option<u64>,
     bytes_received: Option<u64>,
@@ -126,9 +126,9 @@ struct RollupAccumulator {
 }
 
 impl RollupAccumulator {
-    fn new(label: String) -> Self {
+    fn new(display_text: String) -> Self {
         Self {
-            label,
+            display_text,
             connection_count: 0,
             bytes_sent: None,
             bytes_received: None,

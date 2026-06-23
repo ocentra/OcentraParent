@@ -4,9 +4,7 @@ import {
   SocialParentPolicyCompilerInputSchema,
   SocialParentPolicyDecisionCandidateSchema,
 } from '@ocentra-parent/schema-domain/social-policy-compiler';
-import {
-  compileSocialParentPolicyCandidate,
-} from '../../src/social-policy-compiler';
+import { compileSocialParentPolicyCandidate } from '../../src/social-policy-candidate-compiler';
 
 describe('social parent policy compiler contracts', () => {
   it('compiles a contract-only social policy decision candidate from refs', compilesDecisionCandidate);

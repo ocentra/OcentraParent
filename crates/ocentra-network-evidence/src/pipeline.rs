@@ -238,9 +238,9 @@ fn build_pipeline_parts(
     .map_err(NetworkEndToEndPipelineError::Bundle)?;
     let capture_ingest = capture_ingest_proof(&input.refs, &summary_refs, &bundle.evidence_refs)?;
     let ai_detection =
-        evaluate_network_ai_detection_fixtures(ai_detection_input(&input.refs, &bundle)?)
+        evaluate_network_ai_detection_fixtures(&ai_detection_input(&input.refs, &bundle)?)
             .map_err(NetworkEndToEndPipelineError::AiDetection)?;
-    let ai_audit = build_network_ai_audit_report(ai_audit_input(&input.refs, &ai_detection))
+    let ai_audit = build_network_ai_audit_report(&ai_audit_input(&input.refs, &ai_detection))
         .map_err(NetworkEndToEndPipelineError::AiAudit)?;
     let risk_budget =
         evaluate_network_risk_budget_threshold(risk_budget_input(&input.refs, &ai_audit))

@@ -1,10 +1,11 @@
-import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
 
 export function renderEvents(container: HTMLElement, events: readonly AgentEventEnvelope[]): void {
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.AgentEvents);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.AgentEvents);
   container.append(title);
 
   const list = document.createElement(PortalDom.Tags.OrderedList);

@@ -1,8 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityHistoricalReportList, ActivityReadModelState, ActivityReportDocument,
-    ActivityReportSectionKind, ActivitySavedReportState, AgentCommandEnvelope, LogFieldValue,
-    ParentAssistantEvidenceContext, ParentEvidenceReference, ParentEvidenceReferenceKind,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity_surface::ActivityHistoricalReportList;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportDocument;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSectionKind;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantEvidenceContext;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 use crate::{
     activity_surface_request::report_document_from_command,
@@ -63,10 +69,12 @@ pub(crate) fn evidence_contexts_from_command(
     if let Some(report) = report_document_from_command(command)
         .or_else(|| report_document_from_history_command(command))
         .or_else(|| {
-            stored_report_history
-                .as_ref()
-                .and_then(|history| history.reports.first())
-                .map(|history_item| history_item.parsed_report.clone())
+            stored_report_history.and_then(|history| {
+                history
+                    .reports
+                    .first()
+                    .map(|history_item| history_item.parsed_report.clone())
+            })
         })
     {
         contexts.push(report_evidence_context(&report));
@@ -159,11 +167,11 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STATE_LABEL);
     summary.push_str(saved_state_label(report));
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_FILE_LABEL);
-    summary.push_str(saved_metadata_value(report, SavedMetadataValue::FileName).as_str());
+    summary.push_str(saved_metadata_value(report, &SavedMetadataValue::FileName).as_str());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SAVED_AT_LABEL);
-    summary.push_str(saved_metadata_value(report, SavedMetadataValue::SavedAt).as_str());
+    summary.push_str(saved_metadata_value(report, &SavedMetadataValue::SavedAt).as_str());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STORAGE_REASON_LABEL);
-    summary.push_str(saved_metadata_value(report, SavedMetadataValue::StorageReason).as_str());
+    summary.push_str(saved_metadata_value(report, &SavedMetadataValue::StorageReason).as_str());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTIONS_LABEL);
     summary.push_str(&report.sections.len().to_string());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL);
@@ -183,7 +191,7 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
     summary.push_str(
         &count_sources_with_reachability(
             report,
-            ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState::Unreachable,
+            ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceReachabilityState::Unreachable,
         )
         .to_string(),
     );
@@ -204,7 +212,7 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
     );
     summary.push_str(&source_ids_with_reachability(
         report,
-        ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState::Unreachable,
+        ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceReachabilityState::Unreachable,
     ));
     summary.push_str(
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL,
@@ -246,7 +254,7 @@ fn count_sources_with_state(
 
 fn count_sources_with_reachability(
     report: &ActivityReportDocument,
-    state: ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState,
+    state: ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceReachabilityState,
 ) -> usize {
     report
         .source_states
@@ -276,7 +284,7 @@ fn source_ids_with_state(report: &ActivityReportDocument, state: ActivityReadMod
 
 fn source_ids_with_reachability(
     report: &ActivityReportDocument,
-    state: ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState,
+    state: ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceReachabilityState,
 ) -> String {
     joined_or_none(
         report
@@ -326,7 +334,7 @@ fn saved_state_label(report: &ActivityReportDocument) -> &'static str {
     }
 }
 
-fn saved_metadata_value(report: &ActivityReportDocument, value: SavedMetadataValue) -> String {
+fn saved_metadata_value(report: &ActivityReportDocument, value: &SavedMetadataValue) -> String {
     let Some(metadata) = report.saved_metadata.as_ref() else {
         return constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_NONE.to_string();
     };
@@ -348,8 +356,11 @@ enum SavedMetadataValue {
     StorageReason,
 }
 
-fn string_payload_field(command: &AgentCommandEnvelope, key: &str) -> Option<String> {
-    match command.payload.get(key) {
+fn string_payload_field(
+    command: &AgentCommandEnvelope,
+    payload_field_name: &str,
+) -> Option<String> {
+    match command.payload.get(payload_field_name) {
         Some(LogFieldValue::String(value)) if !value.trim().is_empty() => {
             Some(value.trim().to_string())
         }

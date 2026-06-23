@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseParentActionDeliveryReadinessProofSchema,
   AppInstallPurchaseParentActionDeliveryReadinessRowSchema,
   summarizeAppInstallPurchaseParentActionDeliveryReadinessProof,
-} from '../../src/app-install-purchase-parent-action-delivery-readiness-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-parent-action-delivery-readiness-proof';
 
 describe('app install and purchase parent action delivery readiness proof', () => {
   acceptsParentActionDeliveryReadinessRowsWithoutRuntimeClaims();

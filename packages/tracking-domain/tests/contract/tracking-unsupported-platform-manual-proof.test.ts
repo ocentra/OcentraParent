@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   TrackingUnsupportedPlatformManualProofRowSchema,
   buildTrackingUnsupportedPlatformManualProof,
-} from '../../src/tracking-unsupported-platform-manual-proof';
+} from '@ocentra-parent/schema-domain/tracking-unsupported-platform-manual-proof';
 
 describe('tracking unsupported platform manual proof', () => {
   it('builds manual-required and unavailable rows without unsupported capability claims', () => {

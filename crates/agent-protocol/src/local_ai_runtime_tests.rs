@@ -29,7 +29,8 @@ fn local_model_runtime_status_serializes_to_typescript_contract_shape() {
         ),
     };
 
-    let serialized = serde_json::to_value(status).expect("local AI status serializes");
+    let serialized = serde_json::to_value(status)
+        .unwrap_or_else(|error| unreachable!("local AI status serializes: {error:?}"));
 
     assert_eq!(
         serialized["runtimeReferenceId"],
@@ -91,7 +92,8 @@ fn local_model_load_state_serializes_every_safe_lifecycle_state() {
     ];
 
     for (state, expected) in states {
-        let serialized = serde_json::to_value(state).expect("load state serializes");
+        let serialized = serde_json::to_value(state)
+            .unwrap_or_else(|error| unreachable!("load state serializes: {error:?}"));
 
         assert_eq!(serialized, expected);
     }
@@ -107,7 +109,8 @@ fn local_provider_capability_serializes_local_only_without_remote_ai() {
         fallback_order: 1,
     };
 
-    let serialized = serde_json::to_value(capability).expect("provider capability serializes");
+    let serialized = serde_json::to_value(capability)
+        .unwrap_or_else(|error| unreachable!("provider capability serializes: {error:?}"));
 
     assert_eq!(
         serialized["privacyMode"],
@@ -138,7 +141,8 @@ fn local_ai_runtime_status_command_serializes_to_typescript_contract_shape() {
         payload: LogFields::new(),
     };
 
-    let serialized = serde_json::to_value(command).expect("command serializes");
+    let serialized = serde_json::to_value(command)
+        .unwrap_or_else(|error| unreachable!("command serializes: {error:?}"));
 
     assert_eq!(serialized["command"], "agent.local-ai.runtime.status.get");
 }

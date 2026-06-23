@@ -35,6 +35,59 @@ public family site
 
 No single step means setup is complete.
 
+## Ownership, Import, And Boundary Contract
+
+This plan owns setup/onboarding journey contracts, route-state matrices, public/private setup boundaries, first-run readiness labels, proof aggregation, and user-visible handoff states. It does not own account/session implementation, runtime package build/signing/update, LAN pairing internals, device-trust bootstrap, custody execution, policy authority, payment entitlement, or broad portal shell implementation.
+
+Module roles:
+
+```text
+setup-install-provisioning-plan: setup journey state machine, setup route labels, proof roots, manual-required gates, and rollout aggregation.
+setup-domain: setup/install/pairing/onboarding/provisioning contract boundary; current package export is package-info only, so internal source/tests prove owned slices but do not define a public API unless exports are added.
+family-domain: household/family helper contracts consumed by setup proofs when selected.
+portal-domain and apps/portal: selected first-run route projection and rendered proof for this plan's setup surfaces only.
+account-identity-family-plan: account provider, login/session/token, household authority, invite/recovery, roles, and membership truth.
+parent-desktop-runtime-package-plan: parent client package, signing, update, rollback, distribution, and runtime delivery truth.
+child-agent-runtime-distribution-plan: child package artifacts, platform previews, runtime distribution proof, and child delivery gates.
+device-trust-bootstrap-plan: trusted-device bootstrap, parent presence, key sealing, step-up, and trust approval proof.
+lan-plan: LAN discovery, signed hello, local pairing protocol, transport, and physical LAN proof.
+data-custody-storage-plan: storage/export/delete/sync/custody guarantees and parent-owned storage behavior.
+policy-control-plane-plan: policy baseline authority, schedule/default semantics, approval, and policy delivery truth.
+payment-subscription-plan: subscription, entitlement, checkout, and billing truth.
+portal-ux-household-surfaces-plan: broader portal shell, household surfaces, and visual/UX readiness beyond selected setup routes.
+```
+
+Direct imports are allowed only for explicit public or selected helper surfaces:
+
+```text
+setup-domain selected internal contract/test surfaces while package exports remain package-info only
+schema-domain canonical setup/readiness/status/platform/capability shapes when shared across owners
+family-domain public family/household helper contracts when selected
+portal-domain public setup projection contracts when selected
+agent-protocol or service read models only when the selected workpack names them
+neutral evidence/logging helpers that do not own sibling behavior
+```
+
+Forbidden direct imports and claims:
+
+```text
+account/session internals implemented or owned here
+installer/signing/update/rollback implementation owned here
+child runtime/package/platform permission implementation owned here
+LAN signed hello or device-trust internals owned here
+custody/export/delete side effects owned here
+policy baseline or payment entitlement owned here
+setup-domain internal tests upgraded into public API readiness without exports
+website-only proof upgraded into onboarding readiness
+download button upgraded into signed installer readiness
+child installed upgraded into permissioned/paired/trusted/policy-ready
+pairing discovered upgraded into trusted device
+first-run UI mock upgraded into setup complete
+public site collecting child activity data
+```
+
+If setup needs account, package, LAN, device trust, custody, policy, payment, portal UX, or runtime behavior, it must use typed handoffs, retained proof roots, explicit blockers, and no-claim boundaries. Do not solve sibling behavior by importing another feature owner's runtime internals.
+
 ## Scope
 
 This plan owns:
@@ -67,12 +120,13 @@ payment/subscription entitlement -> payment-subscription-plan
 1. `PLAN_STATE.md`
 2. `NEXT_ACTIONS.md`
 3. `WORKPACK_INDEX.md`
-4. one selected workpack only
-5. `CHECKLIST_INDEX.md` only for that workpack rows
-6. `TEST_PROOF_EXPECTATIONS.md` only for that workpack command/proof set
-7. `PROOF_INDEX.md` only when writing or validating proof artifacts
-8. `PLAN_EXECUTION_BLUEPRINT.md` only when execution order or DONE/PR_READY criteria are unclear
-9. `RESEARCH_AND_DECISIONS.md` only when web/deploy/install/platform assumptions are touched
+4. `WORKPACK_FAMILIES.md` only when owner/proof family is unclear
+5. one selected workpack only
+6. `CHECKLIST_INDEX.md` only for that workpack rows
+7. `TEST_PROOF_EXPECTATIONS.md` only for that workpack command/proof set
+8. `PROOF_INDEX.md` only when writing or validating proof artifacts
+9. `PLAN_EXECUTION_BLUEPRINT.md` only when execution order or DONE/PR_READY criteria are unclear
+10. `RESEARCH_AND_DECISIONS.md` only when web/deploy/install/platform assumptions are touched
 
 Do not read all workpacks. Do not read sibling plans by default.
 

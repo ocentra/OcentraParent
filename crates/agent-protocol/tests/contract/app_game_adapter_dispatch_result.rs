@@ -1,28 +1,32 @@
-use ocentra_parent_agent_protocol::{
-    AppGameAdapterDispatchResultReadModel, AppGameAdapterDispatchResultRow,
-    APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING,
-    APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_MISSING,
-    APP_GAME_ADAPTER_DISPATCH_COMMAND_AUDIT_OWNED_PROCESS,
-    APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_ACCEPTED,
-    APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_ACCEPTED,
-    APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE,
-    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED,
-    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID,
-    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF,
-    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_RECORDED,
-    APP_GAME_ADAPTER_DISPATCH_INTENT_OWNED_PROCESS_TIME_LIMIT,
-    APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY, APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_ROW_ID_PREFIX,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_CUSTODY_PREFLIGHT_AND_COMMAND,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_SCOPED_TIMER,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_OWNED_PROCESS_ID,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID, APP_GAME_ADAPTER_DISPATCH_RESULT_ROW_ID_PREFIX,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_STATUS_PARTIAL, APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_APP, APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
-    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::AppGameAdapterDispatchResultReadModel;
+use ocentra_parent_agent_protocol::AppGameAdapterDispatchResultRow;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_MISSING;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_COMMAND_AUDIT_OWNED_PROCESS;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_ACCEPTED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_ACCEPTED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_RECORDED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_INTENT_OWNED_PROCESS_TIME_LIMIT;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_ROW_ID_PREFIX;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_RESULT_CUSTODY_PREFLIGHT_AND_COMMAND;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_SCOPED_TIMER;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_RESULT_OWNED_PROCESS_ID;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_RESULT_ROW_ID_PREFIX;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_RESULT_STATUS_PARTIAL;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_PRODUCT_NATIVE_APP;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME;
+use ocentra_parent_agent_protocol::APP_GAME_PARENT_PLATFORM_WINDOWS;
+use ocentra_parent_agent_protocol::APP_GAME_SCHEMA_VERSION;
 
 const GENERATED_AT: &str = "2026-06-08T10:44:00Z";
 const SOURCE_PROOF_ENTRY_ID: &str = "windows-app-game-owned-process-time-limit";
@@ -59,12 +63,19 @@ fn app_game_adapter_dispatch_result_serializes_parent_safe_command_result_rows()
         rows: vec![scoped_command_result_row()],
     };
 
-    let serialized = serde_json::to_string(&read_model).expect("dispatch result serializes");
+    let serialized = serde_json::to_value(&read_model)
+        .unwrap_or_else(|error| unreachable!("dispatch result serializes: {error}"));
 
-    assert!(serialized.contains(APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID));
-    assert!(serialized.contains("agent.enforcement.execute"));
-    assert!(serialized.contains(APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID));
-    assert!(serialized.contains("\"adapterDispatchExecutedClaimed\":false"));
+    assert_eq!(
+        serialized["readModelId"],
+        APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID
+    );
+    assert_eq!(serialized["sourceReadModelIds"][1], "agent.enforcement.execute");
+    assert_eq!(
+        serialized["rows"][0]["dispatchExecutionAuditId"],
+        APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID
+    );
+    assert_eq!(serialized["rows"][0]["adapterDispatchExecutedClaimed"], false);
 }
 
 fn scoped_command_result_row() -> AppGameAdapterDispatchResultRow {

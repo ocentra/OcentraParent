@@ -1,11 +1,13 @@
 use ocentra_eventing::error::EventingError;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
+};
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainEventType, ChildDomainPolicyViolationDetectedEvent,
 };
 use ocentra_policy_control_core::policy_request::{
     policy_request_schema_version, validate_child_policy_request, ChildPolicyRequest,
-    PolicyAssistantConfirmationState, PolicyAssistantPreviewId, PolicyDurationMinutes,
-    PolicyRequestId, PolicyRequestOrigin, PolicyRequestScope, PolicyRequestStatus,
+    PolicyAssistantPreviewId, PolicyDurationMinutes, PolicyRequestId, PolicyRequestScope,
     PolicyRequestSubmissionKey, PolicyRequestTarget, PolicyRequestTimestamp,
 };
 use ocentra_policy_control_core::policy_source::{

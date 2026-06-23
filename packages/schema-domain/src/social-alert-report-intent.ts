@@ -4,10 +4,7 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   SocialAuditExplanationEventIdSchema,
   SocialAuditExplanationSnapshotIdSchema,
@@ -262,8 +259,7 @@ function socialAlertReportStatusIsHonest(intent: SocialAlertReportIntentCandidat
     );
   }
   return (
-    intent.deliveryClaimState === SocialAlertReportDeliveryClaimState.NotClaimed &&
-    intent.localOutboxRecordRef === null
+    intent.deliveryClaimState === SocialAlertReportDeliveryClaimState.NotClaimed && intent.localOutboxRecordRef === null
   );
 }
 

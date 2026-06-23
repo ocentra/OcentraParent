@@ -74,114 +74,32 @@ function recoveryAuthorizationInput(overrides: Record<string, unknown> = {}) {
 }
 
 describe('family setup lifecycle contracts', () => {
-  it('parses setup invite, recovery operation, and setup audit event contracts exactly', () => {
-    expect(
-      SetupInviteSchema.parse({
-        schemaVersion: 'v0.6',
-        inviteId: 'invite-main',
-        family: { familyId: 'family-main' },
-        invitedBy: { actorId: 'actor-owner', role: 'parent' },
-        targetAccount: { parentAccountId: 'parent-account-2' },
-        targetChildProfile: null,
-        targetRole: 'co-parent-guardian',
-        purpose: 'co-parent-invite',
-        state: 'pending',
-        expiresAt: '2026-06-14T15:00:00.000Z',
-        singleUse: true,
-      })
-    ).toEqual({
-      schemaVersion: 'v0.6',
-      inviteId: 'invite-main',
-      family: { familyId: 'family-main' },
-      invitedBy: { actorId: 'actor-owner', role: 'parent' },
-      targetAccount: { parentAccountId: 'parent-account-2' },
-      targetChildProfile: null,
-      targetRole: 'co-parent-guardian',
-      purpose: 'co-parent-invite',
-      state: 'pending',
-      expiresAt: '2026-06-14T15:00:00.000Z',
-      singleUse: true,
-    });
+  registerContractParsingTests();
+  registerInviteActivityTests();
+  registerInviteAuthorizationTests();
+  registerOwnerApprovalTests();
+  registerDeleteExportHandoffTests();
+  registerRecoveryAuthorizationParityTests();
+  registerSupportAuditTests();
+  registerTrustRebuildStateTests();
+  registerSchemaBoundaryTests();
+});
 
-    expect(
-      RecoveryOperationSchema.parse({
-        schemaVersion: 'v0.6',
-        recoveryOperationId: 'recovery-main',
-        family: { familyId: 'family-main' },
-        requestedBy: { actorId: 'actor-owner', role: 'parent' },
-        requesterMembershipState: 'active',
-        relatedAccount: { parentAccountId: 'parent-account-1' },
-        relatedDevice: null,
-        kind: 'lost-parent-device',
-        state: 'owner-approval-required',
-        ownerApprovalRequired: true,
-        identityProofState: 'verified',
-        supportChannel: 'household-owner-assisted',
-        deleteExportHandoffRequired: false,
-        bundleHandoffTarget: 'none',
-        bundleState: 'none',
-        bundleFailureReason: null,
-        deleteExportState: 'none',
-        openedAt: '2026-06-13T15:58:00.000Z',
-        closedAt: null,
-      })
-    ).toEqual({
-      schemaVersion: 'v0.6',
-      recoveryOperationId: 'recovery-main',
-      family: { familyId: 'family-main' },
-      requestedBy: { actorId: 'actor-owner', role: 'parent' },
-      requesterMembershipState: 'active',
-      relatedAccount: { parentAccountId: 'parent-account-1' },
-      relatedDevice: null,
-      kind: 'lost-parent-device',
-      state: 'owner-approval-required',
-      ownerApprovalRequired: true,
-      identityProofState: 'verified',
-      supportChannel: 'household-owner-assisted',
-      deleteExportHandoffRequired: false,
-      bundleHandoffTarget: 'none',
-      bundleState: 'none',
-      bundleFailureReason: null,
-      deleteExportState: 'none',
-      openedAt: '2026-06-13T15:58:00.000Z',
-      closedAt: null,
-    });
-
-    expect(
-      SetupAuditEventSchema.parse({
-        schemaVersion: 'v0.6',
-        auditEventId: 'audit-main',
-        family: { familyId: 'family-main' },
-        actor: { actorId: 'actor-owner', role: 'parent' },
-        kind: 'device-paired',
-        childProfile: { childProfileId: 'child-1', displayName: 'Sam' },
-        device: {
-          deviceId: 'device-child-1',
-          childProfileId: 'child-1',
-          label: 'Sam Android',
-          platform: 'android',
-        },
-        action: null,
-        observedAt: '2026-06-13T16:00:00.000Z',
-      })
-    ).toEqual({
-      schemaVersion: 'v0.6',
-      auditEventId: 'audit-main',
-      family: { familyId: 'family-main' },
-      actor: { actorId: 'actor-owner', role: 'parent' },
-      kind: 'device-paired',
-      childProfile: { childProfileId: 'child-1', displayName: 'Sam' },
-      device: {
-        deviceId: 'device-child-1',
-        childProfileId: 'child-1',
-        label: 'Sam Android',
-        platform: 'android',
-      },
-      action: null,
-      observedAt: '2026-06-13T16:00:00.000Z',
-    });
+function registerContractParsingTests(): void {
+  it('parses setup invite contracts exactly', () => {
+    expectParsedSetupInvite();
   });
 
+  it('parses recovery operation contracts exactly', () => {
+    expectParsedRecoveryOperation();
+  });
+
+  it('parses setup audit event contracts exactly', () => {
+    expectParsedSetupAuditEvent();
+  });
+}
+
+function registerInviteActivityTests(): void {
   it('setup invites are active only while pending and their purpose must match the target role', () => {
     const activeCoParentInvite = SetupInviteSchema.parse({
       schemaVersion: 'v0.6',
@@ -231,7 +149,9 @@ describe('family setup lifecycle contracts', () => {
 
     expect(isSetupInviteSinglePurpose(reusableInvite)).toBe(false);
   });
+}
 
+function registerInviteAuthorizationTests(): void {
   it('authorizes only fresh single-use matching invites from the right household and inviter role', () => {
     const accepted = authorizeSetupInvite(inviteAuthorizationInput());
 
@@ -288,7 +208,9 @@ describe('family setup lifecycle contracts', () => {
     );
     expect(unauthorizedTransfer.failureReason).toBe(SetupInviteFailureReason.InviterNotAuthorized);
   });
+}
 
+function registerOwnerApprovalTests(): void {
   it('lost-parent-device and household-transfer recovery remain owner-approved paths', () => {
     const lostParentDevice = RecoveryOperationSchema.parse({
       schemaVersion: 'v0.6',
@@ -326,7 +248,9 @@ describe('family setup lifecycle contracts', () => {
 
     expect(recoveryRequiresOwnerApproval(childReinstall)).toBe(false);
   });
+}
 
+function registerDeleteExportHandoffTests(): void {
   it('recovery delete export handoff routes through data custody exactly', () => {
     const deleteExportRecovery = RecoveryOperationSchema.parse({
       schemaVersion: 'v0.6',
@@ -356,9 +280,7 @@ describe('family setup lifecycle contracts', () => {
       deleteExportState: RecoveryDeleteExportState.DeleteConfirmed,
     });
 
-    expect(recoveryDataCustodyHandoffState(settledDeleteExportRecovery)).toBe(
-      RecoveryDataCustodyHandoffState.None
-    );
+    expect(recoveryDataCustodyHandoffState(settledDeleteExportRecovery)).toBe(RecoveryDataCustodyHandoffState.None);
 
     const transferRecovery = RecoveryOperationSchema.parse({
       ...deleteExportRecovery,
@@ -371,7 +293,9 @@ describe('family setup lifecycle contracts', () => {
       RecoveryDataCustodyHandoffState.HouseholdTransferHandoffRequired
     );
   });
+}
 
+function registerRecoveryAuthorizationParityTests(): void {
   it('evaluates recovery authorization with owner-approval, support, and failure parity', () => {
     const lostParentDevice = evaluateRecoveryOperation(
       recoveryAuthorizationInput({
@@ -444,7 +368,9 @@ describe('family setup lifecycle contracts', () => {
     const revoked = evaluateRecoveryOperation(recoveryAuthorizationInput({ state: RecoveryState.Revoked }));
     expect(revoked.failureReason).toBe(RecoveryFailureReason.RecoveryNotActive);
   });
+}
 
+function registerSupportAuditTests(): void {
   it('support-assisted recovery is audited and does not expose child evidence access', () => {
     const supportRecovery = RecoveryOperationSchema.parse({
       schemaVersion: 'v0.6',
@@ -479,7 +405,9 @@ describe('family setup lifecycle contracts', () => {
     expect(recoveryRequiresAuditedSupport(selfServeRecovery)).toBe(false);
     expect(recoveryCanAccessChildEvidence(selfServeRecovery)).toBe(true);
   });
+}
 
+function registerTrustRebuildStateTests(): void {
   it('maps recovery states into explicit trust rebuild states instead of silently restoring trust', () => {
     expect(deviceTrustStateForRecoveryState(RecoveryState.PendingIdentityProof)).toBe(DeviceTrustState.ResetRequired);
     expect(deviceTrustStateForRecoveryState(RecoveryState.OwnerApprovalRequired)).toBe(DeviceTrustState.ResetRequired);
@@ -539,7 +467,9 @@ describe('family setup lifecycle contracts', () => {
     });
     expect(deviceTrustStateForRecoveryOperation(revokedRecovery)).toBe(DeviceTrustState.Revoked);
   });
+}
 
+function registerSchemaBoundaryTests(): void {
   it('schema boundary rejects unknown recovery states and malformed invite purposes', () => {
     const badRecovery = RecoveryOperationSchema.safeParse({
       schemaVersion: 'v0.6',
@@ -575,4 +505,116 @@ describe('family setup lifecycle contracts', () => {
     });
     expect(badInvite.success).toBe(false);
   });
-});
+}
+
+function expectParsedSetupInvite(): void {
+  expect(
+    SetupInviteSchema.parse({
+      schemaVersion: 'v0.6',
+      inviteId: 'invite-main',
+      family: { familyId: 'family-main' },
+      invitedBy: { actorId: 'actor-owner', role: 'parent' },
+      targetAccount: { parentAccountId: 'parent-account-2' },
+      targetChildProfile: null,
+      targetRole: 'co-parent-guardian',
+      purpose: 'co-parent-invite',
+      state: 'pending',
+      expiresAt: '2026-06-14T15:00:00.000Z',
+      singleUse: true,
+    })
+  ).toEqual({
+    schemaVersion: 'v0.6',
+    inviteId: 'invite-main',
+    family: { familyId: 'family-main' },
+    invitedBy: { actorId: 'actor-owner', role: 'parent' },
+    targetAccount: { parentAccountId: 'parent-account-2' },
+    targetChildProfile: null,
+    targetRole: 'co-parent-guardian',
+    purpose: 'co-parent-invite',
+    state: 'pending',
+    expiresAt: '2026-06-14T15:00:00.000Z',
+    singleUse: true,
+  });
+}
+
+function expectParsedRecoveryOperation(): void {
+  expect(
+    RecoveryOperationSchema.parse({
+      schemaVersion: 'v0.6',
+      recoveryOperationId: 'recovery-main',
+      family: { familyId: 'family-main' },
+      requestedBy: { actorId: 'actor-owner', role: 'parent' },
+      requesterMembershipState: 'active',
+      relatedAccount: { parentAccountId: 'parent-account-1' },
+      relatedDevice: null,
+      kind: 'lost-parent-device',
+      state: 'owner-approval-required',
+      ownerApprovalRequired: true,
+      identityProofState: 'verified',
+      supportChannel: 'household-owner-assisted',
+      deleteExportHandoffRequired: false,
+      bundleHandoffTarget: 'none',
+      bundleState: 'none',
+      bundleFailureReason: null,
+      deleteExportState: 'none',
+      openedAt: '2026-06-13T15:58:00.000Z',
+      closedAt: null,
+    })
+  ).toEqual({
+    schemaVersion: 'v0.6',
+    recoveryOperationId: 'recovery-main',
+    family: { familyId: 'family-main' },
+    requestedBy: { actorId: 'actor-owner', role: 'parent' },
+    requesterMembershipState: 'active',
+    relatedAccount: { parentAccountId: 'parent-account-1' },
+    relatedDevice: null,
+    kind: 'lost-parent-device',
+    state: 'owner-approval-required',
+    ownerApprovalRequired: true,
+    identityProofState: 'verified',
+    supportChannel: 'household-owner-assisted',
+    deleteExportHandoffRequired: false,
+    bundleHandoffTarget: 'none',
+    bundleState: 'none',
+    bundleFailureReason: null,
+    deleteExportState: 'none',
+    openedAt: '2026-06-13T15:58:00.000Z',
+    closedAt: null,
+  });
+}
+
+function expectParsedSetupAuditEvent(): void {
+  expect(
+    SetupAuditEventSchema.parse({
+      schemaVersion: 'v0.6',
+      auditEventId: 'audit-main',
+      family: { familyId: 'family-main' },
+      actor: { actorId: 'actor-owner', role: 'parent' },
+      kind: 'device-paired',
+      childProfile: { childProfileId: 'child-1', displayName: 'Sam' },
+      device: {
+        deviceId: 'device-child-1',
+        childProfileId: 'child-1',
+        label: 'Sam Android',
+        platform: 'android',
+      },
+      action: null,
+      observedAt: '2026-06-13T16:00:00.000Z',
+    })
+  ).toEqual({
+    schemaVersion: 'v0.6',
+    auditEventId: 'audit-main',
+    family: { familyId: 'family-main' },
+    actor: { actorId: 'actor-owner', role: 'parent' },
+    kind: 'device-paired',
+    childProfile: { childProfileId: 'child-1', displayName: 'Sam' },
+    device: {
+      deviceId: 'device-child-1',
+      childProfileId: 'child-1',
+      label: 'Sam Android',
+      platform: 'android',
+    },
+    action: null,
+    observedAt: '2026-06-13T16:00:00.000Z',
+  });
+}

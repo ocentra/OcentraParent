@@ -1,3 +1,4 @@
+use super::TestResult;
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_policy_control_core::policy_authority::{
     resolve_policy_conflict, resolve_policy_evaluation_request, AiResultAuthorityState,
@@ -32,11 +33,16 @@ fn conflict_input(requested_source: PolicyDecisionSource) -> PolicyConflictInput
 }
 
 #[test]
-fn parent_policy_with_stable_evidence_can_authorize_enforcement() {
+fn parent_policy_with_stable_evidence_can_authorize_enforcement() -> TestResult {
     let request = PolicyEvaluationRequestedEvent {
-        aggregate_id: PolicyControlAggregateId::parse(POLICY_AGGREGATE_ID)
-            .expect("policy aggregate id"),
-        request_id: PolicyControlRequestId::parse(POLICY_REQUEST_ID).expect("policy request id"),
+        aggregate_id: test_ok!(
+            PolicyControlAggregateId::parse(POLICY_AGGREGATE_ID),
+            "policy aggregate id"
+        ),
+        request_id: test_ok!(
+            PolicyControlRequestId::parse(POLICY_REQUEST_ID),
+            "policy request id"
+        ),
         input: policy_input(AiResultAuthorityState::EvidenceOnly),
         conflict_input: conflict_input(PolicyDecisionSource::ParentPolicy),
     };
@@ -58,7 +64,7 @@ fn parent_policy_with_stable_evidence_can_authorize_enforcement() {
     assert_eq!(
         request
             .contract()
-            .expect("policy evaluation contract")
+            .map_err(|error| std::io::Error::other(format!("policy evaluation contract: {error}")))?
             .event_type
             .as_str(),
         POLICY_EVALUATION_EVENT_TYPE
@@ -66,19 +72,25 @@ fn parent_policy_with_stable_evidence_can_authorize_enforcement() {
     assert_eq!(
         decision
             .contract()
-            .expect("policy decision contract")
+            .map_err(|error| std::io::Error::other(format!("policy decision contract: {error}")))?
             .event_type
             .as_str(),
         POLICY_DECISION_EVENT_TYPE
     );
+    Ok(())
 }
 
 #[test]
-fn ai_result_claiming_authority_blocks_enforcement_and_requires_review() {
+fn ai_result_claiming_authority_blocks_enforcement_and_requires_review() -> TestResult {
     let request = PolicyEvaluationRequestedEvent {
-        aggregate_id: PolicyControlAggregateId::parse(POLICY_AGGREGATE_ID)
-            .expect("policy aggregate id"),
-        request_id: PolicyControlRequestId::parse(POLICY_REQUEST_ID).expect("policy request id"),
+        aggregate_id: test_ok!(
+            PolicyControlAggregateId::parse(POLICY_AGGREGATE_ID),
+            "policy aggregate id"
+        ),
+        request_id: test_ok!(
+            PolicyControlRequestId::parse(POLICY_REQUEST_ID),
+            "policy request id"
+        ),
         input: policy_input(AiResultAuthorityState::ClaimsAuthority),
         conflict_input: conflict_input(PolicyDecisionSource::AiEvidence),
     };
@@ -101,10 +113,11 @@ fn ai_result_claiming_authority_blocks_enforcement_and_requires_review() {
         decision.conflict_decision.resolution_state,
         PolicyConflictResolutionState::ManualReview
     );
+    Ok(())
 }
 
 #[test]
-fn missing_evidence_reference_forces_manual_review_conflict_resolution() {
+fn missing_evidence_reference_forces_manual_review_conflict_resolution() -> TestResult {
     let decision = resolve_policy_conflict(PolicyConflictInput {
         evidence_reference_state: EvidenceReferenceState::Missing,
         ..conflict_input(PolicyDecisionSource::ParentPolicy)
@@ -117,4 +130,5 @@ fn missing_evidence_reference_forces_manual_review_conflict_resolution() {
             manual_review_state: PolicyManualReviewState::Required,
         }
     );
+    Ok(())
 }

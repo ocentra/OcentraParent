@@ -1,12 +1,8 @@
-use ocentra_parent_agent_protocol::{constants, ScreenRuntimePhase};
-
-pub(crate) type ScreenEvidenceScope = ocentra_parent_agent_protocol::ScreenEvidenceScope;
-pub(crate) type ScreenAiAuditState = ocentra_parent_agent_protocol::ScreenAiAuditState;
-pub(crate) type ScreenPolicyState = ocentra_parent_agent_protocol::ScreenPolicyState;
-pub(crate) type ScreenActionState = ocentra_parent_agent_protocol::ScreenActionState;
-pub(crate) type ScreenDeletionState = ocentra_parent_agent_protocol::ScreenDeletionState;
-pub(crate) type ScreenRuntimeClaimBoundary =
-    ocentra_parent_agent_protocol::ScreenRuntimeClaimBoundary;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimePhase,
+};
 
 pub(crate) fn evidence_scope(phase: ScreenRuntimePhase) -> ScreenEvidenceScope {
     match phase {

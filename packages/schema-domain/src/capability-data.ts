@@ -210,4 +210,3 @@ export const ParentControlPlatformCapabilityInputs = [
     ],
   },
 ] as const;
-

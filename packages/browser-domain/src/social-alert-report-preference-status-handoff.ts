@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
@@ -51,8 +51,12 @@ export const RequiredSocialAlertReportPreferenceStatusHandoffNonClaims = [
 export const SocialAlertReportPreferenceStatusHandoffNonClaimSchema = withParser(
   Schema.Literal(...RequiredSocialAlertReportPreferenceStatusHandoffNonClaims)
 );
-export const SocialAlertReportPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema('SocialAlertReportPreferenceStatusHandoffId');
-export const SocialAlertReportPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('SocialAlertReportPreferenceStatusHandoffReference');
+export const SocialAlertReportPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportPreferenceStatusHandoffId'
+);
+export const SocialAlertReportPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportPreferenceStatusHandoffReference'
+);
 
 const SocialAlertReportPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: SocialAlertReportPreferenceStatusHandoffReferenceSchema,
@@ -390,5 +394,3 @@ function countSourceStatus(
 ): number {
   return rows.filter((row) => row.sourcePreferenceStatus === status).length;
 }
-
-

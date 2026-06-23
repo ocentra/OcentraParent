@@ -193,30 +193,26 @@ export const NotificationLocalOutboxAdapterProofSchemaVersionSchema = withParser
   Schema.Literal('notification-local-outbox-adapter-proof')
 );
 
-export const NotificationLocalOutboxStateSchema = withParser(
-  Schema.Literal(...RequiredNotificationLocalOutboxStates)
-);
+export const NotificationLocalOutboxStateSchema = withParser(Schema.Literal(...RequiredNotificationLocalOutboxStates));
 
 export const NotificationLocalOutboxNonClaimSchema = withParser(
   Schema.Literal(...RequiredNotificationLocalOutboxNonClaims)
 );
 
-export const NotificationLocalOutboxSeveritySchema = withParser(
-  Schema.Literal('info', 'attention', 'urgent')
-);
+export const NotificationLocalOutboxSeveritySchema = withParser(Schema.Literal('info', 'attention', 'urgent'));
 
 export const NotificationLocalOutboxDeliveryClaimStateSchema = withParser(
   Schema.Literal('local-outbox-only', 'provider-receipt-required', 'manual-required')
 );
 
-export const NotificationLocalOutboxReadModelIdSchema =
-  brandedNonEmptyStringSchema('NotificationLocalOutboxReadModelId');
-export const NotificationLocalOutboxEntryIdSchema =
-  brandedNonEmptyStringSchema('NotificationLocalOutboxEntryId');
-export const NotificationLocalOutboxReferenceSchema =
-  brandedNonEmptyStringSchema('NotificationLocalOutboxReference');
-export const NotificationLocalOutboxPayloadPreviewSchema =
-  brandedNonEmptyStringSchema('NotificationLocalOutboxPayloadPreview');
+export const NotificationLocalOutboxReadModelIdSchema = brandedNonEmptyStringSchema(
+  'NotificationLocalOutboxReadModelId'
+);
+export const NotificationLocalOutboxEntryIdSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxEntryId');
+export const NotificationLocalOutboxReferenceSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxReference');
+export const NotificationLocalOutboxPayloadPreviewSchema = brandedNonEmptyStringSchema(
+  'NotificationLocalOutboxPayloadPreview'
+);
 
 const NotificationLocalOutboxMinimalAlertEnvelopeBaseSchema = Schema.Struct({
   alertRef: NotificationLocalOutboxReferenceSchema,
@@ -314,9 +310,7 @@ type NotificationOutboxProofCandidate = Infer<typeof NotificationLocalOutboxProo
 export type NotificationLocalOutboxState = Infer<typeof NotificationLocalOutboxStateSchema>;
 export type NotificationLocalOutboxNonClaim = Infer<typeof NotificationLocalOutboxNonClaimSchema>;
 export type NotificationLocalOutboxSeverity = Infer<typeof NotificationLocalOutboxSeveritySchema>;
-export type NotificationLocalOutboxDeliveryClaimState = Infer<
-  typeof NotificationLocalOutboxDeliveryClaimStateSchema
->;
+export type NotificationLocalOutboxDeliveryClaimState = Infer<typeof NotificationLocalOutboxDeliveryClaimStateSchema>;
 export type NotificationLocalOutboxMinimalAlertEnvelope = Infer<
   typeof NotificationLocalOutboxMinimalAlertEnvelopeSchema
 >;
@@ -410,9 +404,7 @@ function notificationOutboxProofIsSafe(proof: NotificationOutboxProofCandidate):
 }
 
 function requiredOutboxStatesAreCovered(records: ReadonlyArray<NotificationOutboxRecordCandidate>): boolean {
-  return RequiredNotificationLocalOutboxStates.every((state) =>
-    records.some((record) => record.state === state)
-  );
+  return RequiredNotificationLocalOutboxStates.every((state) => records.some((record) => record.state === state));
 }
 
 function requiredOutboxChannelsAreCovered(records: ReadonlyArray<NotificationOutboxRecordCandidate>): boolean {
@@ -500,8 +492,7 @@ export const RequiredNotificationLocalOutboxSchedulerNonClaims = [
 
 export const NotificationLocalOutboxSchedulerProofTimestamp = '2026-06-04T02:28:51.667Z';
 export const NotificationLocalOutboxSchedulerProofNow = '2026-06-04T02:28:51.667Z';
-export const NotificationLocalOutboxSchedulerArtifactRef =
-  'parent-owned-local-notification-outbox-scheduler-jsonl-ref';
+export const NotificationLocalOutboxSchedulerArtifactRef = 'parent-owned-local-notification-outbox-scheduler-jsonl-ref';
 
 export const NotificationLocalOutboxSchedulerKnownGaps = [
   'No push, email, SMS, WhatsApp, or in-app provider adapter is implemented by this parent-domain scheduler proof.',
@@ -619,10 +610,12 @@ export const NotificationLocalOutboxSchedulerNonClaimSchema = withParser(
   Schema.Literal(...RequiredNotificationLocalOutboxSchedulerNonClaims)
 );
 
-export const NotificationLocalOutboxSchedulerReadModelIdSchema =
-  brandedNonEmptyStringSchema('NotificationLocalOutboxSchedulerReadModelId');
-export const NotificationLocalOutboxSchedulerEntryIdSchema =
-  brandedNonEmptyStringSchema('NotificationLocalOutboxSchedulerEntryId');
+export const NotificationLocalOutboxSchedulerReadModelIdSchema = brandedNonEmptyStringSchema(
+  'NotificationLocalOutboxSchedulerReadModelId'
+);
+export const NotificationLocalOutboxSchedulerEntryIdSchema = brandedNonEmptyStringSchema(
+  'NotificationLocalOutboxSchedulerEntryId'
+);
 
 const NotificationLocalOutboxQuietHoursWindowSchema = Schema.Struct({
   quietHoursWindowRef: NotificationLocalOutboxReferenceSchema,
@@ -715,25 +708,13 @@ export const NotificationLocalOutboxSchedulerProofSchema = withParser(
   )
 );
 
-export type NotificationOutboxSchedulerRecordCandidate = Infer<
-  typeof NotificationLocalOutboxSchedulerRecordBaseSchema
->;
-export type NotificationOutboxSchedulerProofCandidate = Infer<
-  typeof NotificationLocalOutboxSchedulerProofBaseSchema
->;
+export type NotificationOutboxSchedulerRecordCandidate = Infer<typeof NotificationLocalOutboxSchedulerRecordBaseSchema>;
+export type NotificationOutboxSchedulerProofCandidate = Infer<typeof NotificationLocalOutboxSchedulerProofBaseSchema>;
 
-export type NotificationLocalOutboxSchedulerState = Infer<
-  typeof NotificationLocalOutboxSchedulerStateSchema
->;
-export type NotificationLocalOutboxSchedulerNonClaim = Infer<
-  typeof NotificationLocalOutboxSchedulerNonClaimSchema
->;
-export type NotificationLocalOutboxSchedulerRecord = Infer<
-  typeof NotificationLocalOutboxSchedulerRecordSchema
->;
-export type NotificationLocalOutboxSchedulerProof = Infer<
-  typeof NotificationLocalOutboxSchedulerProofSchema
->;
+export type NotificationLocalOutboxSchedulerState = Infer<typeof NotificationLocalOutboxSchedulerStateSchema>;
+export type NotificationLocalOutboxSchedulerNonClaim = Infer<typeof NotificationLocalOutboxSchedulerNonClaimSchema>;
+export type NotificationLocalOutboxSchedulerRecord = Infer<typeof NotificationLocalOutboxSchedulerRecordSchema>;
+export type NotificationLocalOutboxSchedulerProof = Infer<typeof NotificationLocalOutboxSchedulerProofSchema>;
 
 const SchedulerClaimFlags = [
   'providerDeliveryRuntimeClaimed',
@@ -761,9 +742,7 @@ const SchedulerRecordClaimFlags = [
   'sensitiveProviderMetadataStored',
 ] as const;
 
-export function notificationOutboxSchedulerRecordIsSafe(
-  record: NotificationOutboxSchedulerRecordCandidate
-): boolean {
+export function notificationOutboxSchedulerRecordIsSafe(record: NotificationOutboxSchedulerRecordCandidate): boolean {
   return (
     record.parentOwnedArtifactWritten &&
     !SchedulerRecordClaimFlags.some((flag) => record[flag]) &&
@@ -775,9 +754,7 @@ export function notificationOutboxSchedulerRecordIsSafe(
   );
 }
 
-export function notificationOutboxSchedulerProofIsSafe(
-  proof: NotificationOutboxSchedulerProofCandidate
-): boolean {
+export function notificationOutboxSchedulerProofIsSafe(proof: NotificationOutboxSchedulerProofCandidate): boolean {
   return (
     requiredSchedulerStatesAreCovered(proof.records) &&
     requiredSchedulerChannelsAreCovered(proof.records) &&
@@ -786,9 +763,7 @@ export function notificationOutboxSchedulerProofIsSafe(
   );
 }
 
-function notificationOutboxSchedulerStateIsCoherent(
-  record: NotificationOutboxSchedulerRecordCandidate
-): boolean {
+function notificationOutboxSchedulerStateIsCoherent(record: NotificationOutboxSchedulerRecordCandidate): boolean {
   if (record.schedulerState === 'due-local') {
     return record.nextAttemptAt === record.schedulerNowAt && noHoldRetryOrManualRefs(record);
   }
@@ -933,13 +908,11 @@ export const NotificationLocalOutboxSchedulerProofReadModel = NotificationLocalO
   productionDurableOutboxStorageClaimed: false,
 });
 
-export const decodeNotificationLocalOutboxSchedulerRecord = (
-  input: unknown
-): NotificationLocalOutboxSchedulerRecord => NotificationLocalOutboxSchedulerRecordSchema.parse(input);
+export const decodeNotificationLocalOutboxSchedulerRecord = (input: unknown): NotificationLocalOutboxSchedulerRecord =>
+  NotificationLocalOutboxSchedulerRecordSchema.parse(input);
 
-export const decodeNotificationLocalOutboxSchedulerProof = (
-  input: unknown
-): NotificationLocalOutboxSchedulerProof => NotificationLocalOutboxSchedulerProofSchema.parse(input);
+export const decodeNotificationLocalOutboxSchedulerProof = (input: unknown): NotificationLocalOutboxSchedulerProof =>
+  NotificationLocalOutboxSchedulerProofSchema.parse(input);
 
 function textContainsForbiddenDetail(text: string): boolean {
   const lowerText = text.toLowerCase();

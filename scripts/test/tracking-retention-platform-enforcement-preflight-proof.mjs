@@ -36,7 +36,13 @@ async function main() {
 
   const proofModule = await tsImport(
     pathToFileURL(
-      path.join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-retention-platform-enforcement-preflight-proof.ts')
+      path.join(
+        repoRoot,
+        'packages',
+        'schema-domain',
+        'src',
+        'tracking-retention-platform-enforcement-preflight-proof.ts'
+      )
     ).href,
     import.meta.url
   );

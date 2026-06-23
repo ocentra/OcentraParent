@@ -1,13 +1,20 @@
 use std::fs::{read_to_string, remove_file};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, AppGameServiceReadModel,
-    AppGameTimerParentPreferenceSetupRequest, AppGameTimerParentPreferenceSetupRequestResult,
-    LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED, APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
 };
+use ocentra_parent_agent_protocol::app_game_timer_parent_preference_setup_request::{
+    AppGameTimerParentPreferenceSetupRequest, AppGameTimerParentPreferenceSetupRequestResult,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_api::{
@@ -22,8 +29,9 @@ const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let result = request_payload(
         &event.payload[constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST],
@@ -103,20 +111,26 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         &event.payload[constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST],
     );
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     let model = store
         .app_game_service_read_model(
             PERSISTED_SETUP_EVENT_COUNT,
             constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
-    let status = store
-        .status()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
+        });
+    let status = store.status().unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
+    });
     let outbox_path = store_path.with_extension(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
     );
-    let outbox_jsonl = read_to_string(&outbox_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let outbox_jsonl = read_to_string(&outbox_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     cleanup_path(&store_path);
 
     assert_persisted_setup_result(&result);
@@ -233,7 +247,7 @@ fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
         vec![
             constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX.to_string(),
             constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string(),
-            ocentra_parent_agent_protocol::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_TRANSPORT_NOT_EXECUTED.to_string()
+            ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_TRANSPORT_NOT_EXECUTED.to_string()
         ]
     );
     assert!(!receipt_model.runtime_transport_executed);
@@ -721,9 +735,11 @@ fn assert_persisted_setup_outbox(
     let first_line = outbox_jsonl
         .lines()
         .next()
-        .expect(constants::error::ACTIVITY_STORE_OPENS);
+        .unwrap_or_else(|| panic!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let outbox_record: serde_json::Value =
-        serde_json::from_str(first_line).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::from_str(first_line).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     assert_eq!(
         outbox_record[constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID],
         result.durable_outbox_record_id
@@ -800,9 +816,9 @@ fn command_envelope() -> AgentCommandEnvelope {
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&request).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serde_json::to_string(&request).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })),
     );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -827,10 +843,10 @@ fn command_envelope() -> AgentCommandEnvelope {
 
 fn request_payload(value: &LogFieldValue) -> AppGameTimerParentPreferenceSetupRequestResult {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 

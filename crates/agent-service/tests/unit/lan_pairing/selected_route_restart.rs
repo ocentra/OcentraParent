@@ -3,10 +3,13 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
-    AgentRoute, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
 
 use crate::{
     lan_pairing::LanPairingRuntime,
@@ -82,9 +85,9 @@ async fn loopback_lan_status(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(&serialize_command(loopback_status_command()), runtime, None).await
 }
 
-fn loopback_status_command() -> ocentra_parent_agent_protocol::AgentCommandEnvelope {
+fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentCommandEnvelope {
     command_for_target(
-        ocentra_parent_agent_protocol::AgentCommandName::AgentLanPairingStatusGet,
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingStatusGet,
         AgentMessageTarget {
             device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
             platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),

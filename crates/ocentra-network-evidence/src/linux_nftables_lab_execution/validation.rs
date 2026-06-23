@@ -3,14 +3,10 @@ use super::types::{
     NetworkLinuxNftablesLabExecutionError, NetworkLinuxNftablesLabExecutionInput,
     NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabUnsupportedClaims,
 };
+use crate::lab_execution_common::{is_test_net_remote_address, normalize_ref};
 use crate::linux_adapter_gate::{
     NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState, NetworkLinuxAdapterKind,
 };
-
-#[path = "../lab_execution_common.rs"]
-mod lab_execution_common;
-
-use lab_execution_common::{is_test_net_remote_address, normalize_ref};
 
 pub struct NormalizedLabExecutionInput {
     pub lab_ref: String,

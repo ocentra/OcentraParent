@@ -6,7 +6,8 @@ use ocentra_eventing::{
     error::EventingError, ids::EventNamespace, ids::EventType, ids::SourceComponent,
     ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
+use ocentra_parent_agent_protocol::constants;
 
 pub type BrowserRuntimeDeliveryDecisionReport =
     ocentra_parent_agent_protocol::browser::delivery::BrowserRuntimeDeliveryDecisionReport;

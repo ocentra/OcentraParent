@@ -3,6 +3,8 @@ import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
+import { repoAbsolutePath, resolveScopedFiles } from './check-architecture-scope.mjs';
+
 const ignoredPathParts = new Set([
   '.git',
   '.turbo',
@@ -42,6 +44,9 @@ const tsOwnedCssVarFiles = [
   'packages/portal-domain/src/unified-chrome.ts',
 ];
 const tsCssVarLiteralPattern = /'(--[a-z0-9_-]+)'/giu;
+const scriptName = 'node scripts/check-portal-ui-boundaries.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
+const portalUiRoots = ['apps/portal/src'];
 
 function toPosix(path) {
   return path.split(sep).join('/');
@@ -266,9 +271,15 @@ export function runPortalUiBoundaryCheck({ repoRoot = process.cwd() } = {}) {
   const files = [];
   walk(repoRoot, join(repoRoot, 'apps/portal/src'), files);
 
+  return runPortalUiBoundaryCheckForFiles(files, { repoRoot });
+}
+
+export function runPortalUiBoundaryCheckForFiles(files, { repoRoot = process.cwd() } = {}) {
+  const absoluteFiles = files.map((file) => repoAbsolutePath(file));
+
   const findings = [];
   const cssFiles = [];
-  for (const file of files) {
+  for (const file of absoluteFiles) {
     if (sourceExtension.test(file)) {
       inspectTypeScriptFile({ findings, path: file, repoRoot });
     } else if (cssExtension.test(file)) {
@@ -279,8 +290,27 @@ export function runPortalUiBoundaryCheck({ repoRoot = process.cwd() } = {}) {
   return findings;
 }
 
+function collectScopedPortalUiFiles(rawArgs) {
+  const scope = resolveScopedFiles(rawArgs, {
+    scriptName,
+    usageLines,
+    roots: portalUiRoots,
+    acceptPath: (filePath) => sourceExtension.test(filePath) || cssExtension.test(filePath),
+  });
+
+  if (scope.mode === 'skip') {
+    return [];
+  }
+
+  return scope.files;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const findings = runPortalUiBoundaryCheck();
+  const rawArgs = process.argv.slice(2);
+  const findings =
+    rawArgs.length === 0
+      ? runPortalUiBoundaryCheck()
+      : runPortalUiBoundaryCheckForFiles(collectScopedPortalUiFiles(rawArgs));
   if (findings.length > 0) {
     console.error('Portal UI boundary violations found.');
     for (const finding of findings) {

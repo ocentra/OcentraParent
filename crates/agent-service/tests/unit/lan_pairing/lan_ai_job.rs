@@ -1,9 +1,18 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandName, AgentEventEnvelope, AgentEventName, DeviceRoleRuntimeReadModel,
-    DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim, DeviceRuntimeRole,
-    DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState, DeviceRuntimeSurface,
-    LanPairingParentAuthority, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeAiProviderState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeLocalAiClaim;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleEntry;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     lan_pairing::LanPairingRuntime,
@@ -67,7 +76,10 @@ async fn authorized_lan_ai_job_submit_returns_degraded_result_when_provider_is_u
         &serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload(constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER),
+            lan_ai_job_payload_for_capability(
+                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            ),
         )),
         runtime,
         Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
@@ -201,12 +213,15 @@ async fn repeated_lan_ai_job_submit_reuses_completed_job_without_raw_transfer() 
 
 #[tokio::test]
 async fn degraded_lan_ai_provider_routes_as_degraded_policy_state() {
-    let runtime = degraded_lan_ai_provider_runtime().await;
+    let runtime = lan_ai_provider_runtime_with_state(DeviceRuntimeAiProviderState::Degraded).await;
     let event = handle_command_text_for_test(
         &serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload(constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER),
+            lan_ai_job_payload_for_capability(
+                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            ),
         )),
         runtime,
         Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
@@ -312,7 +327,10 @@ async fn observer_lan_ai_job_submit_is_rejected_before_provider_routing() {
         &serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload(constants::value::LAN_PARENT_AUTHORITY_OBSERVER),
+            lan_ai_job_payload_for_capability(
+                constants::value::LAN_PARENT_AUTHORITY_OBSERVER,
+                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            ),
         )),
         runtime,
         Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
@@ -324,13 +342,6 @@ async fn observer_lan_ai_job_submit_is_rejected_before_provider_routing() {
         constants::value::LAN_REASON_OBSERVER_READ_ONLY,
         constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
     );
-}
-
-fn lan_ai_job_payload(authority: &str) -> LogFields {
-    lan_ai_job_payload_for_capability(
-        authority,
-        constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-    )
 }
 
 fn lan_ai_job_payload_for_capability(authority: &str, capability: &str) -> LogFields {
@@ -380,16 +391,15 @@ async fn lan_ai_job_event(runtime: LanPairingRuntime) -> AgentEventEnvelope {
         &serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload(constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER),
+            lan_ai_job_payload_for_capability(
+                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            ),
         )),
         runtime,
         Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
     )
     .await
-}
-
-async fn degraded_lan_ai_provider_runtime() -> LanPairingRuntime {
-    lan_ai_provider_runtime_with_state(DeviceRuntimeAiProviderState::Degraded).await
 }
 
 async fn lan_ai_provider_runtime() -> LanPairingRuntime {

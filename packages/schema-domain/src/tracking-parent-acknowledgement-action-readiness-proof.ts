@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema } from './tracking-location-policy-primitives';
 import type {
@@ -31,8 +25,12 @@ export const TrackingParentAcknowledgementActionNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingParentAcknowledgementActionNonClaims)
 );
 
-export const TrackingParentAcknowledgementActionReadinessIdSchema = brandedNonEmptyStringSchema('TrackingParentAcknowledgementActionReadinessId');
-export const TrackingParentAcknowledgementActionRowIdSchema = brandedNonEmptyStringSchema('TrackingParentAcknowledgementActionRowId');
+export const TrackingParentAcknowledgementActionReadinessIdSchema = brandedNonEmptyStringSchema(
+  'TrackingParentAcknowledgementActionReadinessId'
+);
+export const TrackingParentAcknowledgementActionRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingParentAcknowledgementActionRowId'
+);
 export const TrackingParentAcknowledgementActionStateSchema = withParser(
   Schema.Literal(
     'acknowledgement-action-ready',
@@ -414,4 +412,3 @@ function trackingParentAcknowledgementActionReadModelIsHonest(
     readModel.productClaimReady === false
   );
 }
-

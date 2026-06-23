@@ -11,8 +11,7 @@ fn screen_live_view_observation_requests_policy_not_ai_analysis() {
     let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(&evidence);
     let policy = ocentra_screen_live_view_core::screen_live_view_policy_evaluation_requested_event(
         &evidence,
-    )
-    .expect("screen live view policy request is expected");
+    );
 
     assert!(ai.is_none());
     assert_eq!(
@@ -23,11 +22,13 @@ fn screen_live_view_observation_requests_policy_not_ai_analysis() {
         evidence.policy_evaluation_requirement,
         ChildDomainPolicyEvaluationRequirement::Required
     );
-    assert_eq!(
-        policy.event_type,
-        ChildRuntimeDomain::ScreenLiveView.policy_evaluation_requested_event_type()
-    );
-    assert_eq!(policy.evidence_refs, vec![evidence.evidence_ref]);
+    assert!(matches!(
+        policy.as_ref(),
+        Some(policy)
+            if policy.event_type
+                == ChildRuntimeDomain::ScreenLiveView.policy_evaluation_requested_event_type()
+                && policy.evidence_refs == vec![evidence.evidence_ref]
+    ));
 }
 
 #[test]
@@ -40,8 +41,7 @@ fn unauthorized_screen_live_view_session_still_uses_policy_not_ai() {
     let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(&evidence);
     let policy = ocentra_screen_live_view_core::screen_live_view_policy_evaluation_requested_event(
         &evidence,
-    )
-    .expect("unauthorized live view session requests policy directly");
+    );
 
     assert_eq!(
         evidence.ai_analysis_requirement,
@@ -52,7 +52,10 @@ fn unauthorized_screen_live_view_session_still_uses_policy_not_ai() {
         ChildDomainPolicyEvaluationRequirement::Required
     );
     assert!(ai.is_none());
-    assert_eq!(policy.evidence_refs, vec![evidence.evidence_ref]);
+    assert!(matches!(
+        policy.as_ref(),
+        Some(policy) if policy.evidence_refs == vec![evidence.evidence_ref]
+    ));
 }
 
 #[test]

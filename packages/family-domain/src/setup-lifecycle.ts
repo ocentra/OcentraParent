@@ -110,11 +110,7 @@ export function recoveryRequiresOwnerApproval(input: RecoveryOperation): boolean
 export function recoveryDataCustodyHandoffState(input: RecoveryOperation): RecoveryDataCustodyHandoffState {
   const recovery = RecoveryOperationSchema.parse(input);
 
-  return dataCustodyHandoffState(
-    recovery.kind,
-    recovery.deleteExportHandoffRequired,
-    recovery.deleteExportState
-  );
+  return dataCustodyHandoffState(recovery.kind, recovery.deleteExportHandoffRequired, recovery.deleteExportState);
 }
 
 export function recoveryRequiresAuditedSupport(input: RecoveryOperation): boolean {
@@ -136,7 +132,9 @@ export function recoveryCanAccessChildEvidence(input: RecoveryOperation): boolea
   );
 }
 
-export function deviceTrustStateForRecoveryState(state: RecoveryState): typeof DeviceTrustState[keyof typeof DeviceTrustState] {
+export function deviceTrustStateForRecoveryState(
+  state: RecoveryState
+): (typeof DeviceTrustState)[keyof typeof DeviceTrustState] {
   const parsedState = RecoveryStateSchema.parse(state);
 
   if (
@@ -156,7 +154,7 @@ export function deviceTrustStateForRecoveryState(state: RecoveryState): typeof D
 
 export function deviceTrustStateForRecoveryOperation(
   input: RecoveryOperation
-): typeof DeviceTrustState[keyof typeof DeviceTrustState] {
+): (typeof DeviceTrustState)[keyof typeof DeviceTrustState] {
   const recovery = RecoveryOperationSchema.parse(input);
 
   if (recovery.state === RecoveryState.Revoked) {
@@ -317,7 +315,7 @@ function inviterCanIssue(role: HouseholdRole, purpose: SetupInvitePurpose): bool
 function requesterCanRecover(
   role: HouseholdRole,
   kind: RecoveryKind,
-  supportChannel: typeof RecoverySupportChannel[keyof typeof RecoverySupportChannel]
+  supportChannel: (typeof RecoverySupportChannel)[keyof typeof RecoverySupportChannel]
 ): boolean {
   if (role === HouseholdRole.SupportAdmin) {
     return supportChannel === RecoverySupportChannel.SupportAssisted;
@@ -358,11 +356,10 @@ function dataCustodyHandoffState(
 function recoveryChildEvidenceAccessState(
   requesterRole: HouseholdRole,
   sameFamily: boolean,
-  supportChannel: typeof RecoverySupportChannel[keyof typeof RecoverySupportChannel]
+  supportChannel: (typeof RecoverySupportChannel)[keyof typeof RecoverySupportChannel]
 ): RecoveryChildEvidenceAccessState {
   const hasHouseholdAuthority =
-    sameFamily &&
-    (requesterRole === HouseholdRole.ParentOwner || requesterRole === HouseholdRole.CoParentGuardian);
+    sameFamily && (requesterRole === HouseholdRole.ParentOwner || requesterRole === HouseholdRole.CoParentGuardian);
 
   if (hasHouseholdAuthority && supportChannel !== RecoverySupportChannel.SupportAssisted) {
     return RecoveryChildEvidenceAccessState.Allowed;

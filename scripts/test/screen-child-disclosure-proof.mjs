@@ -25,10 +25,8 @@ run('npm', ['run', 'build', '--workspace=@ocentra-parent/screen-domain']);
 
 const { ScreenChildDisclosureSnapshotSchema, screenChildDisclosureProofSnapshots } =
   await import('@ocentra-parent/schema-domain/screen-child-disclosure');
-const {
-  createScreenChildDisclosurePageModel,
-  renderScreenChildDisclosurePage,
-} = await import('../../packages/screen-domain/dist/screen-child-disclosure-page.js');
+const { createScreenChildDisclosurePageModel, renderScreenChildDisclosurePage } =
+  await import('../../packages/screen-domain/dist/screen-child-disclosure-page.js');
 const snapshots = screenChildDisclosureProofSnapshots();
 const parsed = snapshots.map((snapshot) => ScreenChildDisclosureSnapshotSchema.parse(snapshot));
 const pageModel = createScreenChildDisclosurePageModel(parsed);

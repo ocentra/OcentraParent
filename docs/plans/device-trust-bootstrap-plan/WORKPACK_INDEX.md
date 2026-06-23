@@ -16,6 +16,8 @@
 
 Choose one workpack. Do not open all workpacks.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | partial | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | audit reset | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
@@ -52,4 +54,6 @@ WP09 is last and consumes all previous proof roots.
 
 ## Do not select
 
-Do not move account identity, package distribution, LAN transport, remote access, payment entitlement, or data custody implementation into this plan.
+Do not move account identity, package distribution, LAN transport, remote access, payment entitlement, data custody implementation, portal UX, setup journey, or policy authoring into this plan.
+
+Do not raise status from document tests, route tests, copied binaries, copied config, package install, login/session proof, LAN pairing, license state, entitlement snapshot presence, mock proof, or a proof root for another workpack.

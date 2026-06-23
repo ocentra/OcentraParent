@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameLinuxActiveWindowToolProofSchemaVersionSchema = withParser(
@@ -174,4 +169,3 @@ function linuxActiveWindowToolProofIsHonest(proof: LinuxActiveWindowCandidate): 
     !proof.childDeviceDeliveryClaimed
   );
 }
-

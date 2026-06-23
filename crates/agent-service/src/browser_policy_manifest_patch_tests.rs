@@ -1,24 +1,50 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
-    AgentEventEnvelope, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    BrowserPolicyApprovalRequiredFor, BrowserPolicyApprovalUnansweredDefault,
-    BrowserPolicyAuditRequiredField, BrowserPolicyBrowserGameApprovalMode,
-    BrowserPolicyBrowserGamePolicyMode, BrowserPolicyBudgetCountingMode,
-    BrowserPolicyCustodyAllowedUse, BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType,
-    BrowserPolicyDownloadState, BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyEvidenceUrlScope, BrowserPolicyExecutionMode,
-    BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
-    BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
-    BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
-    BrowserPolicyManagedPolicyWriterControl, BrowserPolicyManagedPolicyWriterFallback,
-    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyProofFallback,
-    BrowserPolicyRejectionReason, BrowserPolicyReportVisibleField, BrowserPolicyRetentionExactUrl,
-    BrowserPolicyRule, BrowserPolicyRuleAction, BrowserPolicyRuleActionPlan,
-    BrowserPolicyRuleTarget, BrowserPolicyUnmanagedBrowserClassificationTarget,
-    BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
-    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser_policy_sections::{
+    BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::BrowserPolicyApprovalRequiredFor;
+use ocentra_parent_agent_protocol::BrowserPolicyApprovalUnansweredDefault;
+use ocentra_parent_agent_protocol::BrowserPolicyAuditRequiredField;
+use ocentra_parent_agent_protocol::BrowserPolicyBrowserGameApprovalMode;
+use ocentra_parent_agent_protocol::BrowserPolicyBrowserGamePolicyMode;
+use ocentra_parent_agent_protocol::BrowserPolicyBudgetCountingMode;
+use ocentra_parent_agent_protocol::BrowserPolicyCustodyAllowedUse;
+use ocentra_parent_agent_protocol::BrowserPolicyDefaultPosture;
+use ocentra_parent_agent_protocol::BrowserPolicyDownloadBlockedType;
+use ocentra_parent_agent_protocol::BrowserPolicyDownloadState;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceNeverCollect;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceProofLevel;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceUrlScope;
+use ocentra_parent_agent_protocol::BrowserPolicyExecutionMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserBridgeRequirement;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserFamily;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserIntegrationMechanism;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserLaunchMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserProfileMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedPolicyWriterControl;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedPolicyWriterFallback;
+use ocentra_parent_agent_protocol::BrowserPolicyManagementMode;
+use ocentra_parent_agent_protocol::BrowserPolicyPatch;
+use ocentra_parent_agent_protocol::BrowserPolicyProofFallback;
+use ocentra_parent_agent_protocol::BrowserPolicyRejectionReason;
+use ocentra_parent_agent_protocol::BrowserPolicyReportVisibleField;
+use ocentra_parent_agent_protocol::BrowserPolicyRetentionExactUrl;
+use ocentra_parent_agent_protocol::BrowserPolicyRule;
+use ocentra_parent_agent_protocol::BrowserPolicyRuleAction;
+use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserClassificationTarget;
+use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserMode;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateKind;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateResponse;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateStatus;
+use ocentra_parent_agent_protocol::BrowserPolicyUrlTargetType;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, browser_policy_runtime_support::default_policy,
@@ -30,7 +56,7 @@ async fn browser_policy_patch_accepts_proposal_manifest_writes_to_paths() {
     let runtime = BrowserPolicyRuntime::in_memory();
     let replace_event = send_browser_policy_command(
         runtime.clone(),
-        replace_command(default_policy(
+        replace_command(&default_policy(
             constants::browser_policy::POLICY_ID.to_string(),
         )),
     )
@@ -84,7 +110,7 @@ async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
     let runtime = BrowserPolicyRuntime::in_memory();
     let replace_event = send_browser_policy_command(
         runtime.clone(),
-        replace_command(default_policy(
+        replace_command(&default_policy(
             constants::browser_policy::POLICY_ID.to_string(),
         )),
     )
@@ -138,8 +164,8 @@ async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
         .await;
         assert_rejected_event(
             &event,
-            AgentEventName::AgentBrowserPolicyPatchRejected,
-            reason,
+            &AgentEventName::AgentBrowserPolicyPatchRejected,
+            &reason,
         );
     }
 
@@ -150,13 +176,13 @@ async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
     invalid_policy.fallback_posture = None;
     let replace_event = send_browser_policy_command(
         BrowserPolicyRuntime::in_memory(),
-        replace_command(invalid_policy),
+        replace_command(&invalid_policy),
     )
     .await;
     assert_rejected_event(
         &replace_event,
-        AgentEventName::AgentBrowserPolicyReplaceRejected,
-        BrowserPolicyRejectionReason::MissingBudgetOrFallback,
+        &AgentEventName::AgentBrowserPolicyReplaceRejected,
+        &BrowserPolicyRejectionReason::MissingBudgetOrFallback,
     );
 }
 
@@ -512,12 +538,12 @@ where
         op: constants::browser_policy::PATCH_OPERATION_REPLACE.to_string(),
         field_id: field_id.to_string(),
         writes_to: writes_to.to_string(),
-        value: serde_json::to_value(value).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        value: serialize_test_value(value),
     }
 }
 
 fn replace_command(
-    policy_value: ocentra_parent_agent_protocol::BrowserPolicyValue,
+    policy_value: &ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue,
 ) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyReplace,
@@ -538,9 +564,7 @@ where
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::BROWSER_POLICY_REQUEST.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&request).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_test_json(&request)),
     );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -565,7 +589,7 @@ async fn send_browser_policy_command(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     handle_command_text_with_browser_policy_for_test(
-        &serde_json::to_string(&command).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        &serialize_test_json(&command),
         LanPairingRuntime::empty(),
         runtime,
         None,
@@ -575,20 +599,45 @@ async fn send_browser_policy_command(
 
 fn response_from_event(event: &AgentEventEnvelope) -> BrowserPolicyUpdateResponse {
     match event.payload.get(constants::field::BROWSER_POLICY_RESPONSE) {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => unreachable!(),
+        Some(LogFieldValue::String(text)) => parse_test_json(text),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn assert_rejected_event(
     event: &AgentEventEnvelope,
-    expected_event: AgentEventName,
-    expected_reason: BrowserPolicyRejectionReason,
+    expected_event: &AgentEventName,
+    expected_reason: &BrowserPolicyRejectionReason,
 ) {
     let response = response_from_event(event);
-    assert_eq!(event.event, expected_event);
+    assert_eq!(&event.event, expected_event);
     assert_eq!(response.status, BrowserPolicyUpdateStatus::Rejected);
-    assert_eq!(response.rejection_reason, Some(expected_reason));
+    assert_eq!(response.rejection_reason.as_ref(), Some(expected_reason));
+}
+
+fn serialize_test_json<T>(value: &T) -> String
+where
+    T: serde::Serialize + ?Sized,
+{
+    serde_json::to_string(value).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
+}
+
+fn serialize_test_value<T>(value: T) -> serde_json::Value
+where
+    T: serde::Serialize,
+{
+    serde_json::to_value(value).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
+}
+
+fn parse_test_json<T>(text: &str) -> T
+where
+    T: serde::de::DeserializeOwned,
+{
+    serde_json::from_str(text).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }

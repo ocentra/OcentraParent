@@ -21,7 +21,7 @@ import {
   SetupReadinessOverallState,
 } from '@ocentra-parent/schema-domain/setup-readiness';
 
-describe('child runtime gate contracts', () => {
+describe('child runtime preflight ready-state contracts', () => {
   it('accepts a coherent ready preflight decision with provisioningDecision', () => {
     const provisioningDecision = ChildRuntimeProvisioningDecisionSchema.parse({
       childInstallState: SetupChildInstallState.Installed,
@@ -62,7 +62,9 @@ describe('child runtime gate contracts', () => {
 
     expect(result.success).toBe(false);
   });
+});
 
+describe('child runtime preflight blocked-state contracts', () => {
   it('accepts installed + not-started blocked/manual review shape', () => {
     const decision = ChildRuntimePreflightDecisionSchema.parse({
       runtimeStartState: ChildRuntimeStartState.Blocked,
@@ -79,9 +81,7 @@ describe('child runtime gate contracts', () => {
       },
     });
 
-    expect(decision.provisioningDecision.childServiceState).toBe(
-      SetupChildServiceState.NotStarted
-    );
+    expect(decision.provisioningDecision.childServiceState).toBe(SetupChildServiceState.NotStarted);
   });
 
   it('accepts installed + offline degraded/manual review shape', () => {
@@ -119,11 +119,11 @@ describe('child runtime gate contracts', () => {
       },
     });
 
-    expect(decision.provisioningDecision.childInstallState).toBe(
-      SetupChildInstallState.ReinstallRequired
-    );
+    expect(decision.provisioningDecision.childInstallState).toBe(SetupChildInstallState.ReinstallRequired);
   });
+});
 
+describe('child runtime preflight mismatch contracts', () => {
   it('rejects mismatch when runtimeStartState is allowed but provisioning says blocked or degraded', () => {
     const blockedResult = ChildRuntimePreflightDecisionSchema.safeParse({
       runtimeStartState: ChildRuntimeStartState.Allowed,
@@ -191,16 +191,16 @@ describe('child runtime gate contracts', () => {
     expect(blockedResult.success).toBe(false);
     expect(degradedResult.success).toBe(false);
   });
+});
 
+describe('child runtime remote access gate contracts', () => {
   it('accepts a coherent remote access allow decision', () => {
     const decision = ChildRuntimeRemoteAccessDecisionSchema.parse({
       runtimeStartState: ChildRuntimeStartState.Allowed,
       remoteAccessAuthorization: ChildRuntimeRemoteAccessAuthorizationState.Allowed,
     });
 
-    expect(decision.remoteAccessAuthorization).toBe(
-      ChildRuntimeRemoteAccessAuthorizationState.Allowed
-    );
+    expect(decision.remoteAccessAuthorization).toBe(ChildRuntimeRemoteAccessAuthorizationState.Allowed);
   });
 
   it('rejects remote access allow decisions when authorization rejects the request', () => {
@@ -211,7 +211,9 @@ describe('child runtime gate contracts', () => {
 
     expect(result.success).toBe(false);
   });
+});
 
+describe('child runtime enforcement gate contracts', () => {
   it('accepts a coherent child runtime enforcement execute decision', () => {
     const decision = ChildRuntimeEnforcementDecisionSchema.parse({
       runtimeStartState: ChildRuntimeStartState.Allowed,

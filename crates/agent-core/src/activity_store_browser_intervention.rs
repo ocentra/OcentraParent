@@ -1,10 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserBoundaryState, BrowserCustodyLabel, BrowserExactUrlClaimState,
+use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
+use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionReadModel;
+use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionRow;
+use ocentra_parent_agent_protocol::browser_intervention::BROWSER_INTERVENTION_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::browser_intervention_values::{
+    BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDeliveryState,
-    BrowserInterventionReadModel, BrowserInterventionRow, BrowserQueryVisibilityLabel,
-    BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
-    BrowserUnmanagedFallbackActionState, LogFields, BROWSER_INTERVENTION_SCHEMA_VERSION,
+    BrowserInterventionOutcome, BrowserUnmanagedDetectionState,
+    BrowserUnmanagedFallbackActionState,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_unmanaged_enforcement::BrowserUnmanagedEnforcementState;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use rusqlite::{params, Connection, Row};
 
 use crate::{ActivityStore, ActivityStoreError};
@@ -296,8 +303,8 @@ fn inferred_unmanaged_fallback_action(
     browser_boundary_state: &BrowserBoundaryState,
     unmanaged_browser_enforcement: &BrowserUnmanagedEnforcementState,
     unmanaged_detection_state: &BrowserUnmanagedDetectionState,
-    intervention_action: &Option<ocentra_parent_agent_protocol::BrowserInterventionAction>,
-    intervention_outcome: &Option<ocentra_parent_agent_protocol::BrowserInterventionOutcome>,
+    intervention_action: &Option<BrowserInterventionAction>,
+    intervention_outcome: &Option<BrowserInterventionOutcome>,
 ) -> BrowserUnmanagedFallbackActionState {
     if !matches!(
         browser_boundary_state,
@@ -314,32 +321,28 @@ fn inferred_unmanaged_fallback_action(
     }
 
     match intervention_action {
-        Some(ocentra_parent_agent_protocol::BrowserInterventionAction::Allow) => {
+        Some(BrowserInterventionAction::Allow) => {
             BrowserUnmanagedFallbackActionState::AllowedUnmanagedException
         }
-        Some(ocentra_parent_agent_protocol::BrowserInterventionAction::Warn) => {
-            BrowserUnmanagedFallbackActionState::WarnChild
-        }
-        Some(ocentra_parent_agent_protocol::BrowserInterventionAction::AskParent)
-        | Some(ocentra_parent_agent_protocol::BrowserInterventionAction::ApprovalHold) => {
+        Some(BrowserInterventionAction::Warn) => BrowserUnmanagedFallbackActionState::WarnChild,
+        Some(BrowserInterventionAction::AskParent)
+        | Some(BrowserInterventionAction::ApprovalHold) => {
             BrowserUnmanagedFallbackActionState::AskParent
         }
-        Some(ocentra_parent_agent_protocol::BrowserInterventionAction::TerminateProcess) => {
+        Some(BrowserInterventionAction::TerminateProcess) => {
             BrowserUnmanagedFallbackActionState::TerminateProcess
         }
-        Some(ocentra_parent_agent_protocol::BrowserInterventionAction::RelaunchManaged) => {
+        Some(BrowserInterventionAction::RelaunchManaged) => {
             BrowserUnmanagedFallbackActionState::RelaunchManagedBrowser
         }
-        Some(ocentra_parent_agent_protocol::BrowserInterventionAction::Monitor) => {
-            BrowserUnmanagedFallbackActionState::ReportOnly
-        }
+        Some(BrowserInterventionAction::Monitor) => BrowserUnmanagedFallbackActionState::ReportOnly,
         _ => fallback_action_for_unmanaged_enforcement(unmanaged_browser_enforcement)
             .or_else(|| {
                 intervention_outcome.as_ref().map(|outcome| match outcome {
-                    ocentra_parent_agent_protocol::BrowserInterventionOutcome::Unsupported => {
+                    BrowserInterventionOutcome::Unsupported => {
                         BrowserUnmanagedFallbackActionState::Unavailable
                     }
-                    ocentra_parent_agent_protocol::BrowserInterventionOutcome::ManualRequired => {
+                    BrowserInterventionOutcome::ManualRequired => {
                         BrowserUnmanagedFallbackActionState::OsBlockManualRequired
                     }
                     _ => BrowserUnmanagedFallbackActionState::Unavailable,

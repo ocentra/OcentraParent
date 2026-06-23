@@ -332,14 +332,9 @@ function resolveSqlite() {
   return result.stdout.split(/\r?\n/u).find(Boolean);
 }
 
-async function runNpmWorkspace(workspaceName, args) {
-  await runNpm(['--workspace', workspaceName, ...args]);
-}
-
 async function runNpm(args, ...rest) {
-  const command = process.platform === 'win32' ? 'cmd' : 'npm';
-  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
-  await runCommand(command, commandArgs, ...rest);
+  const command = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  await runCommand(command, args, ...rest);
 }
 
 async function ensureWindowsOptionalNodeDependencies() {
@@ -348,13 +343,7 @@ async function ensureWindowsOptionalNodeDependencies() {
   }
 
   const bindingPackage = '@rolldown/binding-win32-x64-msvc';
-  const bindingPackageJson = path.join(
-    repoRoot,
-    'node_modules',
-    '@rolldown',
-    'binding-win32-x64-msvc',
-    'package.json'
-  );
+  const bindingPackageJson = path.join(repoRoot, 'node_modules', '@rolldown', 'binding-win32-x64-msvc', 'package.json');
 
   try {
     await access(bindingPackageJson);

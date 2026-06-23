@@ -1,10 +1,14 @@
 use std::fs::remove_file;
+use std::path::{Path, PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, journal::ActivityJournalRotationPolicy, ActivityEvent, ActivityEventKind,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
-    LogFields, ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::ActivityJournalRotationPolicy;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use super::{
     activity_store::ActivityStore,
@@ -31,29 +35,30 @@ fn activity_store_ingests_journal_replay_into_sqlite() {
             max_segment_bytes: constants::journal::TEST_ROTATION_BYTES,
         },
     )
-    .expect(constants::error::JOURNAL_OPENS);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     journal
         .append(&activity_event(
             constants::event_id::HEALTH_REPORTED,
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
         ))
-        .expect(constants::error::JOURNAL_APPENDS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS));
     journal
         .append(&activity_event(
             constants::event_id::LOG_SNAPSHOT_REPORTED,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         ))
-        .expect(constants::error::JOURNAL_APPENDS);
-    let reader =
-        ActivityJournal::open(journal_path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS));
+    let reader = ActivityJournal::open(journal_path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let summary = store
         .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(status.events_ingested, 2);
@@ -72,7 +77,8 @@ fn activity_store_ingests_journal_replay_into_sqlite() {
 
 #[test]
 fn activity_store_reports_duplicate_ingest_without_double_counting() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let event = activity_event(
         constants::event_id::HEALTH_REPORTED,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -80,10 +86,10 @@ fn activity_store_reports_duplicate_ingest_without_double_counting() {
 
     let first = store
         .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let second = store
         .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
 
     assert_eq!(first.events_ingested, 1);
     assert_eq!(first.events_stored, 1);
@@ -94,7 +100,8 @@ fn activity_store_reports_duplicate_ingest_without_double_counting() {
 
 #[test]
 fn activity_store_ingests_tracking_mvp_events_into_sqlite() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let location = tracking_activity_event(
         constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
         constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
@@ -139,10 +146,10 @@ fn activity_store_ingests_tracking_mvp_events_into_sqlite() {
             check_in,
             retention_delete,
         ])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let summary = store
         .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(status.events_ingested, 5);
     assert_eq!(status.events_stored, 5);
@@ -231,7 +238,7 @@ fn tracking_activity_event(
     }
 }
 
-fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
+fn temp_path(suffix: &str, extension: &str) -> PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -243,17 +250,17 @@ fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_paths(journal_path: &std::path::PathBuf, store_path: &std::path::PathBuf) {
+fn cleanup_paths(journal_path: &Path, store_path: &Path) {
     let _ = remove_file(journal_path);
     let _ = remove_file(store_path);
-    let mut store_wal_path = store_path.clone();
+    let mut store_wal_path = store_path.to_path_buf();
     store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);
-    let mut store_shm_path = store_path.clone();
+    let mut store_shm_path = store_path.to_path_buf();
     store_shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(store_shm_path);
     for index in 1..=3 {
-        let mut rotated_path = journal_path.clone();
+        let mut rotated_path = journal_path.to_path_buf();
         let mut extension = index.to_string();
         extension.push(constants::delimiter::DOT);
         extension.push_str(constants::journal::FILE_EXTENSION);

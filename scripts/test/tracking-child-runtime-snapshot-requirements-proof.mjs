@@ -33,7 +33,9 @@ async function main() {
     'tests/contract/tracking-child-runtime-execution-readiness-proof.test.ts',
   ]);
 
-  const snapshotProof = await importSource('packages/tracking-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts');
+  const snapshotProof = await importSource(
+    'packages/schema-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts'
+  );
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
   const sourceReadinessProof = JSON.parse(await readFile(sourceReadinessProofPath, 'utf8'));
@@ -42,8 +44,8 @@ async function main() {
       generatedAt: '2026-06-07T15:05:00.000Z',
       snapshotRequirementsId: 'tracking-child-runtime-snapshot-requirements-proof',
       sourceContractRefs: [
-        'packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
-        'packages/tracking-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
+        'packages/schema-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
+        'packages/schema-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
         'docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md',
       ],
     },
@@ -148,7 +150,7 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- status: proved',
     '- consumes: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/27-child-runtime-execution-readiness-proof.json',
     '- proves requirement refs for delivery-envelope, execution-result, visible-snapshot, parent-receipt, and runtime-observation rows',
-    '- proof module: packages/tracking-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-snapshot-requirements-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-snapshot-requirements-proof.mjs',
     '',

@@ -28,7 +28,7 @@ async function main() {
       '--',
       'vitest',
       'run',
-      'tests/portal-dev.test.ts',
+      'tests/unit/portal-dev.test.ts',
     ])
   );
   await runCommand(
@@ -71,7 +71,7 @@ async function main() {
       domainIntent: 'packages/portal-domain/src/app-game-policy-readiness-panel.ts',
       portalTest: 'apps/portal/tests/app-game-policy-readiness-panel.test.ts',
       domainTest: 'packages/portal-domain/tests/unit/app-game-policy-readiness-panel.test.ts',
-      textTest: 'packages/text-domain/tests/portal-dev.test.ts',
+      textTest: 'packages/text-domain/tests/unit/portal-dev.test.ts',
       featureDoc: 'docs/features/app-game-control.md',
       appGameWorkpack: 'docs/plans/app-game-plan/workpacks/54-policy-readiness-portal-renderer.md',
       appWorkpack: 'docs/plans/app-plan/workpacks/54-policy-readiness-portal-renderer.md',

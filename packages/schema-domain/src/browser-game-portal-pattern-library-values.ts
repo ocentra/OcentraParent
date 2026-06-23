@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGamePortalPatternLibrarySchemaVersionSchema = withParser(
@@ -14,9 +9,7 @@ export const BrowserGamePortalPatternLibraryIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGamePortalPatternLibraryId')
 );
 
-export const BrowserGamePortalPatternIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserGamePortalPatternId')
-);
+export const BrowserGamePortalPatternIdSchema = withParser(brandedNonEmptyStringSchema('BrowserGamePortalPatternId'));
 
 export const BrowserGamePortalPatternFingerprintSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGamePortalPatternFingerprint')
@@ -85,4 +78,3 @@ export type BrowserGamePortalPatternConfidence = Infer<typeof BrowserGamePortalP
 export type BrowserGamePortalPatternReviewState = Infer<typeof BrowserGamePortalPatternReviewStateSchema>;
 export type BrowserGamePortalRouteKind = Infer<typeof BrowserGamePortalRouteKindSchema>;
 export type BrowserGamePortalSignalKind = Infer<typeof BrowserGamePortalSignalKindSchema>;
-

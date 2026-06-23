@@ -197,7 +197,7 @@ function rejectsDeviceProofOrTransportUpgrade(): void {
 }
 
 function validReadModel(): ChildAndroidPrivilegedCapabilityReadModel {
-  return {
+  return ChildAndroidPrivilegedCapabilityReadModelSchema.parse({
     schemaVersion: 'child-android-privileged-capability-proof',
     packageId: 'ca.ocentra.parent.agent',
     nativeBridgeClass: 'ca.ocentra.parent.agent.ChildAndroidPrivilegedCapabilityProof',
@@ -232,14 +232,14 @@ function validReadModel(): ChildAndroidPrivilegedCapabilityReadModel {
       externalTransport: 'no LAN or WebSocket child-agent privileged transport is claimed',
     },
     updatedAt: '2026-05-31T00:00:00.000Z',
-  };
+  });
 }
 
-function privilegedSurfaceProofs(): ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'] {
+function privilegedSurfaceProofs() {
   return [...usageStatsSurfaceProofs(), ...privilegedAdapterSurfaceProofs(), ...enrollmentSurfaceProofs()];
 }
 
-function usageStatsSurfaceProofs(): ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'] {
+function usageStatsSurfaceProofs() {
   return [
     surfaceProof(
       'usage-stats-settings-access',
@@ -262,7 +262,7 @@ function usageStatsSurfaceProofs(): ChildAndroidPrivilegedCapabilityReadModel['p
   ];
 }
 
-function privilegedAdapterSurfaceProofs(): ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'] {
+function privilegedAdapterSurfaceProofs() {
   return [
     surfaceProof(
       'accessibility-service-adapter',
@@ -294,7 +294,7 @@ function privilegedAdapterSurfaceProofs(): ChildAndroidPrivilegedCapabilityReadM
   ];
 }
 
-function enrollmentSurfaceProofs(): ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'] {
+function enrollmentSurfaceProofs() {
   return [
     surfaceProof(
       'device-owner-enrollment',
@@ -345,14 +345,14 @@ function enrollmentSurfaceProofs(): ChildAndroidPrivilegedCapabilityReadModel['p
 }
 
 function surfaceProof(
-  surface: ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number]['surface'],
-  parentCapability: ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number]['parentCapability'],
-  parentCapabilityStatus: ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number]['parentCapabilityStatus'],
-  declarationState: ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number]['declarationState'],
-  runtimeGrantState: ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number]['runtimeGrantState'],
-  proofState: ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number]['proofState'],
-  runtimeOwner: ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number]['runtimeOwner']
-): ChildAndroidPrivilegedCapabilityReadModel['privilegedSurfaceProofs'][number] {
+  surface: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  declarationState: string,
+  runtimeGrantState: string,
+  proofState: string,
+  runtimeOwner: string
+) {
   const proofRequirement = `${surface} remains ${proofState} until device artifacts change it`;
   return {
     surface,

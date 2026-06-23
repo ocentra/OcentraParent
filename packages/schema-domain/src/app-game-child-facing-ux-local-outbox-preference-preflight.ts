@@ -1,9 +1,6 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { FamilyReferenceSchema } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   V3NotificationParentPreferenceStateSchema,
   V3NotificationQuietHoursDecisionSchema,
@@ -169,30 +166,52 @@ function childUxPreferencePreflightReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxPreferencePreflightReadModelBaseSchema>
 ): boolean {
   return (
+    childUxPreferencePreflightCountsAreHonest(readModel) &&
+    childUxPreferencePreflightNonClaimsArePresent(readModel) &&
+    childUxPreferencePreflightClaimsRemainScoped(readModel)
+  );
+}
+
+function childUxPreferencePreflightCountsAreHonest(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferencePreflightReadModelBaseSchema>
+): boolean {
+  return (
     readModel.parentPreferenceRequiredCount ===
       countRows(readModel.rows, AppGameChildUxLocalOutboxPreferencePreflightStatus.ParentPreferenceRequired) &&
     readModel.manualRequiredCount ===
       countRows(readModel.rows, AppGameChildUxLocalOutboxPreferencePreflightStatus.ManualRequired) &&
     readModel.unavailableCount ===
-      countRows(readModel.rows, AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable) &&
-    RequiredAppGameChildUxLocalOutboxPreferencePreflightNonClaims.every((claim) =>
-      readModel.preflightNonClaims.includes(claim)
-    ) &&
-    !readModel.parentPreferenceUiClaimed &&
-    !readModel.parentFrequencyControlUiClaimed &&
-    !readModel.parentNotificationUiClaimed &&
-    !readModel.quietHoursTimerRuntimeClaimed &&
-    !readModel.childDeliveryRuntimeClaimed &&
-    !readModel.providerDeliveryRuntimeClaimed &&
-    !readModel.providerReceiptIngestionClaimed &&
-    !readModel.providerCredentialsClaimed &&
-    !readModel.cloudRoutingClaimed &&
-    !readModel.retryExecutionRuntimeClaimed &&
-    !readModel.productionDurableOutboxStorageClaimed &&
-    !readModel.adapterDispatchClaimed &&
-    !readModel.platformEnforcementClaimed &&
-    !readModel.rawPrivateSourceRowsIncluded
+      countRows(readModel.rows, AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable)
   );
+}
+
+function childUxPreferencePreflightNonClaimsArePresent(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferencePreflightReadModelBaseSchema>
+): boolean {
+  return RequiredAppGameChildUxLocalOutboxPreferencePreflightNonClaims.every((claim) =>
+    readModel.preflightNonClaims.includes(claim)
+  );
+}
+
+function childUxPreferencePreflightClaimsRemainScoped(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferencePreflightReadModelBaseSchema>
+): boolean {
+  return [
+    readModel.parentPreferenceUiClaimed,
+    readModel.parentFrequencyControlUiClaimed,
+    readModel.parentNotificationUiClaimed,
+    readModel.quietHoursTimerRuntimeClaimed,
+    readModel.childDeliveryRuntimeClaimed,
+    readModel.providerDeliveryRuntimeClaimed,
+    readModel.providerReceiptIngestionClaimed,
+    readModel.providerCredentialsClaimed,
+    readModel.cloudRoutingClaimed,
+    readModel.retryExecutionRuntimeClaimed,
+    readModel.productionDurableOutboxStorageClaimed,
+    readModel.adapterDispatchClaimed,
+    readModel.platformEnforcementClaimed,
+    readModel.rawPrivateSourceRowsIncluded,
+  ].every((claim) => claim === false);
 }
 
 function countRows(

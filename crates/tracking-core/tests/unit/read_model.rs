@@ -1,60 +1,32 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, LogFieldValue, LogFields,
-    TrackingReadModel,
-};
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModel;
 use ocentra_tracking_core::read_model::tracking_read_model_for_connection;
 use rusqlite::{params, Connection};
+
+#[derive(Clone, Copy)]
+struct TrackingRowSeed {
+    event_id: &'static str,
+    observed_at: &'static str,
+    kind: &'static str,
+    observer: &'static str,
+    subject_kind: &'static str,
+    subject_id: &'static str,
+    subject_display_name: &'static str,
+}
 
 #[test]
 fn tracking_read_model_includes_alert_and_parent_notification_rows() {
     let connection = tracking_connection();
-    insert_tracking_row(
-        &connection,
-        constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
-        constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
-        constants::activity_event_kind::LOCATION_OBSERVED,
-        constants::activity_observer::ANDROID_LOCATION,
-        constants::activity_subject_kind::LOCATION,
-        constants::activity_store::TEST_TRACKING_SUBJECT_ID,
-        constants::activity_store::TEST_TRACKING_SUBJECT_NAME,
-    );
-    insert_tracking_row(
-        &connection,
-        "tracking-alert-evaluated-event-1",
-        "2026-06-03T02:01:30Z",
-        constants::activity_event_kind::TRACKING_ALERT_EVALUATED,
-        constants::activity_observer::TRACKING_ENGINE,
-        constants::activity_subject_kind::TRACKING_RULE,
-        "tracking-alert-school",
-        "School arrival alert",
-    );
-    insert_tracking_row(
-        &connection,
-        "tracking-parent-notification-event-1",
-        "2026-06-03T02:03:30Z",
-        constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
-        constants::activity_observer::TRACKING_ENGINE,
-        constants::activity_subject_kind::TRACKING_RULE,
-        "tracking-parent-notification-school",
-        "Parent notification request",
-    );
-    insert_tracking_row(
-        &connection,
-        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
-        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
-        constants::activity_event_kind::TRACKING_RETENTION_DELETED,
-        constants::activity_observer::TRACKING_ENGINE,
-        constants::activity_subject_kind::RETENTION,
-        constants::activity_store::TEST_TRACKING_SUBJECT_ID,
-        constants::activity_store::TEST_TRACKING_SUBJECT_NAME,
-    );
+    insert_tracking_rows(&connection, &tracking_read_model_rows());
 
     let read_model = tracking_read_model_for_connection(
         &connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned, 4);
     assert_eq!(read_model.active_rows, 3);
@@ -76,21 +48,25 @@ fn tracking_read_model_includes_alert_and_parent_notification_rows() {
         constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
         1,
     );
-    assert_eq!(
-        read_model.rows[1].kind,
-        constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED
+    assert_row_kind(
+        &read_model,
+        1,
+        constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
     );
-    assert_eq!(
-        read_model.rows[2].kind,
-        constants::activity_event_kind::TRACKING_ALERT_EVALUATED
+    assert_row_kind(
+        &read_model,
+        2,
+        constants::activity_event_kind::TRACKING_ALERT_EVALUATED,
     );
-    assert_eq!(
-        read_model.rows[1].evidence_reference_ids[0],
-        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
+    assert_row_evidence_reference_id(
+        &read_model,
+        1,
+        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
     );
-    assert_eq!(
-        read_model.rows[2].evidence_reference_ids[0],
-        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
+    assert_row_evidence_reference_id(
+        &read_model,
+        2,
+        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
     );
 }
 
@@ -99,13 +75,15 @@ fn tracking_read_model_excludes_non_tracking_activity_rows() {
     let connection = tracking_connection();
     insert_tracking_row(
         &connection,
-        "process-observed-event-1",
-        constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
-        constants::activity_event_kind::PROCESS_OBSERVED,
-        constants::activity_observer::WINDOWS_PROCESS,
-        constants::activity_subject_kind::PROCESS,
-        constants::activity_store::TEST_PROCESS_SUBJECT_ID,
-        constants::activity_store::TEST_PROCESS_SUBJECT_NAME,
+        TrackingRowSeed {
+            event_id: "process-observed-event-1",
+            observed_at: constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
+            kind: constants::activity_event_kind::PROCESS_OBSERVED,
+            observer: constants::activity_observer::WINDOWS_PROCESS,
+            subject_kind: constants::activity_subject_kind::PROCESS,
+            subject_id: constants::activity_store::TEST_PROCESS_SUBJECT_ID,
+            subject_display_name: constants::activity_store::TEST_PROCESS_SUBJECT_NAME,
+        },
     );
 
     let read_model = tracking_read_model_for_connection(
@@ -113,7 +91,7 @@ fn tracking_read_model_excludes_non_tracking_activity_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -124,46 +102,85 @@ fn tracking_read_model_excludes_non_tracking_activity_rows() {
 }
 
 fn tracking_connection() -> Connection {
-    let connection = Connection::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let connection = Connection::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     connection
         .execute_batch(constants::sqlite::INITIALIZE_ACTIVITY_STORE)
-        .expect(constants::error::ACTIVITY_STORE_OPENS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     connection
 }
 
-fn insert_tracking_row(
-    connection: &Connection,
-    event_id: &str,
-    observed_at: &str,
-    kind: &str,
-    observer: &str,
-    subject_kind: &str,
-    subject_id: &str,
-    subject_display_name: &str,
-) {
-    let fields_json =
-        serde_json::to_string(&tracking_fields()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+fn insert_tracking_row(connection: &Connection, row: TrackingRowSeed) {
+    let fields_json = serde_json::to_string(&tracking_fields())
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let evidence_json = serde_json::to_string(&tracking_evidence())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     connection
         .execute(
             constants::sqlite::INSERT_ACTIVITY_EVENT,
             params![
-                event_id,
-                observed_at,
+                row.event_id,
+                row.observed_at,
                 constants::activity_store::TEST_REMOTE_DEVICE_ID,
                 constants::activity_store::TEST_TRACKING_PLATFORM_ANDROID,
-                observer,
-                kind,
-                subject_kind,
-                subject_id,
-                subject_display_name,
+                row.observer,
+                row.kind,
+                row.subject_kind,
+                row.subject_id,
+                row.subject_display_name,
                 fields_json,
                 evidence_json
             ],
         )
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+}
+
+fn insert_tracking_rows(connection: &Connection, rows: &[TrackingRowSeed]) {
+    for row in rows {
+        insert_tracking_row(connection, *row);
+    }
+}
+
+fn tracking_read_model_rows() -> [TrackingRowSeed; 4] {
+    [
+        TrackingRowSeed {
+            event_id: constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+            observed_at: constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
+            kind: constants::activity_event_kind::LOCATION_OBSERVED,
+            observer: constants::activity_observer::ANDROID_LOCATION,
+            subject_kind: constants::activity_subject_kind::LOCATION,
+            subject_id: constants::activity_store::TEST_TRACKING_SUBJECT_ID,
+            subject_display_name: constants::activity_store::TEST_TRACKING_SUBJECT_NAME,
+        },
+        TrackingRowSeed {
+            event_id: "tracking-alert-evaluated-event-1",
+            observed_at: "2026-06-03T02:01:30Z",
+            kind: constants::activity_event_kind::TRACKING_ALERT_EVALUATED,
+            observer: constants::activity_observer::TRACKING_ENGINE,
+            subject_kind: constants::activity_subject_kind::TRACKING_RULE,
+            subject_id: "tracking-alert-school",
+            subject_display_name: "School arrival alert",
+        },
+        TrackingRowSeed {
+            event_id: "tracking-parent-notification-event-1",
+            observed_at: "2026-06-03T02:03:30Z",
+            kind: constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
+            observer: constants::activity_observer::TRACKING_ENGINE,
+            subject_kind: constants::activity_subject_kind::TRACKING_RULE,
+            subject_id: "tracking-parent-notification-school",
+            subject_display_name: "Parent notification request",
+        },
+        TrackingRowSeed {
+            event_id: constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
+            observed_at: constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+            kind: constants::activity_event_kind::TRACKING_RETENTION_DELETED,
+            observer: constants::activity_observer::TRACKING_ENGINE,
+            subject_kind: constants::activity_subject_kind::RETENTION,
+            subject_id: constants::activity_store::TEST_TRACKING_SUBJECT_ID,
+            subject_display_name: constants::activity_store::TEST_TRACKING_SUBJECT_NAME,
+        },
+    ]
 }
 
 fn tracking_fields() -> LogFields {
@@ -199,4 +216,19 @@ fn assert_count(read_model: &TrackingReadModel, kind: &str, count: u64) {
         .find(|entry| entry.value == kind)
         .map(|entry| entry.count);
     assert_eq!(actual, Some(count));
+}
+
+fn assert_row_kind(read_model: &TrackingReadModel, row_index: usize, expected_kind: &str) {
+    assert_eq!(read_model.rows[row_index].kind, expected_kind);
+}
+
+fn assert_row_evidence_reference_id(
+    read_model: &TrackingReadModel,
+    row_index: usize,
+    expected_evidence_reference_id: &str,
+) {
+    assert_eq!(
+        read_model.rows[row_index].evidence_reference_ids[0],
+        expected_evidence_reference_id
+    );
 }

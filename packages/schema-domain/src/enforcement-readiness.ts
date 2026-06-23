@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   EnforcementAdapterKind,
   EnforcementAdapterKindSchema,
@@ -20,11 +15,17 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-export const EnforcementBroadAdapterReadinessIdSchema = brandedNonEmptyStringSchema('EnforcementBroadAdapterReadinessId');
-export const EnforcementBroadAdapterReadinessMatrixIdSchema = brandedNonEmptyStringSchema('EnforcementBroadAdapterReadinessMatrixId');
+export const EnforcementBroadAdapterReadinessIdSchema = brandedNonEmptyStringSchema(
+  'EnforcementBroadAdapterReadinessId'
+);
+export const EnforcementBroadAdapterReadinessMatrixIdSchema = brandedNonEmptyStringSchema(
+  'EnforcementBroadAdapterReadinessMatrixId'
+);
 export const EnforcementReadinessClaimBoundarySchema = brandedNonEmptyStringSchema('EnforcementReadinessClaimBoundary');
 export const EnforcementReadinessFallbackSchema = brandedNonEmptyStringSchema('EnforcementReadinessFallback');
-export const EnforcementReadinessArtifactRequirementSchema = brandedNonEmptyStringSchema('EnforcementReadinessArtifactRequirement');
+export const EnforcementReadinessArtifactRequirementSchema = brandedNonEmptyStringSchema(
+  'EnforcementReadinessArtifactRequirement'
+);
 
 export const EnforcementBroadAdapterCapabilitySchema = withParser(
   Schema.Literal(
@@ -331,4 +332,3 @@ export const decodeEnforcementBroadAdapterReadinessEntry = Schema.decodeUnknownS
 export const decodeEnforcementBroadOsAdapterReadinessMatrix = Schema.decodeUnknownSync(
   EnforcementBroadOsAdapterReadinessMatrixSchema
 );
-

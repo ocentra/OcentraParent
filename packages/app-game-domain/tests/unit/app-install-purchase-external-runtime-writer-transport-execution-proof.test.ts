@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeWriterTransportExecutionProofSchema,
   AppInstallPurchaseExternalRuntimeWriterTransportExecutionRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeWriterTransportExecutionProof,
-} from '../../src/app-install-purchase-external-runtime-writer-transport-execution-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-writer-transport-execution-proof';
 
 describe('app install and purchase external runtime writer transport execution proof', () => {
   acceptsExternalWriterTransportExecutionRowsWithoutExecutionClaims();

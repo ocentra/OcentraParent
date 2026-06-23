@@ -9,15 +9,25 @@ use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeTargetObservation,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivityReadModelState,
-    ActivityRecentSummary, ActivityReportFrequency, ActivityReportRequest, ActivitySource,
-    ActivitySubject, ActivitySubjectKind, ActivitySurfaceRequest, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, BrowserActiveProofSource, BrowserActiveTabState,
-    BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-    BrowserQueryVisibilityLabel, LogFieldValue, LogFields, ACTIVITY_QUERY_SCHEMA_VERSION,
-    ACTIVITY_SCHEMA_VERSION, ACTIVITY_SURFACE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary;
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivityReportFrequency, ActivityReportRequest, ActivitySurfaceRequest,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind,
+};
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
+};
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::ACTIVITY_QUERY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::{
     activity_surface_read_models::{
@@ -42,12 +52,12 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
 
     let snapshot = local_store_snapshot_from_path(store_path.clone())
         .await
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|| panic!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     let report = report_document(report_request(), Some(snapshot), Vec::new());
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
-    let saved = save_report_document_to_dir(report.clone(), report_dir.clone());
-    let history = history_list_from_dir(surface_request(), report_dir.clone());
+    let saved = save_report_document_to_dir(report.clone(), &report_dir);
+    let history = history_list_from_dir(surface_request(), &report_dir);
 
     cleanup_store(&store_path);
     cleanup_report_dir(&report_dir);
@@ -56,10 +66,10 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     let draft_metadata = report
         .saved_metadata
         .clone()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     assert_eq!(
         draft_metadata.saved_state,
-        ocentra_parent_agent_protocol::ActivitySavedReportState::Draft
+        ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState::Draft
     );
     assert_eq!(draft_metadata.saved_at, None);
     assert_eq!(report.sections.len(), 6);
@@ -68,10 +78,10 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     assert_eq!(report.sections[3].state, ActivityReadModelState::Empty);
     let metadata = saved
         .saved_metadata
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     assert_eq!(
         metadata.saved_state,
-        ocentra_parent_agent_protocol::ActivitySavedReportState::Saved
+        ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState::Saved
     );
     assert_eq!(
         metadata.storage_reason,
@@ -80,7 +90,7 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     assert_eq!(history.state, ActivityReadModelState::Ready);
     assert_eq!(
         history.storage_state,
-        ocentra_parent_agent_protocol::ActivitySavedReportState::Saved
+        ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState::Saved
     );
     assert_eq!(history.reports[0].source_state_summary.ready_sources, 1);
     assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);
@@ -91,7 +101,9 @@ async fn activity_tab_read_models_map_service_backed_ready_and_unavailable_state
     let store_path = temp_store_path();
     cleanup_store(&store_path);
     write_process_event(&store_path);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     let browser_event = browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -115,10 +127,17 @@ async fn activity_tab_read_models_map_service_backed_ready_and_unavailable_state
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET
+        )
+    });
     store
         .ingest_events(&[browser_event])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+        });
 
     let recent = load_recent_summary_from_path(store_path.clone()).await;
     let browser = load_browser_model_from_path(store_path.clone()).await;
@@ -191,13 +210,13 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
 
     let snapshot = local_store_snapshot_from_path(store_path.clone())
         .await
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|| panic!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     let report = report_document(report_request(), Some(snapshot), Vec::new());
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
-    let saved = save_report_document_to_dir(report.clone(), report_dir.clone());
+    let saved = save_report_document_to_dir(report.clone(), &report_dir);
     write_invalid_report_file(&report_dir);
-    let history = history_list_from_dir(surface_request(), report_dir.clone());
+    let history = history_list_from_dir(surface_request(), &report_dir);
 
     cleanup_store(&store_path);
     cleanup_report_dir(&report_dir);
@@ -205,14 +224,14 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
     assert_eq!(
         saved
             .saved_metadata
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .file_name,
         history.reports[0].file_name
     );
     assert_eq!(history.state, ActivityReadModelState::Ready);
     assert_eq!(
         history.storage_state,
-        ocentra_parent_agent_protocol::ActivitySavedReportState::Degraded
+        ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState::Degraded
     );
     assert_eq!(
         history.storage_reason,
@@ -223,10 +242,14 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
 }
 
 fn write_process_event(store_path: &PathBuf) {
-    let store = ActivityStore::open(store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     store
         .ingest_events(&[process_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+        });
 }
 
 fn process_event() -> ActivityEvent {
@@ -349,7 +372,9 @@ fn temp_path_suffix() -> String {
     suffix.push(constants::delimiter::HYPHEN);
     let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })
         .as_nanos();
     suffix.push_str(&nanos.to_string());
     suffix.push(constants::delimiter::HYPHEN);
@@ -374,6 +399,7 @@ fn write_invalid_report_file(report_dir: &Path) {
     let mut path = report_dir.to_path_buf();
     path.push(constants::activity_surface::REPORT_ID_FALLBACK);
     path.set_extension(constants::activity_surface::REPORT_FILE_EXTENSION);
-    write(path, constants::activity_surface::SUMMARY_STORE_UNAVAILABLE)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    write(path, constants::activity_surface::SUMMARY_STORE_UNAVAILABLE).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 }

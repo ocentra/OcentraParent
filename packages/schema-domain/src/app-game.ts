@@ -1,10 +1,6 @@
 import { type Infer, Schema, withParser } from './effect';
 import { ActivityEvidenceRefSchema } from './evidence-contracts';
-import {
-  ActivityEvidenceDigestSchema,
-  ActivityEvidenceIdSchema,
-  ActivityTimestampSchema,
-} from './evidence-primitives';
+import { ActivityEvidenceDigestSchema, ActivityEvidenceIdSchema, ActivityTimestampSchema } from './evidence-primitives';
 import {
   AppGameAppUserModelIdSchema,
   AppGameApplicationTokenRefSchema,
@@ -51,10 +47,7 @@ import {
   AppGameSessionIdSchema,
   AppGameUnavailableReasonSchema,
 } from './app-game-primitives';
-import {
-  AppGameRuntimeEvidenceSchema,
-  type AppGameRuntimeEvidence,
-} from './app-game-runtime';
+import { AppGameRuntimeEvidenceSchema, type AppGameRuntimeEvidence } from './app-game-runtime';
 import {
   AppRiskDetectionCandidateSchema,
   AppRiskDetectionConfidenceBandSchema,
@@ -81,10 +74,7 @@ import {
   AppRiskDetectionSourceKind,
   AppRiskDetectionSurfaceState,
 } from './app-riskdetection-rules';
-import {
-  AppGameSessionEndReasonSchema,
-  AppGameSessionRollupDateSchema,
-} from './app-game-session-primitives';
+import { AppGameSessionEndReasonSchema, AppGameSessionRollupDateSchema } from './app-game-session-primitives';
 
 export const AppGameInventoryEntrySchema = withParser(
   Schema.Struct({

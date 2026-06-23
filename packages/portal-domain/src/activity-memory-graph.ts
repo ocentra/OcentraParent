@@ -22,4 +22,3 @@ export function parseActivityMemoryGraphReadModel(
   }
   return parseActivityMemoryGraphDigest(digest);
 }
-

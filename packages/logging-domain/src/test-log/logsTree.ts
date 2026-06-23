@@ -1,10 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type {
-  RunType,
-  TestLogScope,
-  TestSuiteType,
-} from '@ocentra-parent/schema-domain/test-log/types';
+import type { RunType, TestLogScope, TestSuiteType } from '@ocentra-parent/schema-domain/test-log/types';
 import { getDefaultLogRoot, getRunNdjsonFilePath } from './ndjsonPaths';
 
 const DELIMITER = '\0';
@@ -37,6 +33,45 @@ function testLogRoot(rootDir?: string): string {
   return path.join(normalizeRoot(rootDir), TEST_LOG_DIR);
 }
 
+function addSuiteFiles(
+  tree: Map<string, string>,
+  scopeName: string,
+  runTypeName: string,
+  suiteName: string,
+  suitePath: string
+): void {
+  for (const fileEntry of fs.readdirSync(suitePath, { withFileTypes: true })) {
+    if (!fileEntry.isFile() || !fileEntry.name.endsWith('.ndjson')) {
+      continue;
+    }
+    const fileKey = fileEntry.name.slice(0, -'.ndjson'.length);
+    tree.set(buildCompositeKey(scopeName, runTypeName, suiteName, fileKey), path.join(suitePath, fileEntry.name));
+  }
+}
+
+function addRunTypeEntries(
+  tree: Map<string, string>,
+  scopeName: string,
+  runTypeName: string,
+  runTypePath: string
+): void {
+  for (const suiteEntry of fs.readdirSync(runTypePath, { withFileTypes: true })) {
+    if (!suiteEntry.isDirectory()) {
+      continue;
+    }
+    addSuiteFiles(tree, scopeName, runTypeName, suiteEntry.name, path.join(runTypePath, suiteEntry.name));
+  }
+}
+
+function addScopeEntries(tree: Map<string, string>, scopeName: string, scopePath: string): void {
+  for (const runTypeEntry of fs.readdirSync(scopePath, { withFileTypes: true })) {
+    if (!runTypeEntry.isDirectory()) {
+      continue;
+    }
+    addRunTypeEntries(tree, scopeName, runTypeEntry.name, path.join(scopePath, runTypeEntry.name));
+  }
+}
+
 function walk(rootPath: string, tree: Map<string, string>): void {
   if (!fs.existsSync(rootPath)) {
     return;
@@ -46,29 +81,7 @@ function walk(rootPath: string, tree: Map<string, string>): void {
     if (!scopeEntry.isDirectory()) {
       continue;
     }
-    const scopePath = path.join(rootPath, scopeEntry.name);
-    for (const runTypeEntry of fs.readdirSync(scopePath, { withFileTypes: true })) {
-      if (!runTypeEntry.isDirectory()) {
-        continue;
-      }
-      const runTypePath = path.join(scopePath, runTypeEntry.name);
-      for (const suiteEntry of fs.readdirSync(runTypePath, { withFileTypes: true })) {
-        if (!suiteEntry.isDirectory()) {
-          continue;
-        }
-        const suitePath = path.join(runTypePath, suiteEntry.name);
-        for (const fileEntry of fs.readdirSync(suitePath, { withFileTypes: true })) {
-          if (!fileEntry.isFile() || !fileEntry.name.endsWith('.ndjson')) {
-            continue;
-          }
-          const fileKey = fileEntry.name.slice(0, -'.ndjson'.length);
-          tree.set(
-            buildCompositeKey(scopeEntry.name, runTypeEntry.name, suiteEntry.name, fileKey),
-            path.join(suitePath, fileEntry.name)
-          );
-        }
-      }
-    }
+    addScopeEntries(tree, scopeEntry.name, path.join(rootPath, scopeEntry.name));
   }
 }
 
@@ -126,12 +139,7 @@ export function listFileKeysInScope(scope: LogsTreeScope, rootDir?: string): str
 
 export function tryGet(tree: LogsTree, scope: LogsTreeScope, fileKey: string): string | undefined {
   return tree.get(
-    buildCompositeKey(
-      String(scope.scope),
-      String(scope.runType),
-      suiteSegment(scope.suiteType),
-      fileKey
-    )
+    buildCompositeKey(String(scope.scope), String(scope.runType), suiteSegment(scope.suiteType), fileKey)
   );
 }
 

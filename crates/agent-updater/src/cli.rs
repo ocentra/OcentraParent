@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::{stderr, stdout, Write};
 
 use crate::args::{self, CommandLine};
 use crate::crypto;
@@ -10,11 +11,17 @@ pub async fn run_cli() -> Result<(), UpdaterError> {
     match args::parse_args()? {
         CommandLine::Keygen => {
             let keys = crypto::generate_key_pair();
-            println!("privateKeyBase64={}", keys.private_key_base64);
-            println!("publicKeyBase64={}", keys.public_key_base64);
+            let mut output = stdout().lock();
+            writeln!(output, "privateKeyBase64={}", keys.private_key_base64)?;
+            writeln!(output, "publicKeyBase64={}", keys.public_key_base64)?;
         }
         CommandLine::DerivePublicKey { private_key_base64 } => {
-            println!("{}", crypto::derive_public_key(&private_key_base64)?);
+            let mut output = stdout().lock();
+            writeln!(
+                output,
+                "{}",
+                crypto::derive_public_key(&private_key_base64)?
+            )?;
         }
         CommandLine::SignManifest {
             payload_path,
@@ -33,7 +40,8 @@ pub async fn run_cli() -> Result<(), UpdaterError> {
             let text = fs::read_to_string(manifest_path)?;
             let manifest = manifest::parse_signed_manifest(&text)?;
             manifest::verify_manifest(manifest, &public_key_base64)?;
-            println!("manifest-signature-ok");
+            let mut output = stdout().lock();
+            writeln!(output, "manifest-signature-ok")?;
         }
         CommandLine::RunOnce {
             manifest_url,
@@ -52,15 +60,27 @@ pub async fn run_cli() -> Result<(), UpdaterError> {
 
 fn print_outcome(result: Result<UpdateOutcome, UpdaterError>) {
     match result {
-        Ok(UpdateOutcome::Current { version }) => println!("updater-current:{version}"),
+        Ok(UpdateOutcome::Current { version }) => {
+            let mut output = stdout().lock();
+            if writeln!(output, "updater-current:{version}").is_err() {
+                std::process::exit(1);
+            }
+        }
         Ok(UpdateOutcome::WouldInstall { current, latest }) => {
-            println!("updater-would-install:{current}->{latest}");
+            let mut output = stdout().lock();
+            if writeln!(output, "updater-would-install:{current}->{latest}").is_err() {
+                std::process::exit(1);
+            }
         }
         Ok(UpdateOutcome::InstallerStarted { current, latest }) => {
-            println!("updater-installer-started:{current}->{latest}");
+            let mut output = stdout().lock();
+            if writeln!(output, "updater-installer-started:{current}->{latest}").is_err() {
+                std::process::exit(1);
+            }
         }
         Err(error) => {
-            eprintln!("{error}");
+            let mut output = stderr().lock();
+            drop(writeln!(output, "{error}"));
             std::process::exit(1);
         }
     }

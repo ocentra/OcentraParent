@@ -31,6 +31,7 @@ use crate::{
         NetworkWindowsWfpGateInput,
     },
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn platform_claim_manifest_names_fixture_platform_permission_and_device_refs() {
@@ -39,7 +40,7 @@ fn platform_claim_manifest_names_fixture_platform_permission_and_device_refs() {
         proof_sources: complete_platform_sources(),
         unsupported_claims: no_unsupported_claims(),
     })
-    .expect("complete platform gates should produce a manifest");
+    .expect_value("complete platform gates should produce a manifest");
 
     assert_eq!(proof.manifest_ref, "network-platform-manifest-52");
     assert_eq!(proof.entries.len(), 8);
@@ -58,7 +59,7 @@ fn platform_claim_manifest_names_fixture_platform_permission_and_device_refs() {
         .entries
         .iter()
         .find(|entry| entry.target == NetworkPlatformClaimTarget::WindowsFirewall)
-        .expect("Windows Firewall row should exist");
+        .expect_value("Windows Firewall row should exist");
     assert_eq!(
         windows_firewall.device_or_os_refs,
         vec!["windows-os-scope-ref-52".to_owned()]
@@ -100,11 +101,11 @@ fn platform_claim_manifest_records_missing_permission_artifacts_as_manual_follow
                 administrator_permission_proof_ref: None,
                 ..windows_wfp_input()
             })
-            .expect("missing administrator proof should stay reportable"),
+            .expect_value("missing administrator proof should stay reportable"),
         )],
         unsupported_claims: no_unsupported_claims(),
     })
-    .expect("manual-required platform gate should produce a manifest");
+    .expect_value("manual-required platform gate should produce a manifest");
 
     assert_eq!(proof.ready_claims, 0);
     assert_eq!(proof.manual_required_claims, 1);
@@ -127,11 +128,11 @@ fn platform_claim_manifest_reports_unavailable_states_without_execution() {
                 permission_proof_ref: None,
                 ..linux_input_for(NetworkLinuxAdapterKind::Tun, "unavailable")
             })
-            .expect("unavailable Linux adapter state should stay reportable"),
+            .expect_value("unavailable Linux adapter state should stay reportable"),
         )],
         unsupported_claims: no_unsupported_claims(),
     })
-    .expect("unavailable platform gate should produce a manifest");
+    .expect_value("unavailable platform gate should produce a manifest");
 
     assert_eq!(proof.ready_claims, 0);
     assert_eq!(proof.unavailable_claims, 1);
@@ -192,7 +193,7 @@ fn platform_claim_manifest_rejects_broad_or_live_platform_claims() {
 #[test]
 fn platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command() {
     let mut proof = plan_network_windows_wfp_gate(windows_wfp_input())
-        .expect("complete WFP input should build proof");
+        .expect_value("complete WFP input should build proof");
     proof.enforcement_command_published = true;
 
     assert_eq!(
@@ -212,7 +213,7 @@ fn platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_comma
 #[test]
 fn platform_claim_manifest_rejects_non_ready_adapter_authorization() {
     let mut proof = plan_network_windows_firewall_adapter_proof(windows_firewall_input())
-        .expect("complete Windows Firewall input should build proof");
+        .expect_value("complete Windows Firewall input should build proof");
     proof.proof_state = NetworkWindowsFirewallProofState::DryRun;
     proof.adapter_apply_authorized = true;
 
@@ -234,44 +235,44 @@ fn complete_platform_sources() -> Vec<NetworkPlatformClaimProofSource> {
     vec![
         NetworkPlatformClaimProofSource::WindowsFirewall(
             plan_network_windows_firewall_adapter_proof(windows_firewall_input())
-                .expect("complete Windows Firewall input should build proof"),
+                .expect_value("complete Windows Firewall input should build proof"),
         ),
         NetworkPlatformClaimProofSource::WindowsWfp(
             plan_network_windows_wfp_gate(windows_wfp_input())
-                .expect("complete WFP input should build proof"),
+                .expect_value("complete WFP input should build proof"),
         ),
         NetworkPlatformClaimProofSource::AndroidVpnService(
             plan_network_android_vpn_service_gate(android_input())
-                .expect("complete Android input should build proof"),
+                .expect_value("complete Android input should build proof"),
         ),
         NetworkPlatformClaimProofSource::AppleNetworkExtension(
             plan_network_apple_network_extension_gate(apple_input_for(
                 NetworkAppleNetworkExtensionPlatform::MacOs,
                 "macos",
             ))
-            .expect("complete Apple macOS input should build proof"),
+            .expect_value("complete Apple macOS input should build proof"),
         ),
         NetworkPlatformClaimProofSource::AppleNetworkExtension(
             plan_network_apple_network_extension_gate(apple_input_for(
                 NetworkAppleNetworkExtensionPlatform::Ios,
                 "ios",
             ))
-            .expect("complete Apple iOS input should build proof"),
+            .expect_value("complete Apple iOS input should build proof"),
         ),
         NetworkPlatformClaimProofSource::LinuxAdapter(
             plan_network_linux_adapter_gate(linux_input_for(
                 NetworkLinuxAdapterKind::Nftables,
                 "nftables",
             ))
-            .expect("complete Linux nftables input should build proof"),
+            .expect_value("complete Linux nftables input should build proof"),
         ),
         NetworkPlatformClaimProofSource::LinuxAdapter(
             plan_network_linux_adapter_gate(linux_input_for(NetworkLinuxAdapterKind::Ebpf, "ebpf"))
-                .expect("complete Linux eBPF input should build proof"),
+                .expect_value("complete Linux eBPF input should build proof"),
         ),
         NetworkPlatformClaimProofSource::LinuxAdapter(
             plan_network_linux_adapter_gate(linux_input_for(NetworkLinuxAdapterKind::Tun, "tun"))
-                .expect("complete Linux TUN input should build proof"),
+                .expect_value("complete Linux TUN input should build proof"),
         ),
     ]
 }
@@ -298,7 +299,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
         requested_action: NetworkEvidencePolicyAction::Block,
         adapter_capability_proof_ref: Some("adapter-capability-ref-52".to_owned()),
     })
-    .expect("policy mapping should parse")
+    .expect_value("policy mapping should parse")
 }
 
 fn windows_firewall_input() -> NetworkWindowsFirewallAdapterProofInput {

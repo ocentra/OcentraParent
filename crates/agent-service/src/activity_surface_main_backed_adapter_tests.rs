@@ -1,10 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
     ActivityNetworkReadModel, ActivityReadModelState, ActivityReportDocument,
-    ActivityReportFrequency, ActivityScreenReadModel, AgentCommandEnvelope, AgentCommandName,
-    AgentEventEnvelope, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    ActivityReportFrequency, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
+    ActivityScreenReadModel,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use serde_json::Value;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
@@ -32,7 +38,25 @@ async fn activity_surface_dispatcher_returns_typed_report_events() {
         let report = report_document_from_event(&event);
         assert_eq!(report.frequency, frequency);
         assert_eq!(report.sections.len(), 6);
-        assert!(!report.source_states.is_empty());
+        assert_eq!(report.source_states.len(), 2);
+        assert_local_source_state(&report);
+        assert_eq!(
+            report.source_states[1].device_id,
+            constants::activity_surface::FAMILY_FANOUT_SOURCE_ID
+        );
+        assert_eq!(
+            report.source_states[1].reachability_state,
+            ActivityReportSourceReachabilityState::Unreachable
+        );
+        assert_eq!(report.source_states[1].state, ActivityReadModelState::Unavailable);
+        assert_eq!(
+            report.source_states[1].reason.as_deref(),
+            Some(constants::activity_surface::SUMMARY_FAMILY_FANOUT_UNAVAILABLE)
+        );
+        assert_eq!(
+            report.source_states[1].source_label,
+            ActivityReportSourceLabel::FamilyFanoutSourceState
+        );
     }
 }
 
@@ -81,8 +105,9 @@ async fn send_activity_surface_command(
     command: AgentCommandName,
     payload: LogFields,
 ) -> AgentEventEnvelope {
-    let body = serde_json::to_string(&command_envelope(command, payload))
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope(command, payload)).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await
 }
 
@@ -149,7 +174,9 @@ fn assert_typed_surface_state(event: &AgentEventEnvelope) {
 fn decoded_surface_state(event: &AgentEventEnvelope) -> ActivityReadModelState {
     let state = string_payload_field(event, constants::field::ACTIVITY_SURFACE_STATE);
     serde_json::from_value::<ActivityReadModelState>(Value::String(state.to_owned()))
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })
 }
 
 fn report_document_from_event(event: &AgentEventEnvelope) -> ActivityReportDocument {
@@ -157,7 +184,37 @@ fn report_document_from_event(event: &AgentEventEnvelope) -> ActivityReportDocum
         event,
         constants::field::ACTIVITY_REPORT_DOCUMENT,
     ))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
+}
+
+fn assert_local_source_state(report: &ActivityReportDocument) {
+    let source = &report.source_states[0];
+
+    assert_eq!(source.device_id, constants::activity_surface::DEFAULT_DEVICE_ID);
+    assert_eq!(
+        source.source_label,
+        ActivityReportSourceLabel::ActivityQueryStoreSummary
+    );
+    match source.reachability_state {
+        ActivityReportSourceReachabilityState::Reachable => {
+            assert_eq!(
+                source.reason.as_deref(),
+                Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE)
+            );
+            assert!(matches!(
+                source.state,
+                ActivityReadModelState::Ready | ActivityReadModelState::Empty
+            ));
+        }
+        ActivityReportSourceReachabilityState::Unreachable => {
+            assert_eq!(source.state, ActivityReadModelState::Unavailable);
+            assert_eq!(
+                source.reason.as_deref(),
+                Some(constants::activity_surface::SUMMARY_STORE_UNAVAILABLE)
+            );
+        }
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
+    }
 }
 
 fn assert_read_model_payload(event: &AgentEventEnvelope, expected_kind: &str) {
@@ -166,41 +223,51 @@ fn assert_read_model_payload(event: &AgentEventEnvelope, expected_kind: &str) {
     match expected_kind {
         constants::activity_surface::READ_MODEL_SCREEN => {
             let decoded: ActivityScreenReadModel =
-                serde_json::from_str(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+                serde_json::from_str(read_model).unwrap_or_else(|error| {
+                    panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+                });
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_APP_USE => {
             let decoded: ActivityAppUseReadModel =
-                serde_json::from_str(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+                serde_json::from_str(read_model).unwrap_or_else(|error| {
+                    panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+                });
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_BROWSER => {
-            let decoded: ActivityBrowserReadModel =
-                serde_json::from_str(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+            let decoded: ActivityBrowserReadModel = serde_json::from_str(read_model)
+                .unwrap_or_else(|error| {
+                    panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+                });
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_GAMES => {
             let decoded: ActivityGamesReadModel =
-                serde_json::from_str(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+                serde_json::from_str(read_model).unwrap_or_else(|error| {
+                    panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+                });
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_NETWORK => {
-            let decoded: ActivityNetworkReadModel =
-                serde_json::from_str(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+            let decoded: ActivityNetworkReadModel = serde_json::from_str(read_model)
+                .unwrap_or_else(|error| {
+                    panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+                });
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> &'a str {
     match event.payload.get(field) {
         Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }

@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportAccountSlaStatusSchemaVersionSchema = withParser(
   Schema.Literal('production-support-account-sla-status-proof')
@@ -80,8 +76,12 @@ export const ProductionSupportAccountSlaStatusNonClaimSchema = withParser(
   )
 );
 
-export const ProductionSupportAccountSlaStatusReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportAccountSlaStatusReference');
-export const ProductionSupportAccountSlaStatusRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportAccountSlaStatusRequirement');
+export const ProductionSupportAccountSlaStatusReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportAccountSlaStatusReference'
+);
+export const ProductionSupportAccountSlaStatusRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportAccountSlaStatusRequirement'
+);
 
 export const ForbiddenProductionSupportAccountSlaStatusDataClasses = [
   'child-activity-evidence',
@@ -114,4 +114,3 @@ export const RequiredProductionSupportAccountSlaStatusNonClaims = [
   'no-family-ocentra-runtime',
   'no-child-activity-custody',
 ] as const;
-

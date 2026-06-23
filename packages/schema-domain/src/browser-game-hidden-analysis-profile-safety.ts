@@ -12,7 +12,6 @@ import {
   BrowserGameHiddenAnalysisProfileKindSchema,
   BrowserGameHiddenAnalysisProfileSafetySchemaVersionSchema,
   BrowserGameHiddenAnalysisReasonCodesSchema,
-  BrowserGameHiddenAnalysisReasonCodeSchema,
   BrowserGameHiddenAnalysisStateSchema,
   BrowserGameHiddenAnalysisSummaryRefSchema,
 } from './browser-game-hidden-analysis-profile-safety-values';
@@ -335,7 +334,7 @@ const LoaderResultUnsafeAuthorityFields = [
   'enforcementClaimed',
 ] as const satisfies ReadonlyArray<keyof BrowserGameHiddenAnalysisLoaderResultCandidate>;
 
-const degradedReasons = new Set<Infer<typeof BrowserGameHiddenAnalysisReasonCodeSchema>>([
+const degradedReasons = new Set<Infer<typeof BrowserGameHiddenAnalysisReasonCodesSchema>[number]>([
   'policy-disabled',
   'profile-proof-missing',
   'manual-required',

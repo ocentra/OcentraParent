@@ -64,8 +64,12 @@ fn serialized_unavailable_events(
     let timer = enforcement_timer(action, reason);
 
     (
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(audit).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        serde_json::to_value(timer).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
     )
 }
 

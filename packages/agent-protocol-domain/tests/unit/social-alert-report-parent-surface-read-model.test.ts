@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentProtocolDefaults,
-  parseAgentSocialAlertReportParentSurfaceReadModelEvent,
-  SocialAlertReportParentSurfaceReadModelSnapshotSchema,
-  type AgentEventEnvelope,
-} from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { SocialAlertReportParentSurfaceReadModelSnapshotSchema } from '@ocentra-parent/schema-domain/agent-social-alert-report-parent-surface-read-model';
+import { parseAgentSocialAlertReportParentSurfaceReadModelEvent } from '../../src/social-alert-report-parent-surface-read-model';
 
 const Timestamp = '2026-06-08T13:50:00Z';
 

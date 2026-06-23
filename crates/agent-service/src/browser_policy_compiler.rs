@@ -1,10 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, BrowserPolicyBudgets, BrowserPolicyCapability,
-    BrowserPolicyCapabilityRegistry, BrowserPolicyCapabilityState, BrowserPolicyDefaultPosture,
-    BrowserPolicyEffectivePolicy, BrowserPolicyEffectiveRule, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyManagedBrowserMode, BrowserPolicyProofFallback, BrowserPolicyRejectionReason,
-    BrowserPolicyRule, BrowserPolicyUrlTargetType, BrowserPolicyValue,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::BrowserPolicyBudgets;
+use ocentra_parent_agent_protocol::BrowserPolicyCapability;
+use ocentra_parent_agent_protocol::BrowserPolicyCapabilityRegistry;
+use ocentra_parent_agent_protocol::BrowserPolicyCapabilityState;
+use ocentra_parent_agent_protocol::BrowserPolicyDefaultPosture;
+use ocentra_parent_agent_protocol::BrowserPolicyEffectivePolicy;
+use ocentra_parent_agent_protocol::BrowserPolicyEffectiveRule;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceProofLevel;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserMode;
+use ocentra_parent_agent_protocol::BrowserPolicyProofFallback;
+use ocentra_parent_agent_protocol::BrowserPolicyRejectionReason;
+use ocentra_parent_agent_protocol::BrowserPolicyRule;
+use ocentra_parent_agent_protocol::BrowserPolicyUrlTargetType;
+use ocentra_parent_agent_protocol::BrowserPolicyValue;
 
 use crate::browser_policy_compiler_assessment::{compile_rule_assessment, rule_action};
 
@@ -153,7 +162,7 @@ fn browser_policy_capabilities(generated_at: &str) -> Vec<BrowserPolicyCapabilit
 
 fn browser_policy_capability(
     capability_id: &str,
-    label: &str,
+    capability_display_name: &str,
     state: BrowserPolicyCapabilityState,
     reason: &str,
     generated_at: &str,
@@ -162,7 +171,7 @@ fn browser_policy_capability(
     BrowserPolicyCapability {
         capability_id: capability_id.to_string(),
         state,
-        label: label.to_string(),
+        label: capability_display_name.to_string(),
         affected_writes_to: affected_writes_to
             .into_iter()
             .map(ToString::to_string)

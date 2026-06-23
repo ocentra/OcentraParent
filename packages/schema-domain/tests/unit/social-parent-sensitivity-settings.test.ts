@@ -9,7 +9,11 @@ import {
   SocialParentSensitivitySettingSchema,
   SocialParentSensitivityThreshold,
 } from '../../src/social-parent-sensitivity-settings';
-import { ParentActorRole, ParentContractSchemaVersion, ParentEvidenceReferenceKind } from '../../src/family-reference-primitives';
+import {
+  ParentActorRole,
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+} from '../../src/family-reference-primitives';
 
 const Timestamp = '2026-06-06T08:21:00Z';
 const RequiredNoClaimLabels = [

@@ -5,18 +5,18 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { RunType, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
+const ndjsonWriterTempDirs: string[] = [];
+
+afterEach(() => {
+  for (const tempDir of ndjsonWriterTempDirs.splice(0, ndjsonWriterTempDirs.length)) {
+    fs.rmSync(tempDir, { force: true, recursive: true });
+  }
+});
+
 describe('ndjson writer', () => {
-  const tempDirs: string[] = [];
-
-  afterEach(() => {
-    for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      fs.rmSync(tempDir, { force: true, recursive: true });
-    }
-  });
-
   it('writes one JSON object per line', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-ndjson-'));
-    tempDirs.push(tempDir);
+    ndjsonWriterTempDirs.push(tempDir);
     const previousLogDir = process.env.OCENTRA_PARENT_LOG_DIR;
     process.env.OCENTRA_PARENT_LOG_DIR = tempDir;
 

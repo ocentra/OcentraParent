@@ -8,7 +8,7 @@ use ocentra_screen_core::{
 };
 
 #[test]
-fn ambiguous_content_requests_ai_and_policy_evidence() {
+fn ambiguous_content_requests_ai_and_policy_evidence() -> Result<(), String> {
     let observed = screen_observed_event(ScreenObservationIntent::AmbiguousContentRequiresAi);
     let evidence = screen_evidence_recorded_event(&observed);
 
@@ -25,17 +25,15 @@ fn ambiguous_content_requests_ai_and_policy_evidence() {
         observed.policy_evaluation_requirement,
         ChildDomainPolicyEvaluationRequirement::Required
     );
-    assert_eq!(
-        screen_ai_analysis_requested_event(&evidence)
-            .expect("screen ai request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
     assert_eq!(screen_policy_evaluation_requested_event(&evidence), None);
+    let ai_request = screen_ai_analysis_requested_event(&evidence)
+        .ok_or_else(|| String::from("screen ai request"))?;
+    assert_eq!(ai_request.evidence_refs, vec![evidence.evidence_ref]);
+    Ok(())
 }
 
 #[test]
-fn known_policy_state_skips_ai() {
+fn known_policy_state_skips_ai() -> Result<(), String> {
     let observed = screen_observed_event(ScreenObservationIntent::KnownPolicyStateRequiresPolicy);
     let evidence = screen_evidence_recorded_event(&observed);
 
@@ -44,12 +42,10 @@ fn known_policy_state_skips_ai() {
         ChildDomainObservedSignal::RequiresPolicy.into_observed_state()
     );
     assert_eq!(screen_ai_analysis_requested_event(&evidence), None);
-    assert_eq!(
-        screen_policy_evaluation_requested_event(&evidence)
-            .expect("screen policy request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
+    let policy_request = screen_policy_evaluation_requested_event(&evidence)
+        .ok_or_else(|| String::from("screen policy request"))?;
+    assert_eq!(policy_request.evidence_refs, vec![evidence.evidence_ref]);
+    Ok(())
 }
 
 #[test]

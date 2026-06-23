@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel } from './app-install-purchase-child-device-delivery-runtime-writer-proof';
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
 import { AppInstallPurchasePlatformLimitationActionProofReadModel } from './app-install-purchase-platform-limitation-action-proof';
@@ -59,9 +54,15 @@ const ChildDeviceDeliveryReadinessNotImplementedSchema = withParser(Schema.Liter
 const ChildDeviceDeliveryReadinessCustodySchema = withParser(Schema.Literal('no-child-activity-data'));
 const ChildDeviceDeliveryReadinessNonClaimSchema = withParser(Schema.Literal(...ChildDeviceDeliveryReadinessNonClaims));
 
-const ChildDeviceDeliveryReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeviceDeliveryReadinessRowId');
-const ChildDeviceDeliveryReadinessRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeviceDeliveryReadinessRef');
-const ChildDeviceDeliveryReadinessBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeviceDeliveryReadinessBoundary');
+const ChildDeviceDeliveryReadinessRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseChildDeviceDeliveryReadinessRowId'
+);
+const ChildDeviceDeliveryReadinessRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseChildDeviceDeliveryReadinessRef'
+);
+const ChildDeviceDeliveryReadinessBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseChildDeviceDeliveryReadinessBoundary'
+);
 
 const ChildDeviceDeliveryReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseChildDeviceDeliveryReadinessProofSchemaVersionSchema,
@@ -259,4 +260,3 @@ function childDeviceDeliveryReadinessProofIsHonest(proof: AppInstallPurchaseChil
     ChildDeviceDeliveryReadinessNonClaims.every((claim) => proof.nonClaims.includes(claim))
   );
 }
-

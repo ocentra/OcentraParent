@@ -2,7 +2,11 @@ import {
   AppGameAdapterExecutionReadinessReadModelSchema,
   type AppGameAdapterExecutionReadinessReadModel,
 } from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
-import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 const AppGameAdapterExecutionReadinessPayloadField = 'appGameAdapterExecutionReadinessReadModel' as const;
 

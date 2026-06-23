@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameAndroidPhysicalDeviceProofSchema,
   type AppGameAndroidPhysicalDeviceProof,
@@ -243,4 +238,3 @@ function androidAccessibilityOverlayPreflightReadModelIsHonest(
     !readModel.childDeviceDeliveryClaimed
   );
 }
-

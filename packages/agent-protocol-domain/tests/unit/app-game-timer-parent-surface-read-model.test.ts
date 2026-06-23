@@ -4,7 +4,8 @@ import {
   AgentAppGameTimerParentSurfaceTargetDomain,
 } from '@ocentra-parent/schema-domain/app-game-timer-parent-surface-read-model';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import { parseAgentAppGameTimerParentSurfaceEvent } from '../../src/app-game-timer-parent-surface-read-model';
 

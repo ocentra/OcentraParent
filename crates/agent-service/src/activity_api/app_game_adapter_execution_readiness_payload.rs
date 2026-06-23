@@ -1,9 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_supported_adapter_runtime_proof as proof},
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-    AppGameAdapterExecutionReadinessReadModel, AppGameAdapterExecutionReadinessRow, LogFieldValue,
-    LogFields, LogLevel, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
-    APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED,
+use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
+    AppGameAdapterExecutionReadinessReadModel, AppGameAdapterExecutionReadinessRow,
+    APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED, APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED,
     APP_GAME_ADAPTER_EXECUTION_READINESS_CUSTODY_SUPPORTED_ADAPTER_RUNTIME_PROOF,
     APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID,
     APP_GAME_ADAPTER_EXECUTION_READINESS_STATUS_PARTIAL, APP_GAME_ADAPTER_EXECUTION_ROW_ID_PREFIX,
@@ -12,8 +10,18 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
     APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
     APP_GAME_ADAPTER_PRODUCT_NATIVE_APP, APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
-    APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_IOS, APP_GAME_PARENT_PLATFORM_LINUX,
-    APP_GAME_PARENT_PLATFORM_MACOS, APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_PARENT_PLATFORM_IOS, APP_GAME_PARENT_PLATFORM_MACOS,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
+    APP_GAME_PARENT_PLATFORM_WINDOWS,
+};
+use ocentra_parent_agent_protocol::constants::{
+    self, v08_supported_adapter_runtime_proof as proof,
+};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
@@ -105,9 +113,7 @@ pub fn app_game_adapter_execution_readiness_payload(
         ),
         (
             constants::field::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialized_read_model(read_model)),
         ),
     ])
 }
@@ -233,34 +239,50 @@ fn broad_app_artifact_status_spec() -> AdapterReadinessSpec {
 
 fn desktop_blocked_specs(host_capabilities: &HostCapabilitySignals) -> [AdapterReadinessSpec; 2] {
     [
-        platform_unavailable_spec(
-            proof::ENTRY_ID_LINUX_UNAVAILABLE,
-            APP_GAME_PARENT_PLATFORM_LINUX,
-            APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
-            host_capabilities.linux_state(),
-            host_capabilities.linux_evidence_refs(),
-            host_capabilities.linux_probe_refs(),
-            &[
+        AdapterReadinessSpec {
+            proof_entry_id: proof::ENTRY_ID_LINUX_UNAVAILABLE,
+            platform: APP_GAME_PARENT_PLATFORM_LINUX,
+            adapter_capability: proof::CAPABILITY_DESKTOP_HOST,
+            adapter_execution_state: APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
+            execution_decision: APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED,
+            runtime_boundary: proof::ENTRY_ID_LINUX_UNAVAILABLE,
+            target_identity_state: proof::TARGET_UNSUPPORTED_PLATFORM,
+            rollback_reference_state: proof::ROLLBACK_UNAVAILABLE,
+            audit_reference_state: proof::AUDIT_UNAVAILABLE,
+            evidence_refs: &[],
+            host_capability_state: host_capabilities.linux_state(),
+            host_capability_evidence_refs: host_capabilities.linux_evidence_refs(),
+            host_capability_probe_refs: host_capabilities.linux_probe_refs(),
+            linked_proof_artifacts: &[],
+            manual_proof_requirements: &[
                 proof::REQUIREMENT_LINUX_SERVICE,
                 proof::REQUIREMENT_LINUX_PERMISSION,
             ],
-            proof::CLAIM_LINUX_UNAVAILABLE,
-            proof::FALLBACK_LINUX_UNAVAILABLE,
-        ),
-        platform_unavailable_spec(
-            proof::ENTRY_ID_MACOS_UNSUPPORTED,
-            APP_GAME_PARENT_PLATFORM_MACOS,
-            APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED,
-            APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
-            Vec::new(),
-            Vec::new(),
-            &[
+            claim_boundary: proof::CLAIM_LINUX_UNAVAILABLE,
+            fallback_behavior: proof::FALLBACK_LINUX_UNAVAILABLE,
+        },
+        AdapterReadinessSpec {
+            proof_entry_id: proof::ENTRY_ID_MACOS_UNSUPPORTED,
+            platform: APP_GAME_PARENT_PLATFORM_MACOS,
+            adapter_capability: proof::CAPABILITY_DESKTOP_HOST,
+            adapter_execution_state: APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED,
+            execution_decision: APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED,
+            runtime_boundary: proof::ENTRY_ID_MACOS_UNSUPPORTED,
+            target_identity_state: proof::TARGET_UNSUPPORTED_PLATFORM,
+            rollback_reference_state: proof::ROLLBACK_UNAVAILABLE,
+            audit_reference_state: proof::AUDIT_UNAVAILABLE,
+            evidence_refs: &[],
+            host_capability_state: APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
+            host_capability_evidence_refs: Vec::new(),
+            host_capability_probe_refs: Vec::new(),
+            linked_proof_artifacts: &[],
+            manual_proof_requirements: &[
                 proof::REQUIREMENT_MACOS_PERMISSION,
                 proof::REQUIREMENT_MACOS_PACKAGE_IDENTITY,
             ],
-            proof::CLAIM_MACOS_UNSUPPORTED,
-            proof::FALLBACK_MACOS_UNSUPPORTED,
-        ),
+            claim_boundary: proof::CLAIM_MACOS_UNSUPPORTED,
+            fallback_behavior: proof::FALLBACK_MACOS_UNSUPPORTED,
+        },
     ]
 }
 
@@ -341,39 +363,6 @@ fn permission_degraded_spec() -> AdapterReadinessSpec {
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn platform_unavailable_spec(
-    proof_entry_id: &'static str,
-    platform: &'static str,
-    adapter_execution_state: &'static str,
-    host_capability_state: &'static str,
-    host_capability_evidence_refs: Vec<&'static str>,
-    host_capability_probe_refs: Vec<&'static str>,
-    manual_proof_requirements: &'static [&'static str],
-    claim_boundary: &'static str,
-    fallback_behavior: &'static str,
-) -> AdapterReadinessSpec {
-    AdapterReadinessSpec {
-        proof_entry_id,
-        platform,
-        adapter_capability: proof::CAPABILITY_DESKTOP_HOST,
-        adapter_execution_state,
-        execution_decision: APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED,
-        runtime_boundary: proof_entry_id,
-        target_identity_state: proof::TARGET_UNSUPPORTED_PLATFORM,
-        rollback_reference_state: proof::ROLLBACK_UNAVAILABLE,
-        audit_reference_state: proof::AUDIT_UNAVAILABLE,
-        evidence_refs: &[],
-        host_capability_state,
-        host_capability_evidence_refs,
-        host_capability_probe_refs,
-        linked_proof_artifacts: &[],
-        manual_proof_requirements,
-        claim_boundary,
-        fallback_behavior,
-    }
-}
-
 fn mobile_manual_spec(
     proof_entry_id: &'static str,
     platform: &'static str,
@@ -450,6 +439,13 @@ fn host_capability_state(spec: &AdapterReadinessSpec) -> &'static str {
         return APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
     }
     spec.host_capability_state
+}
+
+fn serialized_read_model(read_model: &AppGameAdapterExecutionReadinessReadModel) -> String {
+    match serde_json::to_string(read_model) {
+        Ok(json) => json,
+        Err(_error) => constants::value::EMPTY.to_string(),
+    }
 }
 
 fn count_rows(

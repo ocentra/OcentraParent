@@ -69,16 +69,16 @@ async function main() {
       'Add Install/purchase approval row note for external runtime writer delivery blocker proof: records missing external writer transport, platform adapter execution, provider/store execution, and child-device transport before delivery can be claimed.',
     evidence: {
       externalRuntimeWriterDeliveryBlockerContract:
-        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts',
       sourceExternalRuntimeWriterDeliveryBoundaryContract:
-        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-external-runtime-writer-delivery-blocker-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
-        '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof',
+        '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval deferred by E-C lock',
       output: relative(repoRoot, proofPath),

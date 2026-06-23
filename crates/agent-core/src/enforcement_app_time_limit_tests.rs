@@ -1,21 +1,50 @@
+use std::fmt::Debug;
+
 use super::*;
 use crate::enforcement_timer_state::{
     active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
     restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
 };
-use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementAdapterResultCode, EnforcementAuditEventKind, EnforcementCapabilityState,
-    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementIntent,
-    EnforcementIntentSource, EnforcementMode, EnforcementPermissionState, EnforcementResultStatus,
-    EnforcementRollbackState, EnforcementTimerEventKind, EnforcementUnavailableReason,
-    ParentActionReference, ParentActorReference, ParentActorRole, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
-    PolicyDecision, PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementAuditEventKind,
+    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
+    EnforcementIntent, EnforcementIntentSource, EnforcementMode, EnforcementPermissionState,
+    EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEventKind,
+    EnforcementUnavailableReason, ParentActionReference, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants as policy;
+
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
+    match result {
+        Ok(_) => Err(format!("{context}: expected error")),
+        Err(error) => Ok(error),
+    }
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
 
 #[test]
-fn app_time_limit_capability_reports_platform_status_without_claiming_other_adapters() {
+fn app_time_limit_capability_reports_platform_status_without_claiming_other_adapters() -> TestResult
+{
     let capability = app_time_limit_capability(policy::TEST_EVALUATED_AT);
 
     assert_eq!(
@@ -60,13 +89,18 @@ fn app_time_limit_capability_reports_platform_status_without_claiming_other_adap
             Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
         );
     }
+
+    Ok(())
 }
 
 #[test]
-fn app_time_limit_policy_handoff_creates_timer_state_without_immediate_adapter_execution() {
+fn app_time_limit_policy_handoff_creates_timer_state_without_immediate_adapter_execution(
+) -> TestResult {
     let input = boundary_input(time_limit_decision(), supported_time_limit_capability());
-    let authorized =
-        authorize_enforcement_boundary(input.clone()).expect(enforcement::MODE_TIME_LIMIT);
+    let authorized = ok(
+        authorize_enforcement_boundary(input.clone()),
+        enforcement::MODE_TIME_LIMIT,
+    )?;
 
     assert_eq!(authorized.action.mode, EnforcementMode::TimeLimit);
     assert_eq!(
@@ -75,41 +109,52 @@ fn app_time_limit_policy_handoff_creates_timer_state_without_immediate_adapter_e
     );
     assert_eq!(authorized.adapter_request, None);
 
-    let target = app_time_limit_target_from_action(&authorized.action, Some(42))
-        .expect(enforcement::TEST_PROCESS_TARGET_ID);
+    let target = ok(
+        app_time_limit_target_from_action(&authorized.action, Some(42)),
+        enforcement::TEST_PROCESS_TARGET_ID,
+    )?;
     assert_eq!(target.pid, 42);
     assert_eq!(
         target.expected_process_name.as_str(),
         enforcement::TEST_PROCESS_TARGET_VALUE
     );
 
-    let outcome = evaluate_enforcement_boundary(input).expect(enforcement::TIMER_CREATED);
-    let timer = outcome
-        .timer_event
-        .as_ref()
-        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        enforcement::TIMER_CREATED,
+    )?;
+    let timer = some(
+        outcome.timer_event.as_ref(),
+        enforcement::TEST_TIMER_EVENT_ID,
+    )?;
     assert_eq!(outcome.result.status, EnforcementResultStatus::NoOp);
     assert_eq!(timer.timer_event_kind, EnforcementTimerEventKind::Created);
     assert_eq!(
         active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT)
-            .expect(enforcement::TEST_TIMER_STATE_ID)
+            .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?
             .action
             .policy_decision_id,
         policy::TEST_DECISION_ID
     );
+
+    Ok(())
 }
 
 #[test]
-fn app_time_limit_target_validation_rejects_unowned_or_unsupported_targets() {
-    let action = evaluate_enforcement_boundary(boundary_input(
-        time_limit_decision(),
-        supported_time_limit_capability(),
-    ))
-    .expect(enforcement::TIMER_CREATED)
+fn app_time_limit_target_validation_rejects_unowned_or_unsupported_targets() -> TestResult {
+    let action = ok(
+        evaluate_enforcement_boundary(boundary_input(
+            time_limit_decision(),
+            supported_time_limit_capability(),
+        )),
+        enforcement::TIMER_CREATED,
+    )?
     .action;
 
-    let missing_process = app_time_limit_target_from_action(&action, None)
-        .expect_err(enforcement::REJECTION_PROCESS_ID_REQUIRED);
+    let missing_process = err(
+        app_time_limit_target_from_action(&action, None),
+        enforcement::REJECTION_PROCESS_ID_REQUIRED,
+    )?;
     assert_eq!(
         missing_process.as_protocol_str(),
         enforcement::REJECTION_PROCESS_ID_REQUIRED
@@ -117,8 +162,10 @@ fn app_time_limit_target_validation_rejects_unowned_or_unsupported_targets() {
 
     let mut unsupported_mode = action.clone();
     unsupported_mode.mode = EnforcementMode::TerminateProcess;
-    let rejected_mode = app_time_limit_target_from_action(&unsupported_mode, Some(42))
-        .expect_err(enforcement::REJECTION_UNSUPPORTED_CAPABILITY);
+    let rejected_mode = err(
+        app_time_limit_target_from_action(&unsupported_mode, Some(42)),
+        enforcement::REJECTION_UNSUPPORTED_CAPABILITY,
+    )?;
     assert_eq!(
         rejected_mode.as_protocol_str(),
         enforcement::REJECTION_UNSUPPORTED_CAPABILITY
@@ -126,29 +173,35 @@ fn app_time_limit_target_validation_rejects_unowned_or_unsupported_targets() {
 
     let mut device_target = action;
     device_target.target.target_type = PolicyTargetType::Device;
-    let rejected_target = app_time_limit_target_from_action(&device_target, Some(42))
-        .expect_err(enforcement::REJECTION_TARGET_MISMATCH);
+    let rejected_target = err(
+        app_time_limit_target_from_action(&device_target, Some(42)),
+        enforcement::REJECTION_TARGET_MISMATCH,
+    )?;
     assert_eq!(
         rejected_target.as_protocol_str(),
         enforcement::REJECTION_TARGET_MISMATCH
     );
+
+    Ok(())
 }
 
 #[test]
-fn app_time_limit_expiry_cancel_and_restart_preserve_audit_identity() {
-    let outcome = evaluate_enforcement_boundary(boundary_input(
-        time_limit_decision(),
-        supported_time_limit_capability(),
-    ))
-    .expect(enforcement::TIMER_CREATED);
+fn app_time_limit_expiry_cancel_and_restart_preserve_audit_identity() -> TestResult {
+    let outcome = ok(
+        evaluate_enforcement_boundary(boundary_input(
+            time_limit_decision(),
+            supported_time_limit_capability(),
+        )),
+        enforcement::TIMER_CREATED,
+    )?;
     let state = active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT)
-        .expect(enforcement::TEST_TIMER_STATE_ID);
+        .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?;
 
     let recovered = restart_recovered_timer_outcome(&state, transition_ids());
-    let recovered_timer = recovered
-        .timer_event
-        .as_ref()
-        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    let recovered_timer = some(
+        recovered.timer_event.as_ref(),
+        enforcement::TEST_TIMER_EVENT_ID,
+    )?;
     assert_eq!(
         recovered_timer.timer_event_kind,
         EnforcementTimerEventKind::RestartRecovered
@@ -160,17 +213,17 @@ fn app_time_limit_expiry_cancel_and_restart_preserve_audit_identity() {
     );
     assert_eq!(
         active_timer_state_from_outcome(&recovered, policy::TEST_EVALUATED_AT)
-            .expect(enforcement::TEST_TIMER_STATE_ID)
+            .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?
             .action
             .action_id,
         outcome.action.action_id
     );
 
     let expired = expired_timer_outcome(&state, transition_ids(), expired_adapter_outcome());
-    let expired_timer = expired
-        .timer_event
-        .as_ref()
-        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    let expired_timer = some(
+        expired.timer_event.as_ref(),
+        enforcement::TEST_TIMER_EVENT_ID,
+    )?;
     assert_eq!(expired.result.status, EnforcementResultStatus::Expired);
     assert_eq!(
         expired.result.adapter_result_code,
@@ -211,17 +264,21 @@ fn app_time_limit_expiry_cancel_and_restart_preserve_audit_identity() {
         Some(enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
     assert!(active_timer_state_from_outcome(&cancelled, policy::TEST_EVALUATED_AT).is_none());
+
+    Ok(())
 }
 
 #[test]
-fn app_time_limit_unavailable_expiry_reports_typed_unavailable_reason() {
-    let outcome = evaluate_enforcement_boundary(boundary_input(
-        time_limit_decision(),
-        supported_time_limit_capability(),
-    ))
-    .expect(enforcement::TIMER_CREATED);
+fn app_time_limit_unavailable_expiry_reports_typed_unavailable_reason() -> TestResult {
+    let outcome = ok(
+        evaluate_enforcement_boundary(boundary_input(
+            time_limit_decision(),
+            supported_time_limit_capability(),
+        )),
+        enforcement::TIMER_CREATED,
+    )?;
     let state = active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT)
-        .expect(enforcement::TEST_TIMER_STATE_ID);
+        .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?;
     let unavailable = expired_timer_outcome(
         &state,
         transition_ids(),
@@ -230,10 +287,10 @@ fn app_time_limit_unavailable_expiry_reports_typed_unavailable_reason() {
             policy::TEST_EVALUATED_AT,
         ),
     );
-    let unavailable_timer = unavailable
-        .timer_event
-        .as_ref()
-        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    let unavailable_timer = some(
+        unavailable.timer_event.as_ref(),
+        enforcement::TEST_TIMER_EVENT_ID,
+    )?;
 
     assert_eq!(
         unavailable.result.status,
@@ -270,13 +327,16 @@ fn app_time_limit_unavailable_expiry_reports_typed_unavailable_reason() {
     assert_eq!(
         unavailable_timer
             .unavailable_reason
+            .as_ref()
             .map(|reason| reason.as_protocol_str()),
         Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
     );
+
+    Ok(())
 }
 
 #[test]
-fn app_time_limit_adapter_reports_real_platform_expiry_or_unavailable_result() {
+fn app_time_limit_adapter_reports_real_platform_expiry_or_unavailable_result() -> TestResult {
     let outcome = expire_app_time_limit_for_owned_process(
         AppTimeLimitAdapterTarget {
             pid: u32::MAX,
@@ -314,6 +374,8 @@ fn app_time_limit_adapter_reports_real_platform_expiry_or_unavailable_result() {
             Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
         );
     }
+
+    Ok(())
 }
 
 fn boundary_input(
@@ -409,8 +471,7 @@ fn parent_action_reference() -> ParentActionReference {
         actor: ParentActorReference {
             actor_id: policy::TEST_PARENT_ACTOR_ID.to_string(),
             role: ParentActorRole::Parent,
-        }
-        .into(),
+        },
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
         created_at: policy::TEST_EVALUATED_AT.to_string(),
     }

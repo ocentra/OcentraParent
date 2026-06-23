@@ -1,4 +1,4 @@
-use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::{envelope::DomainEvent, error::EventingError};
 use ocentra_storage_custody_core::storage_custody::{
     evaluate_storage_custody, plan_storage_custody_actions, storage_custody_action_planned_event,
     storage_custody_decision_recorded_event, LocalPayloadRetentionAction, ParentExportPacketState,
@@ -58,12 +58,10 @@ fn local_child_payload_never_remote_uploads_even_when_sync_enabled() {
 }
 
 #[test]
-fn custody_decision_event_projects_typed_action_event() {
+fn custody_decision_event_projects_typed_action_event() -> Result<(), EventingError> {
     let decision_event = storage_custody_decision_recorded_event(
-        StorageCustodyAggregateId::parse(STORAGE_CUSTODY_AGGREGATE_ID)
-            .expect("storage custody aggregate id"),
-        StorageCustodyDecisionId::parse(STORAGE_CUSTODY_DECISION_ID)
-            .expect("storage custody decision id"),
+        StorageCustodyAggregateId::parse(STORAGE_CUSTODY_AGGREGATE_ID)?,
+        StorageCustodyDecisionId::parse(STORAGE_CUSTODY_DECISION_ID)?,
         StorageCustodyInput {
             location: StorageCustodyLocation::ParentDeviceLocal,
             retention_window_state: RetentionWindowState::Expired,
@@ -75,21 +73,15 @@ fn custody_decision_event_projects_typed_action_event() {
     let action_event = storage_custody_action_planned_event(decision_event.clone());
 
     assert_eq!(
-        decision_event
-            .contract()
-            .expect("storage custody decision contract")
-            .event_type
-            .as_str(),
+        decision_event.contract()?.event_type.as_str(),
         STORAGE_CUSTODY_DECISION_EVENT_TYPE
     );
     assert_eq!(
-        action_event
-            .contract()
-            .expect("storage custody action contract")
-            .event_type
-            .as_str(),
+        action_event.contract()?.event_type.as_str(),
         STORAGE_CUSTODY_ACTION_EVENT_TYPE
     );
     assert_eq!(action_event.aggregate_id, decision_event.aggregate_id);
     assert_eq!(action_event.source_decision_id, decision_event.decision_id);
+
+    Ok(())
 }

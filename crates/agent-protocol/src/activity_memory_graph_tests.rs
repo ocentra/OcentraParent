@@ -25,8 +25,9 @@ fn activity_memory_graph_serializes_evidence_cited_edges() {
         degraded_reasons: Vec::new(),
     };
 
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["schemaVersion"],
@@ -102,7 +103,9 @@ fn activity_memory_graph_round_trips_child_profile_display_name_in_typescript_sh
     });
 
     let parsed: ActivityMemoryGraphReadModel =
-        serde_json::from_value(value).expect("typescript activity memory graph shape parses");
+        serde_json::from_value(value).unwrap_or_else(|error| {
+            unreachable!("typescript activity memory graph shape parses: {error}")
+        });
 
     assert_eq!(
         parsed.query.child_profile,
@@ -119,8 +122,9 @@ fn activity_memory_graph_round_trips_child_profile_display_name_in_typescript_sh
         })
     );
 
-    let serialized =
-        serde_json::to_value(parsed).expect("activity memory graph round trip serializes");
+    let serialized = serde_json::to_value(parsed).unwrap_or_else(|error| {
+        unreachable!("activity memory graph round trip serializes: {error}")
+    });
 
     assert_eq!(
         serialized["query"]["childProfile"]["displayName"],

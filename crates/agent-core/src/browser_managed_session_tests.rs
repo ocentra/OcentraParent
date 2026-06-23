@@ -1,10 +1,11 @@
-use std::path::PathBuf;
+use std::{fmt::Debug, path::PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, BrowserChannel, BrowserFamily, BrowserManagedProfileLifecycleState,
-    BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
-    BrowserUnmanagedProcessKind,
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_managed::{
+    BrowserManagedProfileLifecycleState, BrowserUnmanagedDetectionConfidence,
+    BrowserUnmanagedDetectionReason, BrowserUnmanagedProcessKind,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     create_or_repair_managed_browser_profile_store, delete_managed_browser_profile_store,
@@ -15,16 +16,35 @@ use crate::{
     BrowserManagedProfileStoreError, ProcessObservation,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
+    match result {
+        Ok(_) => Err(format!("{context}: expected error")),
+        Err(error) => Ok(error),
+    }
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
+
 #[test]
-fn managed_browser_launch_plan_uses_owned_profile_and_loopback_bridge() {
+fn managed_browser_launch_plan_uses_owned_profile_and_loopback_bridge() -> TestResult {
     let config = BrowserManagedLaunchConfig {
         executable_path: PathBuf::from(constants::browser::DEVTOOLS_TEST_MSEDGE_BETA_PATH),
         profile_dir: PathBuf::from(constants::browser::PROFILE_ID_DEV),
         bridge_port: constants::browser::DEVTOOLS_TEST_BRIDGE_PORT,
     };
 
-    let plan =
-        managed_browser_launch_plan(config).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    let plan = ok(
+        managed_browser_launch_plan(config),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
     assert_eq!(
         plan.profile_path_ref,
@@ -52,12 +72,16 @@ fn managed_browser_launch_plan_uses_owned_profile_and_loopback_bridge() {
         arg.contains(constants::browser::CHROMIUM_ARG_PROFILE_DIRECTORY_PREFIX)
             && arg.contains(constants::browser::PROFILE_DIRECTORY_MANAGED_CHILD)
     }));
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_bridge_port_reservation_is_loopback_and_nonzero() {
-    let reservation =
-        reserve_managed_browser_bridge_port().expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+fn managed_browser_bridge_port_reservation_is_loopback_and_nonzero() -> TestResult {
+    let reservation = ok(
+        reserve_managed_browser_bridge_port(),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
     assert!(reservation.endpoint.ip().is_loopback());
     assert_eq!(reservation.endpoint.port(), reservation.bridge_port);
@@ -65,28 +89,34 @@ fn managed_browser_bridge_port_reservation_is_loopback_and_nonzero() {
         reservation.bridge_port,
         constants::browser::DEVTOOLS_PORT_UNRESERVED
     );
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_launch_plan_rejects_unreserved_bridge_port() {
+fn managed_browser_launch_plan_rejects_unreserved_bridge_port() -> TestResult {
     let config = BrowserManagedLaunchConfig {
         executable_path: PathBuf::from(constants::browser::EXECUTABLE_CHROME_WINDOWS),
         profile_dir: PathBuf::from(constants::browser::PROFILE_ID_DEV),
         bridge_port: constants::browser::DEVTOOLS_PORT_UNRESERVED,
     };
 
-    let error = managed_browser_launch_plan(config)
-        .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
+    let error = err(
+        managed_browser_launch_plan(config),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
 
     assert_eq!(error, BrowserManagedLaunchError::BridgePortUnavailable);
     assert_eq!(
         error.reason(),
         constants::value::MANAGED_BROWSER_BRIDGE_PORT_UNAVAILABLE
     );
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_launch_reports_failed_spawn_without_default_profile_attach() {
+fn managed_browser_launch_reports_failed_spawn_without_default_profile_attach() -> TestResult {
     let missing_chrome = profile_store_root(constants::browser::PROFILE_STORE_TEST_LAUNCH_SUFFIX)
         .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
     let config = BrowserManagedLaunchConfig {
@@ -95,30 +125,38 @@ fn managed_browser_launch_reports_failed_spawn_without_default_profile_attach() 
         bridge_port: constants::browser::DEVTOOLS_TEST_BRIDGE_PORT,
     };
 
-    let error =
-        launch_managed_browser(config).expect_err(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    let error = err(
+        launch_managed_browser(config),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
     assert_eq!(error, BrowserManagedLaunchError::Io);
     assert_eq!(
         error.reason(),
         constants::value::MANAGED_BROWSER_LAUNCH_ERROR
     );
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_profile_store_creates_and_reloads_redacted_metadata() {
+fn managed_browser_profile_store_creates_and_reloads_redacted_metadata() -> TestResult {
     let root = profile_store_root(constants::browser::PROFILE_STORE_TEST_CREATE_SUFFIX);
     let _ = std::fs::remove_dir_all(&root);
-    let first = create_or_repair_managed_browser_profile_store(&profile_store_config(
-        root.clone(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    ))
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    let second = load_managed_browser_profile_store(&profile_store_config(
-        root.clone(),
-        constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    ))
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    let first = ok(
+        create_or_repair_managed_browser_profile_store(&profile_store_config(
+            root.clone(),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    let second = ok(
+        load_managed_browser_profile_store(&profile_store_config(
+            root.clone(),
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
     assert!(first.profile_dir.is_dir());
     assert!(first.metadata_path.is_file());
@@ -140,30 +178,40 @@ fn managed_browser_profile_store_creates_and_reloads_redacted_metadata() {
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_profile_store_reports_missing_and_repairs_profile_dir() {
+fn managed_browser_profile_store_reports_missing_and_repairs_profile_dir() -> TestResult {
     let root = profile_store_root(constants::browser::PROFILE_STORE_TEST_MISSING_SUFFIX);
     let _ = std::fs::remove_dir_all(&root);
-    let created = create_or_repair_managed_browser_profile_store(&profile_store_config(
-        root.clone(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    ))
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::remove_dir_all(&created.profile_dir)
-        .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    let created = ok(
+        create_or_repair_managed_browser_profile_store(&profile_store_config(
+            root.clone(),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    ok(
+        std::fs::remove_dir_all(&created.profile_dir),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
-    let missing = load_managed_browser_profile_store(&profile_store_config(
-        root.clone(),
-        constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    ))
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    let repaired = create_or_repair_managed_browser_profile_store(&profile_store_config(
-        root.clone(),
-        constants::activity_store::TEST_THIRD_OBSERVED_AT,
-    ))
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    let missing = ok(
+        load_managed_browser_profile_store(&profile_store_config(
+            root.clone(),
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    let repaired = ok(
+        create_or_repair_managed_browser_profile_store(&profile_store_config(
+            root.clone(),
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
     assert_eq!(
         missing.entry.lifecycle_state,
@@ -184,22 +232,28 @@ fn managed_browser_profile_store_reports_missing_and_repairs_profile_dir() {
     assert!(repaired.profile_dir.is_dir());
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_profile_store_delete_preserves_redacted_metadata() {
+fn managed_browser_profile_store_delete_preserves_redacted_metadata() -> TestResult {
     let root = profile_store_root(constants::browser::PROFILE_STORE_TEST_DELETE_SUFFIX);
     let _ = std::fs::remove_dir_all(&root);
-    let created = create_or_repair_managed_browser_profile_store(&profile_store_config(
-        root.clone(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    ))
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    let deleted = delete_managed_browser_profile_store(&profile_store_config(
-        root.clone(),
-        constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    ))
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    let created = ok(
+        create_or_repair_managed_browser_profile_store(&profile_store_config(
+            root.clone(),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    let deleted = ok(
+        delete_managed_browser_profile_store(&profile_store_config(
+            root.clone(),
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
     assert!(!created.profile_dir.exists());
     assert_eq!(
@@ -217,11 +271,13 @@ fn managed_browser_profile_store_delete_preserves_redacted_metadata() {
     assert!(deleted.metadata_path.is_file());
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_profile_store_rejects_default_and_unowned_paths() {
-    let default_profile_error =
+fn managed_browser_profile_store_rejects_default_and_unowned_paths() -> TestResult {
+    let default_profile_error = err(
         create_or_repair_managed_browser_profile_store(&BrowserManagedProfileStoreConfig {
             profile_root_dir: PathBuf::from(constants::browser::PATH_SEGMENT_USER_DATA)
                 .join(constants::browser::PATH_SEGMENT_DEFAULT),
@@ -232,9 +288,10 @@ fn managed_browser_profile_store_rejects_default_and_unowned_paths() {
             browser_channel: BrowserChannel::Stable,
             policy_revision: constants::browser::PROFILE_POLICY_REVISION_DEV.to_string(),
             now: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        })
-        .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
-    let unowned_profile_error =
+        }),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
+    let unowned_profile_error = err(
         create_or_repair_managed_browser_profile_store(&BrowserManagedProfileStoreConfig {
             profile_root_dir: profile_store_root(
                 constants::browser::PROFILE_STORE_TEST_REJECT_SUFFIX,
@@ -246,8 +303,9 @@ fn managed_browser_profile_store_rejects_default_and_unowned_paths() {
             browser_channel: BrowserChannel::Stable,
             policy_revision: constants::browser::PROFILE_POLICY_REVISION_DEV.to_string(),
             now: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        })
-        .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
+        }),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
 
     assert_eq!(
         default_profile_error,
@@ -261,10 +319,12 @@ fn managed_browser_profile_store_rejects_default_and_unowned_paths() {
         unowned_profile_error,
         BrowserManagedProfileStoreError::UnownedProfileRejected
     );
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_launch_plan_rejects_default_browser_profile() {
+fn managed_browser_launch_plan_rejects_default_browser_profile() -> TestResult {
     let config = BrowserManagedLaunchConfig {
         executable_path: PathBuf::from(constants::browser::EXECUTABLE_CHROME_WINDOWS),
         profile_dir: PathBuf::from(constants::browser::PATH_SEGMENT_USER_DATA)
@@ -272,36 +332,44 @@ fn managed_browser_launch_plan_rejects_default_browser_profile() {
         bridge_port: constants::browser::DEVTOOLS_TEST_BRIDGE_PORT,
     };
 
-    let error = managed_browser_launch_plan(config)
-        .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
+    let error = err(
+        managed_browser_launch_plan(config),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
 
     assert_eq!(error, BrowserManagedLaunchError::DefaultProfileRejected);
     assert_eq!(
         error.reason(),
         constants::value::MANAGED_BROWSER_INVALID_PROFILE
     );
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_launch_plan_rejects_unowned_profile_path() {
+fn managed_browser_launch_plan_rejects_unowned_profile_path() -> TestResult {
     let config = BrowserManagedLaunchConfig {
         executable_path: PathBuf::from(constants::browser::EXECUTABLE_CHROME_WINDOWS),
         profile_dir: PathBuf::from(constants::browser::DEVTOOLS_TEST_UNOWNED_PROFILE_DIR),
         bridge_port: constants::browser::DEVTOOLS_TEST_BRIDGE_PORT,
     };
 
-    let error = managed_browser_launch_plan(config)
-        .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
+    let error = err(
+        managed_browser_launch_plan(config),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
 
     assert_eq!(error, BrowserManagedLaunchError::UnownedProfileRejected);
     assert_eq!(
         error.reason(),
         constants::value::MANAGED_BROWSER_INVALID_PROFILE
     );
+
+    Ok(())
 }
 
 #[test]
-fn managed_browser_launch_plan_rejects_unsupported_browser_executable() {
+fn managed_browser_launch_plan_rejects_unsupported_browser_executable() -> TestResult {
     let config = BrowserManagedLaunchConfig {
         executable_path: PathBuf::from(
             constants::browser::DEVTOOLS_TEST_UNSUPPORTED_EXECUTABLE_PATH,
@@ -310,14 +378,18 @@ fn managed_browser_launch_plan_rejects_unsupported_browser_executable() {
         bridge_port: constants::browser::DEVTOOLS_TEST_BRIDGE_PORT,
     };
 
-    let error = managed_browser_launch_plan(config)
-        .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
+    let error = err(
+        managed_browser_launch_plan(config),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
 
     assert_eq!(error, BrowserManagedLaunchError::UnsupportedBrowser);
     assert_eq!(
         error.reason(),
         constants::value::MANAGED_BROWSER_UNSUPPORTED_EXECUTABLE
     );
+
+    Ok(())
 }
 
 #[test]
@@ -409,7 +481,7 @@ fn unmanaged_browser_processes_detects_unsupported_and_unknown_browser_like_proc
 }
 
 #[test]
-fn installed_managed_browser_candidates_require_existing_supported_executables() {
+fn installed_managed_browser_candidates_require_existing_supported_executables() -> TestResult {
     let root = std::env::temp_dir()
         .join(constants::browser::DEVTOOLS_TEST_INSTALLED_BROWSER_DIR)
         .join(std::process::id().to_string());
@@ -420,19 +492,28 @@ fn installed_managed_browser_candidates_require_existing_supported_executables()
     let unsupported = root
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::DEVTOOLS_TEST_UNSUPPORTED_EXECUTABLE_PATH);
-    std::fs::create_dir_all(
-        edge.parent()
-            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
-    )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::write(&edge, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::create_dir_all(
-        unsupported
-            .parent()
-            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
-    )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::write(&unsupported, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    ok(
+        std::fs::create_dir_all(some(
+            edge.parent(),
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+        )?),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    ok(
+        std::fs::write(&edge, []),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    ok(
+        std::fs::create_dir_all(some(
+            unsupported.parent(),
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+        )?),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    ok(
+        std::fs::write(&unsupported, []),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
 
     let candidates = installed_managed_browser_candidates(&[
         edge.clone(),
@@ -446,6 +527,8 @@ fn installed_managed_browser_candidates_require_existing_supported_executables()
     assert_eq!(candidates[0].browser_channel, BrowserChannel::Beta);
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 fn profile_store_root(suffix: &str) -> PathBuf {

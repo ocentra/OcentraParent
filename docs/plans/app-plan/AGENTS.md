@@ -25,6 +25,44 @@ Implementation rule: docs define expected outcome, boundary, shape, validation, 
 Proof rule: proof must include command/log evidence, negative cases, artifact paths, updated rows, and skipped-risk notes when applicable.
 Failure condition: no DONE/PR_READY when expected proof is missing, only happy-path evidence exists, or this plan is used to claim adjacent implementation completion.
 
+## Ownership, Import, And Boundary Contract
+
+Native Apps is the app-only narrowing and reconciliation plan. It does not own the full shared native app/game evidence spine; that remains in `app-game-plan` unless the selected workpack explicitly narrows an app-only slice here.
+
+Module roles:
+
+```text
+schema-domain: canonical shared native-app/app-game schema, brands, parser, source-readiness, policy target, platform proof, and handoff shapes when those shapes cross package, crate, app, or plan boundaries.
+app-core: child-local Rust native-app observation, evidence event, AI-request event, and policy-request event boundary. It should use event/protocol handoffs rather than importing sibling runtime crates.
+app-plan: app-only route, reconciliation, app-specific source-readiness, and proof expectation owner.
+app-game-plan: shared native app/game evidence spine, combined runtime/read-model proof, native game slices, and most generated handoff chains.
+agent-protocol and agent-service: wire/service/read-model boundaries only when the selected workpack names protocol, service handler, or read API proof.
+portal-domain and apps/portal: parent-visible projection only; they do not observe OS state, classify apps, run timers, or enforce.
+policy, enforcement, notification, child-runtime, setup, payment, data-custody, LAN, and remote plans: sibling owners or handoff consumers. They must not re-own native-app source truth.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+canonical schema-domain app/app-game/evidence/policy-reference/protocol/capability/logging shapes
+neutral event/evidence/logging/protocol primitives
+approved public helper exports named by the selected workpack
+app-core when the selected workpack names Rust app observation/event proof
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports:
+
+```text
+sibling feature owner runtime behavior from app-game, AI, policy, enforcement, notification, portal, child-runtime, setup, payment, data-custody, LAN, or remote plans
+private source files from another plan's owning package/crate
+peer feature contracts when the shared shape should live in schema-domain or another neutral boundary
+portal, policy, AI, enforcement, or notification code that scans native-app source state instead of consuming app evidence/read models
+policy or enforcement internals that execute app actions without typed native-app source readiness, authority, and adapter-readiness proof
+```
+
+If native-app work needs app-game, AI, policy, enforcement, notification, portal, child-runtime, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+
 ## Local Decision Tree
 
 - If the assignment names a workpack, open only that workpack.
@@ -38,9 +76,10 @@ Failure condition: no DONE/PR_READY when expected proof is missing, only happy-p
 1. [PLAN_STATE.md](PLAN_STATE.md)
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md)
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md)
-4. One assigned workpack under workpacks/
-5. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md)
-6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) and [PROOF_INDEX.md](PROOF_INDEX.md) only for named rows/artifacts
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected workpack owner path is unclear
+5. One assigned workpack under workpacks/
+6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md)
+7. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) and [PROOF_INDEX.md](PROOF_INDEX.md) only for named rows/artifacts
 
 ## Product Sources
 

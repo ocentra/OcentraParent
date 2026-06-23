@@ -40,7 +40,15 @@ export const ScreenCaptureReasonSchema = withParser(
   )
 );
 export const ScreenCaptureScopeSchema = withParser(
-  Schema.Literal('fullScreen', 'primaryDisplay', 'activeDisplay', 'selectedWindow', 'activeWindow', 'managedBrowserWindow', 'unsupported')
+  Schema.Literal(
+    'fullScreen',
+    'primaryDisplay',
+    'activeDisplay',
+    'selectedWindow',
+    'activeWindow',
+    'managedBrowserWindow',
+    'unsupported'
+  )
 );
 export const ScreenCapabilityStatusSchema = withParser(
   Schema.Literal(
@@ -60,7 +68,20 @@ export const ScreenCapabilityStatusSchema = withParser(
   )
 );
 export const ScreenQueueStatusSchema = withParser(
-  Schema.Literal('queued', 'processing', 'analyzed', 'deleting', 'deleted', 'expired', 'failed', 'invalid', 'unavailable', 'permissionLimited', 'protectedSurface', 'canceled')
+  Schema.Literal(
+    'queued',
+    'processing',
+    'analyzed',
+    'deleting',
+    'deleted',
+    'expired',
+    'failed',
+    'invalid',
+    'unavailable',
+    'permissionLimited',
+    'protectedSurface',
+    'canceled'
+  )
 );
 export const ScreenDeletionStateSchema = withParser(
   Schema.Literal('deletionRequired', 'deleted', 'deletePending', 'deleteFailed', 'expiredDeleted', 'unavailableNoImage')
@@ -83,19 +104,51 @@ export const ScreenLocalModelProviderKindSchema = withParser(
   Schema.Literal('deterministicRules', 'localOcr', 'localVision', 'localMultimodal', 'unavailable')
 );
 export const ScreenVisibleCategorySchema = withParser(
-  Schema.Literal('school', 'video', 'chat', 'game', 'adultContent', 'violence', 'bypassTool', 'shopping', 'productivity', 'unknown')
+  Schema.Literal(
+    'school',
+    'video',
+    'chat',
+    'game',
+    'adultContent',
+    'violence',
+    'bypassTool',
+    'shopping',
+    'productivity',
+    'unknown'
+  )
 );
 export const ScreenRiskSignalSchema = withParser(
-  Schema.Literal('possibleBypassTool', 'credentialPrompt', 'unsafeVisibleContent', 'selfHarmSignal', 'explicitContentSignal', 'unknown')
+  Schema.Literal(
+    'possibleBypassTool',
+    'credentialPrompt',
+    'unsafeVisibleContent',
+    'selfHarmSignal',
+    'explicitContentSignal',
+    'unknown'
+  )
 );
 export const ScreenRedactionModeSchema = withParser(
   Schema.Literal('disabled', 'localSensitiveText', 'localSensitiveRegions')
 );
 export const ScreenRedactionNoteSchema = withParser(
-  Schema.Literal('credentialLikeTextRedacted', 'piiLikeTextRedacted', 'protectedRegionSkipped', 'ocrDisabled', 'noTextExtracted')
+  Schema.Literal(
+    'credentialLikeTextRedacted',
+    'piiLikeTextRedacted',
+    'protectedRegionSkipped',
+    'ocrDisabled',
+    'noTextExtracted'
+  )
 );
 export const ScreenUncertaintyReasonSchema = withParser(
-  Schema.Literal('lowConfidence', 'ambiguousImage', 'unsupportedLanguage', 'protectedSurface', 'modelUnavailable', 'insufficientPixels', 'unknown')
+  Schema.Literal(
+    'lowConfidence',
+    'ambiguousImage',
+    'unsupportedLanguage',
+    'protectedSurface',
+    'modelUnavailable',
+    'insufficientPixels',
+    'unknown'
+  )
 );
 
 export type ScreenAnalysisMode = Infer<typeof ScreenAnalysisModeSchema>;

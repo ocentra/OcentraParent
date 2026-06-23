@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -30,7 +25,10 @@ import {
   appGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffMatchesServiceHandlerHandoff,
   type AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffStateValue,
 } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffIdSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffId');
@@ -285,4 +283,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceRe
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffState };
-

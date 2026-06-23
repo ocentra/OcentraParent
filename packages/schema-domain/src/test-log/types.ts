@@ -1,34 +1,17 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from '../effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '../effect';
 import { LogLevelSchema } from '../logging-contracts';
 
 export const TestLogSchemaVersion = 1;
 
 export const TestLogScopeSchema = withParser(
-  Schema.Literal(
-    'parent-agent',
-    'parent-portal',
-    'parent-cloudflare',
-    'parent-codex',
-    'parent-test'
-  )
+  Schema.Literal('parent-agent', 'parent-portal', 'parent-cloudflare', 'parent-codex', 'parent-test')
 );
 
-export const RunTypeSchema = withParser(
-  Schema.Literal('single', 'full', 'single-pool', 'single-threads')
-);
+export const RunTypeSchema = withParser(Schema.Literal('single', 'full', 'single-pool', 'single-threads'));
 
-export const TestSuiteTypeSchema = withParser(
-  Schema.Literal('unit', 'integration', 'e2e', 'contract', 'websocket')
-);
+export const TestSuiteTypeSchema = withParser(Schema.Literal('unit', 'integration', 'e2e', 'contract', 'websocket'));
 
-export const TestLogOriginSchema = withParser(
-  Schema.Literal('test', 'worker', 'portal', 'agent-service', 'codex')
-);
+export const TestLogOriginSchema = withParser(Schema.Literal('test', 'worker', 'portal', 'agent-service', 'codex'));
 
 export const NullableStringSchema = Schema.NullOr(Schema.String);
 export const NullableIntegerSchema = Schema.NullOr(Schema.Number.pipe(Schema.int()));
@@ -117,10 +100,7 @@ export function parseTestLogScopeOrDefault(
   return TestLogScopeSchema.parse(value);
 }
 
-export function parseRunTypeOrDefault(
-  value: string | null | undefined,
-  fallback: RunType = RunType.Single
-): RunType {
+export function parseRunTypeOrDefault(value: string | null | undefined, fallback: RunType = RunType.Single): RunType {
   if (value == null || value.trim().length === 0) {
     return fallback;
   }

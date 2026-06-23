@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const BrowserDomainBrowserPlanExportPaths = [
+const BrowserDomainRetiredSchemaOwnerExportPaths = [
   './browser-game-hidden-analysis-profile-safety',
   './browser-game-policy-compiler',
   './browser-game-url-shape-parser',
@@ -28,11 +28,18 @@ const BrowserDomainRetiredExportPaths = [
   './social-platform-connector-authorization',
 ] as const;
 
+const BrowserDomainLocalBehaviorFiles = [
+  'browser-game-hidden-analysis-loader-planner',
+  'browser-game-policy-candidate-compiler',
+  'browser-game-url-shape-evaluator',
+  'social-policy-candidate-compiler',
+] as const;
+
 const PackageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const PackageJsonPath = resolve(PackageRoot, 'package.json');
 
 describe('browser-domain browser plan package exports', () => {
-  it('exposes social and browser-game contracts as public package subpaths', () => {
+  it('retires duplicated schema-owner subpaths while keeping local behavior internal', () => {
     const packageJson = JSON.parse(readFileSync(PackageJsonPath, 'utf8')) as {
       readonly exports?: Record<string, unknown>;
     };
@@ -40,19 +47,21 @@ describe('browser-domain browser plan package exports', () => {
     expect(packageJson.exports).toBeTypeOf('object');
     expect(packageJson.exports?.['./*']).toBeUndefined();
 
-    for (const exportPath of BrowserDomainBrowserPlanExportPaths) {
+    for (const exportPath of BrowserDomainRetiredSchemaOwnerExportPaths) {
       const moduleName = exportPath.slice(2);
-      expect(packageJson.exports?.[exportPath]).toEqual({
-        import: `./dist/${moduleName}.js`,
-        types: `./dist/${moduleName}.d.ts`,
-      });
-      expect(existsSync(resolve(PackageRoot, 'src', `${moduleName}.ts`))).toBe(true);
+      expect(packageJson.exports?.[exportPath]).toBeUndefined();
+      expect(existsSync(resolve(PackageRoot, 'src', `${moduleName}.ts`))).toBe(false);
     }
 
     for (const exportPath of BrowserDomainRetiredExportPaths) {
       const moduleName = exportPath.slice(2);
       expect(packageJson.exports?.[exportPath]).toBeUndefined();
       expect(existsSync(resolve(PackageRoot, 'src', `${moduleName}.ts`))).toBe(false);
+    }
+
+    for (const moduleName of BrowserDomainLocalBehaviorFiles) {
+      expect(packageJson.exports?.[`./${moduleName}`]).toBeUndefined();
+      expect(existsSync(resolve(PackageRoot, 'src', `${moduleName}.ts`))).toBe(true);
     }
   });
 });

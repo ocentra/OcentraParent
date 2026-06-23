@@ -1,9 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, SocialAuditExplanationSnapshot,
-    SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED, SOCIAL_AUDIT_EXPLANATION_SCHEMA_VERSION,
-    SOCIAL_AUDIT_EXPLANATION_SUBJECT_ACCOUNT_APPROVAL,
-    SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE,
-};
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::SocialAuditExplanationSnapshot;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_ACCOUNT_APPROVAL;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE;
 
 use super::social_audit_explanation_read_model_payload::{
     social_audit_explanation_read_model_from_service, social_audit_explanation_read_model_payload,
@@ -17,8 +19,8 @@ fn social_audit_explanation_payload_reports_six_honest_service_rows() {
         &payload,
         constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL,
     );
-    let decoded: SocialAuditExplanationSnapshot =
-        serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let decoded: SocialAuditExplanationSnapshot = serde_json::from_str(read_model_json)
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         decoded.schema_version,
@@ -47,18 +49,18 @@ fn social_audit_explanation_payload_reports_six_honest_service_rows() {
 }
 
 fn string_payload<'a>(
-    payload: &'a ocentra_parent_agent_protocol::LogFields,
+    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
     field: &str,
 ) -> &'a str {
     match &payload[field] {
         LogFieldValue::String(text) => text,
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }
 
-fn number_payload(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> f64 {
+fn number_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> f64 {
     match &payload[field] {
         LogFieldValue::Number(value) => *value,
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

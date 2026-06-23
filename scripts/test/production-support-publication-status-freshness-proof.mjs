@@ -43,7 +43,8 @@ async function main() {
       contract: 'packages/schema-domain/src/production-support-publication-status-freshness-proof.ts',
       values: 'packages/schema-domain/src/production-support-publication-status-freshness-values.ts',
       readModel: 'packages/schema-domain/src/production-support-publication-status-freshness-read-model.ts',
-      contractTest: 'packages/production-domain/tests/unit/production-support-publication-status-freshness-proof.test.ts',
+      contractTest:
+        'packages/production-domain/tests/unit/production-support-publication-status-freshness-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -70,7 +71,9 @@ async function main() {
 
 async function assertBuiltContract() {
   const contractModule = await importBuiltSchemaDomainModule('production-support-publication-status-freshness-proof');
-  const readModelModule = await importBuiltSchemaDomainModule('production-support-publication-status-freshness-read-model');
+  const readModelModule = await importBuiltSchemaDomainModule(
+    'production-support-publication-status-freshness-read-model'
+  );
   const valuesModule = await importBuiltSchemaDomainModule('production-support-publication-status-freshness-values');
   const proof = contractModule.ProductionSupportPublicationStatusFreshnessProofSchema.parse(
     readModelModule.ProductionSupportPublicationStatusFreshnessReadModel

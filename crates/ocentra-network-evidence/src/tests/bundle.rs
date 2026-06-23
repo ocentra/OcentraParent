@@ -3,6 +3,7 @@ use crate::{
     NetworkCascadeSignalStrength, NetworkCascadeSourceKind, NetworkCrossSliceEvidenceBundleError,
     NetworkCrossSliceEvidenceBundleInput, NetworkCrossSliceEvidenceSource, NetworkEvidenceGrade,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn evidence_bundle_preserves_cross_slice_refs_without_action_authority() {
@@ -32,7 +33,7 @@ fn evidence_bundle_preserves_cross_slice_refs_without_action_authority() {
             ),
         ],
     })
-    .expect("cross-slice bundle should build from typed evidence");
+    .expect_value("cross-slice bundle should build from typed evidence");
 
     assert_eq!(bundle.trigger_ref, "network-trigger-1");
     assert_eq!(
@@ -66,7 +67,7 @@ fn evidence_bundle_keeps_weak_signal_on_review_route() {
             false,
         )],
     })
-    .expect("weak signal should build review bundle");
+    .expect_value("weak signal should build review bundle");
 
     assert_eq!(
         bundle.next_checks,
@@ -104,7 +105,7 @@ fn evidence_bundle_deduplicates_refs_and_trims_trigger_ref() {
             ),
         ],
     })
-    .expect("duplicate refs should not duplicate evidence custody");
+    .expect_value("duplicate refs should not duplicate evidence custody");
 
     assert_eq!(bundle.trigger_ref, "network-trigger-trimmed");
     assert_eq!(bundle.evidence_refs, vec!["duplicate-ref"]);

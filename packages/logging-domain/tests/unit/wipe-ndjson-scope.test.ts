@@ -4,7 +4,12 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries, readTestLogEntriesFromFile } from '../../src/test-log/ndjsonWriter';
 import { getRunNdjsonFilePath, getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
-import { RunType, TestLogScope, TestSuiteType, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
+import {
+  RunType,
+  TestLogScope,
+  TestSuiteType,
+  TestLogSchemaVersion,
+} from '@ocentra-parent/schema-domain/test-log/types';
 import { wipeNdjsonScope } from '../../src/test-log/wipeNdjsonScope';
 
 function makeEntry(runId: string, filePath: string) {
@@ -49,13 +54,7 @@ describe('wipe ndjson scope', () => {
 
     const targetFile = 'apps/portal/src/dev-logger.ts';
     const otherFile = 'crates/agent-service/src/dev_log.rs';
-    appendTestLogEntries(
-      [
-        makeEntry('run-a', targetFile),
-        makeEntry('run-a', otherFile),
-      ],
-      tempDir
-    );
+    appendTestLogEntries([makeEntry('run-a', targetFile), makeEntry('run-a', otherFile)], tempDir);
 
     const result = wipeNdjsonScope({
       scope: TestLogScope.ParentTest,

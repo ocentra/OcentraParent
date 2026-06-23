@@ -1,6 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    LocalAiParentRuleContextRef, ParentEvidenceReference, PolicyTarget,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy_context::LocalAiParentRuleContextRef;
 
 pub(crate) fn parent_rule_contexts_for_row(
     target: &PolicyTarget,

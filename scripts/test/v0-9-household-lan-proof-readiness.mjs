@@ -15,16 +15,32 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npx', 'vitest', 'run', 'tests/unit/v0-9-household-lan-pairing-proof.test.ts'], lanDomainRoot);
+  await runCommand(
+    'cmd',
+    ['/c', 'npx', 'vitest', 'run', 'tests/unit/v0-9-household-lan-pairing-proof.test.ts'],
+    lanDomainRoot
+  );
 
   const sourceMatrixProof = await readJson(sourceMatrixProofPath);
   const signedRelayProof = await readJson(signedRelayProofPath);
   const productionDiscoveryProof = await readJson(productionDiscoveryProofPath);
 
-  assertArrayIncludes(sourceMatrixProof.claimsNotProved, 'Physical two-device household LAN readiness.', 'source matrix non-claim');
+  assertArrayIncludes(
+    sourceMatrixProof.claimsNotProved,
+    'Physical two-device household LAN readiness.',
+    'source matrix non-claim'
+  );
   assertArrayIncludes(signedRelayProof.manualProofRequired, 'signed-child-agent-hello', 'signed relay manual hello');
-  assertArrayIncludes(signedRelayProof.manualProofRequired, 'signed-child-agent-heartbeat', 'signed relay manual heartbeat');
-  assertArrayIncludes(productionDiscoveryProof.claimsNotProved, 'Physical household LAN product readiness across two real devices.', 'production discovery non-claim');
+  assertArrayIncludes(
+    signedRelayProof.manualProofRequired,
+    'signed-child-agent-heartbeat',
+    'signed relay manual heartbeat'
+  );
+  assertArrayIncludes(
+    productionDiscoveryProof.claimsNotProved,
+    'Physical household LAN product readiness across two real devices.',
+    'production discovery non-claim'
+  );
 
   const manualRequiredBoundaries = [
     'two-physical-household-hosts',

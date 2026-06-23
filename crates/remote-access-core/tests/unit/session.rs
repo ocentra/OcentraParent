@@ -1,4 +1,5 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use ocentra_remote_access_core::remote_access_session::{
@@ -186,7 +187,7 @@ fn remote_access_session_request_resolves_authorization_and_effect_plan_event() 
     assert_eq!(
         request
             .contract()
-            .expect("remote access request contract")
+            .expect_value("remote access request contract")
             .event_type
             .as_str(),
         super::REMOTE_ACCESS_REQUESTED_EVENT_TYPE
@@ -194,7 +195,7 @@ fn remote_access_session_request_resolves_authorization_and_effect_plan_event() 
     assert_eq!(
         resolved
             .contract()
-            .expect("remote access authorization contract")
+            .expect_value("remote access authorization contract")
             .event_type
             .as_str(),
         super::REMOTE_ACCESS_RESOLVED_EVENT_TYPE

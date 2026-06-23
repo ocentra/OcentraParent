@@ -102,32 +102,23 @@ export const AgentCommandNameLiteral = {
   ActivityAppGameAdapterDispatchExecute: 'agent.activity.app-game.adapter-dispatch.execute',
   ActivityAppGameAdapterDispatchPreflightReadModelGet:
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
-  ActivityAppGameAdapterDispatchResultReadModelGet:
-    'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+  ActivityAppGameAdapterDispatchResultReadModelGet: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
   ActivityAppGameAdapterExecutionReadinessReadModelGet:
     'agent.activity.app-game.adapter-execution-readiness.read-model.get',
   ActivityAppGameChildRuntimeTransportReceiptReadModelGet:
     'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
-  ActivityAppGameNotificationReadinessReadModelGet:
-    'agent.activity.app-game.notification-readiness.read-model.get',
-  ActivityAppGamePlatformProofStatusReadModelGet:
-    'agent.activity.app-game.platform-proof-status.read-model.get',
-  ActivityAppGamePolicyReadinessReadModelGet:
-    'agent.activity.app-game.policy-readiness.read-model.get',
-  ActivityAppGameTimerParentSurfaceReadModelGet:
-    'agent.activity.app-game.timer-parent-surface.read-model.get',
+  ActivityAppGameNotificationReadinessReadModelGet: 'agent.activity.app-game.notification-readiness.read-model.get',
+  ActivityAppGamePlatformProofStatusReadModelGet: 'agent.activity.app-game.platform-proof-status.read-model.get',
+  ActivityAppGamePolicyReadinessReadModelGet: 'agent.activity.app-game.policy-readiness.read-model.get',
+  ActivityAppGameTimerParentSurfaceReadModelGet: 'agent.activity.app-game.timer-parent-surface.read-model.get',
   ActivityTrackingRetentionSettingsWrite: 'agent.activity.tracking.retention-settings.write',
-  BrowserSocialAlertReportParentSurfaceReadModelGet:
-    'agent.browser.social-alert-report.parent-surface.read-model.get',
+  BrowserSocialAlertReportParentSurfaceReadModelGet: 'agent.browser.social-alert-report.parent-surface.read-model.get',
   BrowserSocialAlertReportReadModelGet: 'agent.browser.social-alert-report.read-model.get',
-  BrowserSocialAuditExplanationReadModelGet:
-    'agent.browser.social-audit-explanation.read-model.get',
+  BrowserSocialAuditExplanationReadModelGet: 'agent.browser.social-audit-explanation.read-model.get',
   BrowserSocialParentNotificationDeliveryReadModelGet:
     'agent.browser.social-parent-notification-delivery.read-model.get',
-  BrowserSocialSourceCustodyMutationApply:
-    'agent.browser.social-source-custody.mutation.apply',
-  EnforcementSupportedAdapterRuntimeProofGet:
-    'agent.enforcement.supported-adapter-runtime-proof.get',
+  BrowserSocialSourceCustodyMutationApply: 'agent.browser.social-source-custody.mutation.apply',
+  EnforcementSupportedAdapterRuntimeProofGet: 'agent.enforcement.supported-adapter-runtime-proof.get',
 } as const;
 
 export const AgentEventNameLiteral = {
@@ -156,20 +147,15 @@ export const AgentEventNameLiteral = {
   NetworkFlowReadModelReported: 'agent.network.flow.read-model.reported',
   NetworkRemoteDeliveryStatusReported: 'agent.network.remote-delivery.status.reported',
   NetworkLiveCaptureStatusReported: 'agent.network.live-capture.status.reported',
-  NetworkLinuxNftablesLabStatusReported:
-    'agent.network.linux-nftables-lab.status.reported',
-  NetworkWindowsWfpGateStatusReported:
-    'agent.network.windows-wfp-gate.status.reported',
-  NetworkAndroidVpnServiceGateStatusReported:
-    'agent.network.android-vpn-service-gate.status.reported',
-  NetworkAppleNetworkExtensionGateStatusReported:
-    'agent.network.apple-network-extension-gate.status.reported',
+  NetworkLinuxNftablesLabStatusReported: 'agent.network.linux-nftables-lab.status.reported',
+  NetworkWindowsWfpGateStatusReported: 'agent.network.windows-wfp-gate.status.reported',
+  NetworkAndroidVpnServiceGateStatusReported: 'agent.network.android-vpn-service-gate.status.reported',
+  NetworkAppleNetworkExtensionGateStatusReported: 'agent.network.apple-network-extension-gate.status.reported',
   LocalAiRuntimeStatusReported: 'agent.local-ai.runtime.status.reported',
   LocalAiChatGenerationReported: 'agent.local-ai.chat.generation.reported',
   ParentAssistantAnswerReported: 'agent.parent-assistant.answer.reported',
   PolicyPreviewReadModelReported: 'agent.policy.preview.read-model.reported',
-  PolicyRequestAssistantPreviewConfirmReported:
-    'agent.policy.request.assistant-preview.confirm.reported',
+  PolicyRequestAssistantPreviewConfirmReported: 'agent.policy.request.assistant-preview.confirm.reported',
   BrowserPolicyReported: 'agent.browser-policy.reported',
   BrowserPolicyPreviewed: 'agent.browser-policy.previewed',
   BrowserPolicyPatchAccepted: 'agent.browser-policy.patch.accepted',
@@ -184,8 +170,7 @@ export const AgentEventNameLiteral = {
   EnforcementAuditReported: 'agent.enforcement.audit.reported',
   EnforcementTimerReported: 'agent.enforcement.timer.reported',
   EnforcementPolicyDispatchReported: 'agent.enforcement.policy-dispatch.reported',
-  EnforcementBroadAdapterProofReported:
-    'agent.enforcement.broad-adapter-proof.reported',
+  EnforcementBroadAdapterProofReported: 'agent.enforcement.broad-adapter-proof.reported',
   ParentAssistantThreadUpdated: 'agent.parent-assistant.thread.updated',
   ParentAssistantMessageAccepted: 'agent.parent-assistant.message.accepted',
   ParentAssistantRunStarted: 'agent.parent-assistant.run.started',
@@ -200,50 +185,37 @@ export const AgentEventNameLiteral = {
   LanAiJobReported: 'agent.lan-ai.job.reported',
   ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequested:
     'agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested',
-  ActivityAppGameAdapterDispatchExecuted:
-    'agent.activity.app-game.adapter-dispatch.executed',
+  ActivityAppGameAdapterDispatchExecuted: 'agent.activity.app-game.adapter-dispatch.executed',
   ActivityAppGameAdapterDispatchPreflightReadModelReported:
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
   ActivityAppGameAdapterDispatchResultReadModelReported:
     'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
   ActivityAppGameAdapterExecutionReadinessReadModelReported:
     'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
-  ActivityAppGameBoundaryReadModelReported:
-    'agent.activity.app-game.boundary.read-model.reported',
+  ActivityAppGameBoundaryReadModelReported: 'agent.activity.app-game.boundary.read-model.reported',
   ActivityAppGameChildRuntimeTransportReceiptReadModelReported:
     'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported',
   ActivityAppGameNotificationReadinessReadModelReported:
     'agent.activity.app-game.notification-readiness.read-model.reported',
   ActivityAppGamePlatformProofStatusReadModelReported:
     'agent.activity.app-game.platform-proof-status.read-model.reported',
-  ActivityAppGamePolicyReadinessReadModelReported:
-    'agent.activity.app-game.policy-readiness.read-model.reported',
+  ActivityAppGamePolicyReadinessReadModelReported: 'agent.activity.app-game.policy-readiness.read-model.reported',
   ActivityAppGameTimerParentSurfaceReadModelReported:
     'agent.activity.app-game.timer-parent-surface.read-model.reported',
-  ActivityTrackingRetentionSettingsWriteReported:
-    'agent.activity.tracking.retention-settings.write.reported',
-  BrowserRuntimeEventChainStreamReported:
-    'agent.browser.runtime.event-chain.stream.reported',
+  ActivityTrackingRetentionSettingsWriteReported: 'agent.activity.tracking.retention-settings.write.reported',
+  BrowserRuntimeEventChainStreamReported: 'agent.browser.runtime.event-chain.stream.reported',
   BrowserSocialAlertReportParentSurfaceReadModelReported:
     'agent.browser.social-alert-report.parent-surface.read-model.reported',
-  BrowserSocialAlertReportReadModelReported:
-    'agent.browser.social-alert-report.read-model.reported',
-  BrowserSocialAuditExplanationReadModelReported:
-    'agent.browser.social-audit-explanation.read-model.reported',
-  BrowserSocialDashboardReadModelReported:
-    'agent.browser.social-dashboard.read-model.reported',
+  BrowserSocialAlertReportReadModelReported: 'agent.browser.social-alert-report.read-model.reported',
+  BrowserSocialAuditExplanationReadModelReported: 'agent.browser.social-audit-explanation.read-model.reported',
+  BrowserSocialDashboardReadModelReported: 'agent.browser.social-dashboard.read-model.reported',
   BrowserSocialParentNotificationDeliveryReadModelReported:
     'agent.browser.social-parent-notification-delivery.read-model.reported',
-  BrowserSocialSourceCustodyMutationApplied:
-    'agent.browser.social-source-custody.mutation.applied',
-  EnforcementProductControlSpineReported:
-    'agent.enforcement.product-control-spine.reported',
-  EnforcementSupportedAdapterRuntimeProofReported:
-    'agent.enforcement.supported-adapter-runtime-proof.reported',
-  NetworkRuntimeEventChainStreamReported:
-    'agent.network.runtime.event-chain.stream.reported',
-  NetworkWindowsFirewallLabStatusReported:
-    'agent.network.windows-firewall-lab.status.reported',
+  BrowserSocialSourceCustodyMutationApplied: 'agent.browser.social-source-custody.mutation.applied',
+  EnforcementProductControlSpineReported: 'agent.enforcement.product-control-spine.reported',
+  EnforcementSupportedAdapterRuntimeProofReported: 'agent.enforcement.supported-adapter-runtime-proof.reported',
+  NetworkRuntimeEventChainStreamReported: 'agent.network.runtime.event-chain.stream.reported',
+  NetworkWindowsFirewallLabStatusReported: 'agent.network.windows-firewall-lab.status.reported',
 } as const;
 
 export const AgentCommandNameSchema = withParser(
@@ -472,9 +444,9 @@ function parseLiteralRecord<T extends Record<string, string>, TParsed extends st
   literalMap: T,
   parse: (value: string) => TParsed
 ): { [K in keyof T]: TParsed } {
-  return Object.fromEntries(
-    Object.entries(literalMap).map(([key, value]) => [key, parse(value)])
-  ) as { [K in keyof T]: TParsed };
+  return Object.fromEntries(Object.entries(literalMap).map(([key, value]) => [key, parse(value)])) as {
+    [K in keyof T]: TParsed;
+  };
 }
 
 export const decodeAgentDeviceId = Schema.decodeUnknownSync(AgentDeviceIdSchema);
@@ -489,24 +461,19 @@ export function isAgentProtocolLogText(value: unknown): value is string {
 
 const agentCommandLiteralMap = (() => {
   const {
-    ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequest:
-      activityAppGameTimerParentPreferenceSetupRequest,
+    ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequest: activityAppGameTimerParentPreferenceSetupRequest,
     ...base
   } = AgentCommandNameLiteral;
 
   return {
     ...base,
-    ActivityAppGameTimerParentPreferenceSetupRequest:
-      activityAppGameTimerParentPreferenceSetupRequest,
-    LanPairingBrowserDiscoveryScan:
-      AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan,
+    ActivityAppGameTimerParentPreferenceSetupRequest: activityAppGameTimerParentPreferenceSetupRequest,
+    LanPairingBrowserDiscoveryScan: AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan,
     LanPairingAddDeviceRequest: AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest,
   } as const;
 })();
 
-export const AgentCommand = parseLiteralRecord(agentCommandLiteralMap, (value) =>
-  AgentCommandNameSchema.parse(value)
-);
+export const AgentCommand = parseLiteralRecord(agentCommandLiteralMap, (value) => AgentCommandNameSchema.parse(value));
 
 export const AgentLanPairingSupportedWebSocketCommand = {
   ProofSubmit: AgentCommand.LanPairingProofSubmit,
@@ -524,21 +491,16 @@ export const AgentLanPairingSupportedWebSocketCommand = {
 
 const agentEventLiteralMap = (() => {
   const {
-    ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequested:
-      activityAppGameTimerParentPreferenceSetupRequested,
+    ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequested: activityAppGameTimerParentPreferenceSetupRequested,
     ...base
   } = AgentEventNameLiteral;
 
   return {
     ...base,
-    ActivityAppGameTimerParentPreferenceSetupRequested:
-      activityAppGameTimerParentPreferenceSetupRequested,
-    LanPairingBrowserDiscoveryReported:
-      AgentLanBrowserRuntimeEventNameLiteral.BrowserDiscoveryReported,
+    ActivityAppGameTimerParentPreferenceSetupRequested: activityAppGameTimerParentPreferenceSetupRequested,
+    LanPairingBrowserDiscoveryReported: AgentLanBrowserRuntimeEventNameLiteral.BrowserDiscoveryReported,
     LanPairingAddDeviceReported: AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported,
   } as const;
 })();
 
-export const AgentEvent = parseLiteralRecord(agentEventLiteralMap, (value) =>
-  AgentEventNameSchema.parse(value)
-);
+export const AgentEvent = parseLiteralRecord(agentEventLiteralMap, (value) => AgentEventNameSchema.parse(value));

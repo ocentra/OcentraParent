@@ -10,6 +10,7 @@ use ocentra_billing_core::billing_subscription::{
     BillingProviderWebhookReceivedEvent, BillingRefundLifecycleState, BillingSubscriptionStatus,
 };
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 
 fn provider_event() -> BillingProviderWebhookEvent {
     provider_event_with(
@@ -32,7 +33,7 @@ fn provider_event_with(
 ) -> BillingProviderWebhookEvent {
     BillingProviderWebhookEvent {
         event_id: BillingProviderEventId::parse(event_id)
-            .expect("provider event ids are non-empty at the boundary"),
+            .expect_value("provider event ids are non-empty at the boundary"),
         event_kind: BillingProviderEventKind::SubscriptionUpdated,
         signature_state: BillingProviderSignatureState::Verified,
         duplicate_state,
@@ -312,7 +313,7 @@ fn rejected_provider_event_projects_no_entitlement_write() {
 fn provider_webhook_event_flow_records_decision_and_projects_entitlement_transition() {
     let received = BillingProviderWebhookReceivedEvent {
         aggregate_id: BillingAggregateId::parse("billing-household-default")
-            .expect("billing aggregate"),
+            .expect_value("billing aggregate"),
         provider_event: provider_event(),
     };
 
@@ -336,7 +337,7 @@ fn provider_webhook_event_flow_records_decision_and_projects_entitlement_transit
     assert_eq!(
         received
             .contract()
-            .expect("billing received contract")
+            .expect_value("billing received contract")
             .event_type
             .as_str(),
         "billing.provider-webhook.received"
@@ -344,7 +345,7 @@ fn provider_webhook_event_flow_records_decision_and_projects_entitlement_transit
     assert_eq!(
         transition
             .contract()
-            .expect("billing transition contract")
+            .expect_value("billing transition contract")
             .event_type
             .as_str(),
         "billing.entitlement.transition-projected"
@@ -354,7 +355,7 @@ fn provider_webhook_event_flow_records_decision_and_projects_entitlement_transit
 #[test]
 fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
     let aggregate_id =
-        BillingAggregateId::parse("billing-household-default").expect("billing aggregate");
+        BillingAggregateId::parse("billing-household-default").expect_value("billing aggregate");
     let fresh_received = BillingProviderWebhookReceivedEvent {
         aggregate_id: aggregate_id.clone(),
         provider_event: provider_event_with(
@@ -393,22 +394,22 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
     assert_eq!(
         fresh_received
             .idempotency_key()
-            .expect("fresh webhook idempotency key")
+            .expect_value("fresh webhook idempotency key")
             .as_str(),
         replayed_received
             .idempotency_key()
-            .expect("replayed webhook idempotency key")
+            .expect_value("replayed webhook idempotency key")
             .as_str()
     );
     assert_eq!(fresh_decision.decision_id, replayed_decision.decision_id);
     assert_eq!(
         fresh_decision
             .idempotency_key()
-            .expect("fresh decision idempotency key")
+            .expect_value("fresh decision idempotency key")
             .as_str(),
         replayed_decision
             .idempotency_key()
-            .expect("replayed decision idempotency key")
+            .expect_value("replayed decision idempotency key")
             .as_str()
     );
     assert_eq!(
@@ -418,11 +419,11 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
     assert_eq!(
         fresh_transition
             .idempotency_key()
-            .expect("fresh transition idempotency key")
+            .expect_value("fresh transition idempotency key")
             .as_str(),
         replayed_transition
             .idempotency_key()
-            .expect("replayed transition idempotency key")
+            .expect_value("replayed transition idempotency key")
             .as_str()
     );
     assert_eq!(

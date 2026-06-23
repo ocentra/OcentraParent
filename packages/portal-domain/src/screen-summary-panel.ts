@@ -3,8 +3,8 @@ import {
   ActivityScreenReadModelSchema,
   type ActivityScreenReadModel,
 } from '@ocentra-parent/schema-domain/activity-surface';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';
 
 const DetailSeparator = ' | ';

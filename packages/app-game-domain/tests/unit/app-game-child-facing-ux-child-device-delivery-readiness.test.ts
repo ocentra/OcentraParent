@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameChildUxCardSchema } from '../../src/app-game-child-facing-ux';
+import { AppGameChildUxCardSchema } from '@ocentra-parent/schema-domain/app-game-child-facing-ux';
 import {
   AppGameChildUxCapabilityState,
   AppGameChildUxClaimState,
@@ -9,10 +9,8 @@ import {
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
 } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
-import { buildAppGameChildUxHandoffReadModel } from '../../src/app-game-child-facing-ux-handoff';
-import { buildAppGameChildUxLocalHandoffArtifactReadModel } from '../../src/app-game-child-facing-ux-local-handoff';
-import { buildAppGameChildUxLocalOutboxProviderPreflightReadModel } from '../../src/app-game-child-facing-ux-local-outbox-provider-preflight';
-import { buildAppGameChildUxLocalOutboxProviderStatusHandoffReadModel } from '../../src/app-game-child-facing-ux-local-outbox-provider-status-handoff';
+import { buildAppGameChildUxHandoffReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-handoff';
+import { buildAppGameChildUxLocalHandoffArtifactReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-handoff';
 import {
   AppGameChildDeviceDeliveryReadinessReadModelSchema,
   AppGameChildDeviceDeliveryReadinessStatus,
@@ -27,6 +25,10 @@ import {
   ParentEvidenceReferenceKind,
   ParentPlatform,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppGameChildUxLocalOutboxProviderPreflightReadModel,
+  buildAppGameChildUxLocalOutboxProviderStatusHandoffReadModel,
+} from './app-game-child-facing-ux-local-outbox-centralized-schema-fixtures';
 
 const Timestamp = '2026-06-08T22:15:00Z';
 

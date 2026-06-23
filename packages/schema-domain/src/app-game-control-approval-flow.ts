@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentEvidenceReferenceSchema } from './family-references';
 import { ParentTimestampSchema } from './family-reference-primitives';
 
@@ -45,7 +41,9 @@ export const AppGameControlUnansweredFallbackSchema = withParser(
   Schema.Literal('deny', 'expire', 'observe-only', 'manual-required')
 );
 
-export const AppGameControlApprovalFlowReferenceSchema = brandedNonEmptyStringSchema('AppGameControlApprovalFlowReference');
+export const AppGameControlApprovalFlowReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameControlApprovalFlowReference'
+);
 
 export const AppGameControlSettingReferenceSchema = withParser(
   Schema.Struct({
@@ -67,4 +65,3 @@ export const AppGameControlApprovalCandidateSchema = withParser(
     )
   )
 );
-

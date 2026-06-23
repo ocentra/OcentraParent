@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AgentTrackingRetentionSettingsWriteDefaults } from './agent-tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
@@ -21,7 +16,9 @@ import {
   buildTrackingRetentionSettingsWriterBoundaryProof,
 } from './tracking-retention-settings-writer-boundary-proof';
 
-export const TrackingRetentionSettingsMutationIdSchema = brandedNonEmptyStringSchema('TrackingRetentionSettingsMutationId');
+export const TrackingRetentionSettingsMutationIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionSettingsMutationId'
+);
 
 export const TrackingRetentionSettingsMutationStateSchema = withParser(
   Schema.Literal('service-mutation-executed', 'remote-disabled-preserved')
@@ -188,4 +185,3 @@ function mutationRow(
     productClaimReady: false,
   });
 }
-

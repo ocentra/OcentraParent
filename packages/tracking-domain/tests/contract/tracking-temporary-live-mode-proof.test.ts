@@ -3,7 +3,7 @@ import {
   TrackingTemporaryLiveModeReadModelSchema,
   TrackingTemporaryLiveModeRowSchema,
   buildTrackingTemporaryLiveModeReadModel,
-} from '../../src/tracking-temporary-live-mode-proof';
+} from '@ocentra-parent/schema-domain/tracking-temporary-live-mode-proof';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 describe('tracking temporary live mode proof', () => {

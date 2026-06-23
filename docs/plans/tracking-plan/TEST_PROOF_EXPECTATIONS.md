@@ -21,6 +21,18 @@ Use the selected workpack's named proof artifacts first. If missing, derive:
 output/tracking-plan-proof/<workpack-file-stem>/
 ```
 
+## Central schema proof rule
+
+Every proof that touches a cross-boundary tracking shape must identify the canonical owner:
+
+```text
+schema-domain or neutral protocol/event/evidence boundary: canonical schema
+tracking-domain: helper, projection, proof adapter, and focused tests
+tracking-core: Rust mirror/parser/runtime helper
+```
+
+A proof is incomplete when a public contract, event payload, protocol shape, read-model DTO, policy input, notification input, custody/export shape, or proof metadata shape exists only as a tracking-local schema.
+
 ## Common command families
 
 Use the subset relevant to the selected workpack:
@@ -36,16 +48,23 @@ npm run lint:architecture -- --files packages/tracking-domain crates/tracking-co
 
 Audit note:
 
-- `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` is a
-  dependent proof step, not a cheap standalone green check. It requires the
-  product-readiness closure proof artifact first.
-- `node scripts/test/tracking-claim-audit-proof.mjs` now reruns from
-  `packages/tracking-domain` source and is the cheap WP33 aggregate proof gate
-  that should stay green before closure/source-reconciliation reruns.
-- `node scripts/test/tracking-product-readiness-closure-proof.mjs` no longer
-  depends on a clean `@ocentra-parent/parent-domain` build directly, but it is
-  currently blocked by missing upstream proof artifacts from the pre-device,
-  runtime, service-read-model, and mobile proof chain.
+- `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` is a dependent proof step, not a cheap standalone green check. It requires the product-readiness closure proof artifact first.
+- `node scripts/test/tracking-claim-audit-proof.mjs` now reruns from `packages/tracking-domain` source and is the cheap WP33 aggregate proof gate that should stay green before closure/source-reconciliation reruns.
+- `node scripts/test/tracking-product-readiness-closure-proof.mjs` must carry blocker rows rather than changing product-ready claims when upstream artifacts are missing.
+
+## Tracking E2E meaning
+
+```text
+schema E2E: canonical schema owner -> helper/runtime mirror -> invalid shape rejection.
+evidence E2E: sample -> accuracy/source/freshness -> stale/manual-required handling.
+status E2E: heartbeat/battery/connectivity -> degraded/offline state.
+rule E2E: evidence + parent rule -> evaluated state -> no weak-evidence overclaim.
+retention E2E: evidence refs -> retention/delete/export/tombstone -> custody proof.
+policy E2E: evidence refs -> policy decision -> no AI/direct notification authority.
+event-chain E2E: canonical events -> journal/replay/projection -> no duplicate side effects.
+portal E2E: service/event read model -> UI state -> screenshot/accessibility proof only.
+rollout E2E: accepted proof roots + blockers -> claim audit -> product-ready remains false unless hard proof exists.
+```
 
 ## Required negative states
 
@@ -57,6 +76,7 @@ offline state visible
 manual-required state visible
 single-machine proof not physical-device proof
 UI read-only proof not delivery/runtime proof
+local schema not accepted as public contract unless promoted
 ```
 
 ## Failure conditions
@@ -64,3 +84,4 @@ UI read-only proof not delivery/runtime proof
 - Do not mark DONE or PR_READY from happy-path-only proof.
 - Do not store proof inventories inside this plan folder.
 - Do not claim physical platform behavior unless the selected workpack explicitly proves it.
+- Do not allow tracking-domain/tracking-core to become canonical schema owners for cross-boundary shapes.

@@ -5,11 +5,31 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainObservedSignal, ChildRuntimeDomain,
 };
 
+trait OptionRequiredExt<T> {
+    fn required(self, context: &str) -> T;
+}
+
+impl<T> OptionRequiredExt<T> for Option<T> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|| unreachable!("{context}"))
+    }
+}
+
+trait ResultRequiredExt<T, E> {
+    fn required(self, context: &str) -> T;
+}
+
+impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    }
+}
+
 #[tokio::test]
 async fn default_child_domain_runtime_flows_cover_child_owned_domains() {
     let reports = publish_default_child_domain_runtime_flows()
         .await
-        .expect("default child domain runtime flows");
+        .required("default child domain runtime flows");
     let domains = reports
         .iter()
         .map(|report| report.domain)
@@ -41,7 +61,7 @@ async fn app_inventory_observation_records_evidence_without_side_effect_requests
         ocentra_app_core::AppObservationIntent::InventoryObservationOnly,
     ))
     .await
-    .expect("app inventory flow");
+    .required("app inventory flow");
 
     assert_eq!(report.domain, ChildRuntimeDomain::App);
     assert_eq!(
@@ -61,19 +81,21 @@ async fn browser_ambiguous_navigation_runs_ai_policy_notification_chain() {
         ocentra_browser_core::BrowserObservationIntent::AmbiguousNavigationRequiresAi,
     ))
     .await
-    .expect("browser ambiguous navigation flow");
+    .required("browser ambiguous navigation flow");
 
-    let ai_request = report.ai_analysis_requested.expect("browser ai request");
-    let ai_completed = report.ai_analysis_completed.expect("browser ai completed");
+    let ai_request = report.ai_analysis_requested.required("browser ai request");
+    let ai_completed = report
+        .ai_analysis_completed
+        .required("browser ai completed");
     let policy_request = report
         .policy_evaluation_requested
-        .expect("browser policy request");
+        .required("browser policy request");
     let violation = report
         .policy_violation_detected
-        .expect("browser policy violation");
+        .required("browser policy violation");
     let notification = report
         .notification_requested
-        .expect("browser notification request");
+        .required("browser notification request");
 
     assert_eq!(report.domain, ChildRuntimeDomain::Browser);
     assert_eq!(

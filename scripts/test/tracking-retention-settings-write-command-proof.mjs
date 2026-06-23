@@ -42,7 +42,9 @@ async function main() {
     import.meta.url
   );
   const request = protocolModule.AgentTrackingRetentionSettingsWriteRequestSchema.parse(writeRequest(protocolModule));
-  const result = protocolModule.AgentTrackingRetentionSettingsWriteResultSchema.parse(writeResult(protocolModule, request));
+  const result = protocolModule.AgentTrackingRetentionSettingsWriteResultSchema.parse(
+    writeResult(protocolModule, request)
+  );
   const proof = {
     schemaVersion: result.schemaVersion,
     proofMode,
@@ -63,7 +65,8 @@ async function main() {
     },
     productClaims: {
       durableSettingsPersisted:
-        result.durableSettingsPersistenceState === protocolModule.AgentTrackingDurableSettingsPersistenceState.Persisted,
+        result.durableSettingsPersistenceState ===
+        protocolModule.AgentTrackingDurableSettingsPersistenceState.Persisted,
       portalWritableUiClaimed:
         result.portalWritableUiClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
       platformRuntimeClaimed:
@@ -76,8 +79,7 @@ async function main() {
         result.notificationReceiptClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
       physicalDeviceClaimed:
         result.physicalDeviceClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
-      authorityClaimed:
-        result.authorityClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      authorityClaimed: result.authorityClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
       productClaimReady: result.productClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
     },
     commands,
@@ -157,7 +159,10 @@ function writeResult(protocolModule, request) {
 }
 
 function assertProof(proof) {
-  if (proof.result.commandTransportClaimState !== 'claimed' || proof.result.serviceWritePreflightClaimState !== 'claimed') {
+  if (
+    proof.result.commandTransportClaimState !== 'claimed' ||
+    proof.result.serviceWritePreflightClaimState !== 'claimed'
+  ) {
     throw new Error('Retention write command proof must claim command transport and service preflight.');
   }
   if (proof.result.serviceMutationExecutionState !== 'claimed') {

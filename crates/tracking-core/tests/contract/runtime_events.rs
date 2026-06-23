@@ -1,10 +1,12 @@
 use ocentra_eventing::envelope::DomainEvent;
-use ocentra_parent_agent_protocol::{
-    constants, tracking_evidence_ref_from_observation_id, TrackingCapabilityStatus,
-    TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef, TrackingObservationId,
-    TrackingParentActionRequirement, TrackingPolicyRuleRef, TrackingPolicySeverity,
-    TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingRuntimeMode,
-    TrackingTimestamp,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_evidence_ref_from_observation_id, TrackingCapabilityStatus, TrackingChildDeviceId,
+    TrackingChildProfileId, TrackingEvidenceRef, TrackingObservationId, TrackingPolicyRuleRef,
+    TrackingPolicySeverity, TrackingPolicyViolationId, TrackingTimestamp, TrackingTransitionKind,
+};
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingParentActionRequirement, TrackingPolicyViolationDetectedEvent, TrackingRuntimeMode,
 };
 use ocentra_tracking_core::geofence::TrackingGeofenceInsideState;
 use ocentra_tracking_core::parent_acknowledgement::record_parent_acknowledgement;
@@ -15,7 +17,8 @@ fn tracking_observe_only_evidence_carries_no_parent_action_authority() {
     observed.config.tracking_mode = TrackingRuntimeMode::ObserveOnly;
     let evidence =
         ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
-    let serialized = serde_json::to_value(&evidence).expect("tracking evidence serializes");
+    let serialized = serde_json::to_value(&evidence)
+        .unwrap_or_else(|_| unreachable!("tracking evidence serializes"));
 
     assert_eq!(
         evidence.parent_action_requirement,
@@ -38,16 +41,21 @@ fn tracking_geofence_transition_event_uses_protocol_contract() {
             capability_status: TrackingCapabilityStatus::parse(
                 constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
             )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
+            .unwrap_or_else(|_| {
+                unreachable!("{}", constants::tracking_runtime::CAPABILITY_STATUS_LIVE)
+            }),
             distance_meters: Some(0),
             low_accuracy_near_boundary: false,
             grace_period_active: false,
         },
     );
 
-    let contract = event
-        .contract()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let contract = event.contract().unwrap_or_else(|_| {
+        unreachable!(
+            "{}",
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
+        )
+    });
 
     assert_eq!(
         contract.event_type.as_str(),
@@ -68,7 +76,7 @@ fn tracking_geofence_transition_event_serializes_rule_and_evidence_citations() {
     let mut observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     observed.observation_id =
         TrackingObservationId::parse("tracking-observation-contract-geofence-citations")
-            .expect("tracking contract geofence observation id parses");
+            .unwrap_or_else(|_| unreachable!("tracking contract geofence observation id parses"));
     let evidence_ref = tracking_evidence_ref_from_observation_id(&observed.observation_id);
 
     let event = ocentra_tracking_core::geofence::detect_geofence_transition(
@@ -79,13 +87,16 @@ fn tracking_geofence_transition_event_serializes_rule_and_evidence_citations() {
             capability_status: TrackingCapabilityStatus::parse(
                 constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
             )
-            .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
+            .unwrap_or_else(|_| {
+                unreachable!("{}", constants::tracking_runtime::CAPABILITY_STATUS_LIVE)
+            }),
             distance_meters: Some(125),
             low_accuracy_near_boundary: false,
             grace_period_active: false,
         },
     );
-    let serialized = serde_json::to_value(&event).expect("tracking geofence transition serializes");
+    let serialized = serde_json::to_value(&event)
+        .unwrap_or_else(|_| unreachable!("tracking geofence transition serializes"));
 
     assert_eq!(
         serialized["geofenceRuleRef"],
@@ -103,35 +114,56 @@ fn tracking_parent_acknowledgement_event_uses_protocol_contract() {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        }),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID)
+        }),
         violation_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        .unwrap_or_else(|_| {
+            unreachable!(
+                "{}",
+                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+            )
+        }),
         policy_rule_ref: TrackingPolicyRuleRef::parse(
             constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
         )
-        .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE),
+        .unwrap_or_else(|_| {
+            unreachable!(
+                "{}",
+                constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+            )
+        }),
         severity: TrackingPolicySeverity::parse(
             constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
         )
-        .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::POLICY_SEVERITY_REVIEW)
+        }),
         detected_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+            .unwrap_or_else(|_| {
+                unreachable!("{}", constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            }),
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        .unwrap_or_else(|_| unreachable!("{}", constants::tracking_runtime::DEFAULT_EVIDENCE_REF))],
     };
     let acknowledgement = record_parent_acknowledgement(&violation);
 
-    let contract = acknowledgement
-        .contract()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let contract = acknowledgement.contract().unwrap_or_else(|_| {
+        unreachable!(
+            "{}",
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
+        )
+    });
 
     assert_eq!(
         contract.event_type.as_str(),
@@ -148,19 +180,27 @@ fn tracking_expected_place_event_carries_schedule_evidence_and_parent_action() {
     let expected_place = ocentra_tracking_core::expected_place::evaluate_expected_place_state(
         &evidence,
         ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
-            transition_kind: ocentra_parent_agent_protocol::TrackingTransitionKind::parse(
+            transition_kind: TrackingTransitionKind::parse(
                 constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
             )
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
+            .unwrap_or_else(|_| {
+                unreachable!(
+                    "{}",
+                    constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL
+                )
+            }),
             ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
         },
     );
 
-    let contract = expected_place
-        .contract()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
-    let serialized =
-        serde_json::to_value(&expected_place).expect("tracking expected-place event serializes");
+    let contract = expected_place.contract().unwrap_or_else(|_| {
+        unreachable!(
+            "{}",
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
+        )
+    });
+    let serialized = serde_json::to_value(&expected_place)
+        .unwrap_or_else(|_| unreachable!("tracking expected-place event serializes"));
 
     assert_eq!(
         contract.event_type.as_str(),

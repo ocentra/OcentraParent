@@ -1,4 +1,5 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_family_identity_core::family_identity::{
     authorize_child_device_scope, record_device_scope_decision, ActorAccountState,
     ChildProfileBindingState, DeviceOwnershipScope, DeviceScopeAuthorizationState,
@@ -140,9 +141,9 @@ fn missing_child_profile_binding_rejects_device_scope() {
 fn device_scope_request_records_typed_decision_event() {
     let request = DeviceScopeEvaluationRequestedEvent {
         aggregate_id: FamilyIdentityAggregateId::parse(FAMILY_AGGREGATE_ID)
-            .expect("family aggregate id"),
+            .expect_value("family aggregate id"),
         evaluation_id: DeviceScopeEvaluationId::parse(DEVICE_SCOPE_EVALUATION_ID)
-            .expect("device scope evaluation id"),
+            .expect_value("device scope evaluation id"),
         input: parent_child_device_input(HouseholdRole::ParentOwner),
     };
 
@@ -157,7 +158,7 @@ fn device_scope_request_records_typed_decision_event() {
     assert_eq!(
         request
             .contract()
-            .expect("device scope request contract")
+            .expect_value("device scope request contract")
             .event_type
             .as_str(),
         DEVICE_SCOPE_REQUESTED_EVENT_TYPE
@@ -165,7 +166,7 @@ fn device_scope_request_records_typed_decision_event() {
     assert_eq!(
         decision
             .contract()
-            .expect("device scope decision contract")
+            .expect_value("device scope decision contract")
             .event_type
             .as_str(),
         DEVICE_SCOPE_DECISION_EVENT_TYPE

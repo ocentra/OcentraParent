@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameBroadBlockingGateMatrix } from '../../src/app-game-broad-blocking-proof-gate-data';
 import {
   AppGameBroadBlockingGateMatrixSchema,
   AppGameBroadBlockingGateSchema,
-} from '../../src/app-game-broad-blocking-proof-gates';
+} from '@ocentra-parent/schema-domain/app-game-broad-blocking-proof-gates';
 import { EnforcementMode } from '@ocentra-parent/schema-domain/enforcement';
+import { AppGameBroadBlockingGateMatrix } from '@ocentra-parent/schema-domain/app-game-broad-blocking-proof-gate-data';
 
 const gateFor = (gateId: string) => {
   const gate = AppGameBroadBlockingGateMatrix.gates.find((candidate) => candidate.gateId === gateId);

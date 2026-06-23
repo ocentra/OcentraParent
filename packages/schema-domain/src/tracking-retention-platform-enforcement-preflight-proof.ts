@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -19,20 +14,25 @@ export const TrackingRetentionPlatformEnforcementPreflightPlatformSchema = Schem
 
 export const TrackingRetentionPlatformEnforcementPreflightStatusSchema = Schema.Literal('manual-required');
 
-export const TrackingRetentionPlatformEnforcementPreflightRowIdSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightRowId');
+export const TrackingRetentionPlatformEnforcementPreflightRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionPlatformEnforcementPreflightRowId'
+);
 
-export const TrackingRetentionPlatformEnforcementPreflightPathSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightPath');
+export const TrackingRetentionPlatformEnforcementPreflightPathSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionPlatformEnforcementPreflightPath'
+);
 
-export const TrackingRetentionPlatformEnforcementPreflightArtifactRefSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightArtifactRef');
+export const TrackingRetentionPlatformEnforcementPreflightArtifactRefSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionPlatformEnforcementPreflightArtifactRef'
+);
 
-export const TrackingRetentionPlatformEnforcementPreflightCommandSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightCommand');
+export const TrackingRetentionPlatformEnforcementPreflightCommandSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionPlatformEnforcementPreflightCommand'
+);
 
-export const TrackingRetentionPlatformEnforcementPreflightCriterionSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightCriterion');
+export const TrackingRetentionPlatformEnforcementPreflightCriterionSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionPlatformEnforcementPreflightCriterion'
+);
 
 export const RequiredTrackingRetentionPlatformEnforcementArtifactRef =
   'tracking-retention/platform-runtime-retention-enforcement.json';
@@ -337,4 +337,3 @@ function preflightRow(
     productClaimReady: false,
   });
 }
-

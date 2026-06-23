@@ -1,10 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, SocialAlertReportReadModelSnapshot,
-    SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED, SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY,
-    SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK, SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED,
-    SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED,
-    SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED,
-};
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::social_alert_report_read_model::SocialAlertReportReadModelSnapshot;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED;
 use serde::de::DeserializeOwned;
 
 use super::social_alert_report_read_model_payload::{
@@ -58,14 +61,14 @@ fn social_alert_report_payload_reports_honest_service_rows() {
     );
 }
 
-fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
+fn string_payload<T>(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> T
 where
     T: DeserializeOwned,
 {
     match &payload[field] {
         LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

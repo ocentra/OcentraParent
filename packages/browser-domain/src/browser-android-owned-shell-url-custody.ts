@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
 import { ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
@@ -292,4 +292,3 @@ function physicalUrlRowsNeedOwnedShellProof(row: BrowserAndroidOwnedShellUrlCust
       row.localProofPageObserved)
   );
 }
-

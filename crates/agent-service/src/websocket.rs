@@ -1,12 +1,17 @@
 use axum::extract::ws::{Message, WebSocket};
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    LogFieldValue, LogLevel,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
 };
 
+mod command_classifiers;
 mod policy_request_confirm;
 mod tracking_retention_settings_write;
 
+use self::command_classifiers::{
+    is_activity_command, is_browser_policy_command, is_lan_runtime_command,
+};
 use self::policy_request_confirm::build_policy_request_assistant_preview_confirm_report;
 use self::tracking_retention_settings_write::build_tracking_retention_settings_write_report;
 
@@ -83,7 +88,12 @@ pub(crate) async fn handle_command_text_for_test(
     lan_pairing: LanPairingRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    test_helpers::handle_command_text_for_test(text, lan_pairing, origin).await
+    Box::pin(test_helpers::handle_command_text_for_test(
+        text,
+        lan_pairing,
+        origin,
+    ))
+    .await
 }
 
 #[cfg(test)]
@@ -93,11 +103,13 @@ pub(crate) async fn handle_command_text_with_browser_policy_for_test(
     browser_policy: BrowserPolicyRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    test_helpers::handle_command_text_with_browser_policy_for_test(
-        text,
-        lan_pairing,
-        browser_policy,
-        origin,
+    Box::pin(
+        test_helpers::handle_command_text_with_browser_policy_for_test(
+            text,
+            lan_pairing,
+            browser_policy,
+            origin,
+        ),
     )
     .await
 }
@@ -109,11 +121,13 @@ pub(crate) async fn handle_command_text_with_screen_settings_for_test(
     screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    test_helpers::handle_command_text_with_screen_settings_for_test(
-        text,
-        lan_pairing,
-        screen_settings,
-        origin,
+    Box::pin(
+        test_helpers::handle_command_text_with_screen_settings_for_test(
+            text,
+            lan_pairing,
+            screen_settings,
+            origin,
+        ),
     )
     .await
 }
@@ -150,13 +164,13 @@ pub async fn handle_socket(
 
         match message {
             Message::Text(text) => {
-                let event = handle_command_text(
+                let event = Box::pin(handle_command_text(
                     text.as_str(),
                     lan_pairing.clone(),
                     browser_policy.clone(),
                     screen_settings.clone(),
                     origin.clone(),
-                )
+                ))
                 .await;
                 if send_event(&mut socket, event).await.is_err() {
                     break;
@@ -182,13 +196,13 @@ async fn handle_command_text(
 ) -> AgentEventEnvelope {
     match serde_json::from_str::<AgentCommandEnvelope>(text) {
         Ok(command) => {
-            handle_command(
+            Box::pin(handle_command(
                 command,
                 lan_pairing,
                 browser_policy,
                 screen_settings,
                 origin,
-            )
+            ))
             .await
         }
         Err(error) => build_event(
@@ -222,8 +236,13 @@ async fn handle_command(
             LanCommandDecision::Respond(event) => return event,
         };
 
-    let mut event =
-        build_command_event(command, lan_pairing, browser_policy, screen_settings).await;
+    let mut event = Box::pin(build_command_event(
+        command,
+        lan_pairing,
+        browser_policy,
+        screen_settings,
+    ))
+    .await;
 
     if let Some(audit_fields) = audit_fields {
         event.payload.extend(audit_fields);
@@ -300,75 +319,10 @@ async fn build_command_event(
             build_enforcement_command_report(command).await
         }
         command_name if is_lan_runtime_command(&command_name) => {
-            build_lan_pairing_status_report(lan_pairing, command)
+            build_lan_pairing_status_report(&lan_pairing, command)
         }
         _ => build_log_snapshot_report(command),
     }
-}
-
-fn is_activity_command(command: &AgentCommandName) -> bool {
-    matches!(
-        command,
-        AgentCommandName::AgentActivityIngestStatusGet
-            | AgentCommandName::AgentActivityRecentSummaryGet
-            | AgentCommandName::AgentActivityMemoryGraphGet
-            | AgentCommandName::AgentActivityReportDailyGenerate
-            | AgentCommandName::AgentActivityReportWeeklyGenerate
-            | AgentCommandName::AgentActivityReportMonthlyGenerate
-            | AgentCommandName::AgentActivityReportSave
-            | AgentCommandName::AgentActivityReportHistoryList
-            | AgentCommandName::AgentActivityScreenReadModelGet
-            | AgentCommandName::AgentActivityAppUseReadModelGet
-            | AgentCommandName::AgentActivityBrowserReadModelGet
-            | AgentCommandName::AgentActivityGamesReadModelGet
-            | AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
-            | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
-            | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
-            | AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
-            | AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet
-            | AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet
-            | AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet
-            | AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet
-            | AgentCommandName::AgentActivityAppGameAdapterDispatchExecute
-            | AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet
-            | AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest
-            | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
-            | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
-            | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
-            | AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet
-            | AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet
-            | AgentCommandName::AgentActivityNetworkReadModelGet
-            | AgentCommandName::AgentActivityTrackingReadModelGet
-            | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite
-    )
-}
-
-fn is_lan_runtime_command(command: &AgentCommandName) -> bool {
-    matches!(
-        command,
-        AgentCommandName::AgentLanPairingProofSubmit
-            | AgentCommandName::AgentLanPairingRouteSelect
-            | AgentCommandName::AgentLanPairingRouteRevoke
-            | AgentCommandName::AgentLanPairingStatusGet
-            | AgentCommandName::AgentLanPairingBrowserDiscoveryScan
-            | AgentCommandName::AgentLanPairingAddDeviceRequest
-            | AgentCommandName::AgentLanPairingControllerLeaseRenew
-            | AgentCommandName::AgentLanPairingControllerLeaseRelease
-            | AgentCommandName::AgentLanPairingControllerLeaseTakeover
-            | AgentCommandName::AgentLanAiProviderStatusGet
-            | AgentCommandName::AgentLanAiJobSubmit
-    )
-}
-
-fn is_browser_policy_command(command: &AgentCommandName) -> bool {
-    matches!(
-        command,
-        AgentCommandName::AgentBrowserPolicyGet
-            | AgentCommandName::AgentBrowserPolicyPreview
-            | AgentCommandName::AgentBrowserPolicyPatch
-            | AgentCommandName::AgentBrowserPolicyReplace
-            | AgentCommandName::AgentBrowserPolicyRollback
-    )
 }
 
 async fn build_enforcement_command_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
@@ -648,6 +602,6 @@ fn build_watcher_status_report(command: AgentCommandEnvelope) -> AgentEventEnvel
 }
 
 async fn send_event(socket: &mut WebSocket, event: AgentEventEnvelope) -> Result<(), axum::Error> {
-    let text = serde_json::to_string(&event).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let text = serde_json::to_string(&event).map_err(axum::Error::new)?;
     socket.send(Message::Text(text.into())).await
 }

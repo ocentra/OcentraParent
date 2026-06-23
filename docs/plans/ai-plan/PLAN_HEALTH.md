@@ -27,6 +27,9 @@ This file records documentation health and consistency checks for the plan. It i
 ## Consistency warnings
 
 - Possible status mismatch: implementation checklist is 168/169 checked, but 47/48 workpacks still contain open boxes. Do not claim the plan complete until the assigned workpack/checklist source is reconciled.
+- Current execution source is the assigned workpack plus proof root. Historical checked rows do not override open workpack boxes.
+- Central AI contracts belong in `schema-domain` when the shape crosses package, crate, app, or plan boundaries. Do not repair stale AI work by recreating canonical contracts in `ai-domain`.
+- Direct runtime coupling from AI to browser, screen, tracking, network, app/game, policy, enforcement, LAN, or remote owners is unhealthy unless the selected workpack records a temporary compatibility reason and a handoff replacement route.
 
 ## Required hygiene before PR_READY
 
@@ -35,6 +38,8 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Do not claim PR_READY from schema-only, mock-only, dry-run-only, or docs-only proof when runtime, provider, custody, policy handoff, UI, or performance proof is required.
+- Do not claim feature completeness until the relevant E2E tier in `TEST_PROOF_EXPECTATIONS.md` is explicitly proven or blocked.
 
 ## Agent Route Walkthrough
 

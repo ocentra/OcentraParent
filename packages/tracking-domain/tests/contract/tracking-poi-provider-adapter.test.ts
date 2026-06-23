@@ -4,11 +4,13 @@ import {
   TrackingGooglePlacesNearbySearchInputSchema,
   TrackingPoiProviderStatus,
   TrackingPoiProviderReadModelSchema,
+  googlePlacesFieldMaskIsProductionSafe,
+} from '@ocentra-parent/schema-domain/tracking-poi-provider-adapter';
+import {
   buildGooglePlacesNearbyReadModel,
   buildGooglePlacesNearbySearchRequest,
   buildGooglePlacesProviderFailureReadModel,
   buildTrackingPoiProviderParityRows,
-  googlePlacesFieldMaskIsProductionSafe,
 } from '../../src/tracking-poi-provider-adapter';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 

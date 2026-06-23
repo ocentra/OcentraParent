@@ -1,4 +1,7 @@
-import { AgentCommandNameSchema, type AgentCommandName } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
+  AgentCommandNameSchema,
+  type AgentCommandName,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   LocalApiManifest,
   LocalApiRouteId,

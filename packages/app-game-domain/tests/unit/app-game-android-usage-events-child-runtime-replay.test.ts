@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { decodeAppGameAndroidPhysicalDeviceProof } from '../../src/app-game-android-physical-device-proof';
-import { createAppGameAndroidUsageEventsReplayReadModel } from '../../src/app-game-android-usage-events-replay';
+import { decodeAppGameAndroidPhysicalDeviceProof } from '@ocentra-parent/schema-domain/app-game-android-physical-device-proof';
+import { createAppGameAndroidUsageEventsReplayReadModel } from '@ocentra-parent/schema-domain/app-game-android-usage-events-replay';
 import {
   AppGameAndroidUsageEventsChildRuntimeReplayReadModelSchema,
   createAppGameAndroidUsageEventsChildRuntimeReplayReadModel,
   summarizeAppGameAndroidUsageEventsChildRuntimeReplayReadModel,
-} from '../../src/app-game-android-usage-events-child-runtime-replay';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-child-runtime-replay';
 
 describe('app-game Android UsageEvents child runtime replay', () => {
   it('attaches redacted UsageEvents replay counts to a child runtime consumer boundary', () => {

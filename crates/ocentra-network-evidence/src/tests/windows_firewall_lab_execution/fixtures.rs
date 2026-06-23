@@ -8,6 +8,7 @@ use crate::{
     NetworkWindowsFirewallLabUnsupportedClaims, NetworkWindowsFirewallProofState,
     NetworkWindowsFirewallTargetKind,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 pub fn lab_execution_input() -> NetworkWindowsFirewallLabExecutionInput {
     NetworkWindowsFirewallLabExecutionInput {
@@ -52,7 +53,7 @@ pub fn adapter_proof(
     input: NetworkWindowsFirewallAdapterProofInput,
 ) -> NetworkWindowsFirewallAdapterProof {
     let proof = plan_network_windows_firewall_adapter_proof(input)
-        .expect("adapter proof fixture should be valid");
+        .expect_value("adapter proof fixture should be valid");
     if proof.proof_state == NetworkWindowsFirewallProofState::ApplyReady {
         assert!(proof.adapter_apply_authorized);
     }
@@ -114,5 +115,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: Some(" adapter-capability-proof-38a ".to_owned()),
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

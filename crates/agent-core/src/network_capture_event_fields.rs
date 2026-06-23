@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityObservationMode, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityObservationMode,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::network_capture::NetworkObservation;
 

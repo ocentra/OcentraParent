@@ -104,7 +104,14 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
     ),
   ],
   runtimeOperations: [
-    runtimeOperation('account-status-read', 'not-implemented', 'none', 'not-implemented', true, ProviderUnavailableFailure),
+    runtimeOperation(
+      'account-status-read',
+      'not-implemented',
+      'none',
+      'not-implemented',
+      true,
+      ProviderUnavailableFailure
+    ),
     runtimeOperation(
       'subscription-status-read',
       'not-implemented',
@@ -129,7 +136,14 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
       true,
       ValidationFailedFailure
     ),
-    runtimeOperation('download-status-read', 'not-implemented', 'none', 'not-implemented', true, NetworkUnavailableFailure),
+    runtimeOperation(
+      'download-status-read',
+      'not-implemented',
+      'none',
+      'not-implemented',
+      true,
+      NetworkUnavailableFailure
+    ),
     runtimeOperation(
       'provider-webhook-sync',
       'not-implemented',

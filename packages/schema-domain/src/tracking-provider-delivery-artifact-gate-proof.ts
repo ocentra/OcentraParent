@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
@@ -12,9 +7,13 @@ export const TrackingProviderDeliveryArtifactGateStatusSchema = Schema.Literal(
   'artifact-set-present'
 );
 
-export const TrackingProviderDeliveryArtifactGatePathSchema = brandedNonEmptyStringSchema('TrackingProviderDeliveryArtifactGatePath');
+export const TrackingProviderDeliveryArtifactGatePathSchema = brandedNonEmptyStringSchema(
+  'TrackingProviderDeliveryArtifactGatePath'
+);
 
-export const TrackingProviderDeliveryArtifactGateRowIdSchema = brandedNonEmptyStringSchema('TrackingProviderDeliveryArtifactGateRowId');
+export const TrackingProviderDeliveryArtifactGateRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingProviderDeliveryArtifactGateRowId'
+);
 
 export const TrackingProviderDeliveryArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -216,4 +215,3 @@ function providerDeliveryArtifactRow(
     productClaimReady: false,
   });
 }
-

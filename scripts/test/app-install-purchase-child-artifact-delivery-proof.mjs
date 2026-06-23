@@ -69,9 +69,9 @@ async function main() {
     proofMode: 'app-install-purchase-child-artifact-delivery-proof',
     commands,
     evidence: {
-      childArtifactDeliveryContract: 'packages/app-game-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
-      sourcePlatformArtifactContract: 'packages/app-game-domain/src/app-install-purchase-platform-artifact-proof.ts',
-      sourceRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-runtime-proof.ts',
+      childArtifactDeliveryContract: 'packages/schema-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
+      sourcePlatformArtifactContract: 'packages/schema-domain/src/app-install-purchase-platform-artifact-proof.ts',
+      sourceRuntimeContract: 'packages/schema-domain/src/app-install-purchase-runtime-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-child-artifact-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

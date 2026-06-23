@@ -6,6 +6,7 @@ use crate::{
     NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionInput,
     NetworkLinuxNftablesLabUnsupportedClaims,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 pub fn lab_execution_input() -> NetworkLinuxNftablesLabExecutionInput {
     NetworkLinuxNftablesLabExecutionInput {
@@ -77,8 +78,8 @@ pub fn command(
 }
 
 pub fn gate_proof(input: NetworkLinuxAdapterGateInput) -> NetworkLinuxAdapterGateProof {
-    let proof =
-        plan_network_linux_adapter_gate(input).expect("Linux adapter gate fixture should be valid");
+    let proof = plan_network_linux_adapter_gate(input)
+        .expect_value("Linux adapter gate fixture should be valid");
     if proof.gate_state == NetworkLinuxAdapterGateState::DistroProofReady {
         assert!(proof.distro_proof_ready);
     }
@@ -141,5 +142,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: Some(" adapter-capability-proof-42a ".to_owned()),
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

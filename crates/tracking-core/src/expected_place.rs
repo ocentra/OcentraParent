@@ -1,14 +1,14 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_evaluation_id_from_observation_id, TrackingCapabilityStatus,
+    TrackingExpectedPlaceState, TrackingReasonCode, TrackingScheduleId, TrackingTransitionKind,
+};
 use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingEvidenceRecordedEvent, TrackingExpectedPlaceExceptionState,
     TrackingExpectedPlaceStateEvaluatedEvent, TrackingParentActionRequirement,
 };
-use ocentra_parent_agent_protocol::{
-    tracking_evaluation_id_from_observation_id, TrackingCapabilityStatus,
-    TrackingExpectedPlaceState, TrackingReasonCode, TrackingScheduleId, TrackingTransitionKind,
-};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct TrackingExpectedPlaceWindow {
     pub start_minute_of_day: u16,
     pub end_minute_of_day: u16,
@@ -39,12 +39,16 @@ pub fn expected_place_window_contains_minute(
     window: TrackingExpectedPlaceWindow,
     minute_of_day: u16,
 ) -> bool {
-    if window.start_minute_of_day <= window.end_minute_of_day {
-        return minute_of_day >= window.start_minute_of_day
-            && minute_of_day <= window.end_minute_of_day;
+    let TrackingExpectedPlaceWindow {
+        start_minute_of_day,
+        end_minute_of_day,
+    } = window;
+
+    if start_minute_of_day <= end_minute_of_day {
+        return minute_of_day >= start_minute_of_day && minute_of_day <= end_minute_of_day;
     }
 
-    minute_of_day >= window.start_minute_of_day || minute_of_day <= window.end_minute_of_day
+    minute_of_day >= start_minute_of_day || minute_of_day <= end_minute_of_day
 }
 
 pub fn evaluate_expected_place_state(
@@ -61,8 +65,10 @@ pub fn evaluate_expected_place_state(
         expected_place_ref: event.expected_place_ref.clone(),
         source_observation_id: event.source_observation_id.clone(),
         source_observed_at: event.source_observed_at.clone(),
-        expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
-            .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN),
+        expected_place_state: parse_contract_text(
+            expected_place_state,
+            TrackingExpectedPlaceState::parse,
+        ),
         distance_tolerance_meters: evaluation.distance_tolerance_meters,
         late_grace_seconds: evaluation.late_grace_seconds,
         early_exit_grace_seconds: evaluation.early_exit_grace_seconds,
@@ -94,61 +100,59 @@ fn expected_place_outcome_for(
     evaluation: &TrackingExpectedPlaceEvaluation,
 ) -> (&'static str, Vec<TrackingReasonCode>) {
     if !evaluation.schedule_enabled {
-        return (
-            constants::tracking_runtime::EXPECTED_PLACE_STATE_MANUAL_REQUIRED,
-            vec![reason_code(
-                constants::tracking_runtime::REASON_EXPECTED_PLACE_SCHEDULE_DISABLED,
-            )],
+        return manual_required_outcome(
+            constants::tracking_runtime::REASON_EXPECTED_PLACE_SCHEDULE_DISABLED,
         );
     }
 
     if capability_requires_manual_review(&evaluation.capability_status) {
-        return (
-            constants::tracking_runtime::EXPECTED_PLACE_STATE_MANUAL_REQUIRED,
-            vec![reason_code(
-                constants::tracking_runtime::REASON_FRESH_LOCATION_REQUIRED,
-            )],
+        return manual_required_outcome(
+            constants::tracking_runtime::REASON_FRESH_LOCATION_REQUIRED,
         );
     }
 
     if let Some(active_exception) = &evaluation.active_exception {
-        return (
-            constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN,
-            vec![reason_code(reason_code_for_expected_place_exception(
-                active_exception,
-            ))],
-        );
+        return unknown_outcome(reason_code_for_expected_place_exception(active_exception));
     }
 
     if !evaluation.within_expected_window {
-        return (
-            constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN,
-            vec![reason_code(
-                constants::tracking_runtime::REASON_OUTSIDE_EXPECTED_PLACE_WINDOW,
-            )],
-        );
+        return unknown_outcome(constants::tracking_runtime::REASON_OUTSIDE_EXPECTED_PLACE_WINDOW);
     }
 
     if evaluation.late_grace_active {
-        return (
-            constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN,
-            vec![reason_code(
-                constants::tracking_runtime::REASON_EXPECTED_PLACE_LATE_GRACE_ACTIVE,
-            )],
+        return unknown_outcome(
+            constants::tracking_runtime::REASON_EXPECTED_PLACE_LATE_GRACE_ACTIVE,
         );
     }
 
     if evaluation.early_exit_grace_active {
-        return (
-            constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN,
-            vec![reason_code(
-                constants::tracking_runtime::REASON_EXPECTED_PLACE_EARLY_EXIT_GRACE_ACTIVE,
-            )],
+        return unknown_outcome(
+            constants::tracking_runtime::REASON_EXPECTED_PLACE_EARLY_EXIT_GRACE_ACTIVE,
         );
     }
 
-    if evaluation.transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_ENTER
-        || evaluation.transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL
+    transition_outcome(&evaluation.transition_kind)
+}
+
+fn manual_required_outcome(reason: &'static str) -> (&'static str, Vec<TrackingReasonCode>) {
+    (
+        constants::tracking_runtime::EXPECTED_PLACE_STATE_MANUAL_REQUIRED,
+        vec![reason_code(reason)],
+    )
+}
+
+fn unknown_outcome(reason: &'static str) -> (&'static str, Vec<TrackingReasonCode>) {
+    (
+        constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN,
+        vec![reason_code(reason)],
+    )
+}
+
+fn transition_outcome(
+    transition_kind: &TrackingTransitionKind,
+) -> (&'static str, Vec<TrackingReasonCode>) {
+    if *transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_ENTER
+        || *transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL
     {
         return (
             constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED,
@@ -158,7 +162,7 @@ fn expected_place_outcome_for(
         );
     }
 
-    if evaluation.transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT {
+    if *transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT {
         return (
             constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE,
             vec![reason_code(
@@ -167,8 +171,7 @@ fn expected_place_outcome_for(
         );
     }
 
-    if evaluation.transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL
-    {
+    if *transition_kind == constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL {
         return (
             constants::tracking_runtime::EXPECTED_PLACE_STATE_LATE_ARRIVAL,
             vec![reason_code(
@@ -177,12 +180,7 @@ fn expected_place_outcome_for(
         );
     }
 
-    (
-        constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN,
-        vec![reason_code(
-            constants::tracking_runtime::REASON_EXPECTED_PLACE_AMBIGUOUS,
-        )],
-    )
+    unknown_outcome(constants::tracking_runtime::REASON_EXPECTED_PLACE_AMBIGUOUS)
 }
 
 fn capability_requires_manual_review(capability_status: &TrackingCapabilityStatus) -> bool {
@@ -206,7 +204,7 @@ fn capability_requires_manual_review(capability_status: &TrackingCapabilityStatu
 }
 
 fn reason_code(value: &'static str) -> TrackingReasonCode {
-    TrackingReasonCode::parse(value).expect(value)
+    parse_contract_text(value, TrackingReasonCode::parse)
 }
 
 fn reason_code_for_expected_place_exception(
@@ -237,28 +235,41 @@ fn protocol_exception_state_for_expected_place_exception(
 
 pub fn default_expected_place_evaluation() -> TrackingExpectedPlaceEvaluation {
     TrackingExpectedPlaceEvaluation {
-        schedule_id: TrackingScheduleId::parse(
+        schedule_id: parse_contract_text(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID),
+            TrackingScheduleId::parse,
+        ),
         schedule_enabled: true,
         within_expected_window: true,
         distance_tolerance_meters: Some(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_DISTANCE_TOLERANCE_METERS,
         ),
-        capability_status: TrackingCapabilityStatus::parse(
+        capability_status: parse_contract_text(
             constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
-        )
-        .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
-        transition_kind: TrackingTransitionKind::parse(
+            TrackingCapabilityStatus::parse,
+        ),
+        transition_kind: parse_contract_text(
             constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
-        )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
+            TrackingTransitionKind::parse,
+        ),
         late_grace_seconds: constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_LATE_GRACE_SECONDS,
         early_exit_grace_seconds:
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EARLY_EXIT_GRACE_SECONDS,
         late_grace_active: false,
         early_exit_grace_active: false,
         active_exception: None,
+    }
+}
+
+fn parse_contract_text<T, E>(
+    value: &'static str,
+    parse: impl FnOnce(&'static str) -> Result<T, E>,
+) -> T
+where
+    E: core::fmt::Debug,
+{
+    match parse(value) {
+        Ok(parsed_value) => parsed_value,
+        Err(_) => unreachable!("tracking expected-place contract drift: {value}"),
     }
 }

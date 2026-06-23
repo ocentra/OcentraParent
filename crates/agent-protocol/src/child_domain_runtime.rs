@@ -7,9 +7,13 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 
-#[allow(clippy::panic)]
+pub const CHILD_DOMAIN_RUNTIME_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
+
 fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
-    result.unwrap_or_else(|_| panic!("{}", message))
+    match result {
+        Ok(value) => value,
+        Err(_) => unreachable!("{}", message),
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]

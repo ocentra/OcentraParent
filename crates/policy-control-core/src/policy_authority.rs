@@ -1,6 +1,4 @@
 #![forbid(unsafe_code)]
-#![allow(clippy::expect_used)]
-
 //! Cross-domain policy-control ownership.
 //!
 //! This crate owns generic policy decision gating that feature crates can
@@ -20,7 +18,6 @@ const POLICY_EVALUATION_REQUESTED_EVENT_TYPE: &str = "policy-control.evaluation.
 const POLICY_DECISION_RESOLVED_EVENT_TYPE: &str = "policy-control.decision.resolved";
 const POLICY_CONTROL_IDEMPOTENCY_SEPARATOR: &str = ":";
 const POLICY_CONTROL_DECISION_PREFIX: &str = "policy-control-decision:";
-const ERROR_POLICY_CONTROL_DECISION_ID: &str = "policy-control decision id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PolicyDecisionMode {
@@ -252,8 +249,7 @@ pub fn resolve_policy_evaluation_request(
 ) -> PolicyDecisionResolvedEvent {
     PolicyDecisionResolvedEvent {
         aggregate_id: event.aggregate_id.clone(),
-        decision_id: PolicyControlDecisionId::parse(policy_control_decision_ref(&event.request_id))
-            .expect(ERROR_POLICY_CONTROL_DECISION_ID),
+        decision_id: PolicyControlDecisionId(policy_control_decision_ref(&event.request_id)),
         source_request_id: event.request_id.clone(),
         decision: evaluate_policy_control(event.input),
         conflict_decision: resolve_policy_conflict(event.conflict_input),

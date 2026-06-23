@@ -8,8 +8,8 @@ import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import type { AgentNetworkRuntimeEventResult } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
 import { PortalFormatting } from './formatting';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 
 export type NetworkEvidenceDrawerSummary = {
   readonly evidenceId: PortalDetailValue;
@@ -59,72 +59,126 @@ interface NetworkEvidenceDrawerRuntimeEventChainStream {
 }
 
 type PortalDetailScalar = string | number | boolean | null | undefined;
+type NetworkEvidenceDrawerIdentityDetails = Pick<
+  NetworkEvidenceDrawerSummary,
+  'evidenceId' | 'observedAt' | 'firstSeenAt' | 'lastSeenAt'
+>;
+type NetworkEvidenceDrawerFlowDetails = Pick<
+  NetworkEvidenceDrawerSummary,
+  | 'sourceQuality'
+  | 'localEndpoint'
+  | 'remoteEndpoint'
+  | 'protocolCandidate'
+  | 'applicationProtocolCandidate'
+  | 'processRef'
+  | 'domainEvidenceRef'
+  | 'byteSummary'
+  | 'eventHistoryRef'
+  | 'retentionState'
+  | 'custody'
+  | 'evidenceGrade'
+  | 'uncertaintyReasonCodes'
+  | 'evidenceReferences'
+  | 'platformState'
+  | 'readModelRows'
+  | 'degradedState'
+  | 'deletedEvidenceReferences'
+>;
+type NetworkEvidenceDrawerContextDetails = Pick<
+  NetworkEvidenceDrawerSummary,
+  | 'analyzerAlertRef'
+  | 'detectionResultRef'
+  | 'aiAuditRef'
+  | 'riskBudgetRef'
+  | 'policyDecisionRef'
+  | 'interventionResultRef'
+>;
 
 export function networkEvidenceDrawerSummary(
   readModel: ActivityNetworkFlowReadModel | null,
   context?: NetworkEvidenceDrawerSummaryContext
 ): NetworkEvidenceDrawerSummary {
   const row = firstNetworkFlowRow(readModel);
+  const identityDetails = networkEvidenceDrawerIdentityDetails(row);
+  const flowDetails = networkEvidenceDrawerFlowDetails(row, readModel, context);
+  const contextDetails = networkEvidenceDrawerContextDetails(context);
+
+  return {
+    ...identityDetails,
+    deviceRef: notReported(),
+    childProfileRef: notReported(),
+    sourceAdapter: detailFromRowValue(row, (value) => value.adapterId),
+    ...flowDetails,
+    browserRef: notReported(),
+    ...contextDetails,
+    confidence: notReported(),
+    exactUrlClaim: notReported(),
+  };
+}
+
+function networkEvidenceDrawerIdentityDetails(
+  row: ActivityNetworkFlowObservation | null
+): NetworkEvidenceDrawerIdentityDetails {
   return {
     evidenceId: detailFromRowValue(row, (value) => value.eventId),
     observedAt: detailFromRowValue(row, (value) => value.observedAt),
     firstSeenAt: detailFromRowValue(row, (value) => value.counters.firstSeenAt),
     lastSeenAt: detailFromRowValue(row, (value) => value.counters.lastSeenAt),
-    deviceRef: notReported(),
-    childProfileRef: notReported(),
-    sourceAdapter: detailFromRowValue(row, (value) => value.adapterId),
+  };
+}
+
+function networkEvidenceDrawerFlowDetails(
+  row: ActivityNetworkFlowObservation | null,
+  readModel: ActivityNetworkFlowReadModel | null,
+  context?: NetworkEvidenceDrawerSummaryContext
+): NetworkEvidenceDrawerFlowDetails {
+  const policyPreviewReadModel = context?.policyPreviewReadModel ?? null;
+  return {
     sourceQuality: sourceQualityDetail(row, readModel),
-    localEndpoint: endpointDetail(row?.localEndpoint),
-    remoteEndpoint: endpointDetail(row?.destinationEndpoint),
+    localEndpoint: endpointDetail(row === null ? undefined : row.localEndpoint),
+    remoteEndpoint: endpointDetail(row === null ? undefined : row.destinationEndpoint),
     protocolCandidate: detailFromRowValue(row, (value) => value.protocol),
     applicationProtocolCandidate: detailFromRowValue(row, (value) => value.tcpState),
     processRef: processDetail(row),
-    browserRef: notReported(),
     domainEvidenceRef: domainDetail(row),
     byteSummary: byteSummary(row),
-    analyzerAlertRef: detailFromValue(
-      networkFlowPayloadFieldValue(
-        context?.networkFlowEventPayload,
-        AgentProtocolDefaults.Field.NetworkProductPathAnalyzerAlertRefs
-      )
-    ),
-    detectionResultRef: detailFromValue(
-      networkFlowPayloadFieldValue(
-        context?.networkFlowEventPayload,
-        AgentProtocolDefaults.Field.NetworkProductPathAiDetectionRefs
-      )
-    ),
-    aiAuditRef: detailFromValue(
-      latestRuntimeEventFieldValue(context?.networkRuntimeEventChainStream, 'aiAnalysisRef') ??
-        context?.policyPreviewReadModel?.localAiResultId ??
-        undefined
-    ),
-    riskBudgetRef: detailFromValue(
-      networkFlowPayloadFieldValue(
-        context?.networkFlowEventPayload,
-        AgentProtocolDefaults.Field.NetworkProductPathRiskBudgetRefs
-      )
-    ),
-    policyDecisionRef: detailFromValue(
-      latestRuntimeEventFieldValue(context?.networkRuntimeEventChainStream, 'policyDecisionRef') ??
-        context?.policyPreviewReadModel?.decisionId ??
-        undefined
-    ),
-    interventionResultRef: detailFromValue(
-      latestRuntimeEventFieldValue(context?.networkRuntimeEventChainStream, 'enforcementResultRef')
-    ),
-    eventHistoryRef: detailFromValue(row?.eventId),
+    eventHistoryRef: detailFromRowValue(row, (value) => value.eventId),
     retentionState: retentionState(readModel),
     custody: readModelCustodyDetail(readModel),
-    evidenceGrade: detailFromValue(context?.policyPreviewReadModel?.networkEvidenceGrade ?? undefined),
-    confidence: notReported(),
+    evidenceGrade: detailFromValue(policyPreviewReadModel?.networkEvidenceGrade ?? undefined),
     uncertaintyReasonCodes: uncertaintyReasonCodes(row),
     evidenceReferences: evidenceReferenceDetail(row),
-    exactUrlClaim: notReported(),
     platformState: readModelPlatformState(readModel),
     readModelRows: readModelRows(readModel),
     degradedState: degradedState(row, readModel),
     deletedEvidenceReferences: deletedEvidenceReferences(readModel),
+  };
+}
+
+function networkEvidenceDrawerContextDetails(
+  context?: NetworkEvidenceDrawerSummaryContext
+): NetworkEvidenceDrawerContextDetails {
+  const payload = context?.networkFlowEventPayload;
+  const policyPreviewReadModel = context?.policyPreviewReadModel ?? null;
+  const stream = context?.networkRuntimeEventChainStream;
+
+  return {
+    analyzerAlertRef: detailFromValue(
+      networkFlowPayloadFieldValue(payload, AgentProtocolDefaults.Field.NetworkProductPathAnalyzerAlertRefs)
+    ),
+    detectionResultRef: detailFromValue(
+      networkFlowPayloadFieldValue(payload, AgentProtocolDefaults.Field.NetworkProductPathAiDetectionRefs)
+    ),
+    aiAuditRef: detailFromValue(
+      latestRuntimeEventFieldValue(stream, 'aiAnalysisRef') ?? policyPreviewReadModel?.localAiResultId ?? undefined
+    ),
+    riskBudgetRef: detailFromValue(
+      networkFlowPayloadFieldValue(payload, AgentProtocolDefaults.Field.NetworkProductPathRiskBudgetRefs)
+    ),
+    policyDecisionRef: detailFromValue(
+      latestRuntimeEventFieldValue(stream, 'policyDecisionRef') ?? policyPreviewReadModel?.decisionId ?? undefined
+    ),
+    interventionResultRef: detailFromValue(latestRuntimeEventFieldValue(stream, 'enforcementResultRef')),
   };
 }
 
@@ -227,10 +281,7 @@ function evidenceReferenceDetail(row: ActivityNetworkFlowObservation | null): Po
   return joinedDetail(row.evidence.map((evidence) => evidence.evidenceId));
 }
 
-function networkFlowPayloadFieldValue(
-  payload: AgentProtocolLogFields | null | undefined,
-  fieldName: string
-): unknown {
+function networkFlowPayloadFieldValue(payload: AgentProtocolLogFields | null | undefined, fieldName: string): unknown {
   if (payload === null || payload === undefined) {
     return undefined;
   }

@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  planScreenIntelligenceRoute,
-} from '../../src/screen-intelligence-router';
+import { planScreenIntelligenceRoute } from '../../src/screen-intelligence-router';
 import {
   ScreenIntelligenceRouteDecisionSchema,
   ScreenManagedBrowserStructuredExtractionSchema,

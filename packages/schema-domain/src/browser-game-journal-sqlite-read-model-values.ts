@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameJournalSqliteReadModelSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-journal-sqlite-read-model-contract')
@@ -49,4 +44,3 @@ export const BrowserGameReadModelReasonSchema = withParser(
 );
 
 export type BrowserGameReadModelSourceKind = Infer<typeof BrowserGameReadModelSourceKindSchema>;
-

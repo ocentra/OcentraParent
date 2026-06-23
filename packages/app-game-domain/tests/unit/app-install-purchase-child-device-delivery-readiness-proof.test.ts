@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseChildDeviceDeliveryReadinessProofSchema,
   AppInstallPurchaseChildDeviceDeliveryReadinessRowSchema,
   summarizeAppInstallPurchaseChildDeviceDeliveryReadinessProof,
-} from '../../src/app-install-purchase-child-device-delivery-readiness-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-child-device-delivery-readiness-proof';
 
 describe('app install and purchase child-device delivery readiness proof', () => {
   acceptsChildDeviceDeliveryReadinessRows();

@@ -1,13 +1,5 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   ChildProfileReferenceSchema,
   FamilyReferenceSchema,

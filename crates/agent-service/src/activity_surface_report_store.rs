@@ -1,22 +1,25 @@
 use std::{
     env,
     fs::{create_dir_all, read_dir, read_to_string, write},
+    io::{Error as IoError, Result as IoResult},
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityHistoricalReportList, ActivityHistoricalReportListItem,
-    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
-    ActivityReportSourceLabel, ActivityReportSourceStateSummary, ActivitySavedReportMetadata,
-    ActivitySavedReportState, ActivitySurfaceRequest, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityHistoricalReportList, ActivityHistoricalReportListItem, ActivityReadModelState,
+    ActivityReportCustodyLabel, ActivityReportDocument, ActivityReportSourceLabel,
+    ActivityReportSourceStateSummary, ActivitySavedReportMetadata, ActivitySavedReportState,
+    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::activity_surface_report_file_name::report_file_name;
 use crate::time::timestamp_now;
 
 pub(crate) fn save_report_document(report: ActivityReportDocument) -> ActivityReportDocument {
-    save_report_document_to_dir(report, activity_report_storage_dir())
+    let directory = activity_report_storage_dir();
+    save_report_document_to_dir(report, &directory)
 }
 
 pub(crate) fn draft_metadata_for_report(
@@ -33,7 +36,7 @@ pub(crate) fn draft_metadata_for_report(
 
 pub(crate) fn save_report_document_to_dir(
     mut report: ActivityReportDocument,
-    directory: PathBuf,
+    directory: &Path,
 ) -> ActivityReportDocument {
     let file_name = report_file_name(&report);
     let saved_at = timestamp_now();
@@ -44,7 +47,7 @@ pub(crate) fn save_report_document_to_dir(
         Some(saved_at),
         Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
     ));
-    match write_report_to_dir(&directory, &file_name, &report) {
+    match write_report_to_dir(directory, &file_name, &report) {
         Ok(()) => report,
         Err(_) => {
             report.saved_metadata = Some(saved_metadata(
@@ -60,14 +63,15 @@ pub(crate) fn save_report_document_to_dir(
 }
 
 pub(crate) fn history_list(request: ActivitySurfaceRequest) -> ActivityHistoricalReportList {
-    history_list_from_dir(request, activity_report_storage_dir())
+    let directory = activity_report_storage_dir();
+    history_list_from_dir(request, &directory)
 }
 
 pub(crate) fn history_list_from_dir(
     request: ActivitySurfaceRequest,
-    directory: PathBuf,
+    directory: &Path,
 ) -> ActivityHistoricalReportList {
-    match load_saved_reports(&request, &directory) {
+    match load_saved_reports(&request, directory) {
         Ok(result) => ActivityHistoricalReportList {
             schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
             request,
@@ -105,19 +109,20 @@ fn write_report_to_dir(
     directory: &Path,
     file_name: &str,
     report: &ActivityReportDocument,
-) -> Result<(), ()> {
-    create_dir_all(directory).map_err(|_| ())?;
+) -> IoResult<()> {
+    create_dir_all(directory)?;
     let mut path = PathBuf::from(directory);
     path.push(file_name);
-    let body = serde_json::to_string_pretty(report).map_err(|_| ())?;
-    write(path, body).map_err(|_| ())?;
+    let body =
+        serde_json::to_string_pretty(report).map_err(|error| IoError::other(error.to_string()))?;
+    write(path, body)?;
     Ok(())
 }
 
 fn load_saved_reports(
     request: &ActivitySurfaceRequest,
     directory: &Path,
-) -> Result<LoadSavedReportsResult, ()> {
+) -> IoResult<LoadSavedReportsResult> {
     if !directory.exists() {
         return Ok(LoadSavedReportsResult {
             reports: Vec::new(),
@@ -125,11 +130,11 @@ fn load_saved_reports(
         });
     }
 
-    let entries = read_dir(directory).map_err(|_| ())?;
+    let entries = read_dir(directory)?;
     let mut reports = Vec::new();
     let mut skipped_reports = 0;
     for entry in entries {
-        let path = entry.map_err(|_| ())?.path();
+        let path = entry?.path();
         if !path_is_report_json(&path) {
             continue;
         }
@@ -142,7 +147,7 @@ fn load_saved_reports(
             continue;
         };
         if scope_matches(&request.scope, &report.scope) && range_matches(request, &report) {
-            reports.push(history_item_from_report(path, report));
+            reports.push(history_item_from_report(&path, report));
         }
     }
 
@@ -154,7 +159,7 @@ fn load_saved_reports(
 }
 
 fn history_item_from_report(
-    path: PathBuf,
+    path: &Path,
     report: ActivityReportDocument,
 ) -> ActivityHistoricalReportListItem {
     let metadata = report.saved_metadata.clone();
@@ -221,7 +226,7 @@ fn source_state_summary(report: &ActivityReportDocument) -> ActivityReportSource
             .iter()
             .filter(|source| {
                 source.reachability_state
-                    == ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState::Unreachable
+                    == ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceReachabilityState::Unreachable
             })
             .count() as u64,
         error_sources: report
@@ -229,7 +234,7 @@ fn source_state_summary(report: &ActivityReportDocument) -> ActivityReportSource
             .iter()
             .filter(|source| {
                 source.reachability_state
-                    == ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState::Error
+                    == ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceReachabilityState::Error
             })
             .count() as u64,
     }

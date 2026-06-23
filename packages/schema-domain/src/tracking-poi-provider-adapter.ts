@@ -1,14 +1,5 @@
-import {
-  Schema,
-  withParser,
-  type Infer,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  ParentEvidenceReferenceIdSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { Schema, withParser, type Infer, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
+import { ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   TrackingPolicyAuditRefSchema,
   TrackingPolicyReasonCodeSchema,

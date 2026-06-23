@@ -80,4 +80,3 @@ function timerHandoffStateForProjection(sourceRow: AppGameSourceGatedPolicyPrevi
   }
   return AppGameSourceGatedPolicyPreviewTimerHandoffState.CompilerManualRequiredBeforeTimer;
 }
-

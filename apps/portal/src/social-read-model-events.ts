@@ -1,140 +1,58 @@
+import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import {
-  SocialAlertReportParentSurfaceReadModelSnapshotSchema,
-  type SocialAlertReportParentSurfaceReadModelSnapshot,
-} from '@ocentra-parent/schema-domain/agent-social-alert-report-parent-surface-read-model';
-import {
-  SocialAlertReportReadModelSnapshotSchema,
-  type SocialAlertReportReadModelSnapshot,
-} from '@ocentra-parent/schema-domain/agent-social-alert-report-read-model';
-import {
-  SocialDashboardUxSnapshotSchema,
-  type SocialDashboardUxSnapshot,
-} from '@ocentra-parent/schema-domain/social-dashboard-ux';
-import {
-  SocialParentNotificationDeliveryReadinessReadModelSchema,
-  type SocialParentNotificationDeliveryReadinessReadModel,
-} from '@ocentra-parent/schema-domain/social-parent-notification-delivery-readiness';
+  parseAgentSocialAlertReportParentSurfaceReadModelEvent as parsePortalDomainSocialAlertReportParentSurfaceReadModelEvent,
+  parseAgentSocialAlertReportReadModelEvent as parsePortalDomainSocialAlertReportReadModelEvent,
+  parseAgentSocialDashboardReadModelEvent as parsePortalDomainSocialDashboardReadModelEvent,
+  parseAgentSocialParentNotificationDeliveryReadModelEvent as parsePortalDomainSocialParentNotificationDeliveryReadModelEvent,
+  type AgentSocialAlertReportParentSurfaceReadModelFailureReason as PortalDomainAgentSocialAlertReportParentSurfaceReadModelFailureReason,
+  type AgentSocialAlertReportParentSurfaceReadModelResult as PortalDomainAgentSocialAlertReportParentSurfaceReadModelResult,
+  type AgentSocialAlertReportReadModelFailureReason as PortalDomainAgentSocialAlertReportReadModelFailureReason,
+  type AgentSocialAlertReportReadModelResult as PortalDomainAgentSocialAlertReportReadModelResult,
+  type AgentSocialDashboardReadModelFailureReason as PortalDomainAgentSocialDashboardReadModelFailureReason,
+  type AgentSocialDashboardReadModelResult as PortalDomainAgentSocialDashboardReadModelResult,
+  type AgentSocialParentNotificationDeliveryReadModelFailureReason as PortalDomainAgentSocialParentNotificationDeliveryReadModelFailureReason,
+  type AgentSocialParentNotificationDeliveryReadModelResult as PortalDomainAgentSocialParentNotificationDeliveryReadModelResult,
+  type SocialParentNotificationDeliveryReadModelSnapshot as PortalDomainSocialParentNotificationDeliveryReadModelSnapshot,
+} from '@ocentra-parent/portal-domain/social-read-model-events';
 
-type SocialReadModelFailureReason = 'wrong-event' | 'missing-json-field' | 'invalid-json' | 'invalid-payload';
-type SocialReadModelResult<T> =
-  | {
-      readonly ok: true;
-      readonly value: T;
-    }
-  | {
-      readonly ok: false;
-      readonly reason: SocialReadModelFailureReason;
-    };
+export type AgentSocialAlertReportReadModelFailureReason = PortalDomainAgentSocialAlertReportReadModelFailureReason;
+export type AgentSocialAlertReportReadModelResult = PortalDomainAgentSocialAlertReportReadModelResult;
 
-type SafeParseSchema<T> = {
-  safeParse(input: unknown): {
-    readonly success: boolean;
-    readonly data?: T;
-  };
-};
-
-export type AgentSocialAlertReportReadModelFailureReason = SocialReadModelFailureReason;
-export type AgentSocialAlertReportReadModelResult = SocialReadModelResult<SocialAlertReportReadModelSnapshot>;
-
-export type AgentSocialAlertReportParentSurfaceReadModelFailureReason = SocialReadModelFailureReason;
+export type AgentSocialAlertReportParentSurfaceReadModelFailureReason =
+  PortalDomainAgentSocialAlertReportParentSurfaceReadModelFailureReason;
 export type AgentSocialAlertReportParentSurfaceReadModelResult =
-  SocialReadModelResult<SocialAlertReportParentSurfaceReadModelSnapshot>;
+  PortalDomainAgentSocialAlertReportParentSurfaceReadModelResult;
 
 export type SocialParentNotificationDeliveryReadModelSnapshot =
-  SocialParentNotificationDeliveryReadinessReadModel;
-export type AgentSocialParentNotificationDeliveryReadModelFailureReason = SocialReadModelFailureReason;
+  PortalDomainSocialParentNotificationDeliveryReadModelSnapshot;
+export type AgentSocialParentNotificationDeliveryReadModelFailureReason =
+  PortalDomainAgentSocialParentNotificationDeliveryReadModelFailureReason;
 export type AgentSocialParentNotificationDeliveryReadModelResult =
-  SocialReadModelResult<SocialParentNotificationDeliveryReadModelSnapshot>;
+  PortalDomainAgentSocialParentNotificationDeliveryReadModelResult;
 
-export type AgentSocialDashboardReadModelFailureReason = SocialReadModelFailureReason;
-export type AgentSocialDashboardReadModelResult = SocialReadModelResult<SocialDashboardUxSnapshot>;
+export type AgentSocialDashboardReadModelFailureReason = PortalDomainAgentSocialDashboardReadModelFailureReason;
+export type AgentSocialDashboardReadModelResult = PortalDomainAgentSocialDashboardReadModelResult;
 
 export function parseAgentSocialAlertReportReadModelEvent(
   event: AgentEventEnvelope
 ): AgentSocialAlertReportReadModelResult {
-  return parseAgentReadModelEvent(
-    event,
-    AgentEvent.BrowserSocialAlertReportReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialAlertReportReadModel,
-    SocialAlertReportReadModelSnapshotSchema
-  );
+  return parsePortalDomainSocialAlertReportReadModelEvent(event);
 }
 
 export function parseAgentSocialAlertReportParentSurfaceReadModelEvent(
   event: AgentEventEnvelope
 ): AgentSocialAlertReportParentSurfaceReadModelResult {
-  return parseAgentReadModelEvent(
-    event,
-    AgentEvent.BrowserSocialAlertReportParentSurfaceReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialAlertReportParentSurfaceReadModel,
-    SocialAlertReportParentSurfaceReadModelSnapshotSchema
-  );
+  return parsePortalDomainSocialAlertReportParentSurfaceReadModelEvent(event);
 }
 
 export function parseAgentSocialParentNotificationDeliveryReadModelEvent(
   event: AgentEventEnvelope
 ): AgentSocialParentNotificationDeliveryReadModelResult {
-  return parseAgentReadModelEvent(
-    event,
-    AgentEvent.BrowserSocialParentNotificationDeliveryReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialParentNotificationDeliveryReadModel,
-    SocialParentNotificationDeliveryReadinessReadModelSchema
-  );
+  return parsePortalDomainSocialParentNotificationDeliveryReadModelEvent(event);
 }
 
 export function parseAgentSocialDashboardReadModelEvent(
   event: AgentEventEnvelope
 ): AgentSocialDashboardReadModelResult {
-  return parseAgentReadModelEvent(
-    event,
-    AgentEvent.BrowserSocialDashboardReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialDashboardReadModel,
-    SocialDashboardUxSnapshotSchema
-  );
-}
-
-function parseAgentReadModelEvent<T>(
-  event: AgentEventEnvelope,
-  expectedEvent: AgentEventEnvelope['event'],
-  payloadField: string,
-  schema: SafeParseSchema<T>
-): SocialReadModelResult<T> {
-  if (event.event !== expectedEvent) {
-    return failure('wrong-event');
-  }
-
-  const raw = event.payload[payloadField];
-  if (!isAgentProtocolLogText(raw)) {
-    return failure('missing-json-field');
-  }
-
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(raw);
-  } catch {
-    return failure('invalid-json');
-  }
-
-  const parsed = schema.safeParse(decoded);
-  if (!parsed.success || parsed.data === undefined) {
-    return failure('invalid-payload');
-  }
-
-  return {
-    ok: true,
-    value: parsed.data,
-  };
-}
-
-function failure(reason: SocialReadModelFailureReason) {
-  return {
-    ok: false,
-    reason,
-  } as const;
+  return parsePortalDomainSocialDashboardReadModelEvent(event);
 }

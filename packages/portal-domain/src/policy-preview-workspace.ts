@@ -1,5 +1,5 @@
 import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { createPolicyPreviewPanelIntent, type PolicyPreviewPanelDetail } from './policy-preview-panel';
 
 export type PolicyWorkspacePreviewTone = 'cyan' | 'gold' | 'purple' | 'red';
@@ -104,10 +104,7 @@ function previewRow(
   };
 }
 
-function detailValue(
-  details: readonly PolicyPreviewPanelDetail[],
-  label: DisplayText
-): DisplayText {
+function detailValue(details: readonly PolicyPreviewPanelDetail[], label: DisplayText): DisplayText {
   const match = details.find((detail) => String(detail.label) === String(label));
   return match?.value ?? NotReported;
 }
@@ -155,25 +152,18 @@ function lifecycleTone(value: DisplayText): PolicyWorkspacePreviewTone {
 
 function toneFromText(value: DisplayText, fallback: PolicyWorkspacePreviewTone): PolicyWorkspacePreviewTone {
   const normalizedValue = String(value).toLowerCase();
-  if (
-    normalizedValue.includes('blocked') ||
-    normalizedValue.includes('denied') ||
-    normalizedValue.includes('expired') ||
-    normalizedValue.includes('rejected') ||
-    normalizedValue.includes('unavailable')
-  ) {
+  if (includesAnyToken(normalizedValue, ['blocked', 'denied', 'expired', 'rejected', 'unavailable'])) {
     return 'red';
   }
-  if (normalizedValue.includes('active') || normalizedValue.includes('approved') || normalizedValue.includes('ready')) {
+  if (includesAnyToken(normalizedValue, ['active', 'approved', 'ready'])) {
     return 'cyan';
   }
-  if (
-    normalizedValue.includes('preview') ||
-    normalizedValue.includes('confirmation') ||
-    normalizedValue.includes('draft') ||
-    normalizedValue.includes('pending')
-  ) {
+  if (includesAnyToken(normalizedValue, ['preview', 'confirmation', 'draft', 'pending'])) {
     return 'purple';
   }
   return fallback;
+}
+
+function includesAnyToken(value: string, tokens: readonly string[]): boolean {
+  return tokens.some((token) => value.includes(token));
 }

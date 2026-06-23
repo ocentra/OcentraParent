@@ -1,19 +1,34 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, SocialSourceCustodyMutationSnapshot, SocialSourceCustodySettingsSnapshot,
-    SOCIAL_SOURCE_CUSTODY_AUDIT_REF, SOCIAL_SOURCE_CUSTODY_CHILD_PROFILE_ID,
-    SOCIAL_SOURCE_CUSTODY_DEVICE_ID, SOCIAL_SOURCE_CUSTODY_EVIDENCE_REF,
-    SOCIAL_SOURCE_CUSTODY_MODE_REDACTED_REFS, SOCIAL_SOURCE_CUSTODY_MUTATION_ID,
-    SOCIAL_SOURCE_CUSTODY_MUTATION_SCHEMA_VERSION, SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED,
-    SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_API, SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_TOKEN,
-    SOCIAL_SOURCE_CUSTODY_NO_ENFORCEMENT, SOCIAL_SOURCE_CUSTODY_NO_FINAL_POLICY,
-    SOCIAL_SOURCE_CUSTODY_NO_RAW_MESSAGE, SOCIAL_SOURCE_CUSTODY_NO_RAW_VIDEO,
-    SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_CUSTODY_CLAIM, SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_UI,
-    SOCIAL_SOURCE_CUSTODY_NO_SCREENSHOT, SOCIAL_SOURCE_CUSTODY_PERMISSION_ENABLED,
-    SOCIAL_SOURCE_CUSTODY_PRIVACY_EVIDENCE_ID, SOCIAL_SOURCE_CUSTODY_RETENTION_REDACTED_JOURNAL,
-    SOCIAL_SOURCE_CUSTODY_SCOPE_MANAGED_BROWSER, SOCIAL_SOURCE_CUSTODY_SETTINGS_ID,
-    SOCIAL_SOURCE_CUSTODY_USE_AI_CANDIDATE, SOCIAL_SOURCE_CUSTODY_USE_PARENT_EXPLANATION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
+use ocentra_parent_agent_protocol::SocialSourceCustodyMutationSnapshot;
+use ocentra_parent_agent_protocol::SocialSourceCustodySettingsSnapshot;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_AUDIT_REF;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_CHILD_PROFILE_ID;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_DEVICE_ID;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_EVIDENCE_REF;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_MODE_REDACTED_REFS;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_MUTATION_ID;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_MUTATION_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_API;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_CONNECTOR_TOKEN;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_ENFORCEMENT;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_FINAL_POLICY;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_RAW_MESSAGE;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_RAW_VIDEO;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_CUSTODY_CLAIM;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_UI;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_NO_SCREENSHOT;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_PERMISSION_ENABLED;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_PRIVACY_EVIDENCE_ID;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_RETENTION_REDACTED_JOURNAL;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_SCOPE_MANAGED_BROWSER;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_SETTINGS_ID;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_USE_AI_CANDIDATE;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_USE_PARENT_EXPLANATION;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
@@ -27,7 +42,7 @@ pub fn social_source_custody_mutation_from_command(
     SocialSourceCustodyMutationSnapshot {
         schema_version: SOCIAL_SOURCE_CUSTODY_MUTATION_SCHEMA_VERSION.to_string(),
         mutation_id: SOCIAL_SOURCE_CUSTODY_MUTATION_ID.to_string(),
-        requested_at: requested_at.clone(),
+        requested_at,
         applied_at: applied_at.clone(),
         mutation_state: SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED.to_string(),
         settings: SocialSourceCustodySettingsSnapshot {
@@ -110,9 +125,10 @@ fn mutation_pairs(mutation: &SocialSourceCustodyMutationSnapshot) -> Vec<FieldPa
         ),
         (
             constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION,
-            LogFieldValue::String(
-                serde_json::to_string(mutation).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(match serde_json::to_string(mutation) {
+                Ok(serialized) => serialized,
+                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
+            }),
         ),
     ]
 }

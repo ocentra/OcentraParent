@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   ParentContractSchemaVersion,
@@ -19,9 +14,7 @@ import {
   SocialPolicyScheduleRefsSchema,
   SocialPolicyTimeBudgetRefsSchema,
 } from '@ocentra-parent/schema-domain/social-policy-compiler-values';
-const SocialAppliedScheduleReferenceSchema = withParser(
-  brandedNonEmptyStringSchema('SocialAppliedScheduleReference')
-);
+const SocialAppliedScheduleReferenceSchema = withParser(brandedNonEmptyStringSchema('SocialAppliedScheduleReference'));
 const SocialAppliedScheduleNonClaimsSchema = Schema.Array(SocialAppliedScheduleReferenceSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social applied schedule non-claim refs')
 );
@@ -320,4 +313,3 @@ function socialAppliedScheduleTimeBudgetReadModelHasRequiredNonClaims(readModel:
     nonClaims.has(RequiredNonClaims.NoEnforcement)
   );
 }
-

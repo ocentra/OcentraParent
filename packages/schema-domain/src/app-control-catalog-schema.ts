@@ -1,41 +1,19 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema,
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersionSchema,
   ParentDeviceIdSchema,
   ParentTimestampSchema,
 } from './family-reference-primitives';
 
-export const AppControlCatalogIdSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlCatalogId')
-);
-export const AppControlSectionIdSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlSectionId')
-);
+export const AppControlCatalogIdSchema = withParser(brandedNonEmptyStringSchema('AppControlCatalogId'));
+export const AppControlSectionIdSchema = withParser(brandedNonEmptyStringSchema('AppControlSectionId'));
 export const AppControlGroupIdSchema = withParser(brandedNonEmptyStringSchema('AppControlGroupId'));
-export const AppControlSettingIdSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlSettingId')
-);
-export const AppControlOptionIdSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlOptionId')
-);
-export const AppControlWritesToPathSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlWritesToPath')
-);
-export const AppControlCapabilityIdSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlCapabilityId')
-);
-export const AppControlPolicyDocumentIdSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlPolicyDocumentId')
-);
-export const AppControlPolicyHashSchema = withParser(
-  brandedNonEmptyStringSchema('AppControlPolicyHash')
-);
+export const AppControlSettingIdSchema = withParser(brandedNonEmptyStringSchema('AppControlSettingId'));
+export const AppControlOptionIdSchema = withParser(brandedNonEmptyStringSchema('AppControlOptionId'));
+export const AppControlWritesToPathSchema = withParser(brandedNonEmptyStringSchema('AppControlWritesToPath'));
+export const AppControlCapabilityIdSchema = withParser(brandedNonEmptyStringSchema('AppControlCapabilityId'));
+export const AppControlPolicyDocumentIdSchema = withParser(brandedNonEmptyStringSchema('AppControlPolicyDocumentId'));
+export const AppControlPolicyHashSchema = withParser(brandedNonEmptyStringSchema('AppControlPolicyHash'));
 
 export const AppControlSidePanelCategorySchema = withParser(Schema.Literal('apps'));
 export const AppControlUiTabSchema = withParser(

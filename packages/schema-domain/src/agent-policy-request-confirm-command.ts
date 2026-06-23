@@ -30,15 +30,11 @@ export const PolicyRequestAssistantPreviewConfirmActionSchema = withParser(
 export const PolicyRequestAssistantPreviewConfirmActorRoleSchema = withParser(
   Schema.Literal('parent', 'co-parent', 'observer', 'child', 'support')
 );
-export const PolicyRequestAssistantPreviewConfirmActorStateSchema = withParser(
-  Schema.Literal('active', 'revoked')
-);
+export const PolicyRequestAssistantPreviewConfirmActorStateSchema = withParser(Schema.Literal('active', 'revoked'));
 export const PolicyRequestAssistantPreviewConfirmResultStateSchema = withParser(
   Schema.Literal('confirmed', 'rejected')
 );
-export const PolicyRequestAssistantPreviewConfirmClaimStateSchema = withParser(
-  Schema.Literal('claimed', 'unclaimed')
-);
+export const PolicyRequestAssistantPreviewConfirmClaimStateSchema = withParser(Schema.Literal('claimed', 'unclaimed'));
 
 export const PolicyRequestAssistantPreviewConfirmRequestSchema = withParser(
   Schema.Struct({
@@ -74,8 +70,7 @@ export const PolicyRequestAssistantPreviewConfirmRequestSchema = withParser(
   })
     .pipe(
       Schema.filter(
-        (request) =>
-          request.auditReferenceIds.length > 0 || 'Policy request confirmation needs audit reference IDs'
+        (request) => request.auditReferenceIds.length > 0 || 'Policy request confirmation needs audit reference IDs'
       )
     )
     .pipe(
@@ -132,9 +127,7 @@ export const PolicyRequestAssistantPreviewConfirmCommandSourceSchema = withParse
 export type PolicyRequestAssistantPreviewConfirmRequest = Infer<
   typeof PolicyRequestAssistantPreviewConfirmRequestSchema
 >;
-export type PolicyRequestAssistantPreviewConfirmResult = Infer<
-  typeof PolicyRequestAssistantPreviewConfirmResultSchema
->;
+export type PolicyRequestAssistantPreviewConfirmResult = Infer<typeof PolicyRequestAssistantPreviewConfirmResultSchema>;
 export type PolicyRequestAssistantPreviewConfirmResultState = Infer<
   typeof PolicyRequestAssistantPreviewConfirmResultStateSchema
 >;

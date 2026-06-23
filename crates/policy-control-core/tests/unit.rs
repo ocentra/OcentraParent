@@ -1,4 +1,37 @@
-#![allow(clippy::expect_used, clippy::panic)]
+type TestResult<T = ()> = Result<T, Box<dyn std::error::Error>>;
+
+macro_rules! test_ok {
+    ($expr:expr, $context:expr) => {{
+        match $expr {
+            Ok(value) => value,
+            Err(error) => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    format!("{}: {error}", $context),
+                )
+                .into())
+            }
+        }
+    }};
+}
+
+macro_rules! test_some {
+    ($expr:expr, $context:expr) => {{
+        match $expr {
+            Some(value) => value,
+            None => return Err(std::io::Error::new(std::io::ErrorKind::Other, $context).into()),
+        }
+    }};
+}
+
+macro_rules! test_err {
+    ($expr:expr, $context:expr) => {{
+        match $expr {
+            Ok(_) => return Err(std::io::Error::new(std::io::ErrorKind::Other, $context).into()),
+            Err(error) => error,
+        }
+    }};
+}
 
 #[path = "unit/policy_control.rs"]
 mod policy_control;

@@ -1,10 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    LocalAiChatGenerationResult, LocalAiGenerationState, SCREEN_CATEGORY_UNKNOWN,
-    SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE,
-    SCREEN_SERVICE_ANALYSIS_MODEL_ID, SCREEN_SERVICE_ANALYSIS_RUNTIME_REF,
-    SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID, SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE,
-    SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION, SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
-};
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_UNKNOWN;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_POLICY_CONFIDENCE_READY;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_RUNTIME_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE;
 
 use super::super::{
     adapter::parsed_generation_output_with_policy, config::ScreenOcrRedactionPolicy,

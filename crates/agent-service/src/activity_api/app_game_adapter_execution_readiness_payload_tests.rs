@@ -1,12 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_supported_adapter_runtime_proof as proof},
-    AppGameAdapterExecutionReadinessReadModel, LogFieldValue,
-    APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED, APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED,
-    APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED, APP_GAME_ADAPTER_EXECUTION_STATE_MANUAL_REQUIRED,
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
+    AppGameAdapterExecutionReadinessReadModel, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
+    APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED, APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED,
+    APP_GAME_ADAPTER_EXECUTION_STATE_MANUAL_REQUIRED,
     APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED, APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
     APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
 };
+use ocentra_parent_agent_protocol::constants::{
+    self, v08_supported_adapter_runtime_proof as proof,
+};
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::app_game_adapter_execution_readiness_payload::{
     app_game_adapter_execution_readiness_payload, app_game_adapter_execution_readiness_read_model,
@@ -18,11 +23,14 @@ const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 fn app_game_adapter_execution_readiness_payload_reports_supported_proof_without_claim_upgrades() {
     let read_model = app_game_adapter_execution_readiness_read_model(APP_GAME_TEST_TIMESTAMP);
     let payload = app_game_adapter_execution_readiness_payload(&read_model);
-    let decoded: AppGameAdapterExecutionReadinessReadModel = serde_json::from_str(string_payload(
-        &payload,
-        constants::field::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL,
-    ))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let Ok(decoded) =
+        serde_json::from_str::<AppGameAdapterExecutionReadinessReadModel>(string_payload(
+            &payload,
+            constants::field::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL,
+        ))
+    else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
 
     assert_eq!(decoded.returned, 8);
     assert_eq!(decoded.execution_allowed_count, 1);
@@ -117,11 +125,13 @@ fn assert_blocked_rows(decoded: &AppGameAdapterExecutionReadinessReadModel) {
 }
 
 fn assert_broad_artifact_row(decoded: &AppGameAdapterExecutionReadinessReadModel) {
-    let broad_artifact = decoded
+    let Some(broad_artifact) = decoded
         .rows
         .iter()
         .find(|row| row.source_proof_entry_id == proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
 
     assert_eq!(
         broad_artifact.evidence_refs,
@@ -166,9 +176,13 @@ fn assert_android_linux_rows_stay_blocked(decoded: &AppGameAdapterExecutionReadi
         ));
 }
 
-fn string_payload<'a>(payload: &'a ocentra_parent_agent_protocol::LogFields, key: &str) -> &'a str {
-    match payload.get(key) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
-    }
+fn string_payload<'a>(
+    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
+    field_name: &str,
+) -> &'a str {
+    let Some(LogFieldValue::String(value)) = payload.get(field_name) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    value.as_str()
 }

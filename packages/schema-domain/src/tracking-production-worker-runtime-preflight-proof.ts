@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import {
   RequiredTrackingProductionWorkerRuntimeArtifactPlan,
@@ -25,17 +20,21 @@ export const TrackingProductionWorkerRuntimePreflightAreaSchema = Schema.Literal
 
 export const TrackingProductionWorkerRuntimePreflightStatusSchema = Schema.Literal('manual-required');
 
-export const TrackingProductionWorkerRuntimePreflightRowIdSchema =
-  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightRowId');
+export const TrackingProductionWorkerRuntimePreflightRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingProductionWorkerRuntimePreflightRowId'
+);
 
-export const TrackingProductionWorkerRuntimePreflightPathSchema =
-  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightPath');
+export const TrackingProductionWorkerRuntimePreflightPathSchema = brandedNonEmptyStringSchema(
+  'TrackingProductionWorkerRuntimePreflightPath'
+);
 
-export const TrackingProductionWorkerRuntimePreflightCommandSchema =
-  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightCommand');
+export const TrackingProductionWorkerRuntimePreflightCommandSchema = brandedNonEmptyStringSchema(
+  'TrackingProductionWorkerRuntimePreflightCommand'
+);
 
-export const TrackingProductionWorkerRuntimePreflightCriterionSchema =
-  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightCriterion');
+export const TrackingProductionWorkerRuntimePreflightCriterionSchema = brandedNonEmptyStringSchema(
+  'TrackingProductionWorkerRuntimePreflightCriterion'
+);
 
 const RequiredTrackingProductionWorkerRuntimePreflightRows = [
   {
@@ -431,4 +430,3 @@ function preflightRow(
     productClaimReady: false,
   });
 }
-

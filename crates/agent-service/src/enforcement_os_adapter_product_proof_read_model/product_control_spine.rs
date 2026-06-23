@@ -2,10 +2,9 @@ mod entry_factory;
 mod proof_links;
 mod surface_entries;
 
-use ocentra_parent_agent_protocol::{
-    constants::v08_enforcement_product_control_spine as spine, policy_constants,
-    V08EnforcementProductControlSpineReadModel,
-};
+use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineReadModel;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::{
     enforcement_browser_domain_adapter_proof_read_model::v08_browser_domain_adapter_proof_read_model,

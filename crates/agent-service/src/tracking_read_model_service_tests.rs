@@ -1,51 +1,72 @@
-use std::fs::remove_file;
-use std::path::Path;
+use std::{error::Error, fs::remove_file, io::Error as IoError, path::Path};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    TrackingEvidenceRef, TrackingReadModel, ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::tracking::{
+    identifiers::TrackingEvidenceRef, read_model::TrackingReadModel,
+};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK, lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
 };
 
+type TestResult = Result<(), Box<dyn Error>>;
+
 #[tokio::test]
-async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
+async fn tracking_read_model_command_reports_service_backed_sqlite_rows() -> TestResult {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    seed_tracking_store(&store_path);
+    let test_result: TestResult = async {
+        seed_tracking_store(&store_path)?;
 
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
-    let read_model =
-        tracking_read_model_payload(&event.payload[constants::field::ACTIVITY_TRACKING_READ_MODEL]);
+        let body = serde_json::to_string(&command_envelope())?;
+        let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+        let read_model = tracking_read_model_payload(
+            &event.payload[constants::field::ACTIVITY_TRACKING_READ_MODEL],
+        )?;
+
+        assert_eq!(
+            event.event,
+            AgentEventName::AgentActivityTrackingReadModelReported
+        );
+        assert_eq!(read_model.returned, 5);
+        assert_eq!(read_model.active_rows, 4);
+        assert_eq!(read_model.tombstone_rows, 1);
+        assert_service_read_model_latest_events(&read_model)?;
+        assert_service_read_model_tombstone_row(&read_model);
+        assert_service_read_model_active_product_surface_counts(&read_model);
+
+        Ok(())
+    }
+    .await;
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
     cleanup_path(&store_path);
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentActivityTrackingReadModelReported
-    );
-    assert_eq!(read_model.returned, 5);
-    assert_eq!(read_model.active_rows, 4);
-    assert_eq!(read_model.tombstone_rows, 1);
-    assert_service_read_model_latest_events(&read_model);
-    assert_service_read_model_tombstone_row(&read_model);
-    assert_service_read_model_active_product_surface_counts(&read_model);
+    test_result
 }
 
-fn seed_tracking_store(store_path: &Path) {
-    let store = ActivityStore::open(store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+fn seed_tracking_store(store_path: &Path) -> TestResult {
+    let store = ActivityStore::open(store_path).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
     store
         .ingest_events(&[
             tracking_activity_event(
@@ -84,10 +105,26 @@ fn seed_tracking_store(store_path: &Path) {
                 ActivitySubjectKind::Retention,
             ),
         ])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
+
+    Ok(())
 }
 
-fn assert_service_read_model_latest_events(read_model: &TrackingReadModel) {
+fn assert_service_read_model_latest_events(read_model: &TrackingReadModel) -> TestResult {
+    let deleted_evidence_reference_id =
+        TrackingEvidenceRef::parse(constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID)
+            .map_err(|error| {
+                IoError::other(format!(
+                    "{}: {error:?}",
+                    constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
+                ))
+            })?;
+
     assert_eq!(
         read_model
             .latest_event_id
@@ -111,11 +148,10 @@ fn assert_service_read_model_latest_events(read_model: &TrackingReadModel) {
     );
     assert_eq!(
         read_model.deleted_evidence_reference_ids,
-        vec![TrackingEvidenceRef::parse(
-            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
-        )
-        .expect(constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID)]
+        vec![deleted_evidence_reference_id]
     );
+
+    Ok(())
 }
 
 fn assert_service_read_model_tombstone_row(read_model: &TrackingReadModel) {
@@ -125,7 +161,7 @@ fn assert_service_read_model_tombstone_row(read_model: &TrackingReadModel) {
     );
     assert_eq!(
         read_model.rows[0].query_visibility,
-        ocentra_parent_agent_protocol::TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
+        ocentra_parent_agent_protocol::tracking::read_model::TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
     );
 }
 
@@ -225,17 +261,17 @@ fn tracking_activity_event(
     }
 }
 
-fn tracking_read_model_payload(value: &LogFieldValue) -> TrackingReadModel {
+fn tracking_read_model_payload(value: &LogFieldValue) -> Result<TrackingReadModel, Box<dyn Error>> {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => Ok(serde_json::from_str(text)?),
+        _ => Err(Box::new(IoError::other(
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ))),
     }
 }
 
 fn assert_count(
-    counts: &[ocentra_parent_agent_protocol::TrackingReadModelCount],
+    counts: &[ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModelCount],
     value: &str,
     count: u64,
 ) {
@@ -258,12 +294,12 @@ fn temp_path(suffix: &str) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: &Path) {
     let _ = remove_file(path);
-    let mut wal_path = path.clone();
+    let mut wal_path = path.to_path_buf();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);
-    let mut shm_path = path.clone();
+    let mut shm_path = path.to_path_buf();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }

@@ -1,9 +1,5 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+import { SocialVideoSourcePrivacyEvidenceIdSchema } from '@ocentra-parent/schema-domain/agent-social-video-source-privacy';
 import {
   BrowserAiConfidenceSchema,
   BrowserAiDegradedStateSchema,
@@ -25,10 +21,6 @@ const SourcePrivacySourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSche
 );
 
 export const SocialVideoSourcePrivacySchemaVersion = 1;
-
-export const SocialVideoSourcePrivacyEvidenceIdSchema = withParser(
-  brandedNonEmptyStringSchema('SocialVideoSourcePrivacyEvidenceId')
-);
 export const SocialVideoParentProvidedTargetRefSchema = withParser(
   brandedNonEmptyStringSchema('SocialVideoParentProvidedTargetRef')
 );
@@ -144,7 +136,6 @@ export const decodeSocialVideoSourcePrivacySummary = Schema.decodeUnknownSync(So
 export type SocialVideoConnectorAuthorizationRef = Infer<typeof SocialVideoConnectorAuthorizationRefSchema>;
 export type SocialVideoParentProvidedTargetRef = Infer<typeof SocialVideoParentProvidedTargetRefSchema>;
 export type SocialVideoPermittedDownstreamUse = Infer<typeof SocialVideoPermittedDownstreamUseSchema>;
-export type SocialVideoSourcePrivacyEvidenceId = Infer<typeof SocialVideoSourcePrivacyEvidenceIdSchema>;
 export type SocialVideoSourcePrivacySummary = Infer<typeof SocialVideoSourcePrivacySummarySchema>;
 export type SocialVideoSourceType = Infer<typeof SocialVideoSourceTypeSchema>;
 
@@ -251,4 +242,3 @@ function sourcePrivacyDownstreamUseIsConsistent(value: SocialVideoSourcePrivacyS
   }
   return true;
 }
-

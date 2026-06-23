@@ -1,11 +1,13 @@
-import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import type { LogFieldValue } from '@ocentra-parent/schema-domain/logging-contracts';
-import { PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalReadableValues } from '@ocentra-parent/portal-domain/details';
-import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 
-export type AgentPayloadField = (typeof AgentProtocolDefaults.Field)[keyof typeof AgentProtocolDefaults.Field];
+const _agentPayloadFields = AgentProtocolDefaults.Field;
+
+export type AgentPayloadField = (typeof _agentPayloadFields)[keyof typeof _agentPayloadFields];
 
 export function eventStatus(event: AgentEventEnvelope | null): PortalDetailValue {
   if (event === null) {
@@ -33,5 +35,5 @@ export function detailFromValue(value: LogFieldValue | undefined): PortalDetailV
 }
 
 export function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+  return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
 }

@@ -11,7 +11,7 @@ import {
   AgentAppGameAdapterHostCapabilityState,
 } from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import { parseAgentAppGameAdapterDispatchPreflightEvent } from '../../src/app-game-adapter-dispatch-preflight';
 

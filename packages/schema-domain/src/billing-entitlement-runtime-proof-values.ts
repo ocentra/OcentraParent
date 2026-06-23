@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const BillingEntitlementRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('billing-entitlement-runtime-proof')
@@ -56,12 +51,15 @@ export const BillingEntitlementRuntimeNonClaimSchema = withParser(
   )
 );
 
-export const BillingEntitlementRuntimeBoundaryIdSchema = brandedNonEmptyStringSchema('BillingEntitlementRuntimeBoundaryId');
+export const BillingEntitlementRuntimeBoundaryIdSchema = brandedNonEmptyStringSchema(
+  'BillingEntitlementRuntimeBoundaryId'
+);
 
-export const BillingEntitlementRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema('BillingEntitlementRuntimeAuditReference');
+export const BillingEntitlementRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema(
+  'BillingEntitlementRuntimeAuditReference'
+);
 
 export type BillingEntitlementRuntimeSnapshotState = Infer<typeof BillingEntitlementRuntimeSnapshotStateSchema>;
 export type BillingEntitlementRuntimeOperation = Infer<typeof BillingEntitlementRuntimeOperationSchema>;
 export type BillingEntitlementRuntimeConsumptionState = Infer<typeof BillingEntitlementRuntimeConsumptionStateSchema>;
 export type BillingEntitlementRuntimeNonClaim = Infer<typeof BillingEntitlementRuntimeNonClaimSchema>;
-

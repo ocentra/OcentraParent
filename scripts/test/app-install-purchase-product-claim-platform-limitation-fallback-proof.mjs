@@ -53,13 +53,13 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       platformLimitationFallbackContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts',
       sourcePlatformPreclaimContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts',
       sourceSafeParentWorkflowContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
       sourcePlatformLimitationActionContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
@@ -68,7 +68,7 @@ async function main() {
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/app-game-domain/package.json',
       packageExport:
-        '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof',
+        '@ocentra-parent/schema-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof',
       output: relative(repoRoot, proofPath),
     },
     platformLimitationFallbackSummary: summary,

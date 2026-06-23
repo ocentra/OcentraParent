@@ -21,8 +21,8 @@ const sourceFiles = [
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
   'crates/agent-service/src/main.rs',
   'crates/agent-service/src/websocket.rs',
-  'packages/agent-protocol-domain/src/contracts.ts',
-  'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/agent-command-event-contracts.ts',
+  'packages/schema-domain/src/agent-protocol-defaults.ts',
   'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
@@ -358,8 +358,8 @@ function assertSourceContracts() {
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
   const serviceWebSocket = readText('crates/agent-service/src/websocket.rs');
   const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
-  const domainContracts = readText('packages/agent-protocol-domain/src/contracts.ts');
-  const domainDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const domainContracts = readText('packages/schema-domain/src/agent-command-event-contracts.ts');
+  const domainDefaults = readText('packages/schema-domain/src/agent-protocol-defaults.ts');
   const domainParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
   const domainTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
   const packageManifest = readText('packages/agent-protocol-domain/package.json');

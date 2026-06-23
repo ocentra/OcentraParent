@@ -7,8 +7,10 @@ use std::{
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
-use ocentra_parent_agent_protocol::{
-    constants, ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary,
+use ocentra_parent_agent_protocol as parent_protocol;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary,
 };
 
 use crate::screen_ai_retention_sweeper_deletion_events::{
@@ -38,9 +40,14 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
     let journal_path = root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX);
     let store_path = root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
     let key = JournalKey::from_bytes([4; JOURNAL_KEY_BYTES]);
-    fs::create_dir_all(&root).expect(constants::error::ACTIVITY_STORE_OPENS);
-    fs::write(&key_path, key.as_bytes()).expect(constants::error::ACTIVITY_STORE_OPENS);
-    let queue = ScreenEvidenceQueue::open(&queue_dir, key).expect(constants::error::JOURNAL_OPENS);
+    fs::create_dir_all(&root).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
+    fs::write(&key_path, key.as_bytes()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
+    let queue = ScreenEvidenceQueue::open(&queue_dir, key)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_OPENS));
     let expired_job = screen_queue_job_with_expiry(
         constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
@@ -54,13 +61,13 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
             &expired_job,
             constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER.as_bytes(),
         )
-        .expect(constants::error::JOURNAL_APPENDS);
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_APPENDS));
     queue
         .append_encrypted_image(
             &fresh_job,
             constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes(),
         )
-        .expect(constants::error::JOURNAL_APPENDS);
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_APPENDS));
     let config = ScreenAiRetentionSweeperRuntimeConfig {
         poll_seconds: 1,
         max_sweeps: Some(1),
@@ -77,27 +84,31 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
             constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         ),
     )
-    .expect(constants::error::ACTIVITY_STORE_OPENS);
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let deletion_events = publish_swept_deletion_events(&store_path, &outcome).await;
     let entries = queue
         .read_decrypted_entries(4)
-        .expect(constants::error::JOURNAL_READS);
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_READS));
     let screen_summary = ActivityStore::open(&store_path)
-        .expect(constants::error::ACTIVITY_STORE_OPENS)
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+        })
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_OPENS);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+        });
     let _ = remove_dir_all(&root);
 
     assert_sweep_outcome(outcome, &expired_job);
-    assert_sweep_deletion_events(deletion_events, &expired_job);
+    assert_sweep_deletion_events(&deletion_events, &expired_job);
     assert_sweep_store(
         entries.len(),
         entries[0].queue_job_id.as_str(),
         &fresh_job,
-        screen_summary,
+        &screen_summary,
     );
 }
 
@@ -121,7 +132,7 @@ async fn publish_swept_deletion_events(
 }
 
 fn assert_sweep_deletion_events(
-    deletion_events: Vec<ScreenAiRetentionSweeperDeletionEventOutcome>,
+    deletion_events: &[ScreenAiRetentionSweeperDeletionEventOutcome],
     expired_job: &ScreenAnalysisQueueJob,
 ) {
     assert_eq!(deletion_events.len(), 1);
@@ -150,7 +161,7 @@ fn screen_retention_sweeper_tick_keeps_queue_when_key_is_missing() {
             constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         ),
     )
-    .expect(constants::error::ACTIVITY_STORE_OPENS);
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let _ = remove_dir_all(&root);
 
     assert_eq!(outcome, ScreenAiRetentionSweeperOutcome::QueueEmpty);
@@ -173,10 +184,10 @@ fn assert_sweep_outcome(
                 constants::activity_store::TEST_SECOND_OBSERVED_AT
             );
             assert!(expired_entries[0].deletion_proof_ref.contains(
-                ocentra_parent_agent_protocol::SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX
+                ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX
             ));
         }
-        _ => unreachable!(),
+        other => panic!("expected swept retention outcome, got {other:?}"),
     }
 }
 
@@ -184,7 +195,7 @@ fn assert_sweep_store(
     entry_count: usize,
     retained_queue_job_id: &str,
     fresh_job: &ScreenAnalysisQueueJob,
-    screen_summary: ScreenEvidenceRecentSummary,
+    screen_summary: &ScreenEvidenceRecentSummary,
 ) {
     assert_eq!(entry_count, 1);
     assert_eq!(retained_queue_job_id, fresh_job.queue_job_id);
@@ -195,22 +206,24 @@ fn assert_sweep_store(
     );
     assert_eq!(
         screen_summary.results[0].image_deletion_state,
-        ocentra_parent_agent_protocol::SCREEN_DELETION_EXPIRED_DELETED
+        ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_EXPIRED_DELETED
     );
 }
 
 fn screen_queue_job_with_expiry(queue_job_id: &str, expires_at: &str) -> ScreenAnalysisQueueJob {
     ScreenAnalysisQueueJob {
-        schema_version: ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
+        schema_version: parent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
         queue_job_id: queue_job_id.to_string(),
         created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         not_before: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         expires_at: expires_at.to_string(),
         last_attempt_at: None,
-        capture_reason: ocentra_parent_agent_protocol::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST
-            .to_string(),
-        capture_scope: ocentra_parent_agent_protocol::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW
-            .to_string(),
+        capture_reason:
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST
+                .to_string(),
+        capture_scope:
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW
+                .to_string(),
         source_id: constants::activity_store::TEST_SCREEN_SOURCE_ID.to_string(),
         adapter_id: constants::activity_store::TEST_SCREEN_ADAPTER_ID.to_string(),
         device_ref: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -221,17 +234,21 @@ fn screen_queue_job_with_expiry(queue_job_id: &str, expires_at: &str) -> ScreenA
         encrypted_image_ref: constants::activity_store::TEST_SCREEN_ENCRYPTED_IMAGE_REF.to_string(),
         image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
         image_byte_size: 32,
-        image_format: ocentra_parent_agent_protocol::SCREEN_IMAGE_FORMAT_PNG.to_string(),
-        status: ocentra_parent_agent_protocol::SCREEN_QUEUE_STATUS_QUEUED.to_string(),
+        image_format: ocentra_parent_agent_protocol::screen_evidence::SCREEN_IMAGE_FORMAT_PNG
+            .to_string(),
+        status: ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED
+            .to_string(),
         attempt_count: 0,
         max_retry_count: 2,
         failure_reason: None,
         unavailable_reason: None,
         deletion_required: true,
         deleted_at: None,
-        deletion_status: ocentra_parent_agent_protocol::SCREEN_DELETION_REQUIRED.to_string(),
+        deletion_status: ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_REQUIRED
+            .to_string(),
         deletion_proof_ref: None,
-        custody_state: ocentra_parent_agent_protocol::SCREEN_CUSTODY_TEMP_QUEUE.to_string(),
+        custody_state: ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_TEMP_QUEUE
+            .to_string(),
     }
 }
 

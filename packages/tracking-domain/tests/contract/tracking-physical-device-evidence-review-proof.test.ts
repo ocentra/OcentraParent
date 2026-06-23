@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   RequiredTrackingPhysicalDeviceArtifactPlans,
   buildTrackingPhysicalDeviceArtifactGateProof,
-} from '../../src/tracking-physical-device-artifact-gate-proof';
+} from '@ocentra-parent/schema-domain/tracking-physical-device-artifact-gate-proof';
 import {
   TrackingPhysicalDeviceEvidenceReviewRowSchema,
   buildTrackingPhysicalDeviceEvidenceReviewProof,
-} from '../../src/tracking-physical-device-evidence-review-proof';
+} from '@ocentra-parent/schema-domain/tracking-physical-device-evidence-review-proof';
 
 describe('tracking physical device evidence review proof', () => {
   it('keeps Android and iOS artifact-missing when the physical artifact gate is incomplete', () => {

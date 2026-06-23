@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 const BrowserRedactedRefText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => browserRedactedRefIsSafe(value) || 'Expected a redacted browser reference')
@@ -44,9 +44,7 @@ export const BrowserUnmanagedExecutablePathRefSchema = withParser(
 export const BrowserUnmanagedProcessHashRefSchema = withParser(
   BrowserRedactedRefText.pipe(Schema.brand('BrowserUnmanagedProcessHashRef'))
 );
-export const BrowserUnmanagedProcessNameSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserUnmanagedProcessName')
-);
+export const BrowserUnmanagedProcessNameSchema = withParser(brandedNonEmptyStringSchema('BrowserUnmanagedProcessName'));
 export const BrowserUnmanagedSignatureRefSchema = withParser(
   BrowserRedactedRefText.pipe(Schema.brand('BrowserUnmanagedSignatureRef'))
 );
@@ -58,4 +56,3 @@ export type BrowserUnmanagedProcessKind = Infer<typeof BrowserUnmanagedProcessKi
 function browserRedactedRefIsSafe(value: string): boolean {
   return !value.includes('/') && !value.includes('\\') && !value.includes(':');
 }
-

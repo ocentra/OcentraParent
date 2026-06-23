@@ -1,15 +1,5 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  PolicyActionSchema,
-  PolicyDecisionSchema,
-  PolicyRuleSchema,
-} from './policy-contracts';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
+import { PolicyActionSchema, PolicyDecisionSchema, PolicyRuleSchema } from './policy-contracts';
 import { comparePolicyActionStrictness, selectStricterPolicyAction } from './policy';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 const ScreenAiStricterParentRuleProofIdSchema = brandedNonEmptyStringSchema('ScreenAiStricterParentRuleProofId');
@@ -125,4 +115,3 @@ function screenAiStricterParentRuleProofIsHonest(proof: ScreenAiStricterParentRu
     Object.values(proof.claimBoundaries).every((claim) => claim === false)
   );
 }
-

@@ -9,13 +9,14 @@ import {
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { type AgentMessageTarget } from '@ocentra-parent/schema-domain/event-primitives';
 import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
+import { PortalConnectionState } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
   createAgentCommand,
   parseAgentEventMessage,
   serializeAgentCommand,
 } from '@ocentra-parent/agent-protocol-domain/agent-message-codec';
 import { PortalOverviewCommands } from '@ocentra-parent/portal-domain/commands';
-import { PortalConnectionState, PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { writePortalDevLog } from './dev-logger';
 import type { PortalRuntimeState } from './portal-state';
 

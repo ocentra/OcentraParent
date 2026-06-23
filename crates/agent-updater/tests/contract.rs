@@ -1,5 +1,6 @@
 use ocentra_parent_agent_maintenance::constants::{MSI_INSTALLER_TYPE, WINDOWS_X64_TARGET};
 use ocentra_parent_agent_maintenance::crypto::generate_key_pair;
+use ocentra_parent_agent_maintenance::error::UpdaterError;
 use ocentra_parent_agent_maintenance::manifest::{
     parse_payload, sign_payload, ArtifactManifest, InstallerManifest, ServiceManifest,
     UpdateManifestPayload,
@@ -16,15 +17,24 @@ fn manifest_policy_rejects_unsupported_schema_target_and_installer() {
 
     let mut unsupported_schema = sample_payload();
     unsupported_schema.schema_version = 2;
-    assert!(sign_payload(unsupported_schema, &keys.private_key_base64).is_err());
+    assert!(matches!(
+        sign_payload(unsupported_schema, &keys.private_key_base64),
+        Err(UpdaterError::Policy(message)) if message == "unsupported update manifest schema: 2"
+    ));
 
     let mut unsupported_target = sample_payload();
     unsupported_target.target = String::from("linux-x64");
-    assert!(sign_payload(unsupported_target, &keys.private_key_base64).is_err());
+    assert!(matches!(
+        sign_payload(unsupported_target, &keys.private_key_base64),
+        Err(UpdaterError::Policy(message)) if message == "unsupported update target: linux-x64"
+    ));
 
     let mut unsupported_installer = sample_payload();
     unsupported_installer.installer.r#type = String::from("zip");
-    assert!(sign_payload(unsupported_installer, &keys.private_key_base64).is_err());
+    assert!(matches!(
+        sign_payload(unsupported_installer, &keys.private_key_base64),
+        Err(UpdaterError::Policy(message)) if message == "unsupported update installer type: zip"
+    ));
 }
 
 #[test]
@@ -61,7 +71,10 @@ fn manifest_parser_rejects_unknown_fields_in_payload_contract() {
 
     let result = parse_payload(&payload.to_string());
 
-    assert!(result.is_err());
+    assert!(matches!(
+        result,
+        Err(UpdaterError::Json(error)) if error.classify() == serde_json::error::Category::Data
+    ));
 }
 
 fn sample_payload() -> UpdateManifestPayload {

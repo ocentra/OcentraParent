@@ -61,16 +61,12 @@ export function canHouseholdRoleAuthorizeAction(role: HouseholdRole, action: Dev
     case DeviceAuthorityActionLiteral.PairChildDevice:
     case DeviceAuthorityActionLiteral.RevokeChildDevice:
     case DeviceAuthorityActionLiteral.ChangePolicy:
-      return parsedRole === HouseholdRole.ParentOwner || parsedRole === HouseholdRole.CoParentGuardian;
+      return isParentAuthorityRole(parsedRole);
     case DeviceAuthorityActionLiteral.ViewChildStatus:
     case DeviceAuthorityActionLiteral.StartRemoteView:
-      return (
-        parsedRole === HouseholdRole.ParentOwner ||
-        parsedRole === HouseholdRole.CoParentGuardian ||
-        parsedRole === HouseholdRole.Observer
-      );
+      return canObserveHouseholdRole(parsedRole);
     case DeviceAuthorityActionLiteral.StartRemoteControl:
-      return parsedRole === HouseholdRole.ParentOwner || parsedRole === HouseholdRole.CoParentGuardian;
+      return isParentAuthorityRole(parsedRole);
     case DeviceAuthorityActionLiteral.ExportDeleteData:
     case DeviceAuthorityActionLiteral.ManageBilling:
       return parsedRole === HouseholdRole.ParentOwner;
@@ -105,84 +101,101 @@ export function validateParentStepUpAssertion(input: {
   valid: boolean;
   failureReason: ParentStepUpValidationFailureReason | null;
 } {
+  if (input.assertion === null) {
+    return rejectedStepUpValidation(ParentStepUpValidationFailureReason.Required);
+  }
+
   const family = FamilyReferenceSchema.parse(input.family);
   const parentAccount = ParentAccountReferenceSchema.parse(input.parentAccount);
   const actionDevice = ParentDeviceReferenceSchema.parse(input.actionDevice);
   const targetChildProfile =
     input.targetChildProfile === null ? null : ChildProfileReferenceSchema.parse(input.targetChildProfile);
   const action = DeviceAuthorityActionSchema.parse(input.action);
-
-  if (input.assertion === null) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.Required,
-    };
-  }
-
   const assertion = ParentStepUpAssertionSchema.parse(input.assertion);
   const observedAt = Schema.decodeUnknownSync(ParentTimestampSchema)(input.observedAt);
   const expectedNonce = input.expectedNonce === undefined ? null : input.expectedNonce;
+  const failureReason = stepUpValidationFailureReason({
+    assertion,
+    family,
+    parentAccount,
+    actionDevice,
+    targetChildProfile,
+    action,
+    observedAt,
+    expectedNonce,
+  });
 
-  if (assertion.expiresAt < observedAt) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.Expired,
-    };
+  return failureReason === null ? { valid: true, failureReason: null } : rejectedStepUpValidation(failureReason);
+}
+
+type ParsedStepUpValidationInput = {
+  readonly assertion: ParentStepUpAssertion;
+  readonly family: Infer<typeof FamilyReferenceSchema>;
+  readonly parentAccount: Infer<typeof ParentAccountReferenceSchema>;
+  readonly actionDevice: Infer<typeof ParentDeviceReferenceSchema>;
+  readonly targetChildProfile: Infer<typeof ChildProfileReferenceSchema> | null;
+  readonly action: DeviceAuthorityAction;
+  readonly observedAt: Infer<typeof ParentTimestampSchema>;
+  readonly expectedNonce: string | null;
+};
+
+function stepUpValidationFailureReason(input: ParsedStepUpValidationInput): ParentStepUpValidationFailureReason | null {
+  if (input.assertion.expiresAt < input.observedAt) {
+    return ParentStepUpValidationFailureReason.Expired;
   }
 
-  if (assertion.family.familyId !== family.familyId) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.WrongHousehold,
-    };
+  if (input.assertion.family.familyId !== input.family.familyId) {
+    return ParentStepUpValidationFailureReason.WrongHousehold;
   }
 
-  if (assertion.parentAccount.parentAccountId !== parentAccount.parentAccountId) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.WrongAccount,
-    };
+  if (input.assertion.parentAccount.parentAccountId !== input.parentAccount.parentAccountId) {
+    return ParentStepUpValidationFailureReason.WrongAccount;
   }
 
-  if (assertion.action !== action) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.WrongAction,
-    };
+  if (input.assertion.action !== input.action) {
+    return ParentStepUpValidationFailureReason.WrongAction;
   }
 
   if (
-    assertion.actionDevice.deviceId !== actionDevice.deviceId ||
-    assertion.actionDevice.childProfileId !== actionDevice.childProfileId
+    input.assertion.actionDevice.deviceId !== input.actionDevice.deviceId ||
+    input.assertion.actionDevice.childProfileId !== input.actionDevice.childProfileId
   ) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.WrongDevice,
-    };
+    return ParentStepUpValidationFailureReason.WrongDevice;
   }
 
-  if (
-    (assertion.targetChildProfile === null) !== (targetChildProfile === null) ||
-    (assertion.targetChildProfile !== null &&
-      targetChildProfile !== null &&
-      assertion.targetChildProfile.childProfileId !== targetChildProfile.childProfileId)
-  ) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.WrongTarget,
-    };
+  if (!matchesTargetChildProfile(input.assertion.targetChildProfile, input.targetChildProfile)) {
+    return ParentStepUpValidationFailureReason.WrongTarget;
   }
 
-  if (expectedNonce !== null && assertion.nonce !== expectedNonce) {
-    return {
-      valid: false,
-      failureReason: ParentStepUpValidationFailureReason.ReplayRejected,
-    };
+  if (input.expectedNonce !== null && input.assertion.nonce !== input.expectedNonce) {
+    return ParentStepUpValidationFailureReason.ReplayRejected;
   }
 
+  return null;
+}
+
+function matchesTargetChildProfile(
+  assertedTarget: Infer<typeof ChildProfileReferenceSchema> | null,
+  expectedTarget: Infer<typeof ChildProfileReferenceSchema> | null
+): boolean {
+  if ((assertedTarget === null) !== (expectedTarget === null)) {
+    return false;
+  }
+
+  return (
+    assertedTarget === null ||
+    expectedTarget === null ||
+    assertedTarget.childProfileId === expectedTarget.childProfileId
+  );
+}
+
+function rejectedStepUpValidation(failureReason: ParentStepUpValidationFailureReason): {
+  valid: boolean;
+  failureReason: ParentStepUpValidationFailureReason;
+} {
   return {
-    valid: true,
-    failureReason: null,
+    valid: false,
+    failureReason,
   };
 }
 
@@ -217,47 +230,10 @@ export function canParentMemberAuthorizeDeviceAction(
 
 export function authorizeHouseholdAction(input: HouseholdAuthorityInput): HouseholdAuthorityDecision {
   const parsedInput = HouseholdAuthorityInputSchema.parse(input);
+  const baseFailureReason = householdAuthorizationFailureReason(parsedInput);
 
-  if (!parsedInput.sameFamily) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.ExternalHousehold, parsedInput.action);
-  }
-
-  if (parsedInput.membershipState !== HouseholdMembershipState.Active) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.MembershipNotActive, parsedInput.action);
-  }
-
-  if (parsedInput.actorAccountState !== ActorAccountState.Active) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.AccountNotActive, parsedInput.action);
-  }
-
-  if (!isTrustedDeviceState(parsedInput.deviceTrustState)) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.DeviceNotTrusted, parsedInput.action);
-  }
-
-  if (requiresFreshSession(parsedInput.action) && parsedInput.sessionFreshnessState !== SessionFreshnessState.Fresh) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.SessionNotFresh, parsedInput.action);
-  }
-
-  if (
-    requiresBoundChildScope(parsedInput.action) &&
-    parsedInput.childProfileBindingState !== ChildProfileBindingState.Bound
-  ) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.ChildProfileNotBound, parsedInput.action);
-  }
-
-  if (
-    requiresBoundChildScope(parsedInput.action) &&
-    parsedInput.deviceOwnershipScope !== DeviceOwnershipScope.ChildProfileDevice
-  ) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.WrongDeviceScope, parsedInput.action);
-  }
-
-  if (requiresCapabilityGrant(parsedInput.action) && !parsedInput.capabilityGranted) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.MissingCapabilityGrant, parsedInput.action);
-  }
-
-  if (!canHouseholdRoleAuthorizeAction(parsedInput.actorRole, parsedInput.action)) {
-    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.RoleNotAuthorized, parsedInput.action);
+  if (baseFailureReason !== null) {
+    return rejectedHouseholdAction(baseFailureReason, parsedInput.action);
   }
 
   const controllerLeaseFailureReason = controllerLeaseFailureReasonForAction(parsedInput);
@@ -297,6 +273,92 @@ function rejectedHouseholdAction(
     elevatedConfirmationState: elevatedConfirmationState(action),
     failureReason,
   });
+}
+
+function isParentAuthorityRole(role: HouseholdRole): boolean {
+  return role === HouseholdRole.ParentOwner || role === HouseholdRole.CoParentGuardian;
+}
+
+function canObserveHouseholdRole(role: HouseholdRole): boolean {
+  return isParentAuthorityRole(role) || role === HouseholdRole.Observer;
+}
+
+function sameFamilyFailureReason(input: HouseholdAuthorityInput): HouseholdAuthorizationFailureReason | null {
+  return input.sameFamily ? null : HouseholdAuthorizationFailureReason.ExternalHousehold;
+}
+
+function membershipFailureReason(input: HouseholdAuthorityInput): HouseholdAuthorizationFailureReason | null {
+  return input.membershipState === HouseholdMembershipState.Active
+    ? null
+    : HouseholdAuthorizationFailureReason.MembershipNotActive;
+}
+
+function actorAccountFailureReason(input: HouseholdAuthorityInput): HouseholdAuthorizationFailureReason | null {
+  return input.actorAccountState === ActorAccountState.Active
+    ? null
+    : HouseholdAuthorizationFailureReason.AccountNotActive;
+}
+
+function deviceTrustFailureReason(input: HouseholdAuthorityInput): HouseholdAuthorizationFailureReason | null {
+  return isTrustedDeviceState(input.deviceTrustState) ? null : HouseholdAuthorizationFailureReason.DeviceNotTrusted;
+}
+
+function sessionFreshnessFailureReasonForAction(
+  input: HouseholdAuthorityInput
+): HouseholdAuthorizationFailureReason | null {
+  return requiresFreshSession(input.action) && input.sessionFreshnessState !== SessionFreshnessState.Fresh
+    ? HouseholdAuthorizationFailureReason.SessionNotFresh
+    : null;
+}
+
+function childScopeFailureReason(input: HouseholdAuthorityInput): HouseholdAuthorizationFailureReason | null {
+  if (!requiresBoundChildScope(input.action)) {
+    return null;
+  }
+
+  if (input.childProfileBindingState !== ChildProfileBindingState.Bound) {
+    return HouseholdAuthorizationFailureReason.ChildProfileNotBound;
+  }
+
+  return input.deviceOwnershipScope === DeviceOwnershipScope.ChildProfileDevice
+    ? null
+    : HouseholdAuthorizationFailureReason.WrongDeviceScope;
+}
+
+function capabilityGrantFailureReason(input: HouseholdAuthorityInput): HouseholdAuthorizationFailureReason | null {
+  return requiresCapabilityGrant(input.action) && !input.capabilityGranted
+    ? HouseholdAuthorizationFailureReason.MissingCapabilityGrant
+    : null;
+}
+
+function roleAuthorizationFailureReason(input: HouseholdAuthorityInput): HouseholdAuthorizationFailureReason | null {
+  return canHouseholdRoleAuthorizeAction(input.actorRole, input.action)
+    ? null
+    : HouseholdAuthorizationFailureReason.RoleNotAuthorized;
+}
+
+function householdAuthorizationFailureReason(
+  input: HouseholdAuthorityInput
+): HouseholdAuthorizationFailureReason | null {
+  const failureChecks = [
+    sameFamilyFailureReason,
+    membershipFailureReason,
+    actorAccountFailureReason,
+    deviceTrustFailureReason,
+    sessionFreshnessFailureReasonForAction,
+    childScopeFailureReason,
+    capabilityGrantFailureReason,
+    roleAuthorizationFailureReason,
+  ] as const;
+
+  for (const failureCheck of failureChecks) {
+    const failureReason = failureCheck(input);
+    if (failureReason !== null) {
+      return failureReason;
+    }
+  }
+
+  return null;
 }
 
 function requiresCapabilityGrant(action: DeviceAuthorityAction): boolean {

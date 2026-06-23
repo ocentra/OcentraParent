@@ -18,7 +18,14 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
 
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']);
-runNpm(['run', 'test', '--workspace', '@ocentra-parent/notification-domain', '--', 'v0-8-notification-provider-status-boundary']);
+runNpm([
+  'run',
+  'test',
+  '--workspace',
+  '@ocentra-parent/notification-domain',
+  '--',
+  'v0-8-notification-provider-status-boundary',
+]);
 
 const providerPreflight = await importSchemaDist('app-game-notification-provider-preflight.js');
 const providerStatusHandoff = await importSchemaDist('app-game-notification-provider-status-handoff.js');

@@ -1,7 +1,8 @@
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::APP_GAME_OBSERVATION_MODE_PROCESS_EXIT;
 use ocentra_parent_agent_protocol::app_game::*;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, LogFieldValue, APP_GAME_OBSERVATION_MODE_PROCESS_EXIT,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::app_game_session_rollups::daily_rollups_from_summaries;
 use super::app_game_sessionization::session_summaries_from_rows;
@@ -86,7 +87,7 @@ fn foreground_duration_uses_window_focus_and_stays_within_running_duration() {
         .find(|summary| {
             summary.primary_process_identity == constants::activity_store::TEST_PROCESS_SUBJECT_ID
         })
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(game_summary.running_duration_ms, 120000);
     assert_eq!(game_summary.foreground_duration_ms, 60000);
@@ -139,15 +140,16 @@ fn daily_rollup_sums_session_durations_by_day_and_classification() {
 }
 
 fn summaries_from_events(events: &[ActivityEvent]) -> Vec<AppGameSessionSummary> {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     store
         .ingest_events(events)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let rows = app_game_rows(
         &store.connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     session_summaries_from_rows(rows, constants::activity_store::DEFAULT_RECENT_LIMIT)
 }
 

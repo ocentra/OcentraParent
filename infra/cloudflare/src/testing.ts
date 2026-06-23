@@ -4,18 +4,14 @@ import type {
   DurableObjectState,
   DurableObjectStub,
   Queue,
-} from "@cloudflare/workers-types";
+} from '@cloudflare/workers-types';
 import {
   buildDefaultBillingBindingSeed,
   createLocalBillingBindings,
   type LocalBillingBindingState,
-} from "./billing-binding-read-model.js";
-import worker, {
-  BillingControlDO,
-  EntitlementSnapshotDO,
-  ReferralControlDO,
-} from "./index.js";
-import type { Env } from "./env.js";
+} from './billing-binding-read-model.js';
+import worker, { BillingControlDO, EntitlementSnapshotDO, ReferralControlDO } from './index.js';
+import type { Env } from './env.js';
 
 export interface CloudflareTestHarness {
   env: Env;
@@ -47,19 +43,13 @@ function createQueueRecorder(target: unknown[]): Queue {
   } as unknown as Queue;
 }
 
-type DurableObjectConstructor = new (
-  state: DurableObjectState,
-  env: Env,
-) => DurableObjectStub;
+type DurableObjectConstructor = new (state: DurableObjectState, env: Env) => DurableObjectStub;
 
 type LocalDurableObjectId = DurableObjectId & {
   readonly name: string;
 };
 
-function createDurableObjectNamespace(
-  ctor: DurableObjectConstructor,
-  env: Env,
-): DurableObjectNamespace {
+function createDurableObjectNamespace(ctor: DurableObjectConstructor, env: Env): DurableObjectNamespace {
   const instances = new Map<string, DurableObjectStub>();
 
   return {
@@ -83,7 +73,7 @@ function createDurableObjectNamespace(
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && value.constructor === Object;
+  return typeof value === 'object' && value !== null && value.constructor === Object;
 }
 
 export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestHarness {
@@ -92,20 +82,20 @@ export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestH
   const localBindings = createLocalBillingBindings();
 
   const env = {
-    ENVIRONMENT: "test",
-    APP_ORIGIN: "http://localhost:3000",
-    CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000",
-    REQUEST_MAX_BYTES: "2048",
-    BILLING_ROUTE_KILL_SWITCH: "false",
-    AUTH_ADAPTER_MODE: "local-safe-fixture",
-    INTERNAL_QUEUE_SHARED_SECRET: "internal-test-secret",
-    STRIPE_SECRET_KEY: "sk_test_not_exposed",
-    STRIPE_WEBHOOK_SECRET: "whsec_test_secret",
-    PAYPAL_CLIENT_SECRET: "paypal-test-secret",
-    RAZORPAY_KEY_SECRET: "razorpay-test-secret",
-    APPLE_STORE_KEY_REF: "apple-store-key-test-ref",
-    GOOGLE_PLAY_SERVICE_ACCOUNT_REF: "google-play-service-account-test-ref",
-    ENTITLEMENT_SIGNING_KEY_REF: "signing-key-test-ref",
+    ENVIRONMENT: 'test',
+    APP_ORIGIN: 'http://localhost:3000',
+    CORS_ALLOWED_ORIGINS: 'http://localhost:3000,http://127.0.0.1:3000',
+    REQUEST_MAX_BYTES: '2048',
+    BILLING_ROUTE_KILL_SWITCH: 'false',
+    AUTH_ADAPTER_MODE: 'local-safe-fixture',
+    INTERNAL_QUEUE_SHARED_SECRET: 'internal-test-secret',
+    STRIPE_SECRET_KEY: 'sk_test_not_exposed',
+    STRIPE_WEBHOOK_SECRET: 'whsec_test_secret',
+    PAYPAL_CLIENT_SECRET: 'paypal-test-secret',
+    RAZORPAY_KEY_SECRET: 'razorpay-test-secret',
+    APPLE_STORE_KEY_REF: 'apple-store-key-test-ref',
+    GOOGLE_PLAY_SERVICE_ACCOUNT_REF: 'google-play-service-account-test-ref',
+    ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-test-ref',
     BILLING_D1: localBindings.BILLING_D1,
     BILLING_RECONCILIATION_QUEUE: createQueueRecorder(queueMessages),
     BILLING_DEAD_LETTER_QUEUE: createQueueRecorder(deadLetterMessages),
@@ -117,10 +107,7 @@ export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestH
 
   env.BILLING_DO = createDurableObjectNamespace(BillingControlDO, env);
   env.REFERRAL_DO = createDurableObjectNamespace(ReferralControlDO, env);
-  env.ENTITLEMENT_SNAPSHOT_DO = createDurableObjectNamespace(
-    EntitlementSnapshotDO,
-    env,
-  );
+  env.ENTITLEMENT_SNAPSHOT_DO = createDurableObjectNamespace(EntitlementSnapshotDO, env);
   Object.assign(env, overrides);
   localBindings.state.replaceSeed(buildDefaultBillingBindingSeed(env));
 
@@ -132,7 +119,7 @@ export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestH
   };
 }
 
-function normalizeBody(body: ExecuteRequestOptions["body"]): BodyInit | undefined {
+function normalizeBody(body: ExecuteRequestOptions['body']): BodyInit | undefined {
   if (body === undefined) {
     return undefined;
   }
@@ -143,7 +130,7 @@ function normalizeBody(body: ExecuteRequestOptions["body"]): BodyInit | undefine
 }
 
 function bodyByteLength(body: BodyInit): number | null {
-  if (typeof body === "string") {
+  if (typeof body === 'string') {
     return new TextEncoder().encode(body).length;
   }
   if (body instanceof URLSearchParams) {
@@ -162,7 +149,7 @@ function bodyByteLength(body: BodyInit): number | null {
 }
 
 export async function executeRequest(
-  options: ExecuteRequestOptions,
+  options: ExecuteRequestOptions
 ): Promise<{ response: Response; harness: CloudflareTestHarness }> {
   const harness = options.harness ?? createTestHarness(options.envOverrides);
   if (options.harness && options.envOverrides) {
@@ -171,23 +158,23 @@ export async function executeRequest(
 
   const headers = new Headers(options.headers);
   const body = normalizeBody(options.body);
-  if (body !== undefined && !headers.has("content-type")) {
-    headers.set("content-type", "application/json");
+  if (body !== undefined && !headers.has('content-type')) {
+    headers.set('content-type', 'application/json');
   }
-  if ((options.autoContentLength ?? true) && body !== undefined && !headers.has("content-length")) {
+  if ((options.autoContentLength ?? true) && body !== undefined && !headers.has('content-length')) {
     const byteLength = bodyByteLength(body);
     if (byteLength !== null) {
-      headers.set("content-length", String(byteLength));
+      headers.set('content-length', String(byteLength));
     }
   }
 
   const response = await worker.fetch(
     new Request(`https://cloudflare.local${options.path}`, {
-      method: options.method ?? "GET",
+      method: options.method ?? 'GET',
       headers,
       body,
     }),
-    harness.env,
+    harness.env
   );
 
   return {
@@ -201,32 +188,28 @@ export async function readJson<T>(response: Response): Promise<T> {
 }
 
 function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
 }
 
 export async function createStripeSignature(
   payload: string,
   secret: string,
-  timestamp = 1_710_000_000,
+  timestamp = 1_710_000_000
 ): Promise<string> {
   return `t=${timestamp},v1=${await createHmacSignature(`${timestamp}.${payload}`, secret)}`;
 }
 
 export async function createHmacSignature(payload: string, secret: string): Promise<string> {
   const key = await crypto.subtle.importKey(
-    "raw",
+    'raw',
     new TextEncoder().encode(secret),
     {
-      name: "HMAC",
-      hash: "SHA-256",
+      name: 'HMAC',
+      hash: 'SHA-256',
     },
     false,
-    ["sign"],
+    ['sign']
   );
-  const signed = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(payload),
-  );
+  const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
   return bytesToHex(new Uint8Array(signed));
 }

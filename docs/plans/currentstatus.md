@@ -766,7 +766,7 @@ This file currently covers these **19** plans:
 - `cmd /c npm run lint:architecture -- crates/policy-control-core/src/policy_source.rs crates/policy-control-core/src/policy_compiler.rs crates/policy-control-core/tests/unit/policy_source.rs crates/policy-control-core/tests/unit/policy_compiler.rs crates/policy-control-core/tests/unit/policy_preview.rs crates/policy-control-core/tests/unit/policy_delivery.rs crates/policy-control-core/tests/unit/policy_conflict.rs crates/policy-control-core/tests/version-skew/policy_source.rs crates/policy-control-core/tests/version-skew/policy_source_migration.rs crates/policy-control-core/tests/version-skew/policy_preview.rs crates/policy-control-core/tests/version-skew/policy_delivery.rs crates/policy-control-core/tests/version-skew/policy_compiler.rs crates/child-policy-core/tests/unit/policy_control_delivery_handoff.rs crates/child-notification-core/tests/unit/policy_control_notification.rs crates/child-runtime/tests/integration/policy_control_runtime_flow_intent.rs crates/parent-runtime-core/tests/unit/policy_control_update_flow.rs crates/parent-runtime-core/tests/unit/policy_control_dispatch.rs` now passes for the lifecycle-ref propagation and downstream handoff slice.
 - `cargo test -p ocentra-child-policy-core --test unit policy_control_delivery_handoff -- --test-threads=1`, `cargo test -p ocentra-child-notification-core --test unit policy_control_notification -- --test-threads=1`, `cargo test -p ocentra-child-runtime --test integration policy_control_runtime_flow_intent -- --test-threads=1`, and `cargo test -p ocentra-parent-runtime-core --test unit policy_control_ -- --test-threads=1` now pass for the focused WP04/WP05 downstream runtime seam.
 - `cmd /c npm run lint:architecture -- crates/agent-protocol/src/constants/policy_control.rs crates/policy-control-core/src/policy_conflict.rs crates/policy-control-core/src/policy_preview.rs crates/policy-control-core/tests/unit/policy_conflict.rs crates/policy-control-core/tests/unit/policy_preview.rs`, `cargo test -p ocentra-policy-control-core --test unit policy_conflict -- --test-threads=1`, and `cargo test -p ocentra-policy-control-core --test unit policy_preview -- --test-threads=1` now pass for the focused WP07 timezone-boundary/manualRequired conflict slice.
-- `cmd /c npm run lint:architecture -- packages/schema-domain/src/policy.ts packages/schema-domain/src/authority.ts packages/policy-domain/tests/unit/policy.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-approval-override.test.ts` and `cmd /c npx prettier --check packages/schema-domain/src/policy.ts packages/schema-domain/src/authority.ts packages/policy-domain/tests/unit/policy.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-approval-override.test.ts` now pass for the focused TS owner WP07 time-budget slice.
+- `cmd /c npm run lint:architecture -- packages/policy-domain/src/policy.ts packages/policy-domain/src/authority.ts packages/policy-domain/tests/unit/policy.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-approval-override.test.ts` and `cmd /c npx prettier --check packages/policy-domain/src/policy.ts packages/policy-domain/src/authority.ts packages/policy-domain/tests/unit/policy.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-approval-override.test.ts` now pass for the focused TS owner WP07 time-budget slice.
   - `cmd /c npm run type-check --workspace @ocentra-parent/policy-domain`, `cmd /c npm run build --workspace @ocentra-parent/policy-domain`, and `cmd /c npm run test --workspace @ocentra-parent/policy-domain` now pass in this checkout after the repo-root `tsconfig.base.json` landed, so the policy-domain owner slice is runnable again.
 - `node --test scripts/test/placeholder-implementation-guard.test.mjs` now covers the Rust-attribute `temporary-override` false-positive path in `scripts/check-no-placeholder-implementation.mjs`, so the focused architecture gate no longer misclassifies `#[serde(...)]` lines as placeholder comments.
 - Focused `lint:architecture` for the touched `policy-control-core` owner files now passes end-to-end after moving runtime strings into the `agent-protocol` owner constants, so the next live policy-control gap is workpack closure on source-of-truth, schedule/conflict, authoring/preview, delivery, and override flows rather than crate architecture debt.
@@ -1145,7 +1145,7 @@ This file currently covers these **19** plans:
   - `crates/policy-control-core/tests/version_skew.rs`
   - `crates/policy-control-core/tests/version-skew/policy_event.rs`
   - `packages/policy-domain/package.json`
-  - `packages/schema-domain/src/policy-event.ts`
+  - `packages/policy-domain/src/policy-event.ts`
   - `packages/policy-domain/tests/unit/policy-event.test.ts`
   - `docs/proof/policy-control-plane-plan/08-event-family-registry-proof.md`
   - `docs/proof/policy-control-plane-plan/08-event-idempotency-proof.md`
@@ -1219,8 +1219,8 @@ This file currently covers these **19** plans:
   - add the missing cases to the existing `tests/unit` bucket files rather than creating workpack-specific folders
   - tighten bonus-time approval requests so they require schedule budget context, but leave broader Rust/source-compiler parity as the next follow-on slice
 - current files in this chunk:
-  - `packages/schema-domain/src/policy.ts`
-  - `packages/schema-domain/src/authority.ts`
+  - `packages/policy-domain/src/policy.ts`
+  - `packages/policy-domain/src/authority.ts`
   - `packages/policy-domain/tests/unit/policy.test.ts`
   - `packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts`
   - `packages/policy-domain/tests/unit/policy-approval-override.test.ts`
@@ -1307,7 +1307,7 @@ This file currently covers these **19** plans:
   - `crates/policy-control-core/tests/version-skew/policy_delivery.rs`
   - `crates/child-policy-core/tests/unit/policy_control_delivery_handoff.rs`
   - `crates/child-runtime/tests/integration/policy_control_runtime_flow_intent.rs`
-  - `packages/schema-domain/src/policy-compiler.ts`
+  - `packages/policy-domain/src/policy-compiler.ts`
   - `packages/policy-domain/tests/unit/policy-compiler.test.ts`
   - `docs/plans/currentstatus.md`
   - `docs/plans/policy-control-plane-plan/PLAN_STATE.md`
@@ -1318,7 +1318,7 @@ This file currently covers these **19** plans:
   - the Rust unit/version-skew coverage written for this slice now asserts both the new support-matrix/capability-state artifact fields and the queued-delivery source metadata fields, including superseded and rolled-back source-document cases
   - the Rust compiler tests now also prove the domain-override semantics where `enforcement` and `notification-ask-parent` keep supported matrix rows while specific rules still downgrade to `manual-required` with the right reason-code semantics
   - child-policy and child-runtime queue/handoff tests now also prove the queued delivery still exposes the preserved source compiler metadata at the first real downstream consumer seams
-  - `packages/schema-domain/src/policy-compiler.ts` now exists as a shared WP03 owner contract for compiler domains, capability states, support matrices, rule statuses, delivery targets, evidence-custody flags, no-claim labels, rollback/supersede refs, and compiled artifact parsing
+  - `packages/policy-domain/src/policy-compiler.ts` now exists as a shared WP03 owner contract for compiler domains, capability states, support matrices, rule statuses, delivery targets, evidence-custody flags, no-claim labels, rollback/supersede refs, and compiled artifact parsing
   - `packages/policy-domain/tests/unit/policy-compiler.test.ts` now gives that TS owner seam real coverage for deterministic parsing, capability-state/status alignment, manual-required/unsupported reason-code enforcement, no-claim-set integrity, support-matrix ownership, and rollback-vs-supersede exclusivity
   - `packages/app-game-domain/src/app-game-policy-target-compiler.ts` and `packages/app-game-domain/src/app-game-policy-target-compiler-rules.ts` now consume the shared `PolicyCompilerCapabilityStateSchema` / `PolicyCompilerCapabilityState` owner contract instead of a local duplicate capability-state enum, and manual-required or unsupported capability refs can no longer parse as `dry-run-ready` compiled output
   - `packages/app-game-domain/tests/unit/app-game-policy-target-compiler.test.ts` and `packages/app-game-domain/tests/unit/app-game-policy-preview-handoff-fixtures.ts` now keep the real app-game unit seam on the shared capability-state vocabulary and prove both manual-required and unsupported capability refs stay explicit instead of silently compiling as ready

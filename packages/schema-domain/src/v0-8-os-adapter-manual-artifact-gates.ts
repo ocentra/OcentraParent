@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
@@ -18,12 +13,24 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-export const V08OsAdapterManualArtifactGateReadModelIdSchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateReadModelId');
-export const V08OsAdapterManualArtifactGateEntryIdSchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateEntryId');
-export const V08OsAdapterManualArtifactGateReferenceSchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateReference');
-export const V08OsAdapterManualArtifactGateRequirementSchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateRequirement');
-export const V08OsAdapterManualArtifactGateClaimBoundarySchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateClaimBoundary');
-export const V08OsAdapterManualArtifactGateFallbackSchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateFallback');
+export const V08OsAdapterManualArtifactGateReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08OsAdapterManualArtifactGateReadModelId'
+);
+export const V08OsAdapterManualArtifactGateEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08OsAdapterManualArtifactGateEntryId'
+);
+export const V08OsAdapterManualArtifactGateReferenceSchema = brandedNonEmptyStringSchema(
+  'V08OsAdapterManualArtifactGateReference'
+);
+export const V08OsAdapterManualArtifactGateRequirementSchema = brandedNonEmptyStringSchema(
+  'V08OsAdapterManualArtifactGateRequirement'
+);
+export const V08OsAdapterManualArtifactGateClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'V08OsAdapterManualArtifactGateClaimBoundary'
+);
+export const V08OsAdapterManualArtifactGateFallbackSchema = brandedNonEmptyStringSchema(
+  'V08OsAdapterManualArtifactGateFallback'
+);
 
 export const V08OsAdapterManualArtifactGateSurfaceSchema = withParser(
   Schema.Literal(
@@ -679,4 +686,3 @@ export const decodeV08OsAdapterManualArtifactGateEntry = Schema.decodeUnknownSyn
 export const decodeV08OsAdapterManualArtifactGateReadModel = Schema.decodeUnknownSync(
   V08OsAdapterManualArtifactGateReadModelSchema
 );
-

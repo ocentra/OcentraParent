@@ -73,7 +73,7 @@ function importSchemaDist(name) {
 }
 
 function importTrackingDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function sourceReadModel(tracking) {
@@ -189,7 +189,7 @@ function nonClaims(expectedPlaceProof) {
 
 function proofPaths() {
   return {
-    source: 'packages/tracking-domain/src/tracking-expected-place-alert-policy-proof.ts',
+    source: 'packages/schema-domain/src/tracking-expected-place-alert-policy-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-expected-place-alert-policy-proof.test.ts',
     harness: 'scripts/test/tracking-expected-place-alert-policy-proof.mjs',
     evidence: 'test-results/tracking-expected-place-alert-policy-proof/proof.json',

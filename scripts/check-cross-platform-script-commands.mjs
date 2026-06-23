@@ -2,6 +2,8 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { repoAbsolutePath, resolveScopedFiles } from './check-architecture-scope.mjs';
+
 const repoRoot = process.cwd();
 const scannedRoots = ['scripts'];
 const ignoredSegments = new Set(['node_modules']);
@@ -12,6 +14,8 @@ const windowsOnlyCommandPatterns = [
     pattern: /['"]cmd(?:\.exe)?['"]\s*,\s*\[\s*['"]\/c['"]\s*,\s*['"]npm['"]/u,
   },
 ];
+const scriptName = 'node scripts/check-cross-platform-script-commands.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
 
 function toPosix(path) {
   return path.split(sep).join('/');
@@ -66,23 +70,46 @@ export function inspectCrossPlatformScriptCommands(relativePath, text) {
   return findings;
 }
 
+function collectFindingsForFiles(files, root = repoRoot) {
+  const findings = [];
+  for (const file of files) {
+    const relativePath = toPosix(relative(root, file));
+    findings.push(...inspectCrossPlatformScriptCommands(relativePath, readFileSync(file, 'utf8')));
+  }
+  return findings;
+}
+
 export function collectCrossPlatformScriptCommandFindings(root = repoRoot) {
   const files = [];
   for (const scannedRoot of scannedRoots) {
     walk(join(root, scannedRoot), files);
   }
 
-  const findings = [];
-  for (const file of files) {
-    const relativePath = toPosix(relative(root, file));
-    findings.push(...inspectCrossPlatformScriptCommands(relativePath, readFileSync(file, 'utf8')));
+  return { checkedFiles: files.length, findings: collectFindingsForFiles(files, root) };
+}
+
+function collectScopedFiles(rawArgs) {
+  const scope = resolveScopedFiles(rawArgs, {
+    scriptName,
+    usageLines,
+    roots: scannedRoots,
+    acceptPath: (filePath) => filePath.endsWith('.mjs') && !ignoredFiles.has(filePath),
+  });
+
+  if (scope.mode === 'skip') {
+    return [];
   }
 
-  return { checkedFiles: files.length, findings };
+  return scope.files.map((filePath) => repoAbsolutePath(filePath));
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const { checkedFiles, findings } = collectCrossPlatformScriptCommandFindings();
+  const rawArgs = process.argv.slice(2);
+  const files = rawArgs.length === 0 ? null : collectScopedFiles(rawArgs);
+  const { checkedFiles, findings } =
+    files === null
+      ? collectCrossPlatformScriptCommandFindings()
+      : { checkedFiles: files.length, findings: collectFindingsForFiles(files) };
 
   if (findings.length > 0) {
     console.error('Cross-platform scripts must not hardcode Windows-only npm command invocations.');

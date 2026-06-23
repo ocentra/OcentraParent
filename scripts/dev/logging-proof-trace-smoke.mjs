@@ -20,11 +20,7 @@ import { sendPortalProofTraceLog } from '../../apps/portal/src/dev-logger.ts';
 import { getProofTrace, getProofTraceGaps } from './lib/log-query-service.mjs';
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const expectedSteps = [
-  'portal.route.opened',
-  'portal.action.clicked',
-  'portal.ui.rendered',
-];
+const expectedSteps = ['portal.route.opened', 'portal.action.clicked', 'portal.ui.rendered'];
 
 function optionValue(argv, name) {
   const prefix = `${name}=`;
@@ -50,7 +46,10 @@ function ensureSafeRoot(rootDir) {
     path.resolve(path.join(workspaceRoot, 'output', 'logging-domain-parity-proof')),
   ];
   const allowed = allowedRoots.some((allowedRoot) => resolvedRoot.startsWith(allowedRoot));
-  ensure(allowed, `smoke root must stay inside temp, test-results, or output/logging-domain-parity-proof: ${resolvedRoot}`);
+  ensure(
+    allowed,
+    `smoke root must stay inside temp, test-results, or output/logging-domain-parity-proof: ${resolvedRoot}`
+  );
 }
 
 function makeTempDir() {
@@ -62,21 +61,15 @@ function removeDir(targetPath) {
 }
 
 function runAgentQuery(args, env) {
-  const result = spawnSync(
-    process.execPath,
-    [path.join(workspaceRoot, 'scripts/dev/agent-query.mjs'), ...args],
-    {
-      cwd: workspaceRoot,
-      env,
-      encoding: 'utf8',
-      windowsHide: true,
-    }
-  );
+  const result = spawnSync(process.execPath, [path.join(workspaceRoot, 'scripts/dev/agent-query.mjs'), ...args], {
+    cwd: workspaceRoot,
+    env,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
 
   if (result.status !== 0) {
-    throw new Error(
-      `agent-query failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-    );
+    throw new Error(`agent-query failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
   }
 
   return result.stdout.trimEnd();
@@ -234,7 +227,10 @@ async function main() {
       endpoint
     );
 
-    ensure(routeOpened && actionClicked && uiRendered, 'portal proof-trace rows were not written through the local bridge');
+    ensure(
+      routeOpened && actionClicked && uiRendered,
+      'portal proof-trace rows were not written through the local bridge'
+    );
     ensure(await flushBridgeRun(endpoint, proofId), 'bridge flush request did not succeed');
 
     const trace = await getProofTrace({
@@ -262,12 +258,7 @@ async function main() {
       OCENTRA_PARENT_LOG_DIR: rootDir,
     };
     const cliTrace = runAgentQuery(
-      [
-        'proof-trace',
-        `--scope=${TestLogScope.ParentPortal}`,
-        `--proof-id=${proofId}`,
-        '--limit=10',
-      ],
+      ['proof-trace', `--scope=${TestLogScope.ParentPortal}`, `--proof-id=${proofId}`, '--limit=10'],
       queryEnv
     );
     ensure(cliTrace.includes(`proof_id: ${proofId}`), 'CLI proof-trace output did not include the proof id');

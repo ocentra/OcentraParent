@@ -28,12 +28,10 @@ async function main() {
     ])
   );
 
-  const familyHubRoutingModule = await import(
-    '../../packages/screen-domain/dist/screen-evidence-family-hub-routing.js'
-  );
-  const familyHubRoutingValuesModule = await import(
-    '../../packages/schema-domain/dist/screen-evidence-family-hub-routing-values.js'
-  );
+  const familyHubRoutingModule =
+    await import('../../packages/screen-domain/dist/screen-evidence-family-hub-routing.js');
+  const familyHubRoutingValuesModule =
+    await import('../../packages/schema-domain/dist/screen-evidence-family-hub-routing-values.js');
   const screenEvidence = {
     planScreenFamilyAiHubRoute: familyHubRoutingModule.planScreenFamilyAiHubRoute,
     ScreenFamilyAiHubCapabilitySchema: (
@@ -97,7 +95,7 @@ async function main() {
     assert.equal(readModel.discovery.discoveryEvidence.length, 3);
     assert.equal(readModel.exchange.rawFullScreenshotTransferred, false);
     assert.equal(
-      runtime.requests.some((entry) => entry.path === '/screen-family-ai/jobs'),
+      runtime.requests.some((entry) => entry.requestKind === 'jobs'),
       true
     );
     assert.equal(
@@ -164,12 +162,7 @@ async function startFamilyHubRuntime() {
     request.on('end', () => {
       const bodyText = Buffer.concat(chunks).toString('utf8');
       const parsedBody = bodyText.length > 0 ? JSON.parse(bodyText) : null;
-      requests.push({
-        method: request.method,
-        path: request.url,
-        body: parsedBody,
-        rawFullScreenshotPresent: bodyText.includes('rawFullScreenshotBytes'),
-      });
+      requests.push(summarizeRuntimeRequest(request.method ?? 'GET', request.url ?? '', parsedBody, bodyText));
 
       if (request.url === '/screen-family-ai/discovery') {
         writeJson(response, {
@@ -219,7 +212,18 @@ async function startFamilyHubRuntime() {
 async function discoverFamilyHubRuntime(baseUrl) {
   const response = await fetch(`${baseUrl}/screen-family-ai/discovery`);
   assert.equal(response.ok, true);
-  return response.json();
+  const payload = await response.json();
+  const expected = {
+    hubId: 'screen-family-hub-runtime-loopback',
+    checkedAt: '2026-06-05T18:06:00.000Z',
+    capabilityState: 'available',
+    supportedTasks: ['guidedVisionClassification', 'guidedMultimodalClassification'],
+    modelRuntimeRef: 'screen-family-hub-runtime-loopback-model',
+    householdRouteRef: 'household-lan-screen-family-hub-route',
+    runtimeEndpointRef: 'loopback-family-ai-hub-runtime',
+  };
+  assert.deepEqual(payload, expected);
+  return expected;
 }
 
 async function submitFamilyHubJob(baseUrl, selectedRoute) {
@@ -237,7 +241,19 @@ async function submitFamilyHubJob(baseUrl, selectedRoute) {
     }),
   });
   assert.equal(response.ok, true);
-  return response.json();
+  const payload = await response.json();
+  const expected = {
+    exchangeState: 'completed',
+    transferMode: 'redactedCrop',
+    requestEvidenceRef: 'screen-family-hub-runtime-request',
+    responseEvidenceRef: 'screen-family-hub-runtime-response',
+    rawFullScreenshotTransferred: false,
+    rawImageRetained: false,
+    remoteProviderUsed: false,
+    ocentraHostedProcessingUsed: false,
+  };
+  assert.deepEqual(payload, expected);
+  return expected;
 }
 
 function routeRequest(screenEvidence, discovered) {
@@ -328,4 +344,28 @@ function npmCommand(args) {
   const command = process.platform === 'win32' ? 'cmd' : 'npm';
   const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
   return [command, commandArgs];
+}
+
+function summarizeRuntimeRequest(method, requestUrl, parsedBody, bodyText) {
+  const requestKind =
+    requestUrl === '/screen-family-ai/discovery'
+      ? 'discovery'
+      : requestUrl === '/screen-family-ai/jobs'
+        ? 'jobs'
+        : 'unknown';
+  return {
+    requestKind,
+    methodAllowed: (requestKind === 'discovery' && method === 'GET') || (requestKind === 'jobs' && method === 'POST'),
+    bodyPresent: bodyText.length > 0,
+    routeIdMatchesExpected: parsedBody?.routeId === 'screen-family-hub-runtime-route-selected',
+    queueJobIdMatchesExpected: parsedBody?.queueJobId === 'screen-family-hub-runtime-queue-job',
+    transferModeAccepted: parsedBody?.transferMode === 'redactedCrop',
+    croppedImageDigestPresent:
+      typeof parsedBody?.croppedImageDigest === 'string' && parsedBody.croppedImageDigest.length > 0,
+    boundedOcrSnippetHashPresent:
+      typeof parsedBody?.boundedOcrSnippetHash === 'string' && parsedBody.boundedOcrSnippetHash.length > 0,
+    remoteApiFallbackAllowedFalse: parsedBody?.remoteApiFallbackAllowed === false,
+    rawImageRetentionAllowedFalse: parsedBody?.rawImageRetentionAllowed === false,
+    rawFullScreenshotPresent: bodyText.includes('rawFullScreenshotBytes'),
+  };
 }

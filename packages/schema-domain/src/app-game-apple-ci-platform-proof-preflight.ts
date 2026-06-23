@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   V08OsAdapterManualArtifactGateReadModel,
   type V08OsAdapterManualArtifactGateEntry,
@@ -252,4 +247,3 @@ function appleCiPreflightReadModelIsHonest(readModel: AppleCiPlatformProofPrefli
     !readModel.childDeviceDeliveryClaimed
   );
 }
-

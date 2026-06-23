@@ -5,11 +5,7 @@ import {
   ActivityJournalNonceSchema,
   ActivityJournalSegmentIdSchema,
 } from './activity-journal-primitives';
-import {
-  ActivityEventIdSchema,
-  ActivityEvidenceDigestSchema,
-  ActivityTimestampSchema,
-} from './evidence-primitives';
+import { ActivityEventIdSchema, ActivityEvidenceDigestSchema, ActivityTimestampSchema } from './evidence-primitives';
 
 export const ActivityJournalSchemaVersion = 1;
 

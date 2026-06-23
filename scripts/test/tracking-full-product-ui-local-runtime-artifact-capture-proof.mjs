@@ -90,7 +90,13 @@ async function main() {
 
   const proofModule = await tsImport(
     pathToFileURL(
-      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-full-product-ui-local-runtime-artifact-capture-proof.ts')
+      path.join(
+        repoRoot,
+        'packages',
+        'tracking-domain',
+        'src',
+        'tracking-full-product-ui-local-runtime-artifact-capture-proof.ts'
+      )
     ).href,
     import.meta.url
   );

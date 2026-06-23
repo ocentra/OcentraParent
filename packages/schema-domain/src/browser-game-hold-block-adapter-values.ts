@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameHoldBlockAdapterSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-hold-block-adapter-contract')
@@ -78,4 +73,3 @@ export const BrowserGameHoldBlockReasonSchema = withParser(
 export type BrowserGameHoldBlockAction = Infer<typeof BrowserGameHoldBlockActionSchema>;
 export type BrowserGameHoldBlockAdapterState = Infer<typeof BrowserGameHoldBlockAdapterStateSchema>;
 export type BrowserGameHoldBlockDeliveryMode = Infer<typeof BrowserGameHoldBlockDeliveryModeSchema>;
-

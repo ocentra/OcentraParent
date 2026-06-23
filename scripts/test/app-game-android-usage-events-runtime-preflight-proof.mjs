@@ -14,7 +14,7 @@ const appGameProofDir = join(
 );
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
-const appGameUsageContractsPath = 'packages/app-game-domain/src/app-game-android-usage-events-contracts.ts';
+const appGameUsageContractsPath = 'packages/schema-domain/src/app-game-android-usage-events-contracts.ts';
 
 await main();
 
@@ -32,13 +32,13 @@ async function main() {
       'app-game-android-usage-events-runtime-preflight',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
 
   const sourceProof = await assertAndroidSourceProof();
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-runtime-preflight.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-usage-events-runtime-preflight.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsRuntimePreflightReadModel({
@@ -69,13 +69,13 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
       androidManifest: 'platforms/android/agent/app/src/main/AndroidManifest.xml',
-      contract: 'packages/app-game-domain/src/app-game-android-usage-events-runtime-preflight.ts',
+      contract: 'packages/schema-domain/src/app-game-android-usage-events-runtime-preflight.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-runtime-preflight.test.ts',
     },
     claimsProved: [
       'Android package source checks UsageStats AppOps readiness through a package-local preflight',
       'MainActivity surfaces the UsageStats permission preflight state without raw UsageEvents rows',
-      'App-game-domain blocks runtime collection until a real runtime sample proof exists',
+      'The centralized runtime-preflight contract blocks collection until a real runtime sample proof exists',
     ],
     claimsNotProved: [
       'UsageStats settings grant on the child device',

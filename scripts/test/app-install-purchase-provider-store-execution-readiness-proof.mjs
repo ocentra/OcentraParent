@@ -69,21 +69,19 @@ async function main() {
     checklistState: 'validated-product-capability-checklist-row',
     evidence: {
       providerStoreExecutionReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
       sourceApprovedApiEntitlementContract:
-        'packages/app-game-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
-      sourceStoreStatusHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-store-status-handoff-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
+      sourceStoreStatusHandoffContract: 'packages/schema-domain/src/app-install-purchase-store-status-handoff-proof.ts',
       sourcePackageSourceAdapterExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
       sourceParentActionDeliveryReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-execution-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
-      packageExport:
-        '@ocentra-parent/app-game-domain/app-install-purchase-provider-store-execution-readiness-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-provider-store-execution-readiness-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       checklistRow:
         'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes provider/store execution readiness proof.',

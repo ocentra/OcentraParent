@@ -1,12 +1,8 @@
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  PortalTiming,
-} from '@ocentra-parent/portal-domain/contracts';
-import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { decodePortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
+import { decodePortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom, PortalTiming } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { writeClipboardText } from './clipboard';
 import { appendDetail } from './detail-list';
 import { buildDiagnosticsExport } from './diagnostics-export';
@@ -18,12 +14,12 @@ export function renderDiagnosticsPanel(container: HTMLElement, state: PortalRunt
   panel.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.DeviceDiagnostics);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.DeviceDiagnostics);
 
   const copyButton = document.createElement(PortalDom.Tags.Button);
   copyButton.type = PortalDom.ButtonType.Button;
   copyButton.className = PortalDom.Classes.CopyResultButton;
-  copyButton.textContent = PortalText.Resolve(PortalTextToken.CopyDiagnostics);
+  copyButton.textContent = resolvePortalDevText(PortalDevTextToken.CopyDiagnostics);
   copyButton.addEventListener(PortalDom.Events.Click, () => {
     void copyDiagnostics(copyButton, state);
   });
@@ -44,8 +40,8 @@ async function copyDiagnostics(button: HTMLButtonElement, state: PortalRuntimeSt
   button.disabled = true;
   try {
     const didCopy = await writeClipboardText(buildDiagnosticsExport(state));
-    button.textContent = PortalText.Resolve(
-      didCopy ? PortalTextToken.CopiedDiagnostics : PortalTextToken.CopyDiagnosticsFailed
+    button.textContent = resolvePortalDevText(
+      didCopy ? PortalDevTextToken.CopiedDiagnostics : PortalDevTextToken.CopyDiagnosticsFailed
     );
     if (didCopy) {
       writePortalDevLog(DevLogMessage.PortalResultCopied, {
@@ -53,18 +49,18 @@ async function copyDiagnostics(button: HTMLButtonElement, state: PortalRuntimeSt
       });
     }
   } catch {
-    button.textContent = PortalText.Resolve(PortalTextToken.CopyDiagnosticsFailed);
+    button.textContent = resolvePortalDevText(PortalDevTextToken.CopyDiagnosticsFailed);
   } finally {
     button.disabled = false;
     window.setTimeout(() => {
-      button.textContent = PortalText.Resolve(PortalTextToken.CopyDiagnostics);
+      button.textContent = resolvePortalDevText(PortalDevTextToken.CopyDiagnostics);
     }, PortalTiming.CopyFeedbackMs);
   }
 }
 
 function detailFromValue(value: unknown) {
   if (value === undefined || value === null) {
-    return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+    return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
   }
   return decodePortalDetailValue(String(value));
 }

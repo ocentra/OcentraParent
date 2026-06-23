@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import {
   privacyLegalDisclosureCoversRequiredStates,
@@ -154,4 +149,3 @@ export type PrivacyLegalDisclosureReadModel = Infer<typeof PrivacyLegalDisclosur
 
 export const decodePrivacyLegalDisclosureEntry = Schema.decodeUnknownSync(PrivacyLegalDisclosureEntrySchema);
 export const decodePrivacyLegalDisclosureReadModel = Schema.decodeUnknownSync(PrivacyLegalDisclosureReadModelSchema);
-

@@ -32,7 +32,7 @@ runNpm([
   'tests/contract/tracking-ios-location-manual-required-proof.test.ts',
 ]);
 
-const proofModule = await importSource('packages/tracking-domain/src/tracking-ios-location-manual-required-proof.ts');
+const proofModule = await importSource('packages/schema-domain/src/tracking-ios-location-manual-required-proof.ts');
 const readModel = proofModule.buildTrackingIosLocationManualRequiredProofReadModel(
   {
     generatedAt: timestamp,
@@ -61,7 +61,7 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-ios-location-manual-required-proof.ts',
+    source: 'packages/schema-domain/src/tracking-ios-location-manual-required-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-ios-location-manual-required-proof.test.ts',
     harness: 'scripts/test/tracking-ios-location-manual-required-proof.mjs',
     evidence: 'test-results/tracking-ios-location-manual-required-proof/proof.json',

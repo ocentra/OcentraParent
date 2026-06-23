@@ -11,14 +11,16 @@ import {
   type BrowserInterventionReadModel,
 } from '@ocentra-parent/schema-domain/browser-intervention-schemas';
 import { BrowserCustodyLabel, BrowserQueryVisibilityLabel } from '@ocentra-parent/schema-domain/browser-values';
-import { AgentProtocolDefaults, isAgentProtocolLogText, type AgentProtocolLogFields } from './contracts';
+import {
+  isAgentProtocolLogText,
+  type AgentProtocolLogFields,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 const DefaultManagedSessionInterventionCapability =
   BrowserInterventionCapabilityStateSchema.parse('needs-managed-session');
-const DefaultUnmanagedBrowserEnforcement =
-  BrowserUnmanagedEnforcementStateSchema.parse('requires-os-app-control');
-const DefaultUnmanagedFallbackAction =
-  BrowserUnmanagedFallbackActionStateSchema.parse('os-block-manual-required');
+const DefaultUnmanagedBrowserEnforcement = BrowserUnmanagedEnforcementStateSchema.parse('requires-os-app-control');
+const DefaultUnmanagedFallbackAction = BrowserUnmanagedFallbackActionStateSchema.parse('os-block-manual-required');
 const DefaultBrowserBoundaryState = BrowserBoundaryStateSchema.parse('unknown');
 const DefaultExactUrlClaimState = BrowserExactUrlClaimStateSchema.parse('not-claimed');
 const DefaultUnmanagedDetectionState = BrowserUnmanagedDetectionStateSchema.parse('unavailable');
@@ -41,11 +43,9 @@ export function parseBrowserInterventionReadModel(
       payload[AgentProtocolDefaults.Field.ManagedSessionInterventionCapability] ??
       DefaultManagedSessionInterventionCapability,
     unmanagedBrowserEnforcement:
-      payload[AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement] ??
-      DefaultUnmanagedBrowserEnforcement,
+      payload[AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement] ?? DefaultUnmanagedBrowserEnforcement,
     unmanagedFallbackAction:
-      payload[AgentProtocolDefaults.Field.UnmanagedFallbackAction] ??
-      DefaultUnmanagedFallbackAction,
+      payload[AgentProtocolDefaults.Field.UnmanagedFallbackAction] ?? DefaultUnmanagedFallbackAction,
     rows,
   });
 
@@ -85,8 +85,7 @@ function browserInterventionRow(payload: AgentProtocolLogFields) {
       payload[AgentProtocolDefaults.Field.UnmanagedDetectionState] ?? DefaultUnmanagedDetectionState,
     unmanagedFallbackAction:
       payload[AgentProtocolDefaults.Field.UnmanagedFallbackAction] ?? DefaultUnavailableFallbackAction,
-    childDeliveryState:
-      payload[AgentProtocolDefaults.Field.ChildDeliveryState] ?? DefaultChildDeliveryState,
+    childDeliveryState: payload[AgentProtocolDefaults.Field.ChildDeliveryState] ?? DefaultChildDeliveryState,
     reason: nullIfMissing(payload[AgentProtocolDefaults.Field.Reason]),
     custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel] ?? BrowserCustodyLabel.Unavailable,
     queryVisibility: payload[AgentProtocolDefaults.Field.QueryVisibility] ?? BrowserQueryVisibilityLabel.Unavailable,

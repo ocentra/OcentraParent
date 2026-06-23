@@ -107,8 +107,9 @@ mod tests {
             updated_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
         };
 
-        let serialized =
-            serde_json::to_string(&read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        let serialized = serde_json::to_string(&read_model).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
 
         assert!(serialized.contains(constants::value::DEVICE_ROLE_PARENT_CONTROLLER));
         assert!(serialized.contains(constants::value::DEVICE_ROLE_CHILD_AGENT));

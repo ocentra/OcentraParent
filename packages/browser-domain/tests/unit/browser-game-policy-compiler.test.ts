@@ -4,9 +4,7 @@ import {
   BrowserGamePolicyCompilerInputSchema,
   BrowserGamePolicyDecisionCandidateSchema,
 } from '@ocentra-parent/schema-domain/browser-game-policy-compiler';
-import {
-  compileBrowserGamePolicyCandidate,
-} from '../../src/browser-game-policy-compiler';
+import { compileBrowserGamePolicyCandidate } from '../../src/browser-game-policy-candidate-compiler';
 
 describe('browser game parent policy compiler contracts', () => {
   it('compiles a contract-only browser-game policy decision candidate from refs', compilesDecisionCandidate);

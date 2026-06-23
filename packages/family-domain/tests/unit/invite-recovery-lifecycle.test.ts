@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AuditRequirementState,
-  HouseholdRole,
-} from '@ocentra-parent/schema-domain/family-household-authority';
+import { AuditRequirementState, HouseholdRole } from '@ocentra-parent/schema-domain/family-household-authority';
 import {
   RecoveryChildEvidenceAccessState,
   RecoveryDataCustodyHandoffState,
@@ -66,6 +63,12 @@ function recoveryAuthorizationInput(overrides: Record<string, unknown> = {}) {
 }
 
 describe('invite and recovery lifecycle command target', () => {
+  registerInviteScopeTests();
+  registerRecoveryRequirementTests();
+  registerRecoveryEvaluationTests();
+});
+
+function registerInviteScopeTests(): void {
   it('keeps invite scopes distinct and rejects replay, reuse, wrong-household, and wrong-role cases', () => {
     const coParentInvite = SetupInviteSchema.parse({
       schemaVersion: 'v0.6',
@@ -118,12 +121,12 @@ describe('invite and recovery lifecycle command target', () => {
     expect(authorizeSetupInvite(inviteAuthorizationInput({ responseTimingState: 'variable' })).failureReason).toBe(
       SetupInviteFailureReason.InviteNotActive
     );
-    expect(authorizeSetupInvite(inviteAuthorizationInput({ inviteState: SetupInviteState.Expired })).failureReason).toBe(
-      SetupInviteFailureReason.InviteNotActive
-    );
-    expect(authorizeSetupInvite(inviteAuthorizationInput({ inviteState: SetupInviteState.Revoked })).failureReason).toBe(
-      SetupInviteFailureReason.InviteNotActive
-    );
+    expect(
+      authorizeSetupInvite(inviteAuthorizationInput({ inviteState: SetupInviteState.Expired })).failureReason
+    ).toBe(SetupInviteFailureReason.InviteNotActive);
+    expect(
+      authorizeSetupInvite(inviteAuthorizationInput({ inviteState: SetupInviteState.Revoked })).failureReason
+    ).toBe(SetupInviteFailureReason.InviteNotActive);
     expect(authorizeSetupInvite(inviteAuthorizationInput({ sameFamily: false })).failureReason).toBe(
       SetupInviteFailureReason.WrongHousehold
     );
@@ -139,7 +142,9 @@ describe('invite and recovery lifecycle command target', () => {
       SetupInviteFailureReason.InviteNotSingleUse
     );
   });
+}
 
+function registerRecoveryRequirementTests(): void {
   it('keeps recovery approval, support audit, child-evidence blocking, and custody handoff explicit', () => {
     const lostParentDevice = RecoveryOperationSchema.parse({
       schemaVersion: 'v0.6',
@@ -209,7 +214,11 @@ describe('invite and recovery lifecycle command target', () => {
       RecoveryDataCustodyHandoffState.HouseholdTransferHandoffRequired
     );
     expect(recoveryCanAccessChildEvidence(selfServeRecovery)).toBe(true);
+  });
+}
 
+function registerRecoveryEvaluationTests(): void {
+  it('evaluates recovery authorization outcomes across self-serve, support-assisted, and rejected paths', () => {
     expect(
       evaluateRecoveryOperation(
         recoveryAuthorizationInput({
@@ -284,4 +293,4 @@ describe('invite and recovery lifecycle command target', () => {
       ).failureReason
     ).toBe(RecoveryFailureReason.RecoveryNotActive);
   });
-});
+}

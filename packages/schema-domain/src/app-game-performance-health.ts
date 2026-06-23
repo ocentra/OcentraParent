@@ -1,16 +1,14 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   appGamePerformanceHealthMatrixCoversRequiredSurfaces,
   appGamePerformanceHealthRowIsHonest,
 } from '@ocentra-parent/schema-domain/app-game-performance-health-rules';
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/schema-domain/enforcement';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 const PositivePerformanceHealthNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value > 0) || 'Expected a positive finite number')
 );
@@ -79,7 +77,9 @@ export const AppGamePerformanceHealthNoClaimBoundarySchema = withParser(
 
 const AppGamePerformanceHealthCheckIdSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthCheckId');
 const AppGamePerformanceHealthMatrixIdSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthMatrixId');
-const AppGamePerformanceHealthParentVisibleStateSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthParentVisibleState');
+const AppGamePerformanceHealthParentVisibleStateSchema = brandedNonEmptyStringSchema(
+  'AppGamePerformanceHealthParentVisibleState'
+);
 const AppGamePerformanceHealthProofPackRefSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthProofPackRef');
 
 const AppGamePerformanceHealthRowBaseSchema = Schema.Struct({
@@ -147,4 +147,3 @@ export type AppGamePerformanceHealthMatrix = Infer<typeof AppGamePerformanceHeal
 export const decodeAppGamePerformanceHealthRow = (input: unknown) => AppGamePerformanceHealthRowSchema.parse(input);
 export const decodeAppGamePerformanceHealthMatrix = (input: unknown) =>
   AppGamePerformanceHealthMatrixSchema.parse(input);
-

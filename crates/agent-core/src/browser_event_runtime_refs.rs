@@ -1,8 +1,8 @@
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 
-use crate::{
-    browser_event_runtime::{browser_correlation_id, should_publish_phase, BrowserRuntimeInput},
-    BrowserRuntimePhase,
+use crate::browser_event_runtime::{
+    browser_correlation_id, should_publish_phase, BrowserRuntimeInput,
 };
 
 pub(crate) fn previous_phase_ref(

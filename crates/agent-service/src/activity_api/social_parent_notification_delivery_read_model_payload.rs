@@ -9,35 +9,37 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::browser::social_report_writer_delivery_handoff::{
     SocialReportWriterDeliveryReadModel, SocialReportWriterDeliveryReadModelRow,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
 use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::{
-    SocialParentNotificationDeliveryReadinessRow,
-    SocialParentNotificationDeliveryReadinessSnapshot,
     SocialParentNotificationDeliveryReadModelRequest,
     SocialParentNotificationDeliveryReadModelResponse,
+    SocialParentNotificationDeliveryReadinessRow,
+    SocialParentNotificationDeliveryReadinessSnapshot,
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, SOCIAL_PARENT_NOTIFICATION_DELIVERY_CAPABILITY_READY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXECUTION_REPORT_READY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_EXTERNAL_RUNTIME,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_FINAL_POLICY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PARENT_NOTIFICATION_UI,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_DELIVERY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_RECEIPT,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_READINESS_ID,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_MANUAL_REQUIRED,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_REPORT_READY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_UNAVAILABLE,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
-    SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_MANUAL_REQUIRED,
-    SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_RECORDED,
-    SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED,
-    SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY,
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_CAPABILITY_READY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXECUTION_REPORT_READY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_EXTERNAL_RUNTIME;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_FINAL_POLICY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PARENT_NOTIFICATION_UI;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_DELIVERY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_RECEIPT;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_READINESS_ID;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_REPORT_READY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_UNAVAILABLE;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_RECORDED;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
@@ -223,9 +225,10 @@ fn read_model_pairs(
         ),
         (
             constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(match serde_json::to_string(read_model) {
+                Ok(serialized) => serialized,
+                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
+            }),
         ),
     ]
 }

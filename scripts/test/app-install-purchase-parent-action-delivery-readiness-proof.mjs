@@ -65,17 +65,16 @@ async function main() {
     checklistState: 'validated-product-capability-checklist-row',
     evidence: {
       parentActionDeliveryReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts',
       sourceParentActionRuntimeHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
       sourceChildDeviceDeliveryRuntimeWriterContract:
-        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-parent-action-delivery-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
-      packageExport:
-        '@ocentra-parent/app-game-domain/app-install-purchase-parent-action-delivery-readiness-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-parent-action-delivery-readiness-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       checklistRow:
         'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes parent-action delivery readiness proof.',

@@ -3,7 +3,7 @@ import {
   AppGameLinuxActiveWindowToolProofSchema,
   createAppGameLinuxActiveWindowToolProof,
   summarizeAppGameLinuxActiveWindowToolProof,
-} from '../../src/app-game-linux-active-window-tool-proof';
+} from '@ocentra-parent/schema-domain/app-game-linux-active-window-tool-proof';
 
 describe('app-game Linux active-window tool proof', () => {
   recordsAvailableToolWithoutActiveWindowCaptureClaim();

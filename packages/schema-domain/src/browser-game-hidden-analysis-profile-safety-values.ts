@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGameHiddenAnalysisProfileSafetySchemaVersionSchema = withParser(
@@ -96,4 +91,3 @@ export type BrowserGameHiddenAnalysisConfidence = Infer<typeof BrowserGameHidden
 export type BrowserGameHiddenAnalysisProfileKind = Infer<typeof BrowserGameHiddenAnalysisProfileKindSchema>;
 export type BrowserGameHiddenAnalysisReasonCode = Infer<typeof BrowserGameHiddenAnalysisReasonCodeSchema>;
 export type BrowserGameHiddenAnalysisState = Infer<typeof BrowserGameHiddenAnalysisStateSchema>;
-

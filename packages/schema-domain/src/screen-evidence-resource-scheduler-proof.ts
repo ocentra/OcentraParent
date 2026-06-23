@@ -1,5 +1,3 @@
-import { type Infer } from './effect';
-import { ScreenLocalModelProviderKindSchema } from './screen-evidence-states';
 import {
   ScreenLocalAiResourceCapsSchema,
   ScreenLocalAiResourceDecisionSchema,
@@ -113,7 +111,7 @@ export function screenLocalAiResourceSchedulerProofSummary(
 function decision(
   queueJobId: string,
   jobKind: ScreenLocalAiResourceJobKind,
-  providerKind: Infer<typeof ScreenLocalModelProviderKindSchema>,
+  providerKind: ScreenLocalAiResourceDecision['providerKind'],
   priority: ScreenLocalAiResourcePriority,
   resourceWeight: ScreenLocalAiResourceWeight,
   jobState: ScreenLocalAiResourceJobState,

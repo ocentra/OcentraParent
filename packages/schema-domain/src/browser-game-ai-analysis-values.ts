@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGameAiAnalysisSchemaVersionSchema = withParser(Schema.Literal('browser-game-ai-analysis-contract'));
@@ -24,9 +19,7 @@ export const BrowserGameAiPromptTemplateVersionSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGameAiPromptTemplateVersion')
 );
 
-export const BrowserGameAiSummaryRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserGameAiSummaryRef')
-);
+export const BrowserGameAiSummaryRefSchema = withParser(brandedNonEmptyStringSchema('BrowserGameAiSummaryRef'));
 
 export const BrowserGameAiTaskSchema = withParser(
   Schema.Literal(
@@ -149,4 +142,3 @@ export type BrowserGameAiRiskSignal = Infer<typeof BrowserGameAiRiskSignalSchema
 export type BrowserGameAiSurfaceKind = Infer<typeof BrowserGameAiSurfaceKindSchema>;
 export type BrowserGameAiTask = Infer<typeof BrowserGameAiTaskSchema>;
 export type BrowserGameAiUncertaintyReason = Infer<typeof BrowserGameAiUncertaintyReasonSchema>;
-

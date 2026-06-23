@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { DeviceTrustState, type DeviceTrustState as FamilyDeviceTrustState } from './family-household-authority';
 import { ChildProfileIdSchema, ParentDeviceIdSchema, ParentDeviceLabelSchema } from './family-reference-primitives';
 import {
@@ -209,4 +203,3 @@ export type HouseholdLanDeviceRef = Infer<typeof HouseholdLanDeviceRefSchema>;
 export type HouseholdDeviceNetworkIdentity = Infer<typeof HouseholdDeviceNetworkIdentitySchema>;
 export type ChildAgentInventoryPacket = Infer<typeof ChildAgentInventoryPacketSchema>;
 export type HouseholdDeviceSpineEntry = Infer<typeof HouseholdDeviceSpineEntrySchema>;
-

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::{
     dns::types::NetworkEvidenceGrade,
     domain::{normalize_domain_with_public_suffix, DomainNormalizationError, PublicSuffixModel},
@@ -12,7 +13,7 @@ fn domain_normalization_extracts_suffix_and_registrable_domain() {
     let model = PublicSuffixModel::ocentra_fixture();
 
     let evidence = normalize_domain_with_public_suffix(MIXED_CASE_DOMAIN_WITH_TRAILING_DOT, &model)
-        .expect("domain evidence should normalize");
+        .expect_value("domain evidence should normalize");
 
     assert_eq!(evidence.normalized_domain, "video.example.co.uk");
     assert_eq!(
@@ -37,10 +38,10 @@ fn domain_normalization_extracts_suffix_and_registrable_domain() {
 #[test]
 fn domain_normalization_deduplicates_longest_public_suffix_rules() {
     let model = PublicSuffixModel::from_suffixes(&["uk", "co.uk", "co.uk"])
-        .expect("suffix model should parse");
+        .expect_value("suffix model should parse");
 
     let evidence = normalize_domain_with_public_suffix("shop.example.co.uk", &model)
-        .expect("domain evidence should normalize");
+        .expect_value("domain evidence should normalize");
 
     assert_eq!(evidence.public_suffix.as_deref(), Some("co.uk"));
     assert_eq!(

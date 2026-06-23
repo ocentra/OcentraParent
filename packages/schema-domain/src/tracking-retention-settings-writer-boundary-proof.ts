@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AgentTrackingRetentionSettingsWriteDefaults } from './agent-tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
@@ -18,7 +13,9 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-export const TrackingRetentionSettingsWriteIntentIdSchema = brandedNonEmptyStringSchema('TrackingRetentionSettingsWriteIntentId');
+export const TrackingRetentionSettingsWriteIntentIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionSettingsWriteIntentId'
+);
 
 export const TrackingRetentionSettingsWriteActionSchema = withParser(
   Schema.Literal(
@@ -286,9 +283,7 @@ function writerRow(input: {
     writeAction: input.writeAction,
     writerState: 'writer-preflight-ready',
     generatedAt: input.generatedAt,
-    sourceReadModelProofRefs: [
-      ...AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
-    ],
+    sourceReadModelProofRefs: [...AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs],
     retentionProofRefs: [
       'output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json',
       'output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json',
@@ -332,4 +327,3 @@ function evidence(
     observedAt,
   });
 }
-

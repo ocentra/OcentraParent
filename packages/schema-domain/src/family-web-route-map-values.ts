@@ -1,13 +1,6 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from '@ocentra-parent/schema-domain/effect';
 
-export const FamilyWebRouteMapSchemaVersionSchema = withParser(
-  Schema.Literal('family-web-route-map-proof')
-);
+export const FamilyWebRouteMapSchemaVersionSchema = withParser(Schema.Literal('family-web-route-map-proof'));
 
 export const FamilyWebPageSchema = withParser(
   Schema.Literal('home', 'download', 'register-login', 'privacy', 'support', 'status', 'install-help')
@@ -32,12 +25,7 @@ export const FamilyWebPageStateSchema = withParser(
 export const FamilyWebLinkTargetSchema = FamilyWebPageSchema;
 
 export const FamilyWebCollectionModeSchema = withParser(
-  Schema.Literal(
-    'none',
-    'anonymous-operational-telemetry',
-    'explicit-account-data',
-    'forbidden-child-data'
-  )
+  Schema.Literal('none', 'anonymous-operational-telemetry', 'explicit-account-data', 'forbidden-child-data')
 );
 
 export const FamilyWebCollectionStateSchema = withParser(
@@ -83,9 +71,7 @@ export const FamilyWebDeploymentRuntimeStateSchema = withParser(
 );
 export const FamilyWebProductionHostSchema = withParser(Schema.Literal('family.ocentra.ca'));
 
-export const FamilyWebRegistrationHandoffPlanSchema = withParser(
-  Schema.Literal('account-identity-family-plan')
-);
+export const FamilyWebRegistrationHandoffPlanSchema = withParser(Schema.Literal('account-identity-family-plan'));
 
 export const FamilyWebRegistrationHandoffStateSchema = withParser(
   Schema.Literal('account-handoff-required', 'manual-required', 'not-implemented', 'implemented')

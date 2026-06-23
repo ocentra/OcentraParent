@@ -48,8 +48,8 @@ async function main() {
     productDocState: 'updated-feature-expectation-checklist',
     evidence: {
       portalTestReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
-      sourceProductClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
+      sourceProductClaimGateContract: 'packages/schema-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-portal-test-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

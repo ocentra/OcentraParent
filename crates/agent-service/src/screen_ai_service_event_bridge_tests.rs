@@ -1,10 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, ActivityReadModelState, ActivityScreenReadModelRow,
-    ScreenRuntimeEventPayload, ScreenRuntimePhase, SCREEN_CAPABILITY_READY,
-    SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL,
-    SCREEN_DELETION_DELETED, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR,
-    SCREEN_PROVIDER_LOCAL_VISION,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
+use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimeEventPayload;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPABILITY_READY;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_SCHOOL;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_JOURNAL;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_DELETED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_POLICY_CONFIDENCE_READY;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_OCR;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION;
 
 use super::screen_ai_service_event_bridge::{
     publish_screen_capture_queue_event_chain, publish_screen_degraded_event_chain,
@@ -17,7 +24,12 @@ use super::screen_ai_service_event_bridge::{
 #[test]
 fn screen_service_event_bridge_maps_service_row_to_existing_screen_runtime_input() {
     let input = screen_runtime_input_from_service_row(service_screen_row(), service_bridge_refs())
-        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_MAPS);
+        .unwrap_or_else(|error| {
+            panic!(
+                "{}: {error:?}",
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_MAPS
+            )
+        });
 
     assert_eq!(
         input.queue_job_id,
@@ -61,14 +73,24 @@ async fn screen_service_event_bridge_publishes_ordered_chain_from_service_read_m
         service_bridge_refs(),
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES
+        )
+    });
     let phases = report
         .stored_events
         .iter()
         .map(|event| {
             event
                 .decode::<ScreenRuntimeEventPayload>()
-                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "{}: {error:?}",
+                        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES
+                    )
+                })
                 .payload
                 .phase
         })
@@ -87,14 +109,24 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES
+        )
+    });
     let phases = report
         .stored_events
         .iter()
         .map(|event| {
             event
                 .decode::<ScreenRuntimeEventPayload>()
-                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "{}: {error:?}",
+                        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES
+                    )
+                })
                 .payload
                 .phase
         })
@@ -119,10 +151,20 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES
+        )
+    });
     let payload = report.stored_events[0]
         .decode::<ScreenRuntimeEventPayload>()
-        .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+        .unwrap_or_else(|error| {
+            panic!(
+                "{}: {error:?}",
+                constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES
+            )
+        })
         .payload;
 
     assert_eq!(payload.phase, ScreenRuntimePhase::DeletionCommitted);
@@ -144,14 +186,24 @@ async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES
+        )
+    });
     let payloads = report
         .stored_events
         .iter()
         .map(|event| {
             event
                 .decode::<ScreenRuntimeEventPayload>()
-                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "{}: {error:?}",
+                        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES
+                    )
+                })
                 .payload
         })
         .collect::<Vec<_>>();

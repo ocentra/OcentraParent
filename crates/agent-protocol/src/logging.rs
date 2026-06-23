@@ -47,6 +47,7 @@ pub type LogFields = BTreeMap<String, LogFieldValue>;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentLogEntry {
+    pub schema_version: u16,
     pub id: String,
     pub timestamp: String,
     pub level: LogLevel,

@@ -1,3 +1,4 @@
+use super::TestResult;
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_policy_control_core::policy_authority::{
     evaluate_policy_control, resolve_policy_conflict, resolve_policy_evaluation_request,
@@ -158,12 +159,16 @@ fn ai_evidence_never_becomes_policy_authority_during_conflict_resolution() {
 }
 
 #[test]
-fn policy_evaluation_request_resolves_to_typed_decision_event() {
+fn policy_evaluation_request_resolves_to_typed_decision_event() -> TestResult {
     let request = PolicyEvaluationRequestedEvent {
-        aggregate_id: PolicyControlAggregateId::parse("policy-control-family-default")
-            .expect("policy control aggregate"),
-        request_id: PolicyControlRequestId::parse("policy-control-request-default")
-            .expect("policy control request"),
+        aggregate_id: test_ok!(
+            PolicyControlAggregateId::parse("policy-control-family-default"),
+            "policy control aggregate"
+        ),
+        request_id: test_ok!(
+            PolicyControlRequestId::parse("policy-control-request-default"),
+            "policy control request"
+        ),
         input: PolicyControlInput {
             mode: PolicyDecisionMode::Enforce,
             parent_authority_state: ParentAuthorityState::Authorized,
@@ -193,7 +198,7 @@ fn policy_evaluation_request_resolves_to_typed_decision_event() {
     assert_eq!(
         request
             .contract()
-            .expect("policy request contract")
+            .map_err(|error| std::io::Error::other(format!("policy request contract: {error}")))?
             .event_type
             .as_str(),
         "policy-control.evaluation.requested"
@@ -201,9 +206,10 @@ fn policy_evaluation_request_resolves_to_typed_decision_event() {
     assert_eq!(
         decision
             .contract()
-            .expect("policy decision contract")
+            .map_err(|error| std::io::Error::other(format!("policy decision contract: {error}")))?
             .event_type
             .as_str(),
         "policy-control.decision.resolved"
     );
+    Ok(())
 }

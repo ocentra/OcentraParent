@@ -1,11 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, LanBrowserAddDeviceDiscoveryDevice,
-    LanBrowserAddDevicePairingRequest, LanBrowserAddDeviceReadModel, LanHouseholdDeviceDecision,
-    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus,
-    LanPairingDiscoverySource, LanPairingNetworkMode, LanPairingParentAuthority,
-    LanPairingProductionDiscoveryState, LanPairingTrustState, LanSelectedDeviceReadiness,
-    LogFieldValue,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDiscoveryRuntimeStatus;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingNetworkMode;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDevicePairingRequest;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPairingDiscoverySource;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanSelectedDeviceReadiness;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 mod physical_lan_scan;
 mod production_household_proof;
@@ -305,7 +313,7 @@ fn network_neighbor_child_device(
 
 fn trusted_device_registry(
     runtime: &LanPairingRuntime,
-) -> Vec<ocentra_parent_agent_protocol::LanTrustedDeviceRegistryEntry> {
+) -> Vec<ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry> {
     runtime
         .registry
         .lock()
@@ -353,7 +361,7 @@ fn pairing_requests(
 }
 
 fn selected_device_readiness(
-    selected: Option<ocentra_parent_agent_protocol::LanSelectedRouteTarget>,
+    selected: Option<ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget>,
 ) -> LanSelectedDeviceReadiness {
     match selected {
         Some(target) => {

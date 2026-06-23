@@ -2,7 +2,12 @@ import {
   AgentAppGamePolicyReadinessReadModelSchema,
   type AgentAppGamePolicyReadinessReadModel,
 } from '@ocentra-parent/schema-domain/app-game-policy-readiness';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type AgentAppGamePolicyReadinessFailureReason =
   | 'wrong-event'
@@ -20,9 +25,7 @@ export type AgentAppGamePolicyReadinessResult =
       readonly reason: AgentAppGamePolicyReadinessFailureReason;
     };
 
-export function parseAgentAppGamePolicyReadinessEvent(
-  event: AgentEventEnvelope
-): AgentAppGamePolicyReadinessResult {
+export function parseAgentAppGamePolicyReadinessEvent(event: AgentEventEnvelope): AgentAppGamePolicyReadinessResult {
   if (event.event !== AgentEvent.ActivityAppGamePolicyReadinessReadModelReported) {
     return adapterFailure('wrong-event');
   }

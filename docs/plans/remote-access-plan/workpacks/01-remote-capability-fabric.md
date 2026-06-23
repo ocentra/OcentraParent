@@ -2,14 +2,51 @@
 
 Goal: define the paired remote session and capability model.
 
-Expected shape:
+## Ownership boundary
+
+```text
+remote-access-plan owns capability type, grant state, session state, route model, standing-access semantics, and no-claim boundary.
+account-identity-family-plan owns account/household/role/session/device authority.
+device-trust-bootstrap-plan owns parent presence and trusted-device step-up.
+screen-plan owns capture primitives, not remote authority.
+lan-plan owns LAN-only transport, not relay-backed remote access.
+```
+
+## Expected shape
 
 - Capability grants are scoped by household, child device, parent actor, action type, pairing state, and revocation/remove-device state.
 - Live view and remote control are separate capabilities, but only live view is current-pass.
 - Session state includes requested, authorized, paired, connecting, active, degraded, stopped, removed, revoked, denied, and failed.
 - Every session has audit references and redacted diagnostics.
 
-Expected proof:
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+capability_type
+actor_role
+household_ref
+child_device_ref
+parent_actor_ref
+pairing_state
+grant_state
+standing_access_state
+revocation_state
+removed_device_state
+session_state
+replay_state
+stale_session_state
+control_claim_state
+audit_ref
+redacted_diagnostics_state
+adjacent_handoff_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
+## Expected proof
 
 - Capability schema/contract proof when implemented.
 - AuthZ matrix.
@@ -57,3 +94,9 @@ Proof artifact expectations:
 - Session state transition table.
 - Negative authZ proof.
 - Adjacent-plan handoff list.
+
+## Failure conditions
+
+- Do not use one generic remote flag for live view, screenshot, diagnostic, and control.
+- Do not claim live view if pairing, standing access, revocation, and remove-device states are absent.
+- Do not claim control from this current-pass capability proof.

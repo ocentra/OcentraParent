@@ -1,4 +1,5 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_session::{
     evaluate_remote_access_session, plan_remote_access_session_effects,
     resolve_remote_access_session_request, RemoteAccessAuditState, RemoteAccessAutoExpiryState,
@@ -84,7 +85,7 @@ fn session_request_resolves_to_typed_authorization_event() {
     assert_eq!(
         request_event
             .contract()
-            .expect("remote access request contract")
+            .expect_value("remote access request contract")
             .event_type
             .as_str(),
         super::REMOTE_ACCESS_REQUESTED_EVENT_TYPE
@@ -92,7 +93,7 @@ fn session_request_resolves_to_typed_authorization_event() {
     assert_eq!(
         resolved_event
             .contract()
-            .expect("remote access resolved contract")
+            .expect_value("remote access resolved contract")
             .event_type
             .as_str(),
         super::REMOTE_ACCESS_RESOLVED_EVENT_TYPE

@@ -1,14 +1,30 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
-    AgentEventEnvelope, AgentEventName, LocalAiDegradedState, LocalAiProviderSchedulerJobStatus,
-    LocalAiProviderSchedulerLifecycle, LogFieldValue, LogLevel, ParentAssistantActionConfirmResult,
-    ParentAssistantActionConfirmState, ParentAssistantActionPreviewKind,
-    ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
-    ParentAssistantBackendState, ParentAssistantChildAgentValidationState,
-    ParentAssistantEvidenceContext, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
-    ParentAssistantThreadResponse, ParentEvidenceReference, ParentEvidenceReferenceKind,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionConfirmResult;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionConfirmState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionPreviewKind;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionPreviewResult;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionPreviewState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantBackendState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantChildAgentValidationState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantEvidenceContext;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderStatus;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantRunCancelResult;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantRunCancelState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantRunState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantThreadResponse;
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
@@ -390,8 +406,11 @@ fn default_evidence_context() -> ParentAssistantEvidenceContext {
     }
 }
 
-fn string_payload_field(command: &AgentCommandEnvelope, key: &str) -> Option<String> {
-    match command.payload.get(key) {
+fn string_payload_field(
+    command: &AgentCommandEnvelope,
+    payload_field_name: &str,
+) -> Option<String> {
+    match command.payload.get(payload_field_name) {
         Some(LogFieldValue::String(value)) if !value.trim().is_empty() => {
             Some(value.trim().to_string())
         }
@@ -399,6 +418,6 @@ fn string_payload_field(command: &AgentCommandEnvelope, key: &str) -> Option<Str
     }
 }
 
-fn string_field(key: &'static str, value: &str) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::String(value.to_string()))
+fn string_field(field_name: &'static str, value: &str) -> (&'static str, LogFieldValue) {
+    (field_name, LogFieldValue::String(value.to_string()))
 }

@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseParentReviewActionProofSchema,
   AppInstallPurchaseParentReviewActionRowSchema,
   summarizeAppInstallPurchaseParentReviewActionProof,
-} from '../../src/app-install-purchase-parent-review-action-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-parent-review-action-proof';
 
 describe('app install and purchase parent review action proof', () => {
   acceptsDecisionLinkedParentReviewRowsWithoutRuntimeClaims();

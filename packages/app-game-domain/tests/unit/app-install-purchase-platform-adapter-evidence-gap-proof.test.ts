@@ -4,7 +4,7 @@ import {
   AppInstallPurchasePlatformAdapterEvidenceGapProofSchema,
   AppInstallPurchasePlatformAdapterEvidenceGapRowSchema,
   summarizeAppInstallPurchasePlatformAdapterEvidenceGapProof,
-} from '../../src/app-install-purchase-platform-adapter-evidence-gap-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-platform-adapter-evidence-gap-proof';
 
 describe('app install purchase platform adapter evidence gap proof', () => {
   acceptsPlatformAdapterEvidenceGapRows();

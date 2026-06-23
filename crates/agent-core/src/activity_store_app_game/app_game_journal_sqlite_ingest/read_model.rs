@@ -1,9 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants, AppGameAiClassifierResult, AppGameControlActionResult,
-    AppGameControlApprovalAuthority, AppGameEvidenceClaim, AppGameForegroundEvidenceRow,
-    AppGameIdentity, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
-    AppGamePlatformAuthorityMatrix, AppGameRuntimeEvidenceRow, AppGameServiceReadModel,
-    LogFieldValue, LogFields, APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR,
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameEvidenceClaim, AppGameForegroundEvidenceRow, AppGameIdentity,
+    AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow,
+    AppGameServiceReadModel, APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR,
     APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CAPABILITY_STATUS_DEGRADED,
     APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED, APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED,
     APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED, APP_GAME_CAPABILITY_STATUS_STALE,
@@ -17,6 +15,12 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_JOURNAL_ROW_KIND_LAUNCHER, APP_GAME_JOURNAL_ROW_KIND_PLATFORM_AUTHORITY_MATRIX,
     APP_GAME_JOURNAL_ROW_KIND_RUNTIME, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    AppGameAiClassifierResult, AppGameControlActionResult, AppGameControlApprovalAuthority,
+    AppGamePlatformAuthorityMatrix,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;

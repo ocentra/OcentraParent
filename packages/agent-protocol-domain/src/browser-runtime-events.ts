@@ -4,16 +4,11 @@ import {
   AgentBrowserRuntimePhase,
   AgentBrowserRuntimeEventChainEntrySchema,
   AgentBrowserRuntimeEventChainStreamSchema,
-  type AgentBrowserRuntimeActionIntentCandidate as SharedAgentBrowserRuntimeActionIntentCandidate,
-  type AgentBrowserRuntimeEventChainEntry as SharedAgentBrowserRuntimeEventChainEntry,
-  type AgentBrowserRuntimeEventChainStream as SharedAgentBrowserRuntimeEventChainStream,
+  type AgentBrowserRuntimeActionIntentCandidate,
+  type AgentBrowserRuntimeEventChainEntry,
+  type AgentBrowserRuntimeEventChainStream,
 } from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
-import { AgentProtocolDefaults } from './defaults';
-
-export type AgentBrowserRuntimeEventChainEntry = SharedAgentBrowserRuntimeEventChainEntry;
-export type AgentBrowserRuntimeEventChainStream = SharedAgentBrowserRuntimeEventChainStream;
-export type AgentBrowserRuntimeActionIntentCandidate =
-  SharedAgentBrowserRuntimeActionIntentCandidate;
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type AgentBrowserRuntimeActionIntentStatus = {
   readonly candidateCount: number;

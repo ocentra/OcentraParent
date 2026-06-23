@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimSafeParentWorkflowProofReadModel } from './app-install-purchase-product-claim-safe-parent-workflow-proof';
 import { AppInstallPurchaseProviderStoreManualEvidencePacketProofReadModel } from './app-install-purchase-provider-store-manual-evidence-packet-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -329,4 +324,3 @@ function storeHandoffProofIsHonest(proof: AppInstallPurchaseProductClaimStoreHan
     proof.knownGaps.length > 0
   );
 }
-

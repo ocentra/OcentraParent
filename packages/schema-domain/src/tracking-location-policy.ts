@@ -1,8 +1,4 @@
-import {
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from './effect';
+import { NonEmptyStringSchema, Schema, withParser } from './effect';
 import {
   ChildProfileIdSchema,
   FamilyIdSchema,

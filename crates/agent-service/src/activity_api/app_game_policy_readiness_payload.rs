@@ -1,19 +1,26 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, AppGamePolicyReadinessReadModel, AppGamePolicyReadinessRow,
-    AppGameServiceReadModel, LogFieldValue, LogFields, APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
-    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
-    APP_GAME_POLICY_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT,
-    APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT,
-    APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY,
-    APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE,
-    APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY,
-    APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE, APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW,
-    APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED, APP_GAME_POLICY_READINESS_STATE_MISSING,
-    APP_GAME_POLICY_READINESS_STATE_READY, APP_GAME_POLICY_READINESS_STATUS_NO_ROWS,
-    APP_GAME_POLICY_READINESS_STATUS_PARTIAL, APP_GAME_POLICY_READINESS_STATUS_READY,
-    APP_GAME_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::AppGamePolicyReadinessReadModel;
+use ocentra_parent_agent_protocol::AppGamePolicyReadinessRow;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATE_MISSING;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATE_READY;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_NO_ROWS;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_PARTIAL;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_READY;
 
 use super::app_game_policy_readiness_sources::{
     ai_classifier_refs, app_game_boundary_row_count, approval_action_result_refs,
@@ -103,9 +110,7 @@ fn read_model_pairs(read_model: &AppGamePolicyReadinessReadModel) -> Vec<FieldPa
         ),
         (
             constants::field::APP_GAME_POLICY_READINESS_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ]
 }

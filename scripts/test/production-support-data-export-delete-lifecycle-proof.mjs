@@ -62,7 +62,8 @@ async function main() {
       loggingTest: 'packages/logging-domain/tests/unit/data-export-delete-lifecycle.test.ts',
       contract: 'packages/schema-domain/src/production-support-data-export-delete-lifecycle-proof.ts',
       readModel: 'packages/schema-domain/src/production-support-data-export-delete-lifecycle-read-model.ts',
-      contractTest: 'packages/production-domain/tests/unit/production-support-data-export-delete-lifecycle-proof.test.ts',
+      contractTest:
+        'packages/production-domain/tests/unit/production-support-data-export-delete-lifecycle-proof.test.ts',
       proofHarness: 'scripts/test/production-support-data-export-delete-lifecycle-proof.mjs',
       packageExport,
       documentation,

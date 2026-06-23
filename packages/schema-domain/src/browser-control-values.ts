@@ -9,39 +9,182 @@ export const BrowserControlFieldValueSchema = withParser(
 );
 
 export const BrowserControlKindSchema = withParser(
-  Schema.Literal('boolean', 'single-choice', 'multi-choice', 'number', 'duration', 'schedule', 'rule-list', 'target-list', 'retention', 'action-list', 'read-only-status', 'toggle', 'single-select', 'multi-select', 'readonly-status')
+  Schema.Literal(
+    'boolean',
+    'single-choice',
+    'multi-choice',
+    'number',
+    'duration',
+    'schedule',
+    'rule-list',
+    'target-list',
+    'retention',
+    'action-list',
+    'read-only-status',
+    'toggle',
+    'single-select',
+    'multi-select',
+    'readonly-status'
+  )
 );
 export const BrowserControlConditionKindSchema = withParser(
-  Schema.Literal('equals', 'notEquals', 'not-equals', 'includes', 'notIncludes', 'not-includes', 'all', 'any', 'capabilityAvailable', 'capability-state', 'default-posture', 'platformIn', 'proofAtLeast')
+  Schema.Literal(
+    'equals',
+    'notEquals',
+    'not-equals',
+    'includes',
+    'notIncludes',
+    'not-includes',
+    'all',
+    'any',
+    'capabilityAvailable',
+    'capability-state',
+    'default-posture',
+    'platformIn',
+    'proofAtLeast'
+  )
 );
 export const BrowserControlDefaultPostureSchema = withParser(
   Schema.Literal('observe', 'allow', 'warn', 'ask', 'limit', 'parent-review', 'block')
 );
-export const BrowserControlExecutionModeSchema = withParser(Schema.Literal('observe', 'dry-run', 'warn-ask', 'enforce'));
+export const BrowserControlExecutionModeSchema = withParser(
+  Schema.Literal('observe', 'dry-run', 'warn-ask', 'enforce')
+);
 export const BrowserControlManagementModeSchema = withParser(
-  Schema.Literal('disabled', 'observe-only', 'managed-browser', 'network-assisted', 'local-child-agent', 'lan-live', 'authoring-only', 'unavailable')
+  Schema.Literal(
+    'disabled',
+    'observe-only',
+    'managed-browser',
+    'network-assisted',
+    'local-child-agent',
+    'lan-live',
+    'authoring-only',
+    'unavailable'
+  )
 );
 export const BrowserControlManagedBrowserModeSchema = withParser(
-  Schema.Literal('disabled', 'not-required', 'preferred', 'available-for-exact-rules', 'required-for-exact-rules', 'required-for-all-browsing')
+  Schema.Literal(
+    'disabled',
+    'not-required',
+    'preferred',
+    'available-for-exact-rules',
+    'required-for-exact-rules',
+    'required-for-all-browsing'
+  )
 );
 export const BrowserControlUnmanagedBrowserModeSchema = withParser(
-  Schema.Literal('report-only', 'observe-only', 'network-domain-only', 'manual-review', 'allow', 'allowed-unmanaged-exception', 'monitor', 'warn-child', 'warn', 'parent-review', 'ask', 'terminate-process', 'relaunch-managed', 'os-block-configured', 'os-block-manual-required', 'block')
+  Schema.Literal(
+    'report-only',
+    'observe-only',
+    'network-domain-only',
+    'manual-review',
+    'allow',
+    'allowed-unmanaged-exception',
+    'monitor',
+    'warn-child',
+    'warn',
+    'parent-review',
+    'ask',
+    'terminate-process',
+    'relaunch-managed',
+    'os-block-configured',
+    'os-block-manual-required',
+    'block'
+  )
 );
 export const BrowserControlUrlTargetTypeSchema = withParser(
-  Schema.Literal('domain', 'url-prefix', 'exact-url', 'domain-origin', 'site-category', 'search-terms', 'video-channel', 'browser-session', 'browser-process', 'capability-state', 'download', 'social-platform', 'social-route-kind', 'social-account-creation', 'social-unknown-account', 'social-secondary-account', 'social-feed', 'social-short-video-feed', 'social-messaging', 'social-upload-post', 'social-livestream', 'unknown-social-site', 'browser-game', 'browser-game-platform', 'browser-game-portal', 'browser-game-url', 'educational-game', 'cloud-gaming', 'webgl-canvas-game', 'multiplayer-ugc-game', 'game-chat', 'game-account', 'game-purchase', 'game-loot-box', 'unknown-game', 'unblocked-game-site')
+  Schema.Literal(
+    'domain',
+    'url-prefix',
+    'exact-url',
+    'domain-origin',
+    'site-category',
+    'search-terms',
+    'video-channel',
+    'browser-session',
+    'browser-process',
+    'capability-state',
+    'download',
+    'social-platform',
+    'social-route-kind',
+    'social-account-creation',
+    'social-unknown-account',
+    'social-secondary-account',
+    'social-feed',
+    'social-short-video-feed',
+    'social-messaging',
+    'social-upload-post',
+    'social-livestream',
+    'unknown-social-site',
+    'browser-game',
+    'browser-game-platform',
+    'browser-game-portal',
+    'browser-game-url',
+    'educational-game',
+    'cloud-gaming',
+    'webgl-canvas-game',
+    'multiplayer-ugc-game',
+    'game-chat',
+    'game-account',
+    'game-purchase',
+    'game-loot-box',
+    'unknown-game',
+    'unblocked-game-site'
+  )
 );
 export const BrowserControlEvidenceProofLevelSchema = withParser(
-  Schema.Literal('none', 'process-running', 'foreground-window', 'network-domain', 'managed-active-tab', 'managed-tab-list', 'fresh-managed-tab-list', 'fresh-managed-active-tab', 'classifier-category', 'url-shape-metadata', 'social-route-evidence', 'browser-game-runtime-signal', 'browser-policy-writer', 'adapter-action')
+  Schema.Literal(
+    'none',
+    'process-running',
+    'foreground-window',
+    'network-domain',
+    'managed-active-tab',
+    'managed-tab-list',
+    'fresh-managed-tab-list',
+    'fresh-managed-active-tab',
+    'classifier-category',
+    'url-shape-metadata',
+    'social-route-evidence',
+    'browser-game-runtime-signal',
+    'browser-policy-writer',
+    'adapter-action'
+  )
 );
 export const BrowserControlProofFallbackSchema = withParser(
-  Schema.Literal('downgrade-to-domain', 'parent-review', 'block-until-proof', 'observe-only', 'allow', 'observe', 'warn', 'ask', 'block-until-ready', 'mark-unavailable')
+  Schema.Literal(
+    'downgrade-to-domain',
+    'parent-review',
+    'block-until-proof',
+    'observe-only',
+    'allow',
+    'observe',
+    'warn',
+    'ask',
+    'block-until-ready',
+    'mark-unavailable'
+  )
 );
 export const BrowserControlDownloadStateSchema = withParser(
-  Schema.Literal('not-configured', 'allow', 'observe', 'warn', 'ask', 'parent-review', 'block', 'block-risky', 'block-all', 'off')
+  Schema.Literal(
+    'not-configured',
+    'allow',
+    'observe',
+    'warn',
+    'ask',
+    'parent-review',
+    'block',
+    'block-risky',
+    'block-all',
+    'off'
+  )
 );
-export const BrowserControlApprovalStateSchema = withParser(Schema.Literal('not-required', 'required', 'pending', 'approved', 'denied'));
+export const BrowserControlApprovalStateSchema = withParser(
+  Schema.Literal('not-required', 'required', 'pending', 'approved', 'denied')
+);
 export const BrowserControlReportStateSchema = withParser(Schema.Literal('disabled', 'daily', 'weekly', 'on-demand'));
-export const BrowserControlAuditStateSchema = withParser(Schema.Literal('disabled', 'local-only', 'parent-visible', 'retained'));
+export const BrowserControlAuditStateSchema = withParser(
+  Schema.Literal('disabled', 'local-only', 'parent-visible', 'retained')
+);
 export const BrowserControlRetentionStateSchema = withParser(
   Schema.Literal(
     'none',
@@ -59,10 +202,24 @@ export const BrowserControlCapabilityStateSchema = withParser(
   Schema.Literal('supported', 'unsupported', 'degraded', 'unavailable', 'unknown', 'ready', 'manual-required')
 );
 export const BrowserControlRejectionReasonSchema = withParser(
-  Schema.Literal('invalid-request', 'unknown-writes-to', 'unknown-field', 'invalid-enum-value', 'missing-budget-or-fallback', 'missing-managed-proof-or-fallback', 'capability-unavailable', 'storage-unavailable', 'stale-revision', 'scaffold-unavailable', 'revision-not-found')
+  Schema.Literal(
+    'invalid-request',
+    'unknown-writes-to',
+    'unknown-field',
+    'invalid-enum-value',
+    'missing-budget-or-fallback',
+    'missing-managed-proof-or-fallback',
+    'capability-unavailable',
+    'storage-unavailable',
+    'stale-revision',
+    'scaffold-unavailable',
+    'revision-not-found'
+  )
 );
 export const BrowserControlPatchOperationSchema = withParser(Schema.Literal('replace'));
-export const BrowserControlUpdateKindSchema = withParser(Schema.Literal('get', 'preview', 'patch', 'replace', 'rollback'));
+export const BrowserControlUpdateKindSchema = withParser(
+  Schema.Literal('get', 'preview', 'patch', 'replace', 'rollback')
+);
 export const BrowserControlUpdateStatusSchema = withParser(Schema.Literal('accepted', 'rejected'));
 
 export type BrowserControlSchemaKnownWritesToPath = typeof BrowserControlSchemaKnownWritesToPathSchema.Type;
@@ -147,9 +304,7 @@ export const BrowserControlWritesToPath = {
   UrlAllowList: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/urlAllowList'),
   UrlBlockList: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/urlBlockList'),
   BudgetsEnabled: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/enabled'),
-  DailyBudgetMinutes: BrowserControlSchemaKnownWritesToPathSchema.parse(
-    '/browserPolicy/budgets/defaultDailyMinutes'
-  ),
+  DailyBudgetMinutes: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/defaultDailyMinutes'),
   BudgetCountingMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/countingMode'),
   BrowserGameEducationalMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
     '/browserPolicy/browserGames/educationalGameMode'

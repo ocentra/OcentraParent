@@ -34,7 +34,7 @@ run('cmd', [
   'tests/contract/tracking-ios-privacy-disclosure-release-proof.test.ts',
 ]);
 
-const proofModule = await importSource('packages/tracking-domain/src/tracking-ios-privacy-disclosure-release-proof.ts');
+const proofModule = await importSource('packages/schema-domain/src/tracking-ios-privacy-disclosure-release-proof.ts');
 const readModel = proofModule.buildTrackingIosPrivacyDisclosureProofReadModel(
   {
     generatedAt: timestamp,
@@ -63,7 +63,7 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-ios-privacy-disclosure-release-proof.ts',
+    source: 'packages/schema-domain/src/tracking-ios-privacy-disclosure-release-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-ios-privacy-disclosure-release-proof.test.ts',
     harness: 'scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs',
     evidence: 'test-results/tracking-ios-privacy-disclosure-release-proof/proof.json',

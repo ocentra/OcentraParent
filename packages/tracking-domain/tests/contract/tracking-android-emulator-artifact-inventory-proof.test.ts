@@ -3,7 +3,7 @@ import {
   RequiredTrackingAndroidEmulatorArtifactRefs,
   TrackingAndroidEmulatorArtifactInventoryRowSchema,
   buildTrackingAndroidEmulatorArtifactInventoryProof,
-} from '../../src/tracking-android-emulator-artifact-inventory-proof';
+} from '@ocentra-parent/schema-domain/tracking-android-emulator-artifact-inventory-proof';
 
 const GeneratedAt = '2026-06-08T10:00:00.000Z';
 

@@ -1,9 +1,4 @@
-import {
-  Schema,
-  withParser,
-  type Infer,
-  NonEmptyStringSchema
-} from './effect';
+import { Schema, withParser, type Infer, NonEmptyStringSchema } from './effect';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
 
@@ -143,4 +138,3 @@ function row(
     auditRefs: ['tracking-desktop-presence-hint-proof'],
   });
 }
-

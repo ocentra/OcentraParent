@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{ActivityEventKind, ActivityObserver, ActivitySubjectKind};
 
+pub const ACTIVITY_QUERY_SCHEMA_VERSION: u16 = crate::ACTIVITY_QUERY_SCHEMA_VERSION;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityIngestStatus {

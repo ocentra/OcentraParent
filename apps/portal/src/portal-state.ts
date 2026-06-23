@@ -4,15 +4,12 @@ import {
   type AgentEventName,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import {
-  type AgentMessageTarget,
-  type AgentWebSocketUrl,
-} from '@ocentra-parent/schema-domain/event-primitives';
+import { type AgentMessageTarget, type AgentWebSocketUrl } from '@ocentra-parent/schema-domain/event-primitives';
 import type { AgentLogSnapshot } from '@ocentra-parent/schema-domain/logging-contracts';
 import {
   PortalConnectionState,
-  type PortalConnectionStateValue,
-} from '@ocentra-parent/portal-domain/contracts';
+  type PortalConnectionState as PortalConnectionStateValue,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 
 export interface PortalRuntimeState {
   readonly agentWsUrl: AgentWebSocketUrl;

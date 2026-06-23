@@ -4,10 +4,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, BrowserPolicyEffectivePolicy, BrowserPolicyUpdateKind,
-    BrowserPolicyValue,
-};
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyEffectivePolicy;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::policy_constants;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -64,13 +65,18 @@ impl BrowserPolicyStoredState {
     }
 }
 
+fn unavailable_from_error<E>(error: &E) -> BrowserPolicyStoreError {
+    let _ = error;
+    BrowserPolicyStoreError::Unavailable
+}
+
 pub(crate) async fn read_browser_policy_state(
     path: &Path,
 ) -> Result<BrowserPolicyStoredState, BrowserPolicyStoreError> {
     let path = path.to_path_buf();
     tokio::task::spawn_blocking(move || read_browser_policy_state_sync(&path))
         .await
-        .map_err(|_| BrowserPolicyStoreError::Unavailable)?
+        .map_err(|error| unavailable_from_error(&error))?
 }
 
 pub(crate) async fn write_browser_policy_state(
@@ -81,7 +87,7 @@ pub(crate) async fn write_browser_policy_state(
     let state = state.clone();
     tokio::task::spawn_blocking(move || write_browser_policy_state_sync(&path, &state))
         .await
-        .map_err(|_| BrowserPolicyStoreError::Unavailable)?
+        .map_err(|error| unavailable_from_error(&error))?
 }
 
 pub(crate) fn browser_policy_store_path_from_env() -> PathBuf {
@@ -98,9 +104,9 @@ fn read_browser_policy_state_sync(
     path: &Path,
 ) -> Result<BrowserPolicyStoredState, BrowserPolicyStoreError> {
     match fs::read_to_string(path) {
-        Ok(text) => serde_json::from_str(&text).map_err(|_| BrowserPolicyStoreError::Unavailable),
+        Ok(text) => serde_json::from_str(&text).map_err(|error| unavailable_from_error(&error)),
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(BrowserPolicyStoredState::empty()),
-        Err(_) => Err(BrowserPolicyStoreError::Unavailable),
+        Err(error) => Err(unavailable_from_error(&error)),
     }
 }
 
@@ -109,9 +115,9 @@ fn write_browser_policy_state_sync(
     state: &BrowserPolicyStoredState,
 ) -> Result<(), BrowserPolicyStoreError> {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|_| BrowserPolicyStoreError::Unavailable)?;
+        fs::create_dir_all(parent).map_err(|error| unavailable_from_error(&error))?;
     }
     let text =
-        serde_json::to_string_pretty(state).map_err(|_| BrowserPolicyStoreError::Unavailable)?;
-    fs::write(path, text).map_err(|_| BrowserPolicyStoreError::Unavailable)
+        serde_json::to_string_pretty(state).map_err(|error| unavailable_from_error(&error))?;
+    fs::write(path, text).map_err(|error| unavailable_from_error(&error))
 }

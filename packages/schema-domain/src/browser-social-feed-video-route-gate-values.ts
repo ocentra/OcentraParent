@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 
@@ -63,4 +63,3 @@ export type BrowserSocialFeedVideoRouteGateAction = Infer<typeof BrowserSocialFe
 export type BrowserSocialFeedVideoRouteGateReason = Infer<typeof BrowserSocialFeedVideoRouteGateReasonSchema>;
 export type BrowserSocialFeedVideoRouteGateState = Infer<typeof BrowserSocialFeedVideoRouteGateStateSchema>;
 export type BrowserSocialFeedVideoRouteGateTargetKind = Infer<typeof BrowserSocialFeedVideoRouteGateTargetKindSchema>;
-

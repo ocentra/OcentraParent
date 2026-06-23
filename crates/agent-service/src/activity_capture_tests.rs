@@ -1,15 +1,20 @@
-use std::fs::{read, remove_file, write};
+use std::{
+    error::Error,
+    fs::{read, remove_file, write},
+    io::Error as IoError,
+};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
-use ocentra_parent_agent_protocol::{constants, ActivityEventKind, ActivityObserver};
+use ocentra_parent_agent_protocol::activity::{ActivityEventKind, ActivityObserver};
 #[cfg(windows)]
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
     APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING,
     APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::activity_capture::{
     record_activity_capture_to_paths, startup_activity_capture_enabled_for_value,
@@ -19,6 +24,8 @@ use crate::activity_capture::{
 mod freshness;
 mod inventory;
 
+type TestResult = Result<(), Box<dyn Error>>;
+
 #[test]
 fn startup_activity_capture_can_be_suppressed_for_isolated_service_proofs() {
     assert!(!startup_activity_capture_enabled_for_value(Some(
@@ -27,7 +34,7 @@ fn startup_activity_capture_can_be_suppressed_for_isolated_service_proofs() {
 }
 
 #[test]
-fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
+fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -42,39 +49,65 @@ fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    let status = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
-        .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    let journal_bytes = read(&journal_path).expect(constants::error::JOURNAL_READS);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
-    let summary = store
-        .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
-    let app_game = store
-        .app_game_service_read_model(
-            constants::activity_store::DEFAULT_RECENT_LIMIT,
-            constants::activity_store::TEST_THIRD_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let result = (|| -> TestResult {
+        let status = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
+            .map_err(|error| {
+                IoError::other(format!(
+                    "{}: {error:?}",
+                    constants::error::ACTIVITY_CAPTURE_RECORDS
+                ))
+            })?;
+        let journal_bytes = read(&journal_path)?;
+        let store = ActivityStore::open(&store_path).map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_OPENS
+            ))
+        })?;
+        let summary = store
+            .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
+            .map_err(|error| {
+                IoError::other(format!(
+                    "{}: {error:?}",
+                    constants::error::ACTIVITY_STORE_QUERIES
+                ))
+            })?;
+        let app_game = store
+            .app_game_service_read_model(
+                constants::activity_store::DEFAULT_RECENT_LIMIT,
+                constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            )
+            .map_err(|error| {
+                IoError::other(format!(
+                    "{}: {error:?}",
+                    constants::error::ACTIVITY_STORE_QUERIES
+                ))
+            })?;
+
+        assert_capture_event_count(status.events_ingested);
+        assert_capture_event_count(status.events_stored);
+        assert!(!String::from_utf8_lossy(&journal_bytes)
+            .contains(constants::activity_store::TEST_PROCESS_SUBJECT_NAME));
+        assert!(matches!(
+            summary.most_recent_kind,
+            Some(ActivityEventKind::WindowFocused) | Some(ActivityEventKind::ProcessObserved)
+        ));
+        assert!(matches!(
+            summary.most_recent_observer,
+            Some(ActivityObserver::WindowsWindow) | Some(ActivityObserver::WindowsProcess)
+        ));
+        assert_app_game_capture_read_model(&app_game);
+
+        Ok(())
+    })();
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    assert_capture_event_count(status.events_ingested);
-    assert_capture_event_count(status.events_stored);
-    assert!(!String::from_utf8_lossy(&journal_bytes)
-        .contains(constants::activity_store::TEST_PROCESS_SUBJECT_NAME));
-    assert!(matches!(
-        summary.most_recent_kind,
-        Some(ActivityEventKind::WindowFocused) | Some(ActivityEventKind::ProcessObserved)
-    ));
-    assert!(matches!(
-        summary.most_recent_observer,
-        Some(ActivityObserver::WindowsWindow) | Some(ActivityObserver::WindowsProcess)
-    ));
-    assert_app_game_capture_read_model(&app_game);
+    result
 }
 
 #[test]
-fn record_process_snapshot_reuses_journal_key_for_replay() {
+fn record_process_snapshot_reuses_journal_key_for_replay() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_CAPTURE_REPLAY_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -89,46 +122,62 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
-        .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    let key_bytes = read(&key_path).expect(constants::error::JOURNAL_READS);
-    let mut key = [0; JOURNAL_KEY_BYTES];
-    key.copy_from_slice(&key_bytes);
-    let journal = ActivityJournal::open(journal_path.clone(), JournalKey::from_bytes(key))
-        .expect(constants::error::JOURNAL_OPENS);
-    let lines = journal.lines().expect(constants::error::JOURNAL_READS);
-    assert_optional_foreground_event_count(lines.len() as u64);
-    let process_event = journal
-        .decrypt_line(&lines[0])
-        .expect(constants::error::JOURNAL_DECRYPTS);
-    let window_event = journal
-        .decrypt_line(&lines[1])
-        .expect(constants::error::JOURNAL_DECRYPTS);
-    let network_event = journal
-        .decrypt_line(&lines[2])
-        .expect(constants::error::JOURNAL_DECRYPTS);
+    let result = (|| -> TestResult {
+        record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1).map_err(
+            |error| {
+                IoError::other(format!(
+                    "{}: {error:?}",
+                    constants::error::ACTIVITY_CAPTURE_RECORDS
+                ))
+            },
+        )?;
+        let key_bytes = read(&key_path)?;
+        let mut key = [0; JOURNAL_KEY_BYTES];
+        key.copy_from_slice(&key_bytes);
+        let journal = ActivityJournal::open(journal_path.clone(), JournalKey::from_bytes(key))
+            .map_err(|error| {
+                IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_OPENS))
+            })?;
+        let lines = journal.lines().map_err(|error| {
+            IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_READS))
+        })?;
+        assert_optional_foreground_event_count(lines.len() as u64);
+        let process_event = journal.decrypt_line(&lines[0]).map_err(|error| {
+            IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_DECRYPTS))
+        })?;
+        let window_event = journal.decrypt_line(&lines[1]).map_err(|error| {
+            IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_DECRYPTS))
+        })?;
+        let network_event = journal.decrypt_line(&lines[2]).map_err(|error| {
+            IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_DECRYPTS))
+        })?;
+
+        assert_eq!(process_event.kind, ActivityEventKind::ProcessObserved);
+        assert_eq!(
+            process_event.source.observer,
+            ActivityObserver::WindowsProcess
+        );
+        assert_eq!(window_event.kind, ActivityEventKind::WindowFocused);
+        assert_eq!(
+            window_event.source.observer,
+            ActivityObserver::WindowsWindow
+        );
+        assert_eq!(network_event.kind, ActivityEventKind::DomainObserved);
+        assert_eq!(
+            network_event.source.observer,
+            ActivityObserver::WindowsNetwork
+        );
+
+        Ok(())
+    })();
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    assert_eq!(process_event.kind, ActivityEventKind::ProcessObserved);
-    assert_eq!(
-        process_event.source.observer,
-        ActivityObserver::WindowsProcess
-    );
-    assert_eq!(window_event.kind, ActivityEventKind::WindowFocused);
-    assert_eq!(
-        window_event.source.observer,
-        ActivityObserver::WindowsWindow
-    );
-    assert_eq!(network_event.kind, ActivityEventKind::DomainObserved);
-    assert_eq!(
-        network_event.source.observer,
-        ActivityObserver::WindowsNetwork
-    );
+    result
 }
 
 #[test]
-fn record_process_snapshot_rejects_invalid_journal_key() {
+fn record_process_snapshot_rejects_invalid_journal_key() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_CAPTURE_INVALID_KEY_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -142,18 +191,24 @@ fn record_process_snapshot_rejects_invalid_journal_key() {
         constants::activity_store::FILE_EXTENSION,
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
-    write(&key_path, []).expect(constants::error::JOURNAL_APPENDS);
+    write(&key_path, [])?;
 
-    let error = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
-        .expect_err(constants::error::ACTIVITY_CAPTURE_REJECTS_INVALID_KEY);
+    let result = match record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
+    {
+        Ok(_) => Err(IoError::other(constants::error::ACTIVITY_CAPTURE_REJECTS_INVALID_KEY).into()),
+        Err(error) => {
+            assert_eq!(error, ActivityCaptureError::InvalidKeyLength);
+            assert_eq!(
+                error.reason(),
+                constants::value::ACTIVITY_CAPTURE_INVALID_KEY_LENGTH
+            );
+            Ok(())
+        }
+    };
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    assert_eq!(error, ActivityCaptureError::InvalidKeyLength);
-    assert_eq!(
-        error.reason(),
-        constants::value::ACTIVITY_CAPTURE_INVALID_KEY_LENGTH
-    );
+    result
 }
 
 fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
@@ -224,7 +279,7 @@ fn expected_capture_event_base_count() -> u64 {
 
 #[cfg(windows)]
 fn assert_app_game_capture_read_model(
-    model: &ocentra_parent_agent_protocol::AppGameServiceReadModel,
+    model: &ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel,
 ) {
     assert_eq!(model.running_now_returned, 1);
     assert_eq!(
@@ -258,7 +313,7 @@ fn assert_app_game_capture_read_model(
 
 #[cfg(not(windows))]
 fn assert_app_game_capture_read_model(
-    model: &ocentra_parent_agent_protocol::AppGameServiceReadModel,
+    model: &ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel,
 ) {
     assert_eq!(model.running_now_returned, 0);
 }

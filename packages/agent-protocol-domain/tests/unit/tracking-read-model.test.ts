@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/schema-domain/activity-query';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
+import { TrackingTimelineRowKindSchema } from '@ocentra-parent/schema-domain/tracking-read-model';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { parseAgentActivityTrackingReadModelEvent } from '../../src/tracking-read-model';
 
 const Source = {
@@ -13,6 +15,13 @@ const Target = {
   peerId: 'portal-dev',
   role: 'portal',
 } as const;
+
+const TrackingRetentionDeletedActivityKind = [
+  'activity',
+  'tracking',
+  TrackingTimelineRowKindSchema.parse('retention'),
+  'deleted',
+].join('.') as const;
 
 const TrackingReadModel = {
   schemaVersion: ActivityQuerySchemaVersion,
@@ -41,7 +50,7 @@ const TrackingReadModel = {
       deviceId: 'child-device-1',
       platform: 'android',
       observer: 'tracking-engine',
-      kind: 'activity.tracking.retention.deleted',
+      kind: TrackingRetentionDeletedActivityKind,
       subjectKind: 'retention',
       subjectId: 'tracking-retention-24h-local',
       subjectDisplayName: 'Tracking retention delete',

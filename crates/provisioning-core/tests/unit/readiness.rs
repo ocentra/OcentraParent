@@ -1,4 +1,4 @@
-use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::{envelope::DomainEvent, error::EventingError};
 use ocentra_family_identity_core::family_identity::{
     DeviceOwnershipScope, DeviceTrustState, HouseholdMembershipState,
 };
@@ -302,12 +302,11 @@ fn provisioning_requires_direct_entry_when_lan_discovery_is_unavailable() {
 }
 
 #[test]
-fn readiness_event_drives_action_plan_event_for_recovered_pairing_state() {
+fn readiness_event_drives_action_plan_event_for_recovered_pairing_state(
+) -> Result<(), EventingError> {
     let readiness = provisioning_readiness_evaluated_event(
-        ProvisioningAggregateId::parse("provisioning-child-default")
-            .expect("provisioning aggregate"),
-        ProvisioningReadinessEvaluationId::parse("provisioning-readiness-default")
-            .expect("provisioning readiness"),
+        ProvisioningAggregateId::parse("provisioning-child-default")?,
+        ProvisioningReadinessEvaluationId::parse("provisioning-readiness-default")?,
         ProvisioningReadinessInput {
             pairing_lifecycle_state: PairingLifecycleState::Recovered,
             recovery_state: RecoveryState::Recovered,
@@ -329,19 +328,13 @@ fn readiness_event_drives_action_plan_event_for_recovered_pairing_state() {
         ProvisioningRecoveryAction::Continue
     );
     assert_eq!(
-        readiness
-            .contract()
-            .expect("provisioning readiness contract")
-            .event_type
-            .as_str(),
+        readiness.contract()?.event_type.as_str(),
         "provisioning.readiness.evaluated"
     );
     assert_eq!(
-        action
-            .contract()
-            .expect("provisioning action contract")
-            .event_type
-            .as_str(),
+        action.contract()?.event_type.as_str(),
         "provisioning.action.planned"
     );
+
+    Ok(())
 }

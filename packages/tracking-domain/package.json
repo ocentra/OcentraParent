@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Tracking location, geofence, expected-place, retention, and read-model contracts.",
+  "description": "Tracking runtime helpers, policy proofs, and projections built from centralized schemas.",
   "exports": {
     "./tracking-local-place-store": {
       "import": "./dist/tracking-local-place-store.js",
@@ -34,12 +34,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/agent-protocol-domain": "file:../agent-protocol-domain",
-    "@ocentra-parent/event-domain": "file:../event-domain",
-    "@ocentra-parent/family-domain": "file:../family-domain",
-    "@ocentra-parent/notification-domain": "file:../notification-domain",
-    "@ocentra-parent/policy-domain": "file:../policy-domain",
-    "@ocentra-parent/production-domain": "file:../production-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

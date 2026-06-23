@@ -13,7 +13,13 @@ const screenAiGuardOwnerPath = 'packages/screen-domain/src/screen-ai-enforcement
 
 run('npm', ['run', 'build', '--workspace=@ocentra-parent/schema-domain']);
 run('npm', ['run', 'build', '--workspace=@ocentra-parent/screen-domain']);
-run('npm', ['run', 'test', '--workspace=@ocentra-parent/screen-domain', '--', 'screen-ai-enforcement-handoff-guard-proof.test.ts']);
+run('npm', [
+  'run',
+  'test',
+  '--workspace=@ocentra-parent/screen-domain',
+  '--',
+  'screen-ai-enforcement-handoff-guard-proof.test.ts',
+]);
 
 const guard = await import('../../packages/screen-domain/dist/screen-ai-enforcement-handoff-guard-proof.js');
 const payload = guard.buildScreenAiEnforcementHandoffGuardPayload(validInput(readScreenAiHandoffAcceptedEventType()));

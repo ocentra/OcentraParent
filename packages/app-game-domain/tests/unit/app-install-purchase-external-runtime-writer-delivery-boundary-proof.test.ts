@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryProofSchema,
   AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryProof,
-} from '../../src/app-install-purchase-external-runtime-writer-delivery-boundary-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-writer-delivery-boundary-proof';
 
 describe('app install and purchase external runtime writer delivery boundary proof', () => {
   acceptsExternalRuntimeWriterDeliveryPrerequisiteRowsWithoutDeliveryClaims();

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -33,7 +28,9 @@ export const TrackingMissingDeviceModeProofNonClaimSchema = withParser(
 );
 
 export const TrackingMissingDeviceModeProofIdSchema = brandedNonEmptyStringSchema('TrackingMissingDeviceModeProofId');
-export const TrackingMissingDeviceModeProofReferenceSchema = brandedNonEmptyStringSchema('TrackingMissingDeviceModeProofReference');
+export const TrackingMissingDeviceModeProofReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingMissingDeviceModeProofReference'
+);
 
 export const TrackingMissingDeviceContactStateSchema = withParser(
   Schema.Literal('online', 'offline', 'powered-off', 'battery-throttled', 'unknown')
@@ -423,4 +420,3 @@ const countRows = (
 export const decodeTrackingMissingDeviceModeProofReadModel = Schema.decodeUnknownSync(
   TrackingMissingDeviceModeProofReadModelSchema
 );
-

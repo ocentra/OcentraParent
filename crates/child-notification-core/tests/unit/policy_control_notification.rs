@@ -2,15 +2,19 @@ use ocentra_child_notification_core::policy_control_notification::{
     build_policy_control_parent_notification, PolicyControlNotificationState,
 };
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus, PolicySourceStatus,
+    PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryAttemptId,
     PolicyDeliveryId, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
     PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_request::{
-    policy_request_schema_version, ChildPolicyRequest, PolicyApprovalId,
-    PolicyAssistantConfirmationState, PolicyDurationMinutes, PolicyOverrideState, PolicyRequestId,
-    PolicyRequestKind, PolicyRequestOrigin, PolicyRequestScope, PolicyRequestStatus,
+    policy_request_schema_version, ChildPolicyRequest, PolicyApprovalId, PolicyDurationMinutes,
+    PolicyOverrideState, PolicyRequestId, PolicyRequestKind, PolicyRequestScope,
     PolicyRequestSubmissionKey, PolicyRequestTarget, PolicyRequestTimestamp,
     PolicyTemporaryOverride,
 };
@@ -22,16 +26,16 @@ use ocentra_policy_control_core::policy_source::{
     PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
 fn timestamp(value: &str) -> PolicyRequestTimestamp {
-    PolicyRequestTimestamp::parse(value).expect("policy request timestamp")
+    PolicyRequestTimestamp::parse(value).expect_value("policy request timestamp")
 }
 
 fn audit_ref(value: &str) -> PolicyAuditReferenceId {
-    PolicyAuditReferenceId::parse(value).expect("policy audit ref")
+    PolicyAuditReferenceId::parse(value).expect_value("policy audit ref")
 }
 
 fn request_scope(kind: PolicyRequestKind, minutes: Option<u16>) -> PolicyRequestScope {
@@ -40,29 +44,32 @@ fn request_scope(kind: PolicyRequestKind, minutes: Option<u16>) -> PolicyRequest
         target: PolicyRequestTarget {
             kind: PolicyTargetKind::Category,
             reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                .expect("policy target ref"),
+                .expect_value("policy target ref"),
         },
         requested_action: PolicyRuleAction::TimeLimit,
-        rule_id: Some(PolicyRuleId::parse("rule-school-night").expect("policy rule id")),
+        rule_id: Some(PolicyRuleId::parse("rule-school-night").expect_value("policy rule id")),
         requested_bonus_minutes: minutes
             .map(PolicyDurationMinutes::new)
             .transpose()
-            .expect("policy duration"),
+            .expect_value("policy duration"),
     }
 }
 
 fn approved_request() -> ChildPolicyRequest {
     ChildPolicyRequest {
-        schema_version: policy_request_schema_version().expect("policy request schema version"),
-        request_id: PolicyRequestId::parse("request-bonus-time").expect("policy request id"),
+        schema_version: policy_request_schema_version()
+            .expect_value("policy request schema version"),
+        request_id: PolicyRequestId::parse("request-bonus-time").expect_value("policy request id"),
         submission_key: PolicyRequestSubmissionKey::parse("request-bonus-time-submit")
-            .expect("policy submission key"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("policy household id"),
-        child_profile_id: PolicyChildProfileId::parse("child-primary").expect("child profile id"),
-        device_id: Some(PolicyDeviceId::parse("device-laptop").expect("policy device id")),
+            .expect_value("policy submission key"),
+        household_id: PolicyHouseholdId::parse("household-default")
+            .expect_value("policy household id"),
+        child_profile_id: PolicyChildProfileId::parse("child-primary")
+            .expect_value("child profile id"),
+        device_id: Some(PolicyDeviceId::parse("device-laptop").expect_value("policy device id")),
         source_document_id: ParentPolicyDocumentId::parse("policy-source-default")
-            .expect("policy source id"),
-        policy_version: PolicyVersion::new(7).expect("policy version"),
+            .expect_value("policy source id"),
+        policy_version: PolicyVersion::new(7).expect_value("policy version"),
         origin: PolicyRequestOrigin::Child,
         assistant_preview_id: None,
         assistant_confirmation_state: PolicyAssistantConfirmationState::NotRequired,
@@ -75,7 +82,7 @@ fn approved_request() -> ChildPolicyRequest {
             audit_ref("audit-parent-decision"),
         ],
         resolved_approval_id: Some(
-            PolicyApprovalId::parse("request-bonus-time-grant").expect("policy approval id"),
+            PolicyApprovalId::parse("request-bonus-time-grant").expect_value("policy approval id"),
         ),
         resolved_at: Some(timestamp("2026-06-13T20:05:00Z")),
     }
@@ -88,13 +95,14 @@ fn preview_request() -> ChildPolicyRequest {
             ocentra_policy_control_core::policy_request::PolicyAssistantPreviewId::parse(
                 "assistant-preview-default",
             )
-            .expect("assistant preview id"),
+            .expect_value("assistant preview id"),
         ),
         assistant_confirmation_state: PolicyAssistantConfirmationState::ParentConfirmationRequired,
         status: PolicyRequestStatus::PreviewOnly,
-        request_id: PolicyRequestId::parse("request-assistant-preview").expect("policy request id"),
+        request_id: PolicyRequestId::parse("request-assistant-preview")
+            .expect_value("policy request id"),
         submission_key: PolicyRequestSubmissionKey::parse("request-assistant-preview-submit")
-            .expect("policy submission key"),
+            .expect_value("policy submission key"),
         scope: request_scope(PolicyRequestKind::AskParent, None),
         audit_reference_ids: vec![audit_ref("audit-request-created")],
         resolved_approval_id: None,
@@ -104,26 +112,28 @@ fn preview_request() -> ChildPolicyRequest {
 }
 
 fn approved_override() -> PolicyTemporaryOverride {
+    let request = approved_request();
+
     PolicyTemporaryOverride {
-        schema_version: policy_request_schema_version().expect("policy request schema version"),
+        schema_version: policy_request_schema_version()
+            .expect_value("policy request schema version"),
         override_id: ocentra_policy_control_core::policy_request::PolicyOverrideId::parse(
             "policy-override:request-bonus-time-grant",
         )
-        .expect("policy override id"),
-        source_request_id: approved_request().request_id.clone(),
-        source_approval_id: approved_request()
+        .expect_value("policy override id"),
+        source_request_id: request.request_id,
+        source_approval_id: request
             .resolved_approval_id
-            .clone()
-            .expect("resolved approval id"),
-        household_id: approved_request().household_id.clone(),
-        child_profile_id: approved_request().child_profile_id.clone(),
-        device_id: approved_request().device_id.clone(),
-        source_document_id: approved_request().source_document_id.clone(),
-        policy_version: approved_request().policy_version,
+            .expect_value("resolved approval id"),
+        household_id: request.household_id,
+        child_profile_id: request.child_profile_id,
+        device_id: request.device_id,
+        source_document_id: request.source_document_id,
+        policy_version: request.policy_version,
         request_kind: PolicyRequestKind::BonusTime,
-        target: approved_request().scope.target.clone(),
+        target: request.scope.target,
         approved_action: PolicyRuleAction::TimeLimit,
-        approved_bonus_minutes: Some(PolicyDurationMinutes::new(30).expect("minutes")),
+        approved_bonus_minutes: Some(PolicyDurationMinutes::new(30).expect_value("minutes")),
         effective_at: timestamp("2026-06-13T20:05:00Z"),
         expires_at: timestamp("2026-06-13T22:00:00Z"),
         state: PolicyOverrideState::Active,
@@ -134,39 +144,39 @@ fn approved_override() -> PolicyTemporaryOverride {
 fn sample_policy_source_document() -> ParentPolicySourceDocument {
     ParentPolicySourceDocument {
         schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
+            .expect_value("policy source schema version"),
         document_id: ParentPolicyDocumentId::parse("policy-source-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(7).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+            .expect_value("policy source document id"),
+        household_id: PolicyHouseholdId::parse("household-default").expect_value("household id"),
+        policy_version: PolicyVersion::new(7).expect_value("policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: PolicyActorId::parse("actor-parent").expect_value("policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
+        status: PolicySourceStatus::Confirmed,
         child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
+            PolicyChildProfileId::parse("child-primary").expect_value("child profile id")
         ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect_value("policy device id")],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: PolicyRuleId::parse("rule-school-night-block").expect_value("policy rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
                 reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                    .expect_value("policy target reference"),
             },
             action: PolicyRuleAction::Block,
             schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
+                PolicyScheduleId::parse("schedule-school-night").expect_value("policy schedule id"),
             ),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: PolicyReasonCode::parse("school-night").expect_value("policy reason code"),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
             schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
+                .expect_value("policy schedule id"),
             timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+                .expect_value("policy timezone name"),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -204,27 +214,28 @@ fn queued_delivery() -> ocentra_policy_control_core::policy_delivery::PolicyDeli
         &sample_policy_source_document(),
         PolicyConsumerDomain::Tracking,
     )
-    .expect("compiled domain policy artifact");
+    .expect_value("compiled domain policy artifact");
 
     queue_policy_delivery(
         &compiled,
         PolicyDeliveryTarget {
             child_profile_id: PolicyChildProfileId::parse("child-primary")
-                .expect("child profile id"),
-            device_id: PolicyDeviceId::parse("device-laptop").expect("policy device id"),
+                .expect_value("child profile id"),
+            device_id: PolicyDeviceId::parse("device-laptop").expect_value("policy device id"),
             domain: PolicyConsumerDomain::Tracking,
         },
-        PolicyDeliveryId::parse("delivery-policy-household-default").expect("policy delivery id"),
-        PolicyDeliveryAttemptId::parse("attempt-queued").expect("policy attempt id"),
+        PolicyDeliveryId::parse("delivery-policy-household-default")
+            .expect_value("policy delivery id"),
+        PolicyDeliveryAttemptId::parse("attempt-queued").expect_value("policy attempt id"),
         vec![audit_ref("audit-policy-queued")],
     )
-    .expect("queued policy delivery")
+    .expect_value("queued policy delivery")
 }
 
 #[test]
 fn preview_only_request_stays_confirmation_gated() {
     let notification = build_policy_control_parent_notification(&preview_request(), None, None)
-        .expect("preview notification");
+        .expect_value("preview notification");
 
     assert_eq!(
         notification.state,
@@ -246,7 +257,7 @@ fn approved_request_and_queued_delivery_keep_override_and_audit_context() {
         Some(&temporary_override),
         Some(&queued),
     )
-    .expect("queued delivery notification");
+    .expect_value("queued delivery notification");
 
     assert_eq!(
         notification.state,
@@ -256,7 +267,7 @@ fn approved_request_and_queued_delivery_keep_override_and_audit_context() {
         notification
             .source_approval_id
             .as_ref()
-            .expect("source approval id")
+            .expect_value("source approval id")
             .as_str(),
         "request-bonus-time-grant"
     );
@@ -264,7 +275,7 @@ fn approved_request_and_queued_delivery_keep_override_and_audit_context() {
         notification
             .source_override_id
             .as_ref()
-            .expect("source override id")
+            .expect_value("source override id")
             .as_str(),
         "policy-override:request-bonus-time-grant"
     );
@@ -280,8 +291,8 @@ fn applied_delivery_promotes_parent_visible_state() {
         &queued,
         PolicyDeliveryTransition {
             attempt_id: PolicyDeliveryAttemptId::parse("attempt-applied")
-                .expect("policy attempt id"),
-            sequence: PolicyDeliverySequence::new(2).expect("policy delivery sequence"),
+                .expect_value("policy attempt id"),
+            sequence: PolicyDeliverySequence::new(2).expect_value("policy delivery sequence"),
             state: PolicyDeliveryState::Applied,
             audit_reference_ids: vec![audit_ref("audit-policy-applied")],
             reason_code: None,
@@ -289,7 +300,7 @@ fn applied_delivery_promotes_parent_visible_state() {
             rollback_reference_state: None,
         },
     )
-    .expect("applied transition")
+    .expect_value("applied transition")
     .into_record();
 
     let notification = build_policy_control_parent_notification(
@@ -297,7 +308,7 @@ fn applied_delivery_promotes_parent_visible_state() {
         Some(&temporary_override),
         Some(&applied),
     )
-    .expect("applied delivery notification");
+    .expect_value("applied delivery notification");
 
     assert_eq!(
         notification.state,
@@ -306,7 +317,7 @@ fn applied_delivery_promotes_parent_visible_state() {
     assert_eq!(
         notification
             .delivery_parent_visible_state
-            .expect("delivery parent visible state"),
+            .expect_value("delivery parent visible state"),
         ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState::Applied
     );
     assert_eq!(notification.audit_reference_ids.len(), 3);
@@ -318,26 +329,27 @@ fn retry_and_partial_delivery_states_stay_parent_visible_as_degraded() {
     let temporary_override = approved_override();
     let queued = queued_delivery();
     let retry = PolicyDeliveryTransition {
-        attempt_id: PolicyDeliveryAttemptId::parse("attempt-retry").expect("policy attempt id"),
-        sequence: PolicyDeliverySequence::new(2).expect("policy delivery sequence"),
+        attempt_id: PolicyDeliveryAttemptId::parse("attempt-retry")
+            .expect_value("policy attempt id"),
+        sequence: PolicyDeliverySequence::new(2).expect_value("policy delivery sequence"),
         state: PolicyDeliveryState::RetryScheduled,
         audit_reference_ids: vec![audit_ref("audit-policy-retry")],
-        reason_code: Some(PolicyReasonCode::parse("adapter-timeout").expect("reason code")),
+        reason_code: Some(PolicyReasonCode::parse("adapter-timeout").expect_value("reason code")),
         superseded_by_policy_version: None,
         rollback_reference_state: None,
     };
     let retry = apply_policy_delivery_transition(&queued, retry)
-        .expect("retry transition")
+        .expect_value("retry transition")
         .into_record();
 
     retry
         .reason_code
         .as_ref()
-        .expect("retry reason code is preserved");
+        .expect_value("retry reason code is preserved");
 
     let notification =
         build_policy_control_parent_notification(&request, Some(&temporary_override), Some(&retry))
-            .expect("retry delivery notification");
+            .expect_value("retry delivery notification");
 
     assert_eq!(
         notification.state,
@@ -346,7 +358,7 @@ fn retry_and_partial_delivery_states_stay_parent_visible_as_degraded() {
     assert_eq!(
         notification
             .delivery_parent_visible_state
-            .expect("delivery parent visible state"),
+            .expect_value("delivery parent visible state"),
         ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState::Degraded
     );
 }
@@ -360,18 +372,18 @@ fn blocked_delivery_states_surface_manual_required_notifications() {
         &queued,
         PolicyDeliveryTransition {
             attempt_id: PolicyDeliveryAttemptId::parse("attempt-blocked-permission")
-                .expect("policy attempt id"),
-            sequence: PolicyDeliverySequence::new(2).expect("policy delivery sequence"),
+                .expect_value("policy attempt id"),
+            sequence: PolicyDeliverySequence::new(2).expect_value("policy delivery sequence"),
             state: PolicyDeliveryState::BlockedByPermission,
             audit_reference_ids: vec![audit_ref("audit-policy-blocked-permission")],
             reason_code: Some(
-                PolicyReasonCode::parse("device-permission-lost").expect("reason code"),
+                PolicyReasonCode::parse("device-permission-lost").expect_value("reason code"),
             ),
             superseded_by_policy_version: None,
             rollback_reference_state: None,
         },
     )
-    .expect("blocked transition")
+    .expect_value("blocked transition")
     .into_record();
 
     let notification = build_policy_control_parent_notification(
@@ -379,7 +391,7 @@ fn blocked_delivery_states_surface_manual_required_notifications() {
         Some(&temporary_override),
         Some(&blocked),
     )
-    .expect("blocked delivery notification");
+    .expect_value("blocked delivery notification");
 
     assert_eq!(
         notification.state,
@@ -388,7 +400,7 @@ fn blocked_delivery_states_surface_manual_required_notifications() {
     assert_eq!(
         notification
             .delivery_parent_visible_state
-            .expect("delivery parent visible state"),
+            .expect_value("delivery parent visible state"),
         ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState::ManualRequired
     );
 }
@@ -400,7 +412,7 @@ fn denied_request_cannot_fake_override_or_delivery() {
     denied.resolved_at = Some(timestamp("2026-06-13T20:05:00Z"));
 
     let error = build_policy_control_parent_notification(&denied, Some(&approved_override()), None)
-        .expect_err("denied request must not carry override");
+        .expect_err_value("denied request must not carry override");
     assert!(error
         .to_string()
         .contains("policy_control_notification.override_id"));
@@ -414,7 +426,7 @@ fn replay_rejected_request_is_rejected_for_parent_notification() {
     replay_rejected.resolved_at = None;
 
     let error = build_policy_control_parent_notification(&replay_rejected, None, None)
-        .expect_err("replay-rejected status must not produce a parent notification");
+        .expect_err_value("replay-rejected status must not produce a parent notification");
 
     assert_eq!(
         error,

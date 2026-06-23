@@ -1,8 +1,11 @@
 use serde::Serialize;
 use serde_json::Value;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::{
     NetworkAiAdvisoryState, NetworkClaimBoundary, NetworkDomainAttributionKind,
     NetworkEnforcementMode, NetworkEnforcementResultStatus, NetworkEvidenceGrade,
     NetworkInterventionState, NetworkPolicyDecisionAction, NetworkPortalUpdateKind,
@@ -21,10 +24,10 @@ pub(crate) fn no_claim_boundary() -> NetworkClaimBoundary {
 
 pub(crate) fn custody(payload: &NetworkRuntimeEventPayload) -> String {
     if payload.capability_status == ActivityCaptureCapabilityStatus::Available {
-        return ocentra_parent_agent_protocol::NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE
+        return ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE
             .to_string();
     }
-    ocentra_parent_agent_protocol::NETWORK_FLOW_CUSTODY_UNAVAILABLE.to_string()
+    ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_CUSTODY_UNAVAILABLE.to_string()
 }
 
 pub(crate) fn evidence_grade(payload: &NetworkRuntimeEventPayload) -> NetworkEvidenceGrade {
@@ -129,5 +132,8 @@ pub(crate) fn json_value<T>(value: T) -> Value
 where
     T: Serialize,
 {
-    serde_json::to_value(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    match serde_json::to_value(value) {
+        Ok(json) => json,
+        Err(_error) => Value::Null,
+    }
 }

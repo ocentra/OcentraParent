@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, LogFieldValue};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::ScreenAiAnalysisEventRecord;
 
@@ -120,11 +121,11 @@ fn prefixed_id(prefix: &str, value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use ocentra_parent_agent_protocol::{
-        ActivityCaptureCapabilityStatus, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-        SCREEN_CATEGORY_UNKNOWN, SCREEN_PROVIDER_LOCAL_VISION, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
-        SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
-        SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
+    use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+    use ocentra_parent_agent_protocol::screen_evidence::{
+        SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_UNKNOWN, SCREEN_PROVIDER_LOCAL_VISION,
+        SCREEN_SERVICE_ANALYSIS_MODEL_ID, SCREEN_SERVICE_ANALYSIS_RUNTIME_REF,
+        SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION, SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
     };
 
     use super::*;
@@ -216,10 +217,13 @@ mod tests {
         }
     }
 
-    fn string_value<'a>(fields: &'a [(&'static str, LogFieldValue)], key: &str) -> Option<&'a str> {
+    fn string_value<'a>(
+        fields: &'a [(&'static str, LogFieldValue)],
+        field_name: &str,
+    ) -> Option<&'a str> {
         fields
             .iter()
-            .find_map(|(field_key, value)| match (*field_key == key, value) {
+            .find_map(|(field_key, value)| match (*field_key == field_name, value) {
                 (true, LogFieldValue::String(value)) => Some(value.as_str()),
                 _ => None,
             })

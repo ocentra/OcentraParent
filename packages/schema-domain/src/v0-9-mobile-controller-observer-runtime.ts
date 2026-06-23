@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LanPairingIntentKindSchema,
   LanPairingRejectionReasonSchema,
@@ -19,7 +14,11 @@ import {
   ParentMobileStoreDistributionStateSchema,
 } from './parent-mobile-runtime';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from './family-reference-primitives';
+import {
+  ParentDeviceIdSchema,
+  ParentEvidenceReferenceIdSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
 
 export const V09MobileControllerObserverRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('v0.9-mobile-controller-observer-runtime')
@@ -71,13 +70,25 @@ export const V09MobileControllerObserverControllerLeaseStateSchema = withParser(
   Schema.Literal('visible-read-only', 'manual-required', 'unavailable')
 );
 
-export const V09MobileControllerObserverProofLabelSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofLabel');
-export const V09MobileControllerObserverProofPathSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofPath');
-export const V09MobileControllerObserverProofCommandSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofCommand');
-export const V09MobileControllerObserverProofRequirementSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofRequirement');
-export const V09MobileControllerObserverClaimBoundarySchema = brandedNonEmptyStringSchema('V09MobileControllerObserverClaimBoundary');
+export const V09MobileControllerObserverProofLabelSchema = brandedNonEmptyStringSchema(
+  'V09MobileControllerObserverProofLabel'
+);
+export const V09MobileControllerObserverProofPathSchema = brandedNonEmptyStringSchema(
+  'V09MobileControllerObserverProofPath'
+);
+export const V09MobileControllerObserverProofCommandSchema = brandedNonEmptyStringSchema(
+  'V09MobileControllerObserverProofCommand'
+);
+export const V09MobileControllerObserverProofRequirementSchema = brandedNonEmptyStringSchema(
+  'V09MobileControllerObserverProofRequirement'
+);
+export const V09MobileControllerObserverClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'V09MobileControllerObserverClaimBoundary'
+);
 const V09MobileControllerObserverRouteIdSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverRouteId');
-const V09MobileControllerObserverControllerLeaseIdSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverControllerLeaseId');
+const V09MobileControllerObserverControllerLeaseIdSchema = brandedNonEmptyStringSchema(
+  'V09MobileControllerObserverControllerLeaseId'
+);
 
 export const V09MobileControllerObserverPackageReadinessSchema = withParser(
   Schema.Struct({
@@ -475,4 +486,3 @@ export type V09MobileControllerObserverClaimBoundaries = Infer<typeof V09MobileC
 export type V09MobileControllerObserverRuntimeReadModel = Infer<
   typeof V09MobileControllerObserverRuntimeReadModelSchema
 >;
-

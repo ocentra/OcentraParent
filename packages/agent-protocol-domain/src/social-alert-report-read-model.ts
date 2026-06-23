@@ -3,7 +3,12 @@ import {
   type SocialAlertReportReadModelIntent,
   type SocialAlertReportReadModelSnapshot,
 } from '@ocentra-parent/schema-domain/agent-social-alert-report-read-model';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export { SocialAlertReportReadModelSnapshotSchema };
 export type { SocialAlertReportReadModelIntent, SocialAlertReportReadModelSnapshot };

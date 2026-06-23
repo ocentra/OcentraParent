@@ -1,10 +1,12 @@
-# Next Actions
+# Remote Access Next Actions
 
 ## Scope and ownership
 
 - Plan owner: `remote-access-plan/AGENTS.md` with security/product coordination and platform runtime dependencies.
-- Ownership boundary: remote capability grants, standing access, preview/control split, pairing, and network posture.
+- Ownership boundary: remote live-view capability grants, standing access, pairing, relay sessions, revoke/remove-device lifecycle, abuse controls, and proof route.
 - Scope boundary: define runtime proof and threat-model gates before launching implementation.
+- Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+- Remote input/control remains deferred in WP03 and must not be claimed from current live-view work.
 
 ## Decision routes and failure conditions
 
@@ -12,10 +14,22 @@
   - If remote capability grant model is unresolved -> stay in execution lane.
   - If screen/view versus deferred control separation is undefined -> split lanes and delay control claims.
   - If abuse/threat proof matrix is incomplete -> block rollout claims.
+  - If pairing/standing access/revoke/remove-device lifecycle is incomplete -> block live-view readiness.
+  - If custody/retention for remote artifacts is unresolved -> block privacy safety claims.
 - Failure modes:
   - Undefined abuse/safe-off states for deferred remote-control attempts.
   - Missing pairing, disclosure, or revoke/remove-device contract for parent/child participants.
   - No explicit degraded/unavailable behavior under relay/session failure.
+  - Support/admin access path without parent-visible grant and audit.
+  - Relay diagnostics retaining raw screen/input/child-private payloads by default.
+
+## Ordered current-pass queue
+
+```text
+WP01 capability fabric -> WP04 pairing/standing grants -> WP02 live-screen relay -> WP05 relay security/abuse -> WP06 rollout gate
+```
+
+`WP03 remote input/control` stays deferred unless a future assignment explicitly opens the control slice.
 
 ## Actioned completion tracker
 
@@ -23,4 +37,6 @@
 - [ ] Separate live screen view from deferred remote input/control.
 - [ ] Define relay fallback, unavailable, and degraded states.
 - [ ] Define pairing/disclosure and child-visible state expectations.
+- [ ] Define revoke/remove-device/reconnect/crash-recovery semantics.
+- [ ] Define retention/export/delete boundary for remote artifacts and diagnostics.
 - [ ] Define abuse/security proof matrix and route sync.

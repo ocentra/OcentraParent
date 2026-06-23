@@ -1,19 +1,8 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
-export const BrowserAiRemoteApprovalIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiRemoteApprovalId')
-);
-export const BrowserAiRemoteProviderIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiRemoteProviderId')
-);
-export const BrowserAiRemoteRouteIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiRemoteRouteId')
-);
+export const BrowserAiRemoteApprovalIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiRemoteApprovalId'));
+export const BrowserAiRemoteProviderIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiRemoteProviderId'));
+export const BrowserAiRemoteRouteIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiRemoteRouteId'));
 
 export const BrowserAiRemoteDataScopeSchema = withParser(
   Schema.Literal('url-shape', 'metadata-summary', 'memory-refs', 'graph-refs', 'parent-rule-refs', 'schedule-refs')
@@ -41,4 +30,3 @@ export const BrowserAiRemoteExecutionStateSchema = withParser(
 );
 
 export type BrowserAiRemoteDegradedState = Infer<typeof BrowserAiRemoteDegradedStateSchema>;
-

@@ -65,12 +65,12 @@ async function main() {
     readbackCommand: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
     evidence: {
       agentProtocolDomain: 'packages/agent-protocol-domain/src/app-game-adapter-dispatch-result.ts',
-      protocolContracts: 'packages/agent-protocol-domain/src/contracts.ts',
+      protocolContracts: 'packages/schema-domain/src/agent-command-event-contracts.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_adapter_dispatch_result.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs',
       serviceWebsocket: 'crates/agent-service/src/websocket.rs',
       portalCommands: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
-      portalText: 'packages/text-domain/src/portal-dev.ts',
+      portalText: 'packages/schema-domain/src/text-portal-dev.ts',
     },
     summary: {
       expectedRows: 8,

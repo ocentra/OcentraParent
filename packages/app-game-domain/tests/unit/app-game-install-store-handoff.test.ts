@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameInstallStoreHandoffProofMatrix } from '../../src/app-game-install-store-handoff-proof';
+import { AppGameInstallStoreHandoffProofMatrix } from '@ocentra-parent/schema-domain/app-game-install-store-handoff-proof';
 import {
   AppGameInstallStoreHandoffMatrixSchema,
   AppGameInstallStoreHandoffRowSchema,
-} from '../../src/app-game-install-store-handoff';
+} from '@ocentra-parent/schema-domain/app-game-install-store-handoff';
 
 const rowFor = (handoffId: string) => {
   const row = AppGameInstallStoreHandoffProofMatrix.rows.find((candidate) => candidate.handoffId === handoffId);

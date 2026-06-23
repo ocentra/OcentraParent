@@ -52,7 +52,7 @@ const proof = {
     checklist: 'docs/product-capability-checklist.md unchanged; product-status checklist remains primary-sequenced',
   },
   evidence: {
-    source: 'packages/app-game-domain/src/app-install-purchase-platform-proof-readiness.ts',
+    source: 'packages/schema-domain/src/app-install-purchase-platform-proof-readiness.ts',
     tests: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-proof-readiness.test.ts',
     output: 'test-results/app-install-purchase-platform-proof-readiness/proof.json',
   },

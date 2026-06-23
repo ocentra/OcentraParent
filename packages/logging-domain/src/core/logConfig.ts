@@ -1,5 +1,9 @@
 import path from 'node:path';
-import { DevLogBridge, LogLevel, type LogLevel as LogLevelValue } from '@ocentra-parent/schema-domain/logging-contracts';
+import {
+  DevLogBridge,
+  LogLevel,
+  type LogLevel as LogLevelValue,
+} from '@ocentra-parent/schema-domain/logging-contracts';
 
 export type BridgeMode = 'local' | 'tunnel' | 'disabled';
 
@@ -98,9 +102,7 @@ export function createParentLogConfig(
 ): ParentLogConfig {
   const nodeEnv = env['NODE_ENV']?.trim().toLowerCase() ?? 'development';
   const testMode =
-    parseBoolean(env['OCENTRA_PARENT_TEST_MODE'], false) ||
-    parseBoolean(env['VITEST'], false) ||
-    nodeEnv === 'test';
+    parseBoolean(env['OCENTRA_PARENT_TEST_MODE'], false) || parseBoolean(env['VITEST'], false) || nodeEnv === 'test';
   const bridgeMode = parseBridgeMode(env['OCENTRA_PARENT_LOG_BRIDGE_MODE']);
   const configuredBridgeUrl = env['OCENTRA_PARENT_LOG_BRIDGE_URL']?.trim();
 

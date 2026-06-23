@@ -7,6 +7,8 @@ use ocentra_screen_ai_core::screen_ai_pipeline::{
     ScreenAiPolicyNeedState, ScreenAiRawFrameInclusionState, ScreenAiTriggerSource,
 };
 
+type TestResult = Result<(), String>;
+
 #[test]
 fn screen_ai_request_requires_evidence_refs_and_policy_need() {
     let decision = evaluate_screen_ai_pipeline(ScreenAiPipelineInput {
@@ -119,12 +121,16 @@ fn screen_ai_includes_raw_frame_only_when_evidence_policy_need_and_privacy_allow
 }
 
 #[test]
-fn screen_ai_pipeline_request_records_typed_decision_event() {
+fn screen_ai_pipeline_request_records_typed_decision_event() -> TestResult {
     let request = ScreenAiPipelineEvaluationRequestedEvent {
-        aggregate_id: ScreenAiAggregateId::parse("screen-ai-family-default")
-            .expect("screen ai aggregate"),
-        evaluation_id: ScreenAiPipelineEvaluationId::parse("screen-ai-evaluation-default")
-            .expect("screen ai evaluation"),
+        aggregate_id: ok(
+            ScreenAiAggregateId::parse("screen-ai-family-default"),
+            "screen ai aggregate",
+        )?,
+        evaluation_id: ok(
+            ScreenAiPipelineEvaluationId::parse("screen-ai-evaluation-default"),
+            "screen ai evaluation",
+        )?,
         input: ScreenAiPipelineInput {
             trigger_source: ScreenAiTriggerSource::Browser,
             evidence_reference_state: EvidenceReferenceState::Stable,
@@ -142,19 +148,21 @@ fn screen_ai_pipeline_request_records_typed_decision_event() {
         ScreenAiAnalysisRequestState::Required
     );
     assert_eq!(
-        request
-            .contract()
-            .expect("screen ai request contract")
+        ok(request.contract(), "screen ai request contract")?
             .event_type
             .as_str(),
         "screen-ai.pipeline-evaluation.requested"
     );
     assert_eq!(
-        decision
-            .contract()
-            .expect("screen ai decision contract")
+        ok(decision.contract(), "screen ai decision contract")?
             .event_type
             .as_str(),
         "screen-ai.pipeline-decision.recorded"
     );
+
+    Ok(())
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

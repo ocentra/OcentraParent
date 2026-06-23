@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  decodeApiPath,
-  decodeHeaderName,
-  decodePathSegment,
-} from '@ocentra-parent/schema-domain/endpoint-brands';
+import { decodeApiPath, decodeHeaderName, decodePathSegment } from '@ocentra-parent/schema-domain/endpoint-brands';
 
 describe('endpoint-domain brands', () => {
   it('decodeApiPath: accepts slash-prefixed paths', () => {

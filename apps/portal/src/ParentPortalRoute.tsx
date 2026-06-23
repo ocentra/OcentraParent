@@ -1,28 +1,22 @@
 import type { ReactElement } from 'react';
+import { AgentEvent, type AgentEventName } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PARENT_PORTAL_ROUTE, parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
-  AgentEvent,
-  type AgentEventName,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
-  PortalDom,
   PortalConnectionState,
-  type PortalConnectionStateValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import {
-  PARENT_PORTAL_ROUTE,
-  parentPortalRouteContext,
-} from '@ocentra-parent/portal-domain/parent-portal-data';
-import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
+  type PortalRoute as PortalRouteValue,
+  type PortalConnectionState as PortalConnectionStateValue,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 import { resolveParentPortalServiceState } from '@ocentra-parent/portal-domain/parent-portal-service-state';
 import { resolveParentPortalShellStatus } from '@ocentra-parent/portal-domain/parent-portal-shell-status';
 import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 import { resolveLiveActivityState } from './live-activity-state';
-import {
-  NetworkEvidenceDrawerRoutePanel,
-  shouldRenderNetworkEvidenceDrawerRoute,
-} from './NetworkEvidenceDrawerRoutePanel';
+import { PortalDeveloperRoutePanel, shouldRenderPortalDeveloperRoute } from './PortalDeveloperRoutePanel';
 import { openPortalFrameTunerWindow } from './portal-dev-tool-window';
+import { PortalDiagnosticsRoutePanel } from './PortalDiagnosticsRoutePanel';
+import { PortalProofPanelsRoutePanel } from './PortalProofPanelsRoutePanel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import {
@@ -54,7 +48,6 @@ import {
   BrowserParentExplanationRoutePanel,
   shouldRenderBrowserParentExplanationRoute,
 } from './BrowserParentExplanationRoutePanel';
-import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from './PolicyPreviewRoutePanel';
 import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from './SetupFirstRunRoutePanel';
 import {
   shouldRenderSocialAuditExplanationRoute,
@@ -63,12 +56,7 @@ import {
 import { shouldRenderSocialAlertReportRoute, SocialAlertReportRoutePanel } from './SocialAlertReportRoutePanel';
 import { shouldRenderSocialDashboardRoute, SocialDashboardRoutePanel } from './SocialDashboardRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
-import {
-  shouldRenderTrackingParentPortalSummary,
-  TrackingParentPortalSummaryCard,
-} from './TrackingParentPortalSummaryCard';
 import { ScreenSummaryRoutePanel, shouldRenderScreenSummaryRoute } from './ScreenSummaryRoutePanel';
-import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
@@ -99,6 +87,7 @@ export function ParentPortalRoute({
     connectionState: state.connectionState,
     events: state.events,
   });
+  const commandEnabled = state.socket?.readyState === WebSocket.OPEN;
   return (
     <div className={PARENT_PORTAL_ROUTE.ClassName}>
       <ParentPortalSvgSurface
@@ -134,20 +123,19 @@ export function ParentPortalRoute({
         }}
         onAssistantCommand={actions.sendCommand}
       />
-      {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel /> : null}
-      {shouldRenderTrackingStatusRoute(route) ? (
-        <TrackingStatusRoutePanel
+      {route === PortalRoute.Diagnostics ? <PortalDiagnosticsRoutePanel state={state} /> : null}
+      {route === PortalRoute.ProofPanels ? (
+        <PortalProofPanelsRoutePanel
           actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          commandEnabled={commandEnabled}
           liveActivity={activityState}
+          parentAccessState={shellStatus.parentAccessState}
         />
       ) : null}
-      {shouldRenderTrackingParentPortalSummary(route) ? (
-        <TrackingParentPortalSummaryCard liveActivity={activityState} />
+      {shouldRenderPortalDeveloperRoute(route) ? (
+        <PortalDeveloperRoutePanel actions={actions} route={route} state={state} />
       ) : null}
-      {shouldRenderNetworkEvidenceDrawerRoute(route) ? (
-        <NetworkEvidenceDrawerRoutePanel liveActivity={activityState} />
-      ) : null}
+      {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel /> : null}
       {shouldRenderAppGameNotificationParentSurfaceRoute(route) ? (
         <AppGameNotificationParentSurfaceRoutePanel
           readModel={activityState.appGameNotificationParentSurfaceIntentReadModel}
@@ -156,28 +144,28 @@ export function ParentPortalRoute({
       {shouldRenderAppGamePolicyReadinessRoute(route) ? (
         <AppGamePolicyReadinessRoutePanel
           actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          commandEnabled={commandEnabled}
           readModelResult={activityState.appGamePolicyReadinessReadModel}
         />
       ) : null}
       {shouldRenderAppGamePlatformProofStatusRoute(route) ? (
         <AppGamePlatformProofStatusRoutePanel
           actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          commandEnabled={commandEnabled}
           readModelResult={activityState.appGamePlatformProofStatusReadModel}
         />
       ) : null}
       {shouldRenderAppGameChildRuntimeTransportReceiptRoute(route) ? (
         <AppGameChildRuntimeTransportReceiptRoutePanel
           actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          commandEnabled={commandEnabled}
           readModelResult={activityState.appGameChildRuntimeTransportReceiptReadModel}
         />
       ) : null}
       {shouldRenderAppGameAdapterDispatchRoute(route) ? (
         <AppGameAdapterDispatchRoutePanel
           actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          commandEnabled={commandEnabled}
           executeResult={activityState.appGameAdapterDispatchExecutedResult}
           preflightResult={activityState.appGameAdapterDispatchPreflightReadModel}
           resultReadModel={activityState.appGameAdapterDispatchResultReadModel}
@@ -186,57 +174,33 @@ export function ParentPortalRoute({
       {shouldRenderAppGameTimerParentSurfaceRoute(route) ? (
         <AppGameTimerParentSurfaceRoutePanel
           actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          commandEnabled={commandEnabled}
           readModelResult={activityState.appGameTimerParentSurfaceReadModel}
         />
       ) : null}
-      {shouldRenderPolicyPreviewRoute(route) ? (
-        <PolicyPreviewRoutePanel
-          actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
-          liveActivity={activityState}
-          parentAccessState={shellStatus.parentAccessState}
-        />
-      ) : null}
       {shouldRenderAiRuntimeRoute(route) ? (
-        <AiRuntimeRoutePanel
-          actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
-          liveActivity={activityState}
-        />
+        <AiRuntimeRoutePanel actions={actions} commandEnabled={commandEnabled} liveActivity={activityState} />
       ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
       {shouldRenderSocialAuditExplanationRoute(route) &&
       browserPanelEvent === AgentEvent.BrowserSocialAuditExplanationReadModelReported ? (
-        <SocialAuditExplanationRoutePanel
-          actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
-          events={state.events}
-        />
+        <SocialAuditExplanationRoutePanel actions={actions} commandEnabled={commandEnabled} events={state.events} />
       ) : null}
       {shouldRenderSocialAlertReportRoute(route) &&
       browserPanelEvent === AgentEvent.BrowserSocialAlertReportReadModelReported ? (
         <SocialAlertReportRoutePanel
           actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          commandEnabled={commandEnabled}
           events={state.events}
           liveActivity={activityState}
         />
       ) : null}
       {shouldRenderSocialDashboardRoute(route) &&
       browserPanelEvent === AgentEvent.BrowserSocialDashboardReadModelReported ? (
-        <SocialDashboardRoutePanel
-          actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
-          events={state.events}
-        />
+        <SocialDashboardRoutePanel actions={actions} commandEnabled={commandEnabled} events={state.events} />
       ) : null}
       {shouldRenderScreenSettingsRoute(route) ? (
-        <ScreenSettingsRoutePanel
-          actions={actions}
-          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
-          events={state.events}
-        />
+        <ScreenSettingsRoutePanel actions={actions} commandEnabled={commandEnabled} events={state.events} />
       ) : null}
       {shouldRenderScreenSummaryRoute(route) ? <ScreenSummaryRoutePanel liveActivity={activityState} /> : null}
     </div>

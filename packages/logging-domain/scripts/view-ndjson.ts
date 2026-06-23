@@ -5,7 +5,10 @@ import { getTestLogScopeDir, listNdjsonFiles } from '../src/test-log/ndjsonPaths
 import { parseTestLogScopeOrDefault } from '@ocentra-parent/schema-domain/test-log/types';
 
 const scope = parseTestLogScopeOrDefault(
-  process.argv.slice(2).find((value) => value.startsWith('--scope='))?.slice('--scope='.length) ?? null
+  process.argv
+    .slice(2)
+    .find((value) => value.startsWith('--scope='))
+    ?.slice('--scope='.length) ?? null
 );
 const rootDir = process.env.OCENTRA_PARENT_LOG_DIR;
 const files = listNdjsonFiles(getTestLogScopeDir(scope, rootDir));

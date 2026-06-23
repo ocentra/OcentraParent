@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   LocalAiDeterministicClassifierResultSchema,
   LocalAiDeterministicClassifierTraceRefSchema,
@@ -266,4 +260,3 @@ function localAiClassifierReportSnapshotIsComplete(snapshot: LocalAiClassifierRe
     snapshot.nonClaims.length > 0
   );
 }
-

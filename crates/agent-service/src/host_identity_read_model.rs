@@ -1,9 +1,16 @@
-use ocentra_parent_agent_protocol::{
-    constants::host_identity, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementBroadAdapterCapability, EnforcementCapabilityState, EnforcementReadinessProofLevel,
-    EnforcementReadinessRuntimeOwner, EnforcementReadinessState, HostIdentityEvidenceClass,
-    HostIdentityEvidenceKind, HostIdentityReadModel, HostIdentityReadModelEntry, ParentPlatform,
+use ocentra_parent_agent_protocol::constants::host_identity;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::enforcement_readiness::{
+    EnforcementBroadAdapterCapability, EnforcementReadinessProofLevel,
+    EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
+};
+use ocentra_parent_agent_protocol::host_identity::{
+    HostIdentityEvidenceClass, HostIdentityEvidenceKind, HostIdentityReadModel,
+    HostIdentityReadModelEntry,
+};
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 pub(crate) fn host_identity_read_model(generated_at: &str) -> HostIdentityReadModel {
     HostIdentityReadModel {
@@ -26,7 +33,7 @@ fn host_identity_entries(generated_at: &str) -> Vec<HostIdentityReadModelEntry> 
 fn inventory_and_process_entries(generated_at: &str) -> Vec<HostIdentityReadModelEntry> {
     vec![
         manual_required_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_INSTALLED_APP_INVENTORY,
                 HostIdentityEvidenceKind::InstalledAppInventory,
                 HostIdentityEvidenceClass::Inventory,
@@ -38,7 +45,7 @@ fn inventory_and_process_entries(generated_at: &str) -> Vec<HostIdentityReadMode
             generated_at,
         ),
         manual_required_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_PROCESS_LINEAGE,
                 HostIdentityEvidenceKind::ProcessLineage,
                 HostIdentityEvidenceClass::Process,
@@ -50,7 +57,7 @@ fn inventory_and_process_entries(generated_at: &str) -> Vec<HostIdentityReadMode
             generated_at,
         ),
         manual_required_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_EXECUTABLE_IDENTITY,
                 HostIdentityEvidenceKind::ExecutableIdentity,
                 HostIdentityEvidenceClass::Executable,
@@ -67,7 +74,7 @@ fn inventory_and_process_entries(generated_at: &str) -> Vec<HostIdentityReadMode
 fn package_and_trust_entries(generated_at: &str) -> Vec<HostIdentityReadModelEntry> {
     vec![
         manual_required_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_PACKAGE_IDENTITY,
                 HostIdentityEvidenceKind::PackageIdentity,
                 HostIdentityEvidenceClass::Package,
@@ -79,7 +86,7 @@ fn package_and_trust_entries(generated_at: &str) -> Vec<HostIdentityReadModelEnt
             generated_at,
         ),
         manual_required_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_PUBLISHER_SIGNATURE,
                 HostIdentityEvidenceKind::PublisherSignature,
                 HostIdentityEvidenceClass::PublisherSignature,
@@ -91,7 +98,7 @@ fn package_and_trust_entries(generated_at: &str) -> Vec<HostIdentityReadModelEnt
             generated_at,
         ),
         manual_required_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_INVENTORY_PROCESS_LINK,
                 HostIdentityEvidenceKind::InventoryProcessLink,
                 HostIdentityEvidenceClass::Inventory,
@@ -108,7 +115,7 @@ fn package_and_trust_entries(generated_at: &str) -> Vec<HostIdentityReadModelEnt
 fn fallback_and_custody_entries(generated_at: &str) -> Vec<HostIdentityReadModelEntry> {
     vec![
         unavailable_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_UNSUPPORTED_IDENTITY,
                 HostIdentityEvidenceKind::UnsupportedIdentity,
                 HostIdentityEvidenceClass::Package,
@@ -120,7 +127,7 @@ fn fallback_and_custody_entries(generated_at: &str) -> Vec<HostIdentityReadModel
             generated_at,
         ),
         not_claimed_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_ROLLBACK_READINESS,
                 HostIdentityEvidenceKind::RollbackReadiness,
                 HostIdentityEvidenceClass::Rollback,
@@ -132,7 +139,7 @@ fn fallback_and_custody_entries(generated_at: &str) -> Vec<HostIdentityReadModel
             generated_at,
         ),
         manual_required_entry(
-            entry_spec(
+            &entry_spec(
                 host_identity::ENTRY_ID_AUDIT_CUSTODY,
                 HostIdentityEvidenceKind::AuditCustody,
                 HostIdentityEvidenceClass::Audit,
@@ -184,12 +191,12 @@ fn entry_spec(
 }
 
 fn manual_required_entry(
-    spec: HostIdentityEntrySpec,
+    spec: &HostIdentityEntrySpec,
     last_checked_at: &str,
 ) -> HostIdentityReadModelEntry {
     host_identity_entry(
         spec,
-        HostIdentityReadinessSpec {
+        &HostIdentityReadinessSpec {
             capability_state: EnforcementCapabilityState::ManualRequired,
             readiness_state: EnforcementReadinessState::ManualRequired,
             proof_level: EnforcementReadinessProofLevel::ManualProofRequired,
@@ -200,12 +207,12 @@ fn manual_required_entry(
 }
 
 fn unavailable_entry(
-    spec: HostIdentityEntrySpec,
+    spec: &HostIdentityEntrySpec,
     last_checked_at: &str,
 ) -> HostIdentityReadModelEntry {
     host_identity_entry(
         spec,
-        HostIdentityReadinessSpec {
+        &HostIdentityReadinessSpec {
             capability_state: EnforcementCapabilityState::Unavailable,
             readiness_state: EnforcementReadinessState::Unavailable,
             proof_level: EnforcementReadinessProofLevel::ManualProofRequired,
@@ -216,12 +223,12 @@ fn unavailable_entry(
 }
 
 fn not_claimed_entry(
-    spec: HostIdentityEntrySpec,
+    spec: &HostIdentityEntrySpec,
     last_checked_at: &str,
 ) -> HostIdentityReadModelEntry {
     host_identity_entry(
         spec,
-        HostIdentityReadinessSpec {
+        &HostIdentityReadinessSpec {
             capability_state: EnforcementCapabilityState::ManualRequired,
             readiness_state: EnforcementReadinessState::NotClaimed,
             proof_level: EnforcementReadinessProofLevel::NotProved,
@@ -232,8 +239,8 @@ fn not_claimed_entry(
 }
 
 fn host_identity_entry(
-    spec: HostIdentityEntrySpec,
-    readiness: HostIdentityReadinessSpec,
+    spec: &HostIdentityEntrySpec,
+    readiness: &HostIdentityReadinessSpec,
     last_checked_at: &str,
 ) -> HostIdentityReadModelEntry {
     HostIdentityReadModelEntry {

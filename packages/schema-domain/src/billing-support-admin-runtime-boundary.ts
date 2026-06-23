@@ -1,37 +1,17 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
-import {
-  BillingAuditReferenceSchema,
-  NonNegativeBillingCountSchema,
-} from './billing-entitlement-values';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import { BillingAuditReferenceSchema, NonNegativeBillingCountSchema } from './billing-entitlement-values';
 
-export const BillingSupportAdminRequestIdSchema = brandedNonEmptyStringSchema(
-  'BillingSupportAdminRequestId'
-);
+export const BillingSupportAdminRequestIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminRequestId');
 
-export const BillingSupportAdminRefundStatusSchema = withParser(
-  Schema.Literal('accepted', 'rejected')
-);
+export const BillingSupportAdminRefundStatusSchema = withParser(Schema.Literal('accepted', 'rejected'));
 
 export const BillingSupportAdminRefundStateSchema = withParser(
-  Schema.Literal(
-    'refund-requested',
-    'refund-settled',
-    'manual-review-required'
-  )
+  Schema.Literal('refund-requested', 'refund-settled', 'manual-review-required')
 );
 
-export const BillingSupportAdminRefundRejectionReasonSchema = withParser(
-  Schema.Literal('invoice-not-found')
-);
+export const BillingSupportAdminRefundRejectionReasonSchema = withParser(Schema.Literal('invoice-not-found'));
 
-export const BillingSupportAdminInvoiceIdSchema = brandedNonEmptyStringSchema(
-  'BillingSupportAdminInvoiceId'
-);
+export const BillingSupportAdminInvoiceIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminInvoiceId');
 
 export const BillingSupportAdminRefundResultSchema = withParser(
   Schema.Struct({
@@ -41,17 +21,12 @@ export const BillingSupportAdminRefundResultSchema = withParser(
     refundState: BillingSupportAdminRefundStateSchema,
     amountCents: Schema.Union(NonNegativeBillingCountSchema, Schema.Null),
     auditReference: BillingAuditReferenceSchema,
-    rejectionReason: Schema.Union(
-      BillingSupportAdminRefundRejectionReasonSchema,
-      Schema.Null
-    ),
+    rejectionReason: Schema.Union(BillingSupportAdminRefundRejectionReasonSchema, Schema.Null),
   }).pipe(
     Schema.filter(
       (result) =>
         result.status !== 'accepted' ||
-        (result.invoiceId !== null &&
-          result.amountCents !== null &&
-          result.rejectionReason === null) ||
+        (result.invoiceId !== null && result.amountCents !== null && result.rejectionReason === null) ||
         'Expected accepted refund results to carry an invoice id and amount without a rejection reason'
     ),
     Schema.filter(
@@ -86,9 +61,5 @@ export const BillingSupportAdminReconciliationSummarySchema = withParser(
   )
 );
 
-export type BillingSupportAdminRefundResult = Infer<
-  typeof BillingSupportAdminRefundResultSchema
->;
-export type BillingSupportAdminReconciliationSummary = Infer<
-  typeof BillingSupportAdminReconciliationSummarySchema
->;
+export type BillingSupportAdminRefundResult = Infer<typeof BillingSupportAdminRefundResultSchema>;
+export type BillingSupportAdminReconciliationSummary = Infer<typeof BillingSupportAdminReconciliationSummarySchema>;

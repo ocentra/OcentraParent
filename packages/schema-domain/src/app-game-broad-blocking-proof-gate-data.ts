@@ -3,7 +3,10 @@ import {
   type AppGamePlatformAuthorityTier,
   type AppGamePlatformSetupState,
 } from './app-game-control-platform-authority';
-import type { EnforcementCapabilityStateSchema, EnforcementModeSchema } from '@ocentra-parent/schema-domain/enforcement';
+import type {
+  EnforcementCapabilityStateSchema,
+  EnforcementModeSchema,
+} from '@ocentra-parent/schema-domain/enforcement';
 import {
   type AppGameBroadBlockingAdapterDispatchState,
   type AppGameBroadBlockingAuditState,

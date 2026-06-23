@@ -41,12 +41,10 @@ async function main() {
     'enforcement_execute_reports_manual_required_service_states_for_unwired_adapters',
   ]);
 
-  const { V08BroadOsAdapterProofReadModel } =
-    await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-proof');
+  const { V08BroadOsAdapterProofReadModel } = await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-proof');
   const { V08OsAdapterProductProofReadModel } =
     await import('@ocentra-parent/schema-domain/enforcement-os-adapter-product-proof');
-  const { V08BroadOsAdapterReadinessMatrix } =
-    await import('@ocentra-parent/schema-domain/enforcement-readiness');
+  const { V08BroadOsAdapterReadinessMatrix } = await import('@ocentra-parent/schema-domain/enforcement-readiness');
   const { V08HostAdapterProofPreflightMatrix } =
     await import('@ocentra-parent/schema-domain/enforcement-host-adapter-preflight');
 

@@ -16,7 +16,14 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
 
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']);
-runNpm(['run', 'test', '--workspace', '@ocentra-parent/notification-domain', '--', 'notification-local-outbox-scheduler-proof']);
+runNpm([
+  'run',
+  'test',
+  '--workspace',
+  '@ocentra-parent/notification-domain',
+  '--',
+  'notification-local-outbox-scheduler-proof',
+]);
 
 const importSchemaDist = (name) =>
   import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);

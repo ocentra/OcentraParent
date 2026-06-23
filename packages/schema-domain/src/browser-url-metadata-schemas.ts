@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { BrowserPageTitleSchema, BrowserUrlSchema } from './browser-schemas';
@@ -151,4 +151,3 @@ function browserUrlMetadataEvidenceClaimsAuthority(value: Infer<typeof BrowserUr
 function hasMetadataField(value: Infer<typeof BrowserUrlMetadataFieldsSchema>) {
   return Object.values(value).some((fieldValue) => fieldValue !== null);
 }
-

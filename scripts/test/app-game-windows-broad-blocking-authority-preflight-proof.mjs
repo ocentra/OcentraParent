@@ -38,7 +38,7 @@ async function main() {
 
   const preflightModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
     ).href
   );
   const preflight = preflightModule.createAppGameWindowsBroadBlockingAuthorityPreflightReadModel({
@@ -67,9 +67,9 @@ async function main() {
     preflight,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
+      contract: 'packages/schema-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-windows-broad-blocking-authority-preflight.test.ts',
-      broadBlockingGateData: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts',
+      broadBlockingGateData: 'packages/schema-domain/src/app-game-broad-blocking-proof-gate-data.ts',
       manualArtifactGates: 'packages/schema-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
     },
     claimsProved: [

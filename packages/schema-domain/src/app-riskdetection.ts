@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentEvidenceReferenceSchema } from './family-references';
 import {
   AppRiskDetectionAskParentRouting,
@@ -18,7 +13,11 @@ import {
   AppRiskDetectionSurfaceState,
   appRiskDetectionCandidateIsHonest,
 } from './app-riskdetection-rules';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from './family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPlatformSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
 
 export const AppRiskDetectionCandidateIdSchema = brandedNonEmptyStringSchema('AppRiskDetectionCandidateId');
 export const AppRiskDetectionMatrixIdSchema = brandedNonEmptyStringSchema('AppRiskDetectionMatrixId');
@@ -26,7 +25,9 @@ export const AppRiskDetectionInventoryEntryRefSchema = brandedNonEmptyStringSche
 export const AppRiskDetectionIdentityRefSchema = brandedNonEmptyStringSchema('AppRiskDetectionIdentityRef');
 export const AppRiskDetectionSourceRefSchema = brandedNonEmptyStringSchema('AppRiskDetectionSourceRef');
 export const AppRiskDetectionLocalAiDigestRefSchema = brandedNonEmptyStringSchema('AppRiskDetectionLocalAiDigestRef');
-export const AppRiskDetectionParentDisplayLabelSchema = brandedNonEmptyStringSchema('AppRiskDetectionParentDisplayLabel');
+export const AppRiskDetectionParentDisplayLabelSchema = brandedNonEmptyStringSchema(
+  'AppRiskDetectionParentDisplayLabel'
+);
 
 export const AppRiskDetectionRiskSignalSchema = withParser(
   Schema.Literal(...Object.values(AppRiskDetectionRiskSignal))

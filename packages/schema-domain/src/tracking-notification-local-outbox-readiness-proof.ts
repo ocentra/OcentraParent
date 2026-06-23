@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   NotificationLocalOutboxAdapterProofReadModel,
   NotificationLocalOutboxAdapterProofSchema,
@@ -44,9 +39,12 @@ export const TrackingNotificationLocalOutboxReadinessNonClaimSchema = withParser
   Schema.Literal(...RequiredTrackingNotificationLocalOutboxReadinessNonClaims)
 );
 
-export const TrackingNotificationLocalOutboxReadinessProofIdSchema = brandedNonEmptyStringSchema('TrackingNotificationLocalOutboxReadinessProofId');
-export const TrackingNotificationLocalOutboxReadinessReferenceSchema =
-  brandedNonEmptyStringSchema('TrackingNotificationLocalOutboxReadinessReference');
+export const TrackingNotificationLocalOutboxReadinessProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationLocalOutboxReadinessProofId'
+);
+export const TrackingNotificationLocalOutboxReadinessReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationLocalOutboxReadinessReference'
+);
 export const TrackingNotificationLocalOutboxReadinessStateSchema = withParser(
   Schema.Literal('local-outbox-receipt-required', 'local-outbox-manual-required', 'local-outbox-provider-unavailable')
 );
@@ -342,4 +340,3 @@ function uniqueRefs(refs: readonly string[]): readonly string[] {
 export const decodeTrackingNotificationLocalOutboxReadinessReadModel = Schema.decodeUnknownSync(
   TrackingNotificationLocalOutboxReadinessReadModelSchema
 );
-

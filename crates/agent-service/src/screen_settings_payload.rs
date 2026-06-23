@@ -1,25 +1,27 @@
-use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, LogFields, ScreenSettingsRejectionReason,
-    ScreenSettingsUpdateResponse,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsRejectionReason;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateResponse;
 
 use crate::fields::fields_from_pairs;
 
 pub(crate) fn screen_settings_response_payload(
     response: &ScreenSettingsUpdateResponse,
 ) -> LogFields {
-    let mut fields = fields_from_pairs(vec![
-        (
-            constants::field::SCREEN_SETTINGS_RESPONSE,
-            LogFieldValue::String(
-                serde_json::to_string(response).expect(constants::error::AGENT_EVENT_SERIALIZES),
+    let mut fields =
+        fields_from_pairs(vec![
+            (
+                constants::field::SCREEN_SETTINGS_RESPONSE,
+                LogFieldValue::String(serde_json::to_string(response).unwrap_or_else(|_| {
+                    panic!("{}", constants::error::AGENT_EVENT_SERIALIZES)
+                })),
             ),
-        ),
-        (
-            constants::field::SCREEN_SETTINGS_UPDATE_KIND,
-            LogFieldValue::String(response.kind.as_protocol_str().to_string()),
-        ),
-    ]);
+            (
+                constants::field::SCREEN_SETTINGS_UPDATE_KIND,
+                LogFieldValue::String(response.kind.as_protocol_str().to_string()),
+            ),
+        ]);
     if let Some(reason) = response.rejection_reason {
         fields.insert(
             constants::field::SCREEN_SETTINGS_REJECTION_REASON.to_string(),

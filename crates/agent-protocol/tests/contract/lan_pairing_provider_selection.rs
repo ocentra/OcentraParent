@@ -1,12 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanAiProviderRoutingState, LanPairingDeviceReachability,
-    LanPairingProductionDiscoveryState, LanPairingRejectionReason, LanPairingTrustState,
-    LanProviderSelectionCandidateEvidence, LanProviderSelectionCloudRelayDecisionState,
-    LanProviderSelectionCloudRelayImplementationState, LanProviderSelectionLifecycleState,
-    LanProviderSelectionManualRequirement, LanProviderSelectionManualRequirementEvidence,
-    LanProviderSelectionPolicyDecision, LanProviderSelectionProofState,
-    LanProviderSelectionReadModel, LAN_PAIRING_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::LanAiProviderRoutingState;
+use ocentra_parent_agent_protocol::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::LanPairingTrustState;
+use ocentra_parent_agent_protocol::LanProviderSelectionCandidateEvidence;
+use ocentra_parent_agent_protocol::LanProviderSelectionCloudRelayDecisionState;
+use ocentra_parent_agent_protocol::LanProviderSelectionCloudRelayImplementationState;
+use ocentra_parent_agent_protocol::LanProviderSelectionLifecycleState;
+use ocentra_parent_agent_protocol::LanProviderSelectionManualRequirement;
+use ocentra_parent_agent_protocol::LanProviderSelectionManualRequirementEvidence;
+use ocentra_parent_agent_protocol::LanProviderSelectionPolicyDecision;
+use ocentra_parent_agent_protocol::LanProviderSelectionProofState;
+use ocentra_parent_agent_protocol::LanProviderSelectionReadModel;
+use ocentra_parent_agent_protocol::LAN_PAIRING_SCHEMA_VERSION;
 
 #[test]
 fn provider_selection_read_model_serializes_honest_manual_and_cloud_states() {
@@ -35,13 +42,20 @@ fn provider_selection_read_model_serializes_honest_manual_and_cloud_states() {
         ],
     };
 
-    let json = serde_json::to_string(&model).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    assert!(json.contains(constants::value::LAN_AI_PROVIDER_ROUTING_AUTHORIZED_RESULT));
-    assert!(json.contains(constants::value::LAN_AI_PROVIDER_ROUTING_UNSUPPORTED_CAPABILITY));
-    assert!(json.contains("manual-required"));
-    assert!(json.contains("not-implemented"));
-    assert!(!json.contains("product-ready"));
-    assert!(!json.contains("cloud-relay-implemented"));
+    let json = serde_json::to_value(&model).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    assert_eq!(
+        json["candidates"][0]["routingState"],
+        constants::value::LAN_AI_PROVIDER_ROUTING_AUTHORIZED_RESULT
+    );
+    assert_eq!(
+        json["candidates"][1]["routingState"],
+        constants::value::LAN_AI_PROVIDER_ROUTING_UNSUPPORTED_CAPABILITY
+    );
+    assert_eq!(json["physicalHouseholdProviderProofState"], "manual-required");
+    assert_eq!(json["cloudRelayImplementationState"], "not-implemented");
+    assert_eq!(json["candidates"][2]["lifecycleState"], "not-implemented");
 }
 
 #[test]
@@ -61,9 +75,14 @@ fn provider_selection_candidate_serializes_route_blocked_rejection() {
         evidence_label: constants::value::LAN_REASON_OFFLINE.to_string(),
     };
 
-    let json = serde_json::to_string(&candidate).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    assert!(json.contains(constants::value::LAN_REASON_OFFLINE));
-    assert!(json.contains(constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE));
+    let json = serde_json::to_value(&candidate).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    assert_eq!(json["evidenceLabel"], constants::value::LAN_REASON_OFFLINE);
+    assert_eq!(
+        json["routingState"],
+        constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE
+    );
 }
 
 fn selected_candidate() -> LanProviderSelectionCandidateEvidence {

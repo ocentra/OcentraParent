@@ -67,9 +67,9 @@ async function main() {
     checklistState: 'not-touched-shared-checklist-left-unlocked-for-e-c',
     evidence: {
       runtimeDeliveryReceiptBoundaryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts',
       sourceDispatchPreflightContract:
-        'packages/app-game-domain/src/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-runtime-delivery-receipt-boundary-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

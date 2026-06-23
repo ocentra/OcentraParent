@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { LocalAiEvaluationInputSchema } from './local-ai';
 import { LocalAiPromptVersionSchema } from './ai-primitives';
 import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './ai-runtime';
@@ -166,4 +160,3 @@ function localAiTextLlmAdapterBoundaryProofIsHonest(proof: LocalAiTextLlmAdapter
     proof.parserRefs.length > 0
   );
 }
-

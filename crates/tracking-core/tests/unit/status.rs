@@ -1,5 +1,6 @@
 use ocentra_evidence::ManualReviewState;
-use ocentra_parent_agent_protocol::{constants, TrackingChildDeviceId};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::TrackingChildDeviceId;
 use ocentra_tracking_core::status::{
     TrackingBackgroundCapabilityState, TrackingChargingState, TrackingConnectivityState,
     TrackingLowPowerModeState, TrackingPermissionState, TrackingPlatformState, TrackingRadioState,
@@ -8,7 +9,9 @@ use ocentra_tracking_core::status::{
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        .unwrap_or_else(|_| {
+            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        })
 }
 
 #[test]

@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendPublicRuntimeFollowthroughSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-public-runtime-followthrough-proof')
@@ -87,10 +83,12 @@ export const ProductionSupportStatusBackendPublicRuntimeFollowthroughNonClaimSch
   )
 );
 
-export const StatusBackendPublicRuntimeFollowthroughReferenceSchema =
-  brandedNonEmptyStringSchema('ProductionSupportStatusBackendPublicRuntimeFollowthroughReference');
-export const StatusBackendPublicRuntimeFollowthroughManualRequirementSchema =
-  brandedNonEmptyStringSchema('ProductionSupportStatusBackendPublicRuntimeFollowthroughManualRequirement');
+export const StatusBackendPublicRuntimeFollowthroughReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportStatusBackendPublicRuntimeFollowthroughReference'
+);
+export const StatusBackendPublicRuntimeFollowthroughManualRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportStatusBackendPublicRuntimeFollowthroughManualRequirement'
+);
 
 export const ForbiddenStatusBackendPublicRuntimeFollowthroughDataClasses = [
   'child-activity-evidence',
@@ -135,4 +133,3 @@ export const RequiredStatusBackendPublicRuntimeFollowthroughNonClaims = [
   'no-provider-secret-custody',
   'no-public-runtime-payload-custody',
 ] as const;
-

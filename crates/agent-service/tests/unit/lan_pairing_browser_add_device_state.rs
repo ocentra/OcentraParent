@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandName, AgentEventName, AgentMessageTarget, AgentRoute,
-    LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandName, AgentEventName, AgentMessageTarget, AgentRoute,
 };
 use serde_json::Value;
 
@@ -25,7 +27,7 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
     assert_empty_runtime_read_model(&read_model);
 }
 
-fn assert_empty_runtime_payload(payload: &ocentra_parent_agent_protocol::LogFields) {
+fn assert_empty_runtime_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields) {
     assert_eq!(
         payload.get(constants::field::LAN_DISCOVERY_SOURCE),
         Some(&LogFieldValue::String(
@@ -58,7 +60,7 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     );
     let canonical_devices = read_model[constants::field::LAN_CANONICAL_HOUSEHOLD_DEVICES]
         .as_array()
-        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+        .unwrap_or_else(|| unreachable!("{}", constants::value::LAN_READ_MODEL_JSON_EXPECTATION));
     assert!(canonical_devices.iter().any(|device| device
         [constants::field::LAN_CANONICAL_DEVICE_ID]
         .as_str()
@@ -70,7 +72,12 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     );
     assert!(read_model[constants::field::LAN_HONEST_NON_CLAIMS]
         .as_array()
-        .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+        .unwrap_or_else(|| {
+            unreachable!(
+                "{}",
+                constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
+            )
+        })
         .iter()
         .any(|claim| {
             claim.as_str() == Some(constants::value::LAN_NON_CLAIM_REMOTE_DESKTOP_NOT_IMPLEMENTED)
@@ -78,7 +85,12 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     assert!(
         read_model[constants::field::LAN_SCAN_SUMMARY][constants::field::SOURCE_LABELS]
             .as_array()
-            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .unwrap_or_else(|| {
+                unreachable!(
+                    "{}",
+                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
+                )
+            })
             .iter()
             .any(|source| {
                 source.as_str() == Some(constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE)
@@ -112,7 +124,12 @@ fn assert_empty_runtime_production_household_proof(read_model: &Value) {
     assert!(production_household_proof
         [constants::lan_pairing::PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED]
         .as_array()
-        .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+        .unwrap_or_else(|| {
+            unreachable!(
+                "{}",
+                constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
+            )
+        })
         .iter()
         .any(|claim| claim.as_str()
             == Some(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_SIGNED)));
@@ -148,7 +165,10 @@ fn assert_empty_runtime_lan_source_matrix(read_model: &Value) {
     assert_eq!(
         matrix[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS]
             .as_array()
-            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            .unwrap_or_else(|| unreachable!(
+                "{}",
+                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
+            ))
             .len(),
         20
     );
@@ -165,7 +185,12 @@ fn assert_empty_runtime_lan_source_matrix(read_model: &Value) {
     assert!(
         matrix[constants::lan_pairing::PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED]
             .as_array()
-            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .unwrap_or_else(|| {
+                unreachable!(
+                    "{}",
+                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
+                )
+            })
             .iter()
             .any(|claim| claim.as_str()
                 == Some(constants::lan_pairing::LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE))
@@ -233,14 +258,21 @@ fn assert_paired_production_route_custody(read_model: &Value) {
         read_model[constants::lan_pairing::PRODUCTION_PROOF_FIELD_SUMMARY]
             [constants::lan_pairing::PRODUCTION_PROOF_FIELD_STATUS_ROWS]
             .as_array()
-            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .unwrap_or_else(|| {
+                unreachable!(
+                    "{}",
+                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
+                )
+            })
             .iter()
             .find(|row| row[constants::field::CAPABILITY]
                 == serde_json::json!(
                     constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_ROUTE_CUSTODY
                 ))
-            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-            [constants::field::LAN_DISCOVERY_STATE],
+            .unwrap_or_else(|| unreachable!(
+                "{}",
+                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
+            ))[constants::field::LAN_DISCOVERY_STATE],
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
     );
 }
@@ -250,7 +282,12 @@ fn assert_paired_signed_route_custody(read_model: &Value) {
         read_model[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY]
             [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_ROUTE_SAFETY_ROWS]
             .as_array()
-            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .unwrap_or_else(|| {
+                unreachable!(
+                    "{}",
+                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
+                )
+            })
             .iter()
             .find(
                 |row| row[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_CHECK]
@@ -258,22 +295,27 @@ fn assert_paired_signed_route_custody(read_model: &Value) {
                         constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY
                     )
             )
-            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-            [constants::field::LAN_DISCOVERY_STATE],
+            .unwrap_or_else(|| unreachable!(
+                "{}",
+                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
+            ))[constants::field::LAN_DISCOVERY_STATE],
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
     );
 }
 
-fn read_model_payload(payload: &ocentra_parent_agent_protocol::LogFields) -> Value {
+fn read_model_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields) -> Value {
     match payload.get(constants::field::LAN_ADD_DEVICE_READ_MODEL) {
-        Some(LogFieldValue::String(value)) => {
-            serde_json::from_str(value).expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-        }
+        Some(LogFieldValue::String(value)) => serde_json::from_str(value).unwrap_or_else(|error| {
+            unreachable!(
+                "{}: {error:?}",
+                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
+            )
+        }),
         _ => serde_json::json!({}),
     }
 }
 
-fn loopback_status_command() -> ocentra_parent_agent_protocol::AgentCommandEnvelope {
+fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentCommandEnvelope {
     command_for_target(
         AgentCommandName::AgentLanPairingStatusGet,
         AgentMessageTarget {

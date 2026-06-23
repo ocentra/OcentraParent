@@ -1,9 +1,4 @@
-﻿import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+﻿import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameNotificationProviderPreflightReadModelSchema,
   AppGameNotificationProviderPreflightStatus,
@@ -302,4 +297,3 @@ const countProviderStatus = (
   }>,
   providerStatus: V08NotificationProviderStatus
 ): number => rows.filter((row) => row.providerStatusBoundaryEntry.providerStatus === providerStatus).length;
-

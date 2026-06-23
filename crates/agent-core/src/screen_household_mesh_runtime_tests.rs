@@ -1,11 +1,15 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenHouseholdMeshPhase, ScreenMeshChildValidationState, ScreenMeshClaimState,
+    ScreenMeshLeaseState, ScreenMeshPolicyState, ScreenMeshProviderResultState,
+    ScreenMeshResultRejectionReason,
+};
 
-use super::{
+use crate::screen_household_mesh_runtime::{
     publish_screen_household_mesh_chain_for_input, validate_screen_household_mesh_result,
-    ScreenHouseholdMeshEventPayload, ScreenHouseholdMeshInput, ScreenHouseholdMeshPhase,
-    ScreenHouseholdMeshReport, ScreenHouseholdMeshResultSubmission, ScreenMeshChildValidationState,
-    ScreenMeshClaimState, ScreenMeshLeaseState, ScreenMeshPolicyState,
-    ScreenMeshProviderResultState, ScreenMeshResultRejectionReason,
+    ScreenHouseholdMeshEventPayload, ScreenHouseholdMeshInput, ScreenHouseholdMeshReport,
+    ScreenHouseholdMeshResultSubmission,
 };
 
 #[tokio::test]
@@ -13,7 +17,7 @@ async fn screen_household_mesh_chain_publishes_claim_lease_and_child_validation(
     let report =
         publish_screen_household_mesh_chain_for_input(ScreenHouseholdMeshInput::proof_fixture())
             .await
-            .expect(constants::screen_flow::ERROR_SCREEN_MESH_CHAIN_PUBLISHES);
+            .expect_value(constants::screen_flow::ERROR_SCREEN_MESH_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     assert_eq!(
@@ -50,7 +54,7 @@ async fn screen_household_mesh_policy_waits_for_child_accepted_result() {
     let report =
         publish_screen_household_mesh_chain_for_input(ScreenHouseholdMeshInput::proof_fixture())
             .await
-            .expect(constants::screen_flow::ERROR_SCREEN_MESH_CHAIN_PUBLISHES);
+            .expect_value(constants::screen_flow::ERROR_SCREEN_MESH_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     let provider_result =
@@ -146,7 +150,7 @@ async fn screen_household_mesh_keeps_provider_worker_only_and_no_raw_transfer() 
     let report =
         publish_screen_household_mesh_chain_for_input(ScreenHouseholdMeshInput::proof_fixture())
             .await
-            .expect(constants::screen_flow::ERROR_SCREEN_MESH_CHAIN_PUBLISHES);
+            .expect_value(constants::screen_flow::ERROR_SCREEN_MESH_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
     assert!(payloads.iter().all(|payload| {
@@ -180,7 +184,7 @@ fn decode_payloads(report: &ScreenHouseholdMeshReport) -> Vec<ScreenHouseholdMes
                 ScreenHouseholdMeshEventPayload,
             > = event
                 .decode()
-                .expect(constants::screen_flow::ERROR_SCREEN_MESH_PAYLOAD_DECODES);
+                .expect_value(constants::screen_flow::ERROR_SCREEN_MESH_PAYLOAD_DECODES);
             envelope.payload
         })
         .collect()
@@ -193,5 +197,5 @@ fn payload_for_phase(
     payloads
         .iter()
         .find(|payload| payload.phase == phase)
-        .expect(constants::screen_flow::ERROR_SCREEN_MESH_PAYLOAD_DECODES)
+        .expect_value(constants::screen_flow::ERROR_SCREEN_MESH_PAYLOAD_DECODES)
 }

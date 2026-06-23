@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { LanDiscoveryEvidenceRecordSchema } from './lan-discovery-evidence';
 import { LanPairingRouteIdSchema, LanPairingSchemaVersionSchema } from './lan-pairing-values';
 import { ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from './family-reference-primitives';
@@ -119,4 +113,3 @@ export type ScreenFamilyAiHubCloudRelayState = Infer<typeof ScreenFamilyAiHubClo
 export type ScreenFamilyAiHubRuntimeExchangeState = Infer<typeof ScreenFamilyAiHubRuntimeExchangeStateSchema>;
 export type ScreenFamilyAiHubRuntimeTransferMode = Infer<typeof ScreenFamilyAiHubRuntimeTransferModeSchema>;
 export type ScreenFamilyAiHubRuntimeDiscoveryReadModel = Infer<typeof ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema>;
-

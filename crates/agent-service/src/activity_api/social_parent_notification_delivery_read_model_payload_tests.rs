@@ -1,9 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
-};
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::SocialParentNotificationDeliveryReadinessSnapshot;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXTERNAL_RUNTIME_UNAVAILABLE;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_MANUAL_UI_PROOF_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY;
+use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE;
 use serde::de::DeserializeOwned;
 
 use super::social_parent_notification_delivery_read_model_payload::{
@@ -45,9 +48,15 @@ fn social_parent_notification_delivery_payload_reports_honest_service_rows() {
     assert!(decoded.rows[0].report_artifact_ref.is_some());
     assert!(decoded.rows[0].report_receipt_ref.is_some());
     assert!(decoded.rows[1].parent_report_ref.is_none());
-    assert!(!decoded.rows[1].manual_proof_requirements.is_empty());
+    assert_eq!(
+        decoded.rows[1].manual_proof_requirements,
+        vec![SOCIAL_PARENT_NOTIFICATION_DELIVERY_MANUAL_UI_PROOF_REQUIRED.to_string()]
+    );
     assert!(decoded.rows[2].parent_report_ref.is_none());
-    assert!(!decoded.rows[2].manual_proof_requirements.is_empty());
+    assert_eq!(
+        decoded.rows[2].manual_proof_requirements,
+        vec![SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXTERNAL_RUNTIME_UNAVAILABLE.to_string()]
+    );
     assert!(!decoded.parent_notification_ui_delivery_claimed);
     assert!(!decoded.external_runtime_report_delivery_claimed);
     assert!(!decoded.final_policy_execution_claimed);
@@ -63,7 +72,7 @@ async fn social_parent_notification_delivery_event_request_matches_service_proje
     let direct = social_parent_notification_delivery_read_model_from_service();
     let evented = request_social_parent_notification_delivery_read_model_from_service()
         .await
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(evented.rows.len(), direct.rows.len());
     assert_eq!(
@@ -91,11 +100,11 @@ async fn social_report_writer_event_request_feeds_parent_notification_projection
     let report_writer_direct = social_report_writer_delivery_read_model_from_service();
     let report_writer_evented = request_social_report_writer_delivery_read_model_from_service()
         .await
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let parent_notification_evented =
         request_social_parent_notification_delivery_read_model_from_service()
             .await
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         report_writer_evented.rows.len(),
@@ -154,14 +163,14 @@ async fn social_report_writer_event_request_feeds_parent_notification_projection
         .all(|row| !row.parent_notification_ui_delivered && !row.provider_delivery_attempted));
 }
 
-fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
+fn string_payload<T>(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> T
 where
     T: DeserializeOwned,
 {
     match &payload[field] {
         LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

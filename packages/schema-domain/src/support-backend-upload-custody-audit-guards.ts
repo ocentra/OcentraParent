@@ -4,10 +4,7 @@ import type {
   SupportBackendUploadCustodyAuditEntryCandidate,
   SupportBackendUploadCustodyAuditState,
 } from './support-backend-upload-custody-audit.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function supportBackendUploadCustodyAuditEntryIsSafe(
   entry: SupportBackendUploadCustodyAuditEntryCandidate,

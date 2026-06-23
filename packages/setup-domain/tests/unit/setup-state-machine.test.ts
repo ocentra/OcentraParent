@@ -62,82 +62,102 @@ function createReadinessReport(overrides: Partial<SetupReadinessReport> = {}) {
   });
 }
 
+function transitionToSetupComplete(readinessReport: SetupReadinessReport | null) {
+  return transitionSetupFirstRunState({
+    fromStateId: SetupFirstRunStateId.DataCustody,
+    toStateId: SetupFirstRunStateId.SetupComplete,
+    readinessReport,
+  });
+}
+
+function expectWelcomeTransitionsAndSkippedScreensToBeRejected() {
+  const state = transitionSetupFirstRunState({
+    fromStateId: SetupFirstRunStateId.Welcome,
+    toStateId: SetupFirstRunStateId.AccountEntry,
+    readinessReport: null,
+  });
+
+  expect(state.stateId).toBe(SetupFirstRunStateId.AccountEntry);
+  expect(state.screenId).toBe(SetupFirstRunScreenId.AccountEntry);
+  expect(canTransitionSetupFirstRunState(SetupFirstRunStateId.Welcome, SetupFirstRunStateId.ChildProfile)).toBe(false);
+}
+
+function expectOfflineChildrenToRouteReadinessStatesToDegraded() {
+  const state = resolveSetupFirstRunState({
+    stateId: SetupFirstRunStateId.WaitingForChildDevice,
+    readinessReport: createReadinessReport({
+      childAppState: SetupChildAppReadinessState.Offline,
+      networkReachabilityState: SetupNetworkReachabilityState.OfflineChild,
+    }),
+  });
+
+  expect(state.stateId).toBe(SetupFirstRunStateId.SetupDegraded);
+  expect(state.screenId).toBe(SetupFirstRunScreenId.Recovery);
+  expect(state.degraded).toBe(true);
+  expect(state.complete).toBe(false);
+}
+
+function expectOpenRecoveryWorkToRouteReadinessStatesToManualRequired() {
+  const state = resolveSetupFirstRunState({
+    stateId: SetupFirstRunStateId.PermissionReadiness,
+    readinessReport: createReadinessReport({
+      recoveryState: SetupRecoveryState.Required,
+      pairingState: SetupPairingState.Accepted,
+    }),
+  });
+
+  expect(state.stateId).toBe(SetupFirstRunStateId.ManualRequired);
+  expect(state.screenId).toBe(SetupFirstRunScreenId.ManualRequired);
+  expect(state.manualRequired).toBe(true);
+}
+
+function expectSetupCompletionToRequireAReadinessReport() {
+  expect(() => transitionToSetupComplete(null)).toThrow('Setup first-run completion requires a readiness report.');
+}
+
+function expectBlockedReadinessNotToCompleteAsReady() {
+  const state = transitionToSetupComplete(
+    createReadinessReport({
+      pairingState: SetupPairingState.Accepted,
+    })
+  );
+
+  expect(state.stateId).toBe(SetupFirstRunStateId.SetupBlocked);
+  expect(state.blocked).toBe(true);
+  expect(state.complete).toBe(false);
+}
+
+function expectReadyReadinessVocabularyToAllowSetupCompletion() {
+  const state = transitionToSetupComplete(createReadinessReport());
+
+  expect(state.stateId).toBe(SetupFirstRunStateId.SetupComplete);
+  expect(state.screenId).toBe(SetupFirstRunScreenId.SetupComplete);
+  expect(state.readinessState).toBe(SetupReadinessOverallState.Ready);
+  expect(state.complete).toBe(true);
+}
+
 describe('setup first-run state machine', () => {
-  it('moves from welcome to account entry and rejects skipped screens', () => {
-    const state = transitionSetupFirstRunState({
-      fromStateId: SetupFirstRunStateId.Welcome,
-      toStateId: SetupFirstRunStateId.AccountEntry,
-      readinessReport: null,
-    });
+  it(
+    'moves from welcome to account entry and rejects skipped screens',
+    expectWelcomeTransitionsAndSkippedScreensToBeRejected
+  );
 
-    expect(state.stateId).toBe(SetupFirstRunStateId.AccountEntry);
-    expect(state.screenId).toBe(SetupFirstRunScreenId.AccountEntry);
-    expect(canTransitionSetupFirstRunState(SetupFirstRunStateId.Welcome, SetupFirstRunStateId.ChildProfile)).toBe(false);
-  });
+  it(
+    'routes readiness-gated states to degraded when the child is offline',
+    expectOfflineChildrenToRouteReadinessStatesToDegraded
+  );
 
-  it('routes readiness-gated states to degraded when the child is offline', () => {
-    const state = resolveSetupFirstRunState({
-      stateId: SetupFirstRunStateId.WaitingForChildDevice,
-      readinessReport: createReadinessReport({
-        childAppState: SetupChildAppReadinessState.Offline,
-        networkReachabilityState: SetupNetworkReachabilityState.OfflineChild,
-      }),
-    });
+  it(
+    'routes readiness-gated states to manual required when recovery work is open',
+    expectOpenRecoveryWorkToRouteReadinessStatesToManualRequired
+  );
 
-    expect(state.stateId).toBe(SetupFirstRunStateId.SetupDegraded);
-    expect(state.screenId).toBe(SetupFirstRunScreenId.Recovery);
-    expect(state.degraded).toBe(true);
-    expect(state.complete).toBe(false);
-  });
+  it('requires a readiness report before setup can complete', expectSetupCompletionToRequireAReadinessReport);
 
-  it('routes readiness-gated states to manual required when recovery work is open', () => {
-    const state = resolveSetupFirstRunState({
-      stateId: SetupFirstRunStateId.PermissionReadiness,
-      readinessReport: createReadinessReport({
-        recoveryState: SetupRecoveryState.Required,
-        pairingState: SetupPairingState.Accepted,
-      }),
-    });
+  it('does not allow blocked readiness to complete as ready', expectBlockedReadinessNotToCompleteAsReady);
 
-    expect(state.stateId).toBe(SetupFirstRunStateId.ManualRequired);
-    expect(state.screenId).toBe(SetupFirstRunScreenId.ManualRequired);
-    expect(state.manualRequired).toBe(true);
-  });
-
-  it('requires a readiness report before setup can complete', () => {
-    expect(() =>
-      transitionSetupFirstRunState({
-        fromStateId: SetupFirstRunStateId.DataCustody,
-        toStateId: SetupFirstRunStateId.SetupComplete,
-        readinessReport: null,
-      })
-    ).toThrow('Setup first-run completion requires a readiness report.');
-  });
-
-  it('does not allow fake ready completion when readiness is still blocked', () => {
-    const state = transitionSetupFirstRunState({
-      fromStateId: SetupFirstRunStateId.DataCustody,
-      toStateId: SetupFirstRunStateId.SetupComplete,
-      readinessReport: createReadinessReport({
-        pairingState: SetupPairingState.Accepted,
-      }),
-    });
-
-    expect(state.stateId).toBe(SetupFirstRunStateId.SetupBlocked);
-    expect(state.blocked).toBe(true);
-    expect(state.complete).toBe(false);
-  });
-
-  it('allows setup completion only after the readiness vocabulary reports ready', () => {
-    const state = transitionSetupFirstRunState({
-      fromStateId: SetupFirstRunStateId.DataCustody,
-      toStateId: SetupFirstRunStateId.SetupComplete,
-      readinessReport: createReadinessReport(),
-    });
-
-    expect(state.stateId).toBe(SetupFirstRunStateId.SetupComplete);
-    expect(state.screenId).toBe(SetupFirstRunScreenId.SetupComplete);
-    expect(state.readinessState).toBe(SetupReadinessOverallState.Ready);
-    expect(state.complete).toBe(true);
-  });
+  it(
+    'allows setup completion only after the readiness vocabulary reports ready',
+    expectReadyReadinessVocabularyToAllowSetupCompletion
+  );
 });

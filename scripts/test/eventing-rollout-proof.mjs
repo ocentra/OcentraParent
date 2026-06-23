@@ -45,7 +45,7 @@ commandResults.push(
     name: 'git-diff-check-docs',
     command: 'git',
     args: ['diff', '--check', '--', 'docs/proof/eventing-plan', 'docs/plans/eventing-plan'],
-  }),
+  })
 );
 
 runCheck('eventing.rollout.markdown-link-check', () => {
@@ -86,18 +86,22 @@ runCheck('eventing.rollout.route-state-check', () => {
   assertContains(nextActions, 'WP11 is now locally proved:', 'WP11 completion note');
   assertContains(nextActions, 'WP12 is now locally proved', 'WP12 next action note');
   assertNotContains(nextActions, '[12 Rollout Proof And PR Gate] is open', 'stale WP12 open note');
-  assertContains(planState, 'Workpacks open in truth: WP10 consumer-boundary handoff only.', 'plan-state open workpacks');
+  assertContains(
+    planState,
+    'Workpacks open in truth: WP10 consumer-boundary handoff only.',
+    'plan-state open workpacks'
+  );
   assertContains(
     planState,
     'A fresh WP12 route-proof bundle is restored locally at',
-    'plan-state restored proof bundle',
+    'plan-state restored proof bundle'
   );
   assertContains(planHealth, 'WP11 source-boundary hardening is locally proved.', 'plan-health WP11 note');
   assertContains(planHealth, 'WP12 route-proof', 'plan-health rollout note');
   assertContains(
     workpack,
     'These paths are the required local route-proof bundle for WP12.',
-    'workpack12 restored bundle note',
+    'workpack12 restored bundle note'
   );
 
   return {
@@ -198,9 +202,7 @@ const proof = {
     'full repo validation was intentionally not run',
     'consumer-owned LAN/remote-access proof gaps remain out of WP12 closure',
   ],
-  remainingGaps: [
-    'WP10 proof roots are still absent in this checkout',
-  ],
+  remainingGaps: ['WP10 proof roots are still absent in this checkout'],
   notClaimed: [
     'full eventing plan DONE',
     'PR_READY',

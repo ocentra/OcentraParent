@@ -19,6 +19,8 @@ use super::identifiers::{
 };
 use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 
+pub const TRACKING_RUNTIME_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TrackingRuntimeMode {
     #[serde(rename = "observe-only")]

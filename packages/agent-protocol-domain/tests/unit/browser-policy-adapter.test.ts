@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createBrowserPolicyCommand, parseBrowserPolicyUpdateEvent } from '../../src/browser-policy-adapter';
-import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 describe('browser policy protocol adapter', () => {
   it('creates typed browser policy patch commands from policy request contracts', () => {

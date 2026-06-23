@@ -3,6 +3,7 @@ use crate::{
     NetworkCascadeSource, NetworkCascadeSourceKind, NetworkEvidenceCascadeError,
     NetworkEvidenceCascadeInput, NetworkEvidenceGrade,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn cascade_router_prefers_managed_browser_exact_url_over_network_domain() {
@@ -22,7 +23,7 @@ fn cascade_router_prefers_managed_browser_exact_url_over_network_domain() {
             ),
         ],
     })
-    .expect("confirmed managed browser exact url should route");
+    .expect_value("confirmed managed browser exact url should route");
 
     assert_eq!(
         decision.primary_source,
@@ -43,7 +44,7 @@ fn cascade_router_orders_next_checks_for_weak_hint() {
             false,
         )],
     })
-    .expect("weak hint should request next checks");
+    .expect_value("weak hint should request next checks");
 
     assert_eq!(
         decision.next_checks,
@@ -68,7 +69,7 @@ fn cascade_router_keeps_candidate_parent_review_manual() {
             false,
         )],
     })
-    .expect("candidate should request parent review only");
+    .expect_value("candidate should request parent review only");
 
     assert_eq!(
         decision.next_checks,
@@ -84,7 +85,7 @@ fn cascade_router_routes_missing_sources_to_correlation_checks() {
     let decision = route_network_evidence_cascade(NetworkEvidenceCascadeInput {
         sources: Vec::new(),
     })
-    .expect("missing sources should produce next checks");
+    .expect_value("missing sources should produce next checks");
 
     assert_eq!(
         decision.next_checks,

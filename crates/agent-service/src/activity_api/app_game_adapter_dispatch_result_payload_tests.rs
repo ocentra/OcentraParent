@@ -1,7 +1,5 @@
-use ocentra_parent_agent_protocol::{
-    constants::{self, v08_supported_adapter_runtime_proof},
-    AppGameAdapterDispatchResultRow, LogFieldValue, LogFields,
-    APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_BLOCKED,
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
+    AppGameAdapterDispatchResultRow, APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING,
     APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_REPORTED,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_ACCEPTED,
@@ -15,6 +13,8 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_EVENT,
     APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID,
 };
+use ocentra_parent_agent_protocol::constants::{self, v08_supported_adapter_runtime_proof};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use super::app_game_adapter_dispatch_result_payload::{
     app_game_adapter_dispatch_execution_evidence_from_payload,
@@ -76,11 +76,13 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
         LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
     );
 
-    let evidence = app_game_adapter_dispatch_execution_evidence_from_payload(&payload).unwrap();
+    let Ok(evidence) = app_game_adapter_dispatch_execution_evidence_from_payload(&payload) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
 
     assert_eq!(evidence.result_id, constants::enforcement::TEST_RESULT_ID);
     assert_eq!(
-        evidence.status,
+        evidence.status_text,
         constants::enforcement::RESULT_ACTUALLY_ENFORCED
     );
     assert_eq!(
@@ -97,7 +99,7 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
 fn app_game_adapter_dispatch_result_attaches_scoped_execution_evidence_only() {
     let evidence = AppGameAdapterDispatchExecutionEvidence {
         result_id: constants::enforcement::TEST_RESULT_ID.to_string(),
-        status: constants::enforcement::RESULT_ACTUALLY_ENFORCED.to_string(),
+        status_text: constants::enforcement::RESULT_ACTUALLY_ENFORCED.to_string(),
         adapter_result_code: constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string(),
         audit_event_id: constants::enforcement::TEST_AUDIT_EVENT_ID.to_string(),
     };
@@ -192,12 +194,14 @@ fn assert_scoped_accepted_row(rows: &[AppGameAdapterDispatchResultRow]) {
 fn scoped_accepted_row(
     rows: &[AppGameAdapterDispatchResultRow],
 ) -> &AppGameAdapterDispatchResultRow {
-    rows.iter()
-        .find(|row| {
-            row.dispatch_command_result_decision
-                == APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_ACCEPTED
-        })
-        .unwrap()
+    let Some(row) = rows.iter().find(|row| {
+        row.dispatch_command_result_decision
+            == APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_ACCEPTED
+    }) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    row
 }
 
 fn assert_blocked_rows(rows: &[AppGameAdapterDispatchResultRow]) {

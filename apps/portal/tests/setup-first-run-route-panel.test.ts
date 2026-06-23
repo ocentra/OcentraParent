@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from '../src/SetupFirstRunRoutePanel';
 
 describe('setup first-run portal route panel', () => {
@@ -23,7 +23,9 @@ describe('setup first-run portal route panel', () => {
     expect(markup).toContain('manual-required-screen');
     expect(markup).toContain('setup-blocked-screen');
     expect(markup).toContain('setup-complete-screen');
-    expect(markup).toContain('pending invite -&gt; co-parent role stays distinct from parent-owner and child-device trust');
+    expect(markup).toContain(
+      'pending invite -&gt; co-parent role stays distinct from parent-owner and child-device trust'
+    );
     expect(markup).toContain('pending invite -&gt; observer stays read-only and cannot inherit owner controls');
     expect(markup).toContain('Pairing:action-required:accepted | Pairing:complete:trusted');
     expect(markup).toContain('Account:action-required:recovery-required | manual-required-screen');

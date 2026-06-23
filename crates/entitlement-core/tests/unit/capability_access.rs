@@ -211,12 +211,10 @@ fn invalid_package_build_blocks_local_child_runtime_capability() {
 }
 
 #[test]
-fn capability_request_records_typed_entitlement_decision_event() {
+fn capability_request_records_typed_entitlement_decision_event() -> Result<(), EventingError> {
     let request = EntitlementCapabilityEvaluationRequestedEvent {
-        aggregate_id: EntitlementAggregateId::parse(ENTITLEMENT_AGGREGATE_ID)
-            .expect("entitlement aggregate id"),
-        evaluation_id: EntitlementEvaluationId::parse(ENTITLEMENT_EVALUATION_ID)
-            .expect("entitlement evaluation id"),
+        aggregate_id: EntitlementAggregateId::parse(ENTITLEMENT_AGGREGATE_ID)?,
+        evaluation_id: EntitlementEvaluationId::parse(ENTITLEMENT_EVALUATION_ID)?,
         input: entitlement_input(EntitlementCapabilityScope::LocalChildRuntime),
     };
 
@@ -229,19 +227,11 @@ fn capability_request_records_typed_entitlement_decision_event() {
         "decision id remains branded"
     );
     assert_eq!(
-        request
-            .contract()
-            .expect("entitlement request contract")
-            .event_type
-            .as_str(),
+        request.contract()?.event_type.as_str(),
         ENTITLEMENT_REQUESTED_EVENT_TYPE
     );
     assert_eq!(
-        decision
-            .contract()
-            .expect("entitlement decision contract")
-            .event_type
-            .as_str(),
+        decision.contract()?.event_type.as_str(),
         ENTITLEMENT_DECISION_EVENT_TYPE
     );
     assert_eq!(
@@ -249,4 +239,7 @@ fn capability_request_records_typed_entitlement_decision_event() {
         EntitlementManualReviewState::NotRequired
     );
     assert_eq!(decision.decision.rejection_reason, None);
+
+    Ok(())
 }
+use ocentra_eventing::error::EventingError;

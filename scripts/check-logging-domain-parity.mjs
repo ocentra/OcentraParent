@@ -31,7 +31,10 @@ function main() {
   const packageJson = readJson(packageJsonPath);
   const scripts = packageJson.scripts ?? {};
   for (const scriptName of ['bridge', 'db:ensure', 'db:rebuild', 'db:ingest', 'test:query']) {
-    ensure(typeof scripts[scriptName] === 'string', `missing packages/logging-domain package.json script ${scriptName}`);
+    ensure(
+      typeof scripts[scriptName] === 'string',
+      `missing packages/logging-domain package.json script ${scriptName}`
+    );
   }
 
   for (const relativePath of [
@@ -48,7 +51,10 @@ function main() {
   const exportsMap = packageJson.exports ?? {};
   ensure(exportsMap['./contracts'] == null, 'unexpected packages/logging-domain export ./contracts');
   ensure(exportsMap['./test-log/types'] == null, 'unexpected packages/logging-domain export ./test-log/types');
-  ensure(exportsMap['./test-log/ndjsonBrands'] == null, 'unexpected packages/logging-domain export ./test-log/ndjsonBrands');
+  ensure(
+    exportsMap['./test-log/ndjsonBrands'] == null,
+    'unexpected packages/logging-domain export ./test-log/ndjsonBrands'
+  );
   for (const exportKey of [
     './test-log/bridgeConvert',
     './test-log/ndjsonPaths',
@@ -79,9 +85,7 @@ function main() {
     'unexpected packages/logging-domain/src/test-log/ndjsonBrands.ts'
   );
 
-  const schemaTypesText = readText(
-    path.join(repoRoot, 'packages', 'schema-domain', 'src', 'test-log', 'types.ts')
-  );
+  const schemaTypesText = readText(path.join(repoRoot, 'packages', 'schema-domain', 'src', 'test-log', 'types.ts'));
   ensure(
     schemaTypesText.includes('fallback: TestLogScope = TestLogScope.ParentTest'),
     'generic test-log scope fallback must default to parent-test instead of parent-cloudflare'

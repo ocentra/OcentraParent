@@ -3,11 +3,12 @@ use crate::{
     NetworkSignatureAlertIngestionError, NetworkSignatureAlertIngestionInput,
     NetworkSignatureAlertSeverity, NetworkSignatureAlertSource, NetworkSignatureAlertState,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn signature_alert_ingestion_converts_suricata_and_snort_rows_to_typed_records() {
     let proof = ingest_network_signature_alerts(complete_input())
-        .expect("signature alert fixtures should ingest as typed analyzer records");
+        .expect_value("signature alert fixtures should ingest as typed analyzer records");
 
     assert_eq!(proof.ingestion_run_ref, "signature-alert-run-44");
     assert_eq!(proof.fixture_ref, "signature-alert-fixture-44");
@@ -65,7 +66,7 @@ fn signature_alert_ingestion_keeps_false_positive_fixture_non_enforcing() {
         }],
         ..complete_input()
     })
-    .expect("known false-positive alert fixture should remain recordable");
+    .expect_value("known false-positive alert fixture should remain recordable");
 
     assert_eq!(proof.records.len(), 1);
     assert_eq!(proof.false_positive_record_count, 1);

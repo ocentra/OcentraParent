@@ -37,7 +37,9 @@ fn broad_adapter_readiness_serializes_contract_boundaries() {
         ],
     };
 
-    let serialized = serde_json::to_value(matrix).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(matrix).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["matrixId"],
@@ -82,7 +84,7 @@ fn unsupported_readiness_state_does_not_deserialize() {
 
     let parsed = serde_json::from_value::<EnforcementBroadAdapterReadinessEntry>(payload);
 
-    assert!(parsed.is_err());
+    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
 }
 
 fn readiness_entry(

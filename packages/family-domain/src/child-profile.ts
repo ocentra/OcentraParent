@@ -1,8 +1,5 @@
 import { type Infer } from '@ocentra-parent/schema-domain/effect';
-import {
-  type ChildProfile,
-  ChildProfileSchema,
-} from '@ocentra-parent/schema-domain/family-child-profile';
+import { type ChildProfile, ChildProfileSchema } from '@ocentra-parent/schema-domain/family-child-profile';
 import {
   ChildProfileReferenceSchema,
   ParentDeviceReferenceSchema,

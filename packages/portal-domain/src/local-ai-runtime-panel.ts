@@ -1,11 +1,8 @@
-import {
-  AgentEvent,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import type { PortalActivityMemoryGraphReadModel } from './activity-memory-graph';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDetails } from './details';
 
 export type LocalAiRuntimePanelDetail = {

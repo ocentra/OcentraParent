@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const PositiveBillingLimitSchema = Schema.Number.pipe(
   Schema.filter((value) => (Number.isInteger(value) && value > 0) || 'Expected billing limits to be positive integers')
@@ -92,4 +88,3 @@ export const BillingSyncEventIdSchema = brandedNonEmptyStringSchema('BillingSync
 export const BillingProviderReferenceSchema = brandedNonEmptyStringSchema('BillingProviderReference');
 export const BillingDeviceLimitDecisionIdSchema = brandedNonEmptyStringSchema('BillingDeviceLimitDecisionId');
 export const BillingAuditReferenceSchema = brandedNonEmptyStringSchema('BillingAuditReference');
-

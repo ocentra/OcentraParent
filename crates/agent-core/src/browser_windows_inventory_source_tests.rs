@@ -1,8 +1,13 @@
 use std::{
+    fmt::Debug,
     fs,
     path::{Path, PathBuf},
 };
 
+use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME;
+use ocentra_parent_agent_protocol::browser_inventory::{
+    BrowserExactUrlCapability, BrowserInventoryInstallState,
+};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
@@ -13,8 +18,19 @@ use crate::{
     windows_browser_package_observations,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
+
 #[test]
-fn browser_windows_live_sources_feed_registry_display_icon_and_install_location_candidates() {
+fn browser_windows_live_sources_feed_registry_display_icon_and_install_location_candidates(
+) -> TestResult {
     let root = temp_inventory_source_root(1);
     let edge = root
         .join(constants::browser::PATH_SEGMENT_MICROSOFT)
@@ -27,8 +43,8 @@ fn browser_windows_live_sources_feed_registry_display_icon_and_install_location_
     let chrome = chrome_root
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
-    create_executable_fixture(&edge);
-    create_executable_fixture(&chrome);
+    create_executable_fixture(&edge)?;
+    create_executable_fixture(&chrome)?;
     let display_icon = quoted_display_icon(&edge);
     let entries = [browser_windows_live_registry_entry(
         Some(display_icon),
@@ -46,24 +62,26 @@ fn browser_windows_live_sources_feed_registry_display_icon_and_install_location_
         .all(|observation| observation.executable_path.is_some()));
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn browser_windows_live_sources_feed_shortcut_targets_without_url_claims() {
+fn browser_windows_live_sources_feed_shortcut_targets_without_url_claims() -> TestResult {
     let root = temp_inventory_source_root(2);
     let edge = root
         .join(constants::browser::PATH_SEGMENT_MICROSOFT)
         .join(constants::browser::PATH_SEGMENT_EDGE)
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
-    create_executable_fixture(&edge);
+    create_executable_fixture(&edge)?;
     let shortcut_targets = [quoted_display_icon(&edge)];
 
     let paths =
         browser_windows_inventory_candidate_paths_from_live_sources(&[], &[], &shortcut_targets);
     let observations = windows_browser_inventory_observations(&paths, &[], None);
 
-    assert_eq!(paths, vec![edge.clone()]);
+    assert_eq!(paths, vec![edge]);
     assert_eq!(observations.len(), 1);
     assert_eq!(
         observations[0].reason_code,
@@ -71,10 +89,12 @@ fn browser_windows_live_sources_feed_shortcut_targets_without_url_claims() {
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn browser_windows_live_sources_parse_lnk_targets_without_url_claims() {
+fn browser_windows_live_sources_parse_lnk_targets_without_url_claims() -> TestResult {
     let root = temp_inventory_source_root(4);
     let edge = root
         .join(constants::browser::PATH_SEGMENT_MICROSOFT)
@@ -82,12 +102,14 @@ fn browser_windows_live_sources_parse_lnk_targets_without_url_claims() {
         .join(constants::browser::PATH_SEGMENT_APPLICATION)
         .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
     let shortcut = root.join(constants::browser::DEVTOOLS_TEST_EDGE_SHORTCUT_FILE_NAME);
-    create_executable_fixture(&edge);
-    write_shortcut(&shortcut, &edge);
+    create_executable_fixture(&edge)?;
+    write_shortcut(&shortcut, &edge)?;
 
-    let parsed_target = browser_windows_shortcut_target_from_bytes(
-        &fs::read(&shortcut).expect(constants::error::ACTIVITY_CAPTURE_RECORDS),
-    );
+    let shortcut_bytes = ok(
+        fs::read(&shortcut),
+        constants::error::ACTIVITY_CAPTURE_RECORDS,
+    )?;
+    let parsed_target = browser_windows_shortcut_target_from_bytes(&shortcut_bytes);
     let shortcut_targets = live_windows_browser_shortcut_targets_from_roots(
         std::slice::from_ref(&root),
         constants::browser::SHORTCUT_SCAN_LIMIT_BROWSER_DISCOVERY,
@@ -113,14 +135,16 @@ fn browser_windows_live_sources_parse_lnk_targets_without_url_claims() {
     );
     assert_eq!(
         observations[0].exact_url_capability,
-        ocentra_parent_agent_protocol::BrowserExactUrlCapability::Unavailable
+        BrowserExactUrlCapability::Unavailable
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 #[test]
-fn browser_windows_live_sources_feed_packaged_browser_manifest_without_url_claims() {
+fn browser_windows_live_sources_feed_packaged_browser_manifest_without_url_claims() -> TestResult {
     let root = temp_inventory_source_root(3);
     let package_root = root
         .join(constants::browser::PATH_SEGMENT_WINDOWS_APPS)
@@ -128,7 +152,7 @@ fn browser_windows_live_sources_feed_packaged_browser_manifest_without_url_claim
     write_manifest(
         &package_root,
         constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_MANIFEST_XML,
-    );
+    )?;
 
     let packages = live_windows_browser_package_entries_from_roots(
         &[root.join(constants::browser::PATH_SEGMENT_WINDOWS_APPS)],
@@ -149,11 +173,11 @@ fn browser_windows_live_sources_feed_packaged_browser_manifest_without_url_claim
     assert_eq!(observations[0].executable_path, None);
     assert_eq!(
         observations[0].install_state,
-        ocentra_parent_agent_protocol::BrowserInventoryInstallState::Packaged
+        BrowserInventoryInstallState::Packaged
     );
     assert_eq!(
         observations[0].exact_url_capability,
-        ocentra_parent_agent_protocol::BrowserExactUrlCapability::ManualRequired
+        BrowserExactUrlCapability::ManualRequired
     );
     assert_eq!(
         observations[0].reason_code,
@@ -161,6 +185,8 @@ fn browser_windows_live_sources_feed_packaged_browser_manifest_without_url_claim
     );
 
     let _ = std::fs::remove_dir_all(root);
+
+    Ok(())
 }
 
 fn temp_inventory_source_root(index: u32) -> PathBuf {
@@ -172,29 +198,51 @@ fn temp_inventory_source_root(index: u32) -> PathBuf {
     root
 }
 
-fn create_executable_fixture(path: &PathBuf) {
-    std::fs::create_dir_all(
-        path.parent()
-            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
-    )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+fn create_executable_fixture(path: &PathBuf) -> TestResult {
+    ok(
+        std::fs::create_dir_all(some(
+            path.parent(),
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+        )?),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+    ok(
+        std::fs::write(path, []),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
+    )?;
+
+    Ok(())
 }
 
-fn write_manifest(root: &Path, manifest: &str) {
-    fs::create_dir_all(root).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    fs::write(
-        root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME),
-        manifest,
-    )
-    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+fn write_manifest(root: &Path, manifest: &str) -> TestResult {
+    ok(
+        fs::create_dir_all(root),
+        constants::error::ACTIVITY_CAPTURE_RECORDS,
+    )?;
+    ok(
+        fs::write(
+            root.join(APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME),
+            manifest,
+        ),
+        constants::error::ACTIVITY_CAPTURE_RECORDS,
+    )?;
+
+    Ok(())
 }
 
-fn write_shortcut(path: &Path, target: &Path) {
+fn write_shortcut(path: &Path, target: &Path) -> TestResult {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+        ok(
+            fs::create_dir_all(parent),
+            constants::error::ACTIVITY_CAPTURE_RECORDS,
+        )?;
     }
-    fs::write(path, shortcut_bytes(target)).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    ok(
+        fs::write(path, shortcut_bytes(target)),
+        constants::error::ACTIVITY_CAPTURE_RECORDS,
+    )?;
+
+    Ok(())
 }
 
 fn shortcut_bytes(target: &Path) -> Vec<u8> {

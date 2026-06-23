@@ -1,14 +1,14 @@
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
-import { PortalFormatting } from './formatting';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import {
   decodePortalClipboardText,
-  decodePortalDetailValue,
-  PortalClipboardTextSchema,
-  PortalDetailValueSchema,
-  type PortalClipboardText,
-  type PortalDetailValue,
-} from './detail-values';
+  PortalConnectionState,
+  PortalRoute,
+  PortalRouteHashPrefix,
+  PortalRouteHashQuerySeparator,
+  PortalRouteLiteral,
+  PortalRouteSchema,
+} from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalFormatting } from './formatting';
 import { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 import { PortalDiagnostics } from './diagnostics';
 import {
@@ -120,17 +120,15 @@ import {
   resolveParentPortalServiceState,
   type ParentPortalServiceState,
 } from './parent-portal-service-state';
-import {
-  TrackingStatusProofArtifacts,
-  TrackingStatusProofArtifactSchema,
-  type TrackingStatusProofArtifact,
-} from './tracking-status-proof-artifacts';
+import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
+} from './tracking-status-panel';
+import type {
   TrackingFamilyDashboardHostedRollupProof,
   TrackingFamilyDashboardHostedRollupRow,
   TrackingStatusLiveCitation,
@@ -231,12 +229,6 @@ import {
   type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
 } from './browser-social-provider-receipt-ingestion-readiness-status';
 import {
-  PortalConnectionState,
-  PortalConnectionStateSchema,
-  PortalRoute,
-  PortalRouteLiteral,
-  PortalRouteHashPrefix,
-  PortalRouteHashQuerySeparator,
   PortalDevToolWindow,
   PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
@@ -245,12 +237,10 @@ import {
   PortalNetworkEvidenceDrawerRoutes,
   PortalRouteGroup,
   PortalRoutes,
-  PortalRouteSchema,
   PortalScreenSettingsRoutes,
   PortalScreenSummaryRoutes,
   PortalSidebarRouteDescriptors,
   PortalTrackingStatusRoutes,
-  PortalDevToolUrlSchema,
   isPortalAiRuntimeRoute,
   isPortalAppGameParentSurfaceRoute,
   isPortalBrowserParentSurfaceRoute,
@@ -261,8 +251,6 @@ import {
   portalDevToolUrl,
   portalRouteHashPath,
   portalRouteHashPathWithQuery,
-  type PortalConnectionState as PortalConnectionStateValue,
-  type PortalDevToolUrl,
   type PortalRouteHashPath,
   type PortalRouteHashQueryPath,
   type PortalRouteDescriptor,
@@ -301,8 +289,6 @@ import {
   type SocialChildInterventionPageModelResult,
   type SocialChildInterventionRequestedUrlResolver,
 } from './social-child-intervention-page-model';
-
-type PortalDisplayText = DisplayText;
 
 const PortalDom = {
   RootSelector: '#app',
@@ -397,6 +383,9 @@ const PortalDom = {
     CommandResultTab: 'command-result-tab',
     CommandResultTabActive: 'command-result-tab-active',
     CopyResultButton: 'copy-result-button',
+    DeveloperRouteContent: 'portal-dev-route-content',
+    DeveloperRoutePanel: 'portal-dev-route-panel',
+    DeveloperRouteToolbar: 'portal-dev-route-toolbar',
     Header: 'header',
     Log: 'log',
     LogLevelPrefix: 'log-',
@@ -537,17 +526,8 @@ const PortalEnvironment = {
   SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
-const PortalText = {
-  Resolve: resolvePortalDevText,
-} as const;
-const PortalTextToken = PortalDevTextToken;
-
 export {
   PortalFormatting,
-  decodePortalClipboardText,
-  decodePortalDetailValue,
-  PortalClipboardTextSchema,
-  PortalDetailValueSchema,
   PortalBrowserInventoryFields,
   PortalDetails,
   PortalReadableValues,
@@ -604,7 +584,6 @@ export {
   PARENT_PORTAL_SERVICE_STATE,
   resolveParentPortalServiceState,
   TrackingStatusProofArtifacts,
-  TrackingStatusProofArtifactSchema,
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
@@ -629,25 +608,22 @@ export {
   createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
   PortalClipboard,
   PortalConnectionState,
-  PortalConnectionStateSchema,
-  PortalRoute,
-  PortalRouteLiteral,
-  PortalRouteHashPrefix,
-  PortalRouteHashQuerySeparator,
   PortalDevToolWindow,
   PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
   PortalAppGameParentSurfaceRoutes,
   PortalBrowserParentSurfaceRoutes,
   PortalNetworkEvidenceDrawerRoutes,
+  PortalRoute,
   PortalRouteGroup,
-  PortalRoutes,
+  PortalRouteLiteral,
   PortalRouteSchema,
+  PortalRoutes,
   PortalScreenSettingsRoutes,
   PortalScreenSummaryRoutes,
   PortalSidebarRouteDescriptors,
   PortalTrackingStatusRoutes,
-  PortalDevToolUrlSchema,
+  decodePortalClipboardText,
   isPortalAiRuntimeRoute,
   isPortalAppGameParentSurfaceRoute,
   isPortalBrowserParentSurfaceRoute,
@@ -676,12 +652,8 @@ export {
   PortalDom,
   PortalEnvironment,
   PortalLanPairingScan,
-  PortalText,
-  PortalTextToken,
   PortalTheme,
   PortalTiming,
-  type PortalClipboardText,
-  type PortalDetailValue,
   type AppGameNotificationParentSurfaceDetail,
   type AppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelRow,
@@ -723,7 +695,6 @@ export {
   type ParentPortalTabId,
   type ParentPortalTone,
   type ParentPortalServiceState,
-  type TrackingStatusProofArtifact,
   type TrackingFamilyDashboardHostedRollupProof,
   type TrackingFamilyDashboardHostedRollupRow,
   type TrackingStatusLiveCitation,
@@ -777,8 +748,6 @@ export {
   type BrowserSocialProviderReceiptStreamStatusIntent,
   type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
   type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
-  type PortalConnectionStateValue,
-  type PortalDevToolUrl,
   type PortalRouteHashPath,
   type PortalRouteHashQueryPath,
   type PortalRouteDescriptor,
@@ -793,6 +762,5 @@ export {
   type SocialChildInterventionPageModelOptions,
   type SocialChildInterventionPageModelResult,
   type SocialChildInterventionRequestedUrlResolver,
-  type PortalDisplayText,
   type PortalThemeValue,
 };

@@ -21,13 +21,16 @@ Define the Ocentra authority model for users, households, memberships, child pro
 ## Required inputs
 
 ```text
+workpacks/00-owner-boundary-proof-gate.md
 workpacks/01-auth-provider-decision.md
 RESEARCH_AND_DECISIONS.md
 docs/features/family-setup-device-roles.md
 docs/expectations/family-setup.md
 docs/expectations/policy.md
+packages/schema-domain account/family/session/reference exports when shared shape changes are required
 packages/family-domain/src/household-authority.ts
 packages/family-domain/tests/unit/household-authority.test.ts
+crates/family-identity-core/** only when Rust parity is selected
 ```
 
 ## Target model
@@ -71,14 +74,31 @@ revoked/disabled/pending actors are denied or degraded
 Likely paths:
 
 ```text
+packages/schema-domain/** only when canonical shared account/family/role/reference shapes change
 packages/family-domain/src/household-authority.ts
 packages/family-domain/src/references.ts
 packages/family-domain/src/reference-primitives.ts
 packages/family-domain/tests/unit/household-authority.test.ts
 packages/family-domain/package.json if exports change
+crates/family-identity-core/** only when Rust parity is selected
 ```
 
 Do not edit sibling plans.
+
+## Current owner/import/proof constraints
+
+This workpack owns the account/family authority model, not sessions, UI, payment, policy, remote, LAN, or physical device trust.
+
+```text
+schema-domain: canonical cross-boundary account/family/role/reference shapes.
+family-domain: helper/projection and TS authority tests over canonical contracts.
+family-identity-core: Rust parity only when selected.
+setup/payment/policy/remote/LAN/device-trust/data-custody: consumers or adjacent owners only.
+```
+
+Allowed direct imports are limited to `schema-domain`, neutral protocol/evidence/logging/capability primitives, approved `family-domain` helpers, selected Rust parity crates, and pure common helpers. Do not import sibling feature runtime internals to satisfy role/action/resource authority.
+
+Proof must state which tier it proves: TypeScript helper/projection, Rust parity, route handoff, or local proof artifact. It must not claim secure session, trusted-device, UI, payment, policy, remote, or data-custody readiness.
 
 ## Required proof root
 
@@ -121,6 +141,14 @@ npm run test --workspace @ocentra-parent/family-domain -- authority
 npm run lint:architecture -- --files packages/family-domain
 ```
 
+If canonical schema or Rust parity changes:
+
+```bash
+npm run build --workspace @ocentra-parent/schema-domain
+npm run test --workspace @ocentra-parent/schema-domain -- family
+cargo test -p ocentra-family-identity-core household_authority
+```
+
 ## Negative cases
 
 - Wrong-household read/write is denied.
@@ -137,6 +165,7 @@ Session freshness, invite/recovery lifecycle, and parent trusted-device proof st
 ## Fill before DONE
 
 - Workpack id and branch: `WP02 Identity Household Role Model`; `codex/tracking-plan-full-continuation-a`.
+- Current branch note: this historical completion record predates the plan-harness branch. On `codex/plan-harness-update`, treat it as prior proof evidence only; new edits must follow `workpacks/00-owner-boundary-proof-gate.md`, `TEST_PROOF_EXPECTATIONS.md`, and `PROOF_INDEX.md`.
 - Current status: complete for the local contract/proof slice. `00-identity-entity-model-proof.md`, `01-role-action-resource-matrix.md`, `02-membership-state-machine-proof.md`, `03-cross-family-negative-proof.md`, `04-observer-read-only-proof.md`, `05-support-admin-boundary-proof.md`, `06-audit-event-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/02-identity-household-role-model/`.
 - Contract/source changes in this slice: no new WP02-owned production TypeScript or Rust logic was required. The authority contract was already present in `packages/family-domain/src/household-authority.ts`, and the proof closure is derived from the existing TypeScript and Rust authority suites that already exercised role, membership, observer, support-admin, and audit behavior.
 - Touched files:

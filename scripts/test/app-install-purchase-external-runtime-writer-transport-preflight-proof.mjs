@@ -64,16 +64,16 @@ async function main() {
     checklistState: 'updated-app-install-purchase-approval-row',
     evidence: {
       externalRuntimeWriterTransportPreflightContract:
-        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-transport-preflight-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-external-runtime-writer-transport-preflight-proof.ts',
       sourceExternalRuntimeWriterReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-external-runtime-writer-readiness-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-external-runtime-writer-transport-preflight-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
-        '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-transport-preflight-proof',
+        '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-writer-transport-preflight-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       output: relative(repoRoot, proofPath),

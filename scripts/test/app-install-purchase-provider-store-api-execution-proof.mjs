@@ -50,11 +50,11 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       providerStoreApiExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-api-execution-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-api-execution-proof.ts',
       sourceProviderStoreProductClaimContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
       sourcePlatformLimitationFallbackContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-api-execution-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
@@ -62,7 +62,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/app-game-domain/package.json',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-provider-store-api-execution-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-provider-store-api-execution-proof',
       output: relative(repoRoot, proofPath),
     },
     providerStoreApiExecutionSummary: summary,

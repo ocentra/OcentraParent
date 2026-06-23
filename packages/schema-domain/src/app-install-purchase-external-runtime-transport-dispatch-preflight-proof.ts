@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeTransportQueueProofReadModel } from './app-install-purchase-external-runtime-transport-queue-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -78,10 +73,18 @@ const DispatchIntegrationClaimSchema = withParser(Schema.Literal('not-claimed'))
 const DispatchAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const DispatchCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const DispatchPreflightRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRowId');
-const DispatchPreflightRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRef');
-const DispatchPreflightAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightAuditRef');
-const DispatchPreflightBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightBoundary');
+const DispatchPreflightRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRowId'
+);
+const DispatchPreflightRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRef'
+);
+const DispatchPreflightAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportDispatchPreflightAuditRef'
+);
+const DispatchPreflightBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeTransportDispatchPreflightBoundary'
+);
 
 const DispatchPreflightRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeTransportDispatchPreflightProofSchemaVersionSchema,
@@ -340,4 +343,3 @@ function dispatchPreflightProofIsHonest(
 function dispatchPreflightBoundaryIsExplicit(boundary: typeof DispatchPreflightBoundarySchema.Type): boolean {
   return DispatchPreflightBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

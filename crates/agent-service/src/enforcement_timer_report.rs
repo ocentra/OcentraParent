@@ -1,9 +1,16 @@
 use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryOutcome;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityIngestStatus, ActivityObserver,
-    ActivitySource, ActivitySubject, ActivitySubjectKind, EnforcementActiveTimerState,
-    LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity::ActivityEventKind;
+use ocentra_parent_agent_protocol::activity::ActivityObserver;
+use ocentra_parent_agent_protocol::activity::ActivitySource;
+use ocentra_parent_agent_protocol::activity::ActivitySubject;
+use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::{
     activity_capture::record_activity_events_to_paths, enforcement_api::EnforcementJournalPaths,
@@ -23,8 +30,8 @@ pub(crate) async fn record_timer_activity(
         record_activity_events_to_paths(&journal_path, &key_path, &store_path, &[event])
     })
     .await
-    .map_err(|_| constants::value::ACTIVITY_CAPTURE_STORE_ERROR)?
-    .map_err(|_| constants::value::ACTIVITY_CAPTURE_STORE_ERROR)
+    .map_err(activity_capture_store_error)?
+    .map_err(activity_capture_store_error)
 }
 
 pub(crate) fn timer_report_payload(
@@ -167,22 +174,20 @@ fn serialized_timer_field_pairs(
         (
             constants::field::ENFORCEMENT_ACTION,
             LogFieldValue::String(
-                serde_json::to_string(&outcome.action)
-                    .map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+                serde_json::to_string(&outcome.action).map_err(agent_event_serializes_error)?,
             ),
         ),
         (
             constants::field::ENFORCEMENT_RESULT,
             LogFieldValue::String(
-                serde_json::to_string(&outcome.result)
-                    .map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+                serde_json::to_string(&outcome.result).map_err(agent_event_serializes_error)?,
             ),
         ),
         (
             constants::field::ENFORCEMENT_AUDIT_EVENT,
             LogFieldValue::String(
                 serde_json::to_string(&outcome.audit_event)
-                    .map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+                    .map_err(agent_event_serializes_error)?,
             ),
         ),
         (
@@ -197,7 +202,7 @@ fn serialized_timer_event(
 ) -> Result<LogFieldValue, &'static str> {
     match &outcome.timer_event {
         Some(timer) => Ok(LogFieldValue::String(
-            serde_json::to_string(timer).map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+            serde_json::to_string(timer).map_err(agent_event_serializes_error)?,
         )),
         None => Ok(LogFieldValue::Null(())),
     }
@@ -208,7 +213,7 @@ fn serialized_active_state(
 ) -> Result<LogFieldValue, &'static str> {
     match active_state {
         Some(state) => Ok(LogFieldValue::String(
-            serde_json::to_string(state).map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+            serde_json::to_string(state).map_err(agent_event_serializes_error)?,
         )),
         None => Ok(LogFieldValue::Null(())),
     }
@@ -221,11 +226,20 @@ fn optional_string_value(value: Option<&str>) -> LogFieldValue {
 }
 
 fn evidence_reference_ids(outcome: &EnforcementBoundaryOutcome) -> String {
+    let mut separator = [0; 4];
     outcome
         .action
         .evidence_references
         .iter()
         .map(|reference| reference.evidence_reference_id.as_str())
         .collect::<Vec<_>>()
-        .join(&constants::delimiter::LIST.to_string())
+        .join(constants::delimiter::LIST.encode_utf8(&mut separator))
+}
+
+fn activity_capture_store_error(_: impl std::fmt::Debug) -> &'static str {
+    constants::value::ACTIVITY_CAPTURE_STORE_ERROR
+}
+
+fn agent_event_serializes_error(_: serde_json::Error) -> &'static str {
+    constants::error::AGENT_EVENT_SERIALIZES
 }

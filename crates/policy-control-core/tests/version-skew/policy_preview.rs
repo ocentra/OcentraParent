@@ -1,8 +1,11 @@
+use super::TestResult;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyPreviewFindingKind, PolicyPreviewTargetState, PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_authority::PolicyManualReviewState;
 use ocentra_policy_control_core::policy_preview::{
     policy_preview_schema_version, preview_parent_policy_before_save, PolicyPreviewExplanationCode,
-    PolicyPreviewFindingKind, PolicyPreviewRequest, PolicyPreviewRequestId, PolicyPreviewSaveState,
-    PolicyPreviewTargetInput, PolicyPreviewTargetState,
+    PolicyPreviewRequest, PolicyPreviewRequestId, PolicyPreviewSaveState, PolicyPreviewTargetInput,
 };
 use ocentra_policy_control_core::policy_source::{
     parent_policy_source_schema_version, ParentPolicyActorRole, ParentPolicyDocumentId,
@@ -12,75 +15,107 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
 fn sample_preview_request(
     candidate_version: u64,
     current_version: Option<u64>,
     preview_acknowledged: bool,
-) -> PolicyPreviewRequest {
-    PolicyPreviewRequest {
-        schema_version: policy_preview_schema_version().expect("policy preview schema version"),
-        request_id: PolicyPreviewRequestId::parse("policy-preview-version-skew")
-            .expect("policy preview request id"),
+) -> TestResult<PolicyPreviewRequest> {
+    Ok(PolicyPreviewRequest {
+        schema_version: test_ok!(
+            policy_preview_schema_version(),
+            "policy preview schema version"
+        ),
+        request_id: test_ok!(
+            PolicyPreviewRequestId::parse("policy-preview-version-skew"),
+            "policy preview request id"
+        ),
         candidate_document: sample_policy_document(
             "policy-preview-candidate",
-            PolicySourceDocumentStatus::Preview,
+            PolicySourceStatus::Preview,
             candidate_version,
-        ),
-        current_document: current_version.map(|version| {
-            sample_policy_document(
-                "policy-preview-current",
-                PolicySourceDocumentStatus::Confirmed,
-                version,
-            )
-        }),
+        )?,
+        current_document: current_version
+            .map(|version| {
+                sample_policy_document(
+                    "policy-preview-current",
+                    PolicySourceStatus::Confirmed,
+                    version,
+                )
+            })
+            .transpose()?,
         preview_acknowledged,
-        target_inputs: vec![sample_target_input()],
-    }
+        target_inputs: vec![sample_target_input()?],
+    })
 }
 
 fn sample_policy_document(
     document_id: &str,
-    status: PolicySourceDocumentStatus,
+    status: PolicySourceStatus,
     version: u64,
-) -> ParentPolicySourceDocument {
-    ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse(document_id).expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(version).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+) -> TestResult<ParentPolicySourceDocument> {
+    Ok(ParentPolicySourceDocument {
+        schema_version: test_ok!(
+            parent_policy_source_schema_version(),
+            "policy source schema version"
+        ),
+        document_id: test_ok!(
+            ParentPolicyDocumentId::parse(document_id),
+            "policy source document id"
+        ),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(version), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
         status,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        child_profile_ids: vec![test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        )],
+        device_ids: vec![test_ok!(
+            PolicyDeviceId::parse("device-laptop"),
+            "policy device id"
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: test_ok!(
+                PolicyRuleId::parse("rule-school-night-block"),
+                "policy rule id"
+            ),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("category-gaming"),
+                    "policy target reference"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
-            ),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: test_ok!(
+                PolicyReasonCode::parse("school-night"),
+                "policy reason code"
+            ),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id"
+            ),
+            timezone_name: test_ok!(
+                PolicyTimezoneName::parse("America/Toronto"),
+                "policy timezone name"
+            ),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -110,41 +145,53 @@ fn sample_policy_document(
             delete_allowed: true,
             sync_allowed: false,
         },
-    }
+    })
 }
 
-fn sample_target_input() -> PolicyPreviewTargetInput {
-    PolicyPreviewTargetInput {
+fn sample_target_input() -> TestResult<PolicyPreviewTargetInput> {
+    Ok(PolicyPreviewTargetInput {
         target: PolicyRuleTarget {
             kind: PolicyTargetKind::Category,
-            reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                .expect("policy target reference"),
+            reference_id: test_ok!(
+                PolicyTargetReferenceId::parse("category-gaming"),
+                "policy target reference"
+            ),
         },
         domain: PolicyConsumerDomain::App,
         state: PolicyPreviewTargetState::Supported,
-        explanation_code: PolicyPreviewExplanationCode::parse("target-supported")
-            .expect("preview explanation code"),
-    }
+        explanation_code: test_ok!(
+            PolicyPreviewExplanationCode::parse("target-supported"),
+            "preview explanation code"
+        ),
+    })
 }
 
 #[test]
-fn policy_preview_request_serde_rejects_zero_schema_version() {
-    let mut value =
-        serde_json::to_value(sample_preview_request(4, Some(4), false)).expect("preview request");
+fn policy_preview_request_serde_rejects_zero_schema_version() -> TestResult {
+    let mut value = test_ok!(
+        serde_json::to_value(sample_preview_request(4, Some(4), false)?),
+        "preview request"
+    );
     value["schema_version"] = serde_json::json!(0);
 
-    let error = serde_json::from_value::<PolicyPreviewRequest>(value)
-        .expect_err("policy preview schema version zero must be rejected");
+    let error = test_err!(
+        serde_json::from_value::<PolicyPreviewRequest>(value),
+        "policy preview schema version zero must be rejected"
+    );
 
     assert!(error
         .to_string()
         .contains("event schema version must be nonzero"));
+    Ok(())
 }
 
 #[test]
-fn stale_current_document_version_is_visible_and_blocks_save() {
-    let result = preview_parent_policy_before_save(&sample_preview_request(4, Some(5), true))
-        .expect("policy preview stale-source result");
+fn stale_current_document_version_is_visible_and_blocks_save() -> TestResult {
+    let request = sample_preview_request(4, Some(5), true)?;
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview stale-source result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
     assert_eq!(
@@ -162,12 +209,16 @@ fn stale_current_document_version_is_visible_and_blocks_save() {
         result.findings[0].explanation_code.as_str(),
         "stale-policy-version"
     );
+    Ok(())
 }
 
 #[test]
-fn matching_current_document_version_stays_ready_to_save() {
-    let result = preview_parent_policy_before_save(&sample_preview_request(4, Some(4), true))
-        .expect("policy preview matching-source result");
+fn matching_current_document_version_stays_ready_to_save() -> TestResult {
+    let request = sample_preview_request(4, Some(4), true)?;
+    let result = test_ok!(
+        preview_parent_policy_before_save(&request),
+        "policy preview matching-source result"
+    );
 
     assert_eq!(result.save_state, PolicyPreviewSaveState::ReadyToSave);
     assert_eq!(
@@ -177,6 +228,7 @@ fn matching_current_document_version_stays_ready_to_save() {
     assert!(result.findings.is_empty());
     assert_eq!(
         result.policy_version,
-        PolicyVersion::new(4).expect("policy version")
+        test_ok!(PolicyVersion::new(4), "policy version")
     );
+    Ok(())
 }

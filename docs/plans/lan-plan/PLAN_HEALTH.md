@@ -22,11 +22,16 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-lan-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 20
+- Workpacks indexed: 20 authoritative rows plus frozen follow-on rows 21-25
+- Current proof roots: Slice A, B1, and B2 under `output/lan-plan-proof/`
 
 ## Consistency warnings
 
 - No high-level checklist/workpack contradiction detected by the generated health check. Still verify the assigned workpack and checklist rows before DONE/PR_READY.
+- B1 is local proof-regeneration only and ends in `not-ready-for-product-ready-household-lan-claim`.
+- B2 is test-category truth only; placeholder test folders do not count as integration/e2e/security/performance/load coverage.
+- `packages/lan-domain` is the current package-level proof surface, while canonical LAN shapes live in schema-domain.
+- Frozen follow-on workpacks `21-25` are not current completion scope.
 
 ## Required hygiene before PR_READY
 
@@ -35,11 +40,56 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Do not claim READY from single-machine proof as multi-device household proof.
+- Do not claim READY from `lan-domain` unit tests as integration/e2e/security/performance/load coverage.
+- Do not claim READY from schema/contract proof as packet/runtime proof.
+- Do not claim READY from source matrix proof as physical LAN discovery proof.
+- Do not claim READY from portal rendering as LAN truth proof.
+- Do not claim READY from B1/B2 local proof as signed hello/heartbeat, service/runtime, portal, physical household, router/firewall, Android/mobile, or relay proof.
+- Do not claim READY from frozen workpacks `21-25`.
+- Do not claim feature completeness until the relevant E2E tier in `TEST_PROOF_EXPECTATIONS.md` is explicitly proven or blocked.
+
+## Known healthy boundaries
+
+This plan intentionally separates:
+
+```text
+schema/contract proof
+weak LAN source evidence
+packet/runtime discovery
+service/read-model proof
+portal projection
+signed child hello/heartbeat proof
+household assignment/revocation/audit
+physical two-device/router/firewall proof
+remote relay/cloud proof
+rollout gate
+```
+
+Do not collapse those boundaries.
+
+## Known incomplete areas
+
+```text
+real second-device household proof
+router/firewall reachability proof
+real signed child hello and heartbeat artifacts
+replay/restart/event-stream proof completion
+portal and downstream consumer proof artifacts
+Android/mobile-controller proof where the plan still keeps those claims
+integration/e2e/security/performance/load categories beyond unit tests
+```
 
 ## Agent Route Walkthrough
 
 - Landing decision: root `AGENTS.md` routes household LAN discovery, trust, peer identity, local transport, provider mesh bridge, and LAN proof work here.
-- Scope split: LAN topology, authenticated local peers, discovery, lease/claim, degraded/offline behavior, and transport proof stay here. AI job semantics, eventing local bus semantics, and enforcement outcomes stay in their owning plans unless named.
+- Scope split: LAN topology, authenticated local peers, discovery, lease/claim, degraded/offline behavior, and transport proof stay here. AI job semantics, eventing local bus semantics, account/device trust, remote relay, portal UI, and enforcement outcomes stay in their owning plans unless named.
 - Minimum read set: assigned workpack, exact checklist row, `TEST_PROOF_EXPECTATIONS.md`, and only the bridge docs named by the workpack.
 - Test/proof decision: require authN/authZ, replay, token/lease lifecycle, clock skew, peer spoofing, partial outage, retry storm, rate limit, connection exhaustion, and two-device/manual topology proof where touched.
-- DONE blocker: no LAN row may claim household execution until proof shows authenticated peer discovery, custody boundaries, duplicate prevention, failure handling, and no raw sensitive transfer outside the allowed contract.
+- DONE blocker: no LAN row may claim household execution until proof shows authenticated peer discovery, custody boundaries, duplicate prevention, failure handling, and no sensitive transfer outside the allowed contract.
+
+## PR-ready rule
+
+The whole plan is PR-ready only when the selected rollout/proof gate consumes or blocks every authoritative `01-20` proof root and updates PLAN_STATE.
+
+A partial PR may be ready only when one selected workpack is closed with proof artifacts, command logs, no-claim language, and remaining open workpacks listed.

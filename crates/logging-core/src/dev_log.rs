@@ -75,7 +75,7 @@ impl DevLogger {
         let timestamp = timestamp_now();
         let event = ParentLogEvent {
             schema_version: LOG_SCHEMA_VERSION,
-            id: create_log_id(&timestamp, &self.source, message),
+            entry_id: create_log_id(&timestamp, &self.source, message),
             timestamp: timestamp.clone(),
             level,
             source: self.source.clone(),

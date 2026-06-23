@@ -1,12 +1,5 @@
 import { Schema } from './effect';
 import {
-  AgentMessageTargetSchema,
-  AgentPeerSchema,
-  AgentProtocolSchemaVersion,
-  AgentWebSocketUrlSchema,
-} from './event-primitives';
-import { AgentLanHouseholdDeviceActionKindSchema } from './agent-lan-add-device';
-import {
   AgentLanAiProviderRoutingStateSchema,
   AgentLanPairingIntentKindSchema,
   AgentLanPairingParentAuthoritySchema,
@@ -14,10 +7,16 @@ import {
   AgentLanPairingResponseStateSchema,
   AgentLanPairingRuntimeSupportStatusSchema,
   AgentLanSelectedDeviceReachabilitySchema,
-  AgentLanSelectedRouteTrustStateSchema,
-  AgentPairingStateSchema,
   AgentRouteSecurityPolicySchema,
-} from './agent-lan';
+} from './agent-lan-primitives';
+import {
+  AgentMessageTargetSchema,
+  AgentPeerSchema,
+  AgentProtocolSchemaVersion,
+  AgentWebSocketUrlSchema,
+} from './event-primitives';
+import { AgentLanHouseholdDeviceActionKindSchema } from './agent-lan-add-device';
+import { AgentLanSelectedRouteTrustStateSchema, AgentPairingStateSchema } from './agent-lan';
 
 const decodeAgentWebSocketUrl = Schema.decodeUnknownSync(AgentWebSocketUrlSchema);
 
@@ -79,12 +78,10 @@ export const AgentProtocolDefaults = {
     Busy: AgentLanAiProviderRoutingStateSchema.parse('busy'),
     Degraded: AgentLanAiProviderRoutingStateSchema.parse('degraded'),
     Unavailable: AgentLanAiProviderRoutingStateSchema.parse('unavailable'),
-    UnsupportedCapability:
-      AgentLanAiProviderRoutingStateSchema.parse('unsupported-capability'),
+    UnsupportedCapability: AgentLanAiProviderRoutingStateSchema.parse('unsupported-capability'),
   },
   LanRuntimeSupportStatus: {
-    PlannedUnsupported:
-      AgentLanPairingRuntimeSupportStatusSchema.parse('planned-unsupported'),
+    PlannedUnsupported: AgentLanPairingRuntimeSupportStatusSchema.parse('planned-unsupported'),
     WebsocketDirect: AgentLanPairingRuntimeSupportStatusSchema.parse('websocket-direct'),
     NetworkNeighbor: AgentLanPairingRuntimeSupportStatusSchema.parse('network-neighbor'),
   },
@@ -93,16 +90,11 @@ export const AgentProtocolDefaults = {
     RuleQuery: AgentLanPairingIntentKindSchema.parse('rule-query'),
     RuleUpdate: AgentLanPairingIntentKindSchema.parse('rule-update'),
     ApprovalDecision: AgentLanPairingIntentKindSchema.parse('approval-decision'),
-    ConfigurationUpdate:
-      AgentLanPairingIntentKindSchema.parse('configuration-update'),
-    ControllerLeaseRenew:
-      AgentLanPairingIntentKindSchema.parse('controller-lease-renew'),
-    ControllerLeaseRelease:
-      AgentLanPairingIntentKindSchema.parse('controller-lease-release'),
-    ControllerLeaseTakeover:
-      AgentLanPairingIntentKindSchema.parse('controller-lease-takeover'),
-    LanAiProviderStatus:
-      AgentLanPairingIntentKindSchema.parse('lan-ai-provider-status'),
+    ConfigurationUpdate: AgentLanPairingIntentKindSchema.parse('configuration-update'),
+    ControllerLeaseRenew: AgentLanPairingIntentKindSchema.parse('controller-lease-renew'),
+    ControllerLeaseRelease: AgentLanPairingIntentKindSchema.parse('controller-lease-release'),
+    ControllerLeaseTakeover: AgentLanPairingIntentKindSchema.parse('controller-lease-takeover'),
+    LanAiProviderStatus: AgentLanPairingIntentKindSchema.parse('lan-ai-provider-status'),
     LanAiJobSubmit: AgentLanPairingIntentKindSchema.parse('lan-ai-job-submit'),
   },
   LanHouseholdActionKind: {
@@ -160,30 +152,20 @@ export const AgentProtocolDefaults = {
     ActivitySurfaceState: 'activitySurfaceState',
     ActivityAppGameBoundaryReadModel: 'appGameBoundaryReadModel',
     ActivityAppGamePolicyReadinessReadModel: 'appGamePolicyReadinessReadModel',
-    ActivityAppGameNotificationReadinessReadModel:
-      'appGameNotificationReadinessReadModel',
-    ActivityAppGamePlatformProofStatusReadModel:
-      'appGamePlatformProofStatusReadModel',
-    ActivityAppGameChildRuntimeTransportReceiptReadModel:
-      'appGameChildRuntimeTransportReceiptReadModel',
-    ActivityAppGameTimerParentSurfaceReadModel:
-      'appGameTimerParentSurfaceReadModel',
-    ActivityAppGameTimerParentPreferenceSetupRequest:
-      'appGameTimerParentPreferenceSetupRequest',
+    ActivityAppGameNotificationReadinessReadModel: 'appGameNotificationReadinessReadModel',
+    ActivityAppGamePlatformProofStatusReadModel: 'appGamePlatformProofStatusReadModel',
+    ActivityAppGameChildRuntimeTransportReceiptReadModel: 'appGameChildRuntimeTransportReceiptReadModel',
+    ActivityAppGameTimerParentSurfaceReadModel: 'appGameTimerParentSurfaceReadModel',
+    ActivityAppGameTimerParentPreferenceSetupRequest: 'appGameTimerParentPreferenceSetupRequest',
     BrowserSocialDashboardReadModel: 'browserSocialDashboardReadModel',
-    BrowserSocialAuditExplanationReadModel:
-      'browserSocialAuditExplanationReadModel',
+    BrowserSocialAuditExplanationReadModel: 'browserSocialAuditExplanationReadModel',
     BrowserSocialAlertReportReadModel: 'browserSocialAlertReportReadModel',
-    BrowserSocialAlertReportParentSurfaceReadModel:
-      'browserSocialAlertReportParentSurfaceReadModel',
-    BrowserSocialParentNotificationDeliveryReadModel:
-      'browserSocialParentNotificationDeliveryReadModel',
+    BrowserSocialAlertReportParentSurfaceReadModel: 'browserSocialAlertReportParentSurfaceReadModel',
+    BrowserSocialParentNotificationDeliveryReadModel: 'browserSocialParentNotificationDeliveryReadModel',
     BrowserSocialSourceCustodyMutation: 'browserSocialSourceCustodyMutation',
     ActivityTrackingReadModel: 'trackingReadModel',
-    ActivityTrackingRetentionSettingsWriteRequest:
-      'trackingRetentionSettingsWriteRequest',
-    ActivityTrackingRetentionSettingsWriteResult:
-      'trackingRetentionSettingsWriteResult',
+    ActivityTrackingRetentionSettingsWriteRequest: 'trackingRetentionSettingsWriteRequest',
+    ActivityTrackingRetentionSettingsWriteResult: 'trackingRetentionSettingsWriteResult',
     AdapterActionExecuted: 'adapterActionExecuted',
     BridgeEndpointRef: 'bridgeEndpointRef',
     BridgeKind: 'bridgeKind',
@@ -240,15 +222,11 @@ export const AgentProtocolDefaults = {
     EnforcementTimerEventKind: 'enforcementTimerEventKind',
     EnforcementTimerState: 'enforcementTimerState',
     EnforcementTimerStateId: 'enforcementTimerStateId',
-    EnforcementProductControlSpineReadModel:
-      'enforcementProductControlSpineReadModel',
+    EnforcementProductControlSpineReadModel: 'enforcementProductControlSpineReadModel',
     EnforcementPolicyDispatchReadModel: 'enforcementPolicyDispatchReadModel',
-    EnforcementBroadAdapterProofReadModel:
-      'enforcementBroadAdapterProofReadModel',
-    EnforcementSupportedAdapterRuntimeProofReadModel:
-      'enforcementSupportedAdapterRuntimeProofReadModel',
-    EnforcementIntegrityRuntimeAuditReadModel:
-      'enforcementIntegrityRuntimeAuditReadModel',
+    EnforcementBroadAdapterProofReadModel: 'enforcementBroadAdapterProofReadModel',
+    EnforcementSupportedAdapterRuntimeProofReadModel: 'enforcementSupportedAdapterRuntimeProofReadModel',
+    EnforcementIntegrityRuntimeAuditReadModel: 'enforcementIntegrityRuntimeAuditReadModel',
     DecisionSource: 'decisionSource',
     Entries: 'entries',
     EventsIngested: 'eventsIngested',
@@ -388,8 +366,7 @@ export const AgentProtocolDefaults = {
     LocalAiExitCode: 'exitCode',
     LocalAiStderrByteSize: 'stderrByteSize',
     ManagedBrowserSessionId: 'managedBrowserSessionId',
-    ManagedSessionInterventionCapability:
-      'managedSessionInterventionCapability',
+    ManagedSessionInterventionCapability: 'managedSessionInterventionCapability',
     ManagedState: 'managedState',
     Message: 'message',
     MostRecentKind: 'mostRecentKind',
@@ -404,72 +381,45 @@ export const AgentProtocolDefaults = {
     NetworkProtocol: 'networkProtocol',
     NetworkPolicyMappingMode: 'networkPolicyMappingMode',
     NetworkRequestedPolicyAction: 'networkRequestedPolicyAction',
-    NetworkProductPathAnalyzerAlertRefs:
-      'networkProductPathAnalyzerAlertRefs',
+    NetworkProductPathAnalyzerAlertRefs: 'networkProductPathAnalyzerAlertRefs',
     NetworkProductPathAiDetectionRefs: 'networkProductPathAiDetectionRefs',
     NetworkProductPathActionResultRefs: 'networkProductPathActionResultRefs',
     NetworkProductPathDeletionRefs: 'networkProductPathDeletionRefs',
     NetworkProductPathExportRefs: 'networkProductPathExportRefs',
-    NetworkProductPathPolicyDecisionRefs:
-      'networkProductPathPolicyDecisionRefs',
-    NetworkProductPathPortalReadModelRefs:
-      'networkProductPathPortalReadModelRefs',
+    NetworkProductPathPolicyDecisionRefs: 'networkProductPathPolicyDecisionRefs',
+    NetworkProductPathPortalReadModelRefs: 'networkProductPathPortalReadModelRefs',
     NetworkProductPathRetentionRefs: 'networkProductPathRetentionRefs',
     NetworkProductPathRiskBudgetRefs: 'networkProductPathRiskBudgetRefs',
     BrowserRuntimeEventChainStream: 'browserRuntimeEventChainStream',
-    BrowserRuntimeActionIntentCandidates:
-      'browserRuntimeActionIntentCandidates',
-    BrowserRuntimeActionIntentHandoffCandidates:
-      'browserRuntimeActionIntentHandoffCandidates',
-    BrowserRuntimeActionIntentHandoffOutboxRefs:
-      'browserRuntimeActionIntentHandoffOutboxRefs',
-    BrowserRuntimeActionIntentHandoffRefs:
-      'browserRuntimeActionIntentHandoffRefs',
-    BrowserRuntimeActionIntentChildAcceptedRows:
-      'browserRuntimeActionIntentChildAcceptedRows',
-    BrowserRuntimeActionIntentChildCommandRefs:
-      'browserRuntimeActionIntentChildCommandRefs',
-    BrowserRuntimeActionIntentChildAcceptedEventRefs:
-      'browserRuntimeActionIntentChildAcceptedEventRefs',
-    BrowserRuntimeActionIntentParentReadModelRefs:
-      'browserRuntimeActionIntentParentReadModelRefs',
-    BrowserRuntimeActionIntentDispatchAttempts:
-      'browserRuntimeActionIntentDispatchAttempts',
-    BrowserRuntimeActionIntentAdapterExecutions:
-      'browserRuntimeActionIntentAdapterExecutions',
-    BrowserRuntimeActionIntentChildInterventionExecutions:
-      'browserRuntimeActionIntentChildInterventionExecutions',
-    BrowserRuntimeActionIntentEnforcementExecutions:
-      'browserRuntimeActionIntentEnforcementExecutions',
-    BrowserRuntimeSocialProviderReceiptBoundaryRows:
-      'browserRuntimeSocialProviderReceiptBoundaryRows',
-    BrowserRuntimeSocialProviderDispatchRequiredRows:
-      'browserRuntimeSocialProviderDispatchRequiredRows',
-    BrowserRuntimeSocialProviderManualReceiptRequiredRows:
-      'browserRuntimeSocialProviderManualReceiptRequiredRows',
-    BrowserRuntimeSocialProviderAttemptRefs:
-      'browserRuntimeSocialProviderAttemptRefs',
-    BrowserRuntimeSocialProviderReceiptProofRefs:
-      'browserRuntimeSocialProviderReceiptProofRefs',
-    BrowserRuntimeSocialProviderDurableRows:
-      'browserRuntimeSocialProviderDurableRows',
-    BrowserRuntimeSocialProviderDurableResultRefs:
-      'browserRuntimeSocialProviderDurableResultRefs',
-    BrowserRuntimeSocialProviderDurableStoreRefs:
-      'browserRuntimeSocialProviderDurableStoreRefs',
-    BrowserRuntimeSocialProviderReadModelRefs:
-      'browserRuntimeSocialProviderReadModelRefs',
-    BrowserRuntimeSocialProviderSupportStatusRefs:
-      'browserRuntimeSocialProviderSupportStatusRefs',
+    BrowserRuntimeActionIntentCandidates: 'browserRuntimeActionIntentCandidates',
+    BrowserRuntimeActionIntentHandoffCandidates: 'browserRuntimeActionIntentHandoffCandidates',
+    BrowserRuntimeActionIntentHandoffOutboxRefs: 'browserRuntimeActionIntentHandoffOutboxRefs',
+    BrowserRuntimeActionIntentHandoffRefs: 'browserRuntimeActionIntentHandoffRefs',
+    BrowserRuntimeActionIntentChildAcceptedRows: 'browserRuntimeActionIntentChildAcceptedRows',
+    BrowserRuntimeActionIntentChildCommandRefs: 'browserRuntimeActionIntentChildCommandRefs',
+    BrowserRuntimeActionIntentChildAcceptedEventRefs: 'browserRuntimeActionIntentChildAcceptedEventRefs',
+    BrowserRuntimeActionIntentParentReadModelRefs: 'browserRuntimeActionIntentParentReadModelRefs',
+    BrowserRuntimeActionIntentDispatchAttempts: 'browserRuntimeActionIntentDispatchAttempts',
+    BrowserRuntimeActionIntentAdapterExecutions: 'browserRuntimeActionIntentAdapterExecutions',
+    BrowserRuntimeActionIntentChildInterventionExecutions: 'browserRuntimeActionIntentChildInterventionExecutions',
+    BrowserRuntimeActionIntentEnforcementExecutions: 'browserRuntimeActionIntentEnforcementExecutions',
+    BrowserRuntimeSocialProviderReceiptBoundaryRows: 'browserRuntimeSocialProviderReceiptBoundaryRows',
+    BrowserRuntimeSocialProviderDispatchRequiredRows: 'browserRuntimeSocialProviderDispatchRequiredRows',
+    BrowserRuntimeSocialProviderManualReceiptRequiredRows: 'browserRuntimeSocialProviderManualReceiptRequiredRows',
+    BrowserRuntimeSocialProviderAttemptRefs: 'browserRuntimeSocialProviderAttemptRefs',
+    BrowserRuntimeSocialProviderReceiptProofRefs: 'browserRuntimeSocialProviderReceiptProofRefs',
+    BrowserRuntimeSocialProviderDurableRows: 'browserRuntimeSocialProviderDurableRows',
+    BrowserRuntimeSocialProviderDurableResultRefs: 'browserRuntimeSocialProviderDurableResultRefs',
+    BrowserRuntimeSocialProviderDurableStoreRefs: 'browserRuntimeSocialProviderDurableStoreRefs',
+    BrowserRuntimeSocialProviderReadModelRefs: 'browserRuntimeSocialProviderReadModelRefs',
+    BrowserRuntimeSocialProviderSupportStatusRefs: 'browserRuntimeSocialProviderSupportStatusRefs',
     BrowserRuntimeObservedRows: 'browserRuntimeObservedRows',
     BrowserRuntimeStreamedEvents: 'browserRuntimeStreamedEvents',
     BrowserRuntimeFailedRows: 'browserRuntimeFailedRows',
     BrowserRuntimeExactUrlRows: 'browserRuntimeExactUrlRows',
     BrowserRuntimeManualRequiredRows: 'browserRuntimeManualRequiredRows',
-    BrowserRuntimeInterventionCommandEvents:
-      'browserRuntimeInterventionCommandEvents',
-    BrowserRuntimeReadModelProjectionEvents:
-      'browserRuntimeReadModelProjectionEvents',
+    BrowserRuntimeInterventionCommandEvents: 'browserRuntimeInterventionCommandEvents',
+    BrowserRuntimeReadModelProjectionEvents: 'browserRuntimeReadModelProjectionEvents',
     NetworkRuntimeEventChainStream: 'networkRuntimeEventChainStream',
     NetworkRuntimeStreamedEvents: 'networkRuntimeStreamedEvents',
     NetworkRemoteDeliveryStatus: 'networkRemoteDeliveryStatus',
@@ -478,8 +428,7 @@ export const AgentProtocolDefaults = {
     NetworkWindowsFirewallLabStatus: 'networkWindowsFirewallLabStatus',
     NetworkWindowsWfpGateStatus: 'networkWindowsWfpGateStatus',
     NetworkAndroidVpnServiceGateStatus: 'networkAndroidVpnServiceGateStatus',
-    NetworkAppleNetworkExtensionGateStatus:
-      'networkAppleNetworkExtensionGateStatus',
+    NetworkAppleNetworkExtensionGateStatus: 'networkAppleNetworkExtensionGateStatus',
     Observer: 'observer',
     Online: 'online',
     Origin: 'origin',
@@ -494,8 +443,7 @@ export const AgentProtocolDefaults = {
     PolicyPreviewTargetState: 'policyPreviewTargetState',
     PolicyPreviewTargetExplanationCode: 'policyPreviewTargetExplanationCode',
     PolicyPreviewFindingKinds: 'policyPreviewFindingKinds',
-    PolicyParentRuleContextReferenceCount:
-      'parentRuleContextReferenceCount',
+    PolicyParentRuleContextReferenceCount: 'parentRuleContextReferenceCount',
     PolicyParentRuleContextRefIds: 'parentRuleContextRefIds',
     ProfileId: 'profileId',
     ProfilePathRef: 'profilePathRef',
@@ -513,22 +461,18 @@ export const AgentProtocolDefaults = {
     PolicyReviewedByActorRole: 'policyReviewedByActorRole',
     PolicyReviewedAt: 'policyReviewedAt',
     PolicyAuditReferenceId: 'policyAuditReferenceId',
-    PolicyRequestAssistantPreviewConfirmRequest:
-      'policyRequestAssistantPreviewConfirmRequest',
-    PolicyRequestAssistantPreviewConfirmResult:
-      'policyRequestAssistantPreviewConfirmResult',
+    PolicyRequestAssistantPreviewConfirmRequest: 'policyRequestAssistantPreviewConfirmRequest',
+    PolicyRequestAssistantPreviewConfirmResult: 'policyRequestAssistantPreviewConfirmResult',
     ParentActionReferenceId: 'parentActionReferenceId',
     ParentActionCreatedAt: 'parentActionCreatedAt',
     ParentActorId: 'parentActorId',
     ParentActorRole: 'parentActorRole',
-    ParentAssistantActionConfirmResult:
-      'parentAssistantActionConfirmResult',
+    ParentAssistantActionConfirmResult: 'parentAssistantActionConfirmResult',
     ParentAssistantActionPreview: 'parentAssistantActionPreview',
     ParentAssistantAnswer: 'parentAssistantAnswer',
     ParentAssistantAnswerState: 'parentAssistantAnswerState',
     ParentAssistantAnswerText: 'parentAssistantAnswerText',
-    ParentAssistantApiAuthorizationState:
-      'parentAssistantApiAuthorizationState',
+    ParentAssistantApiAuthorizationState: 'parentAssistantApiAuthorizationState',
     ParentAssistantApiCustodyLabel: 'parentAssistantApiCustodyLabel',
     ParentAssistantApiDeletionState: 'parentAssistantApiDeletionState',
     ParentAssistantApiProviderBoundary: 'parentAssistantApiProviderBoundary',
@@ -700,8 +644,7 @@ export const AgentProtocolDefaults = {
       DisabledPreviewOnly: 'disabled-preview-only',
     },
     ValidationMessage: {
-      DryRunPreviewOnlyHandoffRequired:
-        'Network policy preview fields require dry-run preview-only handoff',
+      DryRunPreviewOnlyHandoffRequired: 'Network policy preview fields require dry-run preview-only handoff',
     },
   },
   NetworkRemoteDeliveryStatus: {
@@ -712,50 +655,33 @@ export const AgentProtocolDefaults = {
     DurableEnvelopeRef: 'network.remote-delivery.durable-envelope.10e',
     DurableStoreRef: 'network.remote-delivery.durable-envelope-store.10e',
     DurableReplayRef: 'network.remote-delivery.durable-envelope-replay.10e',
-    DurableDeleteExportRef:
-      'network.remote-delivery.durable-envelope-delete-export.10e',
-    DurableSupportStatusRef:
-      'network.remote-delivery.durable-envelope-support-status.10e',
+    DurableDeleteExportRef: 'network.remote-delivery.durable-envelope-delete-export.10e',
+    DurableSupportStatusRef: 'network.remote-delivery.durable-envelope-support-status.10e',
     OutboxRef: 'network.remote-delivery.outbox.10g',
     OutboxHandoffRef: 'network.remote-delivery.outbox-handoff.10g',
     OutboxReplayRef: 'network.remote-delivery.outbox-replay.10g',
     OutboxSupportStatusRef: 'network.remote-delivery.outbox-support-status.10g',
-    TransportDispatchStateRef:
-      'network.remote-delivery.transport-dispatch-state.10k',
-    BlockedDispatchRef:
-      'network.remote-delivery.dispatch-blocked-manual-required.10k',
+    TransportDispatchStateRef: 'network.remote-delivery.transport-dispatch-state.10k',
+    BlockedDispatchRef: 'network.remote-delivery.dispatch-blocked-manual-required.10k',
     FutureTransportSeamRef: 'network.remote-delivery.future-transport-seam.10k',
     FixtureTransportRef: 'network.remote-delivery.fixture-transport.10l',
-    FixtureDispatchAttemptRef:
-      'network.remote-delivery.fixture-dispatch-attempt.10l',
+    FixtureDispatchAttemptRef: 'network.remote-delivery.fixture-dispatch-attempt.10l',
     FixtureAckRef: 'network.remote-delivery.fixture-ack.10l',
-    DeleteExportPropagationRef:
-      'network.remote-delivery.delete-export-propagation-readiness.10m',
-    RemoteDeleteReadinessRef:
-      'network.remote-delivery.remote-delete-readiness.10m',
-    RemoteExportReadinessRef:
-      'network.remote-delivery.remote-export-readiness.10m',
+    DeleteExportPropagationRef: 'network.remote-delivery.delete-export-propagation-readiness.10m',
+    RemoteDeleteReadinessRef: 'network.remote-delivery.remote-delete-readiness.10m',
+    RemoteExportReadinessRef: 'network.remote-delivery.remote-export-readiness.10m',
     ProviderRouteRef: 'network.remote-delivery.provider-route.10p',
     ChildDeviceRouteRef: 'network.remote-delivery.child-device-route.10p',
-    ProviderDeliveryReadinessRef:
-      'network.remote-delivery.provider-readiness.10p',
-    ChildDeviceDeliveryReadinessRef:
-      'network.remote-delivery.child-device-readiness.10p',
-    CrossProcessCustodyStatusRef:
-      'network.remote-delivery.cross-process-custody-status.10q',
-    CrossProcessReplayReadinessRef:
-      'network.remote-delivery.cross-process-replay-readiness.10q',
-    RemoteRetentionReadinessRef:
-      'network.remote-delivery.remote-retention-readiness.10q',
-    RemoteDeleteCustodyReadinessRef:
-      'network.remote-delivery.remote-delete-custody-readiness.10q',
-    RemoteExportCustodyReadinessRef:
-      'network.remote-delivery.remote-export-custody-readiness.10q',
+    ProviderDeliveryReadinessRef: 'network.remote-delivery.provider-readiness.10p',
+    ChildDeviceDeliveryReadinessRef: 'network.remote-delivery.child-device-readiness.10p',
+    CrossProcessCustodyStatusRef: 'network.remote-delivery.cross-process-custody-status.10q',
+    CrossProcessReplayReadinessRef: 'network.remote-delivery.cross-process-replay-readiness.10q',
+    RemoteRetentionReadinessRef: 'network.remote-delivery.remote-retention-readiness.10q',
+    RemoteDeleteCustodyReadinessRef: 'network.remote-delivery.remote-delete-custody-readiness.10q',
+    RemoteExportCustodyReadinessRef: 'network.remote-delivery.remote-export-custody-readiness.10q',
     CrossProcessReplayRef: 'network.remote-delivery.cross-process-replay.10r',
-    CrossProcessReplayStoreRef:
-      'network.remote-delivery.cross-process-replay-store.10r',
-    CrossProcessReplayCursorRef:
-      'network.remote-delivery.cross-process-replay-cursor.10r',
+    CrossProcessReplayStoreRef: 'network.remote-delivery.cross-process-replay-store.10r',
+    CrossProcessReplayCursorRef: 'network.remote-delivery.cross-process-replay-cursor.10r',
   },
   NetworkLinuxNftablesLabStatus: {
     StatusRef: 'network.linux-nftables.lab-status.42a',
@@ -772,19 +698,15 @@ export const AgentProtocolDefaults = {
     CreateTableCommandRef: 'network.linux-nftables.command.create-table.42a',
     CreateChainCommandRef: 'network.linux-nftables.command.create-chain.42a',
     AddRuleCommandRef: 'network.linux-nftables.command.add-rule.42a',
-    VerifyRuleCommandRef:
-      'network.linux-nftables.command.verify-rule-present.42a',
+    VerifyRuleCommandRef: 'network.linux-nftables.command.verify-rule-present.42a',
     DeleteTableCommandRef: 'network.linux-nftables.command.delete-table.42a',
-    VerifyRemovedCommandRef:
-      'network.linux-nftables.command.verify-table-removed.42a',
+    VerifyRemovedCommandRef: 'network.linux-nftables.command.verify-table-removed.42a',
     CreateTableOutputSha256: 'sha256:network-linux-nftables-create-table-42a',
     CreateChainOutputSha256: 'sha256:network-linux-nftables-create-chain-42a',
     AddRuleOutputSha256: 'sha256:network-linux-nftables-add-rule-42a',
-    VerifyRuleOutputSha256:
-      'sha256:network-linux-nftables-verify-rule-present-42a',
+    VerifyRuleOutputSha256: 'sha256:network-linux-nftables-verify-rule-present-42a',
     DeleteTableOutputSha256: 'sha256:network-linux-nftables-delete-table-42a',
-    VerifyRemovedOutputSha256:
-      'sha256:network-linux-nftables-verify-table-removed-42a',
+    VerifyRemovedOutputSha256: 'sha256:network-linux-nftables-verify-table-removed-42a',
   },
   NetworkWindowsFirewallLabStatus: {
     StatusRef: 'network.windows-firewall.lab-status.38a',
@@ -799,19 +721,13 @@ export const AgentProtocolDefaults = {
     RuleName: 'OcentraParentNetworkLab-row38a',
     TargetRemoteAddress: '203.0.113.254',
     ApplyRuleCommandRef: 'network.windows-firewall.command.apply-rule.38a',
-    VerifyPresentCommandRef:
-      'network.windows-firewall.command.verify-rule-present.38a',
-    RollbackRuleCommandRef:
-      'network.windows-firewall.command.rollback-rule.38a',
-    VerifyRemovedCommandRef:
-      'network.windows-firewall.command.verify-rule-removed.38a',
+    VerifyPresentCommandRef: 'network.windows-firewall.command.verify-rule-present.38a',
+    RollbackRuleCommandRef: 'network.windows-firewall.command.rollback-rule.38a',
+    VerifyRemovedCommandRef: 'network.windows-firewall.command.verify-rule-removed.38a',
     ApplyRuleOutputSha256: 'sha256:network-windows-firewall-apply-rule-38a',
-    VerifyPresentOutputSha256:
-      'sha256:network-windows-firewall-verify-rule-present-38a',
-    RollbackRuleOutputSha256:
-      'sha256:network-windows-firewall-rollback-rule-38a',
-    VerifyRemovedOutputSha256:
-      'sha256:network-windows-firewall-verify-rule-removed-38a',
+    VerifyPresentOutputSha256: 'sha256:network-windows-firewall-verify-rule-present-38a',
+    RollbackRuleOutputSha256: 'sha256:network-windows-firewall-rollback-rule-38a',
+    VerifyRemovedOutputSha256: 'sha256:network-windows-firewall-verify-rule-removed-38a',
   },
   NetworkWindowsWfpGateStatus: {
     StatusRef: 'network.windows-wfp.gate-status.39',
@@ -826,8 +742,7 @@ export const AgentProtocolDefaults = {
     AdministratorPermissionProofRef: 'network.windows-wfp.admin-permission-proof.39',
     DriverSigningProofRef: 'network.windows-wfp.driver-signing-proof.39',
     DriverPackageProofRef: 'network.windows-wfp.driver-package-proof.39',
-    ProviderRegistrationPlanRef:
-      'network.windows-wfp.provider-registration-plan.39',
+    ProviderRegistrationPlanRef: 'network.windows-wfp.provider-registration-plan.39',
     LayerCapabilityMatrixRef: 'network.windows-wfp.layer-capability-matrix.39',
     RollbackPlanRef: 'network.windows-wfp.rollback-plan.39',
     LabResultArtifactRef: 'network.windows-wfp.lab-result-artifact.39',
@@ -844,14 +759,10 @@ export const AgentProtocolDefaults = {
     VpnServiceRef: 'network.android-vpn-service.service.40',
     VpnServiceDeclarationRef: 'network.android-vpn-service.declaration.40',
     UserConsentProofRef: 'network.android-vpn-service.user-consent-proof.40',
-    PhysicalDeviceProofRef:
-      'network.android-vpn-service.physical-device-proof.40',
-    PackageIdentityProofRef:
-      'network.android-vpn-service.package-identity-proof.40',
-    VirtualInterfaceProofRef:
-      'network.android-vpn-service.virtual-interface-proof.40',
-    TrafficObservationProofRef:
-      'network.android-vpn-service.traffic-observation-proof.40',
+    PhysicalDeviceProofRef: 'network.android-vpn-service.physical-device-proof.40',
+    PackageIdentityProofRef: 'network.android-vpn-service.package-identity-proof.40',
+    VirtualInterfaceProofRef: 'network.android-vpn-service.virtual-interface-proof.40',
+    TrafficObservationProofRef: 'network.android-vpn-service.traffic-observation-proof.40',
     RollbackPlanRef: 'network.android-vpn-service.rollback-plan.40',
     AuditEventRef: 'network.android-vpn-service.audit-event.40',
     DeviceOwnerProofRef: 'network.android-vpn-service.device-owner-proof.40',
@@ -865,23 +776,16 @@ export const AgentProtocolDefaults = {
     LocalAiResultRef: 'network.local-ai.apple-network-extension.41',
     BundleRef: 'network.apple-network-extension.bundle.41',
     NetworkExtensionRef: 'network.apple-network-extension.extension.41',
-    DeveloperTeamProofRef:
-      'network.apple-network-extension.developer-team-proof.41',
-    EntitlementApprovalProofRef:
-      'network.apple-network-extension.entitlement-approval-proof.41',
-    ProvisioningProfileProofRef:
-      'network.apple-network-extension.provisioning-profile-proof.41',
+    DeveloperTeamProofRef: 'network.apple-network-extension.developer-team-proof.41',
+    EntitlementApprovalProofRef: 'network.apple-network-extension.entitlement-approval-proof.41',
+    ProvisioningProfileProofRef: 'network.apple-network-extension.provisioning-profile-proof.41',
     SigningProofRef: 'network.apple-network-extension.signing-proof.41',
-    DeviceOrTestFlightProofRef:
-      'network.apple-network-extension.device-or-testflight-proof.41',
-    NetworkExtensionDeclarationRef:
-      'network.apple-network-extension.declaration.41',
-    ExtensionConfigurationProofRef:
-      'network.apple-network-extension.configuration-proof.41',
+    DeviceOrTestFlightProofRef: 'network.apple-network-extension.device-or-testflight-proof.41',
+    NetworkExtensionDeclarationRef: 'network.apple-network-extension.declaration.41',
+    ExtensionConfigurationProofRef: 'network.apple-network-extension.configuration-proof.41',
     RollbackPlanRef: 'network.apple-network-extension.rollback-plan.41',
     AuditEventRef: 'network.apple-network-extension.audit-event.41',
-    SupervisionOrMdmProofRef:
-      'network.apple-network-extension.supervision-or-mdm-proof.41',
+    SupervisionOrMdmProofRef: 'network.apple-network-extension.supervision-or-mdm-proof.41',
   },
   NetworkLiveCaptureStatus: {
     StatusRef: 'network.live-capture.status.13a',
@@ -900,26 +804,20 @@ export const AgentProtocolDefaults = {
     QuotaRef: 'network.live-capture.quota-rotation.13',
     RetentionRef: 'network.live-capture.retention-delete-export.13',
     CustodyRef: 'network.live-capture.custody.13',
-    PrivateTrafficExclusionRef:
-      'network.live-capture.private-traffic-exclusion.13',
+    PrivateTrafficExclusionRef: 'network.live-capture.private-traffic-exclusion.13',
     WindowsExecutionRef: 'network.live-capture.execution.windows-npcap.13b',
-    ManualExecutionRef:
-      'network.live-capture.execution.manual-required.13b',
+    ManualExecutionRef: 'network.live-capture.execution.manual-required.13b',
     LinuxExecutionRef: 'network.live-capture.execution.linux-libpcap.13b',
-    MacosExecutionRef:
-      'network.live-capture.execution.macos-bpf-libpcap.13b',
+    MacosExecutionRef: 'network.live-capture.execution.macos-bpf-libpcap.13b',
     DriverInvocationRef: 'network.live-capture.driver-invocation.13b',
     InterfaceObservationRef: 'network.live-capture.interface-observation.13b',
     ExecutionPermissionRef: 'network.live-capture.permission.13b',
     BoundedWindowRef: 'network.live-capture.bounded-window.13b',
     ExecutionCleanStopRef: 'network.live-capture.clean-stop.13b',
     ExecutionCustodyRef: 'network.live-capture.custody.13b',
-    ExecutionRetentionRef:
-      'network.live-capture.retention-delete-export.13b',
-    MetadataSanitizationRef:
-      'network.live-capture.metadata-sanitization.13b',
-    ExecutionPrivateTrafficExclusionRef:
-      'network.live-capture.private-traffic-exclusion.13b',
+    ExecutionRetentionRef: 'network.live-capture.retention-delete-export.13b',
+    MetadataSanitizationRef: 'network.live-capture.metadata-sanitization.13b',
+    ExecutionPrivateTrafficExclusionRef: 'network.live-capture.private-traffic-exclusion.13b',
     RawManifestRef: 'network.raw-capture.manifest.03a',
     RawStorageLocationRef: 'network.raw-capture.storage-location.03a',
     RawEncryptionRef: 'network.raw-capture.encryption-at-rest.03a',
@@ -927,7 +825,6 @@ export const AgentProtocolDefaults = {
     RawRetentionRef: 'network.raw-capture.retention-policy.03a',
     RawDeleteExportRef: 'network.raw-capture.delete-export.03a',
     RawCustodyChainRef: 'network.raw-capture.custody-chain.03a',
-    RawPrivateTrafficExclusionRef:
-      'network.raw-capture.private-traffic-exclusion.03a',
+    RawPrivateTrafficExclusionRef: 'network.raw-capture.private-traffic-exclusion.03a',
   },
 } as const;

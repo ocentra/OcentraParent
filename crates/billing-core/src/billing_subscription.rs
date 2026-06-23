@@ -8,6 +8,7 @@
 
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
@@ -600,7 +601,7 @@ pub fn decide_child_entitlement_snapshot(
             BillingManualReviewRequirement::NotRequired,
         ),
         BillingSubscriptionStatus::Unknown | BillingSubscriptionStatus::Unavailable => {
-            unreachable!()
+            unreachable!("child entitlement acceptance requires a resolved billing subscription status")
         }
     };
 
@@ -623,7 +624,7 @@ pub fn record_billing_provider_webhook_decision_event(
     BillingProviderWebhookDecisionRecordedEvent {
         aggregate_id: event.aggregate_id,
         decision_id: BillingDecisionId::parse(billing_decision_ref(&provider_event_id))
-            .expect(ERROR_BILLING_DECISION_ID),
+            .expect_value(ERROR_BILLING_DECISION_ID),
         decision: decide_billing_provider_webhook(event.provider_event),
     }
 }
@@ -639,7 +640,7 @@ pub fn record_child_entitlement_consumption_event(
             &snapshot_id,
             &child_device_id,
         ))
-        .expect(ERROR_BILLING_CHILD_CONSUMPTION_ID),
+        .expect_value(ERROR_BILLING_CHILD_CONSUMPTION_ID),
         decision: decide_child_entitlement_snapshot(event.snapshot),
     }
 }
@@ -697,7 +698,7 @@ pub fn project_billing_entitlement_transition_event(
     BillingEntitlementTransitionProjectedEvent {
         aggregate_id: event.aggregate_id,
         transition_id: BillingTransitionId::parse(billing_transition_ref(&decision_id))
-            .expect(ERROR_BILLING_TRANSITION_ID),
+            .expect_value(ERROR_BILLING_TRANSITION_ID),
         source_decision_id: decision_id,
         transition: project_billing_entitlement_transition(event.decision, scope),
     }

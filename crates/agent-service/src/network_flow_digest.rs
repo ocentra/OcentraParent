@@ -1,9 +1,10 @@
 use std::collections::BTreeSet;
 
-use ocentra_parent_agent_protocol::{
-    ActivityEvidenceRef, ActivityNetworkFlowDigest, ActivityNetworkFlowObservation,
-    ActivityNetworkFlowReadModel, NETWORK_FLOW_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowDigest;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 
 use crate::{
     network_flow_digest_indicators::network_indicators,

@@ -17,4 +17,3 @@ export const IosParentMobileCapabilityStatuses = [
   ['testflight-distribution', 'manual-required'],
   ['store-distribution', 'planned'],
 ] as const;
-

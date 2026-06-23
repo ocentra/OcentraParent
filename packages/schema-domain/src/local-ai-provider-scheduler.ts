@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LocalAiDegradedStateSchema,
   LocalAiModelIdSchema,
@@ -193,4 +188,3 @@ export type LocalAiProviderSchedulerJobClass = Infer<typeof LocalAiProviderSched
 export type LocalAiProviderSchedulerJobStatus = Infer<typeof LocalAiProviderSchedulerJobStatusSchema>;
 export type LocalAiProviderSchedulerStatus = Infer<typeof LocalAiProviderSchedulerStatusSchema>;
 export type LocalAiProviderSchedulerDecision = Infer<typeof LocalAiProviderSchedulerDecisionSchema>;
-

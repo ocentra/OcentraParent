@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { NativeGameBudgetDryRunDecisionSchema, NativeGameBudgetSignalSchema } from '../../src/native-game-budget-policy';
+import {
+  NativeGameBudgetDryRunDecisionSchema,
+  NativeGameBudgetSignalSchema,
+} from '@ocentra-parent/schema-domain/native-game-budget-policy';
 import {
   NativeGameBudgetCandidatePolicy,
   NativeGameBudgetDurationSource,
@@ -7,8 +10,12 @@ import {
   NativeGameBudgetRecommendedAction,
   NativeGameBudgetSignalKind,
   NativeGameBudgetSignalPolicyRole,
-} from '../../src/native-game-budget-policy-rules';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
+} from '@ocentra-parent/schema-domain/native-game-budget-policy-rules';
+import {
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+  ParentPlatform,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T07:30:00Z';
 const PolicyVersion = 'native-game-budget-policy-version-1';

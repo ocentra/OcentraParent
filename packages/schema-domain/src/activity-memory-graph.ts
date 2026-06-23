@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from './effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
 
 const NonNegativeCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NullableTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
@@ -41,37 +36,15 @@ export const ActivityMemoryGraphEntryStatusSchema = withParser(
 );
 
 export const ActivityMemoryGraphNodeKindSchema = withParser(
-  Schema.Literal(
-    'child-profile',
-    'device',
-    'browser-url',
-    'domain',
-    'video',
-    'app',
-    'game',
-    'activity-session'
-  )
+  Schema.Literal('child-profile', 'device', 'browser-url', 'domain', 'video', 'app', 'game', 'activity-session')
 );
 
 export const ActivityMemoryGraphEdgeKindSchema = withParser(
-  Schema.Literal(
-    'visited',
-    'watched',
-    'played',
-    'active-during',
-    'performed-by-child',
-    'derived-from-evidence'
-  )
+  Schema.Literal('visited', 'watched', 'played', 'active-during', 'performed-by-child', 'derived-from-evidence')
 );
 
 export const ActivityMemoryGraphQueryKindSchema = withParser(
-  Schema.Literal(
-    'visited-urls',
-    'played-games',
-    'watched-videos',
-    'activity-by-time-range',
-    'explain-evidence'
-  )
+  Schema.Literal('visited-urls', 'played-games', 'watched-videos', 'activity-by-time-range', 'explain-evidence')
 );
 
 export const ActivityMemoryGraphTraceSchema = withParser(
@@ -151,9 +124,7 @@ export const ActivityMemoryGraphReadModelSchema = withParser(
     Schema.filter(
       (model) => model.returnedNodeCount === model.nodes.length || 'Expected memory graph node count match'
     ),
-    Schema.filter(
-      (model) => model.returnedEdgeCount === model.edges.length || 'Expected memory graph edge count match'
-    )
+    Schema.filter((model) => model.returnedEdgeCount === model.edges.length || 'Expected memory graph edge count match')
   )
 );
 

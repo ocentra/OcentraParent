@@ -11,9 +11,11 @@ use crate::activity_capture::freshness::{
     ActivityCaptureFreshnessStatus,
 };
 
+type TestResult = Result<(), String>;
+
 #[test]
-fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_without_content_claim()
-{
+fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_without_content_claim(
+) -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_CAPTURE_FRESHNESS_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -28,7 +30,7 @@ fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_wit
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    let freshness = record_activity_capture_freshness_to_paths(ActivityCaptureFreshnessRequest {
+    let freshness = record_activity_capture_freshness_to_paths(&ActivityCaptureFreshnessRequest {
         journal_path: &journal_path,
         key_path: &key_path,
         store_path: &store_path,
@@ -38,18 +40,19 @@ fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_wit
         next_observed_ats: &[constants::activity_store::TEST_SECOND_OBSERVED_AT],
         generated_at: constants::activity_store::TEST_THIRD_OBSERVED_AT,
     })
-    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    let key_bytes = read(&key_path).expect(constants::error::JOURNAL_READS);
+    .map_err(|error| format!("{error:?}"))?;
+    let key_bytes = read(&key_path).map_err(|error| format!("{error:?}"))?;
     let mut key = [0; JOURNAL_KEY_BYTES];
     key.copy_from_slice(&key_bytes);
     let journal = ActivityJournal::open(journal_path.clone(), JournalKey::from_bytes(key))
-        .expect(constants::error::JOURNAL_OPENS);
-    let lines = journal.lines().expect(constants::error::JOURNAL_READS);
+        .map_err(|error| format!("{error:?}"))?;
+    let lines = journal.lines().map_err(|error| format!("{error:?}"))?;
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
     assert_optional_foreground_event_count(lines.len() as u64);
     assert_recurring_app_game_freshness(&freshness);
+    Ok(())
 }
 
 fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {

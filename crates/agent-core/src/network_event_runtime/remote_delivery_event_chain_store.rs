@@ -7,10 +7,11 @@ use ocentra_eventing::{
     journal::policy::JournalPolicy, journal::policy::JournalSelector, replay::ReplayFilter,
     replay::ReplayReadReport, replay::ReplayRecord,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
-    NetworkRuntimePhase,
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase;
 
 use crate::NetworkObservation;
 

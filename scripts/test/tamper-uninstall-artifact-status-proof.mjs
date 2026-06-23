@@ -27,7 +27,8 @@ async function main() {
   const schemaPackageJson = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
   const enforcementPackageJson = JSON.parse(await readRepoFile('packages/enforcement-domain/package.json'));
   const contractModule = await import('@ocentra-parent/schema-domain/tamper-uninstall-artifact-status');
-  const readModelModule = await import('@ocentra-parent/enforcement-domain/tamper-uninstall-artifact-status-read-model');
+  const readModelModule =
+    await import('@ocentra-parent/enforcement-domain/tamper-uninstall-artifact-status-read-model');
   const readModel = contractModule.TamperUninstallArtifactStatusReadModelSchema.parse(
     readModelModule.TamperUninstallArtifactStatusReadModel
   );

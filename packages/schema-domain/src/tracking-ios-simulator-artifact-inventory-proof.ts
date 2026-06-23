@@ -1,16 +1,15 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 const TrackingIosSimulatorArtifactInventoryCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingIosSimulatorArtifactInventoryRefSchema = brandedNonEmptyStringSchema('TrackingIosSimulatorArtifactInventoryRef');
+export const TrackingIosSimulatorArtifactInventoryRefSchema = brandedNonEmptyStringSchema(
+  'TrackingIosSimulatorArtifactInventoryRef'
+);
 
-export const TrackingIosSimulatorArtifactInventoryRowIdSchema = brandedNonEmptyStringSchema('TrackingIosSimulatorArtifactInventoryRowId');
+export const TrackingIosSimulatorArtifactInventoryRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingIosSimulatorArtifactInventoryRowId'
+);
 
 export const TrackingIosSimulatorArtifactInventoryStatusSchema = Schema.Literal(
   'ios-simulator-local-artifacts-present-physical-device-required'
@@ -333,4 +332,3 @@ function trackingIosSimulatorArtifactInventoryNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
-

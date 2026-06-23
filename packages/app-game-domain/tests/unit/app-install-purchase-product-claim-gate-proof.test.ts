@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimGateProofSchema,
   AppInstallPurchaseProductClaimGateRowSchema,
   summarizeAppInstallPurchaseProductClaimGateProof,
-} from '../../src/app-install-purchase-product-claim-gate-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-gate-proof';
 
 describe('app install purchase product claim gate proof', () => {
   acceptsProductClaimGateRows();

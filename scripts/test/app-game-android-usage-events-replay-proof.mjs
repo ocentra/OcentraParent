@@ -28,13 +28,14 @@ async function main() {
       'app-game-platform-proof-status',
     ])
   );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const androidProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
   );
   const replayModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );
   const statusModule = await import(
     pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-platform-proof-status.js')).href
@@ -68,7 +69,7 @@ async function main() {
     replaySummary,
     platformStatus,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-usage-events-replay.ts',
+      contract: 'packages/schema-domain/src/app-game-android-usage-events-replay.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-replay.test.ts',
       platformStatus: 'packages/app-game-domain/src/app-game-platform-proof-status.ts',
       platformStatusTest: 'packages/app-game-domain/tests/unit/app-game-platform-proof-status.test.ts',

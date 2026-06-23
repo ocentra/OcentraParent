@@ -1,32 +1,35 @@
+use super::{TestResult, ok, some};
+use crate::browser_event_runtime::BrowserRuntimeInput;
 use crate::browser_event_runtime::social_provider_receipt::{
     browser_runtime_social_provider_receipt_status_topology_manifest,
     request_browser_runtime_social_provider_receipt_status_for_input,
 };
 use crate::browser_event_runtime::social_provider_receipt_durable::prove_browser_runtime_social_provider_receipt_durable;
 use crate::browser_event_runtime::social_provider_receipt_durable_types::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
-use crate::browser_event_runtime::BrowserRuntimeInput;
 use ocentra_eventing::topology::EventTopologyStatus;
 use ocentra_parent_agent_protocol::constants;
 
 #[tokio::test]
 async fn browser_runtime_social_provider_receipt_event_subscriber_returns_manual_required_boundary()
-{
-    let report = request_browser_runtime_social_provider_receipt_status_for_input(
-        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
-    )
-    .await
-    .unwrap();
+-> TestResult {
+    let report = ok(
+        request_browser_runtime_social_provider_receipt_status_for_input(
+            BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+        )
+        .await,
+        "request social provider receipt status for dry run fixture",
+    )?;
 
     assert_eq!(report.dead_letters.len(), 0);
     assert_eq!(report.request_report.publish_report.handled_count, 1);
     assert_eq!(
-        report
-            .stored_events
-            .first()
-            .unwrap()
-            .contract
-            .event_type
-            .as_str(),
+        some(
+            report.stored_events.first(),
+            "social provider receipt request event missing",
+        )?
+        .contract
+        .event_type
+        .as_str(),
         constants::browser::EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED
     );
 
@@ -63,16 +66,19 @@ async fn browser_runtime_social_provider_receipt_event_subscriber_returns_manual
     assert_eq!(receipt.final_policy_execution_count, 0);
     assert_eq!(receipt.connector_native_runtime_count, 0);
     assert_eq!(receipt.enforcement_execution_count, 0);
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_social_provider_receipt_event_subscriber_keeps_manual_rows_manual_required(
-) {
-    let report = request_browser_runtime_social_provider_receipt_status_for_input(
-        BrowserRuntimeInput::manual_required_fixture(),
-    )
-    .await
-    .unwrap();
+async fn browser_runtime_social_provider_receipt_event_subscriber_keeps_manual_rows_manual_required()
+-> TestResult {
+    let report = ok(
+        request_browser_runtime_social_provider_receipt_status_for_input(
+            BrowserRuntimeInput::manual_required_fixture(),
+        )
+        .await,
+        "request social provider receipt status for manual fixture",
+    )?;
 
     let receipt = report.request_report.response;
     assert_eq!(receipt.receipt_boundary_row_count, 1);
@@ -92,25 +98,40 @@ async fn browser_runtime_social_provider_receipt_event_subscriber_keeps_manual_r
     assert_eq!(receipt.provider_dispatch_count, 0);
     assert_eq!(receipt.final_policy_execution_count, 0);
     assert_eq!(receipt.enforcement_execution_count, 0);
+    Ok(())
 }
 
 #[test]
-fn browser_runtime_social_provider_receipt_topology_covers_named_event_and_subscriber() {
-    let manifest = browser_runtime_social_provider_receipt_status_topology_manifest().unwrap();
+fn browser_runtime_social_provider_receipt_topology_covers_named_event_and_subscriber() -> TestResult
+{
+    let manifest = ok(
+        browser_runtime_social_provider_receipt_status_topology_manifest(),
+        "browser runtime social provider receipt topology manifest",
+    )?;
     assert_eq!(manifest.unready_entries().len(), 0);
     assert_eq!(manifest.entries().len(), 1);
 
-    let entry = manifest.entries().first().unwrap();
+    let entry = some(
+        manifest.entries().first(),
+        "social provider receipt topology entry missing",
+    )?;
     assert_eq!(entry.status, EventTopologyStatus::Covered);
     assert_eq!(
         entry.contract.event_type.as_str(),
         constants::browser::EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED
     );
     assert_eq!(
-        entry.publishers.first().unwrap().as_str(),
+        some(
+            entry.publishers.first(),
+            "social provider receipt publisher missing",
+        )?
+        .as_str(),
         constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE
     );
-    let subscriber = entry.subscribers.first().unwrap();
+    let subscriber = some(
+        entry.subscribers.first(),
+        "social provider receipt subscriber missing",
+    )?;
     assert_eq!(
         subscriber.subscriber_id.as_str(),
         constants::browser::SUBSCRIBER_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS
@@ -119,13 +140,16 @@ fn browser_runtime_social_provider_receipt_topology_covers_named_event_and_subsc
         subscriber.target_handler.as_str(),
         constants::browser::TARGET_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS
     );
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_runtime_social_provider_receipt_durable_preserves_refs_without_execution() {
-    let report = prove_browser_runtime_social_provider_receipt_durable()
-        .await
-        .unwrap();
+async fn browser_runtime_social_provider_receipt_durable_preserves_refs_without_execution()
+-> TestResult {
+    let report = ok(
+        prove_browser_runtime_social_provider_receipt_durable().await,
+        "prove browser runtime social provider receipt durable",
+    )?;
 
     assert_eq!(report.request_event_count, 1);
     assert_eq!(report.durable_record_count, 1);
@@ -136,7 +160,10 @@ async fn browser_runtime_social_provider_receipt_durable_preserves_refs_without_
     assert!(report.row_matches_receipt_response);
     assert!(report.row_matches_request_event);
 
-    let row = report.rows.first().unwrap();
+    let row = some(
+        report.rows.first(),
+        "social provider receipt durable row missing",
+    )?;
     assert_eq!(
         row.state,
         BrowserRuntimeSocialProviderReceiptDurableReadModelState::ProviderDispatchRequiredManualReceipt
@@ -187,4 +214,5 @@ async fn browser_runtime_social_provider_receipt_durable_preserves_refs_without_
     assert!(!report.report_delivery_execution_claimed);
     assert!(!report.final_policy_execution_claimed);
     assert!(!report.enforcement_claimed);
+    Ok(())
 }

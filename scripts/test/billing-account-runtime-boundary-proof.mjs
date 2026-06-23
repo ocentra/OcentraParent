@@ -89,21 +89,17 @@ async function assertBuiltContract() {
   assert.equal(typeof boundaryModule.decodeBillingAccountRuntimeBoundaryProof, 'function');
   assert.ok(boundaryModule.BillingAccountRuntimeBoundaryProofSchema);
   assert.deepEqual(
-    summarizeValues(proof.accountStatusRows.map((row) => row.accountStatus), [
-      'trialing',
-      'active',
-      'past-due',
-      'backend-unavailable',
-      'provider-unavailable',
-      'manual-review',
-    ]),
+    summarizeValues(
+      proof.accountStatusRows.map((row) => row.accountStatus),
+      ['trialing', 'active', 'past-due', 'backend-unavailable', 'provider-unavailable', 'manual-review']
+    ),
     {
-    trialing: 0,
-    active: 1,
-    'past-due': 1,
-    'backend-unavailable': 1,
-    'provider-unavailable': 1,
-    'manual-review': 1,
+      trialing: 0,
+      active: 1,
+      'past-due': 1,
+      'backend-unavailable': 1,
+      'provider-unavailable': 1,
+      'manual-review': 1,
     }
   );
   assert.deepEqual(summarizeValues(proof.runtimeOperations.map((row) => row.operation)), {

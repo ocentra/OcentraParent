@@ -16,7 +16,14 @@ async function main() {
   await ensureLanDomainBuild();
   await runCommand(
     'cmd',
-    ['/c', 'npx', 'vitest', 'run', 'tests/unit/lan-discovery-source-matrix.test.ts', 'tests/unit/lan-pairing-browser-add-device-state.test.ts'],
+    [
+      '/c',
+      'npx',
+      'vitest',
+      'run',
+      'tests/unit/lan-discovery-source-matrix.test.ts',
+      'tests/unit/lan-pairing-browser-add-device-state.test.ts',
+    ],
     lanDomainRoot
   );
 
@@ -54,9 +61,7 @@ async function main() {
     notImplementedWorkpacks: matrix.workpackRows
       .filter((row) => row.status === 'not-implemented')
       .map((row) => `${row.workpackId}:${row.title}`),
-    manualRequiredSources: matrix.sourceRows
-      .filter((row) => row.status === 'manual-required')
-      .map((row) => row.source),
+    manualRequiredSources: matrix.sourceRows.filter((row) => row.status === 'manual-required').map((row) => row.source),
     weakSourceFence: {
       weakSources: matrix.sourceRows.filter((row) => !row.canConfirmChildAgent && !row.canAssignChildProfile).length,
       signedSources: matrix.sourceRows
@@ -90,7 +95,7 @@ async function ensureLanDomainBuild() {
   if (existsSync(sourceMatrixModulePath) && existsSync(pairingDeviceModulePath)) {
     return;
   }
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build'], lanDomainRoot);
+  await runNpm(['run', 'build'], lanDomainRoot);
 }
 
 function sourceMatrixFixture() {
@@ -119,8 +124,22 @@ function workpackRows() {
     workpack('04', 'Neighbor table ingestion', 'discovered', 'ci-mechanical-proof', 'partial', null),
     workpack('05', 'Targeted ARP checks', 'unavailable', 'not-implemented', 'not-implemented', packetArtifact()),
     workpack('06', 'Bounded ARP sweep', 'unavailable', 'not-implemented', 'not-implemented', packetArtifact()),
-    workpack('07', 'Passive discovery listeners', 'manual-required', 'manual-required', 'manual-required', packetArtifact()),
-    workpack('08', 'mDNS and DNS-SD discovery', 'manual-required', 'manual-required', 'manual-required', mdnsArtifact()),
+    workpack(
+      '07',
+      'Passive discovery listeners',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      packetArtifact()
+    ),
+    workpack(
+      '08',
+      'mDNS and DNS-SD discovery',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      mdnsArtifact()
+    ),
     workpack('09', 'SSDP and UPnP discovery', 'manual-required', 'manual-required', 'manual-required', mdnsArtifact()),
     workpack('10', 'NetBIOS, LLMNR, and reverse DNS', 'pending', 'ci-mechanical-proof', 'partial', null),
     workpack('11', 'Light service probing', 'unavailable', 'not-implemented', 'not-implemented', packetArtifact()),
@@ -129,8 +148,22 @@ function workpackRows() {
     workpack('14', 'Explainable classification', 'pending', 'ci-mechanical-proof', 'partial', null),
     workpack('15', 'Household device store', 'pending', 'ci-mechanical-proof', 'partial', null),
     workpack('16', 'Read models and LAN events', 'discovered', 'ci-mechanical-proof', 'implemented', null),
-    workpack('17', 'Parent and child mDNS advertisements', 'manual-required', 'manual-required', 'manual-required', mdnsArtifact()),
-    workpack('18', 'Signed child hello and heartbeat', 'manual-required', 'manual-required', 'manual-required', signedArtifact()),
+    workpack(
+      '17',
+      'Parent and child mDNS advertisements',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      mdnsArtifact()
+    ),
+    workpack(
+      '18',
+      'Signed child hello and heartbeat',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      signedArtifact()
+    ),
     workpack('19', 'Assignment, revocation, and audit', 'pending', 'ci-mechanical-proof', 'partial', null),
     workpack('20', 'Proof gates, fixtures, and rollout', 'pending', 'ci-mechanical-proof', 'partial', null),
   ];
@@ -208,7 +241,15 @@ function workpack(workpackId, title, discoveryState, proofState, status, require
   };
 }
 
-function source(sourceKind, workpackId, status, authority, canConfirmChildAgent, canAssignChildProfile, requiredArtifactSummary) {
+function source(
+  sourceKind,
+  workpackId,
+  status,
+  authority,
+  canConfirmChildAgent,
+  canAssignChildProfile,
+  requiredArtifactSummary
+) {
   return {
     schemaVersion: 'v0.9',
     source: sourceKind,
@@ -290,6 +331,14 @@ async function runCommand(commandName, args, cwd) {
   });
 }
 
+async function runNpm(args, cwd) {
+  if (process.platform === 'win32') {
+    await runCommand('cmd', ['/c', 'npm', ...args], cwd);
+    return;
+  }
+  await runCommand('npm', args, cwd);
+}
+
 async function gitHead() {
   const chunks = [];
   await new Promise((resolve, reject) => {
@@ -299,10 +348,6 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
-}
-
-function moduleUrl(path) {
-  return `file:///${path.replaceAll('\\', '/')}`;
 }
 
 function relativePath(path) {

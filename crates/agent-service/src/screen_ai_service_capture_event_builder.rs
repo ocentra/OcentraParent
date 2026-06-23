@@ -1,13 +1,29 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
-    ScreenAnalysisQueueJob, ACTIVITY_SCHEMA_VERSION, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_CATEGORY_UNKNOWN, SCREEN_CUSTODY_JOURNAL, SCREEN_CUSTODY_TEMP_QUEUE,
-    SCREEN_DELETION_DELETED, SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_IMAGE_FORMAT_PNG,
-    SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_QUEUE_STATUS_QUEUED, SCREEN_SERVICE_ADAPTER_ID,
-    SCREEN_SERVICE_LOCAL_USER_REF, SCREEN_SERVICE_METADATA_CONFIDENCE,
-    SCREEN_SERVICE_MODEL_RUNTIME_REF, SCREEN_SERVICE_PARENT_SETTING_REF,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity::ActivityEventKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::activity::ActivityObserver;
+use ocentra_parent_agent_protocol::activity::ActivitySource;
+use ocentra_parent_agent_protocol::activity::ActivitySubject;
+use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisQueueJob;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_UNKNOWN;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_JOURNAL;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_TEMP_QUEUE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_DELETED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_IMAGE_FORMAT_PNG;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ADAPTER_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_LOCAL_USER_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_METADATA_CONFIDENCE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_MODEL_RUNTIME_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_PARENT_SETTING_REF;
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_screen_capture_adapter::CapturedScreenImage;
 
 use crate::{

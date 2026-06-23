@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_core::network_runtime::{
     default_network_observed_event, evaluate_network_runtime, network_ai_analysis_requested_event,
     network_evidence_recorded_event, network_observed_event,
@@ -15,7 +16,7 @@ fn default_network_observation_preserves_policy_first_contract() {
     let evidence = network_evidence_recorded_event(&observed);
     let ai = network_ai_analysis_requested_event(&evidence);
     let policy =
-        network_policy_evaluation_requested_event(&evidence).expect("network policy request");
+        network_policy_evaluation_requested_event(&evidence).expect_value("network policy request");
 
     assert_eq!(
         observed.event_type,
@@ -50,7 +51,7 @@ fn unknown_route_contract_requests_ai_before_policy() {
     let observed = network_observed_event(NetworkObservationIntent::UnknownRouteRequiresAi);
     let evidence = network_evidence_recorded_event(&observed);
     let ai = network_ai_analysis_requested_event(&evidence)
-        .expect("unknown network route requires AI boundary");
+        .expect_value("unknown network route requires AI boundary");
     let policy = network_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(

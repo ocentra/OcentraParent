@@ -1,6 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants, DeviceRuntimeAiProviderState, LanPairingDeviceReachability,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeAiProviderState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
 use crate::lan_pairing::LanPairingRuntime;
 

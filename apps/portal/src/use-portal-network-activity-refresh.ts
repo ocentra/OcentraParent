@@ -1,12 +1,8 @@
 import { useEffect, type MutableRefObject } from 'react';
 import { AgentCommand } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
-  type PortalConnectionStateValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import {
-  isPortalNetworkEvidenceDrawerRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { type PortalConnectionState as PortalConnectionStateValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { isPortalNetworkEvidenceDrawerRoute } from '@ocentra-parent/portal-domain/routes';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import type { PortalRenderActions } from './portal-actions';
 import { shouldRequestNetworkFlowReadModelForRoute } from './portal-route-refresh';
 

@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityDeviceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import {
@@ -34,12 +34,8 @@ export const BrowserManagedProfileLifecycleStateSchema = withParser(
 export const BrowserProfileRootRefSchema = withParser(
   RedactedProfileRefText.pipe(Schema.brand('BrowserProfileRootRef'))
 );
-export const BrowserProfileScopeIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserProfileScopeId')
-);
-export const BrowserPolicyRevisionSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserPolicyRevision')
-);
+export const BrowserProfileScopeIdSchema = withParser(brandedNonEmptyStringSchema('BrowserProfileScopeId'));
+export const BrowserPolicyRevisionSchema = withParser(brandedNonEmptyStringSchema('BrowserPolicyRevision'));
 
 const BrowserManagedProfileStoreEntryBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(BrowserEvidenceSchemaVersion),
@@ -128,4 +124,3 @@ function repairReasonProfileEntryIsConsistent(entry: BrowserManagedProfileStoreE
 function profileRefIsRedacted(value: string): boolean {
   return !value.includes('/') && !value.includes('\\') && !value.includes(':');
 }
-

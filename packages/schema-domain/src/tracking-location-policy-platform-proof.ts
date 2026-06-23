@@ -1,8 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, withParser } from './effect';
 import {
   TrackingPlatformProofRouteStateSchema,
   TrackingPolicyAuditRefSchema,

@@ -179,11 +179,7 @@ function rejectsProofWithoutSignedChildConsumptionClaim(): void {
 }
 
 function requiredAccountStatusRow(
-  accountStatus:
-    | 'active'
-    | 'backend-unavailable'
-    | 'provider-unavailable'
-    | 'manual-review'
+  accountStatus: 'active' | 'backend-unavailable' | 'provider-unavailable' | 'manual-review'
 ) {
   const row = BillingAccountRuntimeBoundaryProofReadModel.accountStatusRows.find(
     (entry) => entry.accountStatus === accountStatus

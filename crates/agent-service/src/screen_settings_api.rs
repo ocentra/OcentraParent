@@ -1,8 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
-    ScreenSettingsRejectionReason, ScreenSettingsUpdateKind, ScreenSettingsUpdateResponse,
-    ScreenSettingsUpdateStatus, SCREEN_EVIDENCE_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsRejectionReason;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateKind;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateResponse;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateStatus;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 
 use crate::{
     event_builder::build_event,

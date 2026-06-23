@@ -1,17 +1,23 @@
-use ocentra_parent_agent_protocol::{
-    constants, SocialAuditExplanationClaimBoundaries, SocialAuditExplanationEntry,
-    SocialAuditExplanationEvidenceLink, SocialAuditExplanationSnapshot,
-    SOCIAL_AUDIT_EXPLANATION_ACTION_WARN, SOCIAL_AUDIT_EXPLANATION_AUDIENCE_PARENT,
-    SOCIAL_AUDIT_EXPLANATION_CHILD_PROFILE_ID, SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED,
-    SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY,
-    SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE,
-    SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE, SOCIAL_AUDIT_EXPLANATION_FAMILY_ID,
-    SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_SOCIAL_RISK_HIGH,
-    SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION, SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED,
-    SOCIAL_AUDIT_EXPLANATION_SCHEMA_VERSION, SOCIAL_AUDIT_EXPLANATION_SNAPSHOT_ID,
-    SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT,
-    SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::SocialAuditExplanationClaimBoundaries;
+use ocentra_parent_agent_protocol::SocialAuditExplanationEntry;
+use ocentra_parent_agent_protocol::SocialAuditExplanationEvidenceLink;
+use ocentra_parent_agent_protocol::SocialAuditExplanationSnapshot;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_ACTION_WARN;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_AUDIENCE_PARENT;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_CHILD_PROFILE_ID;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_FAMILY_ID;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_SOCIAL_RISK_HIGH;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SNAPSHOT_ID;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT;
+use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE;
 
 #[test]
 fn social_audit_explanation_snapshot_serializes_without_runtime_claims() {
@@ -61,8 +67,9 @@ fn social_audit_explanation_snapshot_serializes_without_runtime_claims() {
         claim_boundaries: not_claimed_boundaries(),
     };
 
-    let serialized =
-        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(snapshot).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["schemaVersion"],

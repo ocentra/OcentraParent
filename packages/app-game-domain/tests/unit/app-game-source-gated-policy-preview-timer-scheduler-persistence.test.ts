@@ -3,9 +3,7 @@ import { buildAppGameSourceGatedPolicyPreviewReadModel } from '../../src/app-gam
 import { buildAppGameSourceGatedPolicyPreviewTimerHandoff } from '../../src/app-game-source-gated-policy-preview-timer-handoff';
 import { buildAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness } from '../../src/app-game-source-gated-policy-preview-timer-runtime-readiness';
 import { buildAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence } from '../../src/app-game-source-gated-policy-preview-timer-scheduler-persistence';
-import {
-  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceSchema,
-} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-scheduler-persistence';
+import { AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceSchema } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-scheduler-persistence';
 import { AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-scheduler-persistence-rules';
 import { buildAppGameSourceGatedPolicyPreviewTimerStatus } from '../../src/app-game-source-gated-policy-preview-timer-status';
 import { buildAppGameSourceFreshnessPreviewGateReadModel } from '../../src/app-game-source-freshness-preview-gate';

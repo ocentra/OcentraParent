@@ -225,6 +225,7 @@ mod tests {
         browser_ai_analysis_requested_event, browser_evidence_recorded_event,
         browser_policy_evaluation_requested_event, BrowserObservationIntent,
     };
+    use ocentra_eventing::expect_value::ExpectValue;
     use ocentra_parent_agent_protocol::child_domain_runtime::{
         child_domain_evidence_ref_from_observation_id,
         child_domain_observation_id_from_subject_ref, ChildDomainAiAnalysisRequestedEvent,
@@ -254,7 +255,7 @@ mod tests {
         assert_eq!(screened_ai(&evidence), None);
         assert_eq!(
             browser_policy_evaluation_requested_event(&evidence)
-                .expect("known navigation should publish policy evidence")
+                .expect_value("known navigation should publish policy evidence")
                 .evidence_refs,
             vec![evidence.evidence_ref]
         );
@@ -290,7 +291,7 @@ mod tests {
         );
         assert_eq!(
             screened_ai(&evidence)
-                .expect("ambiguous navigation should request AI")
+                .expect_value("ambiguous navigation should request AI")
                 .evidence_refs,
             vec![evidence.evidence_ref.clone()]
         );
@@ -329,8 +330,9 @@ mod tests {
             classification_state: BrowserClassificationState::InventoryOnly,
         };
         let event = browser_runtime_decision_recorded_event(
-            BrowserAggregateId::parse("browser.aggregate.1").expect("aggregate id"),
-            BrowserRuntimeDecisionId::parse("browser.runtime-decision.1").expect("decision id"),
+            BrowserAggregateId::parse("browser.aggregate.1").expect_value("aggregate id"),
+            BrowserRuntimeDecisionId::parse("browser.runtime-decision.1")
+                .expect_value("decision id"),
             input,
         );
 

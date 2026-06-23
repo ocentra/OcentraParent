@@ -1,14 +1,21 @@
 mod evidence;
 
 use self::evidence::evidence_records_for;
-use ocentra_parent_agent_protocol::{
-    constants, LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceConfidence,
-    LanCanonicalHouseholdDeviceRole, LanCanonicalHouseholdDeviceSource,
-    LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdRoleState,
-    LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface, LanChildAgentInventoryPacket,
-    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus,
-    LanPairingProductionDiscoveryState, LanPairingTrustState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDiscoveryRuntimeStatus;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceConfidence;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceRole;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceSource;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdNetworkIdentity;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdRoleState;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdRouteState;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdSurface;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanChildAgentInventoryPacket;
 
 pub(super) fn canonical_device_id(device: &LanPairingDeviceRef) -> String {
     if let Some(mac) = device.mac_address.as_ref() {
@@ -45,7 +52,7 @@ pub(super) fn network_identity_for(
     device: &LanPairingDeviceRef,
     reachability: LanPairingDeviceReachability,
     confidence: LanCanonicalHouseholdDeviceConfidence,
-    source: LanCanonicalHouseholdDeviceSource,
+    source: &LanCanonicalHouseholdDeviceSource,
 ) -> LanCanonicalHouseholdNetworkIdentity {
     LanCanonicalHouseholdNetworkIdentity {
         hostname: known_hostname(device),
@@ -62,7 +69,7 @@ pub(super) fn network_identity_for(
 }
 
 pub(super) fn confidence_for_discovery(
-    status: LanPairingDiscoveryRuntimeStatus,
+    status: &LanPairingDiscoveryRuntimeStatus,
 ) -> LanCanonicalHouseholdDeviceConfidence {
     match status {
         LanPairingDiscoveryRuntimeStatus::WebsocketDirect => {
@@ -78,7 +85,7 @@ pub(super) fn confidence_for_discovery(
 }
 
 pub(super) fn source_for_discovery(
-    status: LanPairingDiscoveryRuntimeStatus,
+    status: &LanPairingDiscoveryRuntimeStatus,
 ) -> LanCanonicalHouseholdDeviceSource {
     match status {
         LanPairingDiscoveryRuntimeStatus::WebsocketDirect => {
@@ -95,13 +102,13 @@ pub(super) fn source_for_discovery(
 
 pub(super) fn role_badges_for(
     is_child_agent: bool,
-    status: LanPairingDiscoveryRuntimeStatus,
+    status: &LanPairingDiscoveryRuntimeStatus,
 ) -> Vec<LanCanonicalHouseholdDeviceRole> {
     if !is_child_agent {
         return Vec::new();
     }
     let mut roles = vec![LanCanonicalHouseholdDeviceRole::ChildAgent];
-    if status == LanPairingDiscoveryRuntimeStatus::WebsocketDirect {
+    if *status == LanPairingDiscoveryRuntimeStatus::WebsocketDirect {
         roles.push(LanCanonicalHouseholdDeviceRole::Portal);
         roles.push(LanCanonicalHouseholdDeviceRole::ParentController);
     }
@@ -118,7 +125,7 @@ pub(super) fn route_id_for(is_child_agent: bool, route_id: Option<String>) -> Op
 
 pub(super) fn route_state_for(
     is_child_agent: bool,
-    status: LanPairingDiscoveryRuntimeStatus,
+    status: &LanPairingDiscoveryRuntimeStatus,
 ) -> LanCanonicalHouseholdRouteState {
     if !is_child_agent {
         return LanCanonicalHouseholdRouteState::Unavailable;
@@ -186,7 +193,7 @@ pub(super) fn surfaces_for(is_child_agent: bool) -> Vec<LanCanonicalHouseholdSur
 }
 
 pub(super) fn state_from_trust(
-    trust_state: LanPairingTrustState,
+    trust_state: &LanPairingTrustState,
 ) -> LanPairingProductionDiscoveryState {
     match trust_state {
         LanPairingTrustState::Paired => LanPairingProductionDiscoveryState::Paired,

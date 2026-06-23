@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LocalAiModelArtifactRefSchema,
   LocalAiModelCacheStatusSchema,
@@ -135,4 +130,3 @@ function boundariesStayNonClaiming(manifest: ScreenAiModelArtifactManifestCandid
     manifest.claimBoundaries.executionClaimed === false
   );
 }
-

@@ -62,8 +62,8 @@ async function main() {
       'updated-feature-expectation-checklist; packages/parent-domain README remains untouched because codex-c owns the active README lock',
     evidence: {
       safeParentWorkflowContract:
-        'packages/app-game-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
-      sourceProductClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
+      sourceProductClaimGateContract: 'packages/schema-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-safe-parent-workflow-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

@@ -1,3 +1,6 @@
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_parent_runtime_core::policy_control_dispatch::{
     ParentPolicyControlAcknowledgementState, ParentRuntimePolicyControlOriginState,
     ParentRuntimePolicyControlPublishState,
@@ -20,8 +23,8 @@ use ocentra_policy_control_core::policy_source::{
     PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
 #[test]
@@ -39,8 +42,8 @@ fn parent_runtime_policy_control_flow_applies_delivered_acknowledged_and_applied
         &transitions,
         ParentPolicyControlAcknowledgementState::Required,
         ParentRuntimePolicyControlOriginState::TrustedLocalUi,
-    )
-    .expect("policy control delivery flow");
+    );
+    let flow_report = result_or_unreachable(flow_report, "policy control delivery flow");
 
     assert_eq!(
         flow_report
@@ -70,8 +73,8 @@ fn parent_runtime_policy_control_flow_rejects_when_dispatch_is_blocked() {
         &[],
         ParentPolicyControlAcknowledgementState::Required,
         ParentRuntimePolicyControlOriginState::Untrusted,
-    )
-    .expect("policy control delivery flow");
+    );
+    let flow_report = result_or_unreachable(flow_report, "policy control delivery flow");
 
     assert_eq!(
         flow_report
@@ -90,11 +93,11 @@ fn parent_runtime_policy_control_flow_rejects_when_dispatch_is_blocked() {
         ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState::ManualRequired
     );
     assert_eq!(
-        flow_report
-            .final_record
-            .reason_code
-            .expect("policy rejection reason code")
-            .as_str(),
+        option_or_unreachable(
+            flow_report.final_record.reason_code.as_ref(),
+            "policy rejection reason code",
+        )
+        .as_str(),
         "parent-runtime-dispatch-blocked"
     );
 }
@@ -112,8 +115,8 @@ fn parent_runtime_policy_control_flow_keeps_parent_surface_degraded_when_child_s
         &[offline_transition],
         ParentPolicyControlAcknowledgementState::Required,
         ParentRuntimePolicyControlOriginState::TrustedLocalUi,
-    )
-    .expect("policy control delivery flow");
+    );
+    let flow_report = result_or_unreachable(flow_report, "policy control delivery flow");
 
     assert_eq!(flow_report.delivery_outcomes.len(), 2);
     assert_eq!(flow_report.final_record.state, PolicyDeliveryState::Offline);
@@ -122,11 +125,11 @@ fn parent_runtime_policy_control_flow_keeps_parent_surface_degraded_when_child_s
         ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState::Degraded
     );
     assert_eq!(
-        flow_report
-            .final_record
-            .reason_code
-            .expect("offline reason code")
-            .as_str(),
+        option_or_unreachable(
+            flow_report.final_record.reason_code.as_ref(),
+            "offline reason code",
+        )
+        .as_str(),
         "child-offline"
     );
     assert!(matches!(
@@ -137,40 +140,64 @@ fn parent_runtime_policy_control_flow_keeps_parent_surface_degraded_when_child_s
 
 fn sample_policy_source_document() -> ParentPolicySourceDocument {
     ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-household-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(3).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+        schema_version: result_or_unreachable(
+            parent_policy_source_schema_version(),
+            "policy source schema version",
+        ),
+        document_id: result_or_unreachable(
+            ParentPolicyDocumentId::parse("policy-source-household-default"),
+            "policy source document id",
+        ),
+        household_id: result_or_unreachable(
+            PolicyHouseholdId::parse("household-default"),
+            "household id",
+        ),
+        policy_version: result_or_unreachable(PolicyVersion::new(3), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: result_or_unreachable(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        status: PolicySourceStatus::Confirmed,
+        child_profile_ids: vec![result_or_unreachable(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id",
+        )],
+        device_ids: vec![result_or_unreachable(
+            PolicyDeviceId::parse("device-laptop"),
+            "policy device id",
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: result_or_unreachable(
+                PolicyRuleId::parse("rule-school-night-block"),
+                "policy rule id",
+            ),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                reference_id: result_or_unreachable(
+                    PolicyTargetReferenceId::parse("category-gaming"),
+                    "policy target reference",
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
-            ),
+            schedule_id: Some(result_or_unreachable(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id",
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: result_or_unreachable(
+                PolicyReasonCode::parse("school-night"),
+                "policy reason code",
+            ),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+            schedule_id: result_or_unreachable(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id",
+            ),
+            timezone_name: result_or_unreachable(
+                PolicyTimezoneName::parse("America/Toronto"),
+                "policy timezone name",
+            ),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -204,35 +231,52 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
 }
 
 fn sample_queued_delivery() -> ocentra_policy_control_core::policy_delivery::PolicyDeliveryRecord {
-    let compiled = compile_domain_policy_artifact(
-        &sample_policy_source_document(),
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled domain policy artifact");
+    let compiled = result_or_unreachable(
+        compile_domain_policy_artifact(
+            &sample_policy_source_document(),
+            PolicyConsumerDomain::Tracking,
+        ),
+        "compiled domain policy artifact",
+    );
 
-    queue_policy_delivery(
-        &compiled,
-        PolicyDeliveryTarget {
-            child_profile_id: PolicyChildProfileId::parse("child-primary")
-                .expect("child profile id"),
-            device_id: PolicyDeviceId::parse("device-laptop").expect("policy device id"),
-            domain: PolicyConsumerDomain::Tracking,
-        },
-        PolicyDeliveryId::parse("delivery-policy-household-default").expect("policy delivery id"),
-        PolicyDeliveryAttemptId::parse("attempt-queued").expect("policy attempt id"),
-        vec![audit_ref("audit-policy-queued")],
+    result_or_unreachable(
+        queue_policy_delivery(
+            &compiled,
+            PolicyDeliveryTarget {
+                child_profile_id: result_or_unreachable(
+                    PolicyChildProfileId::parse("child-primary"),
+                    "child profile id",
+                ),
+                device_id: result_or_unreachable(
+                    PolicyDeviceId::parse("device-laptop"),
+                    "policy device id",
+                ),
+                domain: PolicyConsumerDomain::Tracking,
+            },
+            result_or_unreachable(
+                PolicyDeliveryId::parse("delivery-policy-household-default"),
+                "policy delivery id",
+            ),
+            result_or_unreachable(
+                PolicyDeliveryAttemptId::parse("attempt-queued"),
+                "policy attempt id",
+            ),
+            vec![audit_ref("audit-policy-queued")],
+        ),
+        "queued policy delivery",
     )
-    .expect("queued policy delivery")
 }
 
 fn authorized_evaluation_event(mode: PolicyDecisionMode) -> PolicyEvaluationRequestedEvent {
     PolicyEvaluationRequestedEvent {
-        aggregate_id: PolicyControlAggregateId::parse(
-            "policy-control-aggregate:child-primary:tracking",
-        )
-        .expect("policy control aggregate id"),
-        request_id: PolicyControlRequestId::parse("policy-control-request-1")
-            .expect("policy control request id"),
+        aggregate_id: result_or_unreachable(
+            PolicyControlAggregateId::parse("policy-control-aggregate:child-primary:tracking"),
+            "policy control aggregate id",
+        ),
+        request_id: result_or_unreachable(
+            PolicyControlRequestId::parse("policy-control-request-1"),
+            "policy control request id",
+        ),
         input: PolicyControlInput {
             mode,
             parent_authority_state: ParentAuthorityState::Authorized,
@@ -254,11 +298,14 @@ fn transition(
     state: PolicyDeliveryState,
 ) -> PolicyDeliveryTransition {
     PolicyDeliveryTransition {
-        attempt_id: PolicyDeliveryAttemptId::parse(attempt_id).expect("policy attempt id"),
-        sequence: ocentra_policy_control_core::policy_delivery::PolicyDeliverySequence::new(
-            sequence,
-        )
-        .expect("policy delivery sequence"),
+        attempt_id: result_or_unreachable(
+            PolicyDeliveryAttemptId::parse(attempt_id),
+            "policy attempt id",
+        ),
+        sequence: result_or_unreachable(
+            ocentra_policy_control_core::policy_delivery::PolicyDeliverySequence::new(sequence),
+            "policy delivery sequence",
+        ),
         state,
         audit_reference_ids: vec![audit_ref(&format!("audit-{attempt_id}-{sequence}"))],
         reason_code: None,
@@ -268,9 +315,26 @@ fn transition(
 }
 
 fn audit_ref(value: &str) -> PolicyAuditReferenceId {
-    PolicyAuditReferenceId::parse(value).expect("policy audit ref")
+    result_or_unreachable(PolicyAuditReferenceId::parse(value), "policy audit ref")
 }
 
 fn reason(value: &str) -> PolicyReasonCode {
-    PolicyReasonCode::parse(value).expect("policy reason code")
+    result_or_unreachable(PolicyReasonCode::parse(value), "policy reason code")
+}
+
+fn result_or_unreachable<T, E>(result: Result<T, E>, context: &'static str) -> T
+where
+    E: std::fmt::Debug,
+{
+    match result {
+        Ok(value) => value,
+        Err(error) => unreachable!("{context}: {error:?}"),
+    }
+}
+
+fn option_or_unreachable<T>(option: Option<T>, context: &'static str) -> T {
+    match option {
+        Some(value) => value,
+        None => unreachable!("{context}"),
+    }
 }

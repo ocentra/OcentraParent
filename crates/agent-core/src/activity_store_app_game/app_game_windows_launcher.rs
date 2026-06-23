@@ -1,5 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    ActivityEvidenceRef, AppGameLauncherEvidenceRow, APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameLauncherEvidenceRow, APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR,
     APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED,
     APP_GAME_CATALOG_PERMISSION_LIMITED, APP_GAME_CATALOG_READY, APP_GAME_CATALOG_UNAVAILABLE,
     APP_GAME_CLASSIFICATION_ADAPTER_ERROR, APP_GAME_CLASSIFICATION_KNOWN_GAME,

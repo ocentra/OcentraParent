@@ -18,14 +18,7 @@ const commands = [
   {
     name: 'agent-protocol-domain-browser-runtime-events-test',
     command: 'npm',
-    args: [
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/agent-protocol-domain',
-      '--',
-      protocolUnitTestPath,
-    ],
+    args: ['run', 'test', '--workspace', '@ocentra-parent/agent-protocol-domain', '--', protocolUnitTestPath],
   },
   {
     name: 'agent-protocol-domain-type-check',

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { decodeAppGameAndroidPhysicalDeviceProof } from '../../src/app-game-android-physical-device-proof';
+import { decodeAppGameAndroidPhysicalDeviceProof } from '@ocentra-parent/schema-domain/app-game-android-physical-device-proof';
 import {
   AppGameAndroidUsageEventsReplayReadModelSchema,
   createAppGameAndroidUsageEventsReplayReadModel,
   summarizeAppGameAndroidUsageEventsReplayReadModel,
-} from '../../src/app-game-android-usage-events-replay';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-replay';
 
 describe('app-game Android UsageEvents replay readiness', () => {
   it('accepts redacted foreground UsageEvents counts as durable replay readiness', () => {

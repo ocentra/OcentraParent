@@ -70,12 +70,13 @@ async function main() {
     docsState: 'feature-expectation-docs-covered-checklist-readme-sequenced-behind-current-locks',
     evidence: {
       providerStoreReportStatusContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-report-status-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-report-status-proof.ts',
       sourceProviderStoreExecutionReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
       sourceApprovalReportDomainContract:
-        'packages/app-game-domain/src/app-install-purchase-approval-report-domain-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-report-status-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-approval-report-domain-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-report-status-proof.test.ts',
       featureDocDeferred:
         'docs/features/app-install-purchase-approval.md already records provider/store report status proof coverage.',
       expectationDocDeferred:

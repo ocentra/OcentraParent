@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseRuntimeTransportDeliveryExecutionProofSchema,
   AppInstallPurchaseRuntimeTransportDeliveryExecutionRowSchema,
   summarizeAppInstallPurchaseRuntimeTransportDeliveryExecutionProof,
-} from '../../src/app-install-purchase-runtime-transport-delivery-execution-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-runtime-transport-delivery-execution-proof';
 
 describe('app install and purchase runtime transport delivery execution proof', () => {
   acceptsTransportExecutionRowsWithoutDeliveryClaims();

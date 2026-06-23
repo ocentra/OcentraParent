@@ -1,28 +1,28 @@
-const REDACTED = "[redacted]";
+const REDACTED = '[redacted]';
 
 const SENSITIVE_FIELD_FRAGMENTS = [
-  "authorization",
-  "cookie",
-  "secret",
-  "token",
-  "apikey",
-  "password",
-  "signature",
-  "csrf",
-  "signingkeyref",
-  "serviceaccountref",
-  "evidenceref",
-  "evidencepath",
-  "recoverybundle",
-  "supportbundle",
-  "childdata",
-  "childprofile",
-  "childactivity",
-  "childdevice",
-  "devicesecret",
-  "localdevicesecret",
-  "sessiontoken",
-  "sessionid",
+  'authorization',
+  'cookie',
+  'secret',
+  'token',
+  'apikey',
+  'password',
+  'signature',
+  'csrf',
+  'signingkeyref',
+  'serviceaccountref',
+  'evidenceref',
+  'evidencepath',
+  'recoverybundle',
+  'supportbundle',
+  'childdata',
+  'childprofile',
+  'childactivity',
+  'childdevice',
+  'devicesecret',
+  'localdevicesecret',
+  'sessiontoken',
+  'sessionid',
 ] as const;
 const SECRET_VALUE_PATTERNS = [
   /bearer\s+\S+/i,
@@ -35,11 +35,11 @@ const SECRET_VALUE_PATTERNS = [
 ] as const;
 
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function normalizeFieldName(fieldName: string): string {
-  return fieldName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return fieldName.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 export function isSensitiveFieldName(fieldName: string): boolean {
@@ -69,7 +69,7 @@ export function redactPayload(value: unknown): unknown {
     return Object.fromEntries(redactedEntries);
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return redactStringValue(value);
   }
 

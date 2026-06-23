@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserChildUxText, BrowserChildUxTextToken, resolveBrowserChildUxText } from '../../src/browser-child-ux';
-import { decodeDisplayText } from '../../src/contracts';
+import {
+  BrowserChildUxText,
+  BrowserChildUxTextToken,
+  resolveBrowserChildUxText,
+} from '@ocentra-parent/schema-domain/text-browser-ux';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 
 describe('browser child UX text', () => {
   it('exposes calm schema-backed browser child UX copy', exposesCalmChildCopy);

@@ -118,4 +118,3 @@ export const ParentControlCapabilityName = {
 export const ParentControlPlatformCapabilities = ParentControlPlatformCapabilityInputs.map((entry) =>
   ParentControlPlatformCapabilitySchema.parse(entry)
 );
-

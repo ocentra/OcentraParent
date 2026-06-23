@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
@@ -13,14 +15,19 @@ use crate::network_event_runtime::{
     remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
 #[tokio::test]
-async fn network_runtime_remote_delivery_fixture_transport_records_attempts_and_acks() {
-    let proof_result: Result<
-        NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-        NetworkRuntimeRemoteDeliveryFixtureTransportError,
-    > = prove_network_runtime_remote_delivery_fixture_transport().await;
-    let report = proof_result
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT);
+async fn network_runtime_remote_delivery_fixture_transport_records_attempts_and_acks() -> TestResult
+{
+    let report: NetworkRuntimeRemoteDeliveryFixtureTransportReport = ok(
+        prove_network_runtime_remote_delivery_fixture_transport().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT,
+    )?;
 
     assert_eq!(
         report.fixture_transport_ref.as_str(),
@@ -48,13 +55,17 @@ async fn network_runtime_remote_delivery_fixture_transport_records_attempts_and_
     );
     assert!(report.fixture_records_match_outbox_candidates);
     assert_records_preserve_fixture_refs(&report);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_fixture_transport_keeps_product_delivery_false() {
-    let report = prove_network_runtime_remote_delivery_fixture_transport()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT);
+async fn network_runtime_remote_delivery_fixture_transport_keeps_product_delivery_false(
+) -> TestResult {
+    let report = ok(
+        prove_network_runtime_remote_delivery_fixture_transport().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT,
+    )?;
 
     assert!(!report.broker_delivery_implemented);
     assert!(!report.family_hub_delivery_implemented);
@@ -74,13 +85,16 @@ async fn network_runtime_remote_delivery_fixture_transport_keeps_product_deliver
     assert_eq!(report.video_content_available_count, 0);
     assert_eq!(report.private_message_content_available_count, 0);
     assert_eq!(report.search_query_available_count, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_remote_delivery_fixture_transport_rejects_product_claims() {
-    let mut outbox_handoff = prove_network_runtime_remote_delivery_outbox_handoff()
-        .await
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF);
+async fn network_runtime_remote_delivery_fixture_transport_rejects_product_claims() -> TestResult {
+    let mut outbox_handoff = ok(
+        prove_network_runtime_remote_delivery_outbox_handoff().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF,
+    )?;
     outbox_handoff.product_ready_remote_delivery = true;
 
     let proof_result =
@@ -90,6 +104,8 @@ async fn network_runtime_remote_delivery_fixture_transport_rejects_product_claim
         proof_result,
         Err(NetworkRuntimeRemoteDeliveryFixtureTransportError::UnsupportedClaim)
     ));
+
+    Ok(())
 }
 
 fn assert_records_preserve_fixture_refs(

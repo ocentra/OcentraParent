@@ -1,6 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentEventEnvelope, AgentEventName, BrowserRuntimePhase, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 use serde_json::Value;
 
 use crate::browser_runtime_stream_payload::BrowserRuntimeServiceStreamReport;
@@ -40,21 +43,15 @@ pub(super) fn assert_action_intent_handoff_report_ready(
 pub(super) fn assert_action_intent_handoff_payload_refs(payload: &LogFields) {
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS),
-        Some(&LogFieldValue::String(
-            serde_json::to_string(&vec![
-                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
-            ])
-            .unwrap()
-        ))
+        Some(&LogFieldValue::String(serialize_test_json(&vec![
+            constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
+        ])))
     );
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS),
-        Some(&LogFieldValue::String(
-            serde_json::to_string(&vec![
-                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
-            ])
-            .unwrap()
-        ))
+        Some(&LogFieldValue::String(serialize_test_json(&vec![
+            constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
+        ])))
     );
 }
 
@@ -111,8 +108,11 @@ pub(super) fn assert_store_backed_stream_payload_header(event: &AgentEventEnvelo
 }
 
 pub(super) fn assert_store_backed_stream_first_entry(entries: &[Value]) {
+    let last_entry = entries
+        .last()
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     assert_eq!(
-        entries.last().unwrap()[constants::field::EVENT_TYPE],
+        last_entry[constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
     );
     assert_eq!(
@@ -146,4 +146,13 @@ pub(super) fn assert_store_backed_stream_child_status_and_no_execution(payload: 
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS),
         Some(&LogFieldValue::Number(0.0))
     );
+}
+
+fn serialize_test_json<T>(value: &T) -> String
+where
+    T: serde::Serialize + ?Sized,
+{
+    serde_json::to_string(value).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }

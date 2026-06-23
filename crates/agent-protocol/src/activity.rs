@@ -1,18 +1,20 @@
 use serde::{Deserialize, Serialize};
 
 #[path = "policy.rs"]
-pub(crate) mod policy;
+pub mod policy;
 
 #[path = "policy_context.rs"]
-pub(crate) mod policy_context;
+pub mod policy_context;
 
 #[path = "policy_preview.rs"]
-pub(crate) mod policy_preview;
+pub mod policy_preview;
 
 #[path = "local_ai.rs"]
-pub(crate) mod local_ai;
+pub mod local_ai;
 
 use crate::LogFields;
+
+pub const ACTIVITY_SCHEMA_VERSION: u16 = crate::ACTIVITY_SCHEMA_VERSION;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityObserver {

@@ -73,9 +73,9 @@
       "import": "./dist/details.js",
       "types": "./dist/details.d.ts"
     },
-    "./detail-values": {
-      "import": "./dist/detail-values.js",
-      "types": "./dist/detail-values.d.ts"
+    "./dev-logger": {
+      "import": "./dist/dev-logger.js",
+      "types": "./dist/dev-logger.d.ts"
     },
     "./diagnostics": {
       "import": "./dist/diagnostics.js",
@@ -181,6 +181,10 @@
       "import": "./dist/social-parent-notification-delivery-panel.js",
       "types": "./dist/social-parent-notification-delivery-panel.d.ts"
     },
+    "./social-read-model-events": {
+      "import": "./dist/social-read-model-events.js",
+      "types": "./dist/social-read-model-events.d.ts"
+    },
     "./tracking-child-check-in-proof": {
       "import": "./dist/tracking-child-check-in-proof.js",
       "types": "./dist/tracking-child-check-in-proof.d.ts"
@@ -242,7 +246,6 @@
     "@ocentra-parent/logging-domain": "file:../logging-domain",
     "@ocentra-parent/network-domain": "file:../network-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain",
-    "@ocentra-parent/setup-domain": "file:../setup-domain",
-    "@ocentra-parent/text-domain": "file:../text-domain"
+    "@ocentra-parent/setup-domain": "file:../setup-domain"
   }
 }

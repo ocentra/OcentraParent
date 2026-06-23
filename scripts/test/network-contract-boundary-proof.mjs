@@ -138,8 +138,7 @@ function runCommand(entry) {
     shell: false,
   });
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
-  const logName =
-    entry.name === 'shared-network-contract-tests' ? '01-contract-proof.log' : `${entry.name}.log`;
+  const logName = entry.name === 'shared-network-contract-tests' ? '01-contract-proof.log' : `${entry.name}.log`;
   writeFileSync(join(proofRoot, logName), output);
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}`);

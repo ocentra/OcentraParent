@@ -3,10 +3,6 @@ import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 
-test.skip(
-  process.env['SOCIAL_AUDIT_EXPLANATION_UI_PROOF'] !== '1',
-  'Dedicated social audit explanation UI proof only.'
-);
 test.setTimeout(120_000);
 
 const portalShellReadyTimeoutMs = 90_000;
@@ -22,15 +18,17 @@ const accessibilitySummaryPath = path.join(
   'accessibility-summary.json'
 );
 
-test('browser route renders schema-backed social audit explanations', async ({ page }) => {
-  const browserFailures = collectBrowserFailures(page);
+if (process.env['SOCIAL_AUDIT_EXPLANATION_UI_PROOF'] === '1') {
+  test('browser route renders schema-backed social audit explanations', async ({ page }) => {
+    const browserFailures = collectBrowserFailures(page);
 
-  await assertSocialAuditExplanationRoute(page);
-  await captureSocialAuditExplanationScreenshots(page);
-  await writeAccessibilitySummary(await collectAccessibilitySummary(page));
+    await assertSocialAuditExplanationRoute(page);
+    await captureSocialAuditExplanationScreenshots(page);
+    await writeAccessibilitySummary(await collectAccessibilitySummary(page));
 
-  expect(browserFailures).toEqual([]);
-});
+    expect(browserFailures).toEqual([]);
+  });
+}
 
 async function assertSocialAuditExplanationRoute(page: Page): Promise<void> {
   await page.goto('/#/browser?agent.browser.social-audit-explanation.read-model.reported');

@@ -2,14 +2,53 @@
 
 Goal: define pairing, disclosure, standing access, revoke/remove-device, and audit for remote access.
 
-Expected shape:
+## Ownership boundary
+
+```text
+remote-access-plan owns pairing/grant lifecycle, standing-access visibility, revoke/remove-device behavior, reconnect/crash recovery semantics, and audit proof.
+account-identity-family-plan owns actor/household/session/device authority.
+device-trust-bootstrap-plan owns trusted-device and parent-presence step-up where selected.
+portal/child surfaces own rendered visible disclosure only when selected.
+```
+
+## Expected shape
 
 - Parent authority is necessary for pairing and standing access.
 - Grants are scoped by household, child device, route, and capability.
 - Standing access remains until revoked or device removed.
 - Every denial includes user-visible reason and audit state.
 
-Expected proof:
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+grant_id
+capability_type
+actor_role
+household_ref
+child_device_ref
+route_type
+pairing_state
+standing_access_state
+revocation_state
+removed_device_state
+reconnect_state
+crash_recovery_state
+child_disclosure_state
+support_admin_state
+wrong_actor_state
+wrong_household_state
+wrong_device_state
+audit_ref
+manual_required_state
+no_control_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
+## Expected proof
 
 - Pairing/grant persistence tests.
 - Wrong actor/wrong household/wrong device tests.
@@ -28,8 +67,8 @@ Failure: persistent remote access grant with no revoke/remove-device path.
 | Remote live view         | paired access, selected device, state, disclosure, custody state        |
 | Deferred remote control  | stronger confirmation, platform authority, revocation, child-visible state |
 | Support/admin assistance | explicit parent grant, redacted diagnostics, no hidden access            |
-| LAN-local only          | LAN proof; no remote relay claim                                          |
-| Relay/cloud route       | relay security workpack and account/device authority proof                |
+| LAN-local only           | LAN proof; no remote relay claim                                         |
+| Relay/cloud route        | relay security workpack and account/device authority proof               |
 
 ## Execution Detail
 
@@ -89,3 +128,4 @@ Proof artifact expectations:
 - Do not create persistent remote access without pairing and revoke/remove-device paths.
 - Do not claim child disclosure where the child platform/UI artifact is missing.
 - Do not allow reconnect to resurrect a revoked or removed session.
+- Do not allow support/admin hidden access without parent-visible grant and audit.

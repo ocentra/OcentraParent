@@ -3,7 +3,7 @@ import {
   type BrowserGameUrlShapeParseResult,
   BrowserGameUrlShapeParseResultSchema,
 } from '@ocentra-parent/schema-domain/browser-game-url-shape-parser';
-import { parseBrowserGameUrlShape } from '../../src/browser-game-url-shape-parser';
+import { parseBrowserGameUrlShape } from '../../src/browser-game-url-shape-evaluator';
 
 describe('browser-game URL shape parser contracts', () => {
   it('parses play URL shape without storing raw URL/domain/path/query values', parsesPlayShape);

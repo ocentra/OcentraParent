@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import { providerSecretRotationRevocationStatusEntryIsSafe } from './provider-secret-rotation-revocation-status-guards.js';
 
@@ -180,4 +175,3 @@ export function providerSecretRotationRevocationStatusCoversRequiredStates(
     'audit-export-ready',
   ].every((state) => states.has(state as ProviderSecretRotationRevocationStatusState));
 }
-

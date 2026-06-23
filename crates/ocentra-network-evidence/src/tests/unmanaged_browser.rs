@@ -4,12 +4,13 @@ use crate::{
     UnmanagedBrowserCorrelationInput, UnmanagedBrowserCorrelationState,
     UnmanagedBrowserProcessKind,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn unmanaged_browser_correlation_records_known_browser_as_process_only_bypass() {
     let correlation =
         correlate_unmanaged_browser_activity(input(UnmanagedBrowserProcessKind::KnownBrowser))
-            .expect("known unmanaged browser process should produce bypass evidence");
+            .expect_value("known unmanaged browser process should produce bypass evidence");
 
     assert_eq!(
         correlation.state,
@@ -38,7 +39,7 @@ fn unmanaged_browser_correlation_records_portable_browser_as_process_only_bypass
     candidate.browser_family = Some("firefox".to_owned());
 
     let correlation = correlate_unmanaged_browser_activity(candidate)
-        .expect("portable browser process should produce bypass evidence");
+        .expect_value("portable browser process should produce bypass evidence");
 
     assert_eq!(
         correlation.state,
@@ -59,7 +60,7 @@ fn unmanaged_browser_correlation_keeps_browser_like_process_candidate() {
     candidate.browser_family = None;
 
     let correlation = correlate_unmanaged_browser_activity(candidate)
-        .expect("browser-like process should remain candidate-only");
+        .expect_value("browser-like process should remain candidate-only");
 
     assert_eq!(
         correlation.state,
@@ -81,7 +82,7 @@ fn unmanaged_browser_correlation_does_not_treat_managed_browser_as_unmanaged() {
     managed.browser_family = Some("ocentra-managed".to_owned());
 
     let correlation = correlate_unmanaged_browser_activity(managed)
-        .expect("managed browser should stay inside managed boundary");
+        .expect_value("managed browser should stay inside managed boundary");
 
     assert_eq!(
         correlation.state,
@@ -101,7 +102,7 @@ fn unmanaged_browser_correlation_preserves_no_browser_and_adapter_unavailable_st
     no_browser.process_name = Some("game.exe".to_owned());
 
     let missing = correlate_unmanaged_browser_activity(no_browser)
-        .expect("non-browser process should not become unmanaged evidence");
+        .expect_value("non-browser process should not become unmanaged evidence");
     assert_eq!(
         missing.state,
         UnmanagedBrowserCorrelationState::NoUnmanagedBrowserEvidence
@@ -117,7 +118,7 @@ fn unmanaged_browser_correlation_preserves_no_browser_and_adapter_unavailable_st
     unavailable.adapter_available = false;
 
     let adapter = correlate_unmanaged_browser_activity(unavailable)
-        .expect("unavailable adapter should be explicit");
+        .expect_value("unavailable adapter should be explicit");
     assert_eq!(
         adapter.state,
         UnmanagedBrowserCorrelationState::AdapterUnavailable

@@ -17,6 +17,7 @@ export const PortalProductTextToken = {
   AiRuntime: decodeTextTokenId('portal.dev.route.aiRuntime'),
   Devices: decodeTextTokenId('portal.dev.route.devices'),
   Diagnostics: decodeTextTokenId('portal.dev.route.diagnostics'),
+  ProofPanels: decodeTextTokenId('portal.dev.route.proofPanels'),
   SettingsRules: decodeTextTokenId('portal.dev.route.settingsRules'),
   FrameTuner: decodeTextTokenId('portal.dev.route.frameTuner'),
   Commands: decodeTextTokenId('portal.dev.route.commands'),
@@ -31,6 +32,7 @@ export const PortalProductTextToken = {
   AiRuntimeDescription: decodeTextTokenId('portal.dev.route.aiRuntime.description'),
   DevicesDescription: decodeTextTokenId('portal.dev.route.devices.description'),
   DiagnosticsDescription: decodeTextTokenId('portal.dev.route.diagnostics.description'),
+  ProofPanelsDescription: decodeTextTokenId('portal.dev.route.proofPanels.description'),
   SettingsRulesDescription: decodeTextTokenId('portal.dev.route.settingsRules.description'),
   FrameTunerDescription: decodeTextTokenId('portal.dev.route.frameTuner.description'),
   CommandsDescription: decodeTextTokenId('portal.dev.route.commands.description'),
@@ -155,6 +157,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.AiRuntime]: decodeDisplayText('Local AI'),
   [PortalProductTextToken.Devices]: decodeDisplayText('Devices'),
   [PortalProductTextToken.Diagnostics]: decodeDisplayText('Support'),
+  [PortalProductTextToken.ProofPanels]: decodeDisplayText('Proof panels'),
   [PortalProductTextToken.SettingsRules]: decodeDisplayText('Settings'),
   [PortalProductTextToken.FrameTuner]: decodeDisplayText('App layout'),
   [PortalProductTextToken.Commands]: decodeDisplayText('Controls'),
@@ -169,6 +172,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.AiRuntimeDescription]: decodeDisplayText('Local model privacy'),
   [PortalProductTextToken.DevicesDescription]: decodeDisplayText('Device control'),
   [PortalProductTextToken.DiagnosticsDescription]: decodeDisplayText('Exports and logs'),
+  [PortalProductTextToken.ProofPanelsDescription]: decodeDisplayText('Tracking, network, and policy proof panels.'),
   [PortalProductTextToken.SettingsRulesDescription]: decodeDisplayText('Schedules and budgets'),
   [PortalProductTextToken.FrameTunerDescription]: decodeDisplayText(
     'Layout and content editor for parent portal app surfaces.'

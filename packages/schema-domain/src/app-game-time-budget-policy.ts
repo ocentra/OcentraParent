@@ -1,10 +1,9 @@
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
-import { ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
+  ParentActionReferenceSchema,
+  ParentDeviceReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from '@ocentra-parent/schema-domain/family-references';
 import {
   ParentContractSchemaVersionSchema,
   ParentPolicyVersionSchema,
@@ -242,4 +241,3 @@ export type AppGameTimeBudgetSessionInput = Infer<typeof AppGameTimeBudgetSessio
 export type AppGameTimeBudgetBonusGrant = Infer<typeof AppGameTimeBudgetBonusGrantSchema>;
 export type AppGameTimeBudgetPolicy = Infer<typeof AppGameTimeBudgetPolicySchema>;
 export type AppGameTimeBudgetDryRunDecision = Infer<typeof AppGameTimeBudgetDryRunDecisionSchema>;
-

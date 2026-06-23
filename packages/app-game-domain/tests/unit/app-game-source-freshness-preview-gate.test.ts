@@ -13,7 +13,10 @@ import {
   AppGameSourceFreshnessPreviewGateState,
   AppGameSourceFreshnessPreviewGateStatus,
 } from '@ocentra-parent/schema-domain/app-game-source-freshness-preview-gate-rules';
-import { AppGamePolicyPreviewStatus, AppGamePolicyPreviewTargetDomain } from '../../src/app-game-policy-preview-handoff';
+import {
+  AppGamePolicyPreviewStatus,
+  AppGamePolicyPreviewTargetDomain,
+} from '../../src/app-game-policy-preview-handoff';
 import {
   PreviewOptions,
   appCompiledDecision,

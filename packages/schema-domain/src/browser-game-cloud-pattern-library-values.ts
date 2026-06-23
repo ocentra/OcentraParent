@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGameCloudPatternLibrarySchemaVersionSchema = withParser(
@@ -14,9 +9,7 @@ export const BrowserGameCloudPatternLibraryIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGameCloudPatternLibraryId')
 );
 
-export const BrowserGameCloudPatternIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserGameCloudPatternId')
-);
+export const BrowserGameCloudPatternIdSchema = withParser(brandedNonEmptyStringSchema('BrowserGameCloudPatternId'));
 
 export const BrowserGameCloudPatternFingerprintSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGameCloudPatternFingerprint')
@@ -87,4 +80,3 @@ export type BrowserGameCloudPatternFamily = Infer<typeof BrowserGameCloudPattern
 export type BrowserGameCloudPatternReviewState = Infer<typeof BrowserGameCloudPatternReviewStateSchema>;
 export type BrowserGameCloudPatternRouteKind = Infer<typeof BrowserGameCloudPatternRouteKindSchema>;
 export type BrowserGameCloudPatternSignalKind = Infer<typeof BrowserGameCloudPatternSignalKindSchema>;
-

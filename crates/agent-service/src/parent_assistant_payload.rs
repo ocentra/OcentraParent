@@ -1,9 +1,15 @@
-use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, LogFields, ParentAssistantActionConfirmResult,
-    ParentAssistantActionPreviewResult, ParentAssistantAnswer, ParentAssistantAnswerState,
-    ParentAssistantBackendState, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantThreadResponse,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionConfirmResult;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionPreviewResult;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantAnswer;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantAnswerState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantBackendState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderStatus;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantRunCancelResult;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantThreadResponse;
 
 use crate::fields::fields_from_pairs;
 
@@ -11,9 +17,7 @@ pub(crate) fn parent_assistant_answer_payload(answer: &ParentAssistantAnswer) ->
     fields_from_pairs(vec![
         (
             constants::field::PARENT_ASSISTANT_ANSWER,
-            LogFieldValue::String(
-                serde_json::to_string(answer).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(answer).unwrap_or_default()),
         ),
         (
             constants::field::PARENT_ASSISTANT_REQUEST_ID,
@@ -38,22 +42,19 @@ pub(crate) fn parent_assistant_answer_payload(answer: &ParentAssistantAnswer) ->
         (
             constants::field::PARENT_ASSISTANT_ACTION_PREVIEW,
             LogFieldValue::String(
-                serde_json::to_string(&answer.action_preview)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+                serde_json::to_string(&answer.action_preview).unwrap_or_default(),
             ),
         ),
         (
             constants::field::PARENT_ASSISTANT_API_PROVIDER_BOUNDARY,
             LogFieldValue::String(
-                serde_json::to_string(&answer.api_provider_boundary)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+                serde_json::to_string(&answer.api_provider_boundary).unwrap_or_default(),
             ),
         ),
         (
             constants::parent_assistant::FIELD_PROVIDER_ROUTE,
             LogFieldValue::String(
-                serde_json::to_string(&answer.provider_route)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+                serde_json::to_string(&answer.provider_route).unwrap_or_default(),
             ),
         ),
         (
@@ -86,16 +87,15 @@ pub(crate) fn parent_assistant_thread_payload(
         ),
         json_string_field(
             constants::parent_assistant::FIELD_THREAD,
-            serde_json::to_string(&active_thread).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(&active_thread).unwrap_or_default(),
         ),
         json_string_field(
             constants::parent_assistant::FIELD_THREADS,
-            serde_json::to_string(&response.threads)
-                .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(&response.threads).unwrap_or_default(),
         ),
         json_string_field(
             constants::parent_assistant::FIELD_THREAD_RESPONSE,
-            serde_json::to_string(response).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(response).unwrap_or_default(),
         ),
         (
             constants::field::REASON,
@@ -132,17 +132,15 @@ pub(crate) fn parent_assistant_provider_status_payload(
         ),
         json_string_field(
             constants::parent_assistant::FIELD_PROVIDER_STATUS,
-            serde_json::to_string(status).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(status).unwrap_or_default(),
         ),
         json_string_field(
             constants::field::PARENT_ASSISTANT_API_PROVIDER_BOUNDARY,
-            serde_json::to_string(&status.api_provider_boundary)
-                .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(&status.api_provider_boundary).unwrap_or_default(),
         ),
         json_string_field(
             constants::parent_assistant::FIELD_PROVIDER_ROUTE,
-            serde_json::to_string(&status.provider_route)
-                .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(&status.provider_route).unwrap_or_default(),
         ),
     ])
 }
@@ -170,7 +168,7 @@ pub(crate) fn parent_assistant_run_cancel_payload(
         ),
         json_string_field(
             constants::parent_assistant::FIELD_RUN_CANCEL_RESULT,
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(result).unwrap_or_default(),
         ),
     ])
 }
@@ -198,7 +196,7 @@ pub(crate) fn parent_assistant_action_confirm_payload(
         string_field(constants::field::REASON, &result.reason),
         json_string_field(
             constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(result).unwrap_or_default(),
         ),
     ])
 }
@@ -226,7 +224,7 @@ pub(crate) fn parent_assistant_action_preview_payload(
         string_field(constants::field::REASON, &result.reason),
         json_string_field(
             constants::field::PARENT_ASSISTANT_ACTION_PREVIEW,
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            serde_json::to_string(result).unwrap_or_default(),
         ),
     ])
 }

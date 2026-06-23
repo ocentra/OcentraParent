@@ -4,7 +4,7 @@ import {
   AppInstallPurchasePlatformLimitationActionProofSchema,
   AppInstallPurchasePlatformLimitationActionRowSchema,
   summarizeAppInstallPurchasePlatformLimitationActionProof,
-} from '../../src/app-install-purchase-platform-limitation-action-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-platform-limitation-action-proof';
 
 describe('app install and purchase platform limitation action proof', () => {
   acceptsPlatformLimitationActionRowsWithoutPortalProviderOrDeliveryClaims();

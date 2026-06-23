@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LocalAiRuntimeProviderProofReadModel,
   LocalAiRuntimeProviderProofReadModelSchema,
@@ -26,11 +21,17 @@ import {
 } from './family-reference-primitives';
 const RuntimeStatusRowCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiRuntimeStatusSurfaceReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceReadModelId');
+export const LocalAiRuntimeStatusSurfaceReadModelIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeStatusSurfaceReadModelId'
+);
 export const LocalAiRuntimeStatusSurfaceRowIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceRowId');
-export const LocalAiRuntimeStatusSurfaceSourceRefSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceSourceRef');
+export const LocalAiRuntimeStatusSurfaceSourceRefSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeStatusSurfaceSourceRef'
+);
 export const LocalAiRuntimeStatusSurfaceLabelSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceLabel');
-export const LocalAiRuntimeStatusSurfaceNonClaimSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceNonClaim');
+export const LocalAiRuntimeStatusSurfaceNonClaimSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeStatusSurfaceNonClaim'
+);
 
 export const LocalAiRuntimeStatusSurfaceStateSchema = withParser(
   Schema.Literal('ready-visible', 'queued-visible', 'degraded-visible', 'unavailable-visible', 'manual-setup-required')
@@ -266,4 +267,3 @@ export const decodeLocalAiRuntimeStatusSurfaceRow = Schema.decodeUnknownSync(Loc
 export const decodeLocalAiRuntimeStatusSurfaceReadModel = Schema.decodeUnknownSync(
   LocalAiRuntimeStatusSurfaceReadModelSchema
 );
-

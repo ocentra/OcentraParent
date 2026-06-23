@@ -8,10 +8,7 @@ import {
   ScreenRiskSignalSchema,
   ScreenVisibleCategorySchema,
 } from './screen-evidence-states';
-import {
-  ScreenEvidenceConfidenceSchema,
-  ScreenEvidenceReasonSchema,
-} from './screen-evidence-primitives';
+import { ScreenEvidenceConfidenceSchema, ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
 import {
   ScreenIntelligencePolicySensitivitySchema,
   ScreenIntelligenceRouteIdSchema,

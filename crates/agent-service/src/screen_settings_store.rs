@@ -4,10 +4,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, ScreenAnalysisParentSetting, ScreenSettingsUpdateKind,
-    SCREEN_EVIDENCE_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_settings::ScreenAnalysisParentSetting;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateKind;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -71,7 +71,7 @@ pub(crate) async fn read_screen_settings_state(
     let path = path.to_path_buf();
     tokio::task::spawn_blocking(move || read_screen_settings_state_sync(&path))
         .await
-        .map_err(|_| ScreenSettingsStoreError::Unavailable)?
+        .map_err(|_join_error| ScreenSettingsStoreError::Unavailable)?
 }
 
 pub(crate) async fn write_screen_settings_state(
@@ -82,10 +82,9 @@ pub(crate) async fn write_screen_settings_state(
     let state = state.clone();
     tokio::task::spawn_blocking(move || write_screen_settings_state_sync(&path, &state))
         .await
-        .map_err(|_| ScreenSettingsStoreError::Unavailable)?
+        .map_err(|_join_error| ScreenSettingsStoreError::Unavailable)?
 }
 
-#[allow(dead_code)]
 pub(crate) fn screen_settings_store_path_from_env() -> PathBuf {
     std::env::var(constants::env_var::AGENT_SCREEN_SETTINGS_STORE_PATH)
         .map(PathBuf::from)
@@ -100,7 +99,8 @@ fn read_screen_settings_state_sync(
     path: &Path,
 ) -> Result<ScreenSettingsStoredState, ScreenSettingsStoreError> {
     match fs::read_to_string(path) {
-        Ok(text) => serde_json::from_str(&text).map_err(|_| ScreenSettingsStoreError::Unavailable),
+        Ok(text) => serde_json::from_str(&text)
+            .map_err(|_parse_error| ScreenSettingsStoreError::Unavailable),
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(ScreenSettingsStoredState::empty()),
         Err(_) => Err(ScreenSettingsStoreError::Unavailable),
     }
@@ -111,9 +111,10 @@ fn write_screen_settings_state_sync(
     state: &ScreenSettingsStoredState,
 ) -> Result<(), ScreenSettingsStoreError> {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|_| ScreenSettingsStoreError::Unavailable)?;
+        fs::create_dir_all(parent)
+            .map_err(|_create_dir_error| ScreenSettingsStoreError::Unavailable)?;
     }
-    let text =
-        serde_json::to_string_pretty(state).map_err(|_| ScreenSettingsStoreError::Unavailable)?;
-    fs::write(path, text).map_err(|_| ScreenSettingsStoreError::Unavailable)
+    let text = serde_json::to_string_pretty(state)
+        .map_err(|_serialize_error| ScreenSettingsStoreError::Unavailable)?;
+    fs::write(path, text).map_err(|_write_error| ScreenSettingsStoreError::Unavailable)
 }

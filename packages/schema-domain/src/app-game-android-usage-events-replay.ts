@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { type AppGameAndroidPhysicalDeviceProof } from './app-game-android-physical-device-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -187,4 +182,3 @@ function androidUsageEventsReplayStateIsConsistent(
     readModel.proofRefs.includes('android-physical-usage-events-dump-ref')
   );
 }
-

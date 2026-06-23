@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import {
   supportCaseResolutionStatusCoversRequiredStates,
@@ -171,4 +166,3 @@ export const decodeSupportCaseResolutionStatusEntry = Schema.decodeUnknownSync(S
 export const decodeSupportCaseResolutionStatusReadModel = Schema.decodeUnknownSync(
   SupportCaseResolutionStatusReadModelSchema
 );
-

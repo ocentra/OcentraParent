@@ -19,7 +19,7 @@ import {
 import {
   evaluateTrackingAcknowledgementImpact,
   resolveTrackingChildCheckIn,
-} from '../../src/tracking-location-policy-runtime';
+} from '@ocentra-parent/schema-domain/tracking-location-policy-runtime';
 
 const EvidenceTrace = {
   evidenceReferenceId: 'location-evidence-1',

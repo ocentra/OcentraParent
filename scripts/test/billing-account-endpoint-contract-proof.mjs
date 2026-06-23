@@ -74,9 +74,7 @@ async function assertPackageExport() {
 }
 
 async function assertBuiltContract() {
-  const modulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'schema-domain', 'dist', 'endpoint-billing-account.js')
-  );
+  const modulePath = pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'endpoint-billing-account.js'));
   const module = await import(modulePath.href);
 
   assert.deepEqual(module.BillingAccountApiPath, {

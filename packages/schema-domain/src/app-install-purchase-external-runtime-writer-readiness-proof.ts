@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel } from './app-install-purchase-external-runtime-device-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ExternalRuntimeWriterReadinessProofVersion = 'app-install-purchase-external-runtime-writer-readiness-proof';
@@ -67,10 +62,18 @@ const ExternalRuntimeWriterReadinessNonClaimSchema = withParser(
   Schema.Literal(...ExternalRuntimeWriterReadinessNonClaims)
 );
 
-const ExternalRuntimeWriterReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessRowId');
-const ExternalRuntimeWriterReadinessRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessRef');
-const ExternalRuntimeWriterReadinessAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessAuditRef');
-const ExternalRuntimeWriterReadinessBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessBoundary');
+const ExternalRuntimeWriterReadinessRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterReadinessRowId'
+);
+const ExternalRuntimeWriterReadinessRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterReadinessRef'
+);
+const ExternalRuntimeWriterReadinessAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterReadinessAuditRef'
+);
+const ExternalRuntimeWriterReadinessBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterReadinessBoundary'
+);
 
 const ExternalRuntimeWriterReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterReadinessProofSchemaVersionSchema,
@@ -315,4 +318,3 @@ function externalRuntimeWriterReadinessBoundaryIsExplicit(
 ) {
   return ExternalRuntimeWriterReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

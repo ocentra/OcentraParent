@@ -18,6 +18,13 @@
 
 Define and verify the proof package required before setup-install-provisioning can claim execution-grade readiness or downstream handoff readiness.
 
+## Ownership boundary
+
+```text
+WP06 aggregates setup-install-provisioning proof roots and records blockers.
+It does not implement or accept sibling proof for account, runtime distribution, LAN, device trust, custody, policy, payment, or broad portal UX unless those plans provide explicit proof artifacts.
+```
+
 ## Required inputs
 
 ```text
@@ -48,6 +55,43 @@ public/private boundary proof
 manual-required gap register
 route/index sync proof
 ```
+
+## Required rollout fields
+
+The selected rollout proof must name, at minimum:
+
+```text
+rollout_gate_id
+accepted_proof_roots
+missing_proof_roots
+carried_blockers
+wp01_state
+wp02_state
+wp03_state
+wp04_state
+wp05_state
+wp07_state
+account_owner_state
+parent_runtime_owner_state
+child_runtime_owner_state
+device_trust_owner_state
+lan_owner_state
+data_custody_owner_state
+policy_owner_state
+payment_owner_state
+portal_ux_owner_state
+platform_readiness_matrix_state
+public_private_boundary_state
+manual_required_gap_state
+product_status_wording_state
+route_index_sync_state
+claims_allowed
+claims_blocked
+pr_ready_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Route sync boundaries
 
@@ -137,6 +181,7 @@ If policy/eventing lanes are active, do not route-sync those plan files directly
 - Pairing proof called product setup complete.
 - Production-ready wording without package/platform/support proof.
 - Public page route claims private activity custody.
+- Aggregation erases sibling-owner blockers.
 
 ## Manual-required gaps
 

@@ -1,16 +1,29 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants::{self, enforcement_broad_adapter_proof as proof},
-    policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    ParentPlatform, V08BroadAdapterRuntimeClaimState, V08BroadAdapterRuntimeProofEntry,
-    V08BroadAdapterRuntimeProofReadModel, V08BroadAdapterRuntimeSurface,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::enforcement_broad_adapter_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeClaimState;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofEntry;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeSurface;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use super::enforcement_broad_adapter_proof_read_model::v08_broad_adapter_proof_read_model;
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
+
+type TestResult = Result<(), String>;
 
 #[test]
 fn broad_adapter_proof_read_model_preserves_honest_runtime_states() {
@@ -120,28 +133,29 @@ fn broad_adapter_proof_read_model_does_not_upgrade_claim_flags() {
 }
 
 #[tokio::test]
-async fn broad_adapter_proof_websocket_command_returns_service_read_model() {
-    let event = send_broad_adapter_proof_command().await;
+async fn broad_adapter_proof_websocket_command_returns_service_read_model() -> TestResult {
+    let event = send_broad_adapter_proof_command().await?;
 
     assert_eq!(
         event.event,
         AgentEventName::AgentEnforcementBroadAdapterProofReported
     );
     assert_eq!(
-        string_payload_field(&event, constants::field::READ_MODEL_ID),
+        string_payload_field(&event, constants::field::READ_MODEL_ID)?,
         proof::READ_MODEL_ID
     );
     assert_eq!(
-        number_payload_field(&event, constants::field::RETURNED),
+        number_payload_field(&event, constants::field::RETURNED)?,
         10.0
     );
 
-    let read_model: V08BroadAdapterRuntimeProofReadModel =
+    let read_model: V08BroadAdapterRuntimeProofReadModel = ok(
         serde_json::from_str(string_payload_field(
             &event,
             constants::field::ENFORCEMENT_BROAD_ADAPTER_PROOF_READ_MODEL,
-        ))
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        )?),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
     let managed_exact = entry_for(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsManagedBrowserExactUrlRuntimeGate,
@@ -156,12 +170,16 @@ async fn broad_adapter_proof_websocket_command_returns_service_read_model() {
     assert!(managed_exact
         .manual_proof_requirements
         .contains(&proof::REQUIREMENT_EXACT_URL_APPLY.to_string()));
+
+    Ok(())
 }
 
-async fn send_broad_adapter_proof_command() -> AgentEventEnvelope {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await
+async fn send_broad_adapter_proof_command() -> Result<AgentEventEnvelope, String> {
+    let body = ok(
+        serde_json::to_string(&command_envelope()),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    Ok(handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await)
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -190,7 +208,7 @@ fn entry_for(
     entries
         .iter()
         .find(|entry| entry.runtime_surface == surface)
-        .expect(proof::READ_MODEL_ID)
+        .unwrap_or_else(|| panic!("{}", proof::READ_MODEL_ID))
 }
 
 fn assert_surface_state(
@@ -227,16 +245,20 @@ fn platform_count(counts: &BTreeMap<&'static str, usize>, platform: &str) -> usi
     *counts.get(platform).unwrap_or(&0)
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> &'a str {
+fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> Result<&'a str, String> {
     match event.payload.get(field) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::String(value)) => Ok(value.as_str()),
+        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
 }
 
-fn number_payload_field(event: &AgentEventEnvelope, field: &str) -> f64 {
+fn number_payload_field(event: &AgentEventEnvelope, field: &str) -> Result<f64, String> {
     match event.payload.get(field) {
-        Some(LogFieldValue::Number(value)) => *value,
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::Number(value)) => Ok(*value),
+        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

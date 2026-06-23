@@ -5,6 +5,9 @@ import {
   parseRunTypeOrDefault,
   parseSuiteTypeOrNull,
   parseTestLogScopeOrDefault,
+  type RunType as RunTypeValue,
+  type TestLogScope as TestLogScopeValue,
+  type TestSuiteType,
 } from '@ocentra-parent/schema-domain/test-log/types';
 import { clearDirectory, getDefaultLogRoot } from '../test-log/ndjsonPaths';
 import { appendTestLogEntries } from '../test-log/ndjsonWriter';
@@ -29,18 +32,35 @@ interface RunStartedPayload {
 
 interface BridgeRunInfoState {
   runId: string | null;
-  runType: string;
-  suiteType: string | null;
-  scope: string | null;
+  runType: RunTypeValue;
+  suiteType: TestSuiteType | null;
+  scope: TestLogScopeValue | null;
   startedAt: number | null;
 }
 
 const STALE_RUN_INFO_MAX_AGE_MS = 5 * 60 * 1000;
+type BridgeRoute = 'health' | 'run-info' | 'run-started' | 'logs' | 'flush' | 'not-found';
+
+interface ParsedRunStartedPayload {
+  readonly runId: string | null;
+  readonly runType: RunTypeValue;
+  readonly suiteType: TestSuiteType | null;
+  readonly scope: TestLogScopeValue;
+  readonly filePath: string | null;
+  readonly wipeAll: boolean;
+}
 
 function sendJson(response: http.ServerResponse, statusCode: number, body: object): void {
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json');
   response.end(JSON.stringify(body));
+}
+
+function sendBadRequest(response: http.ServerResponse, error: string): void {
+  sendJson(response, 400, {
+    ok: false,
+    error,
+  });
 }
 
 function readRequestBody(request: http.IncomingMessage): Promise<string> {
@@ -65,6 +85,67 @@ function createRunInfoState(): BridgeRunInfoState {
   };
 }
 
+function staleRunInfoWarning(runInfo: BridgeRunInfoState): string | null {
+  if (runInfo.runId == null || runInfo.startedAt == null) {
+    return null;
+  }
+  return Date.now() - runInfo.startedAt > STALE_RUN_INFO_MAX_AGE_MS
+    ? 'previous run info was stale and has been replaced'
+    : null;
+}
+
+function parseRunStartedPayload(rawBody: string): ParsedRunStartedPayload {
+  const payload = rawBody.trim().length === 0 ? {} : (JSON.parse(rawBody) as RunStartedPayload);
+  return {
+    runId: payload.runId ?? null,
+    runType: parseRunTypeOrDefault(payload.runType ?? null, RunType.Single),
+    suiteType: parseSuiteTypeOrNull(payload.suiteType ?? null),
+    scope: parseTestLogScopeOrDefault(payload.scope ?? null, TestLogScope.ParentTest),
+    filePath: payload.filePath ?? null,
+    wipeAll: payload.wipeAll === true,
+  };
+}
+
+function wipeRunLogs(rootDir: string, payload: ParsedRunStartedPayload): void {
+  if (payload.wipeAll) {
+    clearDirectory(rootDir);
+    return;
+  }
+
+  wipeNdjsonScope({
+    scope: payload.scope,
+    runType: payload.runType,
+    suiteType: payload.suiteType,
+    filePath: payload.filePath,
+    rootDir,
+  });
+}
+
+function updateRunInfo(runInfo: BridgeRunInfoState, payload: ParsedRunStartedPayload): void {
+  runInfo.runId = payload.runId;
+  runInfo.runType = payload.runType;
+  runInfo.suiteType = payload.suiteType;
+  runInfo.scope = payload.scope;
+  runInfo.startedAt = Date.now();
+}
+
+function resolveRoute(method: string, pathname: string): BridgeRoute {
+  switch (pathname) {
+    case '/__health__':
+      return method === 'GET' ? 'health' : 'not-found';
+    case '/__run_info__':
+      return method === 'GET' ? 'run-info' : 'not-found';
+    case '/__run_started__':
+      return method === 'POST' ? 'run-started' : 'not-found';
+    case '/__logs__':
+      return method === 'POST' ? 'logs' : 'not-found';
+    case '/__flush__':
+      return method === 'GET' || method === 'POST' ? 'flush' : 'not-found';
+    default:
+      return 'not-found';
+  }
+}
+
 async function handleRunStarted(
   request: http.IncomingMessage,
   response: http.ServerResponse,
@@ -72,43 +153,17 @@ async function handleRunStarted(
   runInfo: BridgeRunInfoState
 ): Promise<void> {
   try {
-    const rawBody = await readRequestBody(request);
-    const payload =
-      rawBody.trim().length === 0
-        ? {}
-        : (JSON.parse(rawBody) as RunStartedPayload);
-    const scope = parseTestLogScopeOrDefault(payload.scope ?? null, TestLogScope.ParentTest);
-    const staleWarning =
-      runInfo.runId != null &&
-      runInfo.startedAt != null &&
-      Date.now() - runInfo.startedAt > STALE_RUN_INFO_MAX_AGE_MS
-        ? 'previous run info was stale and has been replaced'
-        : null;
-    if (payload.wipeAll === true) {
-      clearDirectory(rootDir);
-    } else {
-      wipeNdjsonScope({
-        scope,
-        runType: parseRunTypeOrDefault(payload.runType ?? null, RunType.Single),
-        suiteType: parseSuiteTypeOrNull(payload.suiteType ?? null),
-        filePath: payload.filePath ?? null,
-        rootDir,
-      });
-    }
-    runInfo.runId = payload.runId ?? null;
-    runInfo.runType = parseRunTypeOrDefault(payload.runType ?? null, RunType.Single);
-    runInfo.suiteType = parseSuiteTypeOrNull(payload.suiteType ?? null);
-    runInfo.scope = scope;
-    runInfo.startedAt = Date.now();
+    const payload = parseRunStartedPayload(await readRequestBody(request));
+    const staleWarning = staleRunInfoWarning(runInfo);
+    wipeRunLogs(rootDir, payload);
+    updateRunInfo(runInfo, payload);
     sendJson(response, 200, {
       ok: true,
       ...(staleWarning != null ? { warning: staleWarning } : {}),
     });
   } catch (error) {
-    sendJson(response, 400, {
-      ok: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
+    void error;
+    sendBadRequest(response, 'invalid run-start payload');
   }
 }
 
@@ -136,10 +191,8 @@ async function handleLogs(
     appendTestLogEntries(storedLogs, rootDir);
     sendJson(response, 200, { ok: true, stored: storedLogs.length });
   } catch (error) {
-    sendJson(response, 400, {
-      ok: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
+    void error;
+    sendBadRequest(response, 'invalid log payload');
   }
 }
 
@@ -150,43 +203,38 @@ export function createBridgeServer(options: BridgeServerOptions = {}): http.Serv
   return http.createServer(async (request, response) => {
     const method = request.method ?? 'GET';
     const url = new URL(request.url ?? '/', `http://${request.headers.host ?? '127.0.0.1'}`);
+    const route = resolveRoute(method, url.pathname);
 
-    if (method === 'GET' && url.pathname === '/__health__') {
-      sendJson(response, 200, { ok: true });
-      return;
+    switch (route) {
+      case 'health':
+        sendJson(response, 200, { ok: true });
+        return;
+      case 'run-info':
+        sendJson(response, 200, {
+          ok: runInfo.runId != null,
+          runId: runInfo.runId,
+          runType: runInfo.runType,
+          suiteType: runInfo.suiteType,
+          scope: runInfo.scope,
+          startedAt: runInfo.startedAt,
+        });
+        return;
+      case 'run-started':
+        await handleRunStarted(request, response, rootDir, runInfo);
+        return;
+      case 'logs':
+        await handleLogs(request, response, rootDir, runInfo);
+        return;
+      case 'flush':
+        sendJson(response, 200, {
+          ok: true,
+          runId: runInfo.runId,
+          flushed: 0,
+        });
+        return;
+      default:
+        sendJson(response, 404, { ok: false, error: 'not found' });
+        return;
     }
-
-    if (method === 'GET' && url.pathname === '/__run_info__') {
-      sendJson(response, 200, {
-        ok: runInfo.runId != null,
-        runId: runInfo.runId,
-        runType: runInfo.runType,
-        suiteType: runInfo.suiteType,
-        scope: runInfo.scope,
-        startedAt: runInfo.startedAt,
-      });
-      return;
-    }
-
-    if (method === 'POST' && url.pathname === '/__run_started__') {
-      await handleRunStarted(request, response, rootDir, runInfo);
-      return;
-    }
-
-    if (method === 'POST' && url.pathname === '/__logs__') {
-      await handleLogs(request, response, rootDir, runInfo);
-      return;
-    }
-
-    if ((method === 'GET' || method === 'POST') && url.pathname === '/__flush__') {
-      sendJson(response, 200, {
-        ok: true,
-        runId: runInfo.runId,
-        flushed: 0,
-      });
-      return;
-    }
-
-    sendJson(response, 404, { ok: false, error: 'not found' });
   });
 }

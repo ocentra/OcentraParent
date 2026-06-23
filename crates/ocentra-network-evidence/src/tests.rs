@@ -1,5 +1,3 @@
-#![allow(clippy::expect_used, clippy::panic)]
-
 use crate::{
     dns_query_frame_fixture, dns_query_pcap_fixture, dns_query_replay_expected,
     dns_response_payload_fixture, icmp_echo_frame_fixture, parse_dns_message, parse_network_packet,
@@ -7,6 +5,7 @@ use crate::{
     DnsRecordData, IpProtocol, NetworkEvidenceGrade, NetworkReplayError, PacketParseError,
     PcapReplayError, TransportPacketMetadata,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 mod action_result;
 mod adapter_capability_status;
@@ -55,7 +54,7 @@ mod zeek;
 #[test]
 fn deterministic_pcap_replay_extracts_metadata_only_dns_query() {
     let fixture = dns_query_pcap_fixture();
-    let summary = replay_dns_observations(&fixture).expect("fixture should parse");
+    let summary = replay_dns_observations(&fixture).expect_value("fixture should parse");
     let expected = dns_query_replay_expected();
 
     assert_eq!(summary.packet_count, 1);
@@ -70,8 +69,9 @@ fn deterministic_pcap_replay_extracts_metadata_only_dns_query() {
 
 #[test]
 fn packet_parser_extracts_ethernet_ipv4_udp_metadata() {
-    let parsed = parse_network_packet(&dns_query_frame_fixture()).expect("udp frame should parse");
-    let ipv4 = parsed.ipv4.expect("fixture is IPv4");
+    let parsed =
+        parse_network_packet(&dns_query_frame_fixture()).expect_value("udp frame should parse");
+    let ipv4 = parsed.ipv4.expect_value("fixture is IPv4");
 
     assert_eq!(parsed.ethernet.destination_mac, "aa:bb:cc:dd:ee:ff");
     assert_eq!(parsed.ethernet.source_mac, "10:20:30:40:50:60");
@@ -92,7 +92,8 @@ fn packet_parser_extracts_ethernet_ipv4_udp_metadata() {
 
 #[test]
 fn packet_parser_extracts_tcp_metadata() {
-    let parsed = parse_network_packet(&tcp_syn_frame_fixture()).expect("tcp frame should parse");
+    let parsed =
+        parse_network_packet(&tcp_syn_frame_fixture()).expect_value("tcp frame should parse");
 
     assert!(matches!(
         parsed.transport,
@@ -107,7 +108,8 @@ fn packet_parser_extracts_tcp_metadata() {
 
 #[test]
 fn packet_parser_extracts_icmp_metadata() {
-    let parsed = parse_network_packet(&icmp_echo_frame_fixture()).expect("icmp frame should parse");
+    let parsed =
+        parse_network_packet(&icmp_echo_frame_fixture()).expect_value("icmp frame should parse");
 
     assert!(matches!(
         parsed.transport,
@@ -128,8 +130,8 @@ fn packet_parser_rejects_truncated_ethernet_frame() {
 
 #[test]
 fn dns_parser_extracts_query_and_compressed_response_answer() {
-    let message =
-        parse_dns_message(&dns_response_payload_fixture()).expect("dns response should parse");
+    let message = parse_dns_message(&dns_response_payload_fixture())
+        .expect_value("dns response should parse");
 
     assert_eq!(message.transaction_id, 0x1234);
     assert!(message.is_response);

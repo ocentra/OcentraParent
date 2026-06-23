@@ -1,30 +1,27 @@
+import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import type {
   BrowserInterventionReadModel,
   BrowserInterventionRow,
 } from '@ocentra-parent/schema-domain/browser-intervention-schemas';
 import type { ActivityEvidenceId } from '@ocentra-parent/schema-domain/evidence-primitives';
-import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import type { LogFieldValue } from '@ocentra-parent/schema-domain/logging-contracts';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function renderBrowserIntervention(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
-  const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.BrowserIntervention));
+  const panel = panelWithTitle(resolvePortalDevText(PortalDevTextToken.BrowserIntervention));
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
 
   appendDetail(metadata, PortalDetails.Status, eventStatus(liveActivity.browserInterventionEvent));
   if (liveActivity.browserInterventionReadModel === null) {
     appendDetail(metadata, PortalDetails.Reason, eventReason(liveActivity.browserInterventionEvent));
-    panel.append(metadata, emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserIntervention)));
+    panel.append(metadata, emptyMessage(resolvePortalDevText(PortalDevTextToken.NoBrowserIntervention)));
     container.append(panel);
     return;
   }
@@ -32,7 +29,7 @@ export function renderBrowserIntervention(container: HTMLElement, liveActivity: 
   panel.append(metadata);
 
   if (liveActivity.browserInterventionReadModel.returned === 0) {
-    panel.append(emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserIntervention)));
+    panel.append(emptyMessage(resolvePortalDevText(PortalDevTextToken.NoBrowserIntervention)));
   }
 
   container.append(panel);
@@ -147,5 +144,5 @@ function detailFromList(values: readonly ActivityEvidenceId[] | undefined): Port
 }
 
 function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+  return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
 }

@@ -3,8 +3,8 @@ import {
   type SocialAuditExplanationEntry,
   type SocialAuditExplanationSnapshot,
 } from '@ocentra-parent/schema-domain/social-audit-explanation-read-model';
-import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { type DisplayText, decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDetails } from './details';
 
 export type SocialAuditExplanationPanelDetail = {

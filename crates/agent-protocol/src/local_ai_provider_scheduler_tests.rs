@@ -29,7 +29,8 @@ fn local_ai_provider_scheduler_status_serializes_singleton_device_shape() {
         last_checked_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
     };
 
-    let serialized = serde_json::to_value(status).expect("scheduler status serializes");
+    let serialized = serde_json::to_value(status)
+        .unwrap_or_else(|error| unreachable!("scheduler status serializes: {error:?}"));
 
     assert_eq!(
         serialized["physicalDeviceId"],
@@ -62,7 +63,8 @@ fn local_ai_provider_scheduler_decision_serializes_queue_decision() {
         duplicate_runtime_blocked: true,
     };
 
-    let serialized = serde_json::to_value(decision).expect("scheduler decision serializes");
+    let serialized = serde_json::to_value(decision)
+        .unwrap_or_else(|error| unreachable!("scheduler decision serializes: {error:?}"));
 
     assert_eq!(
         serialized["jobClass"],

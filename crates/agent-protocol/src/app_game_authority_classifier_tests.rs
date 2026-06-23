@@ -23,10 +23,12 @@ fn app_game_control_authority_serializes_parent_approval_and_action_result_shape
     };
     let action_result = approved_action_result();
 
-    let authority_json =
-        serde_json::to_value(authority).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let result_json =
-        serde_json::to_value(action_result).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let authority_json = serde_json::to_value(authority).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let result_json = serde_json::to_value(action_result).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         authority_json["schemaVersion"],
@@ -64,7 +66,9 @@ fn app_game_platform_authority_matrix_serializes_proof_gated_rows() {
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
     };
 
-    let serialized = serde_json::to_value(matrix).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(matrix).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["matrixId"], APP_GAME_TEST_PLATFORM_MATRIX_ID);
     assert_eq!(
@@ -114,10 +118,12 @@ fn app_game_ai_classifier_result_serializes_evidence_only_policy_handoff() {
         0.0,
     );
 
-    let candidate_json =
-        serde_json::to_value(candidate).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let unavailable_json =
-        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let candidate_json = serde_json::to_value(candidate).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let unavailable_json = serde_json::to_value(unavailable).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(candidate_json["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -135,8 +141,25 @@ fn app_game_ai_classifier_result_serializes_evidence_only_policy_handoff() {
         unavailable_json["fallbackState"],
         APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE
     );
-    assert!(APP_GAME_AI_CLASSIFIER_FORBIDDEN_KEYS.contains(&"durationMs"));
-    assert!(APP_GAME_AI_CLASSIFIER_FORBIDDEN_KEYS.contains(&"rawOsScanResult"));
+    assert_eq!(
+        APP_GAME_AI_CLASSIFIER_FORBIDDEN_KEYS,
+        [
+            "adapterAction",
+            "block",
+            "directAction",
+            "durationMs",
+            "enforcementAction",
+            "fileScanRows",
+            "foregroundDurationMs",
+            "hide",
+            "processScanRows",
+            "rawOsScanResult",
+            "runningDurationMs",
+            "shield",
+            "suspend",
+            "terminate",
+        ]
+    );
 }
 
 fn approved_action_result() -> AppGameControlActionResult {

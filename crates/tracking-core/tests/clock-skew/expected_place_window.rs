@@ -7,13 +7,13 @@ fn expected_place_window_supports_midnight_crossing_boundaries() {
 
     assert!(
         ocentra_tracking_core::expected_place::expected_place_window_contains_minute(
-            window.clone(),
+            window,
             23 * 60
         )
     );
     assert!(
         ocentra_tracking_core::expected_place::expected_place_window_contains_minute(
-            window.clone(),
+            window,
             5 * 60
         )
     );

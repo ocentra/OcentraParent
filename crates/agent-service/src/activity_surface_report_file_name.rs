@@ -1,4 +1,7 @@
-use ocentra_parent_agent_protocol::{constants, ActivityReportDocument, ActivitySurfaceScopeKind};
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReportDocument, ActivitySurfaceScopeKind,
+};
+use ocentra_parent_agent_protocol::constants;
 
 pub(crate) fn report_file_name(report: &ActivityReportDocument) -> String {
     let (scope_name, scope_id) = match report.scope.scope_kind {
@@ -25,7 +28,7 @@ pub(crate) fn report_file_name(report: &ActivityReportDocument) -> String {
     raw_name.push(constants::delimiter::HYPHEN);
     raw_name.push_str(scope_id);
 
-    let mut name: String = raw_name
+    let mut safe_file_name: String = raw_name
         .chars()
         .map(|value| {
             if value.is_ascii_alphanumeric()
@@ -38,10 +41,10 @@ pub(crate) fn report_file_name(report: &ActivityReportDocument) -> String {
             }
         })
         .collect();
-    if name.is_empty() {
-        name.push_str(constants::activity_surface::REPORT_ID_FALLBACK);
+    if safe_file_name.is_empty() {
+        safe_file_name.push_str(constants::activity_surface::REPORT_ID_FALLBACK);
     }
-    name.push(constants::delimiter::DOT);
-    name.push_str(constants::activity_surface::REPORT_FILE_EXTENSION);
-    name
+    safe_file_name.push(constants::delimiter::DOT);
+    safe_file_name.push_str(constants::activity_surface::REPORT_FILE_EXTENSION);
+    safe_file_name
 }

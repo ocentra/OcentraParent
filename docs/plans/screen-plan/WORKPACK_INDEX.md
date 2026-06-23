@@ -16,6 +16,8 @@
 
 Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 | Status  | Workpack                                                                                                              |  Size | Boxes                 |
 | ------- | --------------------------------------------------------------------------------------------------------------------- | ----: | --------------------- |
 | checked | [04 Parent Opt-In Settings Contract](workpacks/04-parent-opt-in-settings-contract.md)                                 | 2,008 | 10/10 checked; 0 open |
@@ -62,3 +64,15 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 | open | [Screen Control Settings Inventory](workpacks/screen-control-settings-inventory.md) | 474,082 | 0/0 checked; 0 open |
 | open | [Screen Evidence Analysis Capability Guide](workpacks/screen-evidence-analysis-capability-guide.md) | 32,096 | 0/0 checked; 0 open |
 | open | [Screen Evidence Analysis Schema Proposal](workpacks/screen-evidence-analysis-schema-proposal.md) | 63,997 | 0/0 checked; 0 open |
+
+## Selection rules
+
+- Choose exactly one workpack.
+- If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`; do not scan every family.
+- Do not use 100/100 implementation checklist status as whole-plan completion while workpacks remain open.
+- Do not use a checked workpack to close an unrelated open workpack.
+- Do not use local capture proof as screen-AI pipeline completion.
+- Do not use summary/evidence proof as policy or enforcement authority.
+- Do not use live-view preflight, loopback, relay/cache harness, or worker-startup gate proof as product live-view readiness.
+- Do not use redacted summary export proof as raw screenshot remote upload proof.
+- Do not use mock screenshots, fixture-only proof, or portal screenshots as runtime capture proof.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameChildUxCardSchema } from '../../src/app-game-child-facing-ux';
+import { AppGameChildUxCardSchema } from '@ocentra-parent/schema-domain/app-game-child-facing-ux';
 import {
   AppGameChildUxCapabilityState,
   AppGameChildUxClaimState,
@@ -9,14 +9,14 @@ import {
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
 } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
-import { buildAppGameChildUxHandoffReadModel } from '../../src/app-game-child-facing-ux-handoff';
+import { buildAppGameChildUxHandoffReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-handoff';
 import {
   AppGameChildUxLocalHandoffArtifactReadModelSchema,
   AppGameChildUxLocalHandoffArtifactRecordSchema,
   buildAppGameChildUxLocalHandoffArtifactReadModel,
   parseAppGameChildUxLocalHandoffJsonl,
   serializeAppGameChildUxLocalHandoffJsonl,
-} from '../../src/app-game-child-facing-ux-local-handoff';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-handoff';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

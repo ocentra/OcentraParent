@@ -8,7 +8,9 @@ use ocentra_eventing::{
     ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::EventResponseContract,
     request::RequestEvent, request::RequestOptions,
 };
-use ocentra_parent_agent_protocol::{constants, BrowserEvidenceReadModel, PolicyPreviewReadModel};
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 use crate::browser_runtime_stream_payload::{

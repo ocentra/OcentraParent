@@ -4,10 +4,7 @@ import type {
   PrivacyLegalDisclosureEntryCandidate,
   PrivacyLegalDisclosureState,
 } from './privacy-legal-disclosure-status.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function privacyLegalDisclosureEntryIsSafe(
   entry: PrivacyLegalDisclosureEntryCandidate,

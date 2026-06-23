@@ -1,20 +1,47 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_enforcement_policy_dispatch as dispatch, EnforcementAdapterKind,
-    EnforcementCapabilityState, EnforcementMode, EnforcementPolicyDispatchApprovalState,
-    EnforcementPolicyDispatchCapabilityMatrixRow, EnforcementPolicyDispatchIntent,
-    EnforcementPolicyDispatchOutcomeState, EnforcementPolicyDispatchProofLevel,
-    EnforcementPolicyDispatchReadModel, EnforcementPolicyDispatchReadModelEntry,
-    EnforcementPolicyDispatchRejectionReason, EnforcementPolicyDispatchSourceState,
-    EnforcementPolicyDispatchTimerState, ParentActionReference, ParentActorReference,
-    ParentActorRole, ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    ParentPlatform, PolicyAction, PolicyTarget, PolicyTargetType,
+use std::fmt::Debug;
+
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::v08_enforcement_policy_dispatch as dispatch;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementMode, ParentActionReference,
+    ParentPlatform,
+};
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::{
+    EnforcementPolicyDispatchApprovalState, EnforcementPolicyDispatchCapabilityMatrixRow,
+    EnforcementPolicyDispatchIntent, EnforcementPolicyDispatchOutcomeState,
+    EnforcementPolicyDispatchProofLevel, EnforcementPolicyDispatchReadModel,
+    EnforcementPolicyDispatchReadModelEntry, EnforcementPolicyDispatchRejectionReason,
+    EnforcementPolicyDispatchSourceState, EnforcementPolicyDispatchTimerState,
+};
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::{
     V08EnforcementProductControlParentAction, V08EnforcementProductControlSurface,
 };
 
 use crate::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
+    match result {
+        Ok(_) => Err(format!("{context}: expected error")),
+        Err(error) => Ok(error),
+    }
+}
+
 #[test]
-fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_states() {
+fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_states() -> TestResult
+{
     let mut dry_run_entry = entry(
         dispatch::TEST_SUFFIX_DRY_RUN_ONLY,
         EnforcementPolicyDispatchOutcomeState::DryRunOnly,
@@ -80,7 +107,10 @@ fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_sta
         rejected_stale_entry,
     ]);
 
-    let validation = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap();
+    let validation = ok(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        dispatch::READ_MODEL_ID,
+    )?;
 
     assert_eq!(validation.dispatch_ready_count, 1);
     assert_eq!(validation.dry_run_only_count, 1);
@@ -88,10 +118,12 @@ fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_sta
     assert_eq!(validation.report_only_count, 1);
     assert_eq!(validation.rejected_count, 1);
     assert_eq!(validation.recovery_needed_count, 1);
+
+    Ok(())
 }
 
 #[test]
-fn rejects_wrong_device_before_dispatch() {
+fn rejects_wrong_device_before_dispatch() -> TestResult {
     let mut read_model = read_model(vec![entry(
         dispatch::TEST_SUFFIX_WRONG_DEVICE,
         EnforcementPolicyDispatchOutcomeState::DispatchReady,
@@ -101,16 +133,21 @@ fn rejects_wrong_device_before_dispatch() {
     )]);
     read_model.entries[0].intent.device.device_id = dispatch::TEST_DEVICE_OTHER_CHILD.to_string();
 
-    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+    let rejection = err(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        dispatch::TEST_SUFFIX_WRONG_DEVICE,
+    )?;
 
     assert_eq!(
         rejection,
         EnforcementPolicyDispatchRejectionReason::WrongDevice
     );
+
+    Ok(())
 }
 
 #[test]
-fn rejects_missing_evidence_before_dispatch() {
+fn rejects_missing_evidence_before_dispatch() -> TestResult {
     let mut read_model = read_model(vec![entry(
         dispatch::TEST_SUFFIX_MISSING_EVIDENCE,
         EnforcementPolicyDispatchOutcomeState::DispatchReady,
@@ -120,16 +157,21 @@ fn rejects_missing_evidence_before_dispatch() {
     )]);
     read_model.entries[0].intent.evidence_references.clear();
 
-    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+    let rejection = err(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        dispatch::TEST_SUFFIX_MISSING_EVIDENCE,
+    )?;
 
     assert_eq!(
         rejection,
         EnforcementPolicyDispatchRejectionReason::MissingEvidence
     );
+
+    Ok(())
 }
 
 #[test]
-fn rejects_stale_policy_version_before_dispatch() {
+fn rejects_stale_policy_version_before_dispatch() -> TestResult {
     let mut read_model = read_model(vec![entry(
         dispatch::TEST_SUFFIX_STALE_POLICY_VERSION,
         EnforcementPolicyDispatchOutcomeState::DispatchReady,
@@ -140,16 +182,21 @@ fn rejects_stale_policy_version_before_dispatch() {
     read_model.entries[0].intent.policy_version =
         dispatch::POLICY_VERSION_V0_8_DISPATCH_STALE.to_string();
 
-    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+    let rejection = err(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        dispatch::TEST_SUFFIX_STALE_POLICY_VERSION,
+    )?;
 
     assert_eq!(
         rejection,
         EnforcementPolicyDispatchRejectionReason::StalePolicyVersion
     );
+
+    Ok(())
 }
 
 #[test]
-fn rejects_missing_policy_decision_reference_before_dispatch() {
+fn rejects_missing_policy_decision_reference_before_dispatch() -> TestResult {
     let mut read_model = read_model(vec![entry(
         dispatch::TEST_SUFFIX_MISSING_POLICY_DECISION,
         EnforcementPolicyDispatchOutcomeState::DispatchReady,
@@ -159,16 +206,21 @@ fn rejects_missing_policy_decision_reference_before_dispatch() {
     )]);
     read_model.entries[0].intent.policy_decision_ref.clear();
 
-    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+    let rejection = err(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        dispatch::TEST_SUFFIX_MISSING_POLICY_DECISION,
+    )?;
 
     assert_eq!(
         rejection,
         EnforcementPolicyDispatchRejectionReason::MissingPolicyDecision
     );
+
+    Ok(())
 }
 
 #[test]
-fn rejects_malformed_policy_decision_reference_before_dispatch() {
+fn rejects_malformed_policy_decision_reference_before_dispatch() -> TestResult {
     let mut read_model = read_model(vec![entry(
         dispatch::TEST_SUFFIX_MALFORMED_POLICY_DECISION,
         EnforcementPolicyDispatchOutcomeState::DispatchReady,
@@ -179,12 +231,17 @@ fn rejects_malformed_policy_decision_reference_before_dispatch() {
     read_model.entries[0].intent.policy_decision_ref =
         dispatch::TEST_MALFORMED_POLICY_DECISION_REF.to_string();
 
-    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+    let rejection = err(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        dispatch::TEST_SUFFIX_MALFORMED_POLICY_DECISION,
+    )?;
 
     assert_eq!(
         rejection,
         EnforcementPolicyDispatchRejectionReason::MissingPolicyDecision
     );
+
+    Ok(())
 }
 
 fn read_model(
@@ -268,7 +325,7 @@ fn intent(suffix: &str) -> EnforcementPolicyDispatchIntent {
         }],
         approval_ref: Some(ParentActionReference {
             action_reference_id: prefixed(dispatch::PREFIX_APPROVAL, suffix),
-            actor: parent_actor().into(),
+            actor: parent_actor(),
             policy_version: dispatch::POLICY_VERSION_V0_8_DISPATCH.to_string(),
             created_at: dispatch::GENERATED_AT.to_string(),
         }),

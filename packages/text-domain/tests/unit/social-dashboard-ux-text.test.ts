@@ -3,8 +3,8 @@ import {
   SocialDashboardUxText,
   SocialDashboardUxTextToken,
   resolveSocialDashboardUxText,
-} from '../../src/social-dashboard-ux-text';
-import { decodeDisplayText } from '../../src/contracts';
+} from '@ocentra-parent/schema-domain/text-social-ux';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 
 const BannedSocialDashboardCopyFragments = [
   'watching',

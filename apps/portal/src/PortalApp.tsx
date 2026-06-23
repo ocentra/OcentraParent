@@ -18,13 +18,10 @@ import {
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { type AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
-import {
-  PortalDom,
-  PortalLanPairingScan,
-  type PortalThemeValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom, PortalLanPairingScan, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
-import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import type { PortalRenderActions } from './portal-actions';
 import { routeDescriptor } from './portal-route-descriptor';
 import { renderRouteContent } from './portal-route-content';
@@ -34,14 +31,8 @@ import { PortalAuthDialog } from './PortalAuthDialog';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { PortalFrameTunerRoute } from './PortalFrameTunerRoute';
 import { PortalSidebar } from './PortalSidebar';
-import { PortalShellStatusBar } from './PortalShellStatusBar';
 import { PortalUnifiedShell } from './PortalUnifiedChrome';
-import {
-  carouselStyle,
-  frameContentStyle,
-  frameHostClassName,
-  goldenCardStyle,
-} from './portal-frame-layout-style';
+import { carouselStyle, frameContentStyle, frameHostClassName, goldenCardStyle } from './portal-frame-layout-style';
 import { frameContentTarget } from './portal-frame-layout-state';
 import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout-types';
 import { usePortalNetworkActivityRefresh } from './use-portal-network-activity-refresh';
@@ -70,7 +61,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   const networkActivityRefreshRequestedForRouteRef = useRef(false);
   const isFrameTuner = props.route === PortalRoute.FrameTuner;
   const isDevProtocolRoute = isPortalDevProtocolRoute(props.route);
-  const isProductRoute = !isFrameTuner && !isDevProtocolRoute;
+  const isProductRoute = !isFrameTuner;
   const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
   const routeFrameLayout = useMemo(
     () => frameLayoutVisibleForProtocolRoute(frameLayout, isDevProtocolRoute),
@@ -182,7 +173,6 @@ function PortalProductRouteShell({
         routeTransitionActive={headerRouteTransitionActive}
         theme={theme}
       >
-        <PortalShellStatusBar route={route} state={state} />
         <ParentPortalRoute
           actions={actions}
           controls={controls}
@@ -209,7 +199,6 @@ function PortalProtocolRouteShell(props: PortalProtocolRouteShellProps): ReactEl
         routeTransitionActive={props.headerRouteTransitionActive}
         theme={props.theme}
       >
-        <PortalShellStatusBar route={props.route} state={props.state} />
         <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
           <PortalSidebar
             actions={props.actions}

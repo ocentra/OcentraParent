@@ -77,6 +77,48 @@ Required artifacts:
 16-validation-commands.log
 ```
 
+## Partial-proof boundary
+
+The current proof root is intentionally narrow. It proves selected surfaces only:
+
+```text
+portal_dev_logger_path
+logging_domain_source_context_storage_query_path
+agent_service_startup_dev_log_path
+```
+
+It does not prove:
+
+```text
+repo_wide_instrumentation_adoption
+all_portal_logging
+all_agent_service_diagnostics
+all_validation_evidence_script_run_id_command_id_adoption
+all_raw_console_checks
+all_ad_hoc_json_writer_checks
+WP06 root validation green
+product runtime logging readiness
+production telemetry readiness
+```
+
+Required partial-proof fields:
+
+```text
+surface_id
+owner
+source_context_state
+storage_query_state
+rust_logging_core_state
+portal_dev_logger_state
+agent_service_dev_log_state
+query_proof_state
+validation_gate_state
+repo_wide_adoption_state
+no_claim
+```
+
+If proof exists but adoption/checker rows remain open, keep the workpack at `partial-proof`.
+
 ## Checklist rows
 
 - [ ] Parent TypeScript logger usage pattern implemented or documented at API boundary.
@@ -147,7 +189,7 @@ full request body
 raw screenshots
 raw browser URLs
 message contents
-secrets/tokens
+sensitive credential material
 loop spam
 ```
 
@@ -168,27 +210,17 @@ Known gaps/manual-required states:
 
 ## Current audit note
 
-This workpack now has a canonical partial-proof root under
-`output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/`.
+This workpack now has a canonical partial-proof root under `output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/`.
+
 The current bounded proof is real:
 
-- `packages/logging-domain/tests/unit/logger.test.ts` proves a registered
-  TypeScript source survives bridge storage with source/context/file path
-  metadata.
-- `apps/portal/tests/logging/portal-dev-log-route.test.ts` proves portal dev
-  logging emits bridge-compatible rows with source/context/file metadata through
-  the shared parent logger path.
-- `crates/agent-service/src/service_runtime.rs` now emits structured startup
-  fields through the existing logging-core-backed `dev_log` writer.
-- `crates/agent-service/tests/unit/dev_log.rs` is now mounted and proved by the
-  exact `write_agent_info_writes_dev_log_ndjson_line` unit test instead of
-  existing only as dead layout inventory.
-- the shared query service and MCP server now have a canonical source/context
-  proof against a temporary local bridge root.
+- `packages/logging-domain/tests/unit/logger.test.ts` proves a registered TypeScript source survives bridge storage with source/context/file path metadata.
+- `apps/portal/tests/logging/portal-dev-log-route.test.ts` proves portal dev logging emits bridge-compatible rows with source/context/file metadata through the shared parent logger path.
+- `crates/agent-service/src/service_runtime.rs` now emits structured startup fields through the existing logging-core-backed `dev_log` writer.
+- `crates/agent-service/tests/unit/dev_log.rs` is now mounted and proved by the exact `write_agent_info_writes_dev_log_ndjson_line` unit test instead of existing only as dead layout inventory.
+- the shared query service and MCP server now have a canonical source/context proof against a temporary local bridge root.
 
-Treat WP08 as honest `partial-proof`, not as full repo instrumentation
-completion. The proof root narrows the claim to the portal dev logger path, the
-logging-domain storage/query path, and the agent-service startup/dev-log path.
+Treat WP08 as honest `partial-proof`, not as full repo instrumentation completion. The proof root narrows the claim to the portal dev logger path, the logging-domain storage/query path, and the agent-service startup/dev-log path.
 
 ## Current completion block
 

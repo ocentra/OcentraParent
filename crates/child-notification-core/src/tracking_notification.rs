@@ -1,6 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, tracking_notification_id_from_violation_id, ParentNotificationRequestedEvent,
-    TrackingNotificationChannel, TrackingPolicyViolationDetectedEvent,
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_notification_id_from_violation_id, TrackingNotificationChannel,
+};
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    ParentNotificationRequestedEvent, TrackingPolicyViolationDetectedEvent,
 };
 
 pub fn request_parent_notification_from_policy_violation(
@@ -14,7 +18,7 @@ pub fn request_parent_notification_from_policy_violation(
         channel: TrackingNotificationChannel::parse(
             constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL,
         )
-        .expect(constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL),
+        .expect_value(constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL),
         requested_at: event.detected_at.clone(),
         evidence_refs: event.evidence_refs.clone(),
     }

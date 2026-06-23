@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema,
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import { FamilyReferenceSchema } from './family-references';
 import {
@@ -79,18 +73,17 @@ const AppGameNotificationParentSurfaceIntentRowBaseSchema = Schema.Struct({
 
 export const AppGameNotificationParentSurfaceIntentRowSchema = withParser(
   AppGameNotificationParentSurfaceIntentRowBaseSchema.pipe(
-    Schema.filter(
-      (row) =>
-        row.drillInRefs.length > 0 &&
-        row.auditRefs.length > 0 &&
-        row.manualProofRequirements.length > 0 &&
-        row.sensitiveDetailIncluded === false &&
-        row.providerDeliveryClaimed === false &&
-        row.providerReceiptClaimed === false &&
-        row.parentPreferenceMutationClaimed === false &&
-        row.childDeliveryClaimed === false
-          ? true
-          : 'Expected app/game notification parent-surface intent rows to preserve refs, expose manual/unavailable status, and keep UI/delivery claims false'
+    Schema.filter((row) =>
+      row.drillInRefs.length > 0 &&
+      row.auditRefs.length > 0 &&
+      row.manualProofRequirements.length > 0 &&
+      row.sensitiveDetailIncluded === false &&
+      row.providerDeliveryClaimed === false &&
+      row.providerReceiptClaimed === false &&
+      row.parentPreferenceMutationClaimed === false &&
+      row.childDeliveryClaimed === false
+        ? true
+        : 'Expected app/game notification parent-surface intent rows to preserve refs, expose manual/unavailable status, and keep UI/delivery claims false'
     )
   )
 );
@@ -122,20 +115,19 @@ export const AppGameNotificationParentSurfaceIntentReadModelSchema = withParser(
     productionDurableOutboxStorageClaimed: Schema.Literal(false),
     adapterDispatchClaimed: Schema.Literal(false),
   }).pipe(
-    Schema.filter(
-      (readModel) =>
-        readModel.manualActionRequiredCount ===
-          readModel.rows.filter((row) => row.parentSurfaceStatus === 'manual-action-required').length &&
-        readModel.unavailableVisibleCount ===
-          readModel.rows.filter((row) => row.parentSurfaceStatus === 'unavailable-visible').length &&
-        readModel.historyVisibleCount === readModel.rows.length &&
-        readModel.preferenceSetupRequiredCount ===
-          readModel.rows.filter((row) => row.preferenceVisibility === 'preference-setup-required').length &&
-        RequiredAppGameNotificationParentSurfaceIntentNonClaims.every((claim) =>
-          readModel.parentSurfaceNonClaims.includes(claim)
-        )
-          ? true
-          : 'Expected app/game notification parent-surface intent counts and non-claims to match row state'
+    Schema.filter((readModel) =>
+      readModel.manualActionRequiredCount ===
+        readModel.rows.filter((row) => row.parentSurfaceStatus === 'manual-action-required').length &&
+      readModel.unavailableVisibleCount ===
+        readModel.rows.filter((row) => row.parentSurfaceStatus === 'unavailable-visible').length &&
+      readModel.historyVisibleCount === readModel.rows.length &&
+      readModel.preferenceSetupRequiredCount ===
+        readModel.rows.filter((row) => row.preferenceVisibility === 'preference-setup-required').length &&
+      RequiredAppGameNotificationParentSurfaceIntentNonClaims.every((claim) =>
+        readModel.parentSurfaceNonClaims.includes(claim)
+      )
+        ? true
+        : 'Expected app/game notification parent-surface intent counts and non-claims to match row state'
     )
   )
 );

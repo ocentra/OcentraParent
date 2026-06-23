@@ -1,4 +1,4 @@
-﻿# Screen Plan Next Actions
+# Screen Plan Next Actions
 
 <!-- agent-capsule -->
 
@@ -9,7 +9,7 @@
 > Read when: Only when named by the plan route, selected workpack, or index row.
 > Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
 > Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR_READY, or broad DONE unless routed proof says so.
 > Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
 
 <!-- /agent-capsule -->
@@ -20,8 +20,9 @@ This file is the short resume list for the next worker. It is derived from open 
 
 1. Confirm the hub assignment and lane.
 2. Pick only the assigned workpack from the list below.
-3. Open that workpack and exact checklist rows only.
-4. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
+3. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+4. Open that workpack and exact checklist rows only.
+5. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
 
 ## Highest-open workpacks by unchecked boxes
 
@@ -46,6 +47,13 @@ This file is the short resume list for the next worker. It is derived from open 
 - [13 iOS ReplayKit Adapter Plan Proof](workpacks/13-ios-replaykit-adapter-plan-proof.md): 2 open of 7 boxes.
 - [28 Live View Optional Mode](workpacks/28-live-view-optional-mode.md): 2 open of 14 boxes.
 
+## Current status warnings
+
+- Treat the full checklist's 100/100 checked state as incomplete while `WORKPACK_INDEX.md` still lists open workpacks.
+- Use `current-screen-snapshot.md` for retained proof context, but preserve each proof row's explicit non-claim.
+- Do not claim product live view from live-view preflight, local loopback, relay/cache harness, or worker-startup gate proof.
+- Do not claim screen-AI pipeline, AI quality, policy authority, enforcement execution, remote access, or product custody from screen-local proof.
+
 ## PR readiness guard
 
 A PR-ready slice should close a named workpack or clearly explain the exact remaining rows. Do not create a tiny PR that only updates one proof note while leaving the assigned workpack/checklist state stale.
@@ -55,5 +63,6 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 ## Actioned completion tracker
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [ ] Classify selected owner/proof family through `WORKPACK_FAMILIES.md` when unclear.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
-- [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Record failure conditions, skipped checks, accepted proof path, explicit no-claims, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.

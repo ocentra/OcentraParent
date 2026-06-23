@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -28,10 +23,12 @@ export const TrackingProductionDurableWorkersReadinessBlockerIdSchema = withPars
   )
 );
 
-export const TrackingProductionDurableWorkersReadinessBlockerReferenceSchema =
-  brandedNonEmptyStringSchema('TrackingProductionDurableWorkersReadinessBlockerReference');
-export const TrackingProductionDurableWorkersReadinessBlockerProofIdSchema =
-  brandedNonEmptyStringSchema('TrackingProductionDurableWorkersReadinessBlockerProofId');
+export const TrackingProductionDurableWorkersReadinessBlockerReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingProductionDurableWorkersReadinessBlockerReference'
+);
+export const TrackingProductionDurableWorkersReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingProductionDurableWorkersReadinessBlockerProofId'
+);
 export const TrackingProductionDurableWorkersReadinessBlockerStatusSchema = withParser(
   Schema.Literal('manual-required')
 );
@@ -245,4 +242,3 @@ function productionSupportManualClaimCount(proof: ProductionSupportStatusBackend
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
-

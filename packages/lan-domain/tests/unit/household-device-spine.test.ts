@@ -7,6 +7,16 @@ import {
 } from '@ocentra-parent/schema-domain/household-device-spine';
 
 describe('canonical household device spine', () => {
+  registerAcceptedMergedChildAgentTest();
+  registerMissingPolicyTargetSurfaceTest();
+  registerTrustStateAlignmentTest();
+  registerNonEnrollableRouterTest();
+  registerEvidenceRecordRequirementTest();
+  registerEvidenceRecordParsingTest();
+  registerLanTrustStateMappingTest();
+});
+
+function registerAcceptedMergedChildAgentTest(): void {
   it('accepts one merged child-agent device with inventory and cross-surface targets', () => {
     const parsed = HouseholdDeviceSpineEntrySchema.parse(childAgentDevice());
 
@@ -32,7 +42,9 @@ describe('canonical household device spine', () => {
       'ai',
     ]);
   });
+}
 
+function registerMissingPolicyTargetSurfaceTest(): void {
   it('rejects child-agent rows that are missing required policy target surfaces', () => {
     expect(() =>
       HouseholdDeviceSpineEntrySchema.parse({
@@ -41,7 +53,9 @@ describe('canonical household device spine', () => {
       })
     ).toThrow(/stable target surfaces/u);
   });
+}
 
+function registerTrustStateAlignmentTest(): void {
   it('rejects child-agent rows whose top-level and inventory trust states disagree', () => {
     expect(() =>
       HouseholdDeviceSpineEntrySchema.parse({
@@ -54,7 +68,9 @@ describe('canonical household device spine', () => {
       })
     ).toThrow(/trust states to stay aligned/u);
   });
+}
 
+function registerNonEnrollableRouterTest(): void {
   it('rejects routers that pretend to be enrollable child-agent targets', () => {
     expect(() =>
       HouseholdDeviceSpineEntrySchema.parse({
@@ -64,7 +80,9 @@ describe('canonical household device spine', () => {
       })
     ).toThrow(/non-enrollable/u);
   });
+}
 
+function registerEvidenceRecordRequirementTest(): void {
   it('rejects canonical LAN devices without source-backed evidence records', () => {
     expect(() =>
       HouseholdDeviceSpineEntrySchema.parse({
@@ -76,7 +94,9 @@ describe('canonical household device spine', () => {
       })
     ).toThrow(/evidence record/u);
   });
+}
 
+function registerEvidenceRecordParsingTest(): void {
   it('parses individual LAN evidence records with source, confidence, and merge key', () => {
     const parsed = LanDiscoveryEvidenceRecordSchema.parse(evidenceRecord('hostname', 'GAMEDEV', 'hostname:gamedev'));
 
@@ -84,7 +104,9 @@ describe('canonical household device spine', () => {
     expect(parsed.confidence).toBe('confirmed');
     expect(parsed.mergeKey).toBe('hostname:gamedev');
   });
+}
 
+function registerLanTrustStateMappingTest(): void {
   it('maps LAN pairing trust states into family trust states for the trust core', () => {
     expect(deviceTrustStateFromLanPairingTrustState('unpaired')).toBe(DeviceTrustState.Pending);
     expect(deviceTrustStateFromLanPairingTrustState('pairing')).toBe(DeviceTrustState.Pending);
@@ -92,7 +114,45 @@ describe('canonical household device spine', () => {
     expect(deviceTrustStateFromLanPairingTrustState('revoked')).toBe(DeviceTrustState.Revoked);
     expect(deviceTrustStateFromLanPairingTrustState('expired')).toBe(DeviceTrustState.ResetRequired);
   });
-});
+}
+
+const childAgentEvidenceRecords = [
+  evidenceRecord('ip-address', '192.168.2.42', 'ip:192.168.2.42'),
+  evidenceRecord('mac-address', '54-27-1e-97-c3-31', 'mac:54271e97c331'),
+  evidenceRecord('hostname', 'GAMEDEV', 'hostname:gamedev'),
+  evidenceRecord('interface', 'Ethernet 2', 'interface:ethernet2'),
+  evidenceRecord('child-agent-presence', 'ocentra-local-service', 'agent:local-dev-agent'),
+] as const;
+
+const childAgentInventory = {
+  deviceName: 'GAMEDEV',
+  platform: 'windows',
+  os: 'windows',
+  cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+  cpuCores: '12 cores / 24 logical',
+  memoryTotal: '63 GiB',
+  gpuModel: 'GeForce RTX 2070 SUPER',
+  gpuDriver: '456.71',
+  gpuMemory: '8192 MiB',
+  nvidiaSmi: 'GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM',
+  networkInterfaces: ['Ethernet 2'],
+  capabilities: ['direct-websocket', 'device-inventory', 'pairing-route'],
+  roleState: 'implemented',
+  routeState: 'local-network',
+  pairingTrustState: 'paired',
+} as const;
+
+const childAgentPolicyTargetSurfaces = [
+  'devices',
+  'policy',
+  'browser',
+  'app',
+  'screen',
+  'network',
+  'activity',
+  'tracking',
+  'ai',
+] as const;
 
 function childAgentDevice() {
   return {
@@ -118,32 +178,10 @@ function childAgentDevice() {
       confidence: 'agent-confirmed',
       staleAt: null,
       offlineAt: null,
-      evidenceRecords: [
-        evidenceRecord('ip-address', '192.168.2.42', 'ip:192.168.2.42'),
-        evidenceRecord('mac-address', '54-27-1e-97-c3-31', 'mac:54271e97c331'),
-        evidenceRecord('hostname', 'GAMEDEV', 'hostname:gamedev'),
-        evidenceRecord('interface', 'Ethernet 2', 'interface:ethernet2'),
-        evidenceRecord('child-agent-presence', 'ocentra-local-service', 'agent:local-dev-agent'),
-      ],
+      evidenceRecords: childAgentEvidenceRecords,
     },
-    childAgentInventory: {
-      deviceName: 'GAMEDEV',
-      platform: 'windows',
-      os: 'windows',
-      cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
-      cpuCores: '12 cores / 24 logical',
-      memoryTotal: '63 GiB',
-      gpuModel: 'GeForce RTX 2070 SUPER',
-      gpuDriver: '456.71',
-      gpuMemory: '8192 MiB',
-      nvidiaSmi: 'GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM',
-      networkInterfaces: ['Ethernet 2'],
-      capabilities: ['direct-websocket', 'device-inventory', 'pairing-route'],
-      roleState: 'implemented',
-      routeState: 'local-network',
-      pairingTrustState: 'paired',
-    },
-    policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
+    childAgentInventory,
+    policyTargetSurfaces: childAgentPolicyTargetSurfaces,
   } as const;
 }
 

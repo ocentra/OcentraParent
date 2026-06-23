@@ -140,7 +140,7 @@ function surfaceState(
 }
 
 function validReadModel(): ChildAndroidServiceProtocolReadModel {
-  return {
+  return ChildAndroidServiceProtocolReadModelSchema.parse({
     schemaVersion: 'child-android-service-protocol-capability-proof',
     foregroundService: {
       packageId: 'ca.ocentra.parent.agent',
@@ -206,10 +206,10 @@ function validReadModel(): ChildAndroidServiceProtocolReadModel {
       childAndroidServiceRuntime: 'no emulator or physical-device foreground runtime behavior is claimed',
     },
     updatedAt: '2026-05-31T00:00:00.000Z',
-  };
+  });
 }
 
-function serviceSurfaces(): ChildAndroidServiceProtocolReadModel['serviceSurfaces'] {
+function serviceSurfaces() {
   return [
     serviceSurface(
       'foreground-service-status',
@@ -279,13 +279,13 @@ function serviceSurfaces(): ChildAndroidServiceProtocolReadModel['serviceSurface
 }
 
 function serviceSurface(
-  surface: ChildAndroidServiceProtocolReadModel['serviceSurfaces'][number]['surface'],
-  parentCapability: ChildAndroidServiceProtocolReadModel['serviceSurfaces'][number]['parentCapability'],
-  parentCapabilityStatus: ChildAndroidServiceProtocolReadModel['serviceSurfaces'][number]['parentCapabilityStatus'],
-  capabilityLabel: ChildAndroidServiceProtocolReadModel['serviceSurfaces'][number]['capabilityLabel'],
-  proofState: ChildAndroidServiceProtocolReadModel['serviceSurfaces'][number]['proofState'],
-  runtimeOwner: ChildAndroidServiceProtocolReadModel['serviceSurfaces'][number]['runtimeOwner']
-): ChildAndroidServiceProtocolReadModel['serviceSurfaces'][number] {
+  surface: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  capabilityLabel: string,
+  proofState: string,
+  runtimeOwner: string
+) {
   const proofRequirement = `${surface} remains ${capabilityLabel} until Android device proof changes it`;
   return {
     surface,

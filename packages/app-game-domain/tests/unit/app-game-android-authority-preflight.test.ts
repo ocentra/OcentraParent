@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { decodeAppGameAndroidPhysicalDeviceProof } from '../../src/app-game-android-physical-device-proof';
+import { decodeAppGameAndroidPhysicalDeviceProof } from '@ocentra-parent/schema-domain/app-game-android-physical-device-proof';
 import {
   AppGameAndroidAuthorityPreflightReadModelSchema,
   createAppGameAndroidAuthorityPreflightReadModel,
   summarizeAppGameAndroidAuthorityPreflightReadModel,
-} from '../../src/app-game-android-authority-preflight';
+} from '@ocentra-parent/schema-domain/app-game-android-authority-preflight';
 
 describe('app-game Android authority preflight', () => {
   it('keeps package policy actions blocked when the physical device is not owner-enrolled', () => {

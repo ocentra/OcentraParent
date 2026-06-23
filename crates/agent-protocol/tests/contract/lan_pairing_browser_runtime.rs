@@ -1,12 +1,19 @@
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPairingDiscoverySource;
 use ocentra_parent_agent_protocol::lan_pairing_browser_runtime::{
     LanBrowserAddDeviceRequest, LanBrowserDiscoveryScanRequest,
 };
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION, LAN_PAIRING_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::AgentCommandName;
+use ocentra_parent_agent_protocol::AgentEventName;
+use ocentra_parent_agent_protocol::AgentMessageTarget;
+use ocentra_parent_agent_protocol::AgentPeer;
+use ocentra_parent_agent_protocol::AgentPeerRole;
+use ocentra_parent_agent_protocol::AgentRoute;
+use ocentra_parent_agent_protocol::LogFields;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::LAN_PAIRING_SCHEMA_VERSION;
 
 #[test]
 fn browser_runtime_command_and_event_names_serialize_for_portal_consumption() {
@@ -27,14 +34,15 @@ fn browser_runtime_command_and_event_names_serialize_for_portal_consumption() {
         payload: LogFields::new(),
     };
 
-    let json = serde_json::to_value(command).expect("browser discovery command serializes");
+    let json = serde_json::to_value(command)
+        .unwrap_or_else(|error| unreachable!("browser discovery command serializes: {error:?}"));
     assert_eq!(
         json[constants::field::COMMAND],
         serde_json::json!(constants::lan_pairing::COMMAND_BROWSER_DISCOVERY_SCAN)
     );
     assert_eq!(
         serde_json::to_value(AgentEventName::AgentLanPairingAddDeviceReported)
-            .expect("add-device event serializes"),
+            .unwrap_or_else(|error| unreachable!("add-device event serializes: {error:?}")),
         serde_json::json!(constants::lan_pairing::EVENT_ADD_DEVICE_REPORTED)
     );
 }
@@ -55,8 +63,10 @@ fn browser_runtime_payloads_serialize_without_fixture_devices() {
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
     };
 
-    let scan_json = serde_json::to_value(scan).expect("scan payload serializes");
-    let add_device_json = serde_json::to_value(add_device).expect("add-device payload serializes");
+    let scan_json = serde_json::to_value(scan)
+        .unwrap_or_else(|error| unreachable!("scan payload serializes: {error:?}"));
+    let add_device_json = serde_json::to_value(add_device)
+        .unwrap_or_else(|error| unreachable!("add-device payload serializes: {error:?}"));
     assert_eq!(
         scan_json["requestedDiscoverySource"],
         serde_json::json!(constants::value::LAN_DISCOVERY_SOURCE_LOCAL_SERVICE)

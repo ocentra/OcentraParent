@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ActivityDeviceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import {
   BrowserCapabilityStatusSchema,
@@ -79,21 +74,11 @@ export const BrowserUnmanagedFallbackCapabilitySchema = withParser(
   )
 );
 
-export const BrowserExecutablePathRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserExecutablePathRef')
-);
-export const BrowserFileHashRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserFileHashRef')
-);
-export const BrowserInventoryReasonCodeSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserInventoryReasonCode')
-);
-export const BrowserInventoryRowIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserInventoryRowId')
-);
-export const BrowserProductNameSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserProductName')
-);
+export const BrowserExecutablePathRefSchema = withParser(brandedNonEmptyStringSchema('BrowserExecutablePathRef'));
+export const BrowserFileHashRefSchema = withParser(brandedNonEmptyStringSchema('BrowserFileHashRef'));
+export const BrowserInventoryReasonCodeSchema = withParser(brandedNonEmptyStringSchema('BrowserInventoryReasonCode'));
+export const BrowserInventoryRowIdSchema = withParser(brandedNonEmptyStringSchema('BrowserInventoryRowId'));
+export const BrowserProductNameSchema = withParser(brandedNonEmptyStringSchema('BrowserProductName'));
 export const BrowserPublisherSignatureRefSchema = withParser(
   brandedNonEmptyStringSchema('BrowserPublisherSignatureRef')
 );
@@ -187,4 +172,3 @@ function browserInventoryRowIsConsistent(row: Infer<typeof BrowserInventoryRowBa
 
   return true;
 }
-

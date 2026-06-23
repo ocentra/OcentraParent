@@ -1,12 +1,25 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityHistoricalReportList, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, LocalAiDegradedState, LocalAiGenerationState,
-    LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus, LogFieldValue, LogLevel,
-    ParentActorReference, ParentActorRole, ParentAssistantActionPreview,
-    ParentAssistantActionPreviewKind, ParentAssistantAnswer, ParentAssistantAnswerState,
-    ParentAssistantGenerateRequest, ParentAssistantProviderState, ParentAssistantRunState,
-    ParentAssistantScope,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity_surface::ActivityHistoricalReportList;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionPreview;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionPreviewKind;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantAnswer;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantAnswerState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantGenerateRequest;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantRunState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantScope;
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     activity_surface_store::{local_store_snapshot, ActivitySurfaceStoreSnapshot},
@@ -129,6 +142,12 @@ pub(crate) fn request_from_command(
     stored_report_history: Option<ActivityHistoricalReportList>,
 ) -> ParentAssistantGenerateRequest {
     let asked_at = timestamp_now();
+    let evidence_context = evidence_contexts_from_command(
+        command,
+        activity_snapshot,
+        stored_report_history,
+        asked_at.clone(),
+    );
     ParentAssistantGenerateRequest {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         request_id: string_payload_field(command, constants::field::PARENT_ASSISTANT_REQUEST_ID)
@@ -137,25 +156,20 @@ pub(crate) fn request_from_command(
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_THREAD_ID.to_string()),
         message_id: string_payload_field(command, constants::parent_assistant::FIELD_MESSAGE_ID)
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_MESSAGE_ID.to_string()),
-        asked_at: asked_at.clone(),
+        asked_at,
         actor: ParentActorReference {
             actor_id: constants::parent_assistant::DEFAULT_PARENT_ACTOR_ID.to_string(),
             role: ParentActorRole::Parent,
         },
         scope: ParentAssistantScope {
-            family: ocentra_parent_agent_protocol::FamilyReference {
+            family: ocentra_parent_agent_protocol::activity::policy_context::FamilyReference {
                 family_id: constants::parent_assistant::DEFAULT_FAMILY_ID.to_string(),
             },
             device: None,
         },
         question: string_payload_field(command, constants::field::PARENT_ASSISTANT_QUESTION)
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_QUESTION.to_string()),
-        evidence_context: evidence_contexts_from_command(
-            command,
-            activity_snapshot,
-            stored_report_history,
-            asked_at.clone(),
-        ),
+        evidence_context,
         model_id: string_payload_field(command, constants::field::LOCAL_AI_MODEL_ID)
             .or_else(|| Some(config.model_id().to_string())),
         max_output_tokens: numeric_field_u32(
@@ -204,7 +218,7 @@ fn parent_prompt(request: &ParentAssistantGenerateRequest) -> String {
 
 fn answer_from_generation_result(
     request: ParentAssistantGenerateRequest,
-    result: ocentra_parent_agent_protocol::LocalAiChatGenerationResult,
+    result: ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult,
 ) -> ParentAssistantAnswer {
     match result.generation_state {
         LocalAiGenerationState::Complete => configured_answer(request, result),
@@ -215,7 +229,7 @@ fn answer_from_generation_result(
 
 fn configured_answer(
     request: ParentAssistantGenerateRequest,
-    result: ocentra_parent_agent_protocol::LocalAiChatGenerationResult,
+    result: ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult,
 ) -> ParentAssistantAnswer {
     base_answer(
         request,
@@ -236,7 +250,7 @@ fn configured_answer(
 
 fn degraded_result_answer(
     request: ParentAssistantGenerateRequest,
-    result: ocentra_parent_agent_protocol::LocalAiChatGenerationResult,
+    result: ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult,
 ) -> ParentAssistantAnswer {
     base_answer(
         request,
@@ -264,7 +278,7 @@ fn degraded_result_answer(
 
 fn unavailable_result_answer(
     request: ParentAssistantGenerateRequest,
-    result: ocentra_parent_agent_protocol::LocalAiChatGenerationResult,
+    result: ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult,
 ) -> ParentAssistantAnswer {
     base_answer(
         request,
@@ -285,7 +299,7 @@ fn unavailable_result_answer(
 
 fn unavailable_answer(
     request: ParentAssistantGenerateRequest,
-    runtime: &ocentra_parent_agent_protocol::LocalModelRuntimeStatus,
+    runtime: &ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus,
 ) -> ParentAssistantAnswer {
     base_answer(
         request,
@@ -306,7 +320,7 @@ fn unavailable_answer(
 
 fn degraded_busy_answer(
     request: ParentAssistantGenerateRequest,
-    runtime: &ocentra_parent_agent_protocol::LocalModelRuntimeStatus,
+    runtime: &ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus,
 ) -> ParentAssistantAnswer {
     base_answer(
         request,
@@ -397,8 +411,11 @@ pub(crate) fn preview_only_action(question: &str) -> ParentAssistantActionPrevie
     }
 }
 
-fn string_payload_field(command: &AgentCommandEnvelope, key: &str) -> Option<String> {
-    match command.payload.get(key) {
+fn string_payload_field(
+    command: &AgentCommandEnvelope,
+    payload_field_name: &str,
+) -> Option<String> {
+    match command.payload.get(payload_field_name) {
         Some(LogFieldValue::String(value)) if !value.trim().is_empty() => {
             Some(value.trim().to_string())
         }

@@ -4,7 +4,7 @@ import {
   BillingReferralSummarySchema,
 } from '@ocentra-parent/schema-domain/billing-referral-boundary';
 
-describe('billing referral boundary', () => {
+describe('billing referral summary boundary', () => {
   it('accepts referral summaries with explicit invite and credit counts', () => {
     const summary = BillingReferralSummarySchema.parse({
       subject: 'parent:demo-active',
@@ -42,7 +42,9 @@ describe('billing referral boundary', () => {
       }).success
     ).toBe(false);
   });
+});
 
+describe('billing referral invite result boundary', () => {
   it('accepts explicit device-farm rejection and payment-method manual-review outcomes', () => {
     const rejected = BillingReferralInviteResultSchema.parse({
       requestId: 'referral-device-farm',

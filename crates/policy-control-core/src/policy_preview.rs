@@ -1,10 +1,11 @@
 #![forbid(unsafe_code)]
-#![allow(clippy::expect_used)]
-
 use std::collections::BTreeMap;
 
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyPreviewFindingKind, PolicyPreviewTargetState, PolicySourceStatus,
+};
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
@@ -13,13 +14,10 @@ use crate::policy_source::{
     policy_status_name, validate_parent_policy_source_document, ParentPolicyDocumentId,
     ParentPolicyRule, ParentPolicySourceDocument, PolicyConsumerDomain, PolicyRuleId,
     PolicyRuleTarget, PolicyScheduleClockSource, PolicyScheduleId, PolicyScheduleWindow,
-    PolicySourceDocumentStatus, PolicyTargetReferenceId, PolicyVersion,
+    PolicyTargetReferenceId, PolicyVersion,
 };
 
 const POLICY_PREVIEW_SCHEMA_VERSION_VALUE: u16 = 1;
-
-pub type PolicyPreviewTargetState = ocentra_parent_agent_protocol::PolicyPreviewTargetState;
-pub type PolicyPreviewFindingKind = ocentra_parent_agent_protocol::PolicyPreviewFindingKind;
 
 macro_rules! policy_preview_text_id {
     ($name:ident, $field:expr) => {
@@ -191,12 +189,10 @@ impl From<PolicyPreviewTargetInput> for PolicyPreviewTargetResult {
     }
 }
 
-fn assert_preview_candidate_status(
-    status: PolicySourceDocumentStatus,
-) -> Result<(), EventingError> {
+fn assert_preview_candidate_status(status: PolicySourceStatus) -> Result<(), EventingError> {
     if matches!(
         status,
-        PolicySourceDocumentStatus::Draft | PolicySourceDocumentStatus::Preview
+        PolicySourceStatus::Draft | PolicySourceStatus::Preview
     ) {
         return Ok(());
     }
@@ -587,8 +583,7 @@ fn conflict_schedule_ids(
 }
 
 fn preview_explanation_code(value: &str) -> PolicyPreviewExplanationCode {
-    PolicyPreviewExplanationCode::parse(value)
-        .expect(policy_control::preview::ERROR_STATIC_EXPLANATION_CODE)
+    PolicyPreviewExplanationCode(value.to_string())
 }
 
 fn preview_conflict_explanation_code(kind: PolicyPreviewFindingKind) -> &'static str {

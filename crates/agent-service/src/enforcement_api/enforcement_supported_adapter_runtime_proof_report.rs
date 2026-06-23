@@ -1,8 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, V08EnforcementIntegrityRuntimeAuditReadModel,
-    V08SupportedAdapterRuntimeProofReadModel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditReadModel;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofReadModel;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
@@ -55,9 +59,11 @@ fn enforcement_supported_adapter_runtime_proof_payload(
 }
 
 fn read_model_json(read_model: &V08SupportedAdapterRuntimeProofReadModel) -> String {
-    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_string(read_model)
+        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn integrity_read_model_json(read_model: &V08EnforcementIntegrityRuntimeAuditReadModel) -> String {
-    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_string(read_model)
+        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }

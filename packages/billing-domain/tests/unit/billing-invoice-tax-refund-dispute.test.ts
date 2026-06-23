@@ -24,9 +24,7 @@ describe('billing invoice tax refund dispute lifecycle', () => {
 
 function provesInvoiceVisibility(): void {
   it('billing.invoice-visible keeps provider identity, invoice period, and manual-support ownership explicit', () => {
-    const proof = BillingInvoiceTaxRefundDisputeProofSchema.parse(
-      BillingInvoiceTaxRefundDisputeProofReadModel
-    );
+    const proof = BillingInvoiceTaxRefundDisputeProofSchema.parse(BillingInvoiceTaxRefundDisputeProofReadModel);
     const activeRow = requiredRow('billing-invoice-active');
     const manualInvoiceRow = requiredRow('billing-tax-manual-support');
 
@@ -256,12 +254,8 @@ function provesSupportAdminAuditEnvelope(): void {
 
 function provesNoDataDeleteOnRefund(): void {
   it('billing.no-data-delete-on-refund keeps refund and dispute history audited without child custody claims', () => {
-    const proof = BillingInvoiceTaxRefundDisputeProofSchema.parse(
-      BillingInvoiceTaxRefundDisputeProofReadModel
-    );
-    const refundAndDisputeRows = proof.rows.filter(
-      (row) => row.refundState !== 'none' || row.disputeState !== 'none'
-    );
+    const proof = BillingInvoiceTaxRefundDisputeProofSchema.parse(BillingInvoiceTaxRefundDisputeProofReadModel);
+    const refundAndDisputeRows = proof.rows.filter((row) => row.refundState !== 'none' || row.disputeState !== 'none');
 
     expect(proof.nonClaims).toContain('no-child-activity-custody');
     expect(proof.nonClaims).toContain('no-invoice-pdf-custody');
@@ -287,9 +281,7 @@ function requiredRow(
     | 'billing-invoice-cancel-period-end'
     | 'billing-invoice-resume-after-past-due'
 ) {
-  const row = BillingInvoiceTaxRefundDisputeProofReadModel.rows.find(
-    (entry) => entry.boundaryId === boundaryId
-  );
+  const row = BillingInvoiceTaxRefundDisputeProofReadModel.rows.find((entry) => entry.boundaryId === boundaryId);
   if (row === undefined) {
     throw new Error(`missing billing invoice lifecycle row: ${boundaryId}`);
   }

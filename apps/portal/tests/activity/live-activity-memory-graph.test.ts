@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { resolveLiveActivityState } from '../../src/live-activity-state';
 
 describe('portal live activity memory graph state', () => {

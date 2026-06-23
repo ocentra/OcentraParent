@@ -1,13 +1,22 @@
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
-use ocentra_parent_agent_protocol::{
-    constants::{enforcement, host_identity, windows_adapter_capability as windows_adapter},
-    policy_constants as policy, EnforcementAdapterKind, EnforcementBroadAdapterCapability,
-    EnforcementBroadAdapterReadinessEntry, EnforcementBroadOsAdapterReadinessMatrix,
-    EnforcementCapabilityState, EnforcementMode, EnforcementReadinessProofLevel,
-    EnforcementReadinessRuntimeOwner, EnforcementReadinessState, HostIdentityEvidenceKind,
-    HostIdentityReadModel, ParentPlatform, WindowsAdapterCapabilityOutcome,
-    WindowsAdapterCapabilityProof, WindowsAdapterCapabilityProofEntry,
-    WindowsAdapterCapabilitySurface,
+use ocentra_parent_agent_protocol::constants::{
+    enforcement, host_identity, windows_adapter_capability as windows_adapter,
+};
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementMode, ParentPlatform,
+};
+use ocentra_parent_agent_protocol::enforcement_readiness::{
+    EnforcementBroadAdapterCapability, EnforcementBroadAdapterReadinessEntry,
+    EnforcementBroadOsAdapterReadinessMatrix, EnforcementReadinessProofLevel,
+    EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
+};
+use ocentra_parent_agent_protocol::host_identity::{
+    HostIdentityEvidenceKind, HostIdentityReadModel,
+};
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::windows_adapter_capability::{
+    WindowsAdapterCapabilityOutcome, WindowsAdapterCapabilityProof,
+    WindowsAdapterCapabilityProofEntry, WindowsAdapterCapabilitySurface,
 };
 
 use crate::host_identity_read_model::host_identity_read_model;
@@ -280,7 +289,9 @@ fn readiness_entry(
         .entries
         .iter()
         .find(|entry| entry.capability == capability)
-        .expect(enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER)
+        .unwrap_or_else(|| {
+            panic!("{}", enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER)
+        })
 }
 
 fn host_identity_entries(
@@ -295,7 +306,7 @@ fn host_identity_entries(
                 .iter()
                 .find(|entry| entry.evidence_kind == *evidence_kind)
                 .map(|entry| entry.read_model_entry_id.clone())
-                .expect(host_identity::READ_MODEL_ID_V0_8)
+                .unwrap_or_else(|| panic!("{}", host_identity::READ_MODEL_ID_V0_8))
         })
         .collect()
 }

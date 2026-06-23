@@ -1,9 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_browser_domain_adapter_proof as proof, V08WindowsAppControlAdminRequirement,
-    V08WindowsAppControlEventState, V08WindowsAppControlPolicyMutationState,
-    V08WindowsAppControlProofState, V08WindowsAppControlReadinessState,
-    V08WindowsAppControlRuleIdentityKind,
-};
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as proof;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlAdminRequirement;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlEventState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlPolicyMutationState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlProofState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlReadinessState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlRuleIdentityKind;
 
 struct AppControlBoundaryText {
     claim_boundary: &'static str,

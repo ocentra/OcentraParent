@@ -212,9 +212,7 @@ function runProofTraceSmoke(argv) {
     windowsHide: true,
   });
   if (result.status !== 0) {
-    throw new Error(
-      `proof-trace smoke failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`.trim()
-    );
+    throw new Error(`proof-trace smoke failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`.trim());
   }
 
   const output = result.stdout.trim();

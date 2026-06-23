@@ -1,15 +1,14 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
 import {
   AndroidParentMobileCapabilityStatuses,
   IosParentMobileCapabilityStatuses,
 } from './parent-mobile-runtime-capability-statuses';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentDeviceIdSchema,
+  ParentEvidenceReferenceIdSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ParentMobilePlatformSchema = withParser(Schema.Literal('android', 'ios'));
 export const ParentMobilePackageStateSchema = withParser(
@@ -48,7 +47,9 @@ export const ParentMobileChildAgentBehaviorClaimSchema = withParser(Schema.Liter
 const ParentMobileSchemaVersionSchema = withParser(Schema.Literal('v0.9-parent-mobile-shell'));
 const ParentMobilePackageLaunchTargetSchema = brandedNonEmptyStringSchema('ParentMobilePackageLaunchTarget');
 const ParentMobilePackageProofCommandSchema = brandedNonEmptyStringSchema('ParentMobilePackageProofCommand');
-const ParentMobilePackageLifecycleProofRequirementSchema = brandedNonEmptyStringSchema('ParentMobilePackageLifecycleProofRequirement');
+const ParentMobilePackageLifecycleProofRequirementSchema = brandedNonEmptyStringSchema(
+  'ParentMobilePackageLifecycleProofRequirement'
+);
 const ParentMobileControllerLeaseIdSchema = brandedNonEmptyStringSchema('ParentMobileControllerLeaseId');
 const ParentMobileRouteIdSchema = brandedNonEmptyStringSchema('ParentMobileRouteId');
 const ParentMobileRouteStatusReasonSchema = brandedNonEmptyStringSchema('ParentMobileRouteStatusReason');
@@ -56,7 +57,9 @@ const ParentMobileProviderIdSchema = brandedNonEmptyStringSchema('ParentMobilePr
 const ParentMobileCapabilityNameSchema = brandedNonEmptyStringSchema('ParentMobileCapabilityName');
 const ParentMobileUnavailableReasonSchema = brandedNonEmptyStringSchema('ParentMobileUnavailableReason');
 const ParentMobileRouteProofRequirementSchema = brandedNonEmptyStringSchema('ParentMobileRouteProofRequirement');
-const ParentMobileCapabilityProofRequirementSchema = brandedNonEmptyStringSchema('ParentMobileCapabilityProofRequirement');
+const ParentMobileCapabilityProofRequirementSchema = brandedNonEmptyStringSchema(
+  'ParentMobileCapabilityProofRequirement'
+);
 const ParentMobileClaimBoundarySchema = brandedNonEmptyStringSchema('ParentMobileClaimBoundary');
 
 export const ParentMobilePackageProofSchema = withParser(

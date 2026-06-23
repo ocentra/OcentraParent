@@ -3,7 +3,7 @@ import {
   TrackingChildCheckInTimeoutReadModelSchema,
   TrackingChildCheckInTimeoutRowSchema,
   buildTrackingChildCheckInTimeoutReadModel,
-} from '../../src/tracking-child-check-in-timeout-escalation-proof';
+} from '@ocentra-parent/schema-domain/tracking-child-check-in-timeout-escalation-proof';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const EvidenceTrace = {

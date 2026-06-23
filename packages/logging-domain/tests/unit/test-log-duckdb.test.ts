@@ -12,11 +12,8 @@ async function removeDirWithRetries(dirPath: string): Promise<void> {
       fs.rmSync(dirPath, { force: true, recursive: true });
       return;
     } catch (error) {
-      const isBusyError =
-        error instanceof Error && 'code' in error && error.code === 'EBUSY';
-      if (
-        !isBusyError
-      ) {
+      const isBusyError = error instanceof Error && 'code' in error && error.code === 'EBUSY';
+      if (!isBusyError) {
         throw error;
       }
       if (attempt === 39) {

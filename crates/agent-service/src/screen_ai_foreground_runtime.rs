@@ -1,13 +1,16 @@
 use std::time::Duration;
 
 use ocentra_parent_agent_core::window_capture::collect_foreground_window_observation;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, SCREEN_SERVICE_FOREGROUND_EVENT_ID_PREFIX,
-    SCREEN_SERVICE_FOREGROUND_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_FOREGROUND_MODEL_ID,
-    SCREEN_SERVICE_FOREGROUND_QUEUE_JOB_ID_PREFIX, SCREEN_SERVICE_FOREGROUND_RESULT_ID_PREFIX,
-    SCREEN_SERVICE_FOREGROUND_SOURCE_ID, SCREEN_SERVICE_FOREGROUND_SUMMARY_CAPTURED,
-    SCREEN_SERVICE_FOREGROUND_TEMPLATE_VERSION,
-};
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_EVENT_ID_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_EVIDENCE_ID_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_MODEL_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_QUEUE_JOB_ID_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_RESULT_ID_PREFIX;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_SOURCE_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_SUMMARY_CAPTURED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_FOREGROUND_TEMPLATE_VERSION;
 use ocentra_parent_screen_capture_adapter::{
     capture_active_window_png,
     trigger_scheduler::{

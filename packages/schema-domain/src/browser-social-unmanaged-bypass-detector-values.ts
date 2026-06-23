@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 
@@ -44,4 +44,3 @@ export const BrowserSocialUnmanagedBypassReasonsSchema = Schema.Array(BrowserSoc
 
 export type BrowserSocialUnmanagedBypassReason = Infer<typeof BrowserSocialUnmanagedBypassReasonSchema>;
 export type BrowserSocialUnmanagedBypassTargetState = Infer<typeof BrowserSocialUnmanagedBypassTargetStateSchema>;
-

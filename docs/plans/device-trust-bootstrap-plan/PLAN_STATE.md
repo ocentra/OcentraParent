@@ -34,6 +34,67 @@ Current direction from research and the pasted plan set:
 - No proof roots currently exist on disk under `output/device-trust-bootstrap-plan-proof/` or `docs/proof/device-trust-bootstrap-plan/`.
 - The current plan-local tests are mostly doc-shape and route-alignment checks, not runtime trust-bootstrap proof.
 
+## Current ownership interpretation
+
+```text
+schema-domain:
+  Canonical shared trust state, device registration, parent step-up assertion, QR approval, recovery, entitlement binding, tamper/uninstall, and route-handoff shapes when they cross package, crate, app, or plan boundaries.
+
+family-domain:
+  Household/role/action authorization helper surface consuming canonical schema-domain contracts. It is trust-adjacent, not full device-trust runtime.
+
+lan-domain:
+  LAN pairing and selected-device proof consumer. It is transport/pairing-adjacent, not the trust root.
+
+agent-protocol and agent-service:
+  Protocol/service proof only when the selected workpack names runtime or wire behavior.
+
+setup-install-provisioning-plan:
+  Install/setup journey owner and first-run handoff producer.
+
+account-identity-family-plan:
+  Account, household, role, session, invite, and membership authority owner.
+
+data-custody-storage-plan:
+  Encrypted storage, export/import, restore, and recovery artifact custody after device trust exists.
+
+payment-subscription-plan:
+  Subscription entitlement policy and billing state owner.
+
+parent/child runtime distribution plans:
+  Package build, signing, update, rollback, installer, and child package mechanics owners.
+
+remote-access-plan and policy-control-plane-plan:
+  Standing access grant and policy delivery consumers after device trust exists.
+```
+
+## Current coupling risks
+
+```text
+- No execution-grade device-trust runtime module exists yet.
+- `family-domain` contains trust-adjacent authority helpers but not platform key sealing, QR approval runtime, recovery bundle runtime, or trust-root state machine.
+- `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
+- Current plan-local tests prove document and route shape only, not runtime trust.
+- Login/session proof, LAN pairing proof, package install proof, and license proof are all insufficient for device trust.
+- Platform key sealing is modelled but not proven at runtime.
+- Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
+- Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
+```
+
+## Current proof interpretation
+
+```text
+Document assertions are not runtime trust proof.
+Route-alignment tests are not runtime trust proof.
+WebAuthn/passkey schema proof is not platform ceremony proof.
+QR challenge shape is not phone approval bridge proof.
+Key-custody model proof is not platform-backed sealing proof.
+Entitlement snapshot proof is not product unlock proof.
+Recovery docs are not recovery execution proof.
+Child uninstall/tamper docs are not parent-authorized uninstall proof.
+WP09 can aggregate only accepted proof roots plus exact carried blockers.
+```
+
 ## Proof Coverage
 
 - Proof roots are planned under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`, but they are absent on disk today.
@@ -56,5 +117,6 @@ Current direction from research and the pasted plan set:
 - Route and implementation continue from [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).
 - Update this plan only through the blueprint and the selected workpack.
 - Do not mark this plan complete from checklist deltas alone.
+- Use [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected workpack owner/proof family is unclear.
 - Proof must be collected in the designated local artifact path or crate-local proof folder, not inside this plan folder.
 - True completion remains blocked until the runtime ownership split is resolved across the actual source owners and real proof artifacts exist for the missing trust-bootstrap slices.

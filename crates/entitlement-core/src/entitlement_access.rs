@@ -19,7 +19,6 @@ const ENTITLEMENT_CAPABILITY_DECISION_RECORDED_EVENT_TYPE: &str =
     "entitlement.capability-decision.recorded";
 const ENTITLEMENT_IDEMPOTENCY_SEPARATOR: &str = ":";
 const ENTITLEMENT_DECISION_PREFIX: &str = "entitlement-decision:";
-const ERROR_ENTITLEMENT_DECISION_ID: &str = "entitlement decision id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EntitlementCapability {
@@ -323,8 +322,7 @@ pub fn record_entitlement_capability_decision(
 ) -> EntitlementCapabilityDecisionRecordedEvent {
     EntitlementCapabilityDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
-        decision_id: EntitlementDecisionId::parse(entitlement_decision_ref(&event.evaluation_id))
-            .expect(ERROR_ENTITLEMENT_DECISION_ID),
+        decision_id: EntitlementDecisionId(entitlement_decision_ref(&event.evaluation_id)),
         source_evaluation_id: event.evaluation_id.clone(),
         decision: evaluate_entitlement_capability(event.input),
     }

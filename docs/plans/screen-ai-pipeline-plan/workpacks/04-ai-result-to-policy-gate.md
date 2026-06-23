@@ -14,9 +14,43 @@
 
 <!-- /agent-capsule -->
 
+## Ownership boundary
+
+```text
+screen-ai-pipeline-plan owns schema-valid AI result to deterministic policy handoff proof.
+ai-plan/schema-domain own AI result schema, evidence refs, confidence, and degraded semantics.
+policy-control-plane-plan owns policy authority, parent-rule refs, and stricter-rule precedence.
+v0-8-enforcement-control-plan owns enforcement execution and adapter authority.
+```
+
 ## Target State
 
 Only schema-valid AI results reach deterministic parent policy.
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+scenario_id
+ai_result_state
+schema_validation_state
+evidence_ref_state
+parent_rule_ref_state
+confidence_state
+degraded_state
+invalid_output_rejection_state
+policy_handoff_state
+policy_decision_state
+stricter_rule_state
+manual_required_state
+action_authority_state
+no_direct_ai_policy_claim
+no_enforcement_claim
+no_product_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Checklist
 
@@ -32,5 +66,11 @@ Only schema-valid AI results reach deterministic parent policy.
 - Policy decision artifact.
 - Invalid output rejection log.
 - Parent-rule conflict proof.
-- Block action handoff source artifact:
-  `output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json`.
+- Block action handoff source artifact: `output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json`.
+
+## Failure conditions
+
+- Do not let invalid AI output reach policy.
+- Do not let AI write policy or action state directly.
+- Do not claim enforcement readiness from a policy handoff artifact.
+- Do not claim policy correctness without parent-rule refs, confidence/degraded state, and invalid-output rejection proof.

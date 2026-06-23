@@ -1,7 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, LanPairingProof, LanPairingRejectionReason,
-    LanParentIntentEnvelope, LogFieldValue, LogFields, ParentEvidenceReference,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 use self::values::{
     authentication_state_value, intent_kind_value, parent_authority_value, reason_value,
@@ -454,8 +458,8 @@ fn pairing_child_device_id(
         .unwrap_or_else(|| command.target.device_id.clone())
 }
 
-fn payload_string<'a>(fields: &'a LogFields, key: &str) -> Option<&'a str> {
-    fields.get(key).and_then(|value| match value {
+fn payload_string<'a>(fields: &'a LogFields, field_name: &str) -> Option<&'a str> {
+    fields.get(field_name).and_then(|value| match value {
         LogFieldValue::String(value) if !value.is_empty() => Some(value.as_str()),
         _ => None,
     })

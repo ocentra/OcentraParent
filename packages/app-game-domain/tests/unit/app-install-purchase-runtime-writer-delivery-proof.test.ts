@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseRuntimeWriterDeliveryProofSchema,
   AppInstallPurchaseRuntimeWriterDeliveryRowSchema,
   summarizeAppInstallPurchaseRuntimeWriterDeliveryProof,
-} from '../../src/app-install-purchase-runtime-writer-delivery-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-runtime-writer-delivery-proof';
 
 describe('app install and purchase runtime writer delivery proof', () => {
   acceptsRuntimeWriterDeliveryRowsWithoutRuntimeClaims();

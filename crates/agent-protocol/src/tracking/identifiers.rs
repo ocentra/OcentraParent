@@ -189,9 +189,11 @@ fn derived_tracking_identifier_value(prefix: &str, segments: &[&str]) -> String 
     value
 }
 
-#[allow(clippy::panic)]
 fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
-    result.unwrap_or_else(|_| panic!("{}", message))
+    match result {
+        Ok(value) => value,
+        Err(_) => unreachable!("{}", message),
+    }
 }
 
 fn tracking_policy_violation_id_from_source_and_rule_ref(

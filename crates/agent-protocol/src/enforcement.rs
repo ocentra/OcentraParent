@@ -1,11 +1,19 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    constants::enforcement as enforcement_constants, ParentActorReference, ParentDeviceReference,
-    ParentEvidenceReference, PolicyAction, PolicyTarget,
+    activity::policy::{ParentActorReference, ParentEvidenceReference, PolicyAction, PolicyTarget},
+    activity::policy_context::ParentDeviceReference,
+    constants::enforcement as enforcement_constants,
 };
 
-pub type ParentActionReference = crate::schema_domain_mirrors::family::ParentActionReference;
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentActionReference {
+    pub action_reference_id: String,
+    pub actor: ParentActorReference,
+    pub policy_version: String,
+    pub created_at: String,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentPlatform {

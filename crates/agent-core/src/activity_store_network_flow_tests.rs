@@ -1,11 +1,16 @@
 use std::fs::{read, remove_file};
+use std::path::{Path, PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol, ActivityNetworkTcpState,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
-    LogFields, ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use super::{
     network_observation_event, ActivityJournal, ActivityStore, JournalKey, NetworkObservation,
@@ -14,22 +19,23 @@ use super::{
 
 #[test]
 fn activity_store_reports_network_flow_read_model_from_ingested_events() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let event = network_event();
 
     store
         .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let read_model = store
         .network_flow_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     let row = read_model
         .rows
         .first()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned, 1);
     assert_eq!(read_model.active_rows, 1);
@@ -66,19 +72,20 @@ fn activity_store_reports_network_flow_read_model_from_ingested_events() {
 
 #[test]
 fn activity_store_filters_network_retention_tombstones_from_read_model() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let event = network_event();
     let deleted_evidence_id = event.evidence[0].evidence_id.clone();
 
     store
         .ingest_events(&[event, network_retention_deleted_event(&deleted_evidence_id)])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let read_model = store
         .network_flow_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -108,25 +115,27 @@ fn activity_store_replays_network_flow_read_model_from_encrypted_journal() {
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
     let mut journal = ActivityJournal::open(journal_path.clone(), key.clone())
-        .expect(constants::error::JOURNAL_OPENS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     let event = network_event();
     journal
         .append(&event)
-        .expect(constants::error::JOURNAL_APPENDS);
-    let journal_bytes = read(&journal_path).expect(constants::error::JOURNAL_READS);
-    let reader =
-        ActivityJournal::open(journal_path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS));
+    let journal_bytes =
+        read(&journal_path).unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_READS));
+    let reader = ActivityJournal::open(journal_path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let read_model = store
         .network_flow_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(status.events_ingested, 1);
@@ -138,14 +147,15 @@ fn activity_store_replays_network_flow_read_model_from_encrypted_journal() {
 
 #[test]
 fn activity_store_reports_empty_network_flow_without_inventing_rows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     let read_model = store
         .network_flow_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -158,7 +168,7 @@ fn activity_store_reports_empty_network_flow_without_inventing_rows() {
     );
 }
 
-fn network_event() -> ocentra_parent_agent_protocol::ActivityEvent {
+fn network_event() -> ActivityEvent {
     network_observation_event(
         NetworkObservation {
             status: ActivityCaptureCapabilityStatus::Available,
@@ -220,7 +230,7 @@ fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
     }
 }
 
-fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
+fn temp_path(suffix: &str, extension: &str) -> PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -232,13 +242,13 @@ fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_paths(journal_path: &std::path::PathBuf, store_path: &std::path::PathBuf) {
+fn cleanup_paths(journal_path: &Path, store_path: &Path) {
     let _ = remove_file(journal_path);
     let _ = remove_file(store_path);
-    let mut store_wal_path = store_path.clone();
+    let mut store_wal_path = store_path.to_path_buf();
     store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);
-    let mut store_shm_path = store_path.clone();
+    let mut store_shm_path = store_path.to_path_buf();
     store_shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(store_shm_path);
 }

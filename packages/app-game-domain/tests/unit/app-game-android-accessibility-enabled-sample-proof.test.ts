@@ -3,7 +3,7 @@ import {
   AppGameAndroidAccessibilityEnabledSampleProofSchema,
   createAppGameAndroidAccessibilityEnabledSampleProof,
   summarizeAppGameAndroidAccessibilityEnabledSampleProof,
-} from '../../src/app-game-android-accessibility-enabled-sample-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-accessibility-enabled-sample-proof';
 
 const expectRejectedAccessibilityEnabledSample = (candidate: unknown): void => {
   expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse(candidate).success).toBe(false);

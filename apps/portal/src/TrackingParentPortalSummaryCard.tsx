@@ -1,20 +1,18 @@
 import type { ReactElement } from 'react';
 import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+  type PortalDetailValue,
+  PortalRoute,
+  type PortalRoute as PortalRouteValue,
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
 import {
   trackingStatusLiveSummary,
   trackingStatusServiceDataCoverage,
 } from '@ocentra-parent/portal-domain/tracking-status-panel';
-import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
-import {
-  type TrackingStatusProofArtifact,
-} from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function shouldRenderTrackingParentPortalSummary(route: PortalRouteValue): boolean {
@@ -30,14 +28,16 @@ export function TrackingParentPortalSummaryCard({
   const coverage = trackingStatusServiceDataCoverage(liveActivity);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.TrackingStatusSurface)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.TrackingStatusSurface)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{PortalText.Resolve(PortalTextToken.TrackingFirstTarget)}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>
+            {resolvePortalDevText(PortalDevTextToken.TrackingFirstTarget)}
+          </p>
           <h2>{summary.title}</h2>
-          <p>{PortalText.Resolve(PortalTextToken.TrackingStatusSurfaceBody)}</p>
+          <p>{resolvePortalDevText(PortalDevTextToken.TrackingStatusSurfaceBody)}</p>
         </header>
         <div className={PortalDom.Classes.TrackingStatusOverlayGrid}>
           <TrackingParentPortalStatusCard

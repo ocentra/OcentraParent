@@ -61,13 +61,12 @@ async function main() {
     proofMode: 'app-install-purchase-store-status-handoff-proof',
     commands,
     evidence: {
-      storeStatusHandoffContract: 'packages/app-game-domain/src/app-install-purchase-store-status-handoff-proof.ts',
+      storeStatusHandoffContract: 'packages/schema-domain/src/app-install-purchase-store-status-handoff-proof.ts',
       sourcePlatformAdapterBoundaryContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
       sourceParentActionRuntimeContract:
-        'packages/app-game-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
-      contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-store-status-handoff-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-store-status-handoff-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',

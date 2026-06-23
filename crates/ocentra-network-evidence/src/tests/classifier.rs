@@ -5,12 +5,13 @@ use crate::{
     NetworkActivityClassifierInput, NetworkCategory, NetworkClassifierBasis,
     NetworkClassifierError, ProcessClassifierHint, PublicSuffixModel,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn classifier_uses_fresh_domain_category_for_video() {
     let model = PublicSuffixModel::ocentra_fixture();
     let evidence = normalize_domain_with_public_suffix("watch.video.example.test", &model)
-        .expect("fixture domain should normalize");
+        .expect_value("fixture domain should normalize");
     let database = DomainCategoryDatabase::from_records(vec![DomainCategoryRecord {
         domain: "example.test".to_owned(),
         category: NetworkCategory::Video,
@@ -23,7 +24,7 @@ fn classifier_uses_fresh_domain_category_for_video() {
         },
         confidence_percent: 92,
     }])
-    .expect("fixture category database should be valid");
+    .expect_value("fixture category database should be valid");
     let domain_lookup = lookup_domain_category(&database, &evidence, 1_050);
 
     let classification = classify_social_video_game_activity(NetworkActivityClassifierInput {
@@ -32,7 +33,7 @@ fn classifier_uses_fresh_domain_category_for_video() {
         process_hint: None,
         browser_confirmation: None,
     })
-    .expect("fresh domain category should classify");
+    .expect_value("fresh domain category should classify");
 
     assert_eq!(classification.category, NetworkCategory::Video);
     assert_eq!(classification.basis, NetworkClassifierBasis::DomainCategory);
@@ -60,7 +61,7 @@ fn classifier_keeps_cdn_hint_confirmation_required_without_browser_evidence() {
     );
 
     let classification =
-        classify_social_video_game_activity(input).expect("cdn candidate should classify");
+        classify_social_video_game_activity(input).expect_value("cdn candidate should classify");
 
     assert_eq!(classification.category, NetworkCategory::CloudGaming);
     assert_eq!(
@@ -91,8 +92,8 @@ fn classifier_promotes_matching_cdn_when_browser_confirmation_exists() {
         }),
     );
 
-    let classification =
-        classify_social_video_game_activity(input).expect("browser-confirmed cdn should classify");
+    let classification = classify_social_video_game_activity(input)
+        .expect_value("browser-confirmed cdn should classify");
 
     assert_eq!(classification.category, NetworkCategory::CloudGaming);
     assert_eq!(
@@ -122,8 +123,8 @@ fn classifier_uses_process_hint_as_confirmation_required_game_candidate() {
         None,
     );
 
-    let classification =
-        classify_social_video_game_activity(input).expect("process candidate should classify");
+    let classification = classify_social_video_game_activity(input)
+        .expect_value("process candidate should classify");
 
     assert_eq!(classification.category, NetworkCategory::Game);
     assert_eq!(
@@ -166,9 +167,9 @@ fn unknown_domain_input(
 ) -> NetworkActivityClassifierInput {
     let model = PublicSuffixModel::ocentra_fixture();
     let evidence = normalize_domain_with_public_suffix("unknown.example.test", &model)
-        .expect("fixture domain should normalize");
+        .expect_value("fixture domain should normalize");
     let database = DomainCategoryDatabase::from_records(Vec::new())
-        .expect("empty category database should be valid");
+        .expect_value("empty category database should be valid");
     let domain_lookup = lookup_domain_category(&database, &evidence, 1_050);
 
     NetworkActivityClassifierInput {

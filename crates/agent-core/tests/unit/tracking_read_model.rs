@@ -1,14 +1,20 @@
-#![allow(clippy::expect_used, clippy::panic)]
-
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LogFieldValue, LogFields, TrackingEvidenceRef, TrackingReadModel,
-    ACTIVITY_SCHEMA_VERSION, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::tracking::{
+    identifiers::TrackingEvidenceRef,
+    read_model::{
+        TrackingReadModel, TrackingReadModelCount, TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE,
+        TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    },
 };
 
 use ocentra_parent_agent_core::{
-    activity_store::ActivityStore,
-    tracking::tracking_read_model_for_store,
+    activity_store::ActivityStore, tracking::tracking_read_model_for_store,
 };
 
 #[test]
@@ -22,7 +28,8 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
 }
 
 fn tracking_read_model_with_mixed_events() -> TrackingReadModel {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let events = [
         tracking_activity_event(
             constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
@@ -55,13 +62,13 @@ fn tracking_read_model_with_mixed_events() -> TrackingReadModel {
     ];
     store
         .ingest_events(&events)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     tracking_read_model_for_store(
         &store,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES)
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES))
 }
 
 fn assert_mixed_read_model_counts(read_model: &TrackingReadModel) {
@@ -124,7 +131,7 @@ fn assert_mixed_read_model_tombstone_row(read_model: &TrackingReadModel) {
     );
     assert_eq!(
         read_model.rows[0].query_visibility,
-        ocentra_parent_agent_protocol::TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
+        TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
     );
     assert_eq!(
         read_model.rows[0]
@@ -169,14 +176,15 @@ fn assert_mixed_read_model_active_product_surface_counts(read_model: &TrackingRe
 
 #[test]
 fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     let read_model = tracking_read_model_for_store(
         &store,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -195,14 +203,11 @@ fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
 }
 
 fn tracking_evidence_ref(value: &str) -> TrackingEvidenceRef {
-    TrackingEvidenceRef::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    TrackingEvidenceRef::parse(value)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
-fn assert_count(
-    counts: &[ocentra_parent_agent_protocol::TrackingReadModelCount],
-    value: &str,
-    count: u64,
-) {
+fn assert_count(counts: &[TrackingReadModelCount], value: &str, count: u64) {
     let actual = counts
         .iter()
         .find(|entry| entry.value == value)
@@ -210,7 +215,7 @@ fn assert_count(
     assert_eq!(actual, Some(count));
 }
 
-fn assert_no_count(counts: &[ocentra_parent_agent_protocol::TrackingReadModelCount], value: &str) {
+fn assert_no_count(counts: &[TrackingReadModelCount], value: &str) {
     assert!(!counts.iter().any(|entry| entry.value == value));
 }
 

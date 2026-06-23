@@ -30,7 +30,7 @@ const proof = {
   summary: readModel.summary,
   productClaims: productClaims(),
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-fixture-coverage-proof.ts',
+    source: 'packages/schema-domain/src/tracking-fixture-coverage-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-fixture-coverage-proof.test.ts',
     harness: 'scripts/test/tracking-fixture-coverage-proof.mjs',
     evidence: 'test-results/tracking-fixture-coverage-proof/proof.json',
@@ -48,7 +48,7 @@ console.log('tracking-fixture-coverage-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-fixture-coverage-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function assertProof(proof) {

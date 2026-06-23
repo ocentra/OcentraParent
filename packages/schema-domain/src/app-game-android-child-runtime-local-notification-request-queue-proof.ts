@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchemaVersionSchema = withParser(
@@ -43,7 +38,9 @@ export const AppGameAndroidChildRuntimeLocalNotificationRequestQueueGapSchema = 
   )
 );
 
-const LocalRequestQueueLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofLabel');
+const LocalRequestQueueLabelSchema = brandedNonEmptyStringSchema(
+  'AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofLabel'
+);
 
 const AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchemaVersionSchema,
@@ -138,23 +135,44 @@ export function summarizeAppGameAndroidChildRuntimeLocalNotificationRequestQueue
 
 function localRequestQueueProofIsHonest(proof: LocalRequestQueueCandidate): boolean {
   return (
+    localRequestQueueStateIsHonest(proof) &&
+    localRequestQueueProofRefsArePresent(proof) &&
+    localRequestQueueOpenGapsArePresent(proof)
+  );
+}
+
+function localRequestQueueStateIsHonest(proof: LocalRequestQueueCandidate): boolean {
+  return (
     proof.packageId === 'ca.ocentra.parent.agent' &&
     proof.notificationRequestQueueState === 'local-notification-request-queue-recorded' &&
     proof.notificationRequestReadbackState === 'local-notification-request-readback-observed' &&
     proof.notificationRequestDrainState === 'local-notification-request-drain-recorded' &&
     proof.requestQueueReadbackObserved &&
-    proof.requestDrainReadbackObserved &&
-    proof.proofRefs.includes('android-physical-adb-device-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-notification-request-action-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-notification-request-queue-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-notification-request-readback-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-notification-request-drain-ref') &&
-    proof.openGaps.includes('service-request-ingestion-not-proved') &&
-    proof.openGaps.includes('parent-approval-round-trip-not-proved') &&
-    proof.openGaps.includes('provider-delivery-not-proved') &&
-    proof.openGaps.includes('platform-delivery-outside-package-not-proved') &&
-    proof.openGaps.includes('adapter-dispatch-not-proved') &&
-    proof.openGaps.includes('platform-enforcement-not-proved')
+    proof.requestDrainReadbackObserved
   );
 }
 
+function localRequestQueueProofRefsArePresent(proof: LocalRequestQueueCandidate): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-physical-adb-device-ref',
+    'android-child-runtime-local-notification-request-action-ref',
+    'android-child-runtime-local-notification-request-queue-ref',
+    'android-child-runtime-local-notification-request-readback-ref',
+    'android-child-runtime-local-notification-request-drain-ref',
+  ] as const);
+}
+
+function localRequestQueueOpenGapsArePresent(proof: LocalRequestQueueCandidate): boolean {
+  return includesAll(proof.openGaps, [
+    'service-request-ingestion-not-proved',
+    'parent-approval-round-trip-not-proved',
+    'provider-delivery-not-proved',
+    'platform-delivery-outside-package-not-proved',
+    'adapter-dispatch-not-proved',
+    'platform-enforcement-not-proved',
+  ] as const);
+}
+
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

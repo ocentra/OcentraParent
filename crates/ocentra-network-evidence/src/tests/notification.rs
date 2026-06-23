@@ -5,14 +5,15 @@ use crate::{
     NetworkParentNotificationCandidateError, NetworkParentNotificationCandidateInput,
     NetworkParentNotificationDeliveryState, NetworkParentNotificationSeverity,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn notification_candidate_maps_grade_a_policy_to_urgent_candidate_only() {
-    let candidate = map_network_parent_notification_candidate(candidate_input(policy_mapping(
+    let candidate = map_network_parent_notification_candidate(&candidate_input(policy_mapping(
         NetworkEvidenceGrade::A,
         NetworkEvidencePolicyAction::Block,
     )))
-    .expect("grade A block dry-run should map to urgent parent candidate");
+    .expect_value("grade A block dry-run should map to urgent parent candidate");
 
     assert_eq!(
         candidate.notification_candidate_ref,
@@ -43,21 +44,21 @@ fn notification_candidate_maps_grade_a_policy_to_urgent_candidate_only() {
 
 #[test]
 fn notification_candidate_maps_parent_review_and_observe_only_states() {
-    let review = map_network_parent_notification_candidate(candidate_input(policy_mapping(
+    let review = map_network_parent_notification_candidate(&candidate_input(policy_mapping(
         NetworkEvidenceGrade::B,
         NetworkEvidencePolicyAction::Block,
     )))
-    .expect("grade B block should map to parent review candidate");
+    .expect_value("grade B block should map to parent review candidate");
     assert_eq!(review.policy_mode, NetworkEvidencePolicyMode::ParentReview);
     assert_eq!(review.policy_action, NetworkEvidencePolicyAction::AskParent);
     assert_eq!(review.severity, NetworkParentNotificationSeverity::Review);
     assert!(!review.provider_delivery_authorized);
 
-    let observe = map_network_parent_notification_candidate(candidate_input(policy_mapping(
+    let observe = map_network_parent_notification_candidate(&candidate_input(policy_mapping(
         NetworkEvidenceGrade::D,
         NetworkEvidencePolicyAction::Block,
     )))
-    .expect("grade D should map to observe-only notification candidate");
+    .expect_value("grade D should map to observe-only notification candidate");
     assert_eq!(observe.policy_mode, NetworkEvidencePolicyMode::ObserveOnly);
     assert_eq!(observe.policy_action, NetworkEvidencePolicyAction::None);
     assert_eq!(observe.severity, NetworkParentNotificationSeverity::Info);
@@ -66,7 +67,7 @@ fn notification_candidate_maps_parent_review_and_observe_only_states() {
 #[test]
 fn notification_candidate_rejects_provider_delivery_or_sensitive_payload_claims() {
     assert_eq!(
-        map_network_parent_notification_candidate(NetworkParentNotificationCandidateInput {
+        map_network_parent_notification_candidate(&NetworkParentNotificationCandidateInput {
             provider_delivery_available: true,
             ..candidate_input(policy_mapping(
                 NetworkEvidenceGrade::A,
@@ -76,7 +77,7 @@ fn notification_candidate_rejects_provider_delivery_or_sensitive_payload_claims(
         Err(NetworkParentNotificationCandidateError::ProviderDeliveryClaimRejected)
     );
     assert_eq!(
-        map_network_parent_notification_candidate(NetworkParentNotificationCandidateInput {
+        map_network_parent_notification_candidate(&NetworkParentNotificationCandidateInput {
             sensitive_payload_available: true,
             ..candidate_input(policy_mapping(
                 NetworkEvidenceGrade::A,
@@ -95,7 +96,7 @@ fn notification_candidate_rejects_adapter_or_enforcement_authority() {
     );
     adapter.adapter_action_authorized = true;
     assert_eq!(
-        map_network_parent_notification_candidate(candidate_input(adapter)),
+        map_network_parent_notification_candidate(&candidate_input(adapter)),
         Err(NetworkParentNotificationCandidateError::AdapterAuthorityRejected)
     );
 
@@ -105,7 +106,7 @@ fn notification_candidate_rejects_adapter_or_enforcement_authority() {
     );
     enforcement.enforcement_command_authorized = true;
     assert_eq!(
-        map_network_parent_notification_candidate(candidate_input(enforcement)),
+        map_network_parent_notification_candidate(&candidate_input(enforcement)),
         Err(NetworkParentNotificationCandidateError::EnforcementCommandRejected)
     );
 }
@@ -113,7 +114,7 @@ fn notification_candidate_rejects_adapter_or_enforcement_authority() {
 #[test]
 fn notification_candidate_rejects_empty_refs() {
     assert_eq!(
-        map_network_parent_notification_candidate(NetworkParentNotificationCandidateInput {
+        map_network_parent_notification_candidate(&NetworkParentNotificationCandidateInput {
             notification_candidate_ref: " ".to_owned(),
             ..candidate_input(policy_mapping(
                 NetworkEvidenceGrade::A,
@@ -129,7 +130,7 @@ fn notification_candidate_rejects_empty_refs() {
     );
     missing_policy.policy_decision_ref = " ".to_owned();
     assert_eq!(
-        map_network_parent_notification_candidate(candidate_input(missing_policy)),
+        map_network_parent_notification_candidate(&candidate_input(missing_policy)),
         Err(NetworkParentNotificationCandidateError::EmptyPolicyDecisionRef)
     );
 
@@ -139,7 +140,7 @@ fn notification_candidate_rejects_empty_refs() {
     );
     missing_rule.parent_rule_ref = " ".to_owned();
     assert_eq!(
-        map_network_parent_notification_candidate(candidate_input(missing_rule)),
+        map_network_parent_notification_candidate(&candidate_input(missing_rule)),
         Err(NetworkParentNotificationCandidateError::EmptyParentRuleRef)
     );
 
@@ -149,7 +150,7 @@ fn notification_candidate_rejects_empty_refs() {
     );
     missing_evidence.evidence_refs = vec![" ".to_owned()];
     assert_eq!(
-        map_network_parent_notification_candidate(candidate_input(missing_evidence)),
+        map_network_parent_notification_candidate(&candidate_input(missing_evidence)),
         Err(NetworkParentNotificationCandidateError::EmptyEvidenceRef)
     );
 }
@@ -178,5 +179,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .expect("policy mapping test input should be valid")
+    .expect_value("policy mapping test input should be valid")
 }

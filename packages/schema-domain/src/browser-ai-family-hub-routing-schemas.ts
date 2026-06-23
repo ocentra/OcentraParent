@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { BrowserCustodyLabelSchema } from './browser-schemas';
@@ -24,9 +24,7 @@ const OptionalFamilyHubRuntimeRefSchema = Schema.Union(BrowserAiModelRuntimeRefS
 
 export const BrowserAiFamilyHubRouteSchemaVersion = 1;
 
-export const BrowserAiFamilyHubRouteIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiFamilyHubRouteId')
-);
+export const BrowserAiFamilyHubRouteIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiFamilyHubRouteId'));
 export const BrowserAiFamilyHubIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiFamilyHubId'));
 
 export const BrowserAiFamilyHubCapabilityStateSchema = withParser(

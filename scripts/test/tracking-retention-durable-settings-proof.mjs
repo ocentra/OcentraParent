@@ -44,9 +44,8 @@ async function main() {
 
   const localServiceStateProof = JSON.parse(await readFile(localServiceStateProofPath, 'utf8'));
   const proofModule = await tsImport(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-retention-durable-settings-proof.ts')
-    ).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-retention-durable-settings-proof.ts'))
+      .href,
     import.meta.url
   );
   const proof = {

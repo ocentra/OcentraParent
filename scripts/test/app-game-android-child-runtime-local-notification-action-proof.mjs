@@ -45,7 +45,7 @@ async function main() {
       'app-game-android-child-runtime-local-notification-action-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -95,7 +95,7 @@ async function main() {
       join(
         repoRoot,
         'packages',
-        'app-game-domain',
+        'schema-domain',
         'dist',
         'app-game-android-child-runtime-local-notification-action-proof.js'
       )
@@ -118,7 +118,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-notification-action-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-child-runtime-local-notification-action-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-notification-action-proof.test.ts',
       androidRuntime:
@@ -135,7 +135,7 @@ async function main() {
     claimsProved: [
       'Android child package exposes a package-local ask-parent action on the app/game notification',
       'Android child package records a package-local request action marker that can be read back through debug run-as',
-      'App-game-domain records only channel/post/action/marker proof refs and keeps provider delivery, service ingestion, approval round trip, adapter dispatch, platform enforcement, and raw private source rows unclaimed',
+      'The centralized notification-action proof records only channel/post/action/marker refs and keeps provider delivery, service ingestion, approval round trip, adapter dispatch, platform enforcement, and raw private source rows unclaimed',
     ],
     claimsNotProved: [
       'Provider notification delivery',

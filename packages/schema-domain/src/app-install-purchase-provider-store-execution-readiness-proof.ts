@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-install-purchase-approved-api-entitlement-proof';
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
 import { AppInstallPurchaseParentActionDeliveryReadinessProofReadModel } from './app-install-purchase-parent-action-delivery-readiness-proof';
@@ -114,10 +109,18 @@ const AppInstallPurchaseProviderStoreExecutionReadinessNonClaimSchema = withPars
   Schema.Literal(...ProviderStoreExecutionReadinessNonClaims)
 );
 
-const ProviderStoreExecutionReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessRowId');
-const ProviderStoreExecutionReadinessRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessRef');
-const ProviderStoreExecutionReadinessAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessAuditRef');
-const ProviderStoreExecutionReadinessClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessClaimBoundary');
+const ProviderStoreExecutionReadinessRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreExecutionReadinessRowId'
+);
+const ProviderStoreExecutionReadinessRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreExecutionReadinessRef'
+);
+const ProviderStoreExecutionReadinessAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreExecutionReadinessAuditRef'
+);
+const ProviderStoreExecutionReadinessClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreExecutionReadinessClaimBoundary'
+);
 
 const ProviderStoreExecutionReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreExecutionReadinessProofSchemaVersionSchema,
@@ -472,4 +475,3 @@ function providerStoreExecutionReadinessBoundaryIsExplicit(
 ): boolean {
   return ProviderStoreExecutionReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

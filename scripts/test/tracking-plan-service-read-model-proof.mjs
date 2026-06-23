@@ -130,7 +130,8 @@ async function main() {
       },
     },
     proofArtifacts: {
-      typescriptProtocolDomain: 'packages/agent-protocol-domain/src/contracts.ts',
+      typescriptCommandEventContract: 'packages/schema-domain/src/agent-command-event-contracts.ts',
+      typescriptProtocolDefaults: 'packages/schema-domain/src/agent-protocol-defaults.ts',
       rustProtocolReadModel: 'crates/agent-protocol/src/tracking_read_model.rs',
       rustCoreReadModel: 'crates/agent-core/src/activity_store_tracking.rs',
       rustCoreRows: 'crates/agent-core/src/activity_store_tracking_rows.rs',
@@ -283,18 +284,16 @@ async function main() {
 }
 
 async function loadTrackingReadModelContract() {
-  const { AgentCommand, AgentEvent, AgentProtocolDefaults } =
-    await importTsModule('packages/agent-protocol-domain/src/contracts.ts');
+  const [{ AgentCommand, AgentEvent }, { AgentProtocolDefaults }] = await Promise.all([
+    importTsModule('packages/schema-domain/src/agent-command-event-contracts.ts'),
+    importTsModule('packages/schema-domain/src/agent-protocol-defaults.ts'),
+  ]);
 
   return {
     command: AgentCommand.ActivityTrackingReadModelGet,
     event: AgentEvent.ActivityTrackingReadModelReported,
     payloadField: AgentProtocolDefaults.Field.ActivityTrackingReadModel,
   };
-}
-
-async function runNpmWorkspace(workspaceName, args) {
-  await runNpm(['--workspace', workspaceName, ...args]);
 }
 
 async function runNpm(args, ...rest) {

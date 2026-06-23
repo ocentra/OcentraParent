@@ -7,11 +7,31 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
 };
 use ocentra_parent_agent_protocol::constants;
 
+trait OptionRequiredExt<T> {
+    fn required(self, context: &str) -> T;
+}
+
+impl<T> OptionRequiredExt<T> for Option<T> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|| unreachable!("{context}"))
+    }
+}
+
+trait ResultRequiredExt<T, E> {
+    fn required(self, context: &str) -> T;
+}
+
+impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
+    fn required(self, context: &str) -> T {
+        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    }
+}
+
 #[tokio::test]
 async fn child_domain_runtime_flow_keeps_feature_ai_policy_and_notification_decoupled_by_events() {
     let reports = ocentra_child_runtime::publish_default_child_domain_runtime_flows()
         .await
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
     assert_eq!(reports.len(), 7);
     assert_eq!(reports[0].domain, ChildRuntimeDomain::App);
@@ -26,15 +46,15 @@ async fn child_domain_runtime_flow_keeps_feature_ai_policy_and_notification_deco
         let policy_evaluation_requested = report
             .policy_evaluation_requested
             .as_ref()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+            .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
         let policy_violation_detected = report
             .policy_violation_detected
             .as_ref()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+            .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
         let notification_requested = report
             .notification_requested
             .as_ref()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+            .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
         assert_eq!(report.evidence_recorded.domain, report.domain);
         assert_eq!(policy_evaluation_requested.domain, report.domain);
         assert_eq!(policy_violation_detected.domain, report.domain);
@@ -67,7 +87,7 @@ async fn child_domain_runtime_flow_keeps_feature_ai_policy_and_notification_deco
             let ai_analysis_completed = report
                 .ai_analysis_completed
                 .as_ref()
-                .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+                .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
             assert_eq!(
                 ai_analysis_completed.source_ai_request_id,
                 ai_analysis_requested.ai_request_id
@@ -101,14 +121,14 @@ async fn child_domain_ai_only_flow_does_not_publish_policy_or_notification() {
 
     let report = ocentra_child_runtime::publish_child_domain_observed_event(event)
         .await
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
     let ai_analysis_requested = report
         .ai_analysis_requested
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let ai_analysis_completed = report
         .ai_analysis_completed
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     assert_eq!(
         ai_analysis_completed.source_ai_request_id,
         ai_analysis_requested.ai_request_id
@@ -132,7 +152,7 @@ async fn child_domain_observe_only_intent_records_evidence_without_side_effects(
 
     let report = ocentra_child_runtime::publish_child_domain_observed_event(event)
         .await
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
     assert_eq!(report.domain, ChildRuntimeDomain::Network);
     assert_eq!(report.evidence_recorded.domain, ChildRuntimeDomain::Network);
@@ -159,7 +179,7 @@ async fn child_domain_ambiguous_feature_intent_routes_ai_then_policy_then_notifi
 
     let report = ocentra_child_runtime::publish_child_domain_observed_event(event)
         .await
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
     assert_eq!(report.domain, ChildRuntimeDomain::AppGame);
     assert_eq!(
@@ -177,7 +197,7 @@ async fn child_domain_unknown_app_intent_routes_ai_then_policy_then_notification
 
     let report = ocentra_child_runtime::publish_child_domain_observed_event(event)
         .await
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
     assert_eq!(report.domain, ChildRuntimeDomain::App);
     assert_eq!(
@@ -194,13 +214,13 @@ async fn child_domain_runtime_flow_can_attach_once_for_domain_event_family() {
     );
     let runtime_flow = ocentra_child_runtime::ChildDomainRuntimeEventFlow::for_event(&event)
         .await
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let metrics_before = runtime_flow.metrics_snapshot().await;
 
     let report = runtime_flow
         .publish_observed(event)
         .await
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let metrics_after = runtime_flow.metrics_snapshot().await;
 
     assert_eq!(metrics_before.subscription_count, 5);
@@ -215,23 +235,23 @@ fn assert_ai_policy_notification_chain(
     let ai_analysis_requested = report
         .ai_analysis_requested
         .as_ref()
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let ai_analysis_completed = report
         .ai_analysis_completed
         .as_ref()
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let policy_evaluation_requested = report
         .policy_evaluation_requested
         .as_ref()
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let policy_violation_detected = report
         .policy_violation_detected
         .as_ref()
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let notification_requested = report
         .notification_requested
         .as_ref()
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+        .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
     assert_eq!(
         ai_analysis_completed.source_ai_request_id,

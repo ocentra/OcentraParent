@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -24,7 +19,10 @@ import {
   appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffMatchesReadModel,
   type AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffStateValue,
 } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffIdSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffId');
@@ -32,10 +30,12 @@ export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommand
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffRowId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffContractRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffContractRef');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRef');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRef');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandRef'
+);
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolEventRef'
+);
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolServiceHandlerRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolServiceHandlerRef');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandSummaryRefSchema =
@@ -310,4 +310,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolC
   Schema.decodeUnknownSync(AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffSchema);
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffState };
-

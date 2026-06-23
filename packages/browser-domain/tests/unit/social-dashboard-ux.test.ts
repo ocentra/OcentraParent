@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { type SocialDashboardUxSnapshot, SocialDashboardUxSnapshotSchema } from '@ocentra-parent/schema-domain/social-dashboard-ux';
+import {
+  type SocialDashboardUxSnapshot,
+  SocialDashboardUxSnapshotSchema,
+} from '@ocentra-parent/schema-domain/social-dashboard-ux';
 
 describe('social dashboard UX contracts', () => {
   it('accepts a contract-only parent social dashboard section snapshot', acceptsHonestSnapshot);

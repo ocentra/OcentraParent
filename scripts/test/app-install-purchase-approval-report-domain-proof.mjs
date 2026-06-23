@@ -54,9 +54,9 @@ async function main() {
     packageExportState: 'public app-game-domain subpath export retired; proof imports the built dist module directly.',
     checklistState: 'validated-product-capability-checklist-row',
     evidence: {
-      approvalReportDomainContract: 'packages/app-game-domain/src/app-install-purchase-approval-report-domain-proof.ts',
-      sourceParentReviewActionContract: 'packages/app-game-domain/src/app-install-purchase-parent-review-action-proof.ts',
-      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+      approvalReportDomainContract: 'packages/schema-domain/src/app-install-purchase-approval-report-domain-proof.ts',
+      sourceParentReviewActionContract: 'packages/schema-domain/src/app-install-purchase-parent-review-action-proof.ts',
+      sourceReportRuntimeContract: 'packages/schema-domain/src/app-install-purchase-report-runtime-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approval-report-domain-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

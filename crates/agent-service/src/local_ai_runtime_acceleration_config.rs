@@ -86,8 +86,8 @@ fn runtime_device_disables_gpu(value: &str) -> bool {
     value.eq_ignore_ascii_case(constants::local_ai_runtime::LLAMA_DEVICE_NONE)
 }
 
-fn env_llama_split_mode(key: &str) -> Option<String> {
-    env_value(key).filter(|value| {
+fn env_llama_split_mode(env_var_name: &str) -> Option<String> {
+    env_value(env_var_name).filter(|value| {
         value == constants::local_ai_runtime::LLAMA_SPLIT_MODE_NONE
             || value == constants::local_ai_runtime::LLAMA_SPLIT_MODE_LAYER
             || value == constants::local_ai_runtime::LLAMA_SPLIT_MODE_ROW
@@ -95,27 +95,29 @@ fn env_llama_split_mode(key: &str) -> Option<String> {
     })
 }
 
-fn env_llama_numeric_list(key: &str) -> Option<String> {
-    env_value(key).filter(|value| is_safe_numeric_list(value))
+fn env_llama_numeric_list(env_var_name: &str) -> Option<String> {
+    env_value(env_var_name).filter(|value| is_safe_numeric_list(value))
 }
 
-fn env_llama_non_negative_integer(key: &str) -> Option<String> {
-    env_value(key).filter(|value| value.parse::<u32>().is_ok())
+fn env_llama_non_negative_integer(env_var_name: &str) -> Option<String> {
+    env_value(env_var_name).filter(|value| value.parse::<u32>().is_ok())
 }
 
-fn env_llama_positive_integer(key: &str) -> Option<String> {
-    env_value(key).filter(|value| value.parse::<u32>().map(|index| index > 0).unwrap_or(false))
+fn env_llama_positive_integer(env_var_name: &str) -> Option<String> {
+    env_value(env_var_name)
+        .filter(|value| value.parse::<u32>().map(|index| index > 0).unwrap_or(false))
 }
 
-fn env_llama_toggle(key: &str) -> Option<String> {
-    env_value(key).filter(|value| {
+fn env_llama_toggle(env_var_name: &str) -> Option<String> {
+    env_value(env_var_name).filter(|value| {
         value == constants::local_ai_runtime::LLAMA_TOGGLE_ON
             || value == constants::local_ai_runtime::LLAMA_TOGGLE_OFF
     })
 }
 
-fn env_llama_op_offload(key: &str) -> Option<bool> {
-    env_llama_toggle(key).map(|value| value == constants::local_ai_runtime::LLAMA_TOGGLE_ON)
+fn env_llama_op_offload(env_var_name: &str) -> Option<bool> {
+    env_llama_toggle(env_var_name)
+        .map(|value| value == constants::local_ai_runtime::LLAMA_TOGGLE_ON)
 }
 
 fn is_safe_numeric_list(candidate: &str) -> bool {

@@ -19,7 +19,7 @@ import {
   type AgentAppGameAdapterDispatchResultReadModel,
   type AgentAppGameAdapterDispatchResultRow,
 } from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-result';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 
 const DetailSeparator = ' | ';

@@ -7,7 +7,9 @@ use super::{
 #[test]
 fn screen_parent_setting_serializes_parent_opt_in_and_retention_fields() {
     let setting = strict_dry_run_setting(2);
-    let serialized = serde_json::to_value(setting).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(setting).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["screenAnalysisEnabled"], true);
     assert_eq!(
@@ -30,7 +32,9 @@ fn screen_parent_setting_serializes_parent_approved_raw_retention_ttl() {
     setting.retain_raw_image = true;
     setting.temporary_image_ttl_seconds = constants::screen_settings::RAW_RETENTION_MAX_TTL_SECONDS;
     setting.reason = Some(constants::screen_settings::RAW_RETENTION_LOCAL_TTL_REASON.to_string());
-    let serialized = serde_json::to_value(setting).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(setting).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["retainRawImage"], true);
     assert_eq!(
@@ -54,7 +58,7 @@ fn screen_settings_request_rejects_unknown_fields() {
 
     let parsed = serde_json::from_value::<ScreenSettingsGetRequest>(invalid);
 
-    assert!(parsed.is_err());
+    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
 }
 
 #[test]
@@ -69,8 +73,9 @@ fn screen_settings_response_serializes_rejection_reason() {
         rejection_reason: Some(ScreenSettingsRejectionReason::RawRetentionForbidden),
         message: Some(constants::screen_settings::MESSAGE_INVALID_SETTING.to_string()),
     };
-    let serialized =
-        serde_json::to_value(response).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(response).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["rejectionReason"], "raw-retention-forbidden");
     assert_eq!(
@@ -81,16 +86,26 @@ fn screen_settings_response_serializes_rejection_reason() {
 
 #[test]
 fn screen_settings_transport_names_serialize_for_service_commands() {
-    let get = serde_json::to_value(AgentCommandName::AgentScreenSettingsGet)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let get =
+        serde_json::to_value(AgentCommandName::AgentScreenSettingsGet).unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     let replace = serde_json::to_value(AgentCommandName::AgentScreenSettingsReplace)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     let reported = serde_json::to_value(AgentEventName::AgentScreenSettingsReported)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     let accepted = serde_json::to_value(AgentEventName::AgentScreenSettingsReplaceAccepted)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     let rejected = serde_json::to_value(AgentEventName::AgentScreenSettingsReplaceRejected)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
 
     assert_eq!(
         get.as_str(),

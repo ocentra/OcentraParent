@@ -1,16 +1,9 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiPolicyEvaluatorRequestIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserAiPolicyEvaluatorRequestId')
 );
-export const BrowserPolicyDecisionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserPolicyDecisionId')
-);
+export const BrowserPolicyDecisionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserPolicyDecisionId'));
 export const BrowserPolicyDecisionAuditRefSchema = withParser(
   brandedNonEmptyStringSchema('BrowserPolicyDecisionAuditRef')
 );
@@ -45,4 +38,3 @@ export const BrowserPolicyDecisionReasonCodeSchema = withParser(
 export type BrowserPolicyDecisionOutcome = Infer<typeof BrowserPolicyDecisionOutcomeSchema>;
 export type BrowserPolicyEvaluatorMode = Infer<typeof BrowserPolicyEvaluatorModeSchema>;
 export type BrowserPolicyDecisionReasonCode = Infer<typeof BrowserPolicyDecisionReasonCodeSchema>;
-

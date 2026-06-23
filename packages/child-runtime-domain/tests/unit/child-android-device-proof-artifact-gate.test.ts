@@ -214,7 +214,7 @@ function rejectsCiArtifactWithoutEvidencePath(): void {
 }
 
 function validReadModel(): ChildAndroidDeviceProofArtifactGateReadModel {
-  return {
+  return ChildAndroidDeviceProofArtifactGateReadModelSchema.parse({
     schemaVersion: 'child-android-device-proof-artifact-gate',
     checkedAt: '2026-06-01T00:00:00.000Z',
     readinessDecision: 'manual-device-evidence-required-before-child-android-readiness',
@@ -256,10 +256,10 @@ function validReadModel(): ChildAndroidDeviceProofArtifactGateReadModel {
       'Android child enforcement parity is not proved by package-local proof outputs',
       'UsageStats grant, Accessibility, VPN/DNS, device-owner, managed-profile, signing, and external transport remain unproved',
     ],
-  };
+  });
 }
 
-function sourceProofs(): ChildAndroidDeviceProofArtifactGateReadModel['sourceProofs'] {
+function sourceProofs() {
   return [
     sourceProof('child-android-protocol-package-lifecycle-proof'),
     sourceProof('child-android-storage-protocol-capability-proof'),
@@ -269,7 +269,7 @@ function sourceProofs(): ChildAndroidDeviceProofArtifactGateReadModel['sourcePro
   ];
 }
 
-function addDevicePairingInputs(): ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'] {
+function addDevicePairingInputs() {
   return [
     addDevicePairingInput('package', 'child-android-protocol-package-lifecycle-proof', 'scaffold'),
     addDevicePairingInput('service', 'child-android-service-protocol-capability-proof', 'manual-required'),
@@ -280,11 +280,7 @@ function addDevicePairingInputs(): ChildAndroidDeviceProofArtifactGateReadModel[
   ];
 }
 
-function addDevicePairingInput(
-  input: ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number]['input'],
-  source: ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number]['source'],
-  readinessState: ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number]['readinessState']
-): ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number] {
+function addDevicePairingInput(input: string, source: string, readinessState: string) {
   return {
     input,
     source,
@@ -293,9 +289,7 @@ function addDevicePairingInput(
   };
 }
 
-function sourceProof(
-  source: ChildAndroidDeviceProofArtifactGateReadModel['sourceProofs'][number]['source']
-): ChildAndroidDeviceProofArtifactGateReadModel['sourceProofs'][number] {
+function sourceProof(source: string) {
   return {
     source,
     outputPath: `test-results/${source}/proof.json`,
@@ -304,7 +298,7 @@ function sourceProof(
   };
 }
 
-function artifactRequirements(): ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'] {
+function artifactRequirements() {
   return [
     artifactRequirement(
       'debug-apk-build',
@@ -337,7 +331,7 @@ function artifactRequirements(): ChildAndroidDeviceProofArtifactGateReadModel['a
   ];
 }
 
-function manualDeviceRequirements(): ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'] {
+function manualDeviceRequirements() {
   return [
     ...runtimeArtifactRequirements(),
     ...privilegedAdapterArtifactRequirements(),
@@ -345,7 +339,7 @@ function manualDeviceRequirements(): ChildAndroidDeviceProofArtifactGateReadMode
   ];
 }
 
-function runtimeArtifactRequirements(): ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'] {
+function runtimeArtifactRequirements() {
   return [
     artifactRequirement(
       'real-device-install-artifact',
@@ -395,7 +389,7 @@ function runtimeArtifactRequirements(): ChildAndroidDeviceProofArtifactGateReadM
   ];
 }
 
-function privilegedAdapterArtifactRequirements(): ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'] {
+function privilegedAdapterArtifactRequirements() {
   return [
     artifactRequirement(
       'accessibility-service-grant-artifact',
@@ -427,7 +421,7 @@ function privilegedAdapterArtifactRequirements(): ChildAndroidDeviceProofArtifac
   ];
 }
 
-function enrollmentAndDistributionArtifactRequirements(): ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'] {
+function enrollmentAndDistributionArtifactRequirements() {
   return [
     artifactRequirement(
       'device-owner-enrollment-artifact',
@@ -469,14 +463,14 @@ function enrollmentAndDistributionArtifactRequirements(): ChildAndroidDeviceProo
 }
 
 function artifactRequirement(
-  requirement: ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number]['requirement'],
-  parentCapability: ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number]['parentCapability'],
-  parentCapabilityStatus: ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number]['parentCapabilityStatus'],
-  artifactClass: ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number]['artifactClass'],
-  artifactStatus: ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number]['artifactStatus'],
-  evidencePath: ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number]['evidencePath'],
-  source: ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number]['source']
-): ChildAndroidDeviceProofArtifactGateReadModel['artifactRequirements'][number] {
+  requirement: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  artifactClass: string,
+  artifactStatus: string,
+  evidencePath: string | null,
+  source: string
+) {
   return {
     requirement,
     parentCapability,

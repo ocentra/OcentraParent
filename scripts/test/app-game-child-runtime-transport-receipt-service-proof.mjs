@@ -64,8 +64,10 @@ async function main() {
     },
     evidence: {
       schemaContract: 'packages/schema-domain/src/app-game-child-runtime-transport-receipt.ts',
-      typescriptParserConsumer: 'packages/agent-protocol-domain/src/app-game-child-runtime-transport-receipt-event-parser.ts',
-      protocolContractTest: 'packages/agent-protocol-domain/tests/unit/app-game-child-runtime-transport-receipt.test.ts',
+      typescriptParserConsumer:
+        'packages/agent-protocol-domain/src/app-game-child-runtime-transport-receipt-event-parser.ts',
+      protocolContractTest:
+        'packages/agent-protocol-domain/tests/unit/app-game-child-runtime-transport-receipt.test.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_child_runtime_transport_receipt.rs',
       rustProtocolTest: 'crates/agent-protocol/src/app_game_child_runtime_transport_receipt_tests.rs',
       rustService: 'crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs',

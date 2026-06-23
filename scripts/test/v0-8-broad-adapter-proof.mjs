@@ -65,7 +65,8 @@ async function main() {
       tsRuntimeContract: 'packages/schema-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
       tsRuntimeContractTest: 'packages/enforcement-domain/tests/unit/v0-8-broad-os-adapter-runtime-proof.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-broad-adapter-proof-adapter.ts',
-      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/unit/enforcement-broad-adapter-proof-adapter.test.ts',
+      tsProtocolAdapterTest:
+        'packages/agent-protocol-domain/tests/unit/enforcement-broad-adapter-proof-adapter.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_broad_adapter_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_broad_adapter_proof_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/enforcement_api/enforcement_broad_adapter_proof_read_model.rs',

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from './effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
 import { ActivityEvidenceRefSchema } from './evidence-contracts';
 import {
   ActivityDeviceIdSchema,

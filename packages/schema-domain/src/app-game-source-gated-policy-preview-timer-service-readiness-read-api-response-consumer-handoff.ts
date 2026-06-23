@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -36,9 +31,13 @@ import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './fami
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffIdSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRowId');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRowId'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffContractRef');
+  brandedNonEmptyStringSchema(
+    'AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffContractRef'
+  );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerProofRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerProofRef');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerSummaryRefSchema =
@@ -270,4 +269,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiRe
   Schema.decodeUnknownSync(AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffSchema);
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffState };
-

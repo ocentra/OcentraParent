@@ -18,6 +18,8 @@ use crate::{
 
 pub mod parent_child_runtime_input;
 
+pub const AGENT_TRANSPORT_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
+
 #[derive(Clone, Debug)]
 pub struct ParentChildRuntimeReport {
     pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
@@ -878,10 +880,14 @@ mod policy_request_assistant_preview_confirm_tests {
     ) {
         let command =
             serde_json::to_value(AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm)
-                .expect("policy request confirm command serializes");
+                .unwrap_or_else(|error| {
+                    unreachable!("policy request confirm command serializes: {error}")
+                });
         let event =
             serde_json::to_value(AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported)
-                .expect("policy request confirm event serializes");
+                .unwrap_or_else(|error| {
+                    unreachable!("policy request confirm event serializes: {error}")
+                });
 
         assert_eq!(command, "agent.policy.request.assistant-preview.confirm");
         assert_eq!(
@@ -922,8 +928,9 @@ mod policy_request_assistant_preview_confirm_tests {
             product_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
         };
 
-        let serialized =
-            serde_json::to_value(result).expect("policy request confirm result serializes");
+        let serialized = serde_json::to_value(result).unwrap_or_else(|error| {
+            unreachable!("policy request confirm result serializes: {error}")
+        });
 
         assert_eq!(serialized["resultState"], "confirmed");
         assert_eq!(serialized["policyRequestStatus"], "pending-parent-review");

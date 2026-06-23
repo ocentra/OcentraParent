@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { LanPairingRejectionReasonSchema, LanPairingRouteIdSchema } from './lan-pairing-values';
 import { ParentMobileCommandAuthorityStateSchema } from './parent-mobile-runtime';
 import { ParentTimestampSchema } from './family-reference-primitives';
@@ -502,4 +497,3 @@ export type V09HouseholdMultiDeviceArtifactReadinessGateSummary = Infer<
 >;
 export type V09HouseholdMultiDevicePortalDeviceSpine = Infer<typeof V09HouseholdMultiDevicePortalDeviceSpineSchema>;
 export type V09HouseholdMultiDeviceProofGateReadModel = Infer<typeof V09HouseholdMultiDeviceProofGateReadModelSchema>;
-

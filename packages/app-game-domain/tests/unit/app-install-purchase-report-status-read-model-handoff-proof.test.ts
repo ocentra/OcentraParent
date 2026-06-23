@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseReportStatusReadModelHandoffProofSchema,
   AppInstallPurchaseReportStatusReadModelHandoffRowSchema,
   summarizeAppInstallPurchaseReportStatusReadModelHandoffProof,
-} from '../../src/app-install-purchase-report-status-read-model-handoff-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-report-status-read-model-handoff-proof';
 
 describe('app install and purchase report status read model handoff proof', () => {
   acceptsParentVisibleReportStatusRowsWithoutDeliveryClaims();

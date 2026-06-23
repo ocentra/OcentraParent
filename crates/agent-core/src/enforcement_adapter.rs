@@ -1,10 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, policy_constants, EnforcementAdapterKind,
-    EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementMode, EnforcementPermissionState,
-    EnforcementResultStatus, EnforcementRollbackState, EnforcementUnavailableReason,
-    ParentPlatform,
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementCapabilityState,
+    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementMode,
+    EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
+    EnforcementUnavailableReason, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EnforcementAdapterOutcome {

@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProviderStoreExecutionPreflightProofSchema,
   AppInstallPurchaseProviderStoreExecutionPreflightRowSchema,
   summarizeAppInstallPurchaseProviderStoreExecutionPreflightProof,
-} from '../../src/app-install-purchase-provider-store-execution-preflight-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-provider-store-execution-preflight-proof';
 
 describe('app install and purchase provider store execution preflight proof', () => {
   acceptsProviderStoreExecutionPreflightRowsWithoutExecutionClaims();

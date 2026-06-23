@@ -1,4 +1,5 @@
 use std::env;
+use std::io::{stderr, Write};
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -59,7 +60,10 @@ pub async fn run_loop(manifest_url: &str, interval_seconds: u64) -> Result<(), U
         match run_once(manifest_url, env!("CARGO_PKG_VERSION"), false).await {
             Ok(UpdateOutcome::InstallerStarted { .. }) => return Ok(()),
             Ok(_) => {}
-            Err(error) => eprintln!("updater check failed: {error}"),
+            Err(error) => {
+                let mut output = stderr().lock();
+                drop(writeln!(output, "updater check failed: {error}"));
+            }
         }
         sleep(Duration::from_secs(effective_interval_seconds(
             interval_seconds,

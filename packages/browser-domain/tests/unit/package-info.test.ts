@@ -6,4 +6,3 @@ describe('browser domain package boundary', () => {
     expect(BrowserDomainPackageName).toBe('@ocentra-parent/browser-domain');
   });
 });
-

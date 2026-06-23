@@ -1,15 +1,16 @@
 import type { ReactElement } from 'react';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
   createSetupFirstRunPanelIntent,
   type SetupFirstRunPanelCard,
   type SetupFirstRunPanelDetail,
 } from '@ocentra-parent/portal-domain/setup-first-run-panel';
-import { decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
+import { isPortalSetupFirstRunRoute } from '@ocentra-parent/portal-domain/routes';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 
 export function shouldRenderSetupFirstRunRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.Start;
+  return isPortalSetupFirstRunRoute(route);
 }
 
 export function SetupFirstRunRoutePanel(): ReactElement {
@@ -48,11 +49,7 @@ export function SetupFirstRunRoutePanel(): ReactElement {
   );
 }
 
-function SetupFirstRunCard({
-  card,
-}: {
-  readonly card: SetupFirstRunPanelCard;
-}): ReactElement {
+function SetupFirstRunCard({ card }: { readonly card: SetupFirstRunPanelCard }): ReactElement {
   return (
     <article className={setupCardClassName()}>
       <h2>{card.title}</h2>
@@ -62,11 +59,7 @@ function SetupFirstRunCard({
   );
 }
 
-function SetupFirstRunDetails({
-  details,
-}: {
-  readonly details: readonly SetupFirstRunPanelDetail[];
-}): ReactElement {
+function SetupFirstRunDetails({ details }: { readonly details: readonly SetupFirstRunPanelDetail[] }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
       {details.map((detail, index) => (
@@ -76,11 +69,7 @@ function SetupFirstRunDetails({
   );
 }
 
-function SetupFirstRunDetail({
-  detail,
-}: {
-  readonly detail: SetupFirstRunPanelDetail;
-}): ReactElement {
+function SetupFirstRunDetail({ detail }: { readonly detail: SetupFirstRunPanelDetail }): ReactElement {
   return (
     <div>
       <dt>{detail.label}</dt>
@@ -90,7 +79,5 @@ function SetupFirstRunDetail({
 }
 
 function setupCardClassName(): string {
-  return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
-    PortalDom.Classes.ClassNameSeparator
-  );
+  return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(PortalDom.Classes.ClassNameSeparator);
 }

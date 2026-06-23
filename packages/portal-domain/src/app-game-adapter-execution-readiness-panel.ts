@@ -1,6 +1,4 @@
-import {
-  type AgentAppGameAdapterExecutionReadinessResult,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-execution-readiness';
+import { type AgentAppGameAdapterExecutionReadinessResult } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-execution-readiness';
 import {
   AgentAppGameAdapterExecutionDecision,
   AgentAppGameAdapterExecutionState,
@@ -8,7 +6,7 @@ import {
   type AppGameAdapterExecutionReadinessReadModel,
   type AppGameAdapterExecutionReadinessRow,
 } from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 
 const DetailSeparator = ' | ';
@@ -128,13 +126,19 @@ function readModelSummary(
   const hostCapabilityNotApplicableCount = readModel.rows.filter(
     (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable
   ).length;
-  const hostCapabilityProbeRefCount = readModel.rows.reduce((count, row) => count + row.hostCapabilityProbeRefs.length, 0);
+  const hostCapabilityProbeRefCount = readModel.rows.reduce(
+    (count, row) => count + row.hostCapabilityProbeRefs.length,
+    0
+  );
 
   return [
     detail(PortalDetails.Status, adapterReadinessLoadState(readModel)),
     detail(PortalDetails.GeneratedAt, displayText(readModel.generatedAt)),
     detail(PortalDetails.Custody, joinedOrNotReported(readModel.sourceReadModelIds)),
-    detail(PortalDetails.Capability, joinedOrNotReported(uniqueValues(readModel.rows.map((row) => row.adapterCapability)))),
+    detail(
+      PortalDetails.Capability,
+      joinedOrNotReported(uniqueValues(readModel.rows.map((row) => row.adapterCapability)))
+    ),
     detail(PortalDetails.RowsReturned, countText(readModel.rows.length)),
     detail(PortalDetails.ReadModelRows, countText(executionAllowedCount)),
     detail(PortalDetails.ManualReview, countText(blockedBeforeExecutionCount)),

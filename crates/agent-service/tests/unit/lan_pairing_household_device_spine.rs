@@ -1,8 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceConfidence,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingProductionDiscoveryState, LanPairingTrustState,
+};
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceConfidence,
     LanCanonicalHouseholdDeviceRole, LanCanonicalHouseholdDeviceSource,
-    LanCanonicalHouseholdSurface, LanHouseholdDeviceActionKind, LanPairingProductionDiscoveryState,
-    LanPairingTrustState,
+    LanCanonicalHouseholdSurface, LanHouseholdDeviceActionKind,
 };
 
 use crate::lan_pairing_household_device_spine::canonical_household_devices;
@@ -35,19 +38,24 @@ fn local_agent_and_neighbor_merge_into_one_canonical_physical_device() {
         device.network_identity.ip_addresses,
         vec![constants::lan_pairing::TEST_LAN_IP.to_string()]
     );
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::LocalService));
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::NetworkNeighbor));
-    assert!(device
-        .role_badges
-        .contains(&LanCanonicalHouseholdDeviceRole::Portal));
-    assert!(device
-        .role_badges
-        .contains(&LanCanonicalHouseholdDeviceRole::ParentController));
-    assert!(device.child_agent_inventory.is_some());
+    assert_eq!(
+        device.source_labels.as_slice(),
+        vec![
+            LanCanonicalHouseholdDeviceSource::LocalService,
+            LanCanonicalHouseholdDeviceSource::NetworkNeighbor,
+        ]
+        .as_slice()
+    );
+    assert_eq!(
+        device.role_badges.as_slice(),
+        vec![
+            LanCanonicalHouseholdDeviceRole::ChildAgent,
+            LanCanonicalHouseholdDeviceRole::Portal,
+            LanCanonicalHouseholdDeviceRole::ParentController,
+        ]
+        .as_slice()
+    );
+    assert!(matches!(device.child_agent_inventory.as_ref(), Some(_)));
 }
 
 #[test]
@@ -61,8 +69,8 @@ fn router_neighbor_stays_visible_but_not_enrollable() {
         LanCanonicalHouseholdDeviceClassification::NetworkInfrastructure
     );
     assert!(!device.enrollable);
-    assert!(device.role_badges.is_empty());
-    assert!(device.child_agent_inventory.is_none());
+    assert_eq!(device.role_badges.as_slice(), [].as_slice());
+    assert!(matches!(device.child_agent_inventory.as_ref(), None));
     assert_eq!(
         device.policy_target_surfaces,
         vec![
@@ -127,12 +135,14 @@ fn child_agent_and_neighbor_may_merge_on_ip_when_agent_evidence_exists() {
         device.network_identity.confidence,
         LanCanonicalHouseholdDeviceConfidence::MacIpMatch
     );
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::LocalService));
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::NetworkNeighbor));
+    assert_eq!(
+        device.source_labels.as_slice(),
+        vec![
+            LanCanonicalHouseholdDeviceSource::LocalService,
+            LanCanonicalHouseholdDeviceSource::NetworkNeighbor,
+        ]
+        .as_slice()
+    );
 }
 
 #[test]
@@ -146,15 +156,21 @@ fn trusted_registry_device_remains_available_to_product_target_surfaces() {
         device.discovery_state,
         LanPairingProductionDiscoveryState::Paired
     );
-    for surface in [
-        LanCanonicalHouseholdSurface::Policy,
-        LanCanonicalHouseholdSurface::Activity,
-        LanCanonicalHouseholdSurface::Network,
-        LanCanonicalHouseholdSurface::Tracking,
-        LanCanonicalHouseholdSurface::Ai,
-    ] {
-        assert!(device.policy_target_surfaces.contains(&surface));
-    }
+    assert_eq!(
+        device.policy_target_surfaces.as_slice(),
+        vec![
+            LanCanonicalHouseholdSurface::Devices,
+            LanCanonicalHouseholdSurface::Policy,
+            LanCanonicalHouseholdSurface::Browser,
+            LanCanonicalHouseholdSurface::App,
+            LanCanonicalHouseholdSurface::Screen,
+            LanCanonicalHouseholdSurface::Network,
+            LanCanonicalHouseholdSurface::Activity,
+            LanCanonicalHouseholdSurface::Tracking,
+            LanCanonicalHouseholdSurface::Ai,
+        ]
+        .as_slice()
+    );
 }
 
 #[test]
@@ -175,13 +191,19 @@ fn parent_rename_decision_updates_canonical_display_name_with_evidence() {
         device.display_name,
         constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL
     );
-    assert!(device
-        .network_identity
-        .evidence_records
-        .iter()
-        .any(|record| record
-            .merge_key
-            .contains(constants::lan_pairing::HOUSEHOLD_ACTION_ID)));
+    let expected_merge_key = format!(
+        "{}{}",
+        constants::lan_pairing::LAN_EVIDENCE_KEY_PARENT_DECISION_PREFIX,
+        constants::lan_pairing::HOUSEHOLD_ACTION_ID
+    );
+    assert_eq!(
+        device
+            .network_identity
+            .evidence_records
+            .last()
+            .map(|record| record.merge_key.as_str()),
+        Some(expected_merge_key.as_str())
+    );
 }
 
 #[test]

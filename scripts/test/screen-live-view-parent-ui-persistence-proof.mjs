@@ -55,7 +55,8 @@ const liveViewParentUiPersistenceModule = await import(
 
 const activityDomain = {
   ScreenLiveViewOptInSettingSchema: optionalVisibilityModeModule.ScreenLiveViewOptInSettingSchema,
-  ScreenOptionalVisibilityModeSchemaVersion: optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
+  ScreenOptionalVisibilityModeSchemaVersion:
+    optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
   ScreenLiveViewServiceSessionGateSchema: liveViewServiceSessionModule.ScreenLiveViewServiceSessionGateSchema,
   ScreenLiveViewServiceSessionSchemaVersion: liveViewServiceSessionModule.ScreenLiveViewServiceSessionSchemaVersion,
   ScreenLiveViewParentUiPersistenceProofSchema:

@@ -6,7 +6,7 @@ import {
   AgentBrowserRuntimePhase,
   AgentBrowserRuntimeQueryVisibility,
 } from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
-import { AgentProtocolDefaults } from '../../src/defaults';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   deriveAgentBrowserRuntimeActionIntentStatus,
   deriveAgentBrowserRuntimeSocialProviderReceiptStatus,

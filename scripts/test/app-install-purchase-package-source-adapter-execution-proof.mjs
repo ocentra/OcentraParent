@@ -66,10 +66,11 @@ async function main() {
     packageExportState: 'public app-game-domain subpath export retired; proof imports the built dist module directly.',
     evidence: {
       packageSourceAdapterExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
       sourcePackageSourceCaptureStatusContract:
-        'packages/app-game-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-package-source-adapter-execution-proof.test.ts',
+        'packages/schema-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-package-source-adapter-execution-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta:

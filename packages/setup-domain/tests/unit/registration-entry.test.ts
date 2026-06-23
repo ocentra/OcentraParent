@@ -5,7 +5,10 @@ import {
   HouseholdRole,
   SessionFreshnessState,
 } from '@ocentra-parent/schema-domain/family-household-authority';
-import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentActorRole,
+  ParentContractSchemaVersion,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   RecoveryIdentityProofState,
   RecoveryKind,
@@ -105,119 +108,125 @@ const BaseHandoff = RegistrationIdentityHandoffSchema.parse({
   householdAuthorityInput: null,
 });
 
-describe('setup registration entry contracts', () => {
-  it('registration.entry-route-state', () => {
-    expect(RegistrationEntryRouteContracts.map((route) => route.routeId)).toEqual([
-      RegistrationEntryRoute.Register,
-      RegistrationEntryRoute.Login,
-      RegistrationEntryRoute.Logout,
-      RegistrationEntryRoute.InviteAccept,
-      RegistrationEntryRoute.ResumeSetup,
-      RegistrationEntryRoute.Recovery,
-    ]);
-    expect(registrationEntryRouteContract(RegistrationEntryRoute.Recovery).recoveryMethods).toEqual([
-      RegistrationRecoveryMethod.Password,
-      RegistrationRecoveryMethod.Passkey,
-      RegistrationRecoveryMethod.EmailLink,
-    ]);
+function createHandoff(overrides: Record<string, unknown> = {}) {
+  return RegistrationIdentityHandoffSchema.parse({
+    ...BaseHandoff,
+    ...overrides,
+  });
+}
 
-    const unauthenticated = evaluateRegistrationIdentityHandoff(BaseHandoff);
-    const authenticatedNoHousehold = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
-      routeId: RegistrationEntryRoute.ResumeSetup,
-      sessionFreshnessState: SessionFreshnessState.Fresh,
-      parentAccount: ParentAccount,
-    });
-    const householdNoChild = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
-      routeId: RegistrationEntryRoute.ResumeSetup,
-      sessionFreshnessState: SessionFreshnessState.Fresh,
-      parentAccount: ParentAccount,
-      family: Family,
-    });
-    const householdChildNoDevice = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
-      routeId: RegistrationEntryRoute.ResumeSetup,
-      sessionFreshnessState: SessionFreshnessState.Fresh,
-      parentAccount: ParentAccount,
+function createResumeSetupHandoff(overrides: Record<string, unknown> = {}) {
+  return createHandoff({
+    routeId: RegistrationEntryRoute.ResumeSetup,
+    sessionFreshnessState: SessionFreshnessState.Fresh,
+    parentAccount: ParentAccount,
+    ...overrides,
+  });
+}
+
+function expectNoFailureState(decision: { failureState: unknown }) {
+  expect(decision.failureState).toBeNull();
+}
+
+function expectEntryRouteState() {
+  expect(RegistrationEntryRouteContracts.map((route) => route.routeId)).toEqual([
+    RegistrationEntryRoute.Register,
+    RegistrationEntryRoute.Login,
+    RegistrationEntryRoute.Logout,
+    RegistrationEntryRoute.InviteAccept,
+    RegistrationEntryRoute.ResumeSetup,
+    RegistrationEntryRoute.Recovery,
+  ]);
+  expect(registrationEntryRouteContract(RegistrationEntryRoute.Recovery).recoveryMethods).toEqual([
+    RegistrationRecoveryMethod.Password,
+    RegistrationRecoveryMethod.Passkey,
+    RegistrationRecoveryMethod.EmailLink,
+  ]);
+
+  const unauthenticated = evaluateRegistrationIdentityHandoff(createHandoff());
+  const authenticatedNoHousehold = evaluateRegistrationIdentityHandoff(createResumeSetupHandoff());
+  const householdNoChild = evaluateRegistrationIdentityHandoff(createResumeSetupHandoff({ family: Family }));
+  const householdChildNoDevice = evaluateRegistrationIdentityHandoff(
+    createResumeSetupHandoff({
       family: Family,
       childProfile: ChildProfile,
-    });
-    const paired = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
-      routeId: RegistrationEntryRoute.ResumeSetup,
-      sessionFreshnessState: SessionFreshnessState.Fresh,
-      parentAccount: ParentAccount,
+    })
+  );
+  const paired = evaluateRegistrationIdentityHandoff(
+    createResumeSetupHandoff({
       family: Family,
       childProfile: ChildProfile,
       childDevice: ChildDevice,
       pairingIntentId: parseUnknown(SetupPairingIntentIdSchema, 'pairing-intent-1'),
-    });
-    const degraded = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+    })
+  );
+  const degraded = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.ResumeSetup,
       sessionFreshnessState: SessionFreshnessState.Expired,
       parentAccount: ParentAccount,
       family: Family,
-    });
+    })
+  );
 
-    expect(unauthenticated.setupState).toBe(RegistrationSetupState.Unauthenticated);
-    expect(unauthenticated.allowedRoutes).toEqual([
-      RegistrationEntryRoute.Register,
-      RegistrationEntryRoute.Login,
-      RegistrationEntryRoute.InviteAccept,
-      RegistrationEntryRoute.Recovery,
-    ]);
-    expect(unauthenticated.forbiddenCollections).toContain('child-activity-data');
-    expect(unauthenticated.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ProviderState);
-    expect(unauthenticated.failureState).toBeNull();
+  expect(unauthenticated.setupState).toBe(RegistrationSetupState.Unauthenticated);
+  expect(unauthenticated.allowedRoutes).toEqual([
+    RegistrationEntryRoute.Register,
+    RegistrationEntryRoute.Login,
+    RegistrationEntryRoute.InviteAccept,
+    RegistrationEntryRoute.Recovery,
+  ]);
+  expect(unauthenticated.forbiddenCollections).toContain('child-activity-data');
+  expect(unauthenticated.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ProviderState);
+  expectNoFailureState(unauthenticated);
+  expect(authenticatedNoHousehold.setupState).toBe(RegistrationSetupState.AuthenticatedNoHousehold);
+  expect(authenticatedNoHousehold.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ProviderState);
+  expectNoFailureState(authenticatedNoHousehold);
+  expect(householdNoChild.setupState).toBe(RegistrationSetupState.HouseholdNoChild);
+  expectNoFailureState(householdNoChild);
+  expect(householdChildNoDevice.setupState).toBe(RegistrationSetupState.HouseholdChildNoDevice);
+  expect(householdChildNoDevice.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ChildProfile);
+  expectNoFailureState(householdChildNoDevice);
+  expect(paired.setupState).toBe(RegistrationSetupState.Paired);
+  expect(paired.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ChildDevice);
+  expectNoFailureState(paired);
+  expect(degraded.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(degraded.failureState).toBe(RegistrationEntryFailureState.SessionExpired);
+}
 
-    expect(authenticatedNoHousehold.setupState).toBe(RegistrationSetupState.AuthenticatedNoHousehold);
-    expect(authenticatedNoHousehold.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ProviderState);
-    expect(authenticatedNoHousehold.failureState).toBeNull();
-    expect(householdNoChild.setupState).toBe(RegistrationSetupState.HouseholdNoChild);
-    expect(householdNoChild.failureState).toBeNull();
-    expect(householdChildNoDevice.setupState).toBe(RegistrationSetupState.HouseholdChildNoDevice);
-    expect(householdChildNoDevice.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ChildProfile);
-    expect(householdChildNoDevice.failureState).toBeNull();
-    expect(paired.setupState).toBe(RegistrationSetupState.Paired);
-    expect(paired.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ChildDevice);
-    expect(paired.failureState).toBeNull();
-    expect(degraded.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(degraded.failureState).toBe(RegistrationEntryFailureState.SessionExpired);
-  });
-
-  it('registration.expired-invite-rejected', () => {
-    const decision = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+function expectExpiredInviteToBeRejected() {
+  const decision = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.InviteAccept,
       setupInvite: SetupInviteSchema.parse({
         ...BaseInvite,
         state: SetupInviteState.Expired,
       }),
-    });
+    })
+  );
 
-    expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.ExpiredInvite);
-  });
+  expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.ExpiredInvite);
+}
 
-  it('registration.revoked-invite-rejected', () => {
-    const decision = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+function expectRevokedInviteToBeRejected() {
+  const decision = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.InviteAccept,
       setupInvite: SetupInviteSchema.parse({
         ...BaseInvite,
         state: SetupInviteState.Revoked,
       }),
-    });
+    })
+  );
 
-    expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.RevokedInvite);
-  });
+  expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.RevokedInvite);
+}
 
-  it('registration.cross-family-rejected', () => {
-    const decision = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+function expectCrossFamilySetupToBeRejected() {
+  const decision = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.ResumeSetup,
       sessionFreshnessState: SessionFreshnessState.Fresh,
       parentAccount: ParentAccount,
@@ -227,16 +236,17 @@ describe('setup registration entry contracts', () => {
         sameFamily: false,
       }),
       setupInvite: BaseInvite,
-    });
+    })
+  );
 
-    expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.CrossFamily);
-    expect(decision.failureState).toBeNull();
-  });
+  expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.CrossFamily);
+  expect(decision.failureState).toBeNull();
+}
 
-  it('registration.wrong-role-rejected', () => {
-    const decision = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+function expectWrongRoleSetupToBeRejected() {
+  const decision = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.InviteAccept,
       setupInvite: SetupInviteSchema.parse({
         ...BaseInvite,
@@ -245,53 +255,57 @@ describe('setup registration entry contracts', () => {
         targetRole: HouseholdRole.Observer,
         purpose: SetupInvitePurpose.ChildDevicePairing,
       }),
-    });
+    })
+  );
 
-    expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.WrongRole);
-    expect(decision.failureState).toBeNull();
-  });
+  expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(decision.rejectedReason).toBe(RegistrationEntryRejectionReason.WrongRole);
+  expect(decision.failureState).toBeNull();
+}
 
-  it('registration.session-expired-state', () => {
-    const decision = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+function expectSessionExpiredState() {
+  const decision = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.ResumeSetup,
       sessionFreshnessState: SessionFreshnessState.Expired,
       parentAccount: ParentAccount,
       family: Family,
-    });
+    })
+  );
 
-    expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(decision.rejectedReason).toBeNull();
-    expect(decision.failureState).toBe(RegistrationEntryFailureState.SessionExpired);
-  });
+  expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(decision.rejectedReason).toBeNull();
+  expect(decision.failureState).toBe(RegistrationEntryFailureState.SessionExpired);
+}
 
-  it('registration.provider-unavailable-state', () => {
-    const decision = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+function expectProviderUnavailableState() {
+  const decision = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.Login,
       providerState: RegistrationIdentityProviderState.ProviderUnavailable,
-    });
+    })
+  );
 
-    expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(decision.rejectedReason).toBeNull();
-    expect(decision.failureState).toBe(RegistrationEntryFailureState.ProviderUnavailable);
-    expect(decision.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ProviderState);
-  });
+  expect(decision.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(decision.rejectedReason).toBeNull();
+  expect(decision.failureState).toBe(RegistrationEntryFailureState.ProviderUnavailable);
+  expect(decision.allowedHandoffFields).toContain(RegistrationHandoffFieldLiteral.ProviderState);
+}
 
-  it('registration.no-child-data-before-household', () => {
-    expect(() =>
-      evaluateRegistrationIdentityHandoff({
-        ...BaseHandoff,
+function expectNoChildDataBeforeHousehold() {
+  expect(() =>
+    evaluateRegistrationIdentityHandoff(
+      createHandoff({
         routeId: RegistrationEntryRoute.ResumeSetup,
         sessionFreshnessState: SessionFreshnessState.Fresh,
         parentAccount: ParentAccount,
         childProfile: ChildProfile,
       })
-    ).toThrow('registration.no-child-data-before-household');
+    )
+  ).toThrow('registration.no-child-data-before-household');
 
-    const allowedAfterHousehold = evaluateRegistrationIdentityHandoff({
-      ...BaseHandoff,
+  const allowedAfterHousehold = evaluateRegistrationIdentityHandoff(
+    createHandoff({
       routeId: RegistrationEntryRoute.Recovery,
       recoveryMethod: RegistrationRecoveryMethod.EmailLink,
       parentAccount: ParentAccount,
@@ -300,10 +314,28 @@ describe('setup registration entry contracts', () => {
       childDevice: ChildDevice,
       pairingIntentId: parseUnknown(SetupPairingIntentIdSchema, 'pairing-intent-1'),
       recoveryOperation: BaseRecoveryOperation,
-    });
+    })
+  );
 
-    expect(allowedAfterHousehold.setupState).toBe(RegistrationSetupState.Degraded);
-    expect(allowedAfterHousehold.rejectedReason).toBeNull();
-    expect(allowedAfterHousehold.failureState).toBeNull();
-  });
+  expect(allowedAfterHousehold.setupState).toBe(RegistrationSetupState.Degraded);
+  expect(allowedAfterHousehold.rejectedReason).toBeNull();
+  expect(allowedAfterHousehold.failureState).toBeNull();
+}
+
+describe('setup registration entry contracts', () => {
+  it('registration.entry-route-state', expectEntryRouteState);
+
+  it('registration.expired-invite-rejected', expectExpiredInviteToBeRejected);
+
+  it('registration.revoked-invite-rejected', expectRevokedInviteToBeRejected);
+
+  it('registration.cross-family-rejected', expectCrossFamilySetupToBeRejected);
+
+  it('registration.wrong-role-rejected', expectWrongRoleSetupToBeRejected);
+
+  it('registration.session-expired-state', expectSessionExpiredState);
+
+  it('registration.provider-unavailable-state', expectProviderUnavailableState);
+
+  it('registration.no-child-data-before-household', expectNoChildDataBeforeHousehold);
 });

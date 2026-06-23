@@ -3,12 +3,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, APP_GAME_APPX_ATTRIBUTE_DISPLAY_NAME, APP_GAME_APPX_ATTRIBUTE_ID,
-    APP_GAME_APPX_ATTRIBUTE_NAME, APP_GAME_APPX_ELEMENT_APPLICATION,
-    APP_GAME_APPX_ELEMENT_DISPLAY_NAME, APP_GAME_APPX_ELEMENT_IDENTITY,
-    APP_GAME_APPX_ELEMENT_VISUAL_ELEMENTS, APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_APPX_ATTRIBUTE_DISPLAY_NAME, APP_GAME_APPX_ATTRIBUTE_ID, APP_GAME_APPX_ATTRIBUTE_NAME,
+    APP_GAME_APPX_ELEMENT_APPLICATION, APP_GAME_APPX_ELEMENT_DISPLAY_NAME,
+    APP_GAME_APPX_ELEMENT_IDENTITY, APP_GAME_APPX_ELEMENT_VISUAL_ELEMENTS,
+    APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME, APP_GAME_WINDOWS_PATH_WINDOWS_APPS,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::BrowserWindowsPackageIdentity;
 
@@ -64,7 +65,7 @@ fn live_windows_package_roots() -> Vec<PathBuf> {
 #[cfg(windows)]
 fn windows_apps_root(root: std::ffi::OsString) -> PathBuf {
     let mut path = PathBuf::from(root);
-    path.push(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_PATH_WINDOWS_APPS);
+    path.push(APP_GAME_WINDOWS_PATH_WINDOWS_APPS);
     path
 }
 

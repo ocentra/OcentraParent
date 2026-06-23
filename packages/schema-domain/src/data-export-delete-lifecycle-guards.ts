@@ -4,10 +4,7 @@ import type {
   DataExportDeleteLifecycleEntryCandidate,
   DataExportDeleteLifecycleState,
 } from './data-export-delete-lifecycle.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function dataExportDeleteLifecycleEntryIsSafe(
   entry: DataExportDeleteLifecycleEntryCandidate,

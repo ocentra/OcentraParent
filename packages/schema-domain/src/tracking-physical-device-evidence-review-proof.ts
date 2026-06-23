@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import {
   TrackingPhysicalDeviceArtifactGateProofSchema,
@@ -16,7 +10,9 @@ import {
 } from './tracking-physical-device-artifact-gate-proof';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
-export const TrackingPhysicalDeviceEvidenceReviewRowIdSchema = brandedNonEmptyStringSchema('TrackingPhysicalDeviceEvidenceReviewRowId');
+export const TrackingPhysicalDeviceEvidenceReviewRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingPhysicalDeviceEvidenceReviewRowId'
+);
 
 export const TrackingPhysicalDeviceEvidenceReviewStatusSchema = Schema.Literal(
   'artifact-missing',
@@ -194,4 +190,3 @@ function summaryFor(rows: readonly TrackingPhysicalDeviceEvidenceReviewRow[]) {
     artifactAcceptanceNoteCount: rows.reduce((total, row) => total + row.artifactAcceptanceNotes.length, 0),
   };
 }
-

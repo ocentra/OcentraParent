@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, LanPairingRejectionReason};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
@@ -28,10 +29,10 @@ impl LanPairingRuntime {
         job_id: &str,
     ) -> Result<LanAiJobLeaseTransition, LanPairingRejectionReason> {
         let now = timestamp_now();
-        let mut leases = self
-            .lan_ai_job_leases
-            .lock()
-            .map_err(|_| LanPairingRejectionReason::Malformed)?;
+        let mut leases = self.lan_ai_job_leases.lock().map_err(|error| {
+            let _ = error;
+            LanPairingRejectionReason::Malformed
+        })?;
         match leases.iter_mut().find(|lease| lease.job_id == job_id) {
             Some(lease) => Ok(transition_existing_lease(lease, &now)),
             None => {

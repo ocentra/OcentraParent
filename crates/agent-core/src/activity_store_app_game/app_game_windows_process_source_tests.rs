@@ -1,7 +1,9 @@
 use std::fs::remove_file;
 
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::app_game::*;
-use ocentra_parent_agent_protocol::{constants, journal::ActivityJournalLine};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 
 use crate::{
     activity_store::ActivityStore,
@@ -29,7 +31,7 @@ fn live_process_snapshot_reads_current_process_without_foreground_claim() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     ) else {
-        panic!();
+        unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES);
     };
     let rows = windows_process_runtime_rows_from_records(&[record]);
 
@@ -71,7 +73,7 @@ fn live_process_snapshot_uses_opaque_path_refs_when_executable_is_visible() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     ) else {
-        panic!();
+        unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES);
     };
     let Ok(current_exe) = std::env::current_exe() else {
         return;
@@ -114,8 +116,8 @@ fn live_process_snapshot_journal_event_replays_into_sqlite_read_model() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES) else {
-        panic!();
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)) else {
+        unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES);
     };
     let (store, lines) = append_and_replay(&[event]);
     let model = app_game_journal_sqlite_read_model(
@@ -123,7 +125,7 @@ fn live_process_snapshot_journal_event_replays_into_sqlite_read_model() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.running_now_returned, 1);
@@ -152,8 +154,8 @@ fn live_process_snapshot_journal_event_ids_change_per_observation() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES) else {
-        panic!();
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)) else {
+        unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES);
     };
     let Some(second_event) = live_windows_process_snapshot_journal_event_for_pid(
         constants::peer::LOCAL_DEV_AGENT,
@@ -161,8 +163,8 @@ fn live_process_snapshot_journal_event_ids_change_per_observation() {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES) else {
-        panic!();
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)) else {
+        unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES);
     };
 
     assert_ne!(first_event.event_id, second_event.event_id);
@@ -172,27 +174,27 @@ fn live_process_snapshot_journal_event_ids_change_per_observation() {
     );
 }
 
-fn append_and_replay(
-    events: &[ocentra_parent_agent_protocol::ActivityEvent],
-) -> (ActivityStore, Vec<ActivityJournalLine>) {
+fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path();
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.clone(), key.clone())
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS)),
         );
     }
-    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader = ActivityJournal::open(path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

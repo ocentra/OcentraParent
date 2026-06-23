@@ -1,17 +1,11 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import {
   supportIncidentWorkflowCoversRequiredStates,
   supportIncidentWorkflowEntryIsSafe,
 } from './support-incident-workflow-guards.js';
 
-const supportIncidentText = <Brand extends string>(brand: Brand) =>
-  NonEmptyStringSchema.pipe(Schema.brand(brand));
+const supportIncidentText = <Brand extends string>(brand: Brand) => NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const SupportIncidentWorkflowReadModelIdSchema = supportIncidentText('SupportIncidentWorkflowReadModelId');
 export const SupportIncidentWorkflowIncidentIdSchema = supportIncidentText('SupportIncidentWorkflowIncidentId');
@@ -173,4 +167,3 @@ export type SupportIncidentWorkflowReadModel = Infer<typeof SupportIncidentWorkf
 
 export const decodeSupportIncidentWorkflowEntry = Schema.decodeUnknownSync(SupportIncidentWorkflowEntrySchema);
 export const decodeSupportIncidentWorkflowReadModel = Schema.decodeUnknownSync(SupportIncidentWorkflowReadModelSchema);
-

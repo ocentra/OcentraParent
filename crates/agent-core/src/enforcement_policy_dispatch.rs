@@ -1,5 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_enforcement_policy_dispatch as dispatch, EnforcementCapabilityState,
+use ocentra_parent_agent_protocol::constants::v08_enforcement_policy_dispatch as dispatch;
+use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::{
     EnforcementPolicyDispatchOutcomeState, EnforcementPolicyDispatchReadModel,
     EnforcementPolicyDispatchReadModelEntry, EnforcementPolicyDispatchRejectionReason,
     EnforcementPolicyDispatchSourceState, EnforcementPolicyDispatchTimerState,

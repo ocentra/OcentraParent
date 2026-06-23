@@ -21,10 +21,8 @@ import {
   AgentAppGameAdapterDispatchOutcomeState,
   AgentAppGameAdapterDispatchPreflightState,
 } from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-preflight';
-import {
-  createAppGameAdapterDispatchResultPanelIntent,
-} from '@ocentra-parent/portal-domain/app-game-adapter-dispatch-result-panel';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { createAppGameAdapterDispatchResultPanelIntent } from '@ocentra-parent/portal-domain/app-game-adapter-dispatch-result-panel';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import type { PortalRenderActions } from '../src/portal-actions';
 import {
   AppGameAdapterDispatchRoutePanel,

@@ -1,34 +1,46 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
-    AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    LogFields, V08EnforcementProductControlSpineReadModel, AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineReadModel;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
 
+type TestResult = Result<(), String>;
+
 #[tokio::test]
-async fn product_control_spine_dispatcher_returns_typed_runtime_read_model() {
-    let event = send_product_control_command().await;
+async fn product_control_spine_dispatcher_returns_typed_runtime_read_model() -> TestResult {
+    let event = send_product_control_command().await?;
 
     assert_eq!(
         event.event,
         AgentEventName::AgentEnforcementProductControlSpineReported
     );
     assert_eq!(
-        string_payload_field(&event, constants::field::READ_MODEL_ID),
+        string_payload_field(&event, constants::field::READ_MODEL_ID)?,
         constants::v08_enforcement_product_control_spine::READ_MODEL_ID
     );
     assert_eq!(
-        number_payload_field(&event, constants::field::RETURNED),
+        number_payload_field(&event, constants::field::RETURNED)?,
         15.0
     );
 
-    let read_model: V08EnforcementProductControlSpineReadModel =
+    let read_model: V08EnforcementProductControlSpineReadModel = ok(
         serde_json::from_str(string_payload_field(
             &event,
             constants::field::ENFORCEMENT_PRODUCT_CONTROL_SPINE_READ_MODEL,
-        ))
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        )?),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
 
     assert_eq!(
         read_model.read_model_id,
@@ -46,12 +58,16 @@ async fn product_control_spine_dispatcher_returns_typed_runtime_read_model() {
             && !entry.tamper_resistance_claimed
             && !entry.notification_delivery_claimed
     }));
+
+    Ok(())
 }
 
-async fn send_product_control_command() -> AgentEventEnvelope {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await
+async fn send_product_control_command() -> Result<AgentEventEnvelope, String> {
+    let body = ok(
+        serde_json::to_string(&command_envelope()),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    Ok(handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await)
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -73,16 +89,20 @@ fn command_envelope() -> AgentCommandEnvelope {
     }
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> &'a str {
+fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> Result<&'a str, String> {
     match event.payload.get(field) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::String(value)) => Ok(value.as_str()),
+        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
 }
 
-fn number_payload_field(event: &AgentEventEnvelope, field: &str) -> f64 {
+fn number_payload_field(event: &AgentEventEnvelope, field: &str) -> Result<f64, String> {
     match event.payload.get(field) {
-        Some(LogFieldValue::Number(value)) => *value,
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::Number(value)) => Ok(*value),
+        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

@@ -31,12 +31,12 @@ async function main() {
       'app-game-android-usage-events-count-sample',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
 
   const sourceProof = await assertAndroidSourceProof();
   const contractModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-count-sample.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-usage-events-count-sample.js'))
       .href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsCountSampleReadModel({
@@ -69,12 +69,12 @@ async function main() {
       androidPreflight:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
-      contract: 'packages/app-game-domain/src/app-game-android-usage-events-count-sample.ts',
+      contract: 'packages/schema-domain/src/app-game-android-usage-events-count-sample.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-count-sample.test.ts',
     },
     claimsProved: [
       'Android package source can query UsageEvents and reduce results to counts only',
-      'App-game-domain accepts count-only UsageEvents samples without raw row or package-name custody',
+      'The centralized count-only sample contract accepts UsageEvents samples without raw row or package-name custody',
       'Android debug package compiles with the count-only sampler wired into MainActivity',
     ],
     claimsNotProved: [

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LocalAiDegradedStateSchema,
   LocalAiModelIdSchema,
@@ -709,4 +704,3 @@ export type ParentAssistantThreadResponse = Infer<typeof ParentAssistantThreadRe
 export type ParentAssistantProviderStatus = Infer<typeof ParentAssistantProviderStatusSchema>;
 export type ParentAssistantRunCancelResult = Infer<typeof ParentAssistantRunCancelResultSchema>;
 export type ParentAssistantActionConfirmResult = Infer<typeof ParentAssistantActionConfirmResultSchema>;
-

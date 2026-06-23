@@ -43,7 +43,7 @@ async function main() {
       'app-game-android-usage-events-granted-sample-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -67,7 +67,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-granted-sample-proof.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-usage-events-granted-sample-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsGrantedSampleProof({
@@ -88,7 +88,7 @@ async function main() {
     summary,
     sourceState,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-usage-events-granted-sample-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-usage-events-granted-sample-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-granted-sample-proof.test.ts',
       androidRuntime:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java',
@@ -101,7 +101,7 @@ async function main() {
     claimsProved: [
       'Android UsageStats AppOps can be granted for the debug child-agent package on the physical Samsung Galaxy S9 proof target',
       'The package-local runtime preflight observes a count-only UsageEvents sample after launch',
-      'App-game-domain records only permission state, sample state, and counts without raw UsageEvents rows, package names, or activity rows',
+      'The centralized granted-sample proof records only permission state, sample state, and counts without raw UsageEvents rows, package names, or activity rows',
     ],
     claimsNotProved: [
       'Device Owner or Profile Owner authority',

@@ -11,15 +11,17 @@ use ocentra_network_evidence::{
         NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants,
-    network_apple_network_extension_gate_status::{
-        NetworkAppleNetworkExtensionGateCapabilityStatusState,
-        NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
-        NetworkAppleNetworkExtensionPlatformStatus,
-    },
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::network_apple_network_extension_gate_status::{
+    NetworkAppleNetworkExtensionGateCapabilityStatusState, NetworkAppleNetworkExtensionGateStatus,
+    NetworkAppleNetworkExtensionGateStatusState, NetworkAppleNetworkExtensionPlatformStatus,
 };
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
@@ -57,9 +59,9 @@ pub(crate) fn build_network_apple_network_extension_gate_status_report(
 }
 
 pub(crate) fn network_apple_network_extension_gate_status_payload() -> Result<LogFields, ()> {
-    let proof = plan_network_apple_network_extension_gate(gate_input()).map_err(|_| ())?;
+    let proof = plan_network_apple_network_extension_gate(gate_input()).map_err(|_error| ())?;
     let status = status_from_proof(&proof);
-    let serialized = serde_json::to_string(&status).map_err(|_| ())?;
+    let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
     Ok(fields_from_pairs(vec![(
         constants::network_flow::FIELD_NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS,
         LogFieldValue::String(serialized),
@@ -184,7 +186,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
         requested_action: NetworkEvidencePolicyAction::Block,
         adapter_capability_proof_ref: None,
     })
-    .unwrap_or_else(|_| unreachable!())
+    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn protocol_platform(

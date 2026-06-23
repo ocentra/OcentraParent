@@ -10,7 +10,7 @@ import {
   buildAppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof,
   summarizeAppInstallPurchaseWindowsPackageSourceAdapterEvidenceProof,
   summarizeAppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof,
-} from '../../src/app-install-purchase-windows-package-source-adapter-evidence';
+} from '@ocentra-parent/schema-domain/app-install-purchase-windows-package-source-adapter-evidence';
 
 describe('app install purchase Windows package-source adapter evidence proof', () => {
   acceptsWindowsHostEvidenceWithoutProviderStoreOrDeliveryClaims();

@@ -18,37 +18,17 @@ export const ScreenLocalAiResourceMaxLocalImagePixels = 2073600;
 export const ScreenLocalAiResourceMaxOcrSnippetCharacters = 240;
 
 export const ScreenLocalAiResourceJobKindSchema = withParser(
-  Schema.Literal(
-    'ocrText',
-    'vlmVisualClassifier',
-    'vlmPolicyDecisionSupport',
-    'deterministicStructuredContext'
-  )
+  Schema.Literal('ocrText', 'vlmVisualClassifier', 'vlmPolicyDecisionSupport', 'deterministicStructuredContext')
 );
 
 export const ScreenLocalAiResourcePrioritySchema = withParser(
-  Schema.Literal(
-    'policyBlocking',
-    'foregroundTrigger',
-    'cadenceSummary',
-    'backgroundSummary'
-  )
+  Schema.Literal('policyBlocking', 'foregroundTrigger', 'cadenceSummary', 'backgroundSummary')
 );
 
-export const ScreenLocalAiResourceWeightSchema = withParser(
-  Schema.Literal('none', 'light', 'heavy')
-);
+export const ScreenLocalAiResourceWeightSchema = withParser(Schema.Literal('none', 'light', 'heavy'));
 
 export const ScreenLocalAiResourceJobStateSchema = withParser(
-  Schema.Literal(
-    'running',
-    'queued',
-    'skipped',
-    'degraded',
-    'timedOut',
-    'unavailable',
-    'complete'
-  )
+  Schema.Literal('running', 'queued', 'skipped', 'degraded', 'timedOut', 'unavailable', 'complete')
 );
 
 export const ScreenLocalAiResourceQueueStateSchema = withParser(
@@ -100,9 +80,7 @@ const ScreenLocalAiResourceDecisionBaseSchema = Schema.Struct({
   rawImageRetained: RequiredFalse,
 });
 
-type ScreenLocalAiResourceDecisionCandidate = Infer<
-  typeof ScreenLocalAiResourceDecisionBaseSchema
->;
+type ScreenLocalAiResourceDecisionCandidate = Infer<typeof ScreenLocalAiResourceDecisionBaseSchema>;
 
 export const ScreenLocalAiResourceDecisionSchema = withParser(
   ScreenLocalAiResourceDecisionBaseSchema.pipe(
@@ -140,14 +118,10 @@ const ScreenLocalAiResourceProofBaseSchema = Schema.Struct({
   deviceRef: ActivityDeviceIdSchema,
   queueSnapshot: ScreenLocalAiResourceQueueSnapshotSchema,
   admissionOrder: Schema.Array(ScreenEvidenceQueueJobIdSchema).pipe(
-    Schema.filter(
-      (order) => order.length >= 4 || 'Expected resource proof to include policy and background ordering'
-    )
+    Schema.filter((order) => order.length >= 4 || 'Expected resource proof to include policy and background ordering')
   ),
   decisions: Schema.Array(ScreenLocalAiResourceDecisionSchema).pipe(
-    Schema.filter(
-      (decisions) => decisions.length >= 6 || 'Expected resource proof to cover all scheduler states'
-    )
+    Schema.filter((decisions) => decisions.length >= 6 || 'Expected resource proof to cover all scheduler states')
   ),
 });
 
@@ -170,16 +144,10 @@ export type ScreenLocalAiResourceJobState = Infer<typeof ScreenLocalAiResourceJo
 export type ScreenLocalAiResourceDecision = Infer<typeof ScreenLocalAiResourceDecisionSchema>;
 export type ScreenLocalAiResourceProof = Infer<typeof ScreenLocalAiResourceProofSchema>;
 
-export const decodeScreenLocalAiResourceProof = Schema.decodeUnknownSync(
-  ScreenLocalAiResourceProofSchema
-);
-export const decodeScreenLocalAiResourceDecision = Schema.decodeUnknownSync(
-  ScreenLocalAiResourceDecisionSchema
-);
+export const decodeScreenLocalAiResourceProof = Schema.decodeUnknownSync(ScreenLocalAiResourceProofSchema);
+export const decodeScreenLocalAiResourceDecision = Schema.decodeUnknownSync(ScreenLocalAiResourceDecisionSchema);
 
-function screenLocalAiResourceDecisionIsConsistent(
-  decisionRow: ScreenLocalAiResourceDecisionCandidate
-): boolean {
+function screenLocalAiResourceDecisionIsConsistent(decisionRow: ScreenLocalAiResourceDecisionCandidate): boolean {
   return (
     decisionKeepsLocalCustody(decisionRow) &&
     resourceWeightMatchesRuntime(decisionRow) &&
@@ -187,40 +155,23 @@ function screenLocalAiResourceDecisionIsConsistent(
   );
 }
 
-function decisionKeepsLocalCustody(
-  decisionRow: ScreenLocalAiResourceDecisionCandidate
-): boolean {
+function decisionKeepsLocalCustody(decisionRow: ScreenLocalAiResourceDecisionCandidate): boolean {
   return !decisionRow.remoteAiAllowed && !decisionRow.rawImageRetained;
 }
 
-function resourceWeightMatchesRuntime(
-  decisionRow: ScreenLocalAiResourceDecisionCandidate
-): boolean {
+function resourceWeightMatchesRuntime(decisionRow: ScreenLocalAiResourceDecisionCandidate): boolean {
   if (decisionRow.resourceWeight === 'none') {
-    return (
-      decisionRow.providerKind === 'deterministicRules' &&
-      decisionRow.queuePosition === null
-    );
+    return decisionRow.providerKind === 'deterministicRules' && decisionRow.queuePosition === null;
   }
   return decisionRow.resourceWeight !== 'heavy' || decisionRow.duplicateRuntimeBlocked;
 }
 
-function jobStateMatchesScheduler(
-  decisionRow: ScreenLocalAiResourceDecisionCandidate
-): boolean {
+function jobStateMatchesScheduler(decisionRow: ScreenLocalAiResourceDecisionCandidate): boolean {
   if (decisionRow.resourceWeight === 'none') {
-    return (
-      decisionRow.jobState === 'complete' &&
-      decisionRow.modelRuntimeRef === null &&
-      decisionRow.modelId === null
-    );
+    return decisionRow.jobState === 'complete' && decisionRow.modelRuntimeRef === null && decisionRow.modelId === null;
   }
   if (decisionRow.jobState === 'queued') {
-    return (
-      decisionRow.queuePosition !== null &&
-      decisionRow.duplicateRuntimeBlocked &&
-      hasLocalRuntime(decisionRow)
-    );
+    return decisionRow.queuePosition !== null && decisionRow.duplicateRuntimeBlocked && hasLocalRuntime(decisionRow);
   }
   if (['skipped', 'timedOut', 'unavailable', 'degraded'].includes(decisionRow.jobState)) {
     return decisionRow.degradedReason !== null && !decisionRow.policyInputEligible;
@@ -232,33 +183,20 @@ function hasLocalRuntime(decisionRow: ScreenLocalAiResourceDecisionCandidate): b
   return decisionRow.modelRuntimeRef !== null && decisionRow.modelId !== null;
 }
 
-function screenLocalAiResourceProofIsComplete(
-  proof: ScreenLocalAiResourceProofCandidate
-): boolean {
+function screenLocalAiResourceProofIsComplete(proof: ScreenLocalAiResourceProofCandidate): boolean {
   const decisions = proof.decisions;
-  const priorityIndex = proof.admissionOrder.findIndex(
-    (queueJobId) => queueJobId === 'screen-policy-vlm-running'
-  );
-  const backgroundIndex = proof.admissionOrder.findIndex(
-    (queueJobId) => queueJobId === 'screen-background-vlm-queued'
-  );
+  const priorityIndex = proof.admissionOrder.findIndex((queueJobId) => queueJobId === 'screen-policy-vlm-running');
+  const backgroundIndex = proof.admissionOrder.findIndex((queueJobId) => queueJobId === 'screen-background-vlm-queued');
 
   return (
     proof.queueSnapshot.activeHeavyJobCount === 1 &&
     priorityIndex !== -1 &&
     backgroundIndex !== -1 &&
     priorityIndex < backgroundIndex &&
-    decisions.some(
-      (decisionRow) =>
-        decisionRow.priority === 'policyBlocking' && decisionRow.jobState === 'running'
-    ) &&
-    decisions.some(
-      (decisionRow) => decisionRow.jobState === 'queued' && decisionRow.queuePosition === 1
-    ) &&
+    decisions.some((decisionRow) => decisionRow.priority === 'policyBlocking' && decisionRow.jobState === 'running') &&
+    decisions.some((decisionRow) => decisionRow.jobState === 'queued' && decisionRow.queuePosition === 1) &&
     decisions.some((decisionRow) => decisionRow.jobState === 'timedOut') &&
     decisions.some((decisionRow) => decisionRow.jobState === 'skipped') &&
-    decisions.every(
-      (decisionRow) => !decisionRow.remoteAiAllowed && !decisionRow.rawImageRetained
-    )
+    decisions.every((decisionRow) => !decisionRow.remoteAiAllowed && !decisionRow.rawImageRetained)
   );
 }

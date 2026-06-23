@@ -58,7 +58,7 @@ async function main() {
     commands,
     packageExportState: 'package exports unchanged in this slice; proof imports the current built dist module by path.',
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-platform-extension-proof-pack-readiness.ts',
+      contract: 'packages/schema-domain/src/app-game-platform-extension-proof-pack-readiness.ts',
       test: 'packages/app-game-domain/tests/unit/app-game-platform-extension-proof-pack-readiness.test.ts',
       featureDoc: 'docs/features/app-game-control.md',
       appGameChecklist: 'docs/plans/app-game-plan/implementation-checklist.md',
@@ -96,7 +96,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-game-platform-extension-proof-pack-readiness.js'
   );

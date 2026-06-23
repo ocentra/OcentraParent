@@ -61,7 +61,7 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-android-permission-background-proof.ts',
+    source: 'packages/schema-domain/src/tracking-android-permission-background-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-android-permission-background-proof.test.ts',
     harness: 'scripts/test/tracking-android-permission-background-proof.mjs',
     evidence: 'test-results/tracking-android-permission-background-proof/proof.json',
@@ -80,7 +80,7 @@ console.log('tracking-android-permission-background-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-android-permission-background-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function permissionRows() {

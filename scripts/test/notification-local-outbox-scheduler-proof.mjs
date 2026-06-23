@@ -150,7 +150,9 @@ async function loadProofModule() {
 }
 
 async function assertPackageExport(proofModule) {
-  const schemaPackageJson = JSON.parse(await readFile(join(repoRoot, 'packages', 'schema-domain', 'package.json'), 'utf8'));
+  const schemaPackageJson = JSON.parse(
+    await readFile(join(repoRoot, 'packages', 'schema-domain', 'package.json'), 'utf8')
+  );
   assert.deepEqual(schemaPackageJson.exports['./notification-local-outbox-scheduler-proof'], {
     import: './dist/notification-local-outbox-scheduler-proof.js',
     types: './dist/notification-local-outbox-scheduler-proof.d.ts',
@@ -161,7 +163,6 @@ async function assertPackageExport(proofModule) {
     exportedModule.NotificationLocalOutboxSchedulerProofReadModel.schemaVersion,
     proofModule.NotificationLocalOutboxSchedulerProofReadModel.schemaVersion
   );
-
 }
 
 async function writeAndReadScheduler(proofModule, records) {

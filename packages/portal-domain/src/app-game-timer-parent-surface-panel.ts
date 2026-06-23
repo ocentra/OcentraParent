@@ -8,9 +8,7 @@ import {
   type AgentProtocolLogFields,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import {
-  type AgentAppGameTimerParentSurfaceResult,
-} from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
+import { type AgentAppGameTimerParentSurfaceResult } from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
 import {
   AppGameTimerParentPreferenceSetupRequestSchema,
   AppGameTimerParentPreferenceSetupRequestResultSchema,
@@ -24,8 +22,8 @@ import {
   type AgentAppGameTimerParentSurfaceRow,
 } from '@ocentra-parent/schema-domain/app-game-timer-parent-surface-read-model';
 import { AppGameChildUxParentPreferenceSetupDraftStatus } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-parent-preference-setup-draft';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';
 const DetailSeparator = ' | ';
 const RequestIdSeparator = '::';

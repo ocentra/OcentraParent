@@ -55,6 +55,14 @@ interface ResolvedRuntimeConfig {
   readonly skipHealthCheck: boolean;
 }
 
+interface ResolvedLogLocation {
+  readonly registration: LoggerRegistration | null;
+  readonly matchedFrame: StackFrame | null;
+  readonly moduleName: string;
+  readonly file: string | null;
+  readonly filePath: string | null;
+}
+
 function readEnv(name: string): string | undefined {
   if (typeof process === 'undefined' || process.env == null) {
     return undefined;
@@ -70,9 +78,7 @@ function normalizePath(value: string): string {
 function toFilePath(moduleUrl: string): string {
   if (moduleUrl.startsWith('file://')) {
     const url = new URL(moduleUrl);
-    return normalizePath(
-      decodeURIComponent(url.pathname).replace(/^\/([A-Za-z]:)/, '$1')
-    );
+    return normalizePath(decodeURIComponent(url.pathname).replace(/^\/([A-Za-z]:)/, '$1'));
   }
   return normalizePath(moduleUrl);
 }
@@ -126,9 +132,7 @@ function resolveOrigin(value: string | null | undefined): TestLogOriginValue | n
 
 function resolveContext(moduleName: string, frame: StackFrame | null): string {
   if (frame?.functionName != null && frame.functionName.trim().length > 0) {
-    return frame.functionName.includes('.')
-      ? frame.functionName
-      : `${moduleName}.${frame.functionName}`;
+    return frame.functionName.includes('.') ? frame.functionName : `${moduleName}.${frame.functionName}`;
   }
   return `${moduleName}.${LoggerRuntimeDefaults.ModuleContextSuffix}`;
 }
@@ -223,40 +227,13 @@ export class Logger {
 
   private log(level: LogLevelValue, message: string, stackTrace: StackTrace, data?: unknown): void {
     const frames = parseStackTrace(stackTrace);
-    const registration = this.findRegistration(frames);
-    const matchedFrame = this.findMatchedFrame(frames, registration);
-    const moduleName = registration?.moduleName ?? LoggerRuntimeDefaults.UnknownModule;
-    const filePath = registration?.filePath ?? matchedFrame?.filePath ?? null;
-    const decisionProvider = createParentLogDecisionProvider();
-    if (!decisionProvider.shouldStoreLog(moduleName, level, { filePath })) {
+    const location = this.resolveLogLocation(frames);
+    if (!this.shouldStoreLog(level, location)) {
       return;
     }
 
     const runtime = this.resolveRuntimeConfig();
-    this.logQueue.push({
-      testName: runtime.testName,
-      runId: runtime.runId,
-      runType: runtime.runType,
-      consumer: runtime.scope,
-      log: {
-        log_timestamp: Date.now(),
-        level,
-        source: resolveSource(moduleName, matchedFrame),
-        context: resolveContext(moduleName, matchedFrame),
-        message,
-        data: data == null ? null : JSON.stringify(data),
-        file: registration?.file ?? matchedFrame?.file ?? null,
-        file_path: filePath,
-        line: matchedFrame?.line ?? null,
-        column: matchedFrame?.column ?? null,
-        correlation_id: runtime.correlationId ?? globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`,
-        tags: [],
-        stack: level === LogLevel.Warn || level === LogLevel.Error ? String(stackTrace) : null,
-        suite_type: runtime.suiteType,
-        origin: runtime.origin,
-        environment: runtime.environment,
-      },
-    });
+    this.logQueue.push(this.buildBridgeEntry(level, message, stackTrace, data, runtime, location));
   }
 
   private findRegistration(frames: readonly StackFrame[]): LoggerRegistration | null {
@@ -283,41 +260,124 @@ export class Logger {
     return frames.find((frame) => frame.filePath != null) ?? null;
   }
 
+  private resolveLogLocation(frames: readonly StackFrame[]): ResolvedLogLocation {
+    const registration = this.findRegistration(frames);
+    const matchedFrame = this.findMatchedFrame(frames, registration);
+    return {
+      registration,
+      matchedFrame,
+      moduleName: registration?.moduleName ?? LoggerRuntimeDefaults.UnknownModule,
+      file: registration?.file ?? matchedFrame?.file ?? null,
+      filePath: registration?.filePath ?? matchedFrame?.filePath ?? null,
+    };
+  }
+
+  private shouldStoreLog(level: LogLevelValue, location: ResolvedLogLocation): boolean {
+    return createParentLogDecisionProvider().shouldStoreLog(location.moduleName, level, {
+      filePath: location.filePath,
+    });
+  }
+
+  private buildBridgeEntry(
+    level: LogLevelValue,
+    message: string,
+    stackTrace: StackTrace,
+    data: unknown,
+    runtime: ResolvedRuntimeConfig,
+    location: ResolvedLogLocation
+  ): BridgeEntry {
+    return {
+      testName: runtime.testName,
+      runId: runtime.runId,
+      runType: runtime.runType,
+      consumer: runtime.scope,
+      log: {
+        log_timestamp: Date.now(),
+        level,
+        source: resolveSource(location.moduleName, location.matchedFrame),
+        context: resolveContext(location.moduleName, location.matchedFrame),
+        message,
+        data: this.serializeData(data),
+        file: location.file,
+        file_path: location.filePath,
+        line: location.matchedFrame?.line ?? null,
+        column: location.matchedFrame?.column ?? null,
+        correlation_id: this.resolveCorrelationId(runtime),
+        tags: [],
+        stack: this.resolveStack(level, stackTrace),
+        suite_type: runtime.suiteType,
+        origin: runtime.origin,
+        environment: runtime.environment,
+      },
+    };
+  }
+
+  private serializeData(data: unknown): string | null {
+    return data == null ? null : JSON.stringify(data);
+  }
+
+  private resolveCorrelationId(runtime: ResolvedRuntimeConfig): string {
+    return runtime.correlationId ?? globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`;
+  }
+
+  private resolveStack(level: LogLevelValue, stackTrace: StackTrace): string | null {
+    return level === LogLevel.Warn || level === LogLevel.Error ? String(stackTrace) : null;
+  }
+
   private resolveRuntimeConfig(): ResolvedRuntimeConfig {
+    return {
+      bridgeEndpoint: this.runtimeConfig.bridgeEndpoint ?? resolveBridgeEndpoint(),
+      runId: this.resolveRunId(),
+      testName: this.resolveTestName(),
+      scope: this.resolveScope(),
+      runType: this.resolveRunType(),
+      suiteType: this.resolveSuiteType(),
+      origin: this.resolveOrigin(),
+      environment: this.resolveEnvironment(),
+      correlationId: this.runtimeConfig.correlationId ?? null,
+      skipHealthCheck: this.runtimeConfig.skipHealthCheck ?? false,
+    };
+  }
+
+  private resolveRunId(): string {
+    return this.runtimeConfig.runId ?? readEnv(LoggerRuntimeEnvironment.RunId) ?? this.ensureGeneratedRunId();
+  }
+
+  private ensureGeneratedRunId(): string {
     if (this.generatedRunId == null) {
       this.runSequence += 1;
       this.generatedRunId = `${LoggerRuntimeDefaults.GeneratedRunIdPrefix}${this.runSequence}`;
     }
-    const runId =
-      this.runtimeConfig.runId ??
-      readEnv(LoggerRuntimeEnvironment.RunId) ??
-      this.generatedRunId;
-    const testName =
-      this.runtimeConfig.testName ??
-      readEnv(LoggerRuntimeEnvironment.TestName) ??
-      LoggerRuntimeDefaults.TestName;
-    return {
-      bridgeEndpoint: this.runtimeConfig.bridgeEndpoint ?? resolveBridgeEndpoint(),
-      runId,
-      testName,
-      scope: parseTestLogScopeOrDefault(
-        this.runtimeConfig.scope ?? readEnv(LoggerRuntimeEnvironment.Scope),
-        TestLogScope.ParentTest
-      ),
-      runType: parseRunTypeOrDefault(
-        this.runtimeConfig.runType ?? readEnv(LoggerRuntimeEnvironment.RunType),
-        RunType.Single
-      ),
-      suiteType: parseSuiteTypeOrNull(
-        this.runtimeConfig.suiteType ?? readEnv(LoggerRuntimeEnvironment.SuiteType)
-      ),
-      origin: resolveOrigin(this.runtimeConfig.origin ?? readEnv(LoggerRuntimeEnvironment.Origin)),
-      environment:
-        this.runtimeConfig.environment ??
-        readEnv(LoggerRuntimeEnvironment.Environment) ??
-        null,
-      correlationId: this.runtimeConfig.correlationId ?? null,
-      skipHealthCheck: this.runtimeConfig.skipHealthCheck ?? false,
-    };
+    return this.generatedRunId;
+  }
+
+  private resolveTestName(): string {
+    return this.runtimeConfig.testName ?? readEnv(LoggerRuntimeEnvironment.TestName) ?? LoggerRuntimeDefaults.TestName;
+  }
+
+  private resolveScope(): TestLogScopeValue {
+    return parseTestLogScopeOrDefault(
+      this.runtimeConfig.scope ?? readEnv(LoggerRuntimeEnvironment.Scope),
+      TestLogScope.ParentTest
+    );
+  }
+
+  private resolveRunType(): RunTypeValue {
+    return parseRunTypeOrDefault(
+      this.runtimeConfig.runType ?? readEnv(LoggerRuntimeEnvironment.RunType),
+      RunType.Single
+    );
+  }
+
+  private resolveSuiteType(): TestSuiteType | null {
+    return parseSuiteTypeOrNull(this.runtimeConfig.suiteType ?? readEnv(LoggerRuntimeEnvironment.SuiteType));
+  }
+
+  private resolveOrigin(): TestLogOriginValue | null {
+    return resolveOrigin(this.runtimeConfig.origin ?? readEnv(LoggerRuntimeEnvironment.Origin));
+  }
+
+  private resolveEnvironment(): string | null {
+    return this.runtimeConfig.environment ?? readEnv(LoggerRuntimeEnvironment.Environment) ?? null;
   }
 }

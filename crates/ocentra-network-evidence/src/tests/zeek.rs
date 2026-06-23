@@ -6,11 +6,12 @@ use crate::{
     NetworkZeekAnalyzerError, NetworkZeekAnalyzerInput, NetworkZeekHttpEvidence,
     NetworkZeekLogKind, NetworkZeekTlsEvidence, NetworkZeekVisibilityState,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn zeek_generator_produces_conn_dns_http_tls_and_ssl_rows_with_matching_comparisons() {
     let proof = generate_network_zeek_analyzer_proof(complete_input())
-        .expect("complete Zeek-style fixture comparison should pass");
+        .expect_value("complete Zeek-style fixture comparison should pass");
 
     assert_eq!(proof.analyzer_run_ref, "zeek-analyzer-run-43");
     assert_eq!(proof.source_fixture_ref, "pcap-fixture-network-43");
@@ -94,7 +95,7 @@ fn zeek_generator_preserves_unknown_missing_and_ambiguous_states_without_guessin
     input.comparison_artifacts = comparison_artifacts(1, 1, 2, 1, 1, 4);
 
     let proof = generate_network_zeek_analyzer_proof(input)
-        .expect("unknown and ambiguous rows should be matched as explicit states");
+        .expect_value("unknown and ambiguous rows should be matched as explicit states");
 
     assert_eq!(proof.http_rows[0].host, None);
     assert_eq!(
@@ -289,9 +290,9 @@ fn zeek_generator_rejects_empty_refs_and_visible_value_mismatch() {
 fn complete_input() -> NetworkZeekAnalyzerInput {
     let pcap = dns_query_pcap_fixture();
     let flow_summary = aggregate_pcap_flows(&pcap, 30_000_000)
-        .expect("DNS fixture should produce a deterministic flow summary");
+        .expect_value("DNS fixture should produce a deterministic flow summary");
     let dns_summary =
-        replay_dns_observations(&pcap).expect("DNS fixture should produce a DNS observation");
+        replay_dns_observations(&pcap).expect_value("DNS fixture should produce a DNS observation");
 
     NetworkZeekAnalyzerInput {
         analyzer_run_ref: " zeek-analyzer-run-43 ".to_owned(),
@@ -315,8 +316,8 @@ fn complete_input() -> NetworkZeekAnalyzerInput {
 
 fn http_evidence() -> NetworkZeekHttpEvidence {
     let observation = parse_http_host(&http_host_request_fixture())
-        .expect("HTTP fixture should parse")
-        .expect("HTTP fixture should expose host only");
+        .expect_value("HTTP fixture should parse")
+        .expect_value("HTTP fixture should expose host only");
 
     NetworkZeekHttpEvidence {
         evidence_ref: " http-evidence-43 ".to_owned(),
@@ -329,7 +330,7 @@ fn http_evidence() -> NetworkZeekHttpEvidence {
 
 fn tls_evidence() -> NetworkZeekTlsEvidence {
     let visibility = parse_tls_client_hello_sni(&tls_client_hello_sni_fixture())
-        .expect("TLS fixture should parse");
+        .expect_value("TLS fixture should parse");
 
     NetworkZeekTlsEvidence {
         evidence_ref: " tls-evidence-43 ".to_owned(),
@@ -342,7 +343,7 @@ fn tls_evidence() -> NetworkZeekTlsEvidence {
 
 fn ssl_evidence() -> NetworkZeekTlsEvidence {
     let visibility = parse_tls_client_hello_sni(&tls_client_hello_no_sni_fixture())
-        .expect("TLS fixture without SNI should parse");
+        .expect_value("TLS fixture without SNI should parse");
 
     NetworkZeekTlsEvidence {
         evidence_ref: " ssl-evidence-43 ".to_owned(),

@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { DeviceRuntimeRoleSchema } from './device-roles';
 import {
   type LocalAiResourceClass,
@@ -32,12 +26,24 @@ import {
 const RuntimeAccessLaneCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const RuntimeLoadCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiRuntimeProviderProofReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofReadModelId');
-export const LocalAiRuntimeProviderProofEntryIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofEntryId');
-export const LocalAiRuntimeProviderProofRequirementTextSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofRequirementText');
-export const LocalAiRuntimeProviderProofClaimBoundarySchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofClaimBoundary');
-export const LocalAiRuntimeProviderProofFallbackSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofFallback');
-export const LocalAiRuntimeProviderProofEvidenceLabelSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofEvidenceLabel');
+export const LocalAiRuntimeProviderProofReadModelIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeProviderProofReadModelId'
+);
+export const LocalAiRuntimeProviderProofEntryIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeProviderProofEntryId'
+);
+export const LocalAiRuntimeProviderProofRequirementTextSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeProviderProofRequirementText'
+);
+export const LocalAiRuntimeProviderProofClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeProviderProofClaimBoundary'
+);
+export const LocalAiRuntimeProviderProofFallbackSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeProviderProofFallback'
+);
+export const LocalAiRuntimeProviderProofEvidenceLabelSchema = brandedNonEmptyStringSchema(
+  'LocalAiRuntimeProviderProofEvidenceLabel'
+);
 
 export const LocalAiRuntimeProviderProofRequirementSchema = withParser(
   Schema.Literal(
@@ -511,4 +517,3 @@ export const decodeLocalAiRuntimeProviderProofEntry = Schema.decodeUnknownSync(L
 export const decodeLocalAiRuntimeProviderProofReadModel = Schema.decodeUnknownSync(
   LocalAiRuntimeProviderProofReadModelSchema
 );
-

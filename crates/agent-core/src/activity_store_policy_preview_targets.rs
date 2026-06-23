@@ -1,6 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, LogFields, PolicyTarget, PolicyTargetType,
-};
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::activity_store_policy_preview_rows::PolicyPreviewStoreRow;
 

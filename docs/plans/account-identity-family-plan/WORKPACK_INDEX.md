@@ -20,7 +20,7 @@ Use this index to select exactly one workpack.
 | --- | --- | ---: | --- | --- |
 | partial | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 10/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
 | complete | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
-| complete | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) | 14/14 | `RESEARCH_AND_DECISIONS.md`, `packages/family-domain/src/session-lifecycle.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
+| complete | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 | `RESEARCH_AND_DECISIONS.md`, `packages/family-domain/src/session-lifecycle.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
 | complete | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
 | complete | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 13/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
 | complete | [WP07 Parent Account Family Setup UI](workpacks/07-parent-account-family-setup-ui.md) | 13/13 | `docs/expectations/portal.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/` |
@@ -37,12 +37,60 @@ WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP07 -> WP06
 ```text
 WP01 blocks runtime provider/session implementation.
 WP02 blocks most authorization, UI, policy, payment, and remote-access handoffs.
-WP03 blocks secure-login/session claims.
+WP03 blocks secure-login/session claims and must be read with workpacks/03-current-boundary-addendum.md.
 WP04 may run after WP02 but must not implement data-custody side effects itself.
 WP05 depends on WP02/WP03 authority and session freshness models.
 WP07 depends on WP02 and enough WP03/WP04 state to render honest setup states.
 WP06 must be last and consumes all previous proof roots.
 ```
+
+## Module linkage by role
+
+Use this section to decide where code belongs before opening source.
+
+```text
+Canonical shared schema owner:
+  packages/schema-domain
+  Owns shared account/family/session/device-authority shapes when those shapes cross package, crate, app, or plan boundaries.
+
+TypeScript helper/projection owner:
+  packages/family-domain
+  Consumes canonical schema-domain contracts and exposes approved account/family helper surfaces for this plan.
+
+Rust parity/runtime authority owner:
+  crates/family-identity-core
+  Mirrors account/family authority semantics in Rust without drifting field names, discriminants, nullability, or status values.
+
+Setup/provisioning consumers:
+  packages/setup-domain
+  crates/provisioning-core
+  Consume setup, invite, recovery, household, and readiness surfaces; they do not own family authority.
+
+Parent UI projection/rendering consumers:
+  packages/portal-domain
+  apps/portal
+  Consume typed setup/read-model state and render honest status; they do not own account runtime, device trust, or child activity state.
+
+Runtime/protocol handoff targets when explicitly selected:
+  crates/agent-protocol
+  crates/agent-service
+  Cloudflare control-plane runtime/schema work
+  These are not default workpack targets unless the selected workpack names protocol, service, or Cloudflare runtime proof.
+
+Adjacent consumer plans:
+  setup-install-provisioning-plan
+  cloudflare-control-plane-plan
+  payment-subscription-plan
+  policy-control-plane-plan
+  data-custody-storage-plan
+  device-trust-bootstrap-plan
+  lan-plan
+  remote-access-plan
+  portal-ux-household-surfaces-plan
+  These consume account/family authority through explicit handoff contracts, events, requests, read models, or proof routes. They must not re-own account/family authority.
+```
+
+If the selected workpack needs a shape that is useful to more than this plan, place or consume it through `schema-domain` or another neutral shared boundary. Do not make a sibling feature owner package/crate the shared contract owner.
 
 ## Do not select
 

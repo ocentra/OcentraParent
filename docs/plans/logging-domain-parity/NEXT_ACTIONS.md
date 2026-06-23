@@ -16,12 +16,13 @@
 
 ## How to use
 
-1. Confirm the branch is `codex/tracking-plan-full-continuation-a`.
-2. Confirm the claimed proof roots and test-results roots actually exist before trusting any done claim.
+1. Confirm the active branch matches the assigned branch. For this audit-hardening pass the branch is `codex/plan-harness-update`.
+2. Confirm claimed proof roots and test-result roots exist before trusting any done claim.
 3. Pick one honest next slice from `WORKPACK_INDEX.md`.
-4. Open that workpack only.
-5. Fill the workpack pre-edit note.
-6. Implement or reconcile, test, run, proof, then update docs.
+4. Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+5. Open that workpack only.
+6. Fill the workpack pre-edit note.
+7. Implement or reconcile, test, run, proof, then update docs.
 
 ## Highest-priority queue
 
@@ -30,7 +31,7 @@
 Current status:
 
 ```text
-WP06 now has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 now has its canonical partial-proof root; the remaining proof-inventory restoration queue is the still-missing WP01/WP02/WP04/WP05/WP09 roots
+WP06 has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 has its canonical partial-proof root; the remaining proof-inventory restoration queue is the still-missing WP01/WP02/WP04/WP05/WP09 roots
 ```
 
 Expected result:
@@ -38,7 +39,7 @@ Expected result:
 ```text
 the remaining proof-missing workpacks either get real canonical proof roots or drop back from any overstated status
 the remaining proof-missing workpacks keep explicit no-claim language until proof is restored
-proof-inventory wrappers stay useful by reporting only real blocking gaps
+proof-inventory wrappers report only real blocking gaps
 ```
 
 ### 2. WP03 Parent Architecture and Routing Truthful Closeout
@@ -46,7 +47,7 @@ proof-inventory wrappers stay useful by reporting only real blocking gaps
 Current status:
 
 ```text
-the portal dev-log consumer slice is now proved locally: bridge-first routing, same-origin compatibility fallback, parent scope definitions, snapshot-language separation, focused portal logging tests, and the canonical WP03 proof root are all present in this checkout
+the portal dev-log consumer slice is proved locally: bridge-first routing, compatibility fallback, parent scope definitions, snapshot-language separation, focused portal logging tests, and the canonical WP03 proof root are present in this checkout
 ```
 
 Expected result:
@@ -60,13 +61,13 @@ WP03 stays partial until the remaining Rust-side agent-service mapping row is cl
 Current status:
 
 ```text
-npm run validate:logging still fails at lint:dev-log-routing because the portal dev logger points at an unimplemented endpoint, and that owner surface is outside this delegated logging-only slice
+root logging validation still has one route-check failure owned outside this delegated logging-only slice
 ```
 
 Expected result:
 
 ```text
-the owning portal/agent-service slice either fixes or narrows the dev-log-routing expectation
+the owning slice either resolves or narrows the route-check expectation
 WP06 can then move from partial-proof to a true focused-validation pass without widening this thread
 ```
 
@@ -74,16 +75,7 @@ WP06 can then move from partial-proof to a true focused-validation pass without 
 
 A PR-ready slice should close a named workpack or explicitly list remaining rows.
 
-Do not create a PR that only:
-
-```text
-updates checklist text
-adds proof prose
-renames docs
-adds TODO comments
-```
-
-unless the assigned workpack is explicitly proof-routing-only.
+Do not create a PR that only updates checklist text, adds proof prose, renames docs, or adds placeholder comments unless the assigned workpack is explicitly proof-routing-only.
 
 ## Actioned completion tracker
 

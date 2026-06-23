@@ -1,11 +1,5 @@
-import {
-  TrackingStatusProofArtifactSchema as SharedTrackingStatusProofArtifactSchema,
-  decodeTrackingStatusProofArtifact,
-  type TrackingStatusProofArtifact as SharedTrackingStatusProofArtifactValue,
-} from '@ocentra-parent/schema-domain/portal-contracts';
-
-export const TrackingStatusProofArtifactSchema = SharedTrackingStatusProofArtifactSchema;
-export type TrackingStatusProofArtifact = SharedTrackingStatusProofArtifactValue;
+import { decodeTrackingStatusProofArtifact } from '@ocentra-parent/schema-domain/portal-contracts';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/schema-domain/tracking-retention-settings-read-model-proof';
 
 const artifact = decodeTrackingStatusProofArtifact;
 
@@ -30,9 +24,7 @@ export const TrackingStatusProofArtifacts = {
   FamilyDashboardRollup: artifact(
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json'
   ),
-  RetentionSettingsReadModel: artifact(
-    'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json'
-  ),
+  RetentionSettingsReadModel: artifact(AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[1]),
   ReportExportReadModel: artifact(
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json'
   ),
@@ -62,4 +54,3 @@ export const TrackingStatusProofArtifacts = {
   MissingDeviceMode: artifact('output/tracking-plan-proof/29-missing-device-mode/proof.json'),
   RetentionDelete: artifact('output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json'),
 } as const;
-

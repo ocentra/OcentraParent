@@ -5,7 +5,8 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use ocentra_parent_agent_protocol::{constants, AgentLogSnapshot, LogFields};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{AgentLogSnapshot, LogFields};
 
 use crate::{
     browser_intervention_page::serve_browser_intervention_page,

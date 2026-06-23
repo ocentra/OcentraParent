@@ -1,9 +1,6 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { FamilyReferenceSchema } from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   AppGameChildUxLocalOutboxProviderPreflightStatus,
   AppGameChildUxLocalOutboxProviderPreflightStatusSchema,
@@ -174,13 +171,43 @@ function childUxProviderStatusHandoffReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxProviderStatusHandoffReadModelBaseSchema>
 ): boolean {
   return (
+    childUxProviderStatusHandoffCountsAreHonest(readModel) &&
+    childUxProviderStatusHandoffCoverageIsHonest(readModel) &&
+    childUxProviderStatusHandoffNonClaimsArePresent(readModel) &&
+    childUxProviderStatusHandoffClaimsRemainScoped(readModel)
+  );
+}
+
+function childUxProviderStatusHandoffCountsAreHonest(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxProviderStatusHandoffReadModelBaseSchema>
+): boolean {
+  return (
     readModel.providerStatusManualRequiredCount === countProviderStatus(readModel.rows, 'manual-required') &&
-    readModel.providerStatusUnavailableCount === countProviderStatus(readModel.rows, 'unavailable') &&
-    RequiredAppGameChildUxLocalOutboxProviderStatusHandoffNonClaims.every((claim) =>
-      readModel.handoffNonClaims.includes(claim)
-    ) &&
+    readModel.providerStatusUnavailableCount === countProviderStatus(readModel.rows, 'unavailable')
+  );
+}
+
+function childUxProviderStatusHandoffCoverageIsHonest(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxProviderStatusHandoffReadModelBaseSchema>
+): boolean {
+  return (
     readModel.providerStatusBoundaryCoverageRefs.length ===
-      V08NotificationProviderStatusBoundaryReadModel.entries.length &&
+    V08NotificationProviderStatusBoundaryReadModel.entries.length
+  );
+}
+
+function childUxProviderStatusHandoffNonClaimsArePresent(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxProviderStatusHandoffReadModelBaseSchema>
+): boolean {
+  return RequiredAppGameChildUxLocalOutboxProviderStatusHandoffNonClaims.every((claim) =>
+    readModel.handoffNonClaims.includes(claim)
+  );
+}
+
+function childUxProviderStatusHandoffClaimsRemainScoped(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxProviderStatusHandoffReadModelBaseSchema>
+): boolean {
+  return (
     !readModel.childDeliveryRuntimeClaimed &&
     !readModel.providerDeliveryRuntimeClaimed &&
     !readModel.providerReceiptIngestionClaimed &&

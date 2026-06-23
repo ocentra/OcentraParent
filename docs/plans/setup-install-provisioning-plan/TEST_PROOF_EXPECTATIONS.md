@@ -19,6 +19,8 @@ Use focused commands first. Broader validation is allowed only after focused com
 
 If a required package/test path does not exist yet, write a blocker artifact and leave the checklist row open.
 
+Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
+
 ## Common command set
 
 Use the subset relevant to the selected workpack:
@@ -31,7 +33,52 @@ npm run test:e2e --workspace @ocentra-parent/portal -- setup
 npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan packages/family-domain packages/portal-domain apps/portal
 ```
 
-Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
+## Command ownership notes
+
+- `setup-install-provisioning-plan` owns setup journey state labels, route-state matrices, proof roots, and safe wording.
+- `setup-domain` currently exports only `package-info`; internal setup-domain source/tests prove selected slices but are not public API readiness unless exports are added.
+- `account-identity-family-plan` owns provider/session/household/invite/recovery authority.
+- `parent-desktop-runtime-package-plan` and `child-agent-runtime-distribution-plan` own runtime package/distribution readiness.
+- `lan-plan` and `device-trust-bootstrap-plan` own pairing protocol/trust proof.
+- `data-custody-storage-plan`, `policy-control-plane-plan`, and `payment-subscription-plan` own custody, policy baseline, and entitlement readiness.
+- `portal-ux-household-surfaces-plan` owns broader portal UX beyond selected setup route projection.
+
+## Setup E2E meaning
+
+Do not use one proof family to claim the whole onboarding path. For this plan, E2E has separate meanings:
+
+```text
+public-site E2E: route map -> public data boundary -> no private child activity collection -> deploy/custom-domain blocker or proof.
+registration-handoff E2E: auth-entry route state -> account handoff -> invite/provider negative states -> no account/session authority claim.
+parent-install-handoff E2E: parent bootstrap/install route -> platform/version/integrity labels -> package-owner handoff -> no signed installer claim.
+child-install-permission E2E: child install route -> platform/permission/disclosure/recovery labels -> runtime-owner handoff -> installed/running/permissioned/paired/trusted/policy-ready separated.
+pairing-readiness E2E: setup pairing lifecycle -> readiness matrix -> recovery/redacted logs -> no LAN/device-trust product claim.
+first-run UI E2E: typed state machine -> rendered setup screens -> manual-required/degraded/handoff labels -> no production onboarding claim.
+rollout aggregation E2E: WP01-WP05/WP07 proof roots -> platform readiness/manual-required register -> safe wording -> sibling blockers preserved.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Product/runtime-safe logging:
+
+```text
+redact child activity data, profile/device private data, pairing tokens, invite tokens, session identifiers, account provider secrets, install codes, package URLs with secrets, and support-private diagnostics
+log workpack, route, actor role, household state, parent install state, child install state, permission state, pairing state, trust state, custody state, policy baseline state, platform state, sibling owner state, manual-required state, artifact pointer, and no-claim boundary when safe
+separate public site, account handoff, parent install, child install, pairing, first-run UI, rollout aggregation, and sibling readiness states
+never treat website-only, login-button-only, download-button-only, install-only, pairing-discovered-only, UI-only, or aggregation-only proof as production onboarding readiness
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, route, owner, exit code, result, artifact pointer, diagnostics summary, blocker note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
 
 ## WP01 Family Web Info Site
 
@@ -198,4 +245,5 @@ parent install cannot claim signed package readiness without package proof
 child install cannot claim readiness without permission/pairing proof
 pairing cannot claim product readiness by itself
 first-run UI cannot show setup complete without readiness matrix
+rollout aggregation cannot erase sibling-owner blockers
 ```

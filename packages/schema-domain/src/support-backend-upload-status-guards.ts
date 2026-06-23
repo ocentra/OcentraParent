@@ -4,10 +4,7 @@ import type {
   SupportBackendUploadStatusEntryCandidate,
   SupportBackendUploadStatusState,
 } from './support-backend-upload-status.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function supportBackendUploadStatusEntryIsSafe(
   entry: SupportBackendUploadStatusEntryCandidate,

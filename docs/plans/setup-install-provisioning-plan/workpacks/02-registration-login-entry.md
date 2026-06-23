@@ -18,6 +18,13 @@
 
 Define how the family site starts account creation/login/resume/recovery without owning account identity internals.
 
+## Ownership boundary
+
+```text
+setup-install-provisioning-plan owns account-entry route labels, handoff matrix, public-to-account transition, invite negative states, and provider-unavailable setup labels.
+account-identity-family-plan owns provider selection, token/session lifecycle, household membership, invites, roles, and recovery authority.
+```
+
 ## Required inputs
 
 ```text
@@ -50,6 +57,32 @@ household membership implementation
 invite/recovery authority
 profile/device creation
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+route_state
+account_handoff_state
+provider_session_state
+unauthenticated_state
+authenticated_no_household_state
+household_no_profile_state
+household_profile_no_device_state
+invite_expired_state
+invite_revoked_state
+invite_wrong_household_state
+provider_unavailable_state
+sensitive_data_before_authority_state
+recovery_authority_state
+no_auth_implementation_claim
+no_session_claim
+no_setup_ready_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required output
 

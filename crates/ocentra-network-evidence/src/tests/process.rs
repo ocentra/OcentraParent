@@ -4,6 +4,7 @@ use crate::{
     NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
     NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn process_correlation_attributes_flow_to_pid_snapshot() {
@@ -12,7 +13,7 @@ fn process_correlation_attributes_flow_to_pid_snapshot() {
         process_snapshots: vec![snapshot()],
         app_inventory: Vec::new(),
     })
-    .expect("pid snapshot should attribute process");
+    .expect_value("pid snapshot should attribute process");
 
     assert_eq!(
         correlation.state,
@@ -41,7 +42,7 @@ fn process_correlation_links_snapshot_to_app_inventory() {
         process_snapshots: vec![snapshot()],
         app_inventory: vec![app_inventory_entry()],
     })
-    .expect("process snapshot should link to app inventory");
+    .expect_value("process snapshot should link to app inventory");
 
     assert_eq!(
         correlation.state,
@@ -77,7 +78,7 @@ fn process_correlation_keeps_process_name_only_candidate() {
         process_snapshots: Vec::new(),
         app_inventory: vec![app_inventory_entry()],
     })
-    .expect("process name should remain a candidate");
+    .expect_value("process name should remain a candidate");
 
     assert_eq!(
         correlation.state,
@@ -109,7 +110,7 @@ fn process_correlation_keeps_missing_process_unknown() {
         process_snapshots: Vec::new(),
         app_inventory: Vec::new(),
     })
-    .expect("missing process evidence should be unknown");
+    .expect_value("missing process evidence should be unknown");
 
     assert_eq!(
         correlation.state,
@@ -139,7 +140,7 @@ fn process_correlation_marks_adapter_unavailable() {
         process_snapshots: vec![snapshot()],
         app_inventory: vec![app_inventory_entry()],
     })
-    .expect("unavailable adapter should not guess attribution");
+    .expect_value("unavailable adapter should not guess attribution");
 
     assert_eq!(
         correlation.state,

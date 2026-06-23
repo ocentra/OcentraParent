@@ -1,6 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    policy_constants as policy, LocalAiUnknownState, ParentEvidenceReference, PolicyAction,
-};
+use ocentra_parent_agent_protocol::activity::local_ai::LocalAiUnknownState;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 use super::policy_dry_run_evaluator::evaluate_policy_dry_run;
 use super::policy_dry_run_evaluator_fixture::{evidence, input_with_rules, local_ai_result, rule};

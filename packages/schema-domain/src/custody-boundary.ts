@@ -1,14 +1,6 @@
-import {
-  FamilyReferenceSchema,
-  ParentEvidenceReferenceSchema,
-} from './family-references';
+import { FamilyReferenceSchema, ParentEvidenceReferenceSchema } from './family-references';
 import { ParentContractSchemaVersionSchema } from './family-reference-primitives';
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const DataCustodyRecordIdSchema = brandedNonEmptyStringSchema('DataCustodyRecordId');
 export const DataCustodyStoreRefSchema = brandedNonEmptyStringSchema('DataCustodyStoreRef');
@@ -40,10 +32,7 @@ export const DataCustodyStateSchema = withParser(
 );
 
 export const DataCustodyRawPayloadStateSchema = withParser(
-  Schema.Literal(
-    DataCustodyRawPayloadStateLiteral.Excluded,
-    DataCustodyRawPayloadStateLiteral.RedactedOnly
-  )
+  Schema.Literal(DataCustodyRawPayloadStateLiteral.Excluded, DataCustodyRawPayloadStateLiteral.RedactedOnly)
 );
 
 export const DataCustodyRetentionDispositionSchema = withParser(
@@ -86,12 +75,8 @@ export const DataCustodyRawPayloadState = {
 
 export const DataCustodyRetentionDisposition = {
   Retain: DataCustodyRetentionDispositionSchema.parse(DataCustodyRetentionDispositionLiteral.Retain),
-  DeleteEligible: DataCustodyRetentionDispositionSchema.parse(
-    DataCustodyRetentionDispositionLiteral.DeleteEligible
-  ),
-  DeleteRequested: DataCustodyRetentionDispositionSchema.parse(
-    DataCustodyRetentionDispositionLiteral.DeleteRequested
-  ),
+  DeleteEligible: DataCustodyRetentionDispositionSchema.parse(DataCustodyRetentionDispositionLiteral.DeleteEligible),
+  DeleteRequested: DataCustodyRetentionDispositionSchema.parse(DataCustodyRetentionDispositionLiteral.DeleteRequested),
 } as const;
 
 export function parseDataCustodyBoundary(input: unknown): DataCustodyBoundary {
@@ -148,16 +133,12 @@ const DataCustodyRecoveryHandoffTargets = [
   'parent-local-delete-runtime',
 ] as const;
 
-export const DataCustodyRecoveryHandoffTargetSchema = withParser(
-  Schema.Literal(...DataCustodyRecoveryHandoffTargets)
-);
+export const DataCustodyRecoveryHandoffTargetSchema = withParser(Schema.Literal(...DataCustodyRecoveryHandoffTargets));
 export type DataCustodyRecoveryHandoffTarget = Infer<typeof DataCustodyRecoveryHandoffTargetSchema>;
 
 export const DataCustodyRecoveryHandoffTarget = {
   SetupRestorePreview: DataCustodyRecoveryHandoffTargetSchema.parse('setup-restore-preview'),
-  DeviceTrustRecoveryPersistence: DataCustodyRecoveryHandoffTargetSchema.parse(
-    'device-trust-recovery-persistence'
-  ),
+  DeviceTrustRecoveryPersistence: DataCustodyRecoveryHandoffTargetSchema.parse('device-trust-recovery-persistence'),
   ParentLocalDeleteRuntime: DataCustodyRecoveryHandoffTargetSchema.parse('parent-local-delete-runtime'),
 } as const;
 
@@ -172,9 +153,7 @@ const DataCustodyRecoveryHandoffStates = [
   'manual-required',
 ] as const;
 
-export const DataCustodyRecoveryHandoffStateSchema = withParser(
-  Schema.Literal(...DataCustodyRecoveryHandoffStates)
-);
+export const DataCustodyRecoveryHandoffStateSchema = withParser(Schema.Literal(...DataCustodyRecoveryHandoffStates));
 export type DataCustodyRecoveryHandoffState = Infer<typeof DataCustodyRecoveryHandoffStateSchema>;
 
 export const DataCustodyRecoveryHandoffState = {
@@ -241,9 +220,7 @@ export const DataCustodyClassId = {
 
 const DataCustodySourceOfTruthKinds = ['self', 'derived-from-data-class'] as const;
 
-export const DataCustodySourceOfTruthKindSchema = withParser(
-  Schema.Literal(...DataCustodySourceOfTruthKinds)
-);
+export const DataCustodySourceOfTruthKindSchema = withParser(Schema.Literal(...DataCustodySourceOfTruthKinds));
 
 const DataCustodySourceOfTruthBaseSchema = Schema.Struct({
   kind: DataCustodySourceOfTruthKindSchema,
@@ -291,43 +268,23 @@ const DataCustodyDefaultLocations = [
   'parent-device-generated-summary-cache',
 ] as const;
 
-export const DataCustodyDefaultLocationSchema = withParser(
-  Schema.Literal(...DataCustodyDefaultLocations)
-);
+export const DataCustodyDefaultLocationSchema = withParser(Schema.Literal(...DataCustodyDefaultLocations));
 export type DataCustodyDefaultLocation = Infer<typeof DataCustodyDefaultLocationSchema>;
 
 export const DataCustodyDefaultLocation = {
-  ChildDeviceEncryptedJournal: DataCustodyDefaultLocationSchema.parse(
-    'child-device-encrypted-journal'
-  ),
-  ChildDeviceLocalQueryStore: DataCustodyDefaultLocationSchema.parse(
-    'child-device-local-query-store'
-  ),
-  HouseholdLocalRuleStore: DataCustodyDefaultLocationSchema.parse(
-    'household-local-rule-store'
-  ),
-  HouseholdLocalApprovalStore: DataCustodyDefaultLocationSchema.parse(
-    'household-local-approval-store'
-  ),
-  HouseholdLocalDeviceRegistry: DataCustodyDefaultLocationSchema.parse(
-    'household-local-device-registry'
-  ),
+  ChildDeviceEncryptedJournal: DataCustodyDefaultLocationSchema.parse('child-device-encrypted-journal'),
+  ChildDeviceLocalQueryStore: DataCustodyDefaultLocationSchema.parse('child-device-local-query-store'),
+  HouseholdLocalRuleStore: DataCustodyDefaultLocationSchema.parse('household-local-rule-store'),
+  HouseholdLocalApprovalStore: DataCustodyDefaultLocationSchema.parse('household-local-approval-store'),
+  HouseholdLocalDeviceRegistry: DataCustodyDefaultLocationSchema.parse('household-local-device-registry'),
   ParentDeviceNotificationHistoryCache: DataCustodyDefaultLocationSchema.parse(
     'parent-device-notification-history-cache'
   ),
-  HouseholdLocalAuditStore: DataCustodyDefaultLocationSchema.parse(
-    'household-local-audit-store'
-  ),
-  ParentDeviceGeneratedSummaryCache: DataCustodyDefaultLocationSchema.parse(
-    'parent-device-generated-summary-cache'
-  ),
+  HouseholdLocalAuditStore: DataCustodyDefaultLocationSchema.parse('household-local-audit-store'),
+  ParentDeviceGeneratedSummaryCache: DataCustodyDefaultLocationSchema.parse('parent-device-generated-summary-cache'),
 } as const;
 
-const DataCustodyAuthorities = [
-  'child-device',
-  'household-local-devices',
-  'parent-device',
-] as const;
+const DataCustodyAuthorities = ['child-device', 'household-local-devices', 'parent-device'] as const;
 
 export const DataCustodyAuthoritySchema = withParser(Schema.Literal(...DataCustodyAuthorities));
 export type DataCustodyAuthority = Infer<typeof DataCustodyAuthoritySchema>;
@@ -344,16 +301,12 @@ const DataCustodyOcentraHostingModes = [
   'parent-authorized-stateless-derivation-only',
 ] as const;
 
-export const DataCustodyOcentraHostingModeSchema = withParser(
-  Schema.Literal(...DataCustodyOcentraHostingModes)
-);
+export const DataCustodyOcentraHostingModeSchema = withParser(Schema.Literal(...DataCustodyOcentraHostingModes));
 export type DataCustodyOcentraHostingMode = Infer<typeof DataCustodyOcentraHostingModeSchema>;
 
 export const DataCustodyOcentraHostingMode = {
   Forbidden: DataCustodyOcentraHostingModeSchema.parse('forbidden'),
-  MinimalRoutingMetadataOnly: DataCustodyOcentraHostingModeSchema.parse(
-    'minimal-routing-metadata-only'
-  ),
+  MinimalRoutingMetadataOnly: DataCustodyOcentraHostingModeSchema.parse('minimal-routing-metadata-only'),
   ParentAuthorizedStatelessDerivationOnly: DataCustodyOcentraHostingModeSchema.parse(
     'parent-authorized-stateless-derivation-only'
   ),
@@ -396,85 +349,76 @@ function dataCustodyHostingPolicyIsCoherent(policy: DataCustodyHostingPolicyCand
 }
 
 function dataCustodyRecoveryHandoffIsSafe(handoff: DataCustodyRecoveryHandoffCandidate): boolean {
-  if (
-    !handoff.previewIsNonMutating ||
-    !handoff.sourceOfTruthPreserved ||
-    !handoff.tombstonesPreserved
-  ) {
-    return false;
+  return (
+    dataCustodyRecoveryHandoffPreservesTruth(handoff) &&
+    dataCustodyRecoveryHandoffConfirmationIsSafe(handoff) &&
+    dataCustodyRecoveryHandoffDeleteFlowIsSafe(handoff) &&
+    dataCustodyRecoveryHandoffTargetIsSafe(handoff) &&
+    dataCustodyRecoveryHandoffBundleStateIsSafe(handoff)
+  );
+}
+
+function dataCustodyRecoveryHandoffPreservesTruth(handoff: DataCustodyRecoveryHandoffCandidate): boolean {
+  return handoff.previewIsNonMutating && handoff.sourceOfTruthPreserved && handoff.tombstonesPreserved;
+}
+
+function dataCustodyRecoveryHandoffConfirmationIsSafe(handoff: DataCustodyRecoveryHandoffCandidate): boolean {
+  const confirmationStates: readonly DataCustodyRecoveryHandoffCandidate['handoffState'][] = [
+    'preview-only',
+    'apply-pending',
+    'applied',
+    'partial-restore',
+  ];
+  return !confirmationStates.includes(handoff.handoffState) || handoff.explicitParentConfirmationRequired;
+}
+
+function dataCustodyRecoveryHandoffDeleteFlowIsSafe(handoff: DataCustodyRecoveryHandoffCandidate): boolean {
+  const deleteStates: readonly DataCustodyRecoveryHandoffCandidate['handoffState'][] = [
+    'delete-pending',
+    'delete-confirmed',
+  ];
+  if (deleteStates.includes(handoff.handoffState)) {
+    return handoff.deleteRequestRequired && handoff.handoffTarget === 'parent-local-delete-runtime';
   }
 
-  if (
-    handoff.handoffState === 'preview-only' ||
-    handoff.handoffState === 'apply-pending' ||
-    handoff.handoffState === 'applied' ||
-    handoff.handoffState === 'partial-restore'
-  ) {
-    if (!handoff.explicitParentConfirmationRequired) {
-      return false;
-    }
-  }
+  return !handoff.deleteRequestRequired;
+}
 
-  if (
-    handoff.handoffState === 'delete-pending' ||
-    handoff.handoffState === 'delete-confirmed'
-  ) {
-    if (!handoff.deleteRequestRequired || handoff.handoffTarget !== 'parent-local-delete-runtime') {
-      return false;
-    }
-  } else if (handoff.deleteRequestRequired) {
-    return false;
-  }
-
-  if (
-    handoff.handoffTarget === 'setup-restore-preview' &&
-    (handoff.handoffState === 'delete-pending' || handoff.handoffState === 'delete-confirmed')
-  ) {
-    return false;
-  }
-
-  if (
-    handoff.handoffTarget === 'device-trust-recovery-persistence' &&
-    (handoff.handoffState === 'delete-pending' || handoff.handoffState === 'delete-confirmed')
-  ) {
-    return false;
-  }
+function dataCustodyRecoveryHandoffTargetIsSafe(handoff: DataCustodyRecoveryHandoffCandidate): boolean {
+  const deleteRuntimeStates: readonly DataCustodyRecoveryHandoffCandidate['handoffState'][] = [
+    'delete-pending',
+    'delete-confirmed',
+    'manual-required',
+  ];
+  const deleteStates: readonly DataCustodyRecoveryHandoffCandidate['handoffState'][] = [
+    'delete-pending',
+    'delete-confirmed',
+  ];
 
   if (handoff.handoffTarget === 'parent-local-delete-runtime') {
-    return (
-      handoff.handoffState === 'delete-pending' ||
-      handoff.handoffState === 'delete-confirmed' ||
-      handoff.handoffState === 'manual-required'
-    );
+    return deleteRuntimeStates.includes(handoff.handoffState);
   }
 
-  if (handoff.bundleState === 'bundleWrongHousehold') {
-    return handoff.handoffState === 'rejected';
-  }
+  return !deleteStates.includes(handoff.handoffState);
+}
 
-  if (handoff.bundleState === 'bundleWrongKey' || handoff.bundleState === 'bundleCorrupt') {
-    return handoff.handoffState === 'rejected' || handoff.handoffState === 'manual-required';
-  }
+function dataCustodyRecoveryHandoffBundleStateIsSafe(handoff: DataCustodyRecoveryHandoffCandidate): boolean {
+  const handoffStatesByBundleState: Record<
+    DataCustodyRecoveryHandoffCandidate['bundleState'],
+    readonly DataCustodyRecoveryHandoffState[]
+  > = {
+    bundleQueued: ['preview-only', 'apply-pending', 'applied', 'partial-restore', 'rejected', 'manual-required'],
+    bundleWritten: ['preview-only', 'apply-pending', 'applied', 'partial-restore', 'rejected', 'manual-required'],
+    bundleVerified: ['preview-only', 'apply-pending', 'applied', 'partial-restore', 'rejected', 'manual-required'],
+    bundlePreviewOnly: ['preview-only'],
+    bundleApplyPending: ['apply-pending'],
+    bundleApplied: ['applied', 'partial-restore'],
+    bundleRejected: ['rejected'],
+    bundleCorrupt: ['rejected', 'manual-required'],
+    bundleWrongHousehold: ['rejected'],
+    bundleWrongKey: ['rejected', 'manual-required'],
+    bundleManualRequired: ['manual-required'],
+  };
 
-  if (handoff.bundleState === 'bundleManualRequired') {
-    return handoff.handoffState === 'manual-required';
-  }
-
-  if (handoff.bundleState === 'bundleApplyPending') {
-    return handoff.handoffState === 'apply-pending';
-  }
-
-  if (handoff.bundleState === 'bundlePreviewOnly') {
-    return handoff.handoffState === 'preview-only';
-  }
-
-  if (handoff.bundleState === 'bundleApplied') {
-    return handoff.handoffState === 'applied' || handoff.handoffState === 'partial-restore';
-  }
-
-  if (handoff.bundleState === 'bundleRejected') {
-    return handoff.handoffState === 'rejected';
-  }
-
-  return true;
+  return handoffStatesByBundleState[handoff.bundleState].includes(handoff.handoffState);
 }

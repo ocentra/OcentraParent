@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterTransportExecutionProofReadModel } from './app-install-purchase-external-runtime-writer-transport-execution-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -78,8 +73,12 @@ const ExecutionReceiptGateCustodyClaimSchema = withParser(Schema.Literal('no-chi
 
 const ExecutionReceiptGateRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateRowId');
 const ExecutionReceiptGateRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateRef');
-const ExecutionReceiptGateAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateAuditRef');
-const ExecutionReceiptGateBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateBoundary');
+const ExecutionReceiptGateAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExecutionReceiptGateAuditRef'
+);
+const ExecutionReceiptGateBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExecutionReceiptGateBoundary'
+);
 
 const ExecutionReceiptGateRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExecutionReceiptGateProofSchemaVersionSchema,
@@ -345,4 +344,3 @@ function executionReceiptGateProofIsHonest(proof: AppInstallPurchaseExecutionRec
 function executionReceiptGateBoundaryIsExplicit(boundary: typeof ExecutionReceiptGateBoundarySchema.Type): boolean {
   return ExecutionReceiptGateFragments.every((fragment) => boundary.includes(fragment));
 }
-

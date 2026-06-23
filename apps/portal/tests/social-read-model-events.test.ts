@@ -40,6 +40,11 @@ const Target = {
 } as const;
 
 describe('portal social read-model event parsers', () => {
+  socialReadModelSnapshotParseTests();
+  socialReadModelRejectionTests();
+});
+
+function socialReadModelSnapshotParseTests(): void {
   it('parses the social alert report payload from the canonical schema-domain snapshot', () => {
     const snapshot = socialAlertReportSnapshot();
     const parsed = parseAgentSocialAlertReportReadModelEvent(
@@ -103,7 +108,14 @@ describe('portal social read-model event parsers', () => {
       value: snapshot,
     });
   });
+}
 
+function socialReadModelRejectionTests(): void {
+  socialAlertReportRejectionTests();
+  socialSurfaceRejectionTests();
+}
+
+function socialAlertReportRejectionTests(): void {
   it('rejects wrong events, missing fields, invalid json, and dishonest alert-report payloads', () => {
     const event = readModelEvent(
       AgentEvent.BrowserSocialAlertReportReadModelReported,
@@ -156,7 +168,9 @@ describe('portal social read-model event parsers', () => {
       reason: 'invalid-payload',
     });
   });
+}
 
+function socialSurfaceRejectionTests(): void {
   it('rejects dishonest parent-surface, readiness, and dashboard payload claims', () => {
     expect(
       parseAgentSocialAlertReportParentSurfaceReadModelEvent(
@@ -206,13 +220,9 @@ describe('portal social read-model event parsers', () => {
       reason: 'invalid-payload',
     });
   });
-});
+}
 
-function readModelEvent(
-  event: AgentEventEnvelope['event'],
-  payloadField: string,
-  value: unknown
-): AgentEventEnvelope {
+function readModelEvent(event: AgentEventEnvelope['event'], payloadField: string, value: unknown): AgentEventEnvelope {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: AgentProtocolSchemaVersion,
     eventId: `event-${event}`,
@@ -348,11 +358,7 @@ function socialAlertReportParentSurfaceSnapshot() {
     generatedAt: Timestamp,
     sourceProviderStatusHandoffId: 'social-provider-status-handoff-service',
     sourcePreferenceStatusHandoffId: 'social-preference-status-handoff-service',
-    rows: [
-      socialParentSurfaceHighRiskRow(),
-      socialParentSurfaceManualRow(),
-      socialParentSurfaceUnavailableRow(),
-    ],
+    rows: [socialParentSurfaceHighRiskRow(), socialParentSurfaceManualRow(), socialParentSurfaceUnavailableRow()],
     manualActionRequiredCount: 2,
     unavailableVisibleCount: 1,
     historyVisibleCount: 3,
@@ -602,9 +608,7 @@ function socialDashboardSnapshot() {
       socialDashboardPanel('account-approval-queue', 'ready-for-review', 'open-parent-approval', [
         'parent-review-needed',
       ]),
-      socialDashboardPanel('feed-video-gates', 'ready-for-review', 'review-feed-gate', [
-        'feed-video-gate-candidate',
-      ]),
+      socialDashboardPanel('feed-video-gates', 'ready-for-review', 'review-feed-gate', ['feed-video-gate-candidate']),
       socialDashboardPanel('native-app-capability', 'manual-required', 'review-native-capability', [
         'native-app-manual-required',
       ]),

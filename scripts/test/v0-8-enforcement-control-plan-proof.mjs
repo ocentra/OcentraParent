@@ -19,7 +19,9 @@ async function main() {
   await runCommand('node', ['scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs']);
   await runCommand('node', ['scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs']);
   await runCommand('node', ['scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs']);
-  await runCommand(...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/policy-domain', '--', 'policy-approval-override']));
+  await runCommand(
+    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/policy-domain', '--', 'policy-approval-override'])
+  );
 
   const supportedProof = await readJson('test-results/v0-8-supported-adapter-runtime-proof/proof.json');
   const productProof = await readJson('test-results/v0-8-enforcement-product-control-spine/proof.json');
@@ -35,16 +37,14 @@ async function main() {
       rowId: 'app-game',
       proofLevel: 'implemented-boundary',
       state: 'supported-boundary-proved',
-      summary: 'Windows app/game owned-process time-limit remains the only app/game enforcement path proved as a supported boundary.',
+      summary:
+        'Windows app/game owned-process time-limit remains the only app/game enforcement path proved as a supported boundary.',
       evidence: [
         supportedProof.evidence.proofHarness,
         supportedProof.evidence.tsRuntimeContract,
         productProof.evidence.proofHarness,
       ],
-      knownGaps: [
-        'global installed-app blocking',
-        'mobile child-device enforcement',
-      ],
+      knownGaps: ['global installed-app blocking', 'mobile child-device enforcement'],
     },
     {
       rowId: 'managed-browser',
@@ -52,13 +52,8 @@ async function main() {
       state: 'executes-real-service',
       summary:
         'Managed browser intervention is proved only for the owned managed-session path and stays separate from exact URL enforcement.',
-      evidence: [
-        browserProof.evidence.proofHarness,
-        productProof.evidence.proofHarness,
-      ],
-      knownGaps: [
-        'managed browser exact active-tab URL enforcement',
-      ],
+      evidence: [browserProof.evidence.proofHarness, productProof.evidence.proofHarness],
+      knownGaps: ['managed browser exact active-tab URL enforcement'],
     },
     {
       rowId: 'unmanaged-browser',
@@ -66,10 +61,7 @@ async function main() {
       state: 'process-scoped-with-exact-evidence-not-claimed',
       summary:
         'Unmanaged browser terminate/warn states are process-scoped only; exact URL, title, page, download, HTTPS content, and intent evidence remain unclaimed.',
-      evidence: [
-        browserProof.evidence.proofHarness,
-        runtimeProof.evidence.proofHarness,
-      ],
+      evidence: [browserProof.evidence.proofHarness, runtimeProof.evidence.proofHarness],
       knownGaps: [
         'unmanaged browser URL, active tab, title, page, download source, HTTPS content, or intent certainty',
       ],
@@ -80,13 +72,8 @@ async function main() {
       state: 'returns-manual-required',
       summary:
         'Host network/domain blocking remains manual-required and does not upgrade into real blocking without host adapter artifacts.',
-      evidence: [
-        runtimeProof.evidence.proofHarness,
-        supportedProof.evidence.proofHarness,
-      ],
-      knownGaps: [
-        'host network or domain blocking',
-      ],
+      evidence: [runtimeProof.evidence.proofHarness, supportedProof.evidence.proofHarness],
+      knownGaps: ['host network or domain blocking'],
     },
     {
       rowId: 'timers',
@@ -94,13 +81,8 @@ async function main() {
       state: 'recovery-rollback-expiry-audit-visible',
       summary:
         'Timer create/recovery/rollback/expiry states are represented in the product-control and integrity audit surfaces without expanding into broad blocking.',
-      evidence: [
-        integrityProof.evidence.proofHarness,
-        productProof.evidence.proofHarness,
-      ],
-      knownGaps: [
-        'service restart timer persistence beyond recovery-needed state',
-      ],
+      evidence: [integrityProof.evidence.proofHarness, productProof.evidence.proofHarness],
+      knownGaps: ['service restart timer persistence beyond recovery-needed state'],
     },
     {
       rowId: 'approvals',
@@ -112,10 +94,7 @@ async function main() {
         'packages/policy-domain/tests/unit/policy-approval-override.test.ts',
         productProof.evidence.proofHarness,
       ],
-      knownGaps: [
-        'notification delivery',
-        'portal UI rendering',
-      ],
+      knownGaps: ['notification delivery', 'portal UI rendering'],
     },
     {
       rowId: 'integrity',
@@ -123,15 +102,8 @@ async function main() {
       state: 'permission-loss-heartbeat-stop-tamper-manual-required',
       summary:
         'Integrity audit and alert bridge rows expose permission-loss, stale heartbeat, stopped-or-removed, and tamper-manual-required states without anti-tamper or privilege claims.',
-      evidence: [
-        integrityProof.evidence.proofHarness,
-        'test-results/v0-8-integrity-alert-status-bridge/proof.json',
-      ],
-      knownGaps: [
-        'notification provider delivery',
-        'anti-tamper or uninstall resistance',
-        'privilege escalation',
-      ],
+      evidence: [integrityProof.evidence.proofHarness, 'test-results/v0-8-integrity-alert-status-bridge/proof.json'],
+      knownGaps: ['notification provider delivery', 'anti-tamper or uninstall resistance', 'privilege escalation'],
     },
     {
       rowId: 'platform',
@@ -139,9 +111,7 @@ async function main() {
       state: 'windows-implemented-boundary-linux-unavailable-mobile-manual-required',
       summary:
         'Windows stays implemented-boundary only, Linux stays unavailable, and Android/iOS privileged surfaces stay manual-required or planned.',
-      evidence: [
-        platformProof.evidence.proofHarness,
-      ],
+      evidence: [platformProof.evidence.proofHarness],
       knownGaps: [
         'Linux, macOS, Android, or iOS child enforcement support',
         'device-owner policy, Family Controls entitlement, signing, TestFlight, Google Play, or App Store production readiness',
@@ -244,7 +214,9 @@ async function main() {
 
 function assertClaimBoundaries(supportedProof, integrityProof, platformProof, runtimeProof, browserProof) {
   if (supportedProof.counts.byRuntimeState['implemented-boundary'] < 2) {
-    throw new Error('supported-adapter runtime proof is missing implemented-boundary rows for app/game and network handoff.');
+    throw new Error(
+      'supported-adapter runtime proof is missing implemented-boundary rows for app/game and network handoff.'
+    );
   }
   if (integrityProof.counts.byExecution['executed-supported-boundary'] < 4) {
     throw new Error('integrity runtime audit proof is missing executed-supported-boundary evidence.');
@@ -295,12 +267,7 @@ async function writeProofPack(dir, proof) {
   );
   await writeText(
     join(dir, '02-no-claim-boundary.md'),
-    [
-      '# No-Claim Boundary',
-      '',
-      ...proof.knownGaps.map((gap) => `- ${gap}`),
-      '',
-    ].join('\n')
+    ['# No-Claim Boundary', '', ...proof.knownGaps.map((gap) => `- ${gap}`), ''].join('\n')
   );
   await writeJson(join(dir, '03-composed-proof.json'), proof);
   await writeText(join(dir, '16-validation-commands.log'), `${proof.commands.join('\n')}\n`);

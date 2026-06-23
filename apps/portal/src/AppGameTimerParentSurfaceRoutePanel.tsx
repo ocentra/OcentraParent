@@ -1,16 +1,10 @@
 import type { ReactElement } from 'react';
 import type { AgentAppGameTimerParentSurfaceResult } from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
-import {
-  AgentCommand,
-  AgentEvent
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
-import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
@@ -18,10 +12,8 @@ import {
   type AppGameTimerParentSurfacePanelIntent,
   type AppGameTimerParentSurfacePanelRow,
 } from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
-import {
-  isPortalAppGameParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderAppGameTimerParentSurfaceRoute(route: PortalRouteValue): boolean {
@@ -40,7 +32,7 @@ export function AppGameTimerParentSurfaceRoutePanel({
   const intent = createAppGameTimerParentSurfacePanelIntent(readModelResult);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.AppGameTimerParentSurface)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.AppGameTimerParentSurface)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -57,7 +49,7 @@ export function AppGameTimerParentSurfaceRoutePanel({
               actions.sendCommand(AgentCommand.ActivityAppGameTimerParentSurfaceReadModelGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGameTimerParentSurfaceReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameTimerParentSurfaceReadModel)}
           </button>
         </header>
         <div

@@ -4,6 +4,7 @@ use crate::{
     NetworkPerformanceBenchmarkState, NetworkPerformanceBenchmarkThresholds,
     NetworkPerformancePathState, NetworkPerformanceRegressionCode, NetworkPerformanceScenarioType,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn performance_benchmark_records_latency_throughput_resource_and_high_concurrency_metrics() {
@@ -25,7 +26,7 @@ fn performance_benchmark_records_latency_throughput_resource_and_high_concurrenc
             1_000,
         ),
     ]))
-    .expect("benchmark proof should aggregate passing fixture rows");
+    .expect_value("benchmark proof should aggregate passing fixture rows");
 
     assert_eq!(
         proof.benchmark_state,
@@ -68,7 +69,7 @@ fn performance_benchmark_flags_latency_queue_resource_and_throughput_regressions
             )
         },
     ]))
-    .expect("benchmark proof should preserve regression metrics");
+    .expect_value("benchmark proof should preserve regression metrics");
 
     assert_eq!(
         proof.benchmark_state,
@@ -113,7 +114,7 @@ fn performance_benchmark_preserves_manual_required_and_unavailable_paths() {
             600,
         ),
     ]))
-    .expect("manual and unavailable benchmark paths should remain measurable");
+    .expect_value("manual and unavailable benchmark paths should remain measurable");
 
     assert_eq!(
         proof.path_states,

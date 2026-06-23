@@ -20,14 +20,64 @@ Generated from the existing `network-plan` docs. This is the default resume/stat
 
 This folder is the single working plan location for child-device network evidence, domain observation, DNS and flow classification, process/app/browser correlation, network-triggered cross-slice evidence cascade, network policy handoff, DNS/firewall/VPN/WFP/NetworkExtension intervention paths, proof artifacts, and parent UI.
 
+## Current ownership interpretation
+
+```text
+schema-domain:
+  Canonical shared TypeScript network contracts when shapes cross package, app, crate, or plan boundaries.
+
+network-domain:
+  Package metadata and proof-consumer surface unless a selected public export explicitly exists. Current tests consume canonical schema-domain network contracts.
+
+ocentra-network-evidence:
+  Rust network evidence/proof crate for packet, DNS, domain, flow, classifier, cascade, policy-handoff, platform-gate, adapter, risk, and AI-audit proof helpers.
+
+agent-protocol, agent-core, and agent-service:
+  Protocol, runtime-chain, capture, delivery, service read-model, and bridge proof only when the selected workpack names those surfaces.
+
+apps/portal and portal-domain:
+  Projection/UI only. Portal renders service-backed network state and does not own network truth.
+
+eventing-plan:
+  Reusable local event bus semantics only. Network consumes typed eventing handoffs and must not create a private bus.
+
+Browser, screen, AI, policy, enforcement, LAN, data custody, device-trust, and notification plans:
+  Sibling owners for exact URL/page evidence, screen fallback, AI runtime/provider behavior, policy decisions, enforcement actions, LAN delivery, custody, device authority, and notifications.
+```
+
+## Current coupling risks
+
+```text
+- `network-domain` is currently package metadata/proof-consumer surface, while canonical shared TypeScript contracts live in schema-domain.
+- Checklist count is not proof completion.
+- Shim-cleanup skeleton proof is not workpack completion.
+- Schema/unit tests are not live capture proof.
+- PCAP or fixture replay is not live capture proof.
+- Network evidence is not exact URL, exact video, private message, search text, or private content proof.
+- Policy mapping is not enforcement authority.
+- Adapter contract or lab proof is not production intervention readiness.
+- Control catalog or settings inventory existence is not implementation proof.
+```
+
+## Current proof interpretation
+
+```text
+output/network-plan-proof/<workpack>/ is the normal deterministic proof root.
+docs/proof/network-plan/ currently contains only the slice-01 shim-cleanup proof note.
+The slice-01 proof is a bounded parent-domain frontage cleanup proof only.
+The broader WP01-WP08 workpacks remain open until their proof roots exist or blockers are explicitly written.
+Real platform proof remains required for platform claims unless explicitly marked external-platform constraint or manual-required.
+```
+
 ## Resume route
 
 1. Read this file.
 2. Read `NEXT_ACTIONS.md` when starting/resuming.
 3. Read `WORKPACK_INDEX.md`.
-4. Open only the assigned workpack.
-5. Use `CHECKLIST_INDEX.md` for exact checklist sections.
-6. Use `PROOF_INDEX.md` for proof artifacts.
+4. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+5. Open only the assigned workpack.
+6. Use `CHECKLIST_INDEX.md` for exact checklist sections.
+7. Use `PROOF_INDEX.md` for proof artifacts.
 
 ## Current snapshot source
 
@@ -37,7 +87,7 @@ This folder is the single working plan location for child-device network evidenc
 
 Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a` found:
 
-- the canonical TypeScript source package is `packages/network-domain`, not the `packages/activity-domain` paths still named elsewhere in this plan;
+- the canonical TypeScript contract source is `schema-domain`; `packages/network-domain` is a package metadata/proof-consumer surface unless selected public exports exist;
 - real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
 - the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
 - only the slice-01 proof pack exists right now; broader plan proof bundles are still missing;
@@ -47,12 +97,12 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 
 - 2026-06-17 `network-foundation-shim-cleanup` is limited to the parent-domain TypeScript ownership boundary plus the initial proof-root restoration; current source truth now carries that slice through the dead-frontage retirement.
 - This slice retires `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` because `@ocentra-parent/parent-domain` does not publish `./network-flow` or `./network-contracts`, and no live in-repo consumers were found for those parent-domain paths; it does not widen into Rust, portal, or platform proof.
-- The former `@ocentra-parent/parent-domain` `./network-control-catalog` contradiction is already retired as well; canonical `network-flow`, `network-contracts`, and control-catalog ownership remains only in `@ocentra-parent/network-domain`.
+- The former `@ocentra-parent/parent-domain` `./network-control-catalog` contradiction is already retired as well; canonical `network-flow`, `network-contracts`, and control-catalog ownership remains only in schema-domain or selected network proof surfaces.
 - Proof pack for this slice lives at `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` with artifacts under `output/network-plan-proof/01-network-foundation-shim-cleanup/`.
 
 ## What is already present in source
 
-- `packages/network-domain` owns real TypeScript network flow, network contract, and network-control catalog implementations with unit tests.
+- `packages/network-domain` is present as package metadata/proof-consumer surface and has unit tests that consume canonical `schema-domain` network contracts.
 - `crates/agent-protocol` owns real Rust network contracts, status payload shapes, constants, and protocol tests.
 - `crates/agent-core` owns real network capture, ActivityStore network rows, runtime chain, queue, replay, and remote-delivery proof logic with tests.
 - `crates/agent-service` owns real network payload, digest, runtime-delivery, product-path, remote-delivery, and platform-gate bridge code with tests.
@@ -116,6 +166,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - `README_FULL_ORIGINAL.md` unless you need historical full README context.
 - Full `implementation-checklist.md` unless `CHECKLIST_INDEX.md` names exact section/row.
 - All workpacks; use `WORKPACK_INDEX.md`.
+- `WORKPACK_FAMILIES.md` unless the selected workpack owner/proof family is unclear.
 - Source inventories and pasted-content audits unless source ownership is unclear.
 - Historical checkpoint/proof docs unless `PROOF_INDEX.md` or the assigned workpack names them.
 
@@ -130,7 +181,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
   - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under `docs/proof/network-plan/`.
+  - a proof manifest under `docs/proof/network-plan/` or the selected `output/network-plan-proof/<workpack>/` root.
 - Current audit truth:
   - `docs/proof/network-plan/` now exists again, but only the slice-01 skeleton is present;
   - do not mark any slice complete until the assigned slice has real committed artifacts beyond the current skeleton or an explicit blocker note;

@@ -3,7 +3,6 @@ import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 
-test.skip(process.env['SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF'] !== '1', 'Dedicated screen summary UI proof only.');
 test.setTimeout(120_000);
 
 const shellReadyTimeoutMs = 90_000;
@@ -16,28 +15,30 @@ const mobileScreenshotPath = path.join(screenshotDir, 'screen-analysis-route-mob
 const accessibilitySummaryPath = path.join(testResultRoot, 'accessibility-summary.json');
 const productBoundaryCopy = 'No family setting is configured for this area yet.';
 
-test('screen analysis route renders service-backed summary evidence without raw pixels', async ({ page }) => {
-  const browserFailures = collectBrowserFailures(page);
+if (process.env['SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF'] === '1') {
+  test('screen analysis route renders service-backed summary evidence without raw pixels', async ({ page }) => {
+    const browserFailures = collectBrowserFailures(page);
 
-  await refreshScreenReadModel(page);
-  await page.goto('/#/screen-analysis');
+    await refreshScreenReadModel(page);
+    await page.goto('/#/screen-analysis');
 
-  const screenRegion = page.getByRole('region', { name: 'Screen analysis' });
-  await expect(screenRegion).toBeVisible({ timeout: shellReadyTimeoutMs });
-  await expect(screenRegion.getByRole('heading', { name: 'Screen analysis' })).toBeVisible();
-  await expect(screenRegion.getByText(productBoundaryCopy).first()).toBeVisible();
-  await expect(screenRegion.getByText('Status').first()).toBeVisible();
-  await expect(screenRegion.getByText('Product claim').first()).toBeVisible();
-  await expect(screenRegion.getByText('Parent explanation refs').first()).toBeVisible();
-  await expect(screenRegion.getByText('screen-summary-parent-explanation-service-explanation').first()).toBeVisible();
-  await expect(screenRegion.getByText('Raw screenshot')).toHaveCount(0);
-  await expect(screenRegion.getByText('Product ready')).toHaveCount(0);
+    const screenRegion = page.getByRole('region', { name: 'Screen analysis' });
+    await expect(screenRegion).toBeVisible({ timeout: shellReadyTimeoutMs });
+    await expect(screenRegion.getByRole('heading', { name: 'Screen analysis' })).toBeVisible();
+    await expect(screenRegion.getByText(productBoundaryCopy).first()).toBeVisible();
+    await expect(screenRegion.getByText('Status').first()).toBeVisible();
+    await expect(screenRegion.getByText('Product claim').first()).toBeVisible();
+    await expect(screenRegion.getByText('Parent explanation refs').first()).toBeVisible();
+    await expect(screenRegion.getByText('screen-summary-parent-explanation-service-explanation').first()).toBeVisible();
+    await expect(screenRegion.getByText('Raw screenshot')).toHaveCount(0);
+    await expect(screenRegion.getByText('Product ready')).toHaveCount(0);
 
-  await captureScreenSummaryScreenshots(page, screenRegion);
-  await writeAccessibilitySummary(await collectAccessibilitySummary(page));
+    await captureScreenSummaryScreenshots(page, screenRegion);
+    await writeAccessibilitySummary(await collectAccessibilitySummary(page));
 
-  expect(browserFailures).toEqual([]);
-});
+    expect(browserFailures).toEqual([]);
+  });
+}
 
 async function refreshScreenReadModel(page: Page): Promise<void> {
   await page.goto('/#/commands');

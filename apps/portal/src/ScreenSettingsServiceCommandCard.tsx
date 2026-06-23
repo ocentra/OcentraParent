@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { screenEvidenceSettingsWritableUiProof } from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
-import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   latestScreenSettingsServiceResponse,

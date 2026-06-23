@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -32,8 +27,12 @@ export const TrackingFullProductUiReadinessBlockerIdSchema = withParser(
   )
 );
 
-export const TrackingFullProductUiReadinessBlockerReferenceSchema = brandedNonEmptyStringSchema('TrackingFullProductUiReadinessBlockerReference');
-export const TrackingFullProductUiReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema('TrackingFullProductUiReadinessBlockerProofId');
+export const TrackingFullProductUiReadinessBlockerReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiReadinessBlockerReference'
+);
+export const TrackingFullProductUiReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiReadinessBlockerProofId'
+);
 export const TrackingFullProductUiReadinessBlockerStatusSchema = withParser(Schema.Literal('manual-required'));
 
 const TrackingFullProductUiReadinessBlockerRowBaseSchema = Schema.Struct({
@@ -231,4 +230,3 @@ function trackingFullProductUiReadinessProofIsHonest(proof: TrackingFullProductU
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
-

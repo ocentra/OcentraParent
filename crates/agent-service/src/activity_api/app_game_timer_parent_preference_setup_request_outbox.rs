@@ -5,7 +5,8 @@ use std::{
     path::Path,
 };
 
-use ocentra_parent_agent_protocol::{constants, AppGameTimerParentPreferenceSetupRequestResult};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequestResult;
 use serde_json::{Map, Value};
 
 pub(crate) fn append_setup_outbox_record(
@@ -14,18 +15,18 @@ pub(crate) fn append_setup_outbox_record(
 ) -> Result<(), ()> {
     let outbox_path = setup_outbox_path(store_path);
     if let Some(parent) = outbox_path.parent() {
-        create_dir_all(parent).map_err(|_| ())?;
+        create_dir_all(parent).map_err(|_error| ())?;
     }
     let record = setup_outbox_record(result);
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
         .open(outbox_path)
-        .map_err(|_| ())?;
-    let line = serde_json::to_string(&record).map_err(|_| ())?;
-    file.write_all(line.as_bytes()).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let line = serde_json::to_string(&record).map_err(|_error| ())?;
+    file.write_all(line.as_bytes()).map_err(|_error| ())?;
     file.write_all(constants::delimiter::NEWLINE.to_string().as_bytes())
-        .map_err(|_| ())
+        .map_err(|_error| ())
 }
 
 pub(crate) fn setup_outbox_has_records(store_path: &Path) -> bool {

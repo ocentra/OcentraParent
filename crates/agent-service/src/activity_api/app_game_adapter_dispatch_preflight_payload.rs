@@ -1,11 +1,6 @@
-use ocentra_parent_agent_protocol::{
-    constants::{
-        self, v08_enforcement_policy_dispatch as dispatch,
-        v08_supported_adapter_runtime_proof as proof,
-    },
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::{
     AppGameAdapterDispatchPreflightReadModel, AppGameAdapterDispatchPreflightRow,
-    AppGameAdapterExecutionReadinessRow, LogFieldValue, LogFields, LogLevel,
     APP_GAME_ADAPTER_DISPATCH_AUDIT_OWNED_PROCESS, APP_GAME_ADAPTER_DISPATCH_CLAIM_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_CLAIM_SCOPED_TIMER, APP_GAME_ADAPTER_DISPATCH_DECISION_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE, APP_GAME_ADAPTER_DISPATCH_EVIDENCE_OWNED_PROCESS,
@@ -23,12 +18,21 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_UNAVAILABLE,
     APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_UNSUPPORTED,
     APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATUS_PARTIAL,
-    APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
+    APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS,
+};
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
+    AppGameAdapterExecutionReadinessRow, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
     APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID, APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED,
     APP_GAME_ADAPTER_EXECUTION_STATE_MANUAL_REQUIRED, APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
     APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
     APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
-    APP_GAME_SCHEMA_VERSION,
+};
+use ocentra_parent_agent_protocol::constants::{
+    self, v08_enforcement_policy_dispatch as dispatch, v08_supported_adapter_runtime_proof as proof,
+};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use super::app_game_adapter_execution_readiness_payload::app_game_adapter_execution_readiness_read_model;
@@ -136,9 +140,7 @@ pub fn app_game_adapter_dispatch_preflight_payload(
         ),
         (
             constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ])
 }

@@ -1,30 +1,42 @@
 use std::fs::{read, remove_file};
+use std::path::{Path, PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, BrowserActiveProofSource, BrowserActiveTabState,
-    BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-    BrowserQueryVisibilityLabel, BrowserTabEvidence, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserTabEvidence;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use super::{
     browser_tab_observation_event, ActivityJournal, ActivityStore, BrowserBridgeTargetObservation,
     JournalKey, JOURNAL_KEY_BYTES,
 };
 
-#[test]
-fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
-    let event = browser_event();
+type TestResult = Result<(), String>;
 
-    store
-        .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let read_model = store
-        .browser_evidence_read_model(
+#[test]
+fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let event = browser_event()?;
+
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    let read_model = ok(
+        store.browser_evidence_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     assert_eq!(read_model.returned, 1);
     assert_eq!(read_model.latest_event_id, Some(event.event_id.clone()));
@@ -33,7 +45,7 @@ fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() {
         Some(BrowserCapabilityStatus::TabListOnly)
     );
     let row = &read_model.rows[0];
-    assert_browser_row_matches_event(row, &event);
+    assert_browser_row_matches_event(row, &event)?;
     assert_eq!(
         row.fresh_until,
         constants::activity_store::TEST_SECOND_OBSERVED_AT
@@ -42,10 +54,11 @@ fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() {
         row.stale_at,
         constants::activity_store::TEST_SECOND_OBSERVED_AT
     );
+    Ok(())
 }
 
 #[test]
-fn activity_store_replays_browser_evidence_from_encrypted_journal() {
+fn activity_store_replays_browser_evidence_from_encrypted_journal() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_BROWSER_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -56,36 +69,44 @@ fn activity_store_replays_browser_evidence_from_encrypted_journal() {
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
-    let mut journal = ActivityJournal::open(journal_path.clone(), key.clone())
-        .expect(constants::error::JOURNAL_OPENS);
-    let event = browser_event();
-    journal
-        .append(&event)
-        .expect(constants::error::JOURNAL_APPENDS);
-    let journal_bytes = read(&journal_path).expect(constants::error::JOURNAL_READS);
-    let reader =
-        ActivityJournal::open(journal_path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let mut journal = ok(
+        ActivityJournal::open(journal_path.clone(), key.clone()),
+        constants::error::JOURNAL_OPENS,
+    )?;
+    let event = browser_event()?;
+    ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
+    let journal_bytes = ok(read(&journal_path), constants::error::JOURNAL_READS)?;
+    let reader = ok(
+        ActivityJournal::open(journal_path.clone(), key),
+        constants::error::JOURNAL_OPENS,
+    )?;
+    let store = ok(
+        ActivityStore::open(&store_path),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
 
-    let status = store
-        .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let read_model = store
-        .browser_evidence_read_model(
+    let status = ok(
+        store.ingest_journal(&reader),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    let read_model = ok(
+        store.browser_evidence_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(status.events_ingested, 1);
-    assert_browser_row_matches_event(&read_model.rows[0], &event);
+    assert_browser_row_matches_event(&read_model.rows[0], &event)?;
     assert!(!String::from_utf8_lossy(&journal_bytes)
         .contains(constants::activity_store::TEST_BROWSER_URL));
+    Ok(())
 }
 
 #[test]
-fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows() {
+fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_BROWSER_DUPLICATE_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -96,28 +117,33 @@ fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
-    let mut journal = ActivityJournal::open(journal_path.clone(), key.clone())
-        .expect(constants::error::JOURNAL_OPENS);
-    let event = browser_event();
-    journal
-        .append(&event)
-        .expect(constants::error::JOURNAL_APPENDS);
-    journal
-        .append(&event)
-        .expect(constants::error::JOURNAL_APPENDS);
-    let reader =
-        ActivityJournal::open(journal_path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let mut journal = ok(
+        ActivityJournal::open(journal_path.clone(), key.clone()),
+        constants::error::JOURNAL_OPENS,
+    )?;
+    let event = browser_event()?;
+    ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
+    ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
+    let reader = ok(
+        ActivityJournal::open(journal_path.clone(), key),
+        constants::error::JOURNAL_OPENS,
+    )?;
+    let store = ok(
+        ActivityStore::open(&store_path),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
 
-    let status = store
-        .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let read_model = store
-        .browser_evidence_read_model(
+    let status = ok(
+        store.ingest_journal(&reader),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    let read_model = ok(
+        store.browser_evidence_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(status.events_ingested, 1);
@@ -125,10 +151,11 @@ fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows
     assert_eq!(status.events_stored, 1);
     assert_eq!(read_model.returned, 1);
     assert_eq!(read_model.latest_event_id, Some(event.event_id));
+    Ok(())
 }
 
 #[test]
-fn activity_store_reconstructs_stale_degraded_browser_evidence_after_restart() {
+fn activity_store_reconstructs_stale_degraded_browser_evidence_after_restart() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_BROWSER_RESTART_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -139,34 +166,43 @@ fn activity_store_reconstructs_stale_degraded_browser_evidence_after_restart() {
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
-    let mut journal = ActivityJournal::open(journal_path.clone(), key.clone())
-        .expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ok(
+        ActivityJournal::open(journal_path.clone(), key.clone()),
+        constants::error::JOURNAL_OPENS,
+    )?;
     let event = browser_event_with_status(
         BrowserCapabilityStatus::Stale,
         Some(constants::value::BROWSER_BRIDGE_STALE_SESSION),
-    );
-    journal
-        .append(&event)
-        .expect(constants::error::JOURNAL_APPENDS);
-    let reader =
-        ActivityJournal::open(journal_path.clone(), key).expect(constants::error::JOURNAL_OPENS);
+    )?;
+    ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
+    let reader = ok(
+        ActivityJournal::open(journal_path.clone(), key),
+        constants::error::JOURNAL_OPENS,
+    )?;
     {
-        let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
-        let status = store
-            .ingest_journal(&reader)
-            .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        let store = ok(
+            ActivityStore::open(&store_path),
+            constants::error::ACTIVITY_STORE_OPENS,
+        )?;
+        let status = ok(
+            store.ingest_journal(&reader),
+            constants::error::ACTIVITY_STORE_INGESTS,
+        )?;
         assert_eq!(status.events_ingested, 1);
         assert_eq!(status.events_stored, 1);
     }
 
-    let restarted_store =
-        ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
-    let read_model = restarted_store
-        .browser_evidence_read_model(
+    let restarted_store = ok(
+        ActivityStore::open(&store_path),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let read_model = ok(
+        restarted_store.browser_evidence_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(read_model.returned, 1);
@@ -190,32 +226,38 @@ fn activity_store_reconstructs_stale_degraded_browser_evidence_after_restart() {
         row.active_proof_source,
         BrowserActiveProofSource::TargetListOnly
     );
+    Ok(())
 }
 
 #[test]
-fn activity_store_reports_empty_browser_evidence_without_inventing_rows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+fn activity_store_reports_empty_browser_evidence_without_inventing_rows() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
 
-    let read_model = store
-        .browser_evidence_read_model(
+    let read_model = ok(
+        store.browser_evidence_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.rows.len(), 0);
     assert_eq!(read_model.capability_status, None);
+    Ok(())
 }
 
-fn browser_event() -> ActivityEvent {
+fn browser_event() -> Result<ActivityEvent, String> {
     browser_event_with_status(BrowserCapabilityStatus::TabListOnly, None)
 }
 
 fn browser_event_with_status(
     capability_status: BrowserCapabilityStatus,
     degraded_reason: Option<&str>,
-) -> ActivityEvent {
+) -> Result<ActivityEvent, String> {
     browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -239,14 +281,21 @@ fn browser_event_with_status(
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
+    .map_err(|error| {
+        format!(
+            "{}: {error:?}",
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET
+        )
+    })
 }
 
-fn assert_browser_row_matches_event(row: &BrowserTabEvidence, event: &ActivityEvent) {
+fn assert_browser_row_matches_event(row: &BrowserTabEvidence, event: &ActivityEvent) -> TestResult {
     assert_eq!(
         row.browser_evidence_id,
-        string_field(&event.fields, constants::field::BROWSER_EVIDENCE_ID)
-            .expect(constants::error::ACTIVITY_STORE_QUERIES)
+        some(
+            string_field(&event.fields, constants::field::BROWSER_EVIDENCE_ID),
+            constants::error::ACTIVITY_STORE_QUERIES,
+        )?
     );
     assert_eq!(
         row.source_id,
@@ -292,6 +341,7 @@ fn assert_browser_row_matches_event(row: &BrowserTabEvidence, event: &ActivityEv
     assert_eq!(row.degraded_reason, None);
     assert_eq!(row.custody_label, BrowserCustodyLabel::ChildDeviceLocal);
     assert_eq!(row.query_visibility, BrowserQueryVisibilityLabel::LiveLocal);
+    Ok(())
 }
 
 fn string_field(fields: &LogFields, key: &str) -> Option<String> {
@@ -301,7 +351,7 @@ fn string_field(fields: &LogFields, key: &str) -> Option<String> {
     }
 }
 
-fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
+fn temp_path(suffix: &str, extension: &str) -> PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -313,17 +363,25 @@ fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_paths(journal_path: &std::path::PathBuf, store_path: &std::path::PathBuf) {
+fn cleanup_paths(journal_path: &Path, store_path: &Path) {
     let _ = remove_file(journal_path);
     let _ = remove_file(store_path);
-    let mut store_wal_path = store_path.clone();
+    let mut store_wal_path = store_path.to_path_buf();
     store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);
-    let mut store_shm_path = store_path.clone();
+    let mut store_shm_path = store_path.to_path_buf();
     store_shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(store_shm_path);
 }
 
 fn test_key() -> JournalKey {
     JournalKey::from_bytes([9; JOURNAL_KEY_BYTES])
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
 }

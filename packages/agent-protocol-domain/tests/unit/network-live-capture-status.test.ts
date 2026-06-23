@@ -3,11 +3,9 @@ import type {
   AgentNetworkLiveCaptureStatus,
   AgentNetworkLiveCaptureStatusRow,
 } from '@ocentra-parent/schema-domain/network-live-capture-status';
-import { AgentEvent } from '../../src/contracts';
-import { AgentProtocolDefaults } from '../../src/defaults';
-import {
-  parseAgentNetworkLiveCaptureStatusEvent,
-} from '../../src/network-live-capture-status';
+import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { parseAgentNetworkLiveCaptureStatusEvent } from '../../src/network-live-capture-status';
 
 const LiveCaptureRefs = AgentProtocolDefaults.NetworkLiveCaptureStatus;
 
@@ -212,36 +210,16 @@ function registerFieldValidationTests() {
     expectInvalidPatch({ executionStatusRef: '' });
     expectInvalidPatch({ rawStorageStatusRef: '' });
     expectInvalidPatch({
-      rows: [
-        { ...ReadyRow, captureProofRef: '' },
-        ManualRow,
-        UnavailableRow,
-        DegradedRow,
-      ],
+      rows: [{ ...ReadyRow, captureProofRef: '' }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
-      rows: [
-        { ...ReadyRow, storageProofRef: '' },
-        ManualRow,
-        UnavailableRow,
-        DegradedRow,
-      ],
+      rows: [{ ...ReadyRow, storageProofRef: '' }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
-      rows: [
-        { ...ReadyRow, executionRef: '' },
-        ManualRow,
-        UnavailableRow,
-        DegradedRow,
-      ],
+      rows: [{ ...ReadyRow, executionRef: '' }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
-      rows: [
-        { ...ReadyRow, interfaceRef: '' },
-        ManualRow,
-        UnavailableRow,
-        DegradedRow,
-      ],
+      rows: [{ ...ReadyRow, interfaceRef: '' }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
       rows: [ReadyRow, { ...ManualRow, platform: 'windows' }, UnavailableRow, DegradedRow],

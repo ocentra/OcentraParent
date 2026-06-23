@@ -1,8 +1,4 @@
-import {
-  AgentLogSnapshotSchema,
-  LogFieldsSchema,
-  LogLevelSchema,
-} from './logging-contracts';
+import { AgentLogSnapshotSchema, LogFieldsSchema, LogLevelSchema } from './logging-contracts';
 import {
   AgentCorrelationIdSchema,
   AgentEventIdSchema,
@@ -104,17 +100,16 @@ const AgentPolicyControlDeliveryDomainStateBaseSchema = Schema.Struct({
   lastAppliedEventId: NullablePolicyControlDeliveryTextSchema,
 });
 
-type PolicyControlDeliveryReadModelDomainStateCandidate = Infer<
-  typeof AgentPolicyControlDeliveryDomainStateBaseSchema
->;
+type PolicyControlDeliveryReadModelDomainStateCandidate = Infer<typeof AgentPolicyControlDeliveryDomainStateBaseSchema>;
 
 export const AgentPolicyControlDeliveryDomainStateSchema = withParser(
   AgentPolicyControlDeliveryDomainStateBaseSchema.pipe(
-    Schema.filter(
-      (state: PolicyControlDeliveryReadModelDomainStateCandidate) =>
-        validateDomainState(state) ||
-        'Expected per-domain delivery states to keep acknowledgement/apply refs aligned'
-    )
+    Schema.filter((state: PolicyControlDeliveryReadModelDomainStateCandidate) => {
+      const validation = validateDomainState(state);
+      return validation === true
+        ? true
+        : 'Expected per-domain delivery states to keep acknowledgement/apply refs aligned';
+    })
   )
 );
 
@@ -146,11 +141,12 @@ type PolicyControlDeliveryReadModelRowCandidate = Infer<typeof PolicyControlDeli
 
 export const PolicyControlDeliveryReadModelRowSchema = withParser(
   PolicyControlDeliveryReadModelRowBaseSchema.pipe(
-    Schema.filter(
-      (row: PolicyControlDeliveryReadModelRowCandidate) =>
-        validateRowState(row) ||
-        'Expected delivery rows to keep parent-visible, ack, apply, and manual states honest'
-    )
+    Schema.filter((row: PolicyControlDeliveryReadModelRowCandidate) => {
+      const validation = validateRowState(row);
+      return validation === true
+        ? true
+        : 'Expected delivery rows to keep parent-visible, ack, apply, and manual states honest';
+    })
   )
 );
 
@@ -176,17 +172,14 @@ const PolicyControlDeliveryReadModelSnapshotBaseSchema = Schema.Struct({
   nonClaims: Schema.Array(NonEmptyStringSchema),
 });
 
-type PolicyControlDeliveryReadModelSnapshotCandidate = Infer<
-  typeof PolicyControlDeliveryReadModelSnapshotBaseSchema
->;
+type PolicyControlDeliveryReadModelSnapshotCandidate = Infer<typeof PolicyControlDeliveryReadModelSnapshotBaseSchema>;
 
 export const PolicyControlDeliveryReadModelSnapshotSchema = withParser(
   PolicyControlDeliveryReadModelSnapshotBaseSchema.pipe(
-    Schema.filter(
-      (snapshot: PolicyControlDeliveryReadModelSnapshotCandidate) =>
-        validateSnapshotState(snapshot) ||
-        'Expected delivery snapshot counts and severity ordering to match its rows'
-    )
+    Schema.filter((snapshot: PolicyControlDeliveryReadModelSnapshotCandidate) => {
+      const validation = validateSnapshotState(snapshot);
+      return validation === true ? true : 'Expected delivery snapshot counts and severity ordering to match its rows';
+    })
   )
 );
 
@@ -213,19 +206,28 @@ export type AgentPolicyControlDeliveryApplyState = Infer<typeof AgentPolicyContr
 export type AgentPolicyControlDeliveryParentVisibleState = Infer<
   typeof AgentPolicyControlDeliveryParentVisibleStateSchema
 >;
-export type AgentPolicyControlDeliveryBlockedReason = Infer<
-  typeof AgentPolicyControlDeliveryBlockedReasonSchema
->;
-export type PolicyControlDeliveryReadModelDomainState = Infer<
-  typeof AgentPolicyControlDeliveryDomainStateSchema
->;
+export type AgentPolicyControlDeliveryBlockedReason = Infer<typeof AgentPolicyControlDeliveryBlockedReasonSchema>;
+export type PolicyControlDeliveryReadModelDomainState = Infer<typeof AgentPolicyControlDeliveryDomainStateSchema>;
 export type PolicyControlDeliveryReadModelRow = Infer<typeof PolicyControlDeliveryReadModelRowSchema>;
-export type PolicyControlDeliveryReadModelSnapshot = Infer<
-  typeof PolicyControlDeliveryReadModelSnapshotSchema
->;
+export type PolicyControlDeliveryReadModelSnapshot = Infer<typeof PolicyControlDeliveryReadModelSnapshotSchema>;
 export type PolicyControlDeliveryReadModelEventEnvelope = Infer<
   typeof PolicyControlDeliveryReadModelEventEnvelopeSchema
 >;
+type PolicyControlDeliveryRowValidator = (row: PolicyControlDeliveryReadModelRowCandidate) => true | string;
+type PolicyControlDeliverySnapshotValidator = (
+  snapshot: PolicyControlDeliveryReadModelSnapshotCandidate
+) => true | string;
+type PolicyControlDeliverySnapshotCountField =
+  | 'pendingCount'
+  | 'acknowledgedCount'
+  | 'degradedCount'
+  | 'manualRequiredCount'
+  | 'appliedCount'
+  | 'partiallyAppliedCount'
+  | 'rejectedCount'
+  | 'rolledBackCount'
+  | 'supersededCount'
+  | 'expiredBeforeDeliveryCount';
 
 function validateDomainState(state: PolicyControlDeliveryReadModelDomainStateCandidate): true | string {
   if (state.deliveryState === 'acknowledged' && state.lastAckEventId === null) {
@@ -238,12 +240,33 @@ function validateDomainState(state: PolicyControlDeliveryReadModelDomainStateCan
 }
 
 function validateRowState(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
+  const validators: readonly PolicyControlDeliveryRowValidator[] = [
+    validateAcknowledgementRequirement,
+    validateAcknowledgedRowState,
+    validateAppliedRowState,
+    validateDegradedRowState,
+    validateManualRequiredRowState,
+    validatePartialApplyRowState,
+  ];
+
+  return firstValidationFailure(row, validators);
+}
+
+function validateAcknowledgementRequirement(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
   if (row.acknowledgementRequired && row.ackState === 'not-required') {
     return 'Acknowledgement-required rows must not use not-required ack state';
   }
+  return true;
+}
+
+function validateAcknowledgedRowState(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
   if (row.parentVisibleState === 'acknowledged' && (row.ackState !== 'acknowledged' || row.applyState !== 'pending')) {
     return 'Acknowledged rows must distinguish acknowledgement from applied policy state';
   }
+  return true;
+}
+
+function validateAppliedRowState(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
   if (
     row.parentVisibleState === 'applied' &&
     (row.ackState !== 'acknowledged' ||
@@ -254,6 +277,10 @@ function validateRowState(row: PolicyControlDeliveryReadModelRowCandidate): true
   ) {
     return 'Applied rows require acknowledged delivery, applied domain states, and no manual/degraded blockers';
   }
+  return true;
+}
+
+function validateDegradedRowState(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
   if (
     row.parentVisibleState === 'degraded' &&
     row.blockedReason === null &&
@@ -265,9 +292,17 @@ function validateRowState(row: PolicyControlDeliveryReadModelRowCandidate): true
   ) {
     return 'Degraded rows require offline, retry, blocked, or degraded domain evidence';
   }
+  return true;
+}
+
+function validateManualRequiredRowState(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
   if (row.parentVisibleState === 'manual-required' && row.manualProofRequirements.length === 0) {
     return 'Manual-required rows must surface explicit manual proof requirements';
   }
+  return true;
+}
+
+function validatePartialApplyRowState(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
   if (row.applyState === 'partially-applied' && !hasMixedDomainOutcome(row.domainStates)) {
     return 'Partially applied rows require mixed per-domain outcomes';
   }
@@ -275,42 +310,80 @@ function validateRowState(row: PolicyControlDeliveryReadModelRowCandidate): true
 }
 
 function validateSnapshotState(snapshot: PolicyControlDeliveryReadModelSnapshotCandidate): true | string {
-  if (snapshot.pendingCount !== countRows(snapshot.rows, 'pending')) {
-    return 'Pending count must match pending rows';
+  const validators: readonly PolicyControlDeliverySnapshotValidator[] = [
+    validateSnapshotRowCounts,
+    validateSnapshotParentVisibleState,
+    validateSnapshotActivationBlockedState,
+  ];
+
+  return firstValidationFailure(snapshot, validators);
+}
+
+function validateSnapshotRowCounts(snapshot: PolicyControlDeliveryReadModelSnapshotCandidate): true | string {
+  const expectations = [
+    { field: 'pendingCount', state: 'pending', message: 'Pending count must match pending rows' },
+    { field: 'acknowledgedCount', state: 'acknowledged', message: 'Acknowledged count must match acknowledged rows' },
+    { field: 'degradedCount', state: 'degraded', message: 'Degraded count must match degraded rows' },
+    {
+      field: 'manualRequiredCount',
+      state: 'manual-required',
+      message: 'Manual-required count must match manual-required rows',
+    },
+    { field: 'appliedCount', state: 'applied', message: 'Applied count must match applied rows' },
+    {
+      field: 'partiallyAppliedCount',
+      state: 'partially-applied',
+      message: 'Partially applied count must match partially applied rows',
+    },
+    { field: 'rejectedCount', state: 'rejected', message: 'Rejected count must match rejected rows' },
+    { field: 'rolledBackCount', state: 'rolled-back', message: 'Rolled-back count must match rolled-back rows' },
+    { field: 'supersededCount', state: 'superseded', message: 'Superseded count must match superseded rows' },
+    {
+      field: 'expiredBeforeDeliveryCount',
+      state: 'expired-before-delivery',
+      message: 'Expired-before-delivery count must match expired rows',
+    },
+  ] as const satisfies ReadonlyArray<{
+    field: PolicyControlDeliverySnapshotCountField;
+    state: PolicyControlDeliveryReadModelRowCandidate['parentVisibleState'];
+    message: string;
+  }>;
+
+  for (const expectation of expectations) {
+    if (snapshot[expectation.field] !== countRows(snapshot.rows, expectation.state)) {
+      return expectation.message;
+    }
   }
-  if (snapshot.acknowledgedCount !== countRows(snapshot.rows, 'acknowledged')) {
-    return 'Acknowledged count must match acknowledged rows';
+
+  return true;
+}
+
+function validateSnapshotParentVisibleState(snapshot: PolicyControlDeliveryReadModelSnapshotCandidate): true | string {
+  return snapshot.parentVisibleState === deriveSnapshotState(snapshot)
+    ? true
+    : 'Snapshot parent-visible state must match row severity ordering';
+}
+
+function validateSnapshotActivationBlockedState(
+  snapshot: PolicyControlDeliveryReadModelSnapshotCandidate
+): true | string {
+  const shouldBeBlocked = snapshot.parentVisibleState !== 'applied';
+  return snapshot.activationBlocked === shouldBeBlocked
+    ? true
+    : 'Activation blocked must reflect whether every row is applied';
+}
+
+function firstValidationFailure<T>(
+  candidate: T,
+  validators: readonly ((candidate: T) => true | string)[]
+): true | string {
+  for (const validator of validators) {
+    const validation = validator(candidate);
+    if (validation !== true) {
+      return validation;
+    }
   }
-  if (snapshot.degradedCount !== countRows(snapshot.rows, 'degraded')) {
-    return 'Degraded count must match degraded rows';
-  }
-  if (snapshot.manualRequiredCount !== countRows(snapshot.rows, 'manual-required')) {
-    return 'Manual-required count must match manual-required rows';
-  }
-  if (snapshot.appliedCount !== countRows(snapshot.rows, 'applied')) {
-    return 'Applied count must match applied rows';
-  }
-  if (snapshot.partiallyAppliedCount !== countRows(snapshot.rows, 'partially-applied')) {
-    return 'Partially applied count must match partially applied rows';
-  }
-  if (snapshot.rejectedCount !== countRows(snapshot.rows, 'rejected')) {
-    return 'Rejected count must match rejected rows';
-  }
-  if (snapshot.rolledBackCount !== countRows(snapshot.rows, 'rolled-back')) {
-    return 'Rolled-back count must match rolled-back rows';
-  }
-  if (snapshot.supersededCount !== countRows(snapshot.rows, 'superseded')) {
-    return 'Superseded count must match superseded rows';
-  }
-  if (snapshot.expiredBeforeDeliveryCount !== countRows(snapshot.rows, 'expired-before-delivery')) {
-    return 'Expired-before-delivery count must match expired rows';
-  }
-  if (snapshot.parentVisibleState !== deriveSnapshotState(snapshot)) {
-    return 'Snapshot parent-visible state must match row severity ordering';
-  }
-  if (snapshot.activationBlocked !== (snapshot.parentVisibleState !== 'applied')) {
-    return 'Activation blocked must reflect whether every row is applied';
-  }
+
   return true;
 }
 
@@ -318,7 +391,9 @@ function hasMixedDomainOutcome(states: readonly PolicyControlDeliveryReadModelDo
   const applied = states.some((state) => state.deliveryState === 'applied');
   const blocked = states.some(
     (state) =>
-      state.deliveryState === 'degraded' || state.deliveryState === 'manual-required' || state.deliveryState === 'blocked'
+      state.deliveryState === 'degraded' ||
+      state.deliveryState === 'manual-required' ||
+      state.deliveryState === 'blocked'
   );
   return applied && blocked;
 }

@@ -3,10 +3,18 @@ import {
   AppGameControlActionResultSchema,
   AppGameControlApprovalDecisionSchema,
   AppGameControlApprovalRequestSchema,
-} from '../../src/app-game-control-authority';
-import { EnforcementAdapterKind, EnforcementCapabilityState, EnforcementMode } from '@ocentra-parent/schema-domain/enforcement';
+} from '@ocentra-parent/schema-domain/app-game-control-authority';
+import {
+  EnforcementAdapterKind,
+  EnforcementCapabilityState,
+  EnforcementMode,
+} from '@ocentra-parent/schema-domain/enforcement';
 import { PolicyAction } from '@ocentra-parent/schema-domain/policy-contracts';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+  ParentPlatform,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T07:40:00Z';
 const PolicyVersion = 'policy-version-unknown-approval-1';

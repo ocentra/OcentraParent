@@ -1,41 +1,31 @@
-import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import { type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import {
-  PortalConnectionState as SharedPortalConnectionState,
-  PortalConnectionStateSchema as SharedPortalConnectionStateSchema,
   PortalDevToolUrlSchema as SharedPortalDevToolUrlSchema,
-  PortalRoute as SharedPortalRoute,
+  PortalRoute,
   PortalRouteHashPrefix,
   PortalRouteHashQuerySeparator,
-  PortalRouteLiteral as SharedPortalRouteLiteral,
   PortalRouteSchema as SharedPortalRouteSchema,
-  type PortalConnectionState as SharedPortalConnectionStateValue,
-  type PortalDevToolUrl as SharedPortalDevToolUrlValue,
-  type PortalRoute as SharedPortalRouteValue,
+  type PortalDevToolUrl,
+  type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/schema-domain/portal-contracts';
 
-export const PortalRouteLiteral = SharedPortalRouteLiteral;
-export const PortalRouteSchema = SharedPortalRouteSchema;
-export type PortalRoute = SharedPortalRouteValue;
-export const PortalRoute = SharedPortalRoute;
-export { PortalRouteHashPrefix, PortalRouteHashQuerySeparator };
-
-export type PortalRouteHashPath = `${typeof PortalRouteHashPrefix}${PortalRoute}`;
+export type PortalRouteHashPath = `${typeof PortalRouteHashPrefix}${PortalRouteValue}`;
 export type PortalRouteHashQueryPath =
-  `${typeof PortalRouteHashPrefix}${PortalRoute}${typeof PortalRouteHashQuerySeparator}${string}`;
+  `${typeof PortalRouteHashPrefix}${PortalRouteValue}${typeof PortalRouteHashQuerySeparator}${string}`;
 
-export function portalRouteHashPath(route: PortalRoute): PortalRouteHashPath {
+export function portalRouteHashPath(route: PortalRouteValue): PortalRouteHashPath {
   return `${PortalRouteHashPrefix}${route}`;
 }
 
-export function portalRouteHashPathWithQuery(route: PortalRoute, query: string): PortalRouteHashQueryPath {
+export function portalRouteHashPathWithQuery(route: PortalRouteValue, query: string): PortalRouteHashQueryPath {
   return `${PortalRouteHashPrefix}${route}${PortalRouteHashQuerySeparator}${query}`;
 }
 
-export function portalRouteFromHashPath(routeHash: string): PortalRoute | null {
+export function portalRouteFromHashPath(routeHash: string): PortalRouteValue | null {
   const normalizedHash = routeHash.replace(/^#\/?/u, '');
   const route = normalizedHash.split(PortalRouteHashQuerySeparator)[0] ?? '';
-  const parsedRoute = PortalRouteSchema.safeParse(route);
+  const parsedRoute = SharedPortalRouteSchema.safeParse(route);
   if (!parsedRoute.success) {
     return null;
   }
@@ -85,6 +75,7 @@ export const PortalRoutes = [
   PortalRoute.PlatformsInstall,
   PortalRoute.InstallUpdates,
   PortalRoute.Diagnostics,
+  PortalRoute.ProofPanels,
   PortalRoute.SettingsRules,
   PortalRoute.FrameTuner,
   PortalRoute.Commands,
@@ -93,42 +84,82 @@ export const PortalRoutes = [
 ] as const;
 
 export const PortalNetworkEvidenceDrawerRoutes = [PortalRoute.Activity, PortalRoute.NetworkActivity] as const;
+export const PortalInlineNetworkEvidenceDrawerRoutes = [PortalRoute.Activity] as const;
 export const PortalAppGameParentSurfaceRoutes = [PortalRoute.AppGameSessions] as const;
 export const PortalAiRuntimeRoutes = [PortalRoute.AiRuntime] as const;
 export const PortalBrowserParentSurfaceRoutes = [PortalRoute.Browser] as const;
+export const PortalDeveloperRoutes = [PortalRoute.Commands, PortalRoute.Events, PortalRoute.Logs] as const;
+export const PortalDeveloperCommandRoutes = [PortalRoute.Commands] as const;
+export const PortalDeveloperEventRoutes = [PortalRoute.Events] as const;
+export const PortalDeveloperLogRoutes = [PortalRoute.Logs] as const;
+export const PortalPolicyPreviewRoutes = [
+  PortalRoute.RuleManagement,
+  PortalRoute.Schedules,
+  PortalRoute.Approvals,
+  PortalRoute.Enforcement,
+] as const;
 export const PortalScreenSettingsRoutes = [PortalRoute.SettingsRules] as const;
 export const PortalScreenSummaryRoutes = [PortalRoute.ScreenAnalysis] as const;
+export const PortalSetupFirstRunRoutes = [PortalRoute.Start] as const;
 export const PortalTrackingStatusRoutes = [PortalRoute.PolicyTracking] as const;
 
-export function isPortalAiRuntimeRoute(route: PortalRoute): boolean {
+export function isPortalAiRuntimeRoute(route: PortalRouteValue): boolean {
   return routeMatches(route, PortalAiRuntimeRoutes);
 }
 
-export function isPortalAppGameParentSurfaceRoute(route: PortalRoute): boolean {
+export function isPortalAppGameParentSurfaceRoute(route: PortalRouteValue): boolean {
   return routeMatches(route, PortalAppGameParentSurfaceRoutes);
 }
 
-export function isPortalBrowserParentSurfaceRoute(route: PortalRoute): boolean {
+export function isPortalBrowserParentSurfaceRoute(route: PortalRouteValue): boolean {
   return routeMatches(route, PortalBrowserParentSurfaceRoutes);
 }
 
-export function isPortalNetworkEvidenceDrawerRoute(route: PortalRoute): boolean {
+export function isPortalDeveloperRoute(route: PortalRouteValue): boolean {
+  return routeMatches(route, PortalDeveloperRoutes);
+}
+
+export function isPortalDeveloperCommandRoute(route: PortalRouteValue): boolean {
+  return routeMatches(route, PortalDeveloperCommandRoutes);
+}
+
+export function isPortalDeveloperEventRoute(route: PortalRouteValue): boolean {
+  return routeMatches(route, PortalDeveloperEventRoutes);
+}
+
+export function isPortalDeveloperLogRoute(route: PortalRouteValue): boolean {
+  return routeMatches(route, PortalDeveloperLogRoutes);
+}
+
+export function isPortalNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
   return routeMatches(route, PortalNetworkEvidenceDrawerRoutes);
 }
 
-export function isPortalScreenSettingsRoute(route: PortalRoute): boolean {
+export function isPortalInlineNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
+  return routeMatches(route, PortalInlineNetworkEvidenceDrawerRoutes);
+}
+
+export function isPortalPolicyPreviewRoute(route: PortalRouteValue): boolean {
+  return routeMatches(route, PortalPolicyPreviewRoutes);
+}
+
+export function isPortalScreenSettingsRoute(route: PortalRouteValue): boolean {
   return routeMatches(route, PortalScreenSettingsRoutes);
 }
 
-export function isPortalScreenSummaryRoute(route: PortalRoute): boolean {
+export function isPortalScreenSummaryRoute(route: PortalRouteValue): boolean {
   return routeMatches(route, PortalScreenSummaryRoutes);
 }
 
-export function isPortalTrackingStatusRoute(route: PortalRoute): boolean {
+export function isPortalSetupFirstRunRoute(route: PortalRouteValue): boolean {
+  return routeMatches(route, PortalSetupFirstRunRoutes);
+}
+
+export function isPortalTrackingStatusRoute(route: PortalRouteValue): boolean {
   return routeMatches(route, PortalTrackingStatusRoutes);
 }
 
-function routeMatches(route: PortalRoute, routes: readonly PortalRoute[]): boolean {
+function routeMatches(route: PortalRouteValue, routes: readonly PortalRouteValue[]): boolean {
   return routes.some((candidate) => candidate === route);
 }
 
@@ -142,15 +173,8 @@ export const PortalDevToolWindow = {
   TauriInternalKey: '__TAURI_INTERNALS__',
 } as const;
 
-export const PortalConnectionStateSchema = SharedPortalConnectionStateSchema;
-export type PortalConnectionState = SharedPortalConnectionStateValue;
-export const PortalConnectionState = SharedPortalConnectionState;
-
-export const PortalDevToolUrlSchema = SharedPortalDevToolUrlSchema;
-export type PortalDevToolUrl = SharedPortalDevToolUrlValue;
-
-export function portalDevToolUrl(origin: string, pathname: string, route: PortalRoute): PortalDevToolUrl {
-  return PortalDevToolUrlSchema.parse(`${origin}${pathname}${portalRouteHashPath(route)}`);
+export function portalDevToolUrl(origin: string, pathname: string, route: PortalRouteValue): PortalDevToolUrl {
+  return SharedPortalDevToolUrlSchema.parse(`${origin}${pathname}${portalRouteHashPath(route)}`);
 }
 
 export const PortalRouteGroup = {
@@ -163,7 +187,7 @@ export const PortalRouteGroup = {
 export type PortalRouteGroupValue = (typeof PortalRouteGroup)[keyof typeof PortalRouteGroup];
 
 export type PortalRouteDescriptor = {
-  readonly route: PortalRoute;
+  readonly route: PortalRouteValue;
   readonly label: DisplayText;
   readonly description: DisplayText;
   readonly group: PortalRouteGroupValue;
@@ -423,6 +447,12 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Operate
   ),
   routeDescriptor(
+    PortalRoute.ProofPanels,
+    PortalDevTextToken.ProofPanels,
+    PortalDevTextToken.ProofPanelsDescription,
+    PortalRouteGroup.DevTools
+  ),
+  routeDescriptor(
     PortalRoute.SettingsRules,
     PortalDevTextToken.SettingsRules,
     PortalDevTextToken.SettingsRulesDescription,
@@ -459,7 +489,7 @@ export const PortalSidebarRouteDescriptors: readonly PortalRouteDescriptor[] = P
 );
 
 function routeDescriptor(
-  route: PortalRoute,
+  route: PortalRouteValue,
   labelToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken],
   descriptionToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken],
   group: PortalRouteGroupValue
@@ -471,4 +501,3 @@ function routeDescriptor(
     group,
   };
 }
-

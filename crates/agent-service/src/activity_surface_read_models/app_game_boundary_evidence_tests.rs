@@ -1,27 +1,35 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityReadModelState,
-    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
+};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameEvidenceClaim, AppGameIdentity, AppGameInventoryEvidenceRow, AppGameServiceReadModel,
+    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_READY,
+    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE,
+    APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED, APP_GAME_PRODUCT_NATIVE_APP,
+    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_TEST_DISPLAY_LABEL,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     AppGameAiClassifierResult, AppGameControlActionResult, AppGameControlApprovalAuthority,
     AppGameControlApprovalDecision, AppGameControlApprovalRequest,
-    AppGameEnforcementCapabilityStatus, AppGameEvidenceClaim, AppGameIdentity,
-    AppGameInventoryEvidenceRow, AppGameParentActionReference, AppGameParentActorReference,
+    AppGameEnforcementCapabilityStatus, AppGameParentActionReference, AppGameParentActorReference,
     AppGameParentDeviceReference, AppGameParentEvidenceReference, AppGamePlatformAuthorityMatrix,
-    AppGameServiceReadModel, ACTIVITY_SURFACE_SCHEMA_VERSION, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
-    APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_KNOWN_GAME,
     APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
     APP_GAME_CONTROL_APPROVAL_STATE_MANUAL_REQUIRED, APP_GAME_CONTROL_AUTHORITY_ACTIVE,
     APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED, APP_GAME_CONTROL_POLICY_KIND_APP,
     APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY, APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL,
-    APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED, APP_GAME_INVENTORY_STATE_INSTALLED,
-    APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
-    APP_GAME_PARENT_ACTOR_ROLE_PARENT, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
-    APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT, APP_GAME_PARENT_PLATFORM_WINDOWS,
-    APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
-    APP_GAME_POLICY_TARGET_TYPE_APP, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
+    APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED, APP_GAME_PARENT_ACTOR_ROLE_PARENT,
+    APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION, APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT,
+    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH,
+    APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED, APP_GAME_POLICY_TARGET_TYPE_APP,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
-use super::{app_use_read_model, games_read_model};
+use super::app_use::app_use_read_model;
+use super::games::games_read_model;
 
 const APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY: &str = "unknownIdentityCandidate";
 const APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY: &str = "inventoryEvidence";
@@ -318,7 +326,7 @@ fn approval_request() -> AppGameControlApprovalRequest {
         "expiresAt": APP_GAME_TEST_TIMESTAMP,
         "unansweredFallback": APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY
     }))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn approval_decision() -> AppGameControlApprovalDecision {
@@ -374,7 +382,7 @@ fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
         }],
         "generatedAt": APP_GAME_TEST_TIMESTAMP
     }))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn classifier_result() -> AppGameAiClassifierResult {

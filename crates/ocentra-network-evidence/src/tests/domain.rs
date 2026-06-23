@@ -2,13 +2,14 @@ use crate::{
     normalize_domain_with_public_suffix, DomainNormalizationError, NetworkEvidenceGrade,
     PublicSuffixModel,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn domain_normalization_lowercases_and_trims_root_dot() {
     let model = PublicSuffixModel::ocentra_fixture();
 
     let evidence = normalize_domain_with_public_suffix("Video.Example.TEST.", &model)
-        .expect("fixture domain should normalize");
+        .expect_value("fixture domain should normalize");
 
     assert_eq!(evidence.normalized_domain, "video.example.test");
     assert_eq!(
@@ -27,7 +28,7 @@ fn domain_public_suffix_model_selects_longest_suffix() {
     let model = PublicSuffixModel::ocentra_fixture();
 
     let evidence = normalize_domain_with_public_suffix("media.child.example.co.uk", &model)
-        .expect("fixture domain should match longest suffix");
+        .expect_value("fixture domain should match longest suffix");
 
     assert_eq!(evidence.public_suffix, Some("co.uk".to_owned()));
     assert_eq!(
@@ -41,7 +42,7 @@ fn domain_public_suffix_without_private_label_has_no_registrable_domain() {
     let model = PublicSuffixModel::ocentra_fixture();
 
     let evidence = normalize_domain_with_public_suffix("co.uk", &model)
-        .expect("public suffix fixture should normalize");
+        .expect_value("public suffix fixture should normalize");
 
     assert_eq!(evidence.public_suffix, Some("co.uk".to_owned()));
     assert_eq!(evidence.registrable_domain, None);

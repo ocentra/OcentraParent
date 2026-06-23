@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import {
   ParentContractSchemaVersionSchema,
   ParentPlatformSchema,
@@ -123,30 +118,54 @@ export const AppGameAdapterExecutionReadinessReadModelSchema = withParser(
 function appGameAdapterExecutionReadinessRowIsHonest(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
   if (appGameAdapterExecutionReadinessRowHasClaimUpgrade(row)) return false;
 
-  if (row.adapterExecutionState === 'proved-scoped-execution') {
-    return (
-      row.platform === 'windows' &&
-      row.executionDecision === 'execution-allowed' &&
-      row.runtimeBoundary === 'windows-app-game-owned-process-time-limit' &&
-      row.targetIdentityState === 'process-session-evidence-backed' &&
-      row.rollbackReferenceState === 'timer-recovery-backed' &&
-      row.auditReferenceState === 'audit-reference-backed' &&
-      row.adapterExecutionClaimed &&
-      row.evidenceRefs.length > 0 &&
-      row.hostCapabilityState === 'available' &&
-      row.hostCapabilityEvidenceRefs.length > 0 &&
-      row.hostCapabilityProbeRefs.length > 0 &&
-      row.linkedProofArtifacts.length > 0 &&
-      row.manualProofRequirements.length === 0
-    );
-  }
+  return row.adapterExecutionState === 'proved-scoped-execution'
+    ? provedScopedExecutionRowIsHonest(row)
+    : blockedExecutionReadinessRowIsHonest(row);
+}
 
+function provedScopedExecutionRowIsHonest(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
+  return (
+    provedScopedExecutionRowMatchesBoundary(row) &&
+    provedScopedExecutionRowTracksEvidence(row) &&
+    provedScopedExecutionRowTracksHostCapability(row)
+  );
+}
+
+function blockedExecutionReadinessRowIsHonest(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
   return (
     row.executionDecision === 'blocked-before-execution' &&
     !row.adapterExecutionClaimed &&
     appGameHostCapabilityStateMatchesEvidence(row) &&
     appGameHostCapabilityProbeRefsAreParentSafe(row) &&
     row.manualProofRequirements.length > 0
+  );
+}
+
+function provedScopedExecutionRowMatchesBoundary(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
+  return (
+    row.platform === 'windows' &&
+    row.executionDecision === 'execution-allowed' &&
+    row.runtimeBoundary === 'windows-app-game-owned-process-time-limit' &&
+    row.targetIdentityState === 'process-session-evidence-backed' &&
+    row.rollbackReferenceState === 'timer-recovery-backed' &&
+    row.auditReferenceState === 'audit-reference-backed'
+  );
+}
+
+function provedScopedExecutionRowTracksEvidence(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
+  return (
+    row.adapterExecutionClaimed &&
+    row.evidenceRefs.length > 0 &&
+    row.linkedProofArtifacts.length > 0 &&
+    row.manualProofRequirements.length === 0
+  );
+}
+
+function provedScopedExecutionRowTracksHostCapability(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
+  return (
+    row.hostCapabilityState === 'available' &&
+    row.hostCapabilityEvidenceRefs.length > 0 &&
+    row.hostCapabilityProbeRefs.length > 0
   );
 }
 

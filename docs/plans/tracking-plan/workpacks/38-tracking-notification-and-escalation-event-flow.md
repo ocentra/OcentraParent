@@ -2,9 +2,16 @@
 
 ## Purpose
 
-Model tracking notification and escalation as policy-authorized events with
-separate intent, dispatch, receipt, retry, quiet-hours, manual-required, audit,
-and portal states.
+Model tracking notification and escalation as policy-authorized events with separate intent, dispatch, result, retry, quiet-hours, manual-required, audit, and portal states.
+
+## Central schema boundary
+
+```text
+schema-domain owns canonical alert and escalation payloads used by tracking.
+notification owner owns provider dispatch, receipt, retry, quiet-hours runtime, and delivery history.
+tracking-core consumes canonical contracts for tracking-driven intent creation only.
+tracking-domain may provide helper/proof adapters only.
+```
 
 ## Source Inputs
 
@@ -16,46 +23,47 @@ and portal states.
 
 ## Target State
 
-Tracking can create notification and escalation intents only after a policy
-decision. Provider dispatch results and receipt state are separate from intent.
-Provider unavailability is visible as manual-required/degraded state.
+Tracking can create alert and escalation intents only after a policy decision. Provider result state is separate from intent. Provider unavailability is visible as manual-required/degraded state.
+
+## Required proof fields
+
+```text
+canonical_schema_owner_state
+policy_decision_ref_state
+alert_intent_state
+dispatch_request_state
+dispatch_result_state
+escalation_intent_state
+escalation_result_state
+provider_capability_state
+quiet_hours_state
+retry_state
+sensitive_detail_minimization_state
+audit_state
+portal_state
+no_provider_runtime_claim
+no_product_ready_claim
+no_claim
+```
 
 ## Required Source Behavior
 
-- `notification.intent.created` requires a policy decision ref.
-- `notification.dispatch.requested` requires provider capability state.
-- `notification.dispatch.result_observed` records accepted, delivered, failed,
-  unavailable, manual-required, or retry state.
-- `escalation.intent.created` requires policy decision and severity refs.
-- `escalation.result_observed` records acknowledged, canceled, advanced,
-  failed, unavailable, or manual-required state.
-- Notification content minimizes sensitive location detail and uses authenticated
-  drill-in for precise evidence.
+- Alert intent requires a policy decision ref.
+- Dispatch request requires provider capability state.
+- Dispatch result records accepted, delivered, failed, unavailable, manual-required, or retry state.
+- Escalation intent requires policy decision and severity refs.
+- Escalation result records acknowledged, canceled, advanced, failed, unavailable, or manual-required state.
+- Message content minimizes sensitive detail and uses authenticated drill-in for precise evidence.
 - Quiet-hours and retry behavior are event state, not hidden provider behavior.
 
 ## Tests After Code
 
-- Notification intent requires policy decision ref.
+- Alert intent requires policy decision ref.
 - Provider dispatch requires provider capability.
-- SMS unavailable creates manual-required state.
-- WhatsApp unavailable creates manual-required state.
-- Push unavailable creates manual-required state.
-
-## Matrix Categories / Target Test Locations
-
-Matrix categories: contract, Rust unit/integration, replay/idempotency,
-security/AuthZ, service transport, and Playwright/service-backed UI where this
-workpack touches portal rendering.
-
-Target Rust tests must follow the crate boundary: `crates/agent-protocol/tests`
-for protocol constants/payloads, `crates/agent-core/tests` for runtime and
-projection behavior, and `crates/agent-service/tests` for real transport after
-service seams are importable. Private module tests are only for internal helper
-invariants.
-
+- Provider unavailable creates manual-required state.
 - Provider result observed updates audit/read model.
-- Duplicate notification id does not send twice.
-- Notification text minimizes sensitive details.
+- Duplicate id does not send twice.
+- Message text minimizes sensitive details.
 - Escalation requires policy decision and severity rule.
 - Parent acknowledgement cancels or modifies escalation according to rules.
 - Quiet-hours behavior is visible and auditable.
@@ -68,6 +76,4 @@ Proof root:
 output/tracking-plan-proof/38-tracking-notification-escalation-event-flow/
 ```
 
-Provider credentials, external delivery, webhook receipts, production workers,
-and product-ready notification/escalation remain unclaimed until real provider
-and production artifacts exist.
+Provider credentials, external delivery, webhook receipts, production workers, and product-ready alert/escalation remain unclaimed until real provider and production artifacts exist.

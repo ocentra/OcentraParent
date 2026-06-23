@@ -3,7 +3,7 @@ import {
   AppGameWindowsBroadBlockingAuthorityPreflightReadModelSchema,
   createAppGameWindowsBroadBlockingAuthorityPreflightReadModel,
   summarizeAppGameWindowsBroadBlockingAuthorityPreflightReadModel,
-} from '../../src/app-game-windows-broad-blocking-authority-preflight';
+} from '@ocentra-parent/schema-domain/app-game-windows-broad-blocking-authority-preflight';
 
 describe('app-game Windows broad blocking authority preflight', () => {
   keepsWindowsBroadLaunchBlockingBlocked();

@@ -6,4 +6,3 @@ describe('app-game domain package boundary', () => {
     expect(AppGameDomainPackageName).toBe('@ocentra-parent/app-game-domain');
   });
 });
-

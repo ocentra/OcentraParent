@@ -222,11 +222,8 @@ function getProofTraceMetadata(log) {
     return null;
   }
 
-  const proofId = typeof data.proofId === 'string'
-    ? data.proofId
-    : typeof data.proof_id === 'string'
-      ? data.proof_id
-      : null;
+  const proofId =
+    typeof data.proofId === 'string' ? data.proofId : typeof data.proof_id === 'string' ? data.proof_id : null;
   if (proofId == null || proofId.trim().length === 0) {
     return null;
   }
@@ -389,12 +386,7 @@ function readStructuredLogs(scope) {
 }
 
 function readRustDevLogs(scope) {
-  const rustRoot = path.join(
-    getLogRoot(),
-    sanitizePathSegment(scope),
-    'ndjson',
-    'dev-log'
-  );
+  const rustRoot = path.join(getLogRoot(), sanitizePathSegment(scope), 'ndjson', 'dev-log');
   const logs = [];
   for (const filePath of listNdjsonFiles(rustRoot)) {
     for (const entry of readNdjsonFile(filePath)) {
@@ -480,8 +472,7 @@ function getLoggingPlanFile(relativePath, workspaceRoot = getWorkspaceRoot()) {
 
 function parseWorkpackIndexStatuses(text) {
   const statuses = new Map();
-  const pattern =
-    /^\|\s*([a-z-]+)\s*\|\s*\[WP(\d{2})\s+([^\]]+)\]\([^)]+\)\s*\|\s*([^|]+?)\s*\|\s*`([^`]+)`\s*\|$/gmu;
+  const pattern = /^\|\s*([a-z-]+)\s*\|\s*\[WP(\d{2})\s+([^\]]+)\]\([^)]+\)\s*\|\s*([^|]+?)\s*\|\s*`([^`]+)`\s*\|$/gmu;
   for (const match of text.matchAll(pattern)) {
     statuses.set(match[2], {
       workpackId: match[2],
@@ -496,8 +487,7 @@ function parseWorkpackIndexStatuses(text) {
 
 function parseChecklistProofState(text) {
   const checklist = new Map();
-  const pattern =
-    /^##\s+WP(\d{2})[^\n]*\n([\s\S]*?)(?=^##\s+WP\d{2}|$(?![\r\n]))/gmu;
+  const pattern = /^##\s+WP(\d{2})[^\n]*\n([\s\S]*?)(?=^##\s+WP\d{2}|$(?![\r\n]))/gmu;
   for (const match of text.matchAll(pattern)) {
     const body = match[2];
     const checkedLines = body
@@ -509,14 +499,9 @@ function parseChecklistProofState(text) {
     );
     checklist.set(match[1], {
       workpackId: match[1],
-      proofRowChecked:
-        combinedRowChecked ||
-        checkedLines.some((line) => /Proof root written\./iu.test(line)),
+      proofRowChecked: combinedRowChecked || checkedLines.some((line) => /Proof root written\./iu.test(line)),
       workpackCompletionChecked:
-        combinedRowChecked ||
-        checkedLines.some((line) =>
-          /Workpack completion section filled\./iu.test(line)
-        ),
+        combinedRowChecked || checkedLines.some((line) => /Workpack completion section filled\./iu.test(line)),
     });
   }
   return checklist;
@@ -621,12 +606,8 @@ function assembleRunEvidenceFromNdjson(runId) {
   if (run == null) {
     return null;
   }
-  const diagnostics = data.diagnostics
-    .filter((entry) => entry.runId === runId)
-    .map(mapDiagnosticEvent);
-  const artifacts = data.artifacts
-    .filter((entry) => entry.runId === runId)
-    .map(mapArtifactEvent);
+  const diagnostics = data.diagnostics.filter((entry) => entry.runId === runId).map(mapDiagnosticEvent);
+  const artifacts = data.artifacts.filter((entry) => entry.runId === runId).map(mapArtifactEvent);
   return {
     run: {
       runId: run.runId,
@@ -657,12 +638,8 @@ function assembleLatestFailuresFromNdjson(limit) {
     .sort((left, right) => Date.parse(right.startedAt) - Date.parse(left.startedAt))
     .slice(0, limit)
     .map((run) => {
-      const diagnostics = data.diagnostics
-        .filter((entry) => entry.runId === run.runId)
-        .map(mapDiagnosticEvent);
-      const artifacts = data.artifacts
-        .filter((entry) => entry.runId === run.runId)
-        .map(mapArtifactEvent);
+      const diagnostics = data.diagnostics.filter((entry) => entry.runId === run.runId).map(mapDiagnosticEvent);
+      const artifacts = data.artifacts.filter((entry) => entry.runId === run.runId).map(mapArtifactEvent);
       return {
         runId: run.runId,
         commandId: run.commandId,
@@ -689,9 +666,8 @@ function agentEvidenceStatsFromNdjson() {
   const data = readAgentEvidenceFromNdjson();
   const failedRuns = data.runs.filter((entry) => entry.status === 'failed').length;
   const passedRuns = data.runs.filter((entry) => entry.status === 'passed').length;
-  const newestRun = data.runs
-    .map((entry) => entry.startedAt)
-    .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
+  const newestRun =
+    data.runs.map((entry) => entry.startedAt).sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
   return {
     totalRuns: data.runs.length,
     failedRuns,
@@ -715,10 +691,7 @@ async function tryDb(work) {
 
 function ensureLocalPath(candidatePath) {
   const absolute = path.resolve(candidatePath);
-  const allowedRoots = [
-    getLogRoot(),
-    getStructuredLogBaseRoot(),
-  ].map((entry) => path.resolve(entry));
+  const allowedRoots = [getLogRoot(), getStructuredLogBaseRoot()].map((entry) => path.resolve(entry));
 
   const allowed = allowedRoots.some((root) => absolute.startsWith(root));
   if (!allowed) {
@@ -920,12 +893,13 @@ export async function queryLogs(options = {}) {
 export async function getLogStats(options = {}) {
   const scope = options.scope ?? 'parent-codex';
   const logs = readLocalLogs(scope);
-  const filtered = logs.length === 0
-    ? []
-    : filterLogs(logs, {
-        fromTs: parseIsoOrDuration(options.from),
-        toTs: parseIsoOrDuration(options.to),
-      });
+  const filtered =
+    logs.length === 0
+      ? []
+      : filterLogs(logs, {
+          fromTs: parseIsoOrDuration(options.from),
+          toTs: parseIsoOrDuration(options.to),
+        });
 
   const levelCounts = {};
   const sourceCounts = {};
@@ -940,9 +914,10 @@ export async function getLogStats(options = {}) {
     }
   }
 
-  const evidenceStats = scope === 'parent-codex'
-    ? (await tryDb(() => getAgentEvidenceStats('parent-codex'))) ?? agentEvidenceStatsFromNdjson()
-    : null;
+  const evidenceStats =
+    scope === 'parent-codex'
+      ? ((await tryDb(() => getAgentEvidenceStats('parent-codex'))) ?? agentEvidenceStatsFromNdjson())
+      : null;
   return {
     scope,
     logLevels: levelCounts,
@@ -965,7 +940,9 @@ export async function getProofInventoryStatus(options = {}) {
   const planStateText = readTextIfExists(planStatePath);
 
   if (proofIndexText == null || workpackIndexText == null || checklistText == null || planStateText == null) {
-    throw new Error(`Logging proof inventory docs are incomplete under ${getLoggingPlanRoot(workspaceRoot).replace(/\\/g, '/')}.`);
+    throw new Error(
+      `Logging proof inventory docs are incomplete under ${getLoggingPlanRoot(workspaceRoot).replace(/\\/g, '/')}.`
+    );
   }
 
   const proofRoots = parseProofRootDefinitions(proofIndexText);
@@ -1039,19 +1016,14 @@ export async function getProofInventoryStatus(options = {}) {
       proofArtifacts: artifactFiles.length,
       proofRootExists: exists,
       checklist,
-      artifacts: artifactFiles.map((filePath) =>
-        path.relative(workspaceRoot, filePath).replace(/\\/g, '/')
-      ),
+      artifacts: artifactFiles.map((filePath) => path.relative(workspaceRoot, filePath).replace(/\\/g, '/')),
     });
   }
 
   actualPresentWorkpackIds.sort();
   actualMissingWorkpackIds.sort();
 
-  if (
-    restoredRootsClaim != null &&
-    !sameStringSet(restoredRootsClaim.workpackIds, actualPresentWorkpackIds)
-  ) {
+  if (restoredRootsClaim != null && !sameStringSet(restoredRootsClaim.workpackIds, actualPresentWorkpackIds)) {
     gaps.push({
       kind: 'plan-state-restored-roots-drift',
       severity: 'warning',
@@ -1108,7 +1080,9 @@ export async function getProofTraceGaps(options = {}) {
   const outOfOrderSteps = [];
 
   for (const expectedStep of expectedSteps) {
-    const foundIndex = trace.rows.findIndex((row, index) => index >= rowIndex && proofTraceStepMatches(row, expectedStep));
+    const foundIndex = trace.rows.findIndex(
+      (row, index) => index >= rowIndex && proofTraceStepMatches(row, expectedStep)
+    );
     if (foundIndex === -1) {
       const anywhereIndex = trace.rows.findIndex((row) => proofTraceStepMatches(row, expectedStep));
       if (anywhereIndex !== -1) {

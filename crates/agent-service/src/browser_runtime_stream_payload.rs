@@ -9,14 +9,17 @@ use ocentra_parent_agent_core::{
     },
     parent_child_event_runtime::publish_parent_child_runtime_for_validated_intent,
 };
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::child_agent::child_agent_events::ChildCommandKind;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::parent_controller_events::{
     ParentControllerActionKind, ParentControllerSource,
 };
 use ocentra_parent_agent_protocol::transport::parent_child_runtime_input::ParentChildRuntimeInput;
-use ocentra_parent_agent_protocol::{
-    constants, BrowserEvidenceReadModel, ChildCommandKind, LogFieldValue, LogFields,
-    ParentChildRuntimeEventPayload, PolicyPreviewReadModel,
-};
+use ocentra_parent_agent_protocol::transport::ParentChildRuntimeEventPayload;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -146,10 +149,7 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
         ),
         (
             constants::field::BROWSER_RUNTIME_EVENT_CHAIN_STREAM,
-            LogFieldValue::String(
-                serde_json::to_string(&report.entries)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialize_stream_json(&report.entries)),
         ),
     ];
     pairs.extend(action_intent_payload_fields(report));
@@ -373,13 +373,14 @@ impl BrowserRuntimeServiceStreamReport {
         self.intervention_command_events += entries
             .iter()
             .filter(|entry| {
-                entry.event_type == constants::browser::EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED
+                entry.runtime_event_name
+                    == constants::browser::EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED
             })
             .count();
         self.read_model_projection_events += entries
             .iter()
             .filter(|entry| {
-                entry.event_type == constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
+                entry.runtime_event_name == constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
             })
             .count();
         self.entries.extend(entries);
@@ -492,7 +493,14 @@ fn count_value(value: usize) -> LogFieldValue {
 }
 
 fn string_array_value(values: &[String]) -> LogFieldValue {
-    LogFieldValue::String(
-        serde_json::to_string(values).expect(constants::error::AGENT_EVENT_SERIALIZES),
-    )
+    LogFieldValue::String(serialize_stream_json(values))
+}
+
+fn serialize_stream_json<T>(value: &T) -> String
+where
+    T: Serialize + ?Sized,
+{
+    serde_json::to_string(value).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }

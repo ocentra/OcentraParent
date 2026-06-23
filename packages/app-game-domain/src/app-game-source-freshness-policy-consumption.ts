@@ -22,20 +22,16 @@ import {
 } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption-values';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-const AppGameSourceFreshnessPolicyReadinessIdSchema =
-  SchemaDomainAppGameSourceFreshnessPolicyReadinessIdSchema;
+const AppGameSourceFreshnessPolicyReadinessIdSchema = SchemaDomainAppGameSourceFreshnessPolicyReadinessIdSchema;
 const AppGameSourceFreshnessPolicyRequestSchema = SchemaDomainAppGameSourceFreshnessPolicyRequestSchema;
-const AppGameSourceFreshnessRequirementResultSchema =
-  SchemaDomainAppGameSourceFreshnessRequirementResultSchema;
-const AppGameSourceFreshnessPolicyReadinessSchema =
-  SchemaDomainAppGameSourceFreshnessPolicyReadinessSchema;
+const AppGameSourceFreshnessRequirementResultSchema = SchemaDomainAppGameSourceFreshnessRequirementResultSchema;
+const AppGameSourceFreshnessPolicyReadinessSchema = SchemaDomainAppGameSourceFreshnessPolicyReadinessSchema;
 
 type AppGameSourceFreshnessPolicyRequest = SchemaDomainAppGameSourceFreshnessPolicyRequest;
 type AppGameSourceFreshnessRequirementResult = SchemaDomainAppGameSourceFreshnessRequirementResult;
 type AppGameSourceFreshnessPolicyReadiness = SchemaDomainAppGameSourceFreshnessPolicyReadiness;
 
-type AppGameSourceFreshnessRequirementKindValue =
-  AppGameSourceFreshnessPolicyRequest['requiredSources'][number];
+type AppGameSourceFreshnessRequirementKindValue = AppGameSourceFreshnessPolicyRequest['requiredSources'][number];
 type ParentTimestampValue = AppGameSourceFreshnessPolicyReadiness['evaluatedAt'];
 
 const decodeAppGameSourceFreshnessPolicyReadinessId = Schema.decodeUnknownSync(
@@ -134,4 +130,3 @@ function evaluateRequirement(
     lastObservedAt: firstRow.lastObservedAt,
   });
 }
-

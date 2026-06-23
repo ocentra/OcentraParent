@@ -298,9 +298,7 @@ function hasUniqueAuditReferenceIds(auditReferenceIds: readonly string[]): boole
   return auditReferenceIds.length > 0 && hasUniqueValues(auditReferenceIds);
 }
 
-function hasExactlyOneSupportMatrixRowPerTargetKind(
-  rows: readonly PolicyCompilerSupportMatrixRow[]
-): boolean {
+function hasExactlyOneSupportMatrixRowPerTargetKind(rows: readonly PolicyCompilerSupportMatrixRow[]): boolean {
   return hasExactlySameValues(
     rows.map((row) => row.targetKind),
     PolicyCompilerTargetKindValues

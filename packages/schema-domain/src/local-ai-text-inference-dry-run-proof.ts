@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { PolicyAction, PolicyReasonCodeSchema } from './policy-contracts';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from './family-reference-primitives';
 import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema, type LocalAiSafetyResult } from './local-ai';
@@ -264,4 +259,3 @@ function resultStateMatchesOutcome(result: LocalAiTextInferenceDryRunResultCandi
 
   return result.result.action === 'warn' && result.result.unknownState === 'none';
 }
-

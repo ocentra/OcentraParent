@@ -27,7 +27,7 @@ async function main() {
     import.meta.url
   );
   const escalationProof = await tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-escalation-readiness-proof.ts')).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-escalation-readiness-proof.ts')).href,
     import.meta.url
   );
   const checkedAt = new Date().toISOString();
@@ -127,7 +127,7 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- requiredProofTier: P1_FIXTURE_SIMULATION',
     '- currentProofTier: P1_FIXTURE_SIMULATION',
     '- status: proved',
-    '- proof module: packages/tracking-domain/src/tracking-escalation-readiness-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-escalation-readiness-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-escalation-readiness-proof.test.ts',
     '- proof harness: scripts/test/tracking-escalation-readiness-proof.mjs',
     '- source contracts: packages/schema-domain/src/tracking-location-policy.ts',

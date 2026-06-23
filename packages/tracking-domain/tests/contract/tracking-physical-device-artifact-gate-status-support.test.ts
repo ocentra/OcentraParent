@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   RequiredTrackingPhysicalDeviceArtifactPlans,
   buildTrackingPhysicalDeviceArtifactGateProof,
-} from '../../src/tracking-physical-device-artifact-gate-proof';
+} from '@ocentra-parent/schema-domain/tracking-physical-device-artifact-gate-proof';
 
 const AndroidStatusProofRef = 'test-results/tracking-android-physical-device-runtime-proof/proof.json';
 const AndroidStatusArtifacts = [

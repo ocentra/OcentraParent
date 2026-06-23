@@ -6,6 +6,7 @@ use ocentra_child_enforcement_core::enforcement_action::{
     EnforcementRollbackState,
 };
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 
 #[test]
@@ -148,9 +149,9 @@ fn already_applied_action_records_audit_without_reexecuting_adapter() {
 fn enforcement_action_request_records_typed_decision_event() {
     let request = EnforcementActionRequestedEvent {
         aggregate_id: EnforcementAggregateId::parse("child-enforcement-family-default")
-            .expect("child enforcement aggregate"),
+            .expect_value("child enforcement aggregate"),
         request_id: EnforcementActionRequestId::parse("child-enforcement-request-default")
-            .expect("child enforcement request"),
+            .expect_value("child enforcement request"),
         input: EnforcementActionInput {
             mode: EnforcementActionMode::Execute,
             policy_authority_state: ParentAuthorityState::Authorized,
@@ -171,7 +172,7 @@ fn enforcement_action_request_records_typed_decision_event() {
     assert_eq!(
         request
             .contract()
-            .expect("child enforcement request contract")
+            .expect_value("child enforcement request contract")
             .event_type
             .as_str(),
         "child-enforcement.action.requested"
@@ -179,7 +180,7 @@ fn enforcement_action_request_records_typed_decision_event() {
     assert_eq!(
         decision
             .contract()
-            .expect("child enforcement decision contract")
+            .expect_value("child enforcement decision contract")
             .event_type
             .as_str(),
         "child-enforcement.action-decision.recorded"

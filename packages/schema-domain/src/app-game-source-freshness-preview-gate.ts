@@ -1,14 +1,10 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
-import {
-  AppGamePolicyCompiledDecisionSchema,
-} from './app-game-policy-target-compiler';
+import { AppGamePolicyCompiledDecisionSchema } from './app-game-policy-target-compiler';
 import {
   AppGamePolicyPreviewHandoffOptionsSchema,
   AppGamePolicyPreviewHandoffRowSchema,
 } from './app-game-policy-preview-handoff';
-import {
-  AppGamePolicyPreviewTargetDomain,
-} from './app-game-policy-preview-handoff-rules';
+import { AppGamePolicyPreviewTargetDomain } from './app-game-policy-preview-handoff-rules';
 import {
   AppGameSourceFreshnessEvidenceRefSchema,
   AppGameSourceFreshnessPolicyReadinessSchema,
@@ -166,9 +162,7 @@ export const AppGameSourceFreshnessPreviewGateReadModelSchema = withParser(
 export type AppGameSourceFreshnessPreviewGateOptions = Infer<typeof AppGameSourceFreshnessPreviewGateOptionsSchema>;
 export type AppGameSourceFreshnessPreviewGateEntry = Infer<typeof AppGameSourceFreshnessPreviewGateEntrySchema>;
 export type AppGameSourceFreshnessPreviewGateRow = Infer<typeof AppGameSourceFreshnessPreviewGateRowSchema>;
-export type AppGameSourceFreshnessPreviewGateReadModel = Infer<
-  typeof AppGameSourceFreshnessPreviewGateReadModelSchema
->;
+export type AppGameSourceFreshnessPreviewGateReadModel = Infer<typeof AppGameSourceFreshnessPreviewGateReadModelSchema>;
 
 export const decodeAppGameSourceFreshnessPreviewGateReadModel = Schema.decodeUnknownSync(
   AppGameSourceFreshnessPreviewGateReadModelSchema

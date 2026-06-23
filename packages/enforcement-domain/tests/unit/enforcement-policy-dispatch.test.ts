@@ -10,48 +10,12 @@ describe('enforcement policy dispatch contracts', () => {
   it('keeps the V0.8 dispatch proof matrix schema-backed and parent-visible', () => {
     const parsed = EnforcementPolicyDispatchReadModelSchema.parse(EnforcementPolicyDispatchReadModel);
 
-    expect(parsed.readModelId).toBe('v0-8-enforcement-policy-dispatch');
-    expect(parsed.entries).toHaveLength(8);
-    expect(countBy(parsed.entries.map((entry) => entry.matrixRow.proofLevel))).toEqual({
-      implemented: 2,
-      scaffold: 4,
-      'report-only': 1,
-      'manual-required': 1,
-    });
-    expect(countBy(parsed.entries.map((entry) => entry.matrixRow.outcomeState))).toEqual({
-      'dispatch-ready': 2,
-      'dry-run-only': 1,
-      'report-only': 1,
-      'manual-required': 1,
-      rejected: 3,
-    });
-
-    const ownedProcessEntry = entryForIntent('dispatch-owned-process-time-limit');
-    expect(ownedProcessEntry.matrixRow.outcomeState).toBe('dispatch-ready');
-    expect(ownedProcessEntry.intent.evidenceReferences[0]?.evidenceReferenceId).toBe(
-      'evidence-app-session-owned-process'
-    );
-
-    const askParentEntry = entryForIntent('dispatch-ask-parent-dry-run');
-    expect(askParentEntry.intent.requestedParentAction).toBe('ask-parent');
-    expect(askParentEntry.intent.requestedPolicyAction).toBe('ask-parent');
-    expect(askParentEntry.intent.dryRun).toBe(true);
-    expect(askParentEntry.matrixRow.outcomeState).toBe('dry-run-only');
-    expect(askParentEntry.approvalState).toBe('pending');
-
-    const appGameEntry = entryForIntent('dispatch-app-game-session-handoff');
-    expect(appGameEntry.timerState).toBe('restart-recovered');
-
-    const stalePolicyEntry = entryForIntent('dispatch-stale-policy-version-rejected');
-    expect(stalePolicyEntry.matrixRow.rejectionReason).toBe('stale-policy-version');
-    expect(stalePolicyEntry.intent.sourceState).toBe('stale');
-
-    const missingSourceEntry = entryForIntent('dispatch-missing-source-rejected');
-    expect(missingSourceEntry.matrixRow.rejectionReason).toBe('source-not-ready');
-    expect(missingSourceEntry.intent.sourceState).toBe('missing');
-
-    const tamperEntry = entryForIntent('dispatch-tamper-alert-scaffold');
-    expect(tamperEntry.childReasonCode).toBe('child-reason-integrity-proof-required');
+    expectParsedDispatchReadModel(parsed);
+    expectOwnedProcessEntry();
+    expectAskParentEntry();
+    expectAppGameEntry();
+    expectRejectedEntries();
+    expectTamperEntry();
   });
 
   it('rejects dispatch intents without evidence references', () => {
@@ -132,4 +96,63 @@ function countBy(values: readonly string[]) {
     counts[value] = (counts[value] ?? 0) + 1;
     return counts;
   }, {});
+}
+
+function expectParsedDispatchReadModel(parsed: typeof EnforcementPolicyDispatchReadModel) {
+  expect(parsed.readModelId).toBe('v0-8-enforcement-policy-dispatch');
+  expect(parsed.entries).toHaveLength(8);
+  expect(countBy(parsed.entries.map((entry) => entry.matrixRow.proofLevel))).toEqual({
+    implemented: 2,
+    scaffold: 4,
+    'report-only': 1,
+    'manual-required': 1,
+  });
+  expect(countBy(parsed.entries.map((entry) => entry.matrixRow.outcomeState))).toEqual({
+    'dispatch-ready': 2,
+    'dry-run-only': 1,
+    'report-only': 1,
+    'manual-required': 1,
+    rejected: 3,
+  });
+}
+
+function expectOwnedProcessEntry() {
+  const ownedProcessEntry = entryForIntent('dispatch-owned-process-time-limit');
+
+  expect(ownedProcessEntry.matrixRow.outcomeState).toBe('dispatch-ready');
+  expect(ownedProcessEntry.intent.evidenceReferences[0]?.evidenceReferenceId).toBe(
+    'evidence-app-session-owned-process'
+  );
+}
+
+function expectAskParentEntry() {
+  const askParentEntry = entryForIntent('dispatch-ask-parent-dry-run');
+
+  expect(askParentEntry.intent.requestedParentAction).toBe('ask-parent');
+  expect(askParentEntry.intent.requestedPolicyAction).toBe('ask-parent');
+  expect(askParentEntry.intent.dryRun).toBe(true);
+  expect(askParentEntry.matrixRow.outcomeState).toBe('dry-run-only');
+  expect(askParentEntry.approvalState).toBe('pending');
+}
+
+function expectAppGameEntry() {
+  const appGameEntry = entryForIntent('dispatch-app-game-session-handoff');
+
+  expect(appGameEntry.timerState).toBe('restart-recovered');
+}
+
+function expectRejectedEntries() {
+  const stalePolicyEntry = entryForIntent('dispatch-stale-policy-version-rejected');
+  const missingSourceEntry = entryForIntent('dispatch-missing-source-rejected');
+
+  expect(stalePolicyEntry.matrixRow.rejectionReason).toBe('stale-policy-version');
+  expect(stalePolicyEntry.intent.sourceState).toBe('stale');
+  expect(missingSourceEntry.matrixRow.rejectionReason).toBe('source-not-ready');
+  expect(missingSourceEntry.intent.sourceState).toBe('missing');
+}
+
+function expectTamperEntry() {
+  const tamperEntry = entryForIntent('dispatch-tamper-alert-scaffold');
+
+  expect(tamperEntry.childReasonCode).toBe('child-reason-integrity-proof-required');
 }

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePackageSourceCaptureStatusProofReadModel } from './app-install-purchase-package-source-capture-status-proof';
 import { AppInstallPurchaseRuntimeWriterDeliveryProofReadModel } from './app-install-purchase-runtime-writer-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -83,10 +78,18 @@ const AppInstallPurchaseChildDeviceDeliveryRuntimeWriterNonClaimSchema = withPar
   Schema.Literal(...ChildDeviceDeliveryRuntimeWriterNonClaims)
 );
 
-const ChildDeviceDeliveryRuntimeWriterRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeviceDeliveryRuntimeWriterRowId');
-const ChildDeviceDeliveryRuntimeWriterRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeviceDeliveryRuntimeWriterRef');
-const ChildDeviceDeliveryRuntimeWriterAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeviceDeliveryRuntimeWriterAuditRef');
-const ChildDeviceDeliveryRuntimeWriterClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeviceDeliveryRuntimeWriterClaimBoundary');
+const ChildDeviceDeliveryRuntimeWriterRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseChildDeviceDeliveryRuntimeWriterRowId'
+);
+const ChildDeviceDeliveryRuntimeWriterRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseChildDeviceDeliveryRuntimeWriterRef'
+);
+const ChildDeviceDeliveryRuntimeWriterAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseChildDeviceDeliveryRuntimeWriterAuditRef'
+);
+const ChildDeviceDeliveryRuntimeWriterClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseChildDeviceDeliveryRuntimeWriterClaimBoundary'
+);
 
 const ChildDeviceDeliveryRuntimeWriterRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofSchemaVersionSchema,
@@ -359,4 +362,3 @@ function childDeviceDeliveryRuntimeWriterBoundaryIsExplicit(
 ) {
   return ChildDeviceDeliveryRuntimeWriterBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

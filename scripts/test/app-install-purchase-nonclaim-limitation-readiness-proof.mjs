@@ -65,13 +65,13 @@ async function main() {
     checklistState: 'not-touched-current-codex-b-docs-product-capability-checklist-lock',
     evidence: {
       sourcePlatformAdapterEvidenceGapContract:
-        'packages/app-game-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
       sourcePlatformAdapterEvidenceGapTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-platform-adapter-evidence-gap-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-platform-adapter-evidence-gap-proof',
       output: relative(repoRoot, proofPath),
     },
     platformAdapterEvidenceGapSummary: summary,

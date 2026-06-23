@@ -1,4 +1,4 @@
-use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::{envelope::DomainEvent, error::EventingError};
 use ocentra_storage_custody_core::storage_custody::{
     evaluate_storage_custody, plan_storage_custody_actions, storage_custody_action_planned_event,
     storage_custody_decision_recorded_event, LocalPayloadRetentionAction, ParentExportPacketState,
@@ -117,12 +117,10 @@ fn active_parent_owned_remote_action_plan_allows_upload_without_tombstone() {
 }
 
 #[test]
-fn storage_custody_decision_event_drives_action_plan_event() {
+fn storage_custody_decision_event_drives_action_plan_event() -> Result<(), EventingError> {
     let decision = storage_custody_decision_recorded_event(
-        StorageCustodyAggregateId::parse("storage-custody-child-default")
-            .expect("storage custody aggregate"),
-        StorageCustodyDecisionId::parse("storage-custody-decision-default")
-            .expect("storage custody decision"),
+        StorageCustodyAggregateId::parse("storage-custody-child-default")?,
+        StorageCustodyDecisionId::parse("storage-custody-decision-default")?,
         StorageCustodyInput {
             location: StorageCustodyLocation::ChildDeviceLocal,
             retention_window_state: RetentionWindowState::Expired,
@@ -143,19 +141,13 @@ fn storage_custody_decision_event_drives_action_plan_event() {
         ParentExportPacketState::Create
     );
     assert_eq!(
-        decision
-            .contract()
-            .expect("storage custody decision contract")
-            .event_type
-            .as_str(),
+        decision.contract()?.event_type.as_str(),
         "storage-custody.decision.recorded"
     );
     assert_eq!(
-        action
-            .contract()
-            .expect("storage custody action contract")
-            .event_type
-            .as_str(),
+        action.contract()?.event_type.as_str(),
         "storage-custody.action.planned"
     );
+
+    Ok(())
 }

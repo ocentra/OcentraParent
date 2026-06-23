@@ -25,7 +25,7 @@ fn install_plan_reports_missing_required_runtime_and_default_model() {
     let runtime = plan
         .runtime
         .as_ref()
-        .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+        .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
 
     assert_eq!(plan.runtime_status, LocalAiRequiredArtifactStatus::Missing);
     assert_eq!(
@@ -122,7 +122,7 @@ fn write_required_files(plan: &crate::local_ai_runtime_install_plan::LocalAiRunt
     let runtime = plan
         .runtime
         .as_ref()
-        .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+        .unwrap_or_else(|| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
     write_file(
         &runtime.binary_path,
         constants::local_ai_runtime::REQUIRED_ARTIFACT_RUNTIME,

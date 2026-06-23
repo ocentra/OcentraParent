@@ -16,6 +16,8 @@
 
 Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+
 | Status  | Workpack                                                                                                                  |   Size | Boxes                              |
 | ------- | ------------------------------------------------------------------------------------------------------------------------- | -----: | ---------------------------------- |
 | open    | [WP25 Policy Compiler For Tracking Rules](workpacks/25-policy-compiler-for-tracking-rules.md)                           |  3,656 | 11/11 checked; audit reopen        |
@@ -62,7 +64,13 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 | open | [Device Location Tracking Schema Proposal](workpacks/device-location-tracking-schema-proposal.md) | 46,695 | 0/0 checked; 0 open |
 | open | [Tracking Control Settings Inventory](workpacks/tracking-control-settings-inventory.md) | 326,337 | 0/0 checked; 0 open |
 
-Audit note:
-`WP25`, `WP27`, `WP28`, `WP29`, and `WP33` were reopened by the 2026-06-16
-source/test/proof audit. `WP34-WP39` exist on disk and belong in the active
-index; earlier generated summaries omitted them.
+Audit note: `WP25`, `WP27`, `WP28`, `WP29`, and `WP33` were reopened by the 2026-06-16 source/test/proof audit. `WP34-WP39` exist on disk and belong in the active index; earlier generated summaries omitted them.
+
+## Selection rules
+
+- Choose exactly one workpack.
+- If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`; do not scan every family.
+- Do not use checked boxes as proof when a workpack is audit-reopened.
+- Do not omit WP34-WP39 from scope.
+- Cross-boundary schemas must cite `schema-domain` or a neutral protocol/event/evidence owner.
+- Tracking-local schemas are private helpers only.

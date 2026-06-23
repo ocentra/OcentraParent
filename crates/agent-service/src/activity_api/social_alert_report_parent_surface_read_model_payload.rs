@@ -10,44 +10,46 @@ use ocentra_parent_agent_protocol::browser::social_parent_surface_status_handoff
     SocialPreferenceStatusHandoffReadModel, SocialPreferenceStatusHandoffRow,
     SocialProviderStatusHandoffReadModel, SocialProviderStatusHandoffRow,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
 use ocentra_parent_agent_protocol::social_alert_report_parent_surface_read_model::{
     SocialAlertReportParentSurfaceReadModelRequest,
     SocialAlertReportParentSurfaceReadModelResponse, SocialAlertReportParentSurfaceReadModelRow,
     SocialAlertReportParentSurfaceReadModelSnapshot,
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, SOCIAL_ALERT_REPORT_PARENT_SURFACE_HISTORY_UNAVAILABLE,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_HISTORY_VISIBLE,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_INTENT_ID,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_MINIMAL_BOUNDARY,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_ADAPTER_DISPATCH,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_CHILD_DELIVERY,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_CLOUD_ROUTING,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_CONNECTOR_NATIVE,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_DURABLE_OUTBOX,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_ENFORCEMENT,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_FINAL_POLICY,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_FREQUENCY_UI,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_HISTORY_UI,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_NOTIFICATION_UI,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PREFERENCE_UI,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PROVIDER_CREDENTIALS,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PROVIDER_DELIVERY,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PROVIDER_RECEIPT,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_QUIET_HOURS,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_REPORT_DELIVERY,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_RETRY_WORKER,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_PREFERENCE_DISABLED,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_PREFERENCE_SETUP,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_PROVIDER_ROW_HIGH_RISK_REF,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_ROW_HIGH_RISK,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_ROW_MANUAL,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_ROW_UNAVAILABLE,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_SCHEMA_VERSION,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_MANUAL,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_UNAVAILABLE,
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_HISTORY_UNAVAILABLE;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_HISTORY_VISIBLE;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_INTENT_ID;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_MINIMAL_BOUNDARY;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_ADAPTER_DISPATCH;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_CHILD_DELIVERY;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_CLOUD_ROUTING;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_CONNECTOR_NATIVE;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_DURABLE_OUTBOX;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_ENFORCEMENT;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_FINAL_POLICY;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_FREQUENCY_UI;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_HISTORY_UI;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_NOTIFICATION_UI;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PREFERENCE_UI;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PROVIDER_CREDENTIALS;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PROVIDER_DELIVERY;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_PROVIDER_RECEIPT;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_QUIET_HOURS;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_REPORT_DELIVERY;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_NON_CLAIM_RETRY_WORKER;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_PREFERENCE_DISABLED;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_PREFERENCE_SETUP;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_PROVIDER_ROW_HIGH_RISK_REF;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_ROW_HIGH_RISK;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_ROW_MANUAL;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_ROW_UNAVAILABLE;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_MANUAL;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_UNAVAILABLE;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
@@ -212,9 +214,10 @@ pub fn parent_surface_payload(
         ),
         (
             constants::field::BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(match serde_json::to_string(read_model) {
+                Ok(serialized) => serialized,
+                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
+            }),
         ),
     ])
 }
@@ -369,8 +372,11 @@ fn non_claims() -> Vec<String> {
     ]
 }
 
-fn count_rows(rows: &[SocialAlertReportParentSurfaceReadModelRow], status: &str) -> usize {
+fn count_rows(
+    rows: &[SocialAlertReportParentSurfaceReadModelRow],
+    parent_surface_state: &str,
+) -> usize {
     rows.iter()
-        .filter(|row| row.parent_surface_status == status)
+        .filter(|row| row.parent_surface_status == parent_surface_state)
         .count()
 }

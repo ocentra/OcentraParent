@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
+pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = crate::BROWSER_EVIDENCE_SCHEMA_VERSION;
+
 pub mod action_handoff;
 pub mod action_handoff_child_status;
 pub mod action_handoff_durable;

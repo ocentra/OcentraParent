@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreReportStatusProofReadModel } from './app-install-purchase-provider-store-report-status-proof';
 import { AppInstallPurchaseReportStatusReadModelHandoffProofReadModel } from './app-install-purchase-report-status-read-model-handoff-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -64,9 +59,13 @@ const PlatformLimitationActionNotClaimedSchema = withParser(Schema.Literal('not-
 const PlatformLimitationActionCustodySchema = withParser(Schema.Literal('no-child-activity-data'));
 const PlatformLimitationActionNonClaimSchema = withParser(Schema.Literal(...PlatformLimitationActionNonClaims));
 
-const PlatformLimitationActionRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformLimitationActionRowId');
+const PlatformLimitationActionRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePlatformLimitationActionRowId'
+);
 const PlatformLimitationActionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformLimitationActionRef');
-const PlatformLimitationActionBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformLimitationActionBoundary');
+const PlatformLimitationActionBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePlatformLimitationActionBoundary'
+);
 
 const PlatformLimitationActionRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchasePlatformLimitationActionProofSchemaVersionSchema,
@@ -279,4 +278,3 @@ function platformLimitationActionProofIsHonest(proof: AppInstallPurchasePlatform
     proof.knownGaps.length > 0
   );
 }
-

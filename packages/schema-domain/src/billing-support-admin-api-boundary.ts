@@ -1,15 +1,5 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
-import {
-  FamilyIdSchema,
-  ParentAccountIdSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import { FamilyIdSchema, ParentAccountIdSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   BillingChildActivityCustodySchema,
   BillingEvidenceExportAccessSchema,
@@ -28,41 +18,26 @@ import {
   BillingSupportAdminNonClaimSchema,
   BillingSupportAdminProviderSecretCustodySchema,
 } from './billing-support-admin-boundary-values';
-import {
-  BillingReferralCodeSchema,
-  BillingReferralSubjectSchema,
-} from './billing-referral-boundary';
+import { BillingReferralCodeSchema, BillingReferralSubjectSchema } from './billing-referral-boundary';
 
-export const BillingSupportAdminReadActorRoleSchema = withParser(
-  Schema.Literal('support', 'admin')
-);
+export const BillingSupportAdminReadActorRoleSchema = withParser(Schema.Literal('support', 'admin'));
 
 export const BillingSupportAdminParentVisibleStateSchema = withParser(
   Schema.Literal('available', 'grace', 'manual-review')
 );
 
-export const BillingSupportAdminInvoiceIdSchema = brandedNonEmptyStringSchema(
-  'BillingSupportAdminInvoiceId'
-);
-export const BillingSupportAdminDisputeIdSchema = brandedNonEmptyStringSchema(
-  'BillingSupportAdminDisputeId'
-);
-export const BillingSupportAdminAuditEventIdSchema =
-  brandedNonEmptyStringSchema('BillingSupportAdminAuditEventId');
-export const BillingSupportAdminAuditEventTypeSchema =
-  brandedNonEmptyStringSchema('BillingSupportAdminAuditEventType');
+export const BillingSupportAdminInvoiceIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminInvoiceId');
+export const BillingSupportAdminDisputeIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminDisputeId');
+export const BillingSupportAdminAuditEventIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminAuditEventId');
+export const BillingSupportAdminAuditEventTypeSchema = brandedNonEmptyStringSchema('BillingSupportAdminAuditEventType');
 
-export const BillingSupportAdminInvoiceProviderSchema = withParser(
-  Schema.Literal('stripe', 'manual-invoice')
-);
+export const BillingSupportAdminInvoiceProviderSchema = withParser(Schema.Literal('stripe', 'manual-invoice'));
 
 export const BillingSupportAdminInvoicePaymentStateSchema = withParser(
   Schema.Literal('paid', 'grace', 'unpaid', 'refunded')
 );
 
-export const BillingSupportAdminReferralAbuseReviewStateSchema = withParser(
-  Schema.Literal('clear', 'review-required')
-);
+export const BillingSupportAdminReferralAbuseReviewStateSchema = withParser(Schema.Literal('clear', 'review-required'));
 
 export const BillingSupportAdminAuditActorRoleSchema = withParser(
   Schema.Literal('parent', 'guardian', 'support', 'admin', 'system')
@@ -73,11 +48,7 @@ export const BillingSupportAdminAccountSummarySchema = withParser(
     parentAccountRef: ParentAccountIdSchema,
     familyRef: FamilyIdSchema,
     parentVisibleState: BillingSupportAdminParentVisibleStateSchema,
-    subscriptionStatus: Schema.Union(
-      Schema.Literal('active'),
-      Schema.Literal('grace'),
-      Schema.Literal('past-due')
-    ),
+    subscriptionStatus: Schema.Union(Schema.Literal('active'), Schema.Literal('grace'), Schema.Literal('past-due')),
     planId: BillingPlanIdSchema,
     evidenceExportAccess: BillingEvidenceExportAccessSchema,
     childActivityCustody: BillingChildActivityCustodySchema,
@@ -89,8 +60,7 @@ export const BillingSupportAdminAccountSummarySchema = withParser(
   }).pipe(
     Schema.filter(
       (summary) =>
-        summary.providerSecretCustody === 'not-present' &&
-          summary.childActivityCustody === 'not-included' ||
+        (summary.providerSecretCustody === 'not-present' && summary.childActivityCustody === 'not-included') ||
         'Expected support-admin account summaries to stay free of provider secrets and child activity custody'
     )
   )
@@ -124,8 +94,7 @@ export const BillingSupportAdminInvoiceSummarySchema = withParser(
     ),
     Schema.filter(
       (summary) =>
-        summary.manualRequired ===
-          (summary.invoiceVisibility === 'manual-support-required') ||
+        summary.manualRequired === (summary.invoiceVisibility === 'manual-support-required') ||
         'Expected support-admin invoice manualRequired to match manual invoice visibility'
     )
   )
@@ -150,7 +119,7 @@ export const BillingSupportAdminDisputeSummarySchema = withParser(
     Schema.filter(
       (summary) =>
         summary.disputeState !== 'dispute-opened' ||
-          summary.entitlementEffect === 'manual-review-required' ||
+        summary.entitlementEffect === 'manual-review-required' ||
         'Expected open disputes to retain manual-review-required entitlement effect'
     )
   )
@@ -202,8 +171,7 @@ export const BillingSupportAdminAccountsResponseSchema = withParser(
     ),
     Schema.filter(
       (response) =>
-        response.manualActionsPending ===
-          response.results.filter((row) => row.manualRequired).length ||
+        response.manualActionsPending === response.results.filter((row) => row.manualRequired).length ||
         'Expected support-admin account response manualActionsPending to match manualRequired rows'
     )
   )
@@ -269,36 +237,14 @@ export const BillingSupportAdminAuditEventsResponseSchema = withParser(
   )
 );
 
-export type BillingSupportAdminReadActorRole = Infer<
-  typeof BillingSupportAdminReadActorRoleSchema
->;
-export type BillingSupportAdminAccountSummary = Infer<
-  typeof BillingSupportAdminAccountSummarySchema
->;
-export type BillingSupportAdminInvoiceSummary = Infer<
-  typeof BillingSupportAdminInvoiceSummarySchema
->;
-export type BillingSupportAdminDisputeSummary = Infer<
-  typeof BillingSupportAdminDisputeSummarySchema
->;
-export type BillingSupportAdminReferralSummary = Infer<
-  typeof BillingSupportAdminReferralSummarySchema
->;
-export type BillingSupportAdminAuditEventSummary = Infer<
-  typeof BillingSupportAdminAuditEventSummarySchema
->;
-export type BillingSupportAdminAccountsResponse = Infer<
-  typeof BillingSupportAdminAccountsResponseSchema
->;
-export type BillingSupportAdminInvoicesResponse = Infer<
-  typeof BillingSupportAdminInvoicesResponseSchema
->;
-export type BillingSupportAdminDisputesResponse = Infer<
-  typeof BillingSupportAdminDisputesResponseSchema
->;
-export type BillingSupportAdminReferralsResponse = Infer<
-  typeof BillingSupportAdminReferralsResponseSchema
->;
-export type BillingSupportAdminAuditEventsResponse = Infer<
-  typeof BillingSupportAdminAuditEventsResponseSchema
->;
+export type BillingSupportAdminReadActorRole = Infer<typeof BillingSupportAdminReadActorRoleSchema>;
+export type BillingSupportAdminAccountSummary = Infer<typeof BillingSupportAdminAccountSummarySchema>;
+export type BillingSupportAdminInvoiceSummary = Infer<typeof BillingSupportAdminInvoiceSummarySchema>;
+export type BillingSupportAdminDisputeSummary = Infer<typeof BillingSupportAdminDisputeSummarySchema>;
+export type BillingSupportAdminReferralSummary = Infer<typeof BillingSupportAdminReferralSummarySchema>;
+export type BillingSupportAdminAuditEventSummary = Infer<typeof BillingSupportAdminAuditEventSummarySchema>;
+export type BillingSupportAdminAccountsResponse = Infer<typeof BillingSupportAdminAccountsResponseSchema>;
+export type BillingSupportAdminInvoicesResponse = Infer<typeof BillingSupportAdminInvoicesResponseSchema>;
+export type BillingSupportAdminDisputesResponse = Infer<typeof BillingSupportAdminDisputesResponseSchema>;
+export type BillingSupportAdminReferralsResponse = Infer<typeof BillingSupportAdminReferralsResponseSchema>;
+export type BillingSupportAdminAuditEventsResponse = Infer<typeof BillingSupportAdminAuditEventsResponseSchema>;

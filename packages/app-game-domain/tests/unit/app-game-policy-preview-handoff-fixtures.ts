@@ -9,7 +9,11 @@ import {
 } from '@ocentra-parent/schema-domain/app-game-policy-target-compiler-rules';
 import { PolicyAction, PolicyDecisionHandoffState } from '@ocentra-parent/schema-domain/policy-contracts';
 import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+  ParentPlatform,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const Timestamp = '2026-06-05T14:45:00Z';
 export const PolicyVersion = 'app-game-policy-preview-version-1';

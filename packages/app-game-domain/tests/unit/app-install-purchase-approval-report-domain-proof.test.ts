@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseApprovalReportDomainProofSchema,
   AppInstallPurchaseApprovalReportDomainRowSchema,
   summarizeAppInstallPurchaseApprovalReportDomainProof,
-} from '../../src/app-install-purchase-approval-report-domain-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-approval-report-domain-proof';
 
 describe('app install and purchase approval report domain proof', () => {
   acceptsApprovalReportDomainRowsWithoutPortalOrDeliveryClaims();

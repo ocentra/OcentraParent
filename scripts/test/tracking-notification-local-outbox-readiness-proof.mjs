@@ -68,7 +68,8 @@ async function main() {
     },
     sourceReceiptProof.readModel,
     (await loadSchemaModule('notification-local-outbox-adapter-proof.ts')).NotificationLocalOutboxAdapterProofReadModel,
-    (await loadSchemaModule('notification-local-outbox-scheduler-proof.ts')).NotificationLocalOutboxSchedulerProofReadModel
+    (await loadSchemaModule('notification-local-outbox-scheduler-proof.ts'))
+      .NotificationLocalOutboxSchedulerProofReadModel
   );
 
   const proof = {
@@ -152,7 +153,9 @@ function assertProof(proof) {
     throw new Error(`Unexpected tracking notification local outbox summary: ${JSON.stringify(proof.summary)}`);
   }
   if (Object.values(proof.nonClaims).some((value) => value !== false)) {
-    throw new Error(`Tracking notification local outbox proof overclaimed behavior: ${JSON.stringify(proof.nonClaims)}`);
+    throw new Error(
+      `Tracking notification local outbox proof overclaimed behavior: ${JSON.stringify(proof.nonClaims)}`
+    );
   }
 }
 

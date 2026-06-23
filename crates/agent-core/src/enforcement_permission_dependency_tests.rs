@@ -1,15 +1,34 @@
+use std::fmt::Debug;
+
 use super::*;
-use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
-    EnforcementIntent, EnforcementIntentSource, EnforcementPermissionState,
-    EnforcementUnavailableReason, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyDecision,
-    PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
+    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource,
+    EnforcementPermissionState, EnforcementUnavailableReason, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants as policy;
+
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
 
 #[test]
-fn permission_and_dependency_unavailable_capabilities_stop_before_adapter() {
+fn permission_and_dependency_unavailable_capabilities_stop_before_adapter() -> TestResult {
     for (capability, expected_reason) in [
         (
             unavailable_capability(
@@ -30,16 +49,12 @@ fn permission_and_dependency_unavailable_capabilities_stop_before_adapter() {
     ] {
         let expected_reason_text = expected_reason.as_protocol_str();
         let input = boundary_input(policy_decision(false), capability);
-        let outcome = evaluate_enforcement_boundary(input).expect(expected_reason_text);
-        let unavailable_status = outcome
-            .result
-            .unavailable_status
-            .as_ref()
-            .expect(expected_reason_text);
-        let timer = outcome
-            .timer_event
-            .as_ref()
-            .expect(enforcement::TIMER_UNAVAILABLE);
+        let outcome = ok(evaluate_enforcement_boundary(input), expected_reason_text)?;
+        let unavailable_status = some(
+            outcome.result.unavailable_status.as_ref(),
+            expected_reason_text,
+        )?;
+        let timer = some(outcome.timer_event.as_ref(), enforcement::TIMER_UNAVAILABLE)?;
 
         assert_eq!(
             outcome.result.status.as_protocol_str(),
@@ -66,6 +81,8 @@ fn permission_and_dependency_unavailable_capabilities_stop_before_adapter() {
         assert_eq!(timer.unavailable_reason, Some(expected_reason));
         assert_eq!(outcome.adapter_request, None);
     }
+
+    Ok(())
 }
 
 fn boundary_input(

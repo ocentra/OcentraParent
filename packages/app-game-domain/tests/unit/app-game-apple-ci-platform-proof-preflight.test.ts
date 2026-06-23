@@ -3,7 +3,7 @@ import {
   AppGameAppleCiPlatformProofPreflightReadModelSchema,
   createAppGameAppleCiPlatformProofPreflightReadModel,
   summarizeAppGameAppleCiPlatformProofPreflightReadModel,
-} from '../../src/app-game-apple-ci-platform-proof-preflight';
+} from '@ocentra-parent/schema-domain/app-game-apple-ci-platform-proof-preflight';
 
 describe('app-game Apple CI platform proof preflight', () => {
   it('summarizes macOS and iOS manual artifact gates as CI-required and blocked', () => {

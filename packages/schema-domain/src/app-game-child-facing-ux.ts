@@ -29,15 +29,11 @@ export const AppGameChildUxDiagnosticRefSchema = brandedNonEmptyStringSchema('Ap
 export const AppGameChildUxSurfaceStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxSurfaceState))
 );
-export const AppGameChildUxTargetKindSchema = withParser(
-  Schema.Literal(...Object.values(AppGameChildUxTargetKind))
-);
+export const AppGameChildUxTargetKindSchema = withParser(Schema.Literal(...Object.values(AppGameChildUxTargetKind)));
 export const AppGameChildUxCapabilityStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxCapabilityState))
 );
-export const AppGameChildUxClaimStateSchema = withParser(
-  Schema.Literal(...Object.values(AppGameChildUxClaimState))
-);
+export const AppGameChildUxClaimStateSchema = withParser(Schema.Literal(...Object.values(AppGameChildUxClaimState)));
 export const AppGameChildUxPrimaryActionSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxPrimaryAction))
 );

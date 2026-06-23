@@ -139,7 +139,7 @@ function rejectsDeviceInstallUpgrade(): void {
 }
 
 function validReadModel(): ChildIosEntitlementCapabilityReadModel {
-  return {
+  return ChildIosEntitlementCapabilityReadModelSchema.parse({
     schemaVersion: 'child-ios-entitlement-capability-proof',
     bundleId: 'ca.ocentra.parent.agent',
     statusSurfaceClass: 'AgentStatusViewController',
@@ -178,14 +178,14 @@ function validReadModel(): ChildIosEntitlementCapabilityReadModel {
       externalTransport: 'no iOS child-agent LAN or WebSocket transport is claimed',
     },
     updatedAt: '2026-05-31T00:00:00.000Z',
-  };
+  });
 }
 
-function surfaceProofs(): ChildIosEntitlementCapabilityReadModel['surfaceProofs'] {
+function surfaceProofs() {
   return [...packageSurfaceProofs(), ...entitlementSurfaceProofs(), ...distributionSurfaceProofs()];
 }
 
-function packageSurfaceProofs(): ChildIosEntitlementCapabilityReadModel['surfaceProofs'] {
+function packageSurfaceProofs() {
   return [
     surfaceProof(
       'simulator-app-target',
@@ -214,7 +214,7 @@ function packageSurfaceProofs(): ChildIosEntitlementCapabilityReadModel['surface
   ];
 }
 
-function entitlementSurfaceProofs(): ChildIosEntitlementCapabilityReadModel['surfaceProofs'] {
+function entitlementSurfaceProofs() {
   return [
     surfaceProof(
       'family-controls-entitlement',
@@ -267,7 +267,7 @@ function entitlementSurfaceProofs(): ChildIosEntitlementCapabilityReadModel['sur
   ];
 }
 
-function distributionSurfaceProofs(): ChildIosEntitlementCapabilityReadModel['surfaceProofs'] {
+function distributionSurfaceProofs() {
   return [
     surfaceProof(
       'signing-entitlements',
@@ -304,7 +304,7 @@ function distributionSurfaceProofs(): ChildIosEntitlementCapabilityReadModel['su
   ];
 }
 
-function packageLifecycleProofs(): ChildIosEntitlementCapabilityReadModel['packageLifecycleProofs'] {
+function packageLifecycleProofs() {
   return [
     lifecycleProof('xcode-project-target', 'ci-mechanical-proof', 'ios-xcode-project'),
     lifecycleProof('bundle-identifier', 'ci-mechanical-proof', 'ios-xcode-project'),
@@ -320,13 +320,13 @@ function packageLifecycleProofs(): ChildIosEntitlementCapabilityReadModel['packa
 }
 
 function surfaceProof(
-  surface: ChildIosEntitlementCapabilityReadModel['surfaceProofs'][number]['surface'],
-  parentCapability: ChildIosEntitlementCapabilityReadModel['surfaceProofs'][number]['parentCapability'],
-  parentCapabilityStatus: ChildIosEntitlementCapabilityReadModel['surfaceProofs'][number]['parentCapabilityStatus'],
-  declarationState: ChildIosEntitlementCapabilityReadModel['surfaceProofs'][number]['declarationState'],
-  proofState: ChildIosEntitlementCapabilityReadModel['surfaceProofs'][number]['proofState'],
-  runtimeOwner: ChildIosEntitlementCapabilityReadModel['surfaceProofs'][number]['runtimeOwner']
-): ChildIosEntitlementCapabilityReadModel['surfaceProofs'][number] {
+  surface: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  declarationState: string,
+  proofState: string,
+  runtimeOwner: string
+) {
   const proofRequirement = `${surface} remains ${proofState} until Apple artifact proof changes it`;
   return {
     surface,
@@ -340,11 +340,7 @@ function surfaceProof(
   };
 }
 
-function lifecycleProof(
-  phase: ChildIosEntitlementCapabilityReadModel['packageLifecycleProofs'][number]['phase'],
-  proofState: ChildIosEntitlementCapabilityReadModel['packageLifecycleProofs'][number]['proofState'],
-  runtimeOwner: ChildIosEntitlementCapabilityReadModel['packageLifecycleProofs'][number]['runtimeOwner']
-): ChildIosEntitlementCapabilityReadModel['packageLifecycleProofs'][number] {
+function lifecycleProof(phase: string, proofState: string, runtimeOwner: string) {
   return {
     phase,
     proofState,

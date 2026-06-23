@@ -1,9 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_EXECUTABLE_PATH_REF_PREFIX,
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_EXECUTABLE_PATH_REF_PREFIX,
     APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_ENTRY_ID_PREFIX,
     APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD, APP_GAME_INVENTORY_STATE_INSTALLED,
     APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_TEST_DISPLAY_LABEL,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use super::{
     app_game_journal_sqlite_ingest::read_model::app_game_journal_sqlite_read_model,
@@ -79,7 +80,7 @@ fn registry_inventory_source_respects_limit_before_journal_projection() {
         std::slice::from_ref(&root),
         1,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(events.len(), 1);
     cleanup_registry_root(&root);
@@ -97,14 +98,14 @@ fn registry_inventory_journal_event_replays_into_sqlite_read_model() {
         std::slice::from_ref(&root),
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let (store, lines) = append_and_replay(&events);
     let model = app_game_journal_sqlite_read_model(
         &store.connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.inventory_returned, 1);
@@ -134,7 +135,7 @@ fn registry_inventory_default_source_is_optional_on_unsupported_platforms() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     for event in events {
         assert_eq!(event.evidence.len(), 0);

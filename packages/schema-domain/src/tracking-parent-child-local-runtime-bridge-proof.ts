@@ -1,16 +1,15 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 const TrackingParentChildLocalRuntimeBridgeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingParentChildLocalRuntimeBridgeRefSchema = brandedNonEmptyStringSchema('TrackingParentChildLocalRuntimeBridgeRef');
+export const TrackingParentChildLocalRuntimeBridgeRefSchema = brandedNonEmptyStringSchema(
+  'TrackingParentChildLocalRuntimeBridgeRef'
+);
 
-export const TrackingParentChildLocalRuntimeBridgeRowIdSchema = brandedNonEmptyStringSchema('TrackingParentChildLocalRuntimeBridgeRowId');
+export const TrackingParentChildLocalRuntimeBridgeRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingParentChildLocalRuntimeBridgeRowId'
+);
 
 export const TrackingParentChildLocalRuntimeBridgeStatusSchema = Schema.Literal(
   'local-parent-child-runtime-observed-physical-child-runtime-required'
@@ -251,4 +250,3 @@ function trackingParentChildLocalRuntimeBridgeNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
-

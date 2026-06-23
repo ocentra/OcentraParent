@@ -1,24 +1,33 @@
+use ocentra_parent_agent_protocol::child_agent::child_agent_events::{
+    ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent, ChildCommandDecision,
+    ChildCommandKind, ChildCommandReceivedEvent, ChildRuntimeHealthUpdatedEvent,
+};
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::parent_controller_events::{
     ParentActionReceivedEvent, ParentChildCommandDeliveryState,
     ParentChildCommandForwardRequestedEvent, ParentChildCommandForwardedEvent,
     ParentChildCommandTransportBoundary, ParentCommandValidatedEvent, ParentCommandValidationState,
     ParentReadModelProjectedEvent,
 };
-use ocentra_parent_agent_protocol::{constants, ChildCommandDecision, ChildCommandKind};
-
-use super::{
-    publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
-    ParentChildRuntimeInput, ParentChildRuntimePhase, ParentChildRuntimeReport,
+use ocentra_parent_agent_protocol::transport::parent_child_runtime_input::ParentChildRuntimeInput;
+use ocentra_parent_agent_protocol::transport::{
+    ParentChildRuntimeEventPayload, ParentChildRuntimePhase, ParentChildRuntimeReport,
 };
 
+use crate::parent_child_event_runtime::publish_parent_child_runtime_for_validated_intent;
+
+type TestResult = Result<(), String>;
+
 #[tokio::test]
-async fn parent_child_runtime_publishes_validated_intent_before_child_handoff() {
-    let report = publish_parent_child_runtime_for_validated_intent(
-        ParentChildRuntimeInput::validated_review_fixture(),
-    )
-    .await
-    .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES);
-    let payloads = decode_payloads(&report);
+async fn parent_child_runtime_publishes_validated_intent_before_child_handoff() -> TestResult {
+    let report = ok(
+        publish_parent_child_runtime_for_validated_intent(
+            ParentChildRuntimeInput::validated_review_fixture(),
+        )
+        .await,
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
 
     assert_eq!(
         report.publish_reports.len(),
@@ -28,7 +37,7 @@ async fn parent_child_runtime_publishes_validated_intent_before_child_handoff() 
         report.stored_events.len(),
         ParentChildRuntimePhase::ordered_chain().len()
     );
-    assert!(report.dead_letters.is_empty());
+    assert_eq!(report.dead_letters.len(), 0);
     assert_eq!(
         report.stored_events[0].contract.event_type.as_str(),
         constants::parent_controller::EVENT_PARENT_ACTION_RECEIVED
@@ -39,29 +48,39 @@ async fn parent_child_runtime_publishes_validated_intent_before_child_handoff() 
     );
     assert_eq!(
         report.stored_events[0].source.role,
-        ocentra_eventing::ids::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)
-            .expect(constants::eventing_source::ERROR_RUNTIME_ROLE_PARSES)
+        ok(
+            ocentra_eventing::ids::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER),
+            constants::eventing_source::ERROR_RUNTIME_ROLE_PARSES,
+        )?
     );
 
-    let validated = parent_validated(&payloads);
+    let validated = parent_validated(&payloads)?;
+    let received = child_received(&payloads)?;
     assert_eq!(
         validated.validation_state,
         ParentCommandValidationState::Validated
     );
-    assert!(validated.child_command_ref.is_some());
+    assert_eq!(
+        validated.child_command_ref.as_deref(),
+        Some(received.child_command_ref.as_str())
+    );
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn parent_child_transport_handoff_preserves_forwarded_refs() {
-    let report = publish_parent_child_runtime_for_validated_intent(
-        ParentChildRuntimeInput::validated_review_fixture(),
-    )
-    .await
-    .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES);
-    let payloads = decode_payloads(&report);
-    let requested = parent_forward_requested(&payloads);
-    let forwarded = parent_forwarded(&payloads);
-    let received = child_received(&payloads);
+async fn parent_child_transport_handoff_preserves_forwarded_refs() -> TestResult {
+    let report = ok(
+        publish_parent_child_runtime_for_validated_intent(
+            ParentChildRuntimeInput::validated_review_fixture(),
+        )
+        .await,
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
+    let requested = parent_forward_requested(&payloads)?;
+    let forwarded = parent_forwarded(&payloads)?;
+    let received = child_received(&payloads)?;
 
     assert_eq!(
         requested.transport_boundary,
@@ -81,21 +100,25 @@ async fn parent_child_transport_handoff_preserves_forwarded_refs() {
         forwarded.delivery_state,
         ParentChildCommandDeliveryState::Forwarded
     );
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn child_agent_receive_publishes_local_events_and_parent_read_model() {
-    let report = publish_parent_child_runtime_for_validated_intent(
-        ParentChildRuntimeInput::validated_review_fixture(),
-    )
-    .await
-    .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES);
-    let payloads = decode_payloads(&report);
-    let received = child_received(&payloads);
-    let accepted = child_accepted(&payloads);
-    let capability = child_capability(&payloads);
-    let health = child_health(&payloads);
-    let read_model = parent_read_model(&payloads);
+async fn child_agent_receive_publishes_local_events_and_parent_read_model() -> TestResult {
+    let report = ok(
+        publish_parent_child_runtime_for_validated_intent(
+            ParentChildRuntimeInput::validated_review_fixture(),
+        )
+        .await,
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
+    let received = child_received(&payloads)?;
+    let accepted = child_accepted(&payloads)?;
+    let capability = child_capability(&payloads)?;
+    let health = child_health(&payloads)?;
+    let read_model = parent_read_model(&payloads)?;
 
     assert_eq!(received.command_kind, ChildCommandKind::ObserveNetwork);
     assert_eq!(accepted.decision, ChildCommandDecision::Accepted);
@@ -114,31 +137,38 @@ async fn child_agent_receive_publishes_local_events_and_parent_read_model() {
     );
     assert_eq!(
         report.stored_events[4].source.custody,
-        ocentra_eventing::ids::EventCustody::parse(
-            constants::eventing_source::CUSTODY_LOCAL_JOURNAL
-        )
-        .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_PARSES)
+        ok(
+            ocentra_eventing::ids::EventCustody::parse(
+                constants::eventing_source::CUSTODY_LOCAL_JOURNAL
+            ),
+            constants::eventing_source::ERROR_EVENT_CUSTODY_PARSES,
+        )?
     );
     assert_eq!(
         report.stored_events[8].contract.event_type.as_str(),
         constants::parent_controller::EVENT_READ_MODEL_PROJECTED
     );
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn browser_action_intent_handoff_uses_parent_child_event_sequence_without_execution() {
-    let report = publish_parent_child_runtime_for_validated_intent(
-        ParentChildRuntimeInput::browser_action_intent_handoff_fixture(),
-    )
-    .await
-    .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES);
-    let payloads = decode_payloads(&report);
-    let parent_action = parent_action(&payloads);
-    let validated = parent_validated(&payloads);
-    let forwarded = parent_forwarded(&payloads);
-    let received = child_received(&payloads);
-    let accepted = child_accepted(&payloads);
-    let read_model = parent_read_model(&payloads);
+async fn browser_action_intent_handoff_uses_parent_child_event_sequence_without_execution()
+-> TestResult {
+    let report = ok(
+        publish_parent_child_runtime_for_validated_intent(
+            ParentChildRuntimeInput::browser_action_intent_handoff_fixture(),
+        )
+        .await,
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
+    let parent_action = parent_action(&payloads)?;
+    let validated = parent_validated(&payloads)?;
+    let forwarded = parent_forwarded(&payloads)?;
+    let received = child_received(&payloads)?;
+    let accepted = child_accepted(&payloads)?;
+    let read_model = parent_read_model(&payloads)?;
 
     assert_eq!(
         parent_action.parent_intent_ref,
@@ -162,128 +192,147 @@ async fn browser_action_intent_handoff_uses_parent_child_event_sequence_without_
         report.stored_events.len(),
         ParentChildRuntimePhase::ordered_chain().len()
     );
-    assert!(report.dead_letters.is_empty());
+    assert_eq!(report.dead_letters.len(), 0);
+
+    Ok(())
 }
 
-fn decode_payloads(report: &ParentChildRuntimeReport) -> Vec<ParentChildRuntimeEventPayload> {
+fn decode_payloads(
+    report: &ParentChildRuntimeReport,
+) -> Result<Vec<ParentChildRuntimeEventPayload>, String> {
     report
         .stored_events
         .iter()
         .map(|event| {
             let envelope: ocentra_eventing::envelope::EventEnvelope<
                 ParentChildRuntimeEventPayload,
-            > = event
-                .decode()
-                .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES);
-            envelope.payload
+            > = ok(
+                event.decode(),
+                constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+            )?;
+            Ok(envelope.payload)
         })
         .collect()
 }
 
-fn parent_action(payloads: &[ParentChildRuntimeEventPayload]) -> ParentActionReceivedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+fn parent_action(
+    payloads: &[ParentChildRuntimeEventPayload],
+) -> Result<ParentActionReceivedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ParentActionReceived(event) => Some(event.clone()),
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
-fn parent_validated(payloads: &[ParentChildRuntimeEventPayload]) -> ParentCommandValidatedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+fn parent_validated(
+    payloads: &[ParentChildRuntimeEventPayload],
+) -> Result<ParentCommandValidatedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ParentCommandValidated(event) => Some(event.clone()),
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
 fn parent_forward_requested(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ParentChildCommandForwardRequestedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+) -> Result<ParentChildCommandForwardRequestedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ParentChildCommandForwardRequested(event) => {
                 Some(event.clone())
             }
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
 fn parent_forwarded(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ParentChildCommandForwardedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+) -> Result<ParentChildCommandForwardedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ParentChildCommandForwarded(event) => {
                 Some(event.clone())
             }
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
 fn child_received(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ChildCommandReceivedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+) -> Result<ChildCommandReceivedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ChildCommandReceived(event) => Some(event.clone()),
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
 fn child_accepted(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ChildCommandAcceptedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+) -> Result<ChildCommandAcceptedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ChildCommandAccepted(event) => Some(event.clone()),
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
 fn child_capability(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ChildCapabilityStateUpdatedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+) -> Result<ChildCapabilityStateUpdatedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ChildCapabilityStateUpdated(event) => {
                 Some(event.clone())
             }
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
 fn child_health(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ChildRuntimeHealthUpdatedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+) -> Result<ChildRuntimeHealthUpdatedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ChildRuntimeHealthUpdated(event) => Some(event.clone()),
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
-fn parent_read_model(payloads: &[ParentChildRuntimeEventPayload]) -> ParentReadModelProjectedEvent {
-    payloads
-        .iter()
-        .find_map(|payload| match payload {
+fn parent_read_model(
+    payloads: &[ParentChildRuntimeEventPayload],
+) -> Result<ParentReadModelProjectedEvent, String> {
+    some(
+        payloads.iter().find_map(|payload| match payload {
             ParentChildRuntimeEventPayload::ParentReadModelProjected(event) => Some(event.clone()),
             _ => None,
-        })
-        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
+        }),
+        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+    )
+}
+
+fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
 }

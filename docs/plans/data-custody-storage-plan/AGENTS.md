@@ -26,12 +26,59 @@ Implementation rule: docs define outcome, boundary, shape, validation, and proof
 Proof rule: proof must include command/log evidence, negative cases, artifact paths, updated rows, and skipped-risk notes when applicable.
 Failure condition: no DONE/PR_READY when expected proof is missing, only happy-path evidence exists, or this plan is used to claim adjacent implementation completion.
 
+## Ownership, Import, And Boundary Contract
+
+This plan owns custody policy, custody proof, retention/export/sync/restore rules, and parent-visible custody state. It does not own every runtime that stores, syncs, renders, or transports data.
+
+Module roles:
+
+```text
+schema-domain: canonical shared custody, parent-owned sync/export, bundle, restore, report/query, assistant-citation, provider-state, retention, tombstone, and parent-storage-setting shapes when those shapes cross package, crate, app, or plan boundaries.
+storage-custody-core: Rust generic custody/delete/export decision logic and custody action-plan events.
+ocentra-evidence: evidence references, evidence identity, and evidence custody ref semantics.
+ocentra-eventing: event journal/replay/idempotency spine. This plan consumes eventing contracts; it does not re-own the bus implementation.
+production-domain: legacy package identity unless a selected public export is named. Current parent-owned sync/export contract proof is routed through schema-domain.
+portal-domain and apps/portal: parent-visible custody projection, settings, preview, confirmation, and status UI only.
+account-identity-family-plan: actor, household, role, guardian/admin/support authority.
+device-trust-bootstrap-plan: device trust material and trusted-device key state.
+cloudflare-control-plane-plan, payment-subscription-plan, setup-install-provisioning-plan, remote-access-plan, LAN, notification, AI, and report producers: sibling producers or consumers that must use custody handoffs rather than re-owning custody truth.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+canonical schema-domain custody/export/sync/restore/report/query/assistant-citation shapes
+storage-custody-core public custody decision/event helpers when Rust custody proof is selected
+ocentra-evidence public evidence reference types
+ocentra-eventing public event/journal/idempotency primitives when event proof is selected
+selected public package exports from producer/consumer domains when the workpack names that handoff
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports and claims:
+
+```text
+portal, report, AI, payment, Cloudflare, remote, LAN, setup, account, or device-trust runtime internals imported to bypass custody handoffs
+private source files from another plan's owning package/crate used as custody source of truth
+contract/schema proof upgraded into runtime custody proof
+sync manifest proof upgraded into provider OAuth/upload/delete runtime
+export proof upgraded into restore/apply proof
+provider status proof upgraded into readable payload or key-access proof
+delete proof upgraded into tombstone propagation, idempotency, or offline replay proof without selected proof
+report/query proof upgraded into assistant-safe citation proof without source/ref/redaction proof
+parent storage settings UI upgraded into applied custody state without confirmation and proof
+automatic Ocentra-hosted fallback storage implied without explicit product decision and proof
+```
+
+If custody work needs eventing, account, device trust, portal, Cloudflare, payment, setup, remote, LAN, notification, report, or AI behavior, it must use typed evidence refs, commands, events, requests, read models, artifact manifests, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
+
 ## Local Decision Tree
 
 - If the assignment names a workpack, open only that workpack.
 - If the assignment names a checklist row but no workpack, use [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md), then choose one workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
 - If the assignment changes product status, read [DOC_INDEX.md](DOC_INDEX.md), [PLAN_STATE.md](PLAN_STATE.md), and [PROOF_INDEX.md](PROOF_INDEX.md) only for named rows.
 - If the assignment touches adjacent implementation ownership, open only the adjacent plan named by the selected workpack.
+- If the selected workpack owner/proof family is unclear, read [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only for classification.
 - If the assignment is DONE/PR_READY, read [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md), [PROOF_INDEX.md](PROOF_INDEX.md), [PLAN_HEALTH.md](PLAN_HEALTH.md), then [../../agent/PR_DONE_FLOW.md](../../agent/PR_DONE_FLOW.md).
 
 ## Required Read Order
@@ -39,9 +86,10 @@ Failure condition: no DONE/PR_READY when expected proof is missing, only happy-p
 1. [PLAN_STATE.md](PLAN_STATE.md)
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md)
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md)
-4. One assigned workpack under workpacks/
-5. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md)
-6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) and [PROOF_INDEX.md](PROOF_INDEX.md) only for named rows/artifacts
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when owner/proof family is unclear
+5. One assigned workpack under workpacks/
+6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md)
+7. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) and [PROOF_INDEX.md](PROOF_INDEX.md) only for named rows/artifacts
 
 ## Product Sources
 

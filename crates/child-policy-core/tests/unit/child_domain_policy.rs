@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_request_id, child_domain_child_device_id, child_domain_child_profile_id,
     child_domain_evidence_ref, child_domain_fact_ref_from_ai_request_id, child_domain_observed_at,
@@ -30,7 +31,7 @@ fn child_domain_policy_preserves_evidence_refs_for_notification_handoff() {
 
     let violation =
         ocentra_child_policy_core::child_domain_policy::evaluate_child_domain_policy(&request)
-            .expect("valid child-domain policy request");
+            .expect_value("valid child-domain policy request");
 
     assert_eq!(
         violation.event_type,
@@ -70,7 +71,7 @@ fn child_domain_policy_canonicalizes_duplicate_evidence_refs_before_violation_ha
 
     let violation =
         ocentra_child_policy_core::child_domain_policy::evaluate_child_domain_policy(&request)
-            .expect("valid child-domain policy request");
+            .expect_value("valid child-domain policy request");
 
     assert_eq!(violation.detected_at, request.source_observed_at);
     assert_eq!(violation.evidence_refs.len(), 1);
@@ -101,7 +102,7 @@ fn child_domain_policy_rejects_wrong_event_type_and_missing_evidence() {
     request.event_type = ChildDomainEventType::policy_violation_detected();
     let wrong_event =
         ocentra_child_policy_core::child_domain_policy::evaluate_child_domain_policy(&request)
-            .expect_err("must reject wrong event type");
+            .expect_err_value("must reject wrong event type");
     assert_eq!(
         wrong_event,
         ocentra_eventing::error::EventingError::InvalidValue {
@@ -116,7 +117,7 @@ fn child_domain_policy_rejects_wrong_event_type_and_missing_evidence() {
     request.evidence_refs.clear();
     let missing_evidence =
         ocentra_child_policy_core::child_domain_policy::evaluate_child_domain_policy(&request)
-            .expect_err("must reject empty evidence refs");
+            .expect_err_value("must reject empty evidence refs");
     assert_eq!(
         missing_evidence,
         ocentra_eventing::error::EventingError::InvalidValue {

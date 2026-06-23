@@ -3,7 +3,7 @@ import {
   AppGameAndroidUsageEventsCountSampleReadModelSchema,
   createAppGameAndroidUsageEventsCountSampleReadModel,
   summarizeAppGameAndroidUsageEventsCountSampleReadModel,
-} from '../../src/app-game-android-usage-events-count-sample';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-count-sample';
 
 describe('app-game Android UsageEvents count sample', () => {
   it('accepts observed count-only samples without raw row or dispatch claims', () => {

@@ -8,9 +8,7 @@ import {
   type SocialParentPolicyDecisionCandidate,
   SocialParentPolicyCompilerInputSchema,
 } from '@ocentra-parent/schema-domain/social-policy-compiler';
-import {
-  compileSocialParentPolicyCandidate,
-} from '../../src/social-policy-compiler';
+import { compileSocialParentPolicyCandidate } from '../../src/social-policy-candidate-compiler';
 
 describe('social managed browser policy execution', () => {
   it('accepts a managed social video block only when real intervention evidence is present', acceptsManagedExecution);

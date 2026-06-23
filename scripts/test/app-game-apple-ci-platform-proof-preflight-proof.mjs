@@ -45,7 +45,7 @@ async function main() {
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const module = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
       .href
   );
   const readModel = module.createAppGameAppleCiPlatformProofPreflightReadModel({
@@ -67,7 +67,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
+      contract: 'packages/schema-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-apple-ci-platform-proof-preflight.test.ts',
       sourceGates: 'packages/schema-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
       sourceGateTest: 'packages/enforcement-domain/tests/unit/v0-8-os-adapter-manual-artifact-gates.test.ts',
@@ -94,7 +94,7 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Contract: packages/app-game-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
+      '- Contract: packages/schema-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
       '- Source gates: packages/schema-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
       '',
       'Evidence:',

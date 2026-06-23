@@ -4,7 +4,7 @@ import {
   AppInstallPurchasePlatformAdapterBoundaryProofSchema,
   AppInstallPurchasePlatformAdapterBoundaryRowSchema,
   summarizeAppInstallPurchasePlatformAdapterBoundaryProof,
-} from '../../src/app-install-purchase-platform-adapter-boundary-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-platform-adapter-boundary-proof';
 
 describe('app install and purchase platform adapter boundary proof', () => {
   acceptsPlatformAdapterBoundaryRowsWithoutRuntimeClaims();

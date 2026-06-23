@@ -1,13 +1,5 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
-import {
-  PolicyCompilerCapabilityState,
-  PolicyCompilerCapabilityStateSchema,
-} from './policy-compiler';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+import { PolicyCompilerCapabilityState, PolicyCompilerCapabilityStateSchema } from './policy-compiler';
 
 import { BrowserControlFieldIdSchema } from './browser-control-identifiers';
 import {
@@ -851,11 +843,7 @@ function compilerCapabilityStateForEntry(
     | 'manual-required'
     | null
 ) {
-  if (
-    coverageStatus === 'documentation-only' ||
-    coverageStatus === 'future-gap' ||
-    coverageStatus === 'unavailable'
-  ) {
+  if (coverageStatus === 'documentation-only' || coverageStatus === 'future-gap' || coverageStatus === 'unavailable') {
     return PolicyCompilerCapabilityState.Unsupported;
   }
   if (coverageStatus === 'manual-required') {
@@ -868,4 +856,3 @@ function compilerCapabilityStateForEntry(
   }
   return PolicyCompilerCapabilityState.Supported;
 }
-

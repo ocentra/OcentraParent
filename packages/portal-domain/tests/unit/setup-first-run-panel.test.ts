@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { createSetupFirstRunPanelIntent, readableSetupValue } from '../../src/setup-first-run-panel';
 
 describe('setup first-run panel intent', () => {
+  registerSetupScreenProjectionTests();
+  registerSetupRecoveryAndLegendTests();
+  registerSetupRoleAndTrustTests();
+  registerReadableSetupValueTests();
+});
+
+function registerSetupScreenProjectionTests(): void {
   it('maps the first-run setup screens, gates, and sibling handoffs into the start-route panel', () => {
     const intent = createSetupFirstRunPanelIntent();
 
@@ -41,8 +48,10 @@ describe('setup first-run panel intent', () => {
       ])
     );
   });
+}
 
-  it('keeps degraded, manual-required, blocked, and complete outcomes visible without fake ready claims', () => {
+function registerSetupRecoveryAndLegendTests(): void {
+  it('keeps degraded, manual-required, blocked, and complete outcomes visible without premature ready claims', () => {
     const intent = createSetupFirstRunPanelIntent();
     const recoveryCard = intent.cards.find((card) => card.title === 'Recovery and completion gates');
 
@@ -110,7 +119,9 @@ describe('setup first-run panel intent', () => {
       ])
     );
   });
+}
 
+function registerSetupRoleAndTrustTests(): void {
   it('surfaces invite-role-support distinctions and separates trust from login/session readiness', () => {
     const intent = createSetupFirstRunPanelIntent();
     const inviteRoleCard = intent.cards.find((card) => card.title === 'Invite, role, and support visibility');
@@ -166,10 +177,12 @@ describe('setup first-run panel intent', () => {
       ])
     );
   });
+}
 
+function registerReadableSetupValueTests(): void {
   it('reuses shared readable portal labels where they already exist', () => {
     expect(readableSetupValue('manual-required')).toBe('Manual required');
     expect(readableSetupValue('live-local')).toBe('Live local');
     expect(readableSetupValue('productionReady')).toBe('ProductionReady');
   });
-});
+}

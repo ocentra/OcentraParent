@@ -2,13 +2,13 @@ import {
   BrowserAiParentExplanationBundleSchema,
   type BrowserAiParentExplanationBundle,
 } from '@ocentra-parent/schema-domain/browser-ai-parent-explanation-schemas';
-import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
+import { type DisplayText, decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import {
   BrowserParentExplanationTextToken,
   type BrowserParentExplanationTextTokenValue,
   resolveBrowserParentExplanationText,
-} from '@ocentra-parent/text-domain/browser-parent-explanation';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+} from '@ocentra-parent/schema-domain/text-browser-ux';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDetails } from './details';
 
 export type BrowserParentExplanationPanelDetail = {

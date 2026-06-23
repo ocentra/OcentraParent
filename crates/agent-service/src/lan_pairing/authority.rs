@@ -1,7 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    LanPairingIntentKind, LanPairingParentAuthority, LanPairingRejectionReason,
-    LanParentIntentEnvelope,
-};
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingIntentKind;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 

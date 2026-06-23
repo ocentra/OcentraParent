@@ -4,6 +4,7 @@ use crate::{
     NetworkLiveCaptureExecutionSource, NetworkLiveCaptureExecutionState,
     NetworkLiveCaptureProofState,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 use super::live_capture_execution_fixtures::{
     executed_input, live_capture_with_state, proof_ready_live_capture,
@@ -12,7 +13,7 @@ use super::live_capture_execution_fixtures::{
 #[test]
 fn live_capture_execution_accepts_bounded_driver_run_with_custody_refs() {
     let proof = prove_network_live_capture_execution(executed_input(proof_ready_live_capture()))
-        .expect("bounded driver execution with custody refs should parse");
+        .expect_value("bounded driver execution with custody refs should parse");
 
     assert_eq!(
         proof.execution_state,
@@ -58,7 +59,7 @@ fn live_capture_execution_keeps_metadata_snapshot_separate_from_packet_capture()
         private_traffic_exclusion_ref: None,
         ..executed_input(proof_ready_live_capture())
     })
-    .expect("metadata snapshot should remain a non-capture observation");
+    .expect_value("metadata snapshot should remain a non-capture observation");
 
     assert_eq!(
         proof.execution_state,
@@ -92,7 +93,7 @@ fn live_capture_execution_stays_manual_required_when_clean_stop_or_custody_refs_
         custody_ref: None,
         ..executed_input(proof_ready_live_capture())
     })
-    .expect("missing custody refs should parse as manual-required");
+    .expect_value("missing custody refs should parse as manual-required");
 
     assert_eq!(
         proof.execution_state,
@@ -115,7 +116,7 @@ fn live_capture_execution_preserves_unavailable_and_degraded_capture_states() {
     let unavailable = prove_network_live_capture_execution(executed_input(
         live_capture_with_state(NetworkLiveCaptureProofState::Unavailable),
     ))
-    .expect("unavailable capture proof should remain visible");
+    .expect_value("unavailable capture proof should remain visible");
     assert_eq!(
         unavailable.execution_state,
         NetworkLiveCaptureExecutionState::Unavailable
@@ -125,7 +126,7 @@ fn live_capture_execution_preserves_unavailable_and_degraded_capture_states() {
     let degraded = prove_network_live_capture_execution(executed_input(live_capture_with_state(
         NetworkLiveCaptureProofState::Degraded,
     )))
-    .expect("degraded capture proof should remain visible");
+    .expect_value("degraded capture proof should remain visible");
     assert_eq!(
         degraded.execution_state,
         NetworkLiveCaptureExecutionState::Degraded

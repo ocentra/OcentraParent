@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -28,14 +23,16 @@ import {
 } from './app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffId');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffId'
+);
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffRowIdSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffRowId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffContractRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffContractRef');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolProofRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolProofRef');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolProofRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolProofRef'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffState))

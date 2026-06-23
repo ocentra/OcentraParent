@@ -77,11 +77,11 @@ async function main() {
     checklistState: 'updated-app-install-purchase-approval-row',
     evidence: {
       providerStorePlatformEvidenceContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-platform-evidence-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-platform-evidence-proof.ts',
       sourceProviderStorePreflightContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
       sourceWindowsPackageSourceRuntimeHandoffContract:
-        'packages/app-game-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
+        'packages/schema-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-platform-evidence-proof.test.ts',
       hostEvidenceArtifact: relative(repoRoot, hostEvidencePath),
@@ -90,7 +90,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/app-game-domain/package.json',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-provider-store-platform-evidence-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-provider-store-platform-evidence-proof',
       output: relative(repoRoot, proofPath),
     },
     windowsHostEvidenceSummary: {

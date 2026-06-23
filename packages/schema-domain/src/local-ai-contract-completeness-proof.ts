@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } from './local-ai';
 import { LocalAiDegradedState, LocalAiUnknownState } from './ai-primitives';
 import {
@@ -15,7 +9,9 @@ import { LocalProviderCapabilitySchema, LocalModelRuntimeStatusSchema } from './
 import { ParentContractSchemaVersion } from './family-reference-primitives';
 const LocalAiContractProofCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiContractCompletenessProofIdSchema = brandedNonEmptyStringSchema('LocalAiContractCompletenessProofId');
+export const LocalAiContractCompletenessProofIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiContractCompletenessProofId'
+);
 
 export const LocalAiContractCompletenessContractKindSchema = withParser(
   Schema.Literal('input', 'result', 'provider-capability', 'job-queue', 'provider-route')
@@ -277,4 +273,3 @@ function localAiResultIsCited(proof: LocalAiContractCompletenessProofCandidate):
 }
 
 export const decodeLocalAiContractCompletenessProof = Schema.decodeUnknownSync(LocalAiContractCompletenessProofSchema);
-

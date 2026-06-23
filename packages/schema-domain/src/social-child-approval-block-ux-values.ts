@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const SocialChildApprovalBlockUxSchemaVersionSchema = withParser(
   Schema.Literal('social-child-approval-block-ux-contract')
@@ -51,4 +46,3 @@ export const SocialChildApprovalBlockReasonSchema = withParser(
 );
 
 export type SocialChildApprovalBlockSurfaceKind = Infer<typeof SocialChildApprovalBlockSurfaceKindSchema>;
-

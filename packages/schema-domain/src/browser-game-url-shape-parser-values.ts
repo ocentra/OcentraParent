@@ -1,17 +1,10 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameUrlShapeSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-url-shape-parser-contract')
 );
 
-export const BrowserGameUrlShapeResultIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserGameUrlShapeResultId')
-);
+export const BrowserGameUrlShapeResultIdSchema = withParser(brandedNonEmptyStringSchema('BrowserGameUrlShapeResultId'));
 
 export const BrowserGameUrlShapeFingerprintSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGameUrlShapeFingerprint')
@@ -66,4 +59,3 @@ export type BrowserGameUrlShapeConfidence = Infer<typeof BrowserGameUrlShapeConf
 export type BrowserGameUrlShapeInputCustody = Infer<typeof BrowserGameUrlShapeInputCustodySchema>;
 export type BrowserGameUrlShapeParseState = Infer<typeof BrowserGameUrlShapeParseStateSchema>;
 export type BrowserGameUrlShapeReasonCode = Infer<typeof BrowserGameUrlShapeReasonCodeSchema>;
-

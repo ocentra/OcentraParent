@@ -3,7 +3,6 @@ import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 
-test.skip(process.env['SOCIAL_DASHBOARD_UI_PROOF'] !== '1', 'Dedicated social dashboard UI proof only.');
 test.setTimeout(120_000);
 
 const portalShellReadyTimeoutMs = 90_000;
@@ -19,17 +18,19 @@ const accessibilitySummaryPath = path.join(
   'accessibility-summary.json'
 );
 
-test('browser route renders service-backed honest social dashboard rows', async ({ page }) => {
-  const browserFailures = collectBrowserFailures(page);
+if (process.env['SOCIAL_DASHBOARD_UI_PROOF'] === '1') {
+  test('browser route renders service-backed honest social dashboard rows', async ({ page }) => {
+    const browserFailures = collectBrowserFailures(page);
 
-  await assertSocialDashboardRoute(page);
-  await requestSocialDashboardReadModel(page);
-  await assertServiceBackedSocialRows(page);
-  await captureSocialDashboardScreenshots(page);
-  await writeAccessibilitySummary(await collectAccessibilitySummary(page));
+    await assertSocialDashboardRoute(page);
+    await requestSocialDashboardReadModel(page);
+    await assertServiceBackedSocialRows(page);
+    await captureSocialDashboardScreenshots(page);
+    await writeAccessibilitySummary(await collectAccessibilitySummary(page));
 
-  expect(browserFailures).toEqual([]);
-});
+    expect(browserFailures).toEqual([]);
+  });
+}
 
 async function assertSocialDashboardRoute(page: Page): Promise<void> {
   await page.goto('/#/browser');

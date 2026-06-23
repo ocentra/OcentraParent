@@ -4,7 +4,7 @@ import {
   AppInstallPurchasePackageSourceCaptureStatusProofSchema,
   AppInstallPurchasePackageSourceCaptureStatusRowSchema,
   summarizeAppInstallPurchasePackageSourceCaptureStatusProof,
-} from '../../src/app-install-purchase-package-source-capture-status-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-package-source-capture-status-proof';
 
 describe('app install and purchase package-source capture status proof', () => {
   acceptsPackageSourceCaptureStatusRowsWithoutRuntimeClaims();

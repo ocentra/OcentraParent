@@ -1,7 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LanPairingRejectionReason,
-    LanParentIntentEnvelope, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
@@ -34,10 +37,10 @@ impl LanPairingRuntime {
             return Err(LanPairingRejectionReason::ControllerLeaseExpired);
         }
 
-        let mut active_lease = self
-            .controller_lease
-            .lock()
-            .map_err(|_| LanPairingRejectionReason::Malformed)?;
+        let mut active_lease = self.controller_lease.lock().map_err(|error| {
+            let _ = error;
+            LanPairingRejectionReason::Malformed
+        })?;
         if active_lease
             .as_ref()
             .is_some_and(|active| observed_at > active.expires_at.as_str())
@@ -65,10 +68,10 @@ impl LanPairingRuntime {
             return Err(LanPairingRejectionReason::ControllerLeaseExpired);
         }
 
-        let mut active_lease = self
-            .controller_lease
-            .lock()
-            .map_err(|_| LanPairingRejectionReason::Malformed)?;
+        let mut active_lease = self.controller_lease.lock().map_err(|error| {
+            let _ = error;
+            LanPairingRejectionReason::Malformed
+        })?;
         clear_expired_lease(&mut active_lease, observed_at);
 
         match active_lease.as_ref() {
@@ -90,10 +93,10 @@ impl LanPairingRuntime {
         observed_at: &str,
     ) -> Result<(), LanPairingRejectionReason> {
         let lease = LanControllerLeaseState::from_intent(intent);
-        let mut active_lease = self
-            .controller_lease
-            .lock()
-            .map_err(|_| LanPairingRejectionReason::Malformed)?;
+        let mut active_lease = self.controller_lease.lock().map_err(|error| {
+            let _ = error;
+            LanPairingRejectionReason::Malformed
+        })?;
         clear_expired_lease(&mut active_lease, observed_at);
 
         match active_lease.as_ref() {
@@ -116,10 +119,10 @@ impl LanPairingRuntime {
             return Err(LanPairingRejectionReason::ControllerLeaseExpired);
         }
 
-        let mut active_lease = self
-            .controller_lease
-            .lock()
-            .map_err(|_| LanPairingRejectionReason::Malformed)?;
+        let mut active_lease = self.controller_lease.lock().map_err(|error| {
+            let _ = error;
+            LanPairingRejectionReason::Malformed
+        })?;
         clear_expired_lease(&mut active_lease, observed_at);
 
         match active_lease.as_ref() {
@@ -170,7 +173,7 @@ pub(crate) fn controller_lease_takeover(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload) {
+    let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_write_authority(&intent))
             .and_then(|()| validate_registry_selection_intent(&runtime, observed_origin, &intent))
@@ -212,8 +215,11 @@ pub(crate) fn controller_lease_takeover(
                 )
             }
         },
-        Err(reason) => rejection_event(command, reason, None, observed_origin),
-    }
+        Err(reason) => rejection_event(command, &reason, None, observed_origin),
+    };
+    drop(origin);
+    drop(runtime);
+    event
 }
 
 fn controller_lease_lifecycle_command(
@@ -228,7 +234,7 @@ fn controller_lease_lifecycle_command(
     ) -> Result<(), LanPairingRejectionReason>,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload) {
+    let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_write_authority(&intent))
             .and_then(|()| validate_registry_selection_intent(&runtime, observed_origin, &intent))
@@ -246,10 +252,13 @@ fn controller_lease_lifecycle_command(
                 event.payload.extend(audit_fields);
                 event
             }
-            Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+            Err(reason) => rejection_event(command, &reason, Some(&intent), observed_origin),
         },
-        Err(reason) => rejection_event(command, reason, None, observed_origin),
-    }
+        Err(reason) => rejection_event(command, &reason, None, observed_origin),
+    };
+    drop(origin);
+    drop(runtime);
+    event
 }
 
 impl LanControllerLeaseState {

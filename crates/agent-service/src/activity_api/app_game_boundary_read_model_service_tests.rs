@@ -1,20 +1,28 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,
-    AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    AppGameBoundaryReadModel, AppGameEvidenceClaim, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
-    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
-    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
-    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM,
-    APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TEST_DISPLAY_LABEL,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameEvidenceClaim, APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
+    APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE, APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL,
+    APP_GAME_JOURNAL_FIELD_REPLAY_STATE, APP_GAME_JOURNAL_FIELD_ROW_JSON,
+    APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_REPLAY_STATE_STORED,
+    APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM, APP_GAME_JOURNAL_SOURCE_ID,
+    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
+};
+use ocentra_parent_agent_protocol::app_game_boundary_read_model::AppGameBoundaryReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK, lan_pairing::LanPairingRuntime,
@@ -27,21 +35,27 @@ const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
 const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
 const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
 const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
+const APP_GAME_BOUNDARY_TEST_STORE_SUFFIX: &str = "app-game-boundary-read-model-service";
 
 #[tokio::test]
 async fn app_game_boundary_command_reports_service_backed_protocol_rows() {
     let _guard = REPORT_ENV_LOCK.lock().await;
-    let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
+    let store_path = temp_path(APP_GAME_BOUNDARY_TEST_STORE_SUFFIX);
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     store
         .ingest_events(&[evidence_claim_activity_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+        });
 
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model =
         boundary_read_model_payload(&event.payload[constants::field::APP_GAME_BOUNDARY_READ_MODEL]);
@@ -94,9 +108,9 @@ fn evidence_claim_activity_event() -> ActivityEvent {
     );
     fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&claim).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serde_json::to_string(&claim).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })),
     );
     fields.insert(
         APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL.to_string(),
@@ -126,8 +140,9 @@ fn evidence_claim_activity_event() -> ActivityEvent {
         kind: ActivityEventKind::DeviceIdleStateObserved,
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
-            subject_id: ocentra_parent_agent_protocol::APP_GAME_JOURNAL_EVIDENCE_CLAIM_SUBJECT_ID
-                .to_string(),
+            subject_id:
+                ocentra_parent_agent_protocol::app_game::APP_GAME_JOURNAL_EVIDENCE_CLAIM_SUBJECT_ID
+                    .to_string(),
             display_name: Some(APP_GAME_TEST_DISPLAY_LABEL.to_string()),
         },
         fields,
@@ -168,10 +183,10 @@ fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
 
 fn boundary_read_model_payload(value: &LogFieldValue) -> AppGameBoundaryReadModel {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
@@ -187,12 +202,10 @@ fn temp_path(suffix: &str) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: &std::path::Path) {
     let _ = remove_file(path);
-    let mut wal_path = path.clone();
-    wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
+    let wal_path = path.with_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);
-    let mut shm_path = path.clone();
-    shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
+    let shm_path = path.with_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }

@@ -27,11 +27,11 @@ async function main() {
   ]);
 
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
@@ -133,9 +133,9 @@ async function main() {
     gateState: 'prevented-by-android-owner-proof-manual-required-gate',
     evidence: {
       androidGate:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts defines android-normal-mode-hide-suspend-manual-required as Android suspend-app, manual-required, device-owner-required, blocked-before-adapter, canCallAdapter=false, and broadBlockingClaimed=false.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gate-data.ts defines android-normal-mode-hide-suspend-manual-required as Android suspend-app, manual-required, device-owner-required, blocked-before-adapter, canCallAdapter=false, and broadBlockingClaimed=false.',
       androidGateRules:
-        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires android-device-owner-proof or android-profile-owner-proof for Android hide/suspend actions and blocks non-supported gates from dispatch eligibility.',
+        'packages/schema-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires android-device-owner-proof or android-profile-owner-proof for Android hide/suspend actions and blocks non-supported gates from dispatch eligibility.',
       androidGateTests:
         'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts asserts Android normal mode needs Device Owner/Profile Owner proof.',
       catalogBoundary:

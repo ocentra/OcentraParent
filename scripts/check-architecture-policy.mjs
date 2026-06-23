@@ -16,19 +16,15 @@ const architectureScripts = [
 ];
 
 export function main(rawArgs = process.argv.slice(2)) {
-  if (
+  const effectiveArgs =
     rawArgs.length === 0 &&
     process.env.OCENTRA_ARCHITECTURE_BASE === undefined &&
     process.env.OCENTRA_ARCHITECTURE_HEAD === undefined
-  ) {
-    console.log(
-      'Architecture policy skipped: provide --files, --base/--head, or --all. CI sets the diff range automatically.'
-    );
-    return;
-  }
+      ? ['--all']
+      : rawArgs;
 
   for (const scriptName of architectureScripts) {
-    runNodeOrThrow(path.join(scriptDir, scriptName), rawArgs);
+    runNodeOrThrow(path.join(scriptDir, scriptName), effectiveArgs);
   }
 }
 

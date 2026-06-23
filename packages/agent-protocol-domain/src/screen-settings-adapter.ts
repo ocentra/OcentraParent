@@ -1,34 +1,31 @@
 import { type ScreenAnalysisParentSetting } from '@ocentra-parent/schema-domain/screen-evidence-settings';
-import * as SharedScreenSettings from '@ocentra-parent/schema-domain/agent-screen-settings';
+import {
+  ScreenSettingsGetRequestSchema,
+  ScreenSettingsReplaceRequestSchema,
+  ScreenSettingsSchemaVersion,
+  ScreenSettingsUpdateRequestSchema,
+  ScreenSettingsUpdateResponseSchema,
+  type ScreenSettingsGetRequest,
+  type ScreenSettingsReplaceRequest,
+  type ScreenSettingsUpdateKind,
+  type ScreenSettingsUpdateRequest,
+  type ScreenSettingsUpdateResponse,
+} from '@ocentra-parent/schema-domain/agent-screen-settings';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
   AgentEvent,
-  AgentProtocolDefaults,
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
   type AgentEventName,
   type AgentProtocolLogFields,
-} from './contracts';
-import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/schema-domain/event-primitives';
-
-export const ScreenSettingsUpdateKindSchema = SharedScreenSettings.ScreenSettingsUpdateKindSchema;
-export const ScreenSettingsUpdateStatusSchema = SharedScreenSettings.ScreenSettingsUpdateStatusSchema;
-export const ScreenSettingsRejectionReasonSchema = SharedScreenSettings.ScreenSettingsRejectionReasonSchema;
-export const ScreenSettingsGetRequestSchema = SharedScreenSettings.ScreenSettingsGetRequestSchema;
-export const ScreenSettingsReplaceRequestSchema = SharedScreenSettings.ScreenSettingsReplaceRequestSchema;
-export const ScreenSettingsUpdateRequestSchema = SharedScreenSettings.ScreenSettingsUpdateRequestSchema;
-export const ScreenSettingsUpdateResponseSchema = SharedScreenSettings.ScreenSettingsUpdateResponseSchema;
-
-export type ScreenSettingsUpdateKind = SharedScreenSettings.ScreenSettingsUpdateKind;
-export type ScreenSettingsUpdateStatus = SharedScreenSettings.ScreenSettingsUpdateStatus;
-export type ScreenSettingsGetRequest = SharedScreenSettings.ScreenSettingsGetRequest;
-export type ScreenSettingsReplaceRequest = SharedScreenSettings.ScreenSettingsReplaceRequest;
-export type ScreenSettingsUpdateRequest = SharedScreenSettings.ScreenSettingsUpdateRequest;
-export type ScreenSettingsUpdateResponse = SharedScreenSettings.ScreenSettingsUpdateResponse;
-
-export const ScreenSettingsUpdateKindValue = SharedScreenSettings.ScreenSettingsUpdateKindValue;
-export const ScreenSettingsUpdateStatus = SharedScreenSettings.ScreenSettingsUpdateStatus;
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import {
+  AgentProtocolSchemaVersion,
+  type AgentPeerRole,
+  type AgentRoute,
+} from '@ocentra-parent/schema-domain/event-primitives';
 
 export type ScreenSettingsAdapterFailureReason =
   | 'wrong-event'
@@ -97,7 +94,7 @@ export function createScreenSettingsCommandPayload(request: ScreenSettingsUpdate
 
 export function createScreenSettingsGetRequest(requestId: string): ScreenSettingsGetRequest {
   return ScreenSettingsGetRequestSchema.parse({
-    schemaVersion: SharedScreenSettings.ScreenSettingsSchemaVersion,
+    schemaVersion: ScreenSettingsSchemaVersion,
     requestId,
     kind: 'get',
   });
@@ -113,7 +110,7 @@ export function createScreenSettingsReplaceRequest(input: {
   readonly setting: ScreenAnalysisParentSetting;
 }): ScreenSettingsReplaceRequest {
   return ScreenSettingsReplaceRequestSchema.parse({
-    schemaVersion: SharedScreenSettings.ScreenSettingsSchemaVersion,
+    schemaVersion: ScreenSettingsSchemaVersion,
     requestId: input.requestId,
     kind: 'replace',
     baseSettingVersion: input.baseSettingVersion,

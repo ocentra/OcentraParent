@@ -4,7 +4,7 @@ import {
   AppInstallPurchasePackageSourceAdapterExecutionProofSchema,
   AppInstallPurchasePackageSourceAdapterExecutionRowSchema,
   summarizeAppInstallPurchasePackageSourceAdapterExecutionProof,
-} from '../../src/app-install-purchase-package-source-adapter-execution-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-package-source-adapter-execution-proof';
 
 describe('app install and purchase package-source adapter execution proof', () => {
   acceptsPackageSourceAdapterExecutionRowsWithoutRuntimeDeliveryClaims();

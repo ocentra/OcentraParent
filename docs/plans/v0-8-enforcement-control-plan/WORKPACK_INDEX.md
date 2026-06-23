@@ -14,7 +14,8 @@
 
 <!-- /agent-capsule -->
 
-Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
+Use this index to open exactly one assigned workpack. Do not read every file in
+`workpacks/`.
 
 | Status  | Workpack                                                                                          |  Size | Boxes               |
 | ------- | ------------------------------------------------------------------------------------------------- | ----: | ------------------- |
@@ -38,3 +39,22 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 | open    | [17 Cross-Platform Unavailable States](workpacks/17-cross-platform-unavailable-states.md)         | 1,118 | 0/5 checked; 5 open |
 | open    | [19 Playwright And UI Proof](workpacks/19-playwright-ui-proof.md)                                 | 1,145 | 0/5 checked; 5 open |
 | open    | [20 Rollout Docs And CI/PR Gate](workpacks/20-rollout-docs-ci-pr-gate.md)                         | 1,139 | 0/5 checked; 5 open |
+
+## Workpack family route
+
+Use [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected
+workpack's owner or handoff boundary is unclear. Do not treat it as permission
+to read every sibling plan.
+
+## High-risk open families
+
+- Action authority and adapter execution: WP04, WP05, WP06, WP08.
+- Approval, audit, and read-model truth: WP10, WP11, WP13.
+- Integrity and non-claim boundaries: WP15, WP16, WP17.
+- Surface and rollout gate: WP12, WP14, WP19, WP20.
+
+## Closure rule
+
+Checked workpacks prove only their named slices. Broad enforcement readiness
+remains blocked until the open workpacks above are either closed with proof or
+carried forward explicitly as manual-required or not-ready gaps.

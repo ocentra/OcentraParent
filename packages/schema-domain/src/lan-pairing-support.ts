@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   LanAiProviderRoutingStateSchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -147,4 +141,3 @@ export const LanPairingManualProofGap = {
   Firewall: LanPairingManualProofGapSchema.parse('manual-firewall-proof'),
   PhysicalDevice: LanPairingManualProofGapSchema.parse('manual-physical-device-proof'),
 } as const;
-

@@ -1,4 +1,7 @@
-use ocentra_parent_agent_protocol::{constants, AgentEventEnvelope, LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 
 use crate::{
     lan_pairing_test_assertions::{assert_rejection, assert_rejection_with_audit},
@@ -79,7 +82,7 @@ async fn lan_pairing_allows_observer_reads_and_rejects_observer_writes() {
 
     assert_eq!(
         observer_read.event,
-        ocentra_parent_agent_protocol::AgentEventName::AgentHealthReported
+        ocentra_parent_agent_protocol::transport::AgentEventName::AgentHealthReported
     );
     assert_eq!(
         observer_read
@@ -100,7 +103,7 @@ async fn lan_pairing_controller_lease_lifecycle_renews_releases_and_takes_over()
     let runtime = paired_runtime().await;
     let renewed = lease_lifecycle_command(
         runtime.clone(),
-        ocentra_parent_agent_protocol::AgentCommandName::AgentLanPairingControllerLeaseRenew,
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseRenew,
         constants::lan_pairing::CONTROLLER_LEASE_RENEW_INTENT_ID,
         constants::value::LAN_INTENT_CONTROLLER_LEASE_RENEW,
         controller_lease_payload(constants::lan_pairing::CONTROLLER_LEASE_RENEW_INTENT_ID),
@@ -108,7 +111,7 @@ async fn lan_pairing_controller_lease_lifecycle_renews_releases_and_takes_over()
     .await;
     let released = lease_lifecycle_command(
         runtime.clone(),
-        ocentra_parent_agent_protocol::AgentCommandName::AgentLanPairingControllerLeaseRelease,
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseRelease,
         constants::lan_pairing::CONTROLLER_LEASE_RELEASE_INTENT_ID,
         constants::value::LAN_INTENT_CONTROLLER_LEASE_RELEASE,
         controller_lease_payload(constants::lan_pairing::CONTROLLER_LEASE_RELEASE_INTENT_ID),
@@ -116,7 +119,7 @@ async fn lan_pairing_controller_lease_lifecycle_renews_releases_and_takes_over()
     .await;
     let takeover = lease_lifecycle_command(
         runtime.clone(),
-        ocentra_parent_agent_protocol::AgentCommandName::AgentLanPairingControllerLeaseTakeover,
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseTakeover,
         constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
         constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
         second_controller_payload_for_kind(
@@ -154,7 +157,7 @@ async fn lan_pairing_controller_lease_takeover_is_rejected_while_active_controll
     let runtime = paired_runtime().await;
     let denied = lease_lifecycle_command(
         runtime,
-        ocentra_parent_agent_protocol::AgentCommandName::AgentLanPairingControllerLeaseTakeover,
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseTakeover,
         constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
         constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
         second_controller_payload_for_kind(
@@ -185,7 +188,7 @@ async fn rejected_controller_lease_control(
 
 async fn lease_lifecycle_command(
     runtime: crate::lan_pairing::LanPairingRuntime,
-    command_name: ocentra_parent_agent_protocol::AgentCommandName,
+    command_name: ocentra_parent_agent_protocol::transport::AgentCommandName,
     message_id: &str,
     intent_kind: &str,
     mut payload: LogFields,

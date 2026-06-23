@@ -2,12 +2,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import ts from 'typescript';
 import { pathToFileURL } from 'node:url';
-import {
-  readRepoFile,
-  repoRoot,
-  resolveScopedFiles,
-  toPosix,
-} from './check-architecture-scope.mjs';
+import { readRepoFile, repoRoot, resolveScopedFiles, toPosix } from './check-architecture-scope.mjs';
 
 const scriptName = 'node scripts/check-import-boundaries.mjs';
 const usageLines = ['--all', '--base <sha> --head <sha>'];
@@ -98,10 +93,9 @@ function collectTypeScriptFindings(filePath) {
       filePath.startsWith('packages/schema-domain/') &&
       (entry.specifier.startsWith('@ocentra-parent/') || entry.normalized.startsWith('packages/'))
     ) {
-      const importPackage =
-        entry.specifier.startsWith('@ocentra-parent/')
-          ? entry.specifier.replace('@ocentra-parent/', '').split('/')[0]
-          : packageNameFor(entry.normalized);
+      const importPackage = entry.specifier.startsWith('@ocentra-parent/')
+        ? entry.specifier.replace('@ocentra-parent/', '').split('/')[0]
+        : packageNameFor(entry.normalized);
       if (importPackage !== null && importPackage !== 'schema-domain') {
         findings.push(`${filePath}:${entry.line} schema-domain must not import from other product domains.`);
       }
@@ -109,8 +103,7 @@ function collectTypeScriptFindings(filePath) {
 
     if (
       filePath.startsWith('apps/portal/') &&
-      (/^@ocentra-parent\/[^/]+\/src\//u.test(entry.specifier) ||
-        /^packages\/[^/]+\/src\//u.test(entry.normalized))
+      (/^@ocentra-parent\/[^/]+\/src\//u.test(entry.specifier) || /^packages\/[^/]+\/src\//u.test(entry.normalized))
     ) {
       findings.push(`${filePath}:${entry.line} apps/portal must not deep import package src paths.`);
     }

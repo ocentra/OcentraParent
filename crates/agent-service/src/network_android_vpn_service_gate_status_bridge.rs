@@ -11,14 +11,17 @@ use ocentra_network_evidence::{
         NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants,
-    network_android_vpn_service_gate_status::{
-        NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
-        NetworkAndroidVpnServiceGateStatusState,
-    },
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::network_android_vpn_service_gate_status::{
+    NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
+    NetworkAndroidVpnServiceGateStatusState,
 };
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
@@ -56,9 +59,9 @@ pub(crate) fn build_network_android_vpn_service_gate_status_report(
 }
 
 pub(crate) fn network_android_vpn_service_gate_status_payload() -> Result<LogFields, ()> {
-    let proof = plan_network_android_vpn_service_gate(gate_input()).map_err(|_| ())?;
+    let proof = plan_network_android_vpn_service_gate(gate_input()).map_err(|_error| ())?;
     let status = status_from_proof(&proof);
-    let serialized = serde_json::to_string(&status).map_err(|_| ())?;
+    let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
     Ok(fields_from_pairs(vec![(
         constants::network_flow::FIELD_NETWORK_ANDROID_VPN_SERVICE_GATE_STATUS,
         LogFieldValue::String(serialized),
@@ -170,7 +173,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
         requested_action: NetworkEvidencePolicyAction::Block,
         adapter_capability_proof_ref: None,
     })
-    .unwrap_or_else(|_| unreachable!())
+    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn protocol_capability_state(

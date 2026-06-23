@@ -1,9 +1,5 @@
 import { type Infer, Schema, withParser } from './effect';
-import {
-  ActivityEventKindSchema,
-  ActivityObserverSchema,
-  ActivitySubjectKindSchema,
-} from './evidence-kinds';
+import { ActivityEventKindSchema, ActivityObserverSchema, ActivitySubjectKindSchema } from './evidence-kinds';
 import {
   ActivityEventIdSchema,
   ActivitySubjectIdSchema,

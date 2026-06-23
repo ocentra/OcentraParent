@@ -5,7 +5,7 @@ import {
   type TrackingHostedStorageDefaultKind,
   type TrackingHostedStorageDefaultProof,
   type TrackingHostedStorageDefaultRow,
-} from '../../src/tracking-hosted-storage-default-boundary-proof';
+} from '@ocentra-parent/schema-domain/tracking-hosted-storage-default-boundary-proof';
 
 const GeneratedAt = '2026-06-07T06:12:00.000Z';
 

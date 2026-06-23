@@ -1,11 +1,12 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    tracking_evidence_ref_from_observation_id, tracking_transition_id_from_observation_id,
+    TrackingCapabilityStatus, TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef,
+    TrackingGeofenceRuleRef, TrackingObservationId, TrackingReasonCode, TrackingTimestamp,
+    TrackingTransitionKind,
+};
 use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent,
-};
-use ocentra_parent_agent_protocol::{
-    tracking_evidence_ref_from_observation_id, tracking_transition_id_from_observation_id,
-    TrackingCapabilityStatus, TrackingEvidenceRef, TrackingGeofenceRuleRef, TrackingReasonCode,
-    TrackingTimestamp, TrackingTransitionKind,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -30,8 +31,10 @@ pub fn detect_geofence_transition(
 ) -> TrackingGeofenceTransitionDetectedEvent {
     detect_geofence_transition_with_refs(
         event,
-        TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
-            .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
+        parse_contract_text(
+            constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF,
+            TrackingGeofenceRuleRef::parse,
+        ),
         evaluation,
         vec![tracking_evidence_ref_from_observation_id(
             &event.observation_id,
@@ -57,13 +60,13 @@ fn detect_geofence_transition_with_refs(
 }
 
 pub(crate) fn geofence_transition_from_parts(
-    child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId,
-    child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId,
-    source_observation_id: ocentra_parent_agent_protocol::TrackingObservationId,
+    child_device_id: TrackingChildDeviceId,
+    child_profile_id: TrackingChildProfileId,
+    source_observation_id: TrackingObservationId,
     source_observed_at: TrackingTimestamp,
     geofence_rule_ref: TrackingGeofenceRuleRef,
     evaluation: TrackingGeofenceEvaluation,
-    evidence_refs: Vec<ocentra_parent_agent_protocol::TrackingEvidenceRef>,
+    evidence_refs: Vec<TrackingEvidenceRef>,
 ) -> TrackingGeofenceTransitionDetectedEvent {
     let (transition_kind, reason_codes) = transition_outcome_for(&evaluation);
 
@@ -74,8 +77,7 @@ pub(crate) fn geofence_transition_from_parts(
         geofence_rule_ref,
         source_observation_id,
         source_observed_at,
-        transition_kind: TrackingTransitionKind::parse(transition_kind)
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
+        transition_kind: parse_contract_text(transition_kind, TrackingTransitionKind::parse),
         capability_status: evaluation.capability_status,
         distance_meters: evaluation.distance_meters,
         reason_codes,
@@ -154,5 +156,18 @@ fn capability_requires_stale_rejection(capability_status: &TrackingCapabilitySta
 }
 
 fn reason_code(value: &'static str) -> TrackingReasonCode {
-    TrackingReasonCode::parse(value).expect(value)
+    parse_contract_text(value, TrackingReasonCode::parse)
+}
+
+fn parse_contract_text<T, E>(
+    value: &'static str,
+    parse: impl FnOnce(&'static str) -> Result<T, E>,
+) -> T
+where
+    E: core::fmt::Debug,
+{
+    match parse(value) {
+        Ok(parsed_value) => parsed_value,
+        Err(_) => unreachable!("tracking geofence contract drift: {value}"),
+    }
 }

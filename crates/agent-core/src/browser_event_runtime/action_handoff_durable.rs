@@ -90,10 +90,11 @@ fn durable_handoff_row_from_event(
     BrowserRuntimeActionIntentDurableHandoffError,
 > {
     let response = &handoff.request_report.response;
+    let Ok(sequence) = u64::try_from(index) else {
+        return Err(BrowserRuntimeActionIntentDurableHandoffError::RowMismatch);
+    };
     Ok(BrowserRuntimeActionIntentDurableHandoffRecord {
-        sequence: u64::try_from(index)
-            .map(|value| value.saturating_add(1))
-            .map_err(|_| BrowserRuntimeActionIntentDurableHandoffError::RowMismatch)?,
+        sequence: sequence.saturating_add(1),
         request_event_id: event.event_id.clone(),
         request_event_type: event.contract.event_type.clone(),
         correlation_id: event.correlation_id.clone(),

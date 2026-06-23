@@ -36,7 +36,9 @@ runNpm([
   'app-game-source-gated-policy-preview-timer-scheduler-persistence',
 ]);
 
-const auditRollbackContract = await importAppGameDist('app-game-source-gated-policy-preview-timer-audit-rollback-handoff.js');
+const auditRollbackContract = await importAppGameDist(
+  'app-game-source-gated-policy-preview-timer-audit-rollback-handoff.js'
+);
 const wp82Proof = await readJson(
   join(repoRoot, 'test-results', 'app-game-source-gated-policy-preview-timer-scheduler-persistence-proof', 'proof.json')
 );
@@ -76,9 +78,11 @@ const proof = {
   },
   proofPaths: {
     schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.ts',
-    schemaRules: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules.ts',
     consumerSource: 'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.ts',
-    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.test.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,

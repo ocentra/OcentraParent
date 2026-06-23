@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGameChildUxCardSchema } from './app-game-child-facing-ux';
 import {
   AppGameChildUxHandoffReadModelSchema,
@@ -17,8 +12,12 @@ import {
   ParentTimestampSchema,
 } from './family-reference-primitives';
 
-export const AppGameChildUxLocalHandoffArtifactRecordIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalHandoffArtifactRecordId');
-export const AppGameChildUxLocalHandoffArtifactReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalHandoffArtifactReference');
+export const AppGameChildUxLocalHandoffArtifactRecordIdSchema = brandedNonEmptyStringSchema(
+  'AppGameChildUxLocalHandoffArtifactRecordId'
+);
+export const AppGameChildUxLocalHandoffArtifactReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameChildUxLocalHandoffArtifactReference'
+);
 
 const AppGameChildUxLocalHandoffArtifactRecordBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
@@ -179,4 +178,3 @@ function appGameChildUxLocalHandoffArtifactCountsMatch(
     readModel.privateDiagnosticsIncluded === false
   );
 }
-

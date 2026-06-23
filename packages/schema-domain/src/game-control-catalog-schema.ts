@@ -1,46 +1,20 @@
-import {
-  type Infer,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from './effect';
+import { type Infer, brandedNonEmptyStringSchema, NonEmptyStringSchema, Schema, withParser } from './effect';
 
 import { ParentContractSchemaVersionSchema } from './family-reference-primitives';
 
-export const GameControlCatalogIdSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlCatalogId')
-);
-export const GameControlSectionIdSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlSectionId')
-);
+export const GameControlCatalogIdSchema = withParser(brandedNonEmptyStringSchema('GameControlCatalogId'));
+export const GameControlSectionIdSchema = withParser(brandedNonEmptyStringSchema('GameControlSectionId'));
 export const GameControlGroupIdSchema = withParser(brandedNonEmptyStringSchema('GameControlGroupId'));
-export const GameControlSettingIdSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlSettingId')
-);
+export const GameControlSettingIdSchema = withParser(brandedNonEmptyStringSchema('GameControlSettingId'));
 export const GameControlOptionIdSchema = withParser(brandedNonEmptyStringSchema('GameControlOptionId'));
-export const GameControlEffectKeySchema = withParser(
-  brandedNonEmptyStringSchema('GameControlEffectKey')
-);
-export const GameControlWritePathSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlWritePath')
-);
+export const GameControlEffectKeySchema = withParser(brandedNonEmptyStringSchema('GameControlEffectKey'));
+export const GameControlWritePathSchema = withParser(brandedNonEmptyStringSchema('GameControlWritePath'));
 export const GameControlRuleIdSchema = withParser(brandedNonEmptyStringSchema('GameControlRuleId'));
-export const GameControlCapabilityIdSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlCapabilityId')
-);
-export const GameControlPolicyDocumentIdSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlPolicyDocumentId')
-);
-export const GameControlPolicyRevisionSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlPolicyRevision')
-);
-export const GameControlPolicyHashSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlPolicyHash')
-);
-export const GameControlCommandIdSchema = withParser(
-  brandedNonEmptyStringSchema('GameControlCommandId')
-);
+export const GameControlCapabilityIdSchema = withParser(brandedNonEmptyStringSchema('GameControlCapabilityId'));
+export const GameControlPolicyDocumentIdSchema = withParser(brandedNonEmptyStringSchema('GameControlPolicyDocumentId'));
+export const GameControlPolicyRevisionSchema = withParser(brandedNonEmptyStringSchema('GameControlPolicyRevision'));
+export const GameControlPolicyHashSchema = withParser(brandedNonEmptyStringSchema('GameControlPolicyHash'));
+export const GameControlCommandIdSchema = withParser(brandedNonEmptyStringSchema('GameControlCommandId'));
 
 const GameControlPolicyKindSchema = withParser(Schema.Literal('game-control'));
 

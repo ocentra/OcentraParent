@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { buildTrackingAiProviderRoutingProofRows } from './tracking-ai-provider-routing-proof';
 import {
@@ -15,11 +10,17 @@ import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './
 
 export const TrackingAiStoredRefConsumerRowIdSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerRowId');
 
-export const TrackingAiStoredRefConsumerProofRefSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerProofRef');
+export const TrackingAiStoredRefConsumerProofRefSchema = brandedNonEmptyStringSchema(
+  'TrackingAiStoredRefConsumerProofRef'
+);
 
-export const TrackingAiStoredRefConsumerJournalRefSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerJournalRef');
+export const TrackingAiStoredRefConsumerJournalRefSchema = brandedNonEmptyStringSchema(
+  'TrackingAiStoredRefConsumerJournalRef'
+);
 
-export const TrackingAiStoredRefConsumerReadModelRefSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerReadModelRef');
+export const TrackingAiStoredRefConsumerReadModelRefSchema = brandedNonEmptyStringSchema(
+  'TrackingAiStoredRefConsumerReadModelRef'
+);
 
 export const TrackingAiStoredRefConsumerKindSchema = withParser(
   Schema.Literal('ai-parent-report-context', 'ai-policy-drill-in-context', 'ai-metadata-fallback-context')
@@ -256,4 +257,3 @@ function evidence(
     observedAt,
   });
 }
-

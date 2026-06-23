@@ -222,8 +222,6 @@ async fn panicking_handler_isolated_as_dead_letter_report() {
     let bus = EventBus::new();
     bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
         std::panic::resume_unwind(Box::new("eventing test panic"));
-        #[allow(unreachable_code)]
-        Ok(())
     })
     .await
     .expect_value("subscriber registers");

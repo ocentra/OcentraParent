@@ -1,7 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityHistoricalReportList, ActivityReadModelState, ActivityReportDocument,
-    ActivityReportFrequency, LogFieldValue, LogFields,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityHistoricalReportList, ActivityReadModelState, ActivityReportDocument,
+    ActivityReportFrequency,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
 
@@ -108,9 +110,18 @@ fn report_frequency_value(frequency: ActivityReportFrequency) -> &'static str {
 }
 
 fn json_string(value: &ActivityReportDocument) -> String {
-    serde_json::to_string(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serialized_json(value)
 }
 
 fn history_json_string(value: &ActivityHistoricalReportList) -> String {
-    serde_json::to_string(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serialized_json(value)
+}
+
+fn serialized_json<T>(value: &T) -> String
+where
+    T: serde::Serialize,
+{
+    serde_json::to_string(value).unwrap_or_else(|_| {
+        serde_json::Value::String(constants::error::AGENT_EVENT_SERIALIZES.to_string()).to_string()
+    })
 }

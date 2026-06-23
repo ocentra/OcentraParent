@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
@@ -12,9 +6,13 @@ export const TrackingPhysicalDeviceArtifactPlatformSchema = Schema.Literal('andr
 
 export const TrackingPhysicalDeviceArtifactGateStatusSchema = Schema.Literal('manual-required', 'artifact-set-present');
 
-export const TrackingPhysicalDeviceArtifactPathSchema = brandedNonEmptyStringSchema('TrackingPhysicalDeviceArtifactPath');
+export const TrackingPhysicalDeviceArtifactPathSchema = brandedNonEmptyStringSchema(
+  'TrackingPhysicalDeviceArtifactPath'
+);
 
-export const TrackingPhysicalDeviceArtifactGateRowIdSchema = brandedNonEmptyStringSchema('TrackingPhysicalDeviceArtifactGateRowId');
+export const TrackingPhysicalDeviceArtifactGateRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingPhysicalDeviceArtifactGateRowId'
+);
 
 export const TrackingPhysicalDeviceArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -264,4 +262,3 @@ function artifactAcceptanceNotesFor(
     'Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate.',
   ];
 }
-

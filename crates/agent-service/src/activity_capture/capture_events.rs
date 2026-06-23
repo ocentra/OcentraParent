@@ -5,9 +5,10 @@ use ocentra_parent_agent_core::{
     network_capture_event::network_snapshot_events, process_capture::process_snapshot_events,
     window_capture_event::foreground_window_event,
 };
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
 #[cfg(test)]
-use ocentra_parent_agent_protocol::ActivityIngestStatus;
-use ocentra_parent_agent_protocol::{constants, ActivityEvent};
+use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
+use ocentra_parent_agent_protocol::constants;
 
 #[cfg(test)]
 use super::record_activity_events_to_paths;

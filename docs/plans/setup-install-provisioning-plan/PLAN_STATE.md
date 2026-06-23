@@ -18,10 +18,17 @@
 
 ```text
 Plan route: upgraded
-Execution-grade workpacks: in progress
-Implementation: scoped WP01, WP02, WP04, and WP05 typed source/test/proof validation is green in owned slices, with WP05 now backed by explicit pairing-token redaction contracts in `@ocentra-parent/family-domain` plus a focused provisioning bootstrap audit projection test in `ocentra-provisioning-core`; WP03 proof and handoff coverage now exists with setup-domain plus production-domain validation green, a repaired `@ocentra-parent/parent-domain` build path, and a direct green `parent-desktop-release-support` suite, while the package test wrapper still detours into an unrelated app-game proof harness; WP07 portal/state-machine implementation, portal-domain tests, portal render tests, and Playwright proof are now green on this branch; broader plan completion remains partial
-Proof artifacts: WP01 proof root is green for the owned public-site/data-boundary slice; WP02 proof root is green for the owned account-entry/handoff slice; WP03 proof root exists for the owned parent-install/handoff slice and now records the repaired parent-domain build plus the narrower workspace test-wrapper blocker; WP04 proof root is green for the owned child install/permission slice; WP05 proof root is green for the owned pairing slice, including pairing-token redaction and bootstrap audit projection proof; WP07 proof root is now present and green for the owned first-run route projection; WP06 blocker-pack proof root is refreshed and now consumes WP07 plus the repaired WP03 build state, while whole-plan rollout remains blocked by sibling-owner proof gaps
+Setup-plan-owned workpacks: WP01, WP02, WP03, WP04, WP05, WP07, and WP06 closed for local proof roots
+Whole-plan production onboarding: blocked by sibling-owner proof gaps
 PR-ready: false
+```
+
+## Status interpretation
+
+```text
+Done workpack = the setup-plan-owned state/handoff/proof slice is closed.
+Done workpack != deployed website, account readiness, package readiness, child runtime readiness, trusted LAN pairing, custody readiness, policy baseline readiness, payment entitlement readiness, or production onboarding readiness.
+WP06 = rollout blocker/aggregation pack; it can be locally complete while broad setup readiness stays blocked.
 ```
 
 ## Current product direction
@@ -34,6 +41,37 @@ Parent bootstrap/install and child bootstrap/install are separate flows.
 Installer build/signing/update artifacts are owned by runtime distribution plans.
 Pairing protocol internals are owned by LAN/device-trust plans.
 This plan owns the setup journey/state machine/readiness labels/proof manifest across those handoffs.
+```
+
+## Current ownership interpretation
+
+```text
+setup-install-provisioning-plan:
+  Public setup entry, setup journey state machine, readiness labels, manual-required gates, first-run projection, and rollout proof aggregation.
+
+setup-domain:
+  Setup/install/pairing/onboarding/provisioning contract boundary. Current package export is package-info only; internal source/tests prove selected slices but not public API readiness unless exports are added.
+
+family-domain:
+  Household/family helper contracts consumed by setup proofs when selected.
+
+portal-domain/apps/portal:
+  Selected first-run setup route projection and rendered proof only.
+
+account-identity-family-plan:
+  Account provider, session, token, invite, household, role, recovery, and authority truth.
+
+parent-desktop-runtime-package-plan:
+  Parent package, signing, update, rollback, and distribution truth.
+
+child-agent-runtime-distribution-plan:
+  Child package artifacts, runtime distribution, platform delivery, and child install proof.
+
+device-trust-bootstrap-plan and lan-plan:
+  Trusted-device approval, key/step-up proof, LAN discovery, signed hello, and pairing protocol truth.
+
+data-custody-storage-plan, policy-control-plane-plan, payment-subscription-plan:
+  Custody/export/delete/sync, policy baseline, and entitlement readiness truth.
 ```
 
 ## Current repo facts already read
@@ -50,16 +88,28 @@ This plan owns the setup journey/state machine/readiness labels/proof manifest a
 - Tauri updater/signing/notarization/package behavior is owned by runtime distribution plans, not by this setup plan.
 - Android package/permission visibility and iOS/macOS distribution/notarization constraints must be handled by platform/package owner plans before production install claims.
 
-## Open gaps
+## Current local proof roots
 
 ```text
-- WP01 public family-site route/data-boundary proof root now exists, but preview/custom-domain/public-runtime proof is still blocker-only.
-- WP02 registration/login proof root now exists, but live provider/session/household implementation remains owned by `account-identity-family-plan`.
-- WP03 parent install journey proof root now exists, and the repaired export surface clears `npm run build --workspace @ocentra-parent/parent-domain`; the direct suite `Push-Location packages/parent-domain; npx vitest run tests/unit/parent-desktop-release-support.test.ts; Pop-Location` passes, while `npm run test --workspace @ocentra-parent/parent-domain -- parent-desktop-release-support` still detours through `scripts/test/app-game-source-gated-policy-preview-read-model-proof.mjs` and fails on nonexistent `app-game-*` filters before proving the workspace wrapper path; signed installers, notarization, store delivery, update/rollback execution, and production publishing remain owned by `parent-desktop-runtime-package-plan`.
-- WP04 child install/permission journey proof root now exists, and the rendered first-run setup proof is now green in WP07, but real child runtime/package/platform execution remains owned by sibling plans.
-- WP05 pairing/readiness/recovery proof root now exists and its pairing/bootstrap redaction ownership gap is locally closed, but real LAN/device-trust proof remains sibling-owned.
-- WP06 rollout blocker pack now consumes WP07, the repaired WP03 build state, and the closed WP05 redaction proof while whole-plan rollout remains blocked by sibling owner proofs only.
-- Sibling owner plans still hold unmet account/provider/session, runtime distribution, device trust, LAN, portal UX beyond the owned Start route, data custody, policy, and payment proof.
+WP01 public family-site route/data-boundary proof root exists; preview/custom-domain/public-runtime proof remains blocker-only.
+WP02 registration/login handoff proof root exists; live provider/session/household implementation remains account-identity-owned.
+WP03 parent install journey proof root exists; parent-domain build and direct release-support suite are green, while the workspace test wrapper still misroutes through an unrelated app-game proof harness.
+WP04 child install/permission proof root exists; real child runtime/package/platform execution remains sibling-owned.
+WP05 pairing/readiness proof root exists; pairing-token redaction and bootstrap audit projection are locally proved, while physical LAN/device-trust proof remains sibling-owned.
+WP07 first-run setup route projection proof root exists and is green for the selected Start route; sibling readiness inputs remain blockers.
+WP06 rollout blocker pack consumes WP01-WP05/WP07 and records safe wording/manual-required blockers; broad PR readiness remains false.
+```
+
+## Open gaps / sibling-owned blockers
+
+```text
+- Account provider/session/household/invite/recovery authority remains owned by account-identity-family-plan.
+- Signed installers, notarization, store delivery, checksum/signature execution, updater rollback, and production publishing remain runtime-distribution-owned.
+- Child package/runtime/platform execution remains child-agent-runtime-distribution/app/runtime-owned.
+- Physical LAN pairing, signed hello, and trusted-device/device-trust proof remain LAN/device-trust-owned.
+- Data custody execution and policy baseline production proof remain data-custody/policy-owned.
+- Subscription/entitlement proof remains payment-owned.
+- Broader portal shell/household UX remains portal-UX-owned beyond the selected WP07 setup route.
 ```
 
 ## No-claim boundaries
@@ -75,9 +125,10 @@ pairing ready
 first-run setup ready
 platform support ready
 production onboarding ready
+PR_READY
 ```
 
-until the relevant workpack proof root and checklist rows prove the claim.
+until the relevant workpack proof root proves the claim and WP06 aggregates it with safe wording.
 
 ## Default execution order
 

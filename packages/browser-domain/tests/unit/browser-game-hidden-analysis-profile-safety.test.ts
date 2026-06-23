@@ -4,7 +4,7 @@ import {
   BrowserGameHiddenAnalysisLoaderResultSchema,
   BrowserGameHiddenAnalysisProfileDesignSchema,
 } from '@ocentra-parent/schema-domain/browser-game-hidden-analysis-profile-safety';
-import { planBrowserGameHiddenAnalysisProfileSafety } from '../../src/browser-game-hidden-analysis-profile-safety';
+import { planBrowserGameHiddenAnalysisProfileSafety } from '../../src/browser-game-hidden-analysis-loader-planner';
 import {
   loaderRequest,
   loaderResultFromInvalidClaim,

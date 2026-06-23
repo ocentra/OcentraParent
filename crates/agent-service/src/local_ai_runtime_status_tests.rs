@@ -186,7 +186,7 @@ fn missing_model_file_keeps_runtime_unavailable_without_leaking_configured_path(
 pub(crate) fn write_temp_file(prefix: &str) -> PathBuf {
     let path = unique_temp_path(prefix);
     fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT)
-        .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
+        .unwrap_or_else(|_| panic!("{}", constants::error::LOCALHOST_BIND_SUCCEEDS));
     path
 }
 
@@ -208,7 +208,7 @@ fn unique_temp_path(prefix: &str) -> PathBuf {
 fn nanos_now() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_default()
         .as_nanos()
 }
 

@@ -98,4 +98,3 @@ export const appGameSourceGatedPolicyPreviewTimerStateMatchesProjection = (
     timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffState.SourceManualRequiredBeforeTimer) ||
   (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.CompilerManualRequiredVisible &&
     timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffState.CompilerManualRequiredBeforeTimer);
-

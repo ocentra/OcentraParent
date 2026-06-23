@@ -1,12 +1,12 @@
-import {
-  resolveLiveActivityState as resolvePortalDomainLiveActivityState,
-  type PortalBrowserRuntimeEventChainEntry as PortalDomainPortalBrowserRuntimeEventChainEntry,
-  type PortalBrowserRuntimeEventChainStream as PortalDomainPortalBrowserRuntimeEventChainStream,
-  type PortalLiveActivityState as PortalDomainPortalLiveActivityState,
-  type PortalNetworkRuntimeEventChainStream as PortalDomainPortalNetworkRuntimeEventChainStream,
+import { resolveLiveActivityState as resolvePortalDomainLiveActivityState } from '@ocentra-parent/portal-domain/live-activity-state';
+import type {
+  PortalBrowserRuntimeEventChainEntry as PortalDomainPortalBrowserRuntimeEventChainEntry,
+  PortalBrowserRuntimeEventChainStream as PortalDomainPortalBrowserRuntimeEventChainStream,
+  PortalLiveActivityState as PortalDomainPortalLiveActivityState,
+  PortalNetworkRuntimeEventChainStream as PortalDomainPortalNetworkRuntimeEventChainStream,
 } from '@ocentra-parent/portal-domain/live-activity-state';
 
-import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export type PortalBrowserRuntimeEventChainEntry = PortalDomainPortalBrowserRuntimeEventChainEntry;
 export type PortalBrowserRuntimeEventChainStream = PortalDomainPortalBrowserRuntimeEventChainStream;

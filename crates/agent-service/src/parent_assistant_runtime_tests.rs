@@ -1,25 +1,53 @@
 use std::{
+    error::Error,
     fs,
+    io::Error as IoError,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityReadModelState, ActivityReportCustodyLabel,
-    ActivityReportDocument, ActivityReportFrequency, ActivityReportSection,
-    ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
-    ActivityReportSourceState, ActivitySavedReportMetadata, ActivitySavedReportState,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope, AgentCommandName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, FamilyReference,
-    LocalAiDegradedState, LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
-    ParentActorReference, ParentActorRole, ParentAssistantActionPreviewKind,
-    ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
-    ParentAssistantApiProviderAccessState, ParentAssistantEvidenceContext,
-    ParentAssistantGenerateRequest, ParentAssistantProviderRoutingState,
-    ParentAssistantProviderSelection, ParentAssistantProviderState, ParentAssistantRunState,
-    ParentAssistantScope, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy_context::FamilyReference;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportCustodyLabel;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportDocument;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportFrequency;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSection;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSectionKind;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceLabel;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceReachabilityState;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceState;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportMetadata;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySurfaceScope;
+use ocentra_parent_agent_protocol::activity_surface::ActivitySurfaceScopeKind;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
+use ocentra_parent_agent_protocol::parent_assistant::provider_route::ParentAssistantProviderRoutingState;
+use ocentra_parent_agent_protocol::parent_assistant::provider_route::ParentAssistantProviderSelection;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantActionPreviewKind;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantAnswerState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantApiAuthorizationState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantApiProviderAccessState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantEvidenceContext;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantGenerateRequest;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantRunState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantScope;
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_surface_store::ActivitySurfaceStoreSnapshot,
@@ -31,6 +59,8 @@ use crate::{
         generate_parent_assistant_answer_with_scheduler, request_from_command,
     },
 };
+
+type TestResult = Result<(), Box<dyn Error>>;
 
 mod activity_history_context_tests;
 
@@ -92,10 +122,10 @@ async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer
 }
 
 #[tokio::test]
-async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() {
+async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() -> TestResult {
     let scheduler = LocalAiProviderSchedulerRuntime::new_for_test();
-    let runtime_binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI);
-    let model_file = write_temp_file(constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4);
+    let runtime_binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI)?;
+    let model_file = write_temp_file(constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4)?;
     let config = LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
         Some(runtime_binary.clone()),
         Some(model_file.clone()),
@@ -145,6 +175,8 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
     );
     assert!(answer.action_preview.child_agent_contract_required);
     assert!(!answer.action_preview.enforcement_applied);
+
+    Ok(())
 }
 
 #[tokio::test]
@@ -237,9 +269,10 @@ fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary()
 }
 
 #[test]
-fn parent_assistant_request_cites_activity_report_document_when_supplied() {
+fn parent_assistant_request_cites_activity_report_document_when_supplied() -> TestResult {
+    let command = report_context_command()?;
     let request = request_from_command(
-        &report_context_command(),
+        &command,
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
         None,
         None,
@@ -251,7 +284,7 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
         .find(|context| {
             context.citation_label == constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
 
     assert_eq!(
         report_context.evidence.evidence_reference_id,
@@ -261,51 +294,10 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
         report_context.evidence.kind,
         ParentEvidenceReferenceKind::QueryStoreSummary
     );
-    let label = |prefix: &str, value: &str| {
-        let mut fragment = prefix.to_string();
-        fragment.push_str(value);
-        fragment
-    };
-    let raw_child_evidence_flag = false.to_string();
-    let expected_fragments = [
-        constants::activity_surface::SAVED_STATE_SAVED.to_string(),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_FILE_LABEL,
-            constants::activity_surface::REPORT_FILE_DAILY,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SAVED_AT_LABEL,
-            constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STORAGE_REASON_LABEL,
-            constants::activity_surface::SUMMARY_STORAGE_SAVED,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL,
-            constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL,
-            constants::activity_surface::FAMILY_SOURCE_ERROR_ID,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_CUSTODY_LABEL,
-            constants::activity_surface::CUSTODY_PARENT_DEVICE_LOCAL_REPORT_JSON,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SOURCE_DATA_LABEL,
-            constants::activity_surface::SOURCE_SAVED_REPORT_JSON,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_RAW_CHILD_EVIDENCE_LABEL,
-            &raw_child_evidence_flag,
-        ),
-    ];
-
-    for fragment in expected_fragments {
-        assert!(report_context.allowed_summary.contains(&fragment));
-    }
+    assert_eq!(
+        report_context.allowed_summary,
+        expected_report_context_summary()
+    );
     assert_eq!(
         report_context.custody_label,
         constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_REPORT
@@ -316,6 +308,8 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
     );
     assert!(!report_context.raw_child_evidence_included);
     assert!(!report_context.direct_enforcement_allowed);
+
+    Ok(())
 }
 
 #[test]
@@ -349,6 +343,50 @@ fn expected_activity_context_summary() -> String {
     summary.push('0');
     summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_NETWORK_LABEL);
     summary.push('0');
+    summary
+}
+
+fn expected_report_context_summary() -> String {
+    let raw_child_evidence_flag = false.to_string();
+    let mut summary = constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_PREFIX.to_string();
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_ID_LABEL);
+    summary.push_str(constants::activity_surface::REPORT_ID_DAILY);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STATE_LABEL);
+    summary.push_str(constants::activity_surface::SAVED_STATE_SAVED);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_FILE_LABEL);
+    summary.push_str(constants::activity_surface::REPORT_FILE_DAILY);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SAVED_AT_LABEL);
+    summary.push_str(constants::activity_store::TEST_SECOND_OBSERVED_AT);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STORAGE_REASON_LABEL);
+    summary.push_str(constants::activity_surface::SUMMARY_STORAGE_SAVED);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTIONS_LABEL);
+    summary.push('1');
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL);
+    summary.push('1');
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL);
+    summary.push('1');
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCES_LABEL);
+    summary.push('1');
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL);
+    summary.push('1');
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCES_LABEL);
+    summary.push('1');
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL);
+    summary.push_str(constants::activity_surface::SECTION_SUMMARY);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL);
+    summary.push_str(constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCE_IDS_LABEL);
+    summary.push_str(constants::activity_surface::FAMILY_SOURCE_STALE_ID);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL);
+    summary.push_str(constants::activity_surface::FAMILY_SOURCE_STALE_ID);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL);
+    summary.push_str(constants::activity_surface::FAMILY_SOURCE_ERROR_ID);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_CUSTODY_LABEL);
+    summary.push_str(constants::activity_surface::CUSTODY_PARENT_DEVICE_LOCAL_REPORT_JSON);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SOURCE_DATA_LABEL);
+    summary.push_str(constants::activity_surface::SOURCE_SAVED_REPORT_JSON);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_RAW_CHILD_EVIDENCE_LABEL);
+    summary.push_str(&raw_child_evidence_flag);
     summary
 }
 
@@ -394,33 +432,37 @@ fn request(model_id: Option<String>) -> ParentAssistantGenerateRequest {
 fn policy_question_command() -> AgentCommandEnvelope {
     command_with_payload(fields_from_pairs(vec![(
         constants::field::PARENT_ASSISTANT_QUESTION,
-        ocentra_parent_agent_protocol::LogFieldValue::String(
+        ocentra_parent_agent_protocol::logging::LogFieldValue::String(
             constants::parent_assistant::TEST_POLICY_QUESTION.to_string(),
         ),
     )]))
 }
 
-fn report_context_command() -> AgentCommandEnvelope {
-    command_with_payload(fields_from_pairs(vec![(
+fn report_context_command() -> Result<AgentCommandEnvelope, IoError> {
+    let document = serde_json::to_string(&saved_report_document()).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::AGENT_EVENT_SERIALIZES
+        ))
+    })?;
+
+    Ok(command_with_payload(fields_from_pairs(vec![(
         constants::field::ACTIVITY_REPORT_DOCUMENT,
-        ocentra_parent_agent_protocol::LogFieldValue::String(
-            serde_json::to_string(&saved_report_document())
-                .expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
-    )]))
+        ocentra_parent_agent_protocol::logging::LogFieldValue::String(document),
+    )])))
 }
 
 fn thread_message_command() -> AgentCommandEnvelope {
     command_with_payload(fields_from_pairs(vec![
         (
             constants::parent_assistant::FIELD_THREAD_ID,
-            ocentra_parent_agent_protocol::LogFieldValue::String(
+            ocentra_parent_agent_protocol::logging::LogFieldValue::String(
                 constants::parent_assistant::TEST_THREAD_ID.to_string(),
             ),
         ),
         (
             constants::parent_assistant::FIELD_MESSAGE_ID,
-            ocentra_parent_agent_protocol::LogFieldValue::String(
+            ocentra_parent_agent_protocol::logging::LogFieldValue::String(
                 constants::parent_assistant::TEST_MESSAGE_ID.to_string(),
             ),
         ),
@@ -497,7 +539,7 @@ fn saved_report_document() -> ActivityReportDocument {
 }
 
 fn report_source_state(
-    device_id: &str,
+    source_device_identifier: &str,
     reachability_state: ActivityReportSourceReachabilityState,
     state: ActivityReadModelState,
     reason: &str,
@@ -505,7 +547,7 @@ fn report_source_state(
     source_label: ActivityReportSourceLabel,
 ) -> ActivityReportSourceState {
     ActivityReportSourceState {
-        device_id: device_id.to_string(),
+        device_id: source_device_identifier.to_string(),
         reachability_state,
         state,
         reason: Some(reason.to_string()),
@@ -516,7 +558,9 @@ fn report_source_state(
     }
 }
 
-fn command_with_payload(payload: ocentra_parent_agent_protocol::LogFields) -> AgentCommandEnvelope {
+fn command_with_payload(
+    payload: ocentra_parent_agent_protocol::logging::LogFields,
+) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         message_id: constants::parent_assistant::DEFAULT_MESSAGE_ID.to_string(),
@@ -535,11 +579,15 @@ fn command_with_payload(payload: ocentra_parent_agent_protocol::LogFields) -> Ag
     }
 }
 
-fn write_temp_file(prefix: &str) -> PathBuf {
+fn write_temp_file(prefix: &str) -> Result<PathBuf, IoError> {
     let path = unique_temp_path(prefix);
-    fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT)
-        .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
-    path
+    fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::LOCAL_AI_RUNTIME_SPAWNS
+        ))
+    })?;
+    Ok(path)
 }
 
 fn unique_temp_path(prefix: &str) -> PathBuf {
@@ -556,8 +604,7 @@ fn unique_temp_path(prefix: &str) -> PathBuf {
 fn nanos_now() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
-        .as_nanos()
+        .map_or(0, |duration| duration.as_nanos())
 }
 
 fn remove_temp_file(path: PathBuf) {

@@ -1,28 +1,39 @@
 use std::fs::{read_to_string, remove_file};
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, EnforcementActiveTimerState,
-    EnforcementAuditEvent, EnforcementTimerEvent, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditEvent;
+use ocentra_parent_agent_protocol::enforcement::EnforcementTimerEvent;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
 };
 
+type TestResult = Result<(), String>;
+
 #[tokio::test]
-async fn timer_recovery_and_parent_cancel_use_persisted_active_state() {
+async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestResult {
     let paths = temp_paths(constants::enforcement::TEST_TIMER_STATE_ID);
     cleanup_paths(&paths);
 
     let execute_event =
         build_enforcement_audit_report_with_paths(execute_command(), paths.clone()).await;
-    let stored_state = read_state(&paths);
+    let stored_state = read_state(&paths)?;
     let recovered_event =
         build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
-    let recovered_state = read_state(&paths);
+    let recovered_state = read_state(&paths)?;
     let cancel_event =
         build_enforcement_timer_report_with_paths(cancel_command(), paths.clone()).await;
     let state_after_cancel = read_to_string(&paths.timer_state_path);
@@ -64,10 +75,13 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() {
             constants::enforcement::TIMER_CANCELLED.to_string()
         ))
     );
-    assert!(state_after_cancel.is_err());
+    assert!(matches!(
+        state_after_cancel,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound
+    ));
 
-    let timer = payload_timer_event(&cancel_event.payload);
-    let audit = payload_audit_event(&cancel_event.payload);
+    let timer = payload_timer_event(&cancel_event.payload)?;
+    let audit = payload_audit_event(&cancel_event.payload)?;
     assert_eq!(timer.action_id, constants::enforcement::TEST_ACTION_ID);
     assert_eq!(
         audit.audit_event_kind.as_protocol_str(),
@@ -80,6 +94,8 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() {
             .map(|reference| reference.action_reference_id.as_str()),
         Some(constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
+
+    Ok(())
 }
 
 #[tokio::test]
@@ -257,21 +273,37 @@ fn target() -> AgentMessageTarget {
     }
 }
 
-fn read_state(paths: &EnforcementJournalPaths) -> EnforcementActiveTimerState {
-    let text = read_to_string(&paths.timer_state_path).expect(constants::error::JOURNAL_READS);
-    serde_json::from_str(&text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+fn read_state(paths: &EnforcementJournalPaths) -> Result<EnforcementActiveTimerState, String> {
+    let text = ok(
+        read_to_string(&paths.timer_state_path),
+        constants::error::JOURNAL_READS,
+    )?;
+    ok(
+        serde_json::from_str(&text),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 
-fn payload_timer_event(payload: &LogFields) -> EnforcementTimerEvent {
-    payload_string(payload, constants::field::ENFORCEMENT_TIMER_EVENT)
-        .and_then(|text| serde_json::from_str(text).ok())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+fn payload_timer_event(payload: &LogFields) -> Result<EnforcementTimerEvent, String> {
+    let text = some(
+        payload_string(payload, constants::field::ENFORCEMENT_TIMER_EVENT),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    ok(
+        serde_json::from_str(text),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 
-fn payload_audit_event(payload: &LogFields) -> EnforcementAuditEvent {
-    payload_string(payload, constants::field::ENFORCEMENT_AUDIT_EVENT)
-        .and_then(|text| serde_json::from_str(text).ok())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+fn payload_audit_event(payload: &LogFields) -> Result<EnforcementAuditEvent, String> {
+    let text = some(
+        payload_string(payload, constants::field::ENFORCEMENT_AUDIT_EVENT),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    ok(
+        serde_json::from_str(text),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 
 fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
@@ -330,4 +362,12 @@ fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let mut shm_path = paths.store_path.clone();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
 }

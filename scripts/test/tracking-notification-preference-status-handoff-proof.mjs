@@ -47,8 +47,9 @@ async function main() {
 
   const sourcePreflightProof = JSON.parse(await readFile(sourcePreflightProofPath, 'utf8'));
   const preferenceStatusHandoff = await tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-notification-preference-status-handoff.ts'))
-      .href,
+    pathToFileURL(
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-notification-preference-status-handoff.ts')
+    ).href,
     import.meta.url
   );
   const readModel = preferenceStatusHandoff.buildTrackingNotificationPreferenceStatusHandoffReadModel(

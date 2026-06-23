@@ -4,10 +4,7 @@ import type {
   SupportBackendUploadExecutionRuntimeEntryCandidate,
   SupportBackendUploadExecutionRuntimeState,
 } from './support-backend-upload-execution-runtime.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function supportBackendUploadExecutionRuntimeEntryIsSafe(
   entry: SupportBackendUploadExecutionRuntimeEntryCandidate,

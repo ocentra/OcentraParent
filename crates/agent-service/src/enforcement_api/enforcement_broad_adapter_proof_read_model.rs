@@ -1,9 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement_broad_adapter_proof as proof, policy_constants, ParentPlatform,
-    V08BroadAdapterRuntimeClaimState, V08BroadAdapterRuntimeEvidenceState,
-    V08BroadAdapterRuntimeProofEntry, V08BroadAdapterRuntimeProofReadModel,
-    V08BroadAdapterRuntimeSurface,
-};
+use ocentra_parent_agent_protocol::constants::enforcement_broad_adapter_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeClaimState;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeEvidenceState;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofEntry;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeSurface;
+use ocentra_parent_agent_protocol::policy_constants;
 
 pub(crate) fn v08_broad_adapter_proof_read_model(
     generated_at: &str,
@@ -39,6 +41,7 @@ struct EntrySpec {
     fallback_behavior: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct EvidenceRefs {
     source_proof_ids: &'static [&'static str],
     linked_proof_commands: &'static [&'static str],
@@ -46,6 +49,7 @@ struct EvidenceRefs {
     manual_proof_requirements: &'static [&'static str],
 }
 
+#[derive(Clone, Copy)]
 struct BoundaryText {
     claim_boundary: &'static str,
     fallback_behavior: &'static str,

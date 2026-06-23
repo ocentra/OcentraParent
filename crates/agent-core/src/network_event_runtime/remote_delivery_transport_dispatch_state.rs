@@ -129,14 +129,26 @@ fn has_unsupported_claims(
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
+
     use super::*;
     use crate::network_event_runtime::remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxState;
 
+    type TestResult = Result<(), String>;
+
+    fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> TestResultValue<T> {
+        result.map_err(|error| format!("{context}: {error:?}"))
+    }
+
+    type TestResultValue<T> = Result<T, String>;
+
     #[tokio::test]
-    async fn network_runtime_remote_delivery_transport_dispatch_state_blocks_without_transport() {
-        let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
-            .await
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE);
+    async fn network_runtime_remote_delivery_transport_dispatch_state_blocks_without_transport(
+    ) -> TestResult {
+        let report = ok(
+            prove_network_runtime_remote_delivery_transport_dispatch_state().await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE,
+        )?;
 
         assert_eq!(
             report.dispatch_state_ref.as_str(),
@@ -201,16 +213,17 @@ mod tests {
                 report.future_transport_seam_ref
             );
         }
+
+        Ok(())
     }
 
     #[tokio::test]
-    async fn network_runtime_remote_delivery_transport_dispatch_state_rejects_action_claims() {
-        let mut no_enforcement_invariant =
-            prove_network_runtime_remote_delivery_no_enforcement_invariant()
-                .await
-                .expect(
-                    constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT,
-                );
+    async fn network_runtime_remote_delivery_transport_dispatch_state_rejects_action_claims(
+    ) -> TestResult {
+        let mut no_enforcement_invariant = ok(
+            prove_network_runtime_remote_delivery_no_enforcement_invariant().await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT,
+        )?;
         no_enforcement_invariant.dispatch_attempt_count = 1;
         no_enforcement_invariant.remote_ack_count = 1;
 
@@ -223,5 +236,7 @@ mod tests {
             proof_result,
             Err(NetworkRuntimeRemoteDeliveryTransportDispatchStateError::UnsupportedClaim)
         ));
+
+        Ok(())
     }
 }

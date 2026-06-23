@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGameEducationalClassifierSchemaVersionSchema = withParser(
@@ -103,4 +98,3 @@ export type BrowserGameEducationalClassificationOutcome = Infer<
 export type BrowserGameEducationalClassifierConfidence = Infer<typeof BrowserGameEducationalClassifierConfidenceSchema>;
 export type BrowserGameEducationalEvidenceKind = Infer<typeof BrowserGameEducationalEvidenceKindSchema>;
 export type BrowserGameEducationalRecommendedGate = Infer<typeof BrowserGameEducationalRecommendedGateSchema>;
-

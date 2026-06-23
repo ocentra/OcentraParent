@@ -1,20 +1,17 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { resolveParentPortalServiceState } from '@ocentra-parent/portal-domain/parent-portal-service-state';
 import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import { DEFAULT_PARENT_PORTAL_SVG_CONTROLS } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('policy preview workspace banner', () => {
-  it('renders typed preview and confirmation state inside the main policy workspace', () => {
+  it('does not render the preview banner inside the main policy workspace', () => {
     const liveActivity = resolveLiveActivityState([policyPreviewEvent()]);
     const routeContext = parentPortalRouteContext(PortalRoute.RuleManagement);
     const serviceState = resolveParentPortalServiceState({
@@ -37,13 +34,10 @@ describe('policy preview workspace banner', () => {
       })
     );
 
-    expect(html).toContain('Policy preview workspace banner');
-    expect(html).toContain('Preview');
-    expect(html).toContain('https://example.test/learn');
-    expect(html).toContain('Parent confirmation required');
-    expect(html).toContain('Assistant draft');
-    expect(html).toContain('Advisory only');
-    expect(html).toContain('Delivery and acknowledgment stay separate from active enforcement.');
+    expect(html).not.toContain('Policy preview workspace banner');
+    expect(html).not.toContain('https://example.test/learn');
+    expect(html).not.toContain('Parent confirmation required');
+    expect(html).toContain('RULES');
   });
 });
 

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel } from './app-install-purchase-provider-store-execution-readiness-proof';
 import { AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel } from './app-install-purchase-runtime-writer-execution-delivery-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -81,9 +76,15 @@ const ProviderStoreExecutionPreflightNonClaimSchema = withParser(
   Schema.Literal(...ProviderStoreExecutionPreflightNonClaims)
 );
 
-const ProviderStoreExecutionPreflightRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionPreflightRowId');
-const ProviderStoreExecutionPreflightRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionPreflightRef');
-const ProviderStoreExecutionPreflightBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionPreflightBoundary');
+const ProviderStoreExecutionPreflightRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreExecutionPreflightRowId'
+);
+const ProviderStoreExecutionPreflightRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreExecutionPreflightRef'
+);
+const ProviderStoreExecutionPreflightBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreExecutionPreflightBoundary'
+);
 
 const ProviderStoreExecutionPreflightRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreExecutionPreflightProofSchemaVersionSchema,
@@ -346,4 +347,3 @@ function providerStoreExecutionPreflightBoundaryIsExplicit(
 ): boolean {
   return ProviderStoreExecutionPreflightBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

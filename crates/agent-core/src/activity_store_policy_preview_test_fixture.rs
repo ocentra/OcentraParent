@@ -1,13 +1,29 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityCaptureCapabilityStatus, ActivityEvent,
-    ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol,
-    ActivityNetworkTcpState, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus,
-    BrowserChannel, BrowserCustodyLabel, BrowserFamily, BrowserQueryVisibilityLabel,
-    ChildProfileReference, FamilyReference, LocalAiParentRuleContextRef, LogFieldValue, LogFields,
-    ParentActorReference, ParentActorRole, ParentDeviceReference, PolicyAction, PolicyRule,
-    PolicyTarget, PolicyTargetType, ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyRule;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ChildProfileReference;
+use ocentra_parent_agent_protocol::activity::policy_context::FamilyReference;
+use ocentra_parent_agent_protocol::activity::policy_context::LocalAiParentRuleContextRef;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+};
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
+};
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants as policy;
 
 use super::{
     browser_tab_observation_event, foreground_window_observation_event, network_observation_event,
@@ -38,7 +54,7 @@ pub(crate) fn browser_event() -> ActivityEvent {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::BROWSER_BRIDGE_MAPS_TARGET))
 }
 
 pub(crate) fn active_window_event() -> ActivityEvent {

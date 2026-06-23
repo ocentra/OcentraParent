@@ -2,7 +2,12 @@ import {
   AgentAppGameNotificationReadinessReadModelSchema,
   type AgentAppGameNotificationReadinessReadModel,
 } from '@ocentra-parent/schema-domain/app-game-notification-readiness';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type AgentAppGameNotificationReadinessFailureReason =
   | 'wrong-event'

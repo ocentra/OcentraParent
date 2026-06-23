@@ -184,7 +184,7 @@ function rejectsMobileParityOrExternalTransportClaims(): void {
 }
 
 function validReadModel(): MobileChildAgentCapabilityReadModel {
-  return {
+  return MobileChildAgentCapabilityReadModelSchema.parse({
     schemaVersion: 'mobile-child-agent-capability-proof',
     checkedAt: '2026-06-02T00:00:00.000Z',
     platforms: [
@@ -219,10 +219,10 @@ function validReadModel(): MobileChildAgentCapabilityReadModel {
         'Mobile child-agent parity requires real device, entitlement, signing, and store proof artifacts',
     },
     knownManualGaps: knownManualGaps(),
-  };
+  });
 }
 
-function sourceProofs(): MobileChildAgentCapabilityReadModel['sourceProofs'] {
+function sourceProofs() {
   return [
     sourceProof('child-android-protocol-package-lifecycle-proof'),
     sourceProof('child-android-storage-protocol-capability-proof'),
@@ -234,15 +234,15 @@ function sourceProofs(): MobileChildAgentCapabilityReadModel['sourceProofs'] {
   ];
 }
 
-function capabilityRows(): MobileChildAgentCapabilityReadModel['capabilityRows'] {
+function capabilityRows() {
   return [...androidCapabilityRows(), ...iosCapabilityRows()];
 }
 
-function androidCapabilityRows(): MobileChildAgentCapabilityReadModel['capabilityRows'] {
+function androidCapabilityRows() {
   return [...androidPackageProtocolRows(), ...androidPrivilegedDeviceRows()];
 }
 
-function androidPackageProtocolRows(): MobileChildAgentCapabilityReadModel['capabilityRows'] {
+function androidPackageProtocolRows() {
   return [
     androidRow(
       'android-foreground-service',
@@ -275,7 +275,7 @@ function androidPackageProtocolRows(): MobileChildAgentCapabilityReadModel['capa
   ];
 }
 
-function androidPrivilegedDeviceRows(): MobileChildAgentCapabilityReadModel['capabilityRows'] {
+function androidPrivilegedDeviceRows() {
   return [
     androidRow(
       'android-usage-stats',
@@ -336,7 +336,7 @@ function androidPrivilegedDeviceRows(): MobileChildAgentCapabilityReadModel['cap
   ];
 }
 
-function iosCapabilityRows(): MobileChildAgentCapabilityReadModel['capabilityRows'] {
+function iosCapabilityRows() {
   return [
     iosRow('ios-simulator-status-surface', 'typed-protocol-bridge', 'scaffold', 'simulator-scaffold'),
     iosRow('ios-family-controls', 'family-controls-entitlement', 'manual-required', 'entitlement-required'),
@@ -353,7 +353,7 @@ function iosCapabilityRows(): MobileChildAgentCapabilityReadModel['capabilityRow
   ];
 }
 
-function packageRuntimeHooks(): MobileChildAgentCapabilityReadModel['packageRuntimeHooks'] {
+function packageRuntimeHooks() {
   return [
     runtimeHook(
       'android-debug-apk-checksum',
@@ -414,7 +414,7 @@ function packageRuntimeHooks(): MobileChildAgentCapabilityReadModel['packageRunt
   ];
 }
 
-function knownManualGaps(): MobileChildAgentCapabilityReadModel['knownManualGaps'] {
+function knownManualGaps() {
   return [
     'Android emulator install and launch evidence',
     'Android physical-device install and foreground service evidence',
@@ -433,9 +433,7 @@ function knownManualGaps(): MobileChildAgentCapabilityReadModel['knownManualGaps
   ];
 }
 
-function sourceProof(
-  source: MobileChildAgentCapabilityReadModel['sourceProofs'][number]['source']
-): MobileChildAgentCapabilityReadModel['sourceProofs'][number] {
+function sourceProof(source: string) {
   return {
     source,
     status: 'ci-mechanical-proof',
@@ -445,21 +443,16 @@ function sourceProof(
 }
 
 function androidRow(
-  surface: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['surface'],
-  parentCapability: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['parentCapability'],
-  parentCapabilityStatus: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['parentCapabilityStatus'],
-  proofState: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['proofState'],
-  source: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['source']
-): MobileChildAgentCapabilityReadModel['capabilityRows'][number] {
+  surface: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  proofState: string,
+  source: string
+) {
   return capabilityRow(surface, 'android-child-agent', parentCapability, parentCapabilityStatus, proofState, source);
 }
 
-function iosRow(
-  surface: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['surface'],
-  parentCapability: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['parentCapability'],
-  parentCapabilityStatus: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['parentCapabilityStatus'],
-  proofState: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['proofState']
-): MobileChildAgentCapabilityReadModel['capabilityRows'][number] {
+function iosRow(surface: string, parentCapability: string, parentCapabilityStatus: string, proofState: string) {
   return capabilityRow(
     surface,
     'ios-child-agent',
@@ -471,13 +464,13 @@ function iosRow(
 }
 
 function capabilityRow(
-  surface: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['surface'],
-  platform: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['platform'],
-  parentCapability: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['parentCapability'],
-  parentCapabilityStatus: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['parentCapabilityStatus'],
-  proofState: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['proofState'],
-  source: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['source']
-): MobileChildAgentCapabilityReadModel['capabilityRows'][number] {
+  surface: string,
+  platform: string,
+  parentCapability: string,
+  parentCapabilityStatus: string,
+  proofState: string,
+  source: string
+) {
   const proofRequirement = `${surface} remains ${proofState} until required platform artifacts change it`;
   return {
     surface,
@@ -491,29 +484,23 @@ function capabilityRow(
   };
 }
 
-function runtimeHook(
-  hook: MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number]['hook'],
-  platform: MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number]['platform'],
-  hookState: MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number]['hookState'],
-  evidencePath: MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number]['evidencePath'],
-  source: MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number]['source']
-): MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number] {
+function runtimeHook(hook: string, platform: string, hookState: string, evidencePath: string | null, source: string) {
   return { hook, platform, hookState, evidencePath, source };
 }
 
 function replaceCapabilityRow(
   model: MobileChildAgentCapabilityReadModel,
   surface: MobileChildAgentCapabilityReadModel['capabilityRows'][number]['surface'],
-  patch: Partial<MobileChildAgentCapabilityReadModel['capabilityRows'][number]>
-): MobileChildAgentCapabilityReadModel['capabilityRows'] {
+  patch: Record<string, unknown>
+) {
   return model.capabilityRows.map((entry) => (entry.surface === surface ? { ...entry, ...patch } : entry));
 }
 
 function replaceRuntimeHook(
   model: MobileChildAgentCapabilityReadModel,
   hook: MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number]['hook'],
-  patch: Partial<MobileChildAgentCapabilityReadModel['packageRuntimeHooks'][number]>
-): MobileChildAgentCapabilityReadModel['packageRuntimeHooks'] {
+  patch: Record<string, unknown>
+) {
   return model.packageRuntimeHooks.map((entry) => (entry.hook === hook ? { ...entry, ...patch } : entry));
 }
 

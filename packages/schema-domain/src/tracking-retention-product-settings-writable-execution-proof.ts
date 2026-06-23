@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -16,11 +10,13 @@ import {
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
 
-export const TrackingRetentionProductSettingsWritableExecutionArtifactRefSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionProductSettingsWritableExecutionArtifactRef');
+export const TrackingRetentionProductSettingsWritableExecutionArtifactRefSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionProductSettingsWritableExecutionArtifactRef'
+);
 
-export const TrackingRetentionProductSettingsWritableExecutionRowIdSchema =
-  brandedNonEmptyStringSchema('TrackingRetentionProductSettingsWritableExecutionRowId');
+export const TrackingRetentionProductSettingsWritableExecutionRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingRetentionProductSettingsWritableExecutionRowId'
+);
 
 export const TrackingRetentionProductSettingsWritableExecutionRowSchema = withParser(
   Schema.Struct({
@@ -222,4 +218,3 @@ function writableExecutionRow(
     productClaimReady: false,
   });
 }
-

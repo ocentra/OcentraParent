@@ -1,18 +1,18 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
-import { executeRequest, readJson } from "../../src/testing.js";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { executeRequest, readJson } from '../../src/testing.js';
 
-describe("admin auth rejection boundaries", () => {
-  it("rejects admin and support routes when auth is missing", async () => {
+describe('admin auth rejection boundaries', () => {
+  it('rejects admin and support routes when auth is missing', async () => {
     const supportRoute = await executeRequest({
-      path: "/admin/billing/accounts",
+      path: '/admin/billing/accounts',
     });
     const adminRoute = await executeRequest({
-      path: "/admin/billing/refunds",
-      method: "POST",
+      path: '/admin/billing/refunds',
+      method: 'POST',
       body: {
-        requestId: "refund-missing-auth",
-        invoiceId: "invoice-1",
+        requestId: 'refund-missing-auth',
+        invoiceId: 'invoice-1',
         amountCents: 1000,
       },
     });
@@ -21,29 +21,29 @@ describe("admin auth rejection boundaries", () => {
     const adminBody = await readJson<any>(adminRoute.response);
     assert.equal(supportRoute.response.status, 401);
     assert.equal(adminRoute.response.status, 401);
-    assert.equal(supportBody.error, "authentication-required");
-    assert.equal(adminBody.error, "authentication-required");
-    assert.equal(supportBody.missingHeader, "authorization");
-    assert.equal(adminBody.missingHeader, "authorization");
+    assert.equal(supportBody.error, 'authentication-required');
+    assert.equal(adminBody.error, 'authentication-required');
+    assert.equal(supportBody.missingHeader, 'authorization');
+    assert.equal(adminBody.missingHeader, 'authorization');
   });
 
-  it("rejects callers that only satisfy parent-session auth for admin and support billing routes", async () => {
+  it('rejects callers that only satisfy parent-session auth for admin and support billing routes', async () => {
     const supportRoute = await executeRequest({
-      path: "/admin/billing/accounts",
+      path: '/admin/billing/accounts',
       headers: {
-        authorization: "Bearer parent:demo-active",
+        authorization: 'Bearer parent:demo-active',
       },
     });
     const adminRoute = await executeRequest({
-      path: "/admin/billing/refunds",
-      method: "POST",
+      path: '/admin/billing/refunds',
+      method: 'POST',
       body: {
-        requestId: "refund-parent-only",
-        invoiceId: "invoice-1",
+        requestId: 'refund-parent-only',
+        invoiceId: 'invoice-1',
         amountCents: 1000,
       },
       headers: {
-        authorization: "Bearer parent:demo-active",
+        authorization: 'Bearer parent:demo-active',
       },
     });
 
@@ -51,46 +51,46 @@ describe("admin auth rejection boundaries", () => {
     const adminBody = await readJson<any>(adminRoute.response);
     assert.equal(supportRoute.response.status, 403);
     assert.equal(adminRoute.response.status, 403);
-    assert.equal(supportBody.reason, "support-role-required");
-    assert.equal(adminBody.reason, "admin-role-required");
+    assert.equal(supportBody.reason, 'support-role-required');
+    assert.equal(adminBody.reason, 'admin-role-required');
   });
 
-  it("rejects support-owned routes when callers lack support or admin authority", async () => {
+  it('rejects support-owned routes when callers lack support or admin authority', async () => {
     const { response } = await executeRequest({
-      path: "/admin/billing/accounts",
+      path: '/admin/billing/accounts',
       headers: {
-        authorization: "Bearer parent:demo-active",
-        "x-ocentra-role": "parent",
+        authorization: 'Bearer parent:demo-active',
+        'x-ocentra-role': 'parent',
       },
     });
 
     const body = await readJson<any>(response);
     assert.equal(response.status, 403);
-    assert.equal(body.reason, "support-role-required");
+    assert.equal(body.reason, 'support-role-required');
   });
 
-  it("keeps admin and support rejection payloads redacted and audit-safe", async () => {
+  it('keeps admin and support rejection payloads redacted and audit-safe', async () => {
     const { response } = await executeRequest({
-      path: "/admin/billing/refunds",
-      method: "POST",
+      path: '/admin/billing/refunds',
+      method: 'POST',
       body: {
-        requestId: "refund-audit-safe",
-        invoiceId: "invoice-1",
+        requestId: 'refund-audit-safe',
+        invoiceId: 'invoice-1',
         amountCents: 1000,
       },
       headers: {
-        authorization: "Bearer parent:demo-active",
+        authorization: 'Bearer parent:demo-active',
       },
       envOverrides: {
-        STRIPE_SECRET_KEY: "sk_live_admin_secret",
+        STRIPE_SECRET_KEY: 'sk_live_admin_secret',
       },
     });
 
     const text = await response.text();
     const body = JSON.parse(text) as Record<string, unknown>;
     assert.equal(response.status, 403);
-    assert.deepEqual(Object.keys(body).sort(), ["authState", "error", "reason"]);
-    assert.equal(text.includes("sk_live_admin_secret"), false);
-    assert.equal(text.includes("authorization"), false);
+    assert.deepEqual(Object.keys(body).sort(), ['authState', 'error', 'reason']);
+    assert.equal(text.includes('sk_live_admin_secret'), false);
+    assert.equal(text.includes('authorization'), false);
   });
 });

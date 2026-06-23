@@ -1,10 +1,17 @@
 use ocentra_eventing::{bus::reports::HandlerOutcome, bus::EventBus};
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, ActivityReadModelState, ActivityScreenReadModelRow,
-    ScreenRuntimePhase, SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED,
-    SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
+use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPABILITY_READY;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_SCHOOL;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_JOURNAL;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_DELETED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_POLICY_CONFIDENCE_READY;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_OCR;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION;
 
 use super::screen_ai_service_event_bridge::ScreenAiServiceEventBridgeError;
 use super::screen_ai_service_event_subscription::{
@@ -19,7 +26,12 @@ const DEGRADED_SCREEN_RUNTIME_EVENT_COUNT: usize = 6;
 async fn screen_service_event_runtime_start_registers_subscriber_for_production_startup() {
     let runtime = ScreenAiServiceEventRuntime::start()
         .await
-        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
+        .unwrap_or_else(|error| {
+            panic!(
+                "{}: {error:?}",
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES
+            )
+        });
 
     let publish = runtime
         .publish_row_ready(
@@ -28,7 +40,12 @@ async fn screen_service_event_runtime_start_registers_subscriber_for_production_
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
         )
         .await
-        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES);
+        .unwrap_or_else(|error| {
+            panic!(
+                "{}: {error:?}",
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES
+            )
+        });
 
     assert_eq!(publish.handler_reports.len(), 1);
     assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Handled);
@@ -49,7 +66,12 @@ async fn screen_service_event_subscription_publishes_existing_runtime_chain() {
     let state = ScreenAiServiceEventSubscriptionState::default();
     subscribe_screen_service_row_ready_events(&bus, state.clone())
         .await
-        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
+        .unwrap_or_else(|error| {
+            panic!(
+                "{}: {error:?}",
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES
+            )
+        });
 
     let publish = publish_screen_service_row_ready_event(
         &bus,
@@ -60,7 +82,12 @@ async fn screen_service_event_subscription_publishes_existing_runtime_chain() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES
+        )
+    });
 
     assert_eq!(publish.handler_reports.len(), 1);
     assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Handled);
@@ -81,7 +108,12 @@ async fn screen_service_event_subscription_publishes_degraded_runtime_chain() {
     let state = ScreenAiServiceEventSubscriptionState::default();
     subscribe_screen_service_row_ready_events(&bus, state.clone())
         .await
-        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
+        .unwrap_or_else(|error| {
+            panic!(
+                "{}: {error:?}",
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES
+            )
+        });
 
     let publish = publish_screen_service_row_ready_event(
         &bus,
@@ -92,7 +124,12 @@ async fn screen_service_event_subscription_publishes_degraded_runtime_chain() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES
+        )
+    });
 
     assert_eq!(publish.handler_reports.len(), 1);
     assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Handled);
@@ -113,7 +150,12 @@ async fn screen_service_event_subscription_rejects_unsafe_rows_before_downstream
     let state = ScreenAiServiceEventSubscriptionState::default();
     subscribe_screen_service_row_ready_events(&bus, state.clone())
         .await
-        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
+        .unwrap_or_else(|error| {
+            panic!(
+                "{}: {error:?}",
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES
+            )
+        });
 
     let mut row = service_screen_row();
     row.raw_image_retained = true;
@@ -123,7 +165,12 @@ async fn screen_service_event_subscription_rejects_unsafe_rows_before_downstream
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
-    .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS
+        )
+    });
 
     assert_eq!(publish.handler_reports.len(), 1);
     assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Failed);

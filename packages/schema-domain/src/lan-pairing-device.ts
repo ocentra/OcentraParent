@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 import { ParentDeviceIdSchema } from './family-reference-primitives';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema } from './family-references';
 import {
@@ -238,4 +233,3 @@ export type LanBrowserAddDevicePairingRequest = Infer<typeof LanBrowserAddDevice
 export type LanBrowserAddDeviceScanSummary = Infer<typeof LanBrowserAddDeviceScanSummarySchema>;
 export type LanSelectedDeviceReadiness = Infer<typeof LanSelectedDeviceReadinessSchema>;
 export type LanBrowserAddDeviceReadModel = Infer<typeof LanBrowserAddDeviceReadModelSchema>;
-

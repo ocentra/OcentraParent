@@ -7,7 +7,7 @@ import {
   BillingPortalSessionResponseSchema,
 } from '@ocentra-parent/schema-domain/billing-checkout-portal-boundary';
 
-describe('billing checkout and portal boundary', () => {
+describe('billing checkout session request boundary', () => {
   it('accepts authenticated checkout session requests with allowlisted success and cancel routes', () => {
     const request = BillingCheckoutSessionRequestSchema.parse({
       schemaVersion: 'billing-checkout-portal-boundary',
@@ -63,7 +63,9 @@ describe('billing checkout and portal boundary', () => {
       }).success
     ).toBe(false);
   });
+});
 
+describe('billing portal session request boundary', () => {
   it('rejects portal session requests that try to use checkout redirect routes', () => {
     expect(
       BillingPortalSessionRequestSchema.safeParse({
@@ -78,7 +80,9 @@ describe('billing checkout and portal boundary', () => {
       }).success
     ).toBe(false);
   });
+});
 
+describe('billing checkout and portal response boundary', () => {
   it('accepts Stripe-hosted checkout responses and rejects client-secret leakage', () => {
     expect(
       BillingCheckoutSessionResponseSchema.safeParse({

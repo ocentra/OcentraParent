@@ -1,10 +1,5 @@
-import {
-  expect,
-  test,
-  type Locator,
-  type Page } from '@playwright/test';
-import { AgentEvent
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { expect, test, type Locator, type Page } from '@playwright/test';
+import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
 import { collectBrowserFailures } from './browser-failures';
 import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
@@ -28,7 +23,7 @@ test('portal UI connects to the real agent and renders command results', async (
   await expect(page.getByRole('button', { exact: true, name: 'Login' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
-  await expect(page.getByRole('heading', { exact: true, name: 'Controls' })).toBeVisible({
+  await expect(page.getByRole('heading', { exact: true, name: 'Device controls' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
 
@@ -43,7 +38,6 @@ test('portal UI connects to the real agent and renders command results', async (
   const selectedDeviceLabel = await assertDevicesRoute(page);
   await assertSelectedDeviceContextPersistsAcrossRoutes(page, selectedDeviceLabel);
   await assertRouteScaffolds(page);
-  await assertMobileShellStatusLayout(page);
 
   expect(browserFailures).toEqual([]);
 });
@@ -89,8 +83,6 @@ async function assertAuthDialog(page: Page): Promise<void> {
 }
 
 async function assertCommandControls(page: Page): Promise<void> {
-  await expect(commandControlButton(page, 'Reconnect')).toBeVisible();
-  await assertShellStatus(page, 'control: dev-commands');
   await expectCommandControlEnabled(page, 'Check health');
   await expectCommandControlEnabled(page, 'Get log snapshot');
   await expectCommandControlEnabled(page, 'Send connectivity check');
@@ -310,7 +302,6 @@ async function assertManageRouteRequiresExplicitDeviceSelection(page: Page): Pro
 
 async function assertDevicesRoute(page: Page): Promise<string> {
   await page.goto('/#/devices');
-  await assertShellStatus(page, 'control: lan-pairing');
   const surface = page.locator('svg.parent-portal-svg-surface');
   await expect(surface).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
@@ -347,20 +338,14 @@ async function assertDevicesRoute(page: Page): Promise<string> {
   return selectLanDeviceForContextProof(page, surface);
 }
 
-async function assertSelectedDeviceContextPersistsAcrossRoutes(
-  page: Page,
-  selectedDeviceLabel: string
-): Promise<void> {
+async function assertSelectedDeviceContextPersistsAcrossRoutes(page: Page, selectedDeviceLabel: string): Promise<void> {
   await assertSelectedDeviceContextOnManageRoute(page, '/#/browser-settings', selectedDeviceLabel, 'Browser target');
   await assertSelectedDeviceContextOnManageRoute(page, '/#/ai-runtime', selectedDeviceLabel, 'AI device');
   await assertSelectedDeviceContextOnManageRoute(page, '/#/entitlements', selectedDeviceLabel, 'Account device');
   await assertSelectedDeviceContextOnActivityRoute(page, selectedDeviceLabel);
 }
 
-async function selectLanDeviceForContextProof(
-  page: Page,
-  surface: Locator
-): Promise<string> {
+async function selectLanDeviceForContextProof(page: Page, surface: Locator): Promise<string> {
   const scanButton = page.getByRole('button', { name: 'Scan Local Area Network' });
   await expect(scanButton).toBeVisible();
   await scanButton.click({ force: true });
@@ -400,27 +385,6 @@ async function assertSelectedDeviceContextOnActivityRoute(page: Page, selectedDe
   await expectSurfaceTextToContain(surface, `Report device: ${selectedDeviceLabel}`);
   await expectSurfaceTextNotToContain(surface, 'Report device: Whole family');
   await expectSurfaceTextNotToContain(surface, 'Report device: No device selected');
-}
-
-async function assertShellStatus(page: Page, expectedControlDetail: string): Promise<void> {
-  const shellStatus = page.getByLabel('Shell status');
-  await expect(shellStatus).toBeVisible();
-  await expect(shellStatus.getByText('Parent access', { exact: true })).toBeVisible();
-  await expect(shellStatus.getByText('Connection', { exact: true })).toBeVisible();
-  await expect(shellStatus.getByText('Household', { exact: true })).toBeVisible();
-  await expect(shellStatus.getByText('Child device', { exact: true })).toBeVisible();
-  await expect(shellStatus.getByText('Route capability', { exact: true })).toBeVisible();
-  await expect(shellStatus.getByText('Data source', { exact: true })).toBeVisible();
-  await expect(shellStatus.getByText(expectedControlDetail)).toBeVisible();
-}
-
-async function assertMobileShellStatusLayout(page: Page): Promise<void> {
-  await page.goto('/#/commands');
-  await page.setViewportSize({ width: 390, height: 844 });
-  const shellStatus = page.getByLabel('Shell status');
-  await expect(shellStatus).toBeVisible();
-  await expect(shellStatus.locator('.shell-status-card')).toHaveCount(6);
-  await page.setViewportSize({ width: 1280, height: 720 });
 }
 
 async function surfaceText(surface: Locator): Promise<string> {

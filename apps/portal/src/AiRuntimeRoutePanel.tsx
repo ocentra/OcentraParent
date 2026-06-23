@@ -1,23 +1,15 @@
 import type { ReactElement } from 'react';
-import {
-  AgentCommand,
-  AgentEvent
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   createLocalAiRuntimePanelIntent,
   type LocalAiRuntimePanelDetail,
   type LocalAiRuntimePanelIntent,
 } from '@ocentra-parent/portal-domain/local-ai-runtime-panel';
-import {
-  isPortalAiRuntimeRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { isPortalAiRuntimeRoute } from '@ocentra-parent/portal-domain/routes';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
@@ -43,7 +35,7 @@ export function AiRuntimeRoutePanel({
   );
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.AiRuntime)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.AiRuntime)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -60,7 +52,7 @@ export function AiRuntimeRoutePanel({
               actions.sendCommand(AgentCommand.LocalAiRuntimeStatusGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetLocalAiRuntimeStatus)}
+            {resolvePortalDevText(PortalDevTextToken.GetLocalAiRuntimeStatus)}
           </button>
         </header>
         <AiRuntimeCards intent={intent} />

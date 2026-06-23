@@ -1,5 +1,5 @@
-import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import type { DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import type {
   AgentActivityTrackingEvidenceReferenceIds,
   AgentActivityTrackingReadModel,
@@ -9,9 +9,13 @@ import type {
 import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import type { AgentActivityTrackingReadModelResult } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import {
+  decodePortalDetailValue,
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalFormatting } from './formatting';
-import { TrackingStatusProofArtifacts, type TrackingStatusProofArtifact } from './tracking-status-proof-artifacts';
+import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 
 type PortalDisplayText = DisplayText;
 type PortalTextTokenValue = (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];

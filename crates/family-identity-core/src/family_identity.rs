@@ -1,5 +1,4 @@
 #![forbid(unsafe_code)]
-#![allow(clippy::panic)]
 
 //! Family identity and device-role ownership boundary.
 //!
@@ -9,6 +8,7 @@
 
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
@@ -273,7 +273,7 @@ pub fn record_device_scope_decision(
     DeviceScopeDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
         decision_id: DeviceScopeDecisionId::parse(device_scope_decision_ref(&event.evaluation_id))
-            .unwrap_or_else(|_| panic!("{}", ERROR_DEVICE_SCOPE_DECISION_ID)),
+            .expect_value(ERROR_DEVICE_SCOPE_DECISION_ID),
         source_evaluation_id: event.evaluation_id.clone(),
         decision: authorize_child_device_scope(event.input),
     }

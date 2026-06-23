@@ -23,7 +23,9 @@ fn policy_rule_serializes_parent_authored_shape() {
         PolicyAction::AskParent,
         policy::TEST_REASON_PARENT_ASK,
     );
-    let serialized = serde_json::to_value(rule).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(rule).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(serialized["ruleId"], policy::TEST_ASK_PARENT_RULE_ID);
     assert_eq!(serialized["action"], policy::ACTION_ASK_PARENT);
@@ -48,8 +50,9 @@ fn policy_decision_serializes_dry_run_disabled_handoff_shape() {
         enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
         expires_at: None,
     };
-    let serialized =
-        serde_json::to_value(decision).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(decision).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["schemaVersion"],
@@ -67,7 +70,9 @@ fn policy_decision_serializes_dry_run_disabled_handoff_shape() {
 #[test]
 fn local_ai_safety_result_serializes_policy_signal_shape() {
     let result = local_ai_result(PolicyAction::AskParent, LocalAiUnknownState::LowConfidence);
-    let serialized = serde_json::to_value(result).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(result).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized["schemaVersion"],

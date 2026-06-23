@@ -2,7 +2,8 @@ import {
   V08BroadOsAdapterRuntimeProofReadModelSchema,
   type V08BroadOsAdapterRuntimeProofReadModel,
 } from '@ocentra-parent/schema-domain/v0-8-broad-os-adapter-runtime-proof';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from './contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export type EnforcementBroadAdapterProofParseResult =
   | {

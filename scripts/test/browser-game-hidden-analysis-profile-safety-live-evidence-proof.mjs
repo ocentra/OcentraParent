@@ -8,7 +8,7 @@ import {
   BrowserGameHiddenAnalysisLoaderResultSchema,
   BrowserGameHiddenAnalysisProfileDesignSchema,
 } from '@ocentra-parent/schema-domain/browser-game-hidden-analysis-profile-safety';
-import { planBrowserGameHiddenAnalysisProfileSafety } from '@ocentra-parent/browser-domain/browser-game-hidden-analysis-profile-safety';
+import { planBrowserGameHiddenAnalysisProfileSafety } from '../../packages/browser-domain/dist/browser-game-hidden-analysis-loader-planner.js';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-hidden-analysis-profile-safety-live-evidence-proof';
@@ -66,7 +66,7 @@ const proofBackedResults = captures.map(proofBackedResultFor);
 const negativeChecks = runNegativeChecks(profileRows[0], loaderRequests[0], proofBackedResults[0]);
 
 if (!captures.every((capture) => capture.responseOk)) {
-  throw new Error('Expected all hidden analysis profile safety public captures to return HTTP 2xx/3xx responses');
+  throw new Error('Expected all hidden analysis profile safety live captures to return HTTP 2xx/3xx responses');
 }
 if (!profileRows.every((row) => BrowserGameHiddenAnalysisProfileDesignSchema.safeParse(row).success)) {
   throw new Error('Expected every hidden analysis profile design row to parse');
@@ -91,7 +91,7 @@ const proof = {
   branch,
   commit,
   baseCommit,
-  captureMode: 'real-public-browser-game-hidden-analysis-profile-safety-shapes',
+  captureMode: 'real-live-browser-game-hidden-analysis-profile-safety-shapes',
   targets: captures,
   profileRows,
   loaderRequests,

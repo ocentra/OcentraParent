@@ -33,7 +33,7 @@ function previewDecision() {
   } as const;
 }
 
-describe('parent policy contracts', () => {
+describe('parent policy contracts: family policy parsing', () => {
   it('parseFamilyPolicySet: parses parent-authored rules, schedules, children, and devices with explicit time-budget semantics', () => {
     const parsed = parseFamilyPolicySet({
       schemaVersion: 'v0.6',
@@ -98,7 +98,9 @@ describe('parent policy contracts', () => {
     expect(parsed.schedules[0]?.windows[0]?.days).toEqual([PolicyScheduleDay.Monday, PolicyScheduleDay.Tuesday]);
     expect(parsed.schedules[0]?.timeBudget.carryover.mode).toBe(PolicyScheduleBudgetCarryoverMode.CapCarryover);
   });
+});
 
+describe('parent policy contracts: schedule validation', () => {
   it('parsePolicySchedule: rejects capped carryover without an explicit minute cap', () => {
     expect(() =>
       parsePolicySchedule({
@@ -164,7 +166,9 @@ describe('parent policy contracts', () => {
       })
     ).toThrow('weekly reset rules require timeBudget.reset.day');
   });
+});
 
+describe('parent policy contracts: rule validation', () => {
   it('PolicyRuleSchema: rejects actions outside the local policy decision set', () => {
     const result = PolicyRuleSchema.safeParse({
       ruleId: 'rule-1',
@@ -184,7 +188,9 @@ describe('parent policy contracts', () => {
       expect([...new Set(result.error.issues.map((issue) => issue.path.join('.')))]).toEqual(['action']);
     }
   });
+});
 
+describe('parent policy contracts: preview handling', () => {
   it('parsePolicyPreview: keeps assistant-authored previews confirmation-required until a parent confirms', () => {
     const preview = parsePolicyPreview({
       previewId: 'policy-preview-1',

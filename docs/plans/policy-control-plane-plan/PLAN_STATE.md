@@ -2,7 +2,44 @@
 
 Status: audit-open. Core TypeScript and Rust policy-control contracts exist and focused validation runs are real, but implementation/proof closure is not complete and PR coordination remains centralized with the coordinator.
 
-Current truth:
+## Current ownership interpretation
+
+```text
+schema-domain:
+  Canonical shared policy shapes when contracts cross package, app, crate, or plan boundaries.
+
+policy-domain:
+  Legacy package anchor or TypeScript proof-consumer surface unless explicit public exports exist. Package identity is not source-truth proof by itself.
+
+policy-control-core:
+  Rust source, authority, compiler, conflict, delivery, event, preview, request, and source helper crate.
+
+agent-protocol and agent-protocol-domain:
+  Delivery/read-model/audit/assistant seams only when selected.
+
+portal-domain/apps/portal:
+  Rendered authoring, preview, conflict, approval, and audit UI surfaces only when selected. UI state is not policy truth.
+
+eventing-plan:
+  Reusable local event bus, idempotency, replay, journal, and request/response semantics only.
+
+account-identity-family-plan:
+  Actor, role, session, parent authority, and household authority owner.
+
+device-trust-bootstrap-plan:
+  Parent presence, step-up, and trusted-device gating owner.
+
+data-custody-storage-plan:
+  Policy export/delete/sync/retention custody owner.
+
+v0-8-enforcement-control-plan:
+  Enforcement action authority, execution, rollback, and adapter behavior owner.
+
+domain plans:
+  App/game, browser, network, tracking, screen, AI, and notification runtime effects after typed compiler handoff.
+```
+
+## Current truth
 
 - This plan owns the cross-domain policy control contract: source of truth, lifecycle, schedule/time budget, conflict precedence, domain compiler boundaries, delivery/ack/audit, ask-parent overrides, and policy event model.
 - Existing domain plans own runtime effects; this plan owns the parent policy control plane contract and proof route.
@@ -20,7 +57,32 @@ Current truth:
 - The shared architecture gate for the selected validation slice is not green because `packages/agent-protocol-domain` still contains banned re-exports.
 - Feature-owned parent authoring and assistant approval surfaces remain incomplete and cannot be claimed done from contract tests alone.
 - The canonical proof root for this plan is `docs/proof/policy-control-plane-plan/`, and the touched route docs in this slice now agree on that single root.
-- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` now records current file presence and route status: checked closeout bundles for WP01, WP03, WP04, WP07, and WP08; the WP06 route bundle; and open gaps for WP02/WP05.
+- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` records current file presence and route status: checked closeout bundles for WP01, WP03, WP04, WP06, WP07, and WP08; open gaps remain for WP02/WP05.
+
+## Current coupling risks
+
+```text
+- UI preview is not applied policy.
+- Compiler output is not policy source truth.
+- Compiler tests are not runtime domain effects.
+- Event model proof is not delivery/ack proof.
+- Assistant draft is not parent approval.
+- Child request is not parent approval.
+- Policy delivery proof is not enforcement authority.
+- Single-domain ack is not global active policy.
+- policy-domain package identity is not canonical policy source truth.
+- Focused contract passes are not full plan completion while WP02/WP05 remain open.
+```
+
+## Current proof interpretation
+
+```text
+docs/proof/policy-control-plane-plan/ is the canonical proof root.
+PLAN_PROOF_MANIFEST.md records file presence and workpack proof status only.
+WP01, WP03, WP04, WP06, WP07, and WP08 have closeout bundles recorded in current route docs.
+WP02 and WP05 remain open until targeted authoring/preview and ask-parent/override proof bundles exist or explicit dependency blockers are carried.
+Universal guardrail files supplement workpack closeouts; they do not replace them.
+```
 
 Open gaps:
 
@@ -39,6 +101,6 @@ Avoidable local execution gaps:
 
 ## Execution boundary
 
-- Use `WORKPACK_INDEX.md` and `TEST_PROOF_EXPECTATIONS.md` to choose work.
-- Do not mark this plan complete from checklist deltas, architecture docs, or focused contract passes alone.
+- Use `WORKPACK_INDEX.md`, `WORKPACK_FAMILIES.md` when needed, and `TEST_PROOF_EXPECTATIONS.md` to choose work.
+- Do not mark this plan complete from checklist deltas, architecture docs, proof manifest presence, or focused contract passes alone.
 - Update this file whenever proof, dependency, or validation truth changes.

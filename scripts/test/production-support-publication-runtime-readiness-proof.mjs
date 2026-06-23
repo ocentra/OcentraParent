@@ -43,7 +43,8 @@ async function main() {
       contract: 'packages/schema-domain/src/production-support-publication-runtime-readiness-proof.ts',
       values: 'packages/schema-domain/src/production-support-publication-runtime-readiness-values.ts',
       readModel: 'packages/schema-domain/src/production-support-publication-runtime-readiness-read-model.ts',
-      contractTest: 'packages/production-domain/tests/unit/production-support-publication-runtime-readiness-proof.test.ts',
+      contractTest:
+        'packages/production-domain/tests/unit/production-support-publication-runtime-readiness-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -71,7 +72,9 @@ async function main() {
 
 async function assertBuiltContract() {
   const contractModule = await importBuiltSchemaDomainModule('production-support-publication-runtime-readiness-proof');
-  const readModelModule = await importBuiltSchemaDomainModule('production-support-publication-runtime-readiness-read-model');
+  const readModelModule = await importBuiltSchemaDomainModule(
+    'production-support-publication-runtime-readiness-read-model'
+  );
   const valuesModule = await importBuiltSchemaDomainModule('production-support-publication-runtime-readiness-values');
   const proof = contractModule.ProductionSupportPublicationRuntimeReadinessProofSchema.parse(
     readModelModule.ProductionSupportPublicationRuntimeReadinessReadModel

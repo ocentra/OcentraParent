@@ -1,22 +1,32 @@
-use std::{fs::read, fs::remove_file, path::PathBuf};
+use std::{
+    fs::read,
+    fs::remove_file,
+    path::{Path, PathBuf},
+};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeTargetObservation,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityIngestStatus, BrowserActiveProofSource,
-    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::constants;
 
 use crate::activity_capture::record_activity_events_to_paths;
 
+type TestResult = Result<(), String>;
+
 #[test]
-fn record_browser_events_replays_appended_journal_lines_into_sqlite_read_model() {
+fn record_browser_events_replays_appended_journal_lines_into_sqlite_read_model() -> TestResult {
     let paths = browser_capture_paths();
     cleanup_paths(&paths);
-    let event = browser_event();
+    let event = browser_event()?;
 
     let status = record_activity_events_to_paths(
         &paths.journal_path,
@@ -24,10 +34,10 @@ fn record_browser_events_replays_appended_journal_lines_into_sqlite_read_model()
         &paths.store_path,
         &[event.clone(), event.clone()],
     )
-    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    let journal_bytes = read(&paths.journal_path).expect(constants::error::JOURNAL_READS);
-    let read_model = browser_read_model_from_store(&paths.store_path);
-    let restarted = browser_read_model_from_store(&paths.store_path);
+    .map_err(|error| format!("{error:?}"))?;
+    let journal_bytes = read(&paths.journal_path).map_err(|error| format!("{error:?}"))?;
+    let read_model = browser_read_model_from_store(&paths.store_path)?;
+    let restarted = browser_read_model_from_store(&paths.store_path)?;
     cleanup_paths(&paths);
 
     assert_browser_capture_status(&status, &event);
@@ -44,6 +54,7 @@ fn record_browser_events_replays_appended_journal_lines_into_sqlite_read_model()
         restarted.rows[0].stale_at,
         constants::activity_store::TEST_SECOND_OBSERVED_AT
     );
+    Ok(())
 }
 
 fn assert_browser_capture_status(status: &ActivityIngestStatus, event: &ActivityEvent) {
@@ -73,17 +84,17 @@ fn assert_browser_row_is_journal_replayed(read_model: &BrowserEvidenceReadModel)
     );
 }
 
-fn browser_read_model_from_store(store_path: &PathBuf) -> BrowserEvidenceReadModel {
-    let store = ActivityStore::open(store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+fn browser_read_model_from_store(store_path: &Path) -> Result<BrowserEvidenceReadModel, String> {
+    let store = ActivityStore::open(store_path).map_err(|error| format!("{error:?}"))?;
     store
         .browser_evidence_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES)
+        .map_err(|error| format!("{error:?}"))
 }
 
-fn browser_event() -> ActivityEvent {
+fn browser_event() -> Result<ActivityEvent, String> {
     browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -107,7 +118,7 @@ fn browser_event() -> ActivityEvent {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
+    .map_err(|error| format!("{error:?}"))
 }
 
 struct BrowserCapturePaths {

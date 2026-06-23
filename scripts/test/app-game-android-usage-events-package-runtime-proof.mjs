@@ -43,7 +43,7 @@ async function main() {
       'app-game-android-usage-events-package-runtime-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -64,7 +64,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-package-runtime-proof.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-usage-events-package-runtime-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsPackageRuntimeProof({
@@ -87,7 +87,7 @@ async function main() {
     summary,
     sourceState,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-usage-events-package-runtime-proof.ts',
+      contract: 'packages/schema-domain/src/app-game-android-usage-events-package-runtime-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-package-runtime-proof.test.ts',
       packageInstall: 'adb install -r target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
       packageLaunch: `adb shell am start -n ${activityId}`,
@@ -97,7 +97,7 @@ async function main() {
     claimsProved: [
       'Android debug package installs and MainActivity launches on the physical Samsung Galaxy S9 target',
       'Package UI exposes UsageEvents permission/sample states from the package-local runtime preflight',
-      'App-game-domain records install/launch/AppOps/UI evidence without raw device serial, raw package list, raw UsageEvents rows, or enforcement claims',
+      'The centralized package-runtime proof records install/launch/AppOps/UI evidence without raw device serial, raw package list, raw UsageEvents rows, or enforcement claims',
     ],
     claimsNotProved: [
       'UsageStats settings grant if AppOps still reports ignored/default',

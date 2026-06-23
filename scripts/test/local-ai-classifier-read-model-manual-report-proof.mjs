@@ -40,12 +40,10 @@ runCommand(
   ])
 );
 
-const { buildLocalAiClassifierReportSnapshot } = await import(
-  '@ocentra-parent/schema-domain/local-ai-classifier-read-model-manual-report-proof'
-);
-const { runLocalAiDeterministicClassifier } = await import(
-  '@ocentra-parent/schema-domain/local-ai-deterministic-classifier-proof'
-);
+const { buildLocalAiClassifierReportSnapshot } =
+  await import('@ocentra-parent/schema-domain/local-ai-classifier-read-model-manual-report-proof');
+const { runLocalAiDeterministicClassifier } =
+  await import('@ocentra-parent/schema-domain/local-ai-deterministic-classifier-proof');
 
 const snapshot = buildLocalAiClassifierReportSnapshot({
   generatedAt: GeneratedAt,

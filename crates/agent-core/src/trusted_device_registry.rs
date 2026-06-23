@@ -5,11 +5,12 @@ use std::{
     path::Path,
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, LanHouseholdDeviceDecision, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingProof, LanPairingRejectionReason, LanPairingTrustState, LanParentIntentEnvelope,
-    LanTrustedDeviceRegistryEntry,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
+    LanPairingTrustState, LanParentIntentEnvelope, LanTrustedDeviceRegistryEntry,
 };
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
 use serde_json::{json, Value};
 
 #[derive(Clone, Debug, Default)]

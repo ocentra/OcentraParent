@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { decodeDisplayText } from '../../src/contracts';
-import { PortalDevText, PortalDevTextToken } from '../../src/portal-dev';
+import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevText, PortalDevTextToken } from '@ocentra-parent/schema-domain/text-portal-dev';
 
 const expectPortalDevTextEntries = (entries: ReadonlyArray<readonly [PortalDevTextToken, string]>) => {
   for (const [token, expected] of entries) {

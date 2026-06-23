@@ -5,8 +5,8 @@ import {
   AppInstallPurchaseProviderStorePlatformEvidenceRowSchema,
   buildAppInstallPurchaseProviderStorePlatformEvidenceProof,
   summarizeAppInstallPurchaseProviderStorePlatformEvidenceProof,
-} from '../../src/app-install-purchase-provider-store-platform-evidence-proof';
-import { buildAppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof } from '../../src/app-install-purchase-windows-package-source-adapter-evidence';
+} from '@ocentra-parent/schema-domain/app-install-purchase-provider-store-platform-evidence-proof';
+import { buildAppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof } from '@ocentra-parent/schema-domain/app-install-purchase-windows-package-source-adapter-evidence';
 
 describe('app install purchase provider/store platform evidence proof', () => {
   acceptsManualProviderStorePlatformEvidenceRowsWithExactMissingArtifacts();

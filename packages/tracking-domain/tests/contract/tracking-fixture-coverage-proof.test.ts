@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   TrackingFixtureCoverageReadModelSchema,
   buildTrackingFixtureCoverageReadModel,
-} from '../../src/tracking-fixture-coverage-proof';
+} from '@ocentra-parent/schema-domain/tracking-fixture-coverage-proof';
 
 const RequiredStates = [
   'fresh',

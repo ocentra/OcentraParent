@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   appInstallPurchaseApprovalContractProofIsHonest,
   auditReportIntegrationIsHonest,
@@ -117,19 +112,39 @@ export const AppInstallPurchaseApprovalRuntimeBlockingSeparationSchema = withPar
 
 const AppInstallPurchaseApprovalRequestIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalRequestId');
 const AppInstallPurchaseApprovalDecisionIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalDecisionId');
-const AppInstallPurchaseApprovalAuditEventIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalAuditEventId');
-const AppInstallPurchaseApprovalStoreListingIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalStoreListingId');
+const AppInstallPurchaseApprovalAuditEventIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalAuditEventId'
+);
+const AppInstallPurchaseApprovalStoreListingIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalStoreListingId'
+);
 const AppInstallPurchaseApprovalAppTitleSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalAppTitle');
-const AppInstallPurchaseApprovalPublisherNameSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPublisherName');
+const AppInstallPurchaseApprovalPublisherNameSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPublisherName'
+);
 const AppInstallPurchaseApprovalCategorySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalCategory');
 const AppInstallPurchaseApprovalAgeRatingSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalAgeRating');
-const AppInstallPurchaseApprovalReviewReasonSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReviewReason');
-const AppInstallPurchaseApprovalProofRequirementSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalProofRequirement');
-const AppInstallPurchaseApprovalUnavailableReasonSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalUnavailableReason');
-const AppInstallPurchaseApprovalManualRequirementSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalManualRequirement');
-const AppInstallPurchaseApprovalClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalClaimBoundary');
-const AppInstallPurchaseApprovalPriceDisplaySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalPriceDisplay');
-const AppInstallPurchaseApprovalChildStateIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalChildStateId');
+const AppInstallPurchaseApprovalReviewReasonSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalReviewReason'
+);
+const AppInstallPurchaseApprovalProofRequirementSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalProofRequirement'
+);
+const AppInstallPurchaseApprovalUnavailableReasonSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalUnavailableReason'
+);
+const AppInstallPurchaseApprovalManualRequirementSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalManualRequirement'
+);
+const AppInstallPurchaseApprovalClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalClaimBoundary'
+);
+const AppInstallPurchaseApprovalPriceDisplaySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalPriceDisplay'
+);
+const AppInstallPurchaseApprovalChildStateIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseApprovalChildStateId'
+);
 const AppInstallPurchaseApprovalReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReportRef');
 
 export const AppInstallPurchaseApprovalAuditEventRefSchema = withParser(
@@ -416,4 +431,3 @@ export const AppInstallPurchaseApprovalNonClaim = {
   ),
   NotGenericAppBlocking: AppInstallPurchaseApprovalNonClaimSchema.parse('not-generic-app-blocking'),
 } as const;
-

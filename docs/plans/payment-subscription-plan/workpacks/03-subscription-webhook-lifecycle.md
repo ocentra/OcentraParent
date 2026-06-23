@@ -4,6 +4,16 @@
 
 Define how provider events become app-owned billing truth, including signature validation, dedupe, retries, and reconciliation.
 
+## Ownership boundary
+
+```text
+billing-core owns Rust provider lifecycle classification and event/idempotency helper behavior when selected.
+payment-subscription-plan owns webhook-to-app-ledger semantics.
+cloudflare-control-plane-plan owns shared Worker route/auth/runtime shell.
+provider adapters provide verified provider event formats only.
+entitlement delivery happens through WP04 and must not be bypassed by provider events.
+```
+
 ## First-touch surface
 
 - `crates/billing-core/src/billing_subscription.rs`
@@ -31,6 +41,30 @@ Define how provider events become app-owned billing truth, including signature v
 - Out-of-order events converge on the same final ledger state.
 - Retry or reconciliation work is queued when a webhook needs follow-up.
 
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+provider
+mode
+provider_event_id
+signature_state
+payload_parse_state
+idempotency_state
+replay_state
+out_of_order_state
+ledger_write_state
+entitlement_update_requirement
+retry_state
+dead_letter_state
+reconciliation_state
+test_live_boundary_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
 ## Proof IDs
 
 - `payment-webhook.stripe-signature-valid`
@@ -52,9 +86,11 @@ Define how provider events become app-owned billing truth, including signature v
 - Reject duplicate events as new entitlement.
 - Reject replayed events that would double-grant access.
 - Reject any webhook path that changes access without a ledger entry.
+- Reject test/live mode mixing.
 
 ## Failure conditions
 
 - Do not trust provider payloads without signature validation.
 - Do not let a webhook change access without the ledger.
 - Do not double-grant entitlement on duplicate events.
+- Do not claim entitlement delivery from webhook acceptance alone; WP04 owns entitlement delivery proof.

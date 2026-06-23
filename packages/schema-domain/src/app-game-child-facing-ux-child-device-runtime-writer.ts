@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameChildDeviceDeliveryReadinessReadModelSchema,
   AppGameChildDeviceDeliveryReadinessStatus,
@@ -227,4 +222,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.writerEnvelopeState === state).length;
 }
-

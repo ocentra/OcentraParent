@@ -22,24 +22,24 @@ import {
 } from '../../src/lan-pairing-browser-runtime';
 import { AgentProtocolSchemaVersion } from '../../src/event-primitives';
 
-describe('agent command and event contracts', () => {
+describe('agent command and event contracts naming', () => {
   it('accepts canonical command and event names, including LAN browser runtime names', () => {
-    expect(AgentCommandNameSchema.parse(AgentCommandNameLiteral.HealthCheck)).toBe(
-      AgentCommandNameLiteral.HealthCheck
+    expect(AgentCommandNameSchema.parse(AgentCommandNameLiteral.HealthCheck)).toBe(AgentCommandNameLiteral.HealthCheck);
+    expect(AgentCommandNameSchema.parse(AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan)).toBe(
+      AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan
     );
-    expect(
-      AgentCommandNameSchema.parse(AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan)
-    ).toBe(AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan);
     expect(AgentEventNameSchema.parse(AgentEventNameLiteral.ConnectionReady)).toBe(
       AgentEventNameLiteral.ConnectionReady
     );
-    expect(
-      AgentEventNameSchema.parse(AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported)
-    ).toBe(AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported);
+    expect(AgentEventNameSchema.parse(AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported)).toBe(
+      AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported
+    );
     expect(AgentCommandNameSchema.safeParse('agent.unknown.command').success).toBe(false);
     expect(AgentEventNameSchema.safeParse('agent.unknown.event').success).toBe(false);
   });
+});
 
+describe('agent command and event contracts envelopes', () => {
   it('validates command and event envelopes with structured log payloads', () => {
     const commandEnvelope = AgentCommandEnvelopeSchema.safeParse({
       schemaVersion: AgentProtocolSchemaVersion,
@@ -102,13 +102,17 @@ describe('agent command and event contracts', () => {
     expect(eventEnvelope.success).toBe(true);
     expect(invalidEventEnvelope.success).toBe(false);
   });
+});
 
+describe('agent command and event contracts protocol logging', () => {
   it('recognizes protocol log text safely', () => {
     expect(isAgentProtocolLogText('hello')).toBe(true);
     expect(isAgentProtocolLogText(42)).toBe(false);
     expect(isAgentProtocolLogText({ message: 'hello' })).toBe(false);
   });
+});
 
+describe('agent command and event contracts transport helpers', () => {
   it('exposes parsed command and event value maps for shared transport use', () => {
     expect(AgentCommand.HealthCheck).toBe(AgentCommandNameLiteral.HealthCheck);
     expect(AgentCommand.LanPairingBrowserDiscoveryScan).toBe(
@@ -118,26 +122,16 @@ describe('agent command and event contracts', () => {
       AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest
     );
     expect(AgentEvent.ConnectionReady).toBe(AgentEventNameLiteral.ConnectionReady);
-    expect(AgentEvent.LanPairingAddDeviceReported).toBe(
-      AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported
-    );
+    expect(AgentEvent.LanPairingAddDeviceReported).toBe(AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported);
   });
 
   it('decodes shared branded transport primitives', () => {
     expect(decodeAgentDeviceId('child-device-1')).toBe('child-device-1');
     expect(decodeAgentMessageId('cmd-contract-3')).toBe('cmd-contract-3');
-    expect(decodeAgentTimestamp('2026-06-20T19:35:03Z')).toBe(
-      '2026-06-20T19:35:03Z'
-    );
-    expect(decodeAgentWebSocketUrl('ws://127.0.0.1:4477/api/dev/ws')).toBe(
-      'ws://127.0.0.1:4477/api/dev/ws'
-    );
+    expect(decodeAgentTimestamp('2026-06-20T19:35:03Z')).toBe('2026-06-20T19:35:03Z');
+    expect(decodeAgentWebSocketUrl('ws://127.0.0.1:4477/api/dev/ws')).toBe('ws://127.0.0.1:4477/api/dev/ws');
     expect(
-      decodeSerializedAgentMessage(
-        '{"schemaVersion":"v1","messageId":"cmd-contract-3","payload":{"ok":true}}'
-      )
-    ).toBe(
-      '{"schemaVersion":"v1","messageId":"cmd-contract-3","payload":{"ok":true}}'
-    );
+      decodeSerializedAgentMessage('{"schemaVersion":"v1","messageId":"cmd-contract-3","payload":{"ok":true}}')
+    ).toBe('{"schemaVersion":"v1","messageId":"cmd-contract-3","payload":{"ok":true}}');
   });
 });

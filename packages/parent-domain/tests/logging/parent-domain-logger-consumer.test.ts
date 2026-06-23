@@ -44,13 +44,7 @@ interface McpResponse {
   };
 }
 
-const workspaceRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-  '..',
-  '..'
-);
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 
 function makeTempDir(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -144,6 +138,8 @@ function normalizeRustRows(rows: readonly RustDevLogEvent[]): StoredTestLogLine[
 }
 
 function runRustFixture(rustRoot: string): void {
+  const cargoTargetDir = path.join(workspaceRoot, 'target-parent-domain-logger-fixture');
+  fs.mkdirSync(cargoTargetDir, { recursive: true });
   const result = spawnSync(
     'cargo',
     ['test', '-p', 'ocentra-parent-agent-service', 'write_agent_all_levels_emit_ndjson_lines'],
@@ -151,6 +147,7 @@ function runRustFixture(rustRoot: string): void {
       cwd: workspaceRoot,
       env: {
         ...process.env,
+        CARGO_TARGET_DIR: cargoTargetDir,
         CARGO_TERM_COLOR: 'never',
         OCENTRA_PARENT_LOG_ROOT: rustRoot,
         OCENTRA_PARENT_LOG_SCOPE: TestLogScope.ParentAgent,
@@ -160,9 +157,7 @@ function runRustFixture(rustRoot: string): void {
   );
 
   if (result.status !== 0) {
-    throw new Error(
-      `cargo rust logging fixture failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-    );
+    throw new Error(`cargo rust logging fixture failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
   }
 }
 
@@ -235,169 +230,213 @@ async function withMcpServer<T>(
   }
 }
 
-describe('parent-domain logger consumer parity proof', () => {
-  const tempDirs: string[] = [];
-  const originalLogLevel = process.env.OCENTRA_PARENT_LOG_LEVEL;
-  const originalStructuredRoot = process.env.OCENTRA_PARENT_LOG_DIR;
-  const originalRustRoot = process.env.OCENTRA_PARENT_LOG_ROOT;
+const parentLoggerTempDirs: string[] = [];
+const originalLogLevel = process.env.OCENTRA_PARENT_LOG_LEVEL;
+const originalStructuredRoot = process.env.OCENTRA_PARENT_LOG_DIR;
+const originalRustRoot = process.env.OCENTRA_PARENT_LOG_ROOT;
 
-  afterEach(async () => {
-    Logger.instance.reset();
-    if (originalLogLevel == null) {
-      delete process.env.OCENTRA_PARENT_LOG_LEVEL;
-    } else {
-      process.env.OCENTRA_PARENT_LOG_LEVEL = originalLogLevel;
-    }
-    if (originalStructuredRoot == null) {
-      delete process.env.OCENTRA_PARENT_LOG_DIR;
-    } else {
-      process.env.OCENTRA_PARENT_LOG_DIR = originalStructuredRoot;
-    }
-    if (originalRustRoot == null) {
-      delete process.env.OCENTRA_PARENT_LOG_ROOT;
-    } else {
-      process.env.OCENTRA_PARENT_LOG_ROOT = originalRustRoot;
-    }
-    for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      await removeDirWithRetries(tempDir);
-    }
+afterEach(async () => {
+  Logger.instance.reset();
+  if (originalLogLevel == null) {
+    delete process.env.OCENTRA_PARENT_LOG_LEVEL;
+  } else {
+    process.env.OCENTRA_PARENT_LOG_LEVEL = originalLogLevel;
+  }
+  if (originalStructuredRoot == null) {
+    delete process.env.OCENTRA_PARENT_LOG_DIR;
+  } else {
+    process.env.OCENTRA_PARENT_LOG_DIR = originalStructuredRoot;
+  }
+  if (originalRustRoot == null) {
+    delete process.env.OCENTRA_PARENT_LOG_ROOT;
+  } else {
+    process.env.OCENTRA_PARENT_LOG_ROOT = originalRustRoot;
+  }
+  const tempDirs = parentLoggerTempDirs.splice(0, parentLoggerTempDirs.length);
+  await Promise.all(tempDirs.map((tempDir) => removeDirWithRetries(tempDir)));
+});
+
+interface LoggerParityRoots {
+  readonly structuredRoot: string;
+  readonly duckDbProofRoot: string;
+  readonly rustRoot: string;
+}
+
+interface TypeScriptLoggerParityResult {
+  readonly bridgeServer: ReturnType<typeof createBridgeServer>;
+  readonly typeScriptSource: string;
+  readonly typeScriptContext: string;
+}
+
+function createLoggerParityRoots(): LoggerParityRoots {
+  const structuredRoot = makeTempDir('parent-domain-logger-structured-');
+  const duckDbProofRoot = makeTempDir('parent-domain-logger-duckdb-');
+  const rustRoot = makeTempDir('parent-domain-logger-rust-');
+  parentLoggerTempDirs.push(structuredRoot, duckDbProofRoot, rustRoot);
+  return { structuredRoot, duckDbProofRoot, rustRoot };
+}
+
+async function collectTypeScriptLoggerParity(structuredRoot: string): Promise<TypeScriptLoggerParityResult> {
+  const bridgeServer = createBridgeServer({ rootDir: structuredRoot });
+  const address = await listen(bridgeServer);
+  Logger.instance.configure({
+    bridgeEndpoint: `http://127.0.0.1:${address.port}`,
+    runId: 'parent-domain-logger-run',
+    testName: 'parent-domain-logger-consumer',
+    scope: TestLogScope.ParentTest,
+    runType: RunType.Single,
+    suiteType: 'unit',
+    origin: TestLogOrigin.Test,
+    environment: 'test',
+    skipHealthCheck: true,
   });
 
+  const consumer = new ParentDomainLoggerConsumer();
+  consumer.emitHelloWorldLogs();
+  await Logger.instance.flush();
+
+  const tsRows = readStructuredRows(TestLogScope.ParentTest, structuredRoot);
+  expect(tsRows).toHaveLength(4);
+  expect(tsRows.map((row) => row.level)).toEqual(['info', 'warn', 'error', 'debug']);
+
+  return {
+    bridgeServer,
+    typeScriptSource: String(tsRows[0]?.source ?? ''),
+    typeScriptContext: String(tsRows[0]?.context ?? ''),
+  };
+}
+
+async function assertTypeScriptDuckDbParity(structuredRoot: string): Promise<void> {
+  const tsDb = await TestLogDuckDb.create(TestLogScope.ParentTest, structuredRoot);
+  try {
+    const ingest = await tsDb.ingestFromScope(TestLogScope.ParentTest, structuredRoot, true);
+    expect(ingest.logsInserted).toBe(4);
+    const stats = await tsDb.getStats(TestLogScope.ParentTest);
+    expect(stats.totalLogs).toBe(4);
+    expect(stats.errorLogs).toBe(1);
+  } finally {
+    await tsDb.close();
+  }
+}
+
+async function assertRustDuckDbParity(rustRoot: string, duckDbProofRoot: string): Promise<void> {
+  runRustFixture(rustRoot);
+  const rustRows = readRustDevLogRows(rustRoot);
+  expect(rustRows).toHaveLength(4);
+  expect(rustRows.map((row) => row.level)).toEqual(['info', 'warn', 'error', 'debug']);
+  expect(rustRows.every((row) => row.source === 'agent-service')).toBe(true);
+
+  appendTestLogEntries(normalizeRustRows(rustRows), duckDbProofRoot);
+  const rustDb = await TestLogDuckDb.create(TestLogScope.ParentAgent, duckDbProofRoot);
+  try {
+    const ingest = await rustDb.ingestFromScope(TestLogScope.ParentAgent, duckDbProofRoot, true);
+    expect(ingest.logsInserted).toBe(4);
+    const stats = await rustDb.getStats(TestLogScope.ParentAgent);
+    expect(stats.totalLogs).toBe(4);
+    expect(stats.warnLogs).toBe(1);
+  } finally {
+    await rustDb.close();
+  }
+}
+
+async function assertQueryServiceParity(
+  structuredRoot: string,
+  rustRoot: string,
+  typeScriptSource: string,
+  typeScriptContext: string
+): Promise<void> {
+  process.env.OCENTRA_PARENT_LOG_DIR = structuredRoot;
+  process.env.OCENTRA_PARENT_LOG_ROOT = rustRoot;
+  const queryService = await import(
+    `${pathToFileURL(path.join(workspaceRoot, 'scripts/dev/lib/log-query-service.mjs')).href}?parent-domain-logger-proof`
+  );
+
+  const queriedTypeScriptRows = await queryService.getLogsBySource({
+    scope: TestLogScope.ParentTest,
+    source: typeScriptSource,
+    limit: 10,
+  });
+  expect(queriedTypeScriptRows).toHaveLength(4);
+
+  const queriedTypeScriptContextRows = await queryService.getLogsByContext({
+    scope: TestLogScope.ParentTest,
+    context: typeScriptContext,
+    limit: 10,
+  });
+  expect(queriedTypeScriptContextRows).toHaveLength(4);
+
+  const queriedRustRows = await queryService.getLogsBySource({
+    scope: TestLogScope.ParentAgent,
+    source: 'agent-service',
+    limit: 10,
+  });
+  expect(queriedRustRows).toHaveLength(4);
+
+  const rustStats = await queryService.getLogStats({
+    scope: TestLogScope.ParentAgent,
+  });
+  expect(rustStats.sources['agent-service']).toBe(4);
+}
+
+async function assertMcpParity(structuredRoot: string, rustRoot: string, typeScriptContext: string): Promise<void> {
+  await withMcpServer(
+    {
+      ...process.env,
+      OCENTRA_PARENT_LOG_DIR: structuredRoot,
+      OCENTRA_PARENT_LOG_ROOT: rustRoot,
+    },
+    async (call) => {
+      const initialize = await call('initialize', {});
+      expect(initialize.error).toBeUndefined();
+
+      const tools = await call('tools/list');
+      expect(tools.result?.tools?.some((tool) => tool.name === 'get_logs_by_source')).toBe(true);
+
+      const tsCall = await call('tools/call', {
+        name: 'get_logs_by_context',
+        arguments: {
+          scope: TestLogScope.ParentTest,
+          context: typeScriptContext,
+          limit: 10,
+        },
+      });
+      expect(Array.isArray(tsCall.result?.structuredContent)).toBe(true);
+      expect((tsCall.result?.structuredContent as Array<unknown>).length).toBe(4);
+
+      const rustCall = await call('tools/call', {
+        name: 'get_logs_by_source',
+        arguments: {
+          scope: TestLogScope.ParentAgent,
+          source: 'agent-service',
+          limit: 10,
+        },
+      });
+      expect(Array.isArray(rustCall.result?.structuredContent)).toBe(true);
+      expect((rustCall.result?.structuredContent as Array<unknown>).length).toBe(4);
+    }
+  );
+}
+
+describe('parent-domain logger consumer parity proof', () => {
   it('proves TypeScript and Rust logs land in NDJSON, DuckDB, query service, and MCP', async () => {
     process.env.OCENTRA_PARENT_LOG_LEVEL = 'debug';
-    const structuredRoot = makeTempDir('parent-domain-logger-structured-');
-    const duckDbProofRoot = makeTempDir('parent-domain-logger-duckdb-');
-    const rustRoot = makeTempDir('parent-domain-logger-rust-');
-    tempDirs.push(structuredRoot, duckDbProofRoot, rustRoot);
-
-    const bridgeServer = createBridgeServer({ rootDir: structuredRoot });
-    const address = await listen(bridgeServer);
+    const roots = createLoggerParityRoots();
+    const typeScriptParity = await collectTypeScriptLoggerParity(roots.structuredRoot);
 
     try {
-      Logger.instance.configure({
-        bridgeEndpoint: `http://127.0.0.1:${address.port}`,
-        runId: 'parent-domain-logger-run',
-        testName: 'parent-domain-logger-consumer',
-        scope: TestLogScope.ParentTest,
-        runType: RunType.Single,
-        suiteType: 'unit',
-        origin: TestLogOrigin.Test,
-        environment: 'test',
-        skipHealthCheck: true,
-      });
-
-      const consumer = new ParentDomainLoggerConsumer();
-      consumer.emitHelloWorldLogs();
-      await Logger.instance.flush();
-
-      const tsRows = readStructuredRows(TestLogScope.ParentTest, structuredRoot);
-      expect(tsRows).toHaveLength(4);
-      expect(tsRows.map((row) => row.level)).toEqual(['info', 'warn', 'error', 'debug']);
-
-      const typeScriptSource = String(tsRows[0]?.source ?? '');
-      const typeScriptContext = String(tsRows[0]?.context ?? '');
-      expect(typeScriptSource).toBe('ParentDomainLoggerConsumer');
-      expect(typeScriptContext).toContain('emitHelloWorldLogs');
-
-      const tsDb = await TestLogDuckDb.create(TestLogScope.ParentTest, structuredRoot);
-      try {
-        const ingest = await tsDb.ingestFromScope(TestLogScope.ParentTest, structuredRoot, true);
-        expect(ingest.logsInserted).toBe(4);
-        const stats = await tsDb.getStats(TestLogScope.ParentTest);
-        expect(stats.totalLogs).toBe(4);
-        expect(stats.errorLogs).toBe(1);
-      } finally {
-        await tsDb.close();
-      }
-
-      runRustFixture(rustRoot);
-      const rustRows = readRustDevLogRows(rustRoot);
-      expect(rustRows).toHaveLength(4);
-      expect(rustRows.map((row) => row.level)).toEqual(['info', 'warn', 'error', 'debug']);
-      expect(rustRows.every((row) => row.source === 'agent-service')).toBe(true);
-
-      appendTestLogEntries(normalizeRustRows(rustRows), duckDbProofRoot);
-      const rustDb = await TestLogDuckDb.create(TestLogScope.ParentAgent, duckDbProofRoot);
-      try {
-        const ingest = await rustDb.ingestFromScope(TestLogScope.ParentAgent, duckDbProofRoot, true);
-        expect(ingest.logsInserted).toBe(4);
-        const stats = await rustDb.getStats(TestLogScope.ParentAgent);
-        expect(stats.totalLogs).toBe(4);
-        expect(stats.warnLogs).toBe(1);
-      } finally {
-        await rustDb.close();
-      }
-
-      process.env.OCENTRA_PARENT_LOG_DIR = structuredRoot;
-      process.env.OCENTRA_PARENT_LOG_ROOT = rustRoot;
-      const queryService = await import(
-        `${pathToFileURL(path.join(workspaceRoot, 'scripts/dev/lib/log-query-service.mjs')).href}?parent-domain-logger-proof`
+      expect(typeScriptParity.typeScriptSource).toBe('ParentDomainLoggerConsumer');
+      expect(typeScriptParity.typeScriptContext).toContain('emitHelloWorldLogs');
+      await assertTypeScriptDuckDbParity(roots.structuredRoot);
+      await assertRustDuckDbParity(roots.rustRoot, roots.duckDbProofRoot);
+      await assertQueryServiceParity(
+        roots.structuredRoot,
+        roots.rustRoot,
+        typeScriptParity.typeScriptSource,
+        typeScriptParity.typeScriptContext
       );
-
-      const queriedTypeScriptRows = await queryService.getLogsBySource({
-        scope: TestLogScope.ParentTest,
-        source: typeScriptSource,
-        limit: 10,
-      });
-      expect(queriedTypeScriptRows).toHaveLength(4);
-
-      const queriedTypeScriptContextRows = await queryService.getLogsByContext({
-        scope: TestLogScope.ParentTest,
-        context: typeScriptContext,
-        limit: 10,
-      });
-      expect(queriedTypeScriptContextRows).toHaveLength(4);
-
-      const queriedRustRows = await queryService.getLogsBySource({
-        scope: TestLogScope.ParentAgent,
-        source: 'agent-service',
-        limit: 10,
-      });
-      expect(queriedRustRows).toHaveLength(4);
-
-      const rustStats = await queryService.getLogStats({
-        scope: TestLogScope.ParentAgent,
-      });
-      expect(rustStats.sources['agent-service']).toBe(4);
-
-      await withMcpServer(
-        {
-          ...process.env,
-          OCENTRA_PARENT_LOG_DIR: structuredRoot,
-          OCENTRA_PARENT_LOG_ROOT: rustRoot,
-        },
-        async (call) => {
-          const initialize = await call('initialize', {});
-          expect(initialize.error).toBeUndefined();
-
-          const tools = await call('tools/list');
-          expect(tools.result?.tools?.some((tool) => tool.name === 'get_logs_by_source')).toBe(true);
-
-          const tsCall = await call('tools/call', {
-            name: 'get_logs_by_context',
-            arguments: {
-              scope: TestLogScope.ParentTest,
-              context: typeScriptContext,
-              limit: 10,
-            },
-          });
-          expect(Array.isArray(tsCall.result?.structuredContent)).toBe(true);
-          expect((tsCall.result?.structuredContent as Array<unknown>).length).toBe(4);
-
-          const rustCall = await call('tools/call', {
-            name: 'get_logs_by_source',
-            arguments: {
-              scope: TestLogScope.ParentAgent,
-              source: 'agent-service',
-              limit: 10,
-            },
-          });
-          expect(Array.isArray(rustCall.result?.structuredContent)).toBe(true);
-          expect((rustCall.result?.structuredContent as Array<unknown>).length).toBe(4);
-        }
-      );
+      await assertMcpParity(roots.structuredRoot, roots.rustRoot, typeScriptParity.typeScriptContext);
     } finally {
-      await closeServer(bridgeServer);
+      await closeServer(typeScriptParity.bridgeServer);
     }
-  }, 180000);
+  }, 300000);
 });

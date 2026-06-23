@@ -3,11 +3,9 @@ import {
   AgentNetworkRemoteDeliveryRow10tRefs,
   type AgentNetworkRemoteDeliveryStatus,
 } from '@ocentra-parent/schema-domain/network-remote-delivery-status';
-import { AgentEvent } from '../../src/contracts';
-import { AgentProtocolDefaults } from '../../src/defaults';
-import {
-  parseAgentNetworkRemoteDeliveryStatusEvent,
-} from '../../src/network-remote-delivery-status';
+import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { parseAgentNetworkRemoteDeliveryStatusEvent } from '../../src/network-remote-delivery-status';
 
 const RemoteDeliveryStatusRefs = AgentProtocolDefaults.NetworkRemoteDeliveryStatus;
 

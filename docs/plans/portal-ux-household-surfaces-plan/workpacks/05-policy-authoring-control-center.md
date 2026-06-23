@@ -14,14 +14,21 @@
 
 <!-- /agent-capsule -->
 
-Sources: [20-step plan](../portal-ux-household-surfaces-20-step-plan.md),
-[test blueprint](../portal-ux-household-surfaces-test-blueprint.md),
-[UI/UX guide](../ui-ux-requirements-guide.md), and [folder README](../README.md).
+Sources: [20-step plan](../portal-ux-household-surfaces-20-step-plan.md), [test blueprint](../portal-ux-household-surfaces-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), and [folder README](../README.md).
+
+## Ownership boundary
+
+```text
+portal UX owns rendered authoring/preview/control-center presentation and parent-visible state.
+policy-control-plane-plan owns policy source truth, compiler, approval, delivery, and ask-parent semantics.
+account/device-trust plans own role, session, parent authority, and step-up proof.
+enforcement/domain plans own active runtime effects and rollback execution.
+AI plan owns assistant draft/runtime behavior; portal renders typed preview only.
+```
 
 ## Where We Are
 
-Policy preview and control states exist in pieces. Complete nontechnical policy
-authoring remains incomplete.
+Policy preview and control states exist in pieces. Complete nontechnical policy authoring remains incomplete.
 
 Current live seam findings from the 2026-06-18 restart audit:
 
@@ -36,16 +43,12 @@ Current live seam findings from the 2026-06-18 restart audit:
 - `packages/portal-domain/src/policy-preview-panel.ts` now surfaces those approval/audit preview details in the `Approval authority` card when present, and it explicitly reports replay-rejected approval attempts without inventing a new override.
 - `crates/agent-service/src/websocket/policy_request_confirm.rs` now persists supported assistant-preview confirmations (`app`, `site`, `category`, and `device`) into the activity store through a real `ActivityStore` write path, and `crates/agent-core/src/activity_store_policy_preview.rs` plus `crates/agent-core/src/activity_store_policy_preview_targets.rs` now project those stored lifecycle fields and explicit target kinds back through the preview read model.
 - That producer/writer bridge stays intentionally bounded: `child-profile` and `resource` confirmation targets still return confirmed service validation while keeping the activity-store mutation, upstream-writer, and read-model-projection claim states unclaimed, because the current preview target contract does not yet support those target kinds honestly.
-- `apps/portal/tests/policy-preview-live-activity-state.test.ts`, `apps/portal/tests/policy-preview-route-panel.test.ts`, and `packages/portal-domain/tests/unit/policy-preview-panel.test.ts` already cover parser, observer/controller visibility, and the delivery-versus-enforcement boundary behavior.
-- `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx` now renders a typed preview banner inside the main policy workspace from `activityState.policyPreviewReadModel`.
-- Focused validation for the currently landed WP05 slices is already green: touched-file TS architecture lint over `packages/agent-protocol-domain/src/defaults.ts`, `packages/agent-protocol-domain/src/policy-preview-read-model.ts`, `packages/agent-protocol-domain/src/policy-request-confirm-command.ts`, and `packages/agent-protocol-domain/tests/unit/policy-preview-contracts.test.ts`; `npx tsc -p packages/agent-protocol-domain/tsconfig.json --noEmit`; `npm run test --workspace @ocentra-parent/agent-protocol-domain -- tests/unit/policy-preview-contracts.test.ts tests/unit/policy-request-confirm-command.test.ts`; Rust architecture lint over `crates/agent-protocol/src/policy.rs`, `crates/agent-protocol/src/policy_preview.rs`, `crates/agent-core/src/activity_store_policy_preview.rs`, `crates/agent-core/src/activity_store_policy_preview_targets.rs`, `crates/agent-core/src/activity_store_policy_preview_tests.rs`, and `crates/agent-service/src/websocket/policy_request_confirm.rs`; `cargo test -p ocentra-parent-agent-protocol policy_request_assistant_preview_confirm -- --nocapture`; `cargo test -p ocentra-parent-agent-core policy_preview_read_model -- --nocapture`; and `cargo test -p ocentra-parent-agent-service policy_request_assistant_preview_confirm -- --nocapture`.
-- A typed parent-confirmation/write command seam now exists across `agent-protocol-domain`, `agent-protocol`, and `agent-service`, but the current portal route still does not expose a parent-triggered confirm action and the portal-visible preview seam still does not carry the full typed request envelope required to construct that command honestly. `packages/agent-protocol-domain/src/policy-request-confirm-command.ts` requires request identifiers, timestamps, source-document fields, audit refs, and related request metadata that the current `packages/agent-protocol-domain/src/policy-preview-read-model.ts` parser and `crates/agent-service/src/policy_preview_payload.rs` projection do not yet surface.
-- The remaining open WP05 gap is no longer just UI visibility or missing producer truth. It is now sequenced as: project the typed request envelope into the portal-visible preview seam first or explicitly prove another typed source, then expose the typed parent-confirmation action from the portal surface, extend or explicitly defer unsupported `child-profile` / `resource` preview targets, and prove the observer/co-parent/controller authZ matrix plus rollback execution beyond the currently landed controller-versus-observer visibility slice.
+- Focused tests already cover parser, observer/controller visibility, and the delivery-versus-enforcement boundary behavior.
+- The remaining open WP05 gap is sequenced as: project the typed request envelope into the portal-visible preview seam first or explicitly prove another typed source, then expose the typed parent-confirmation action from the portal surface, extend or explicitly defer unsupported `child-profile` / `resource` preview targets, and prove the observer/co-parent/controller authZ matrix plus rollback execution beyond the currently landed controller-versus-observer visibility slice.
 
 ## Where We Want To Be
 
-Parents can scan, create, preview, and understand rules by child, target,
-schedule, action, proof level, and last result.
+Parents can scan, create, preview, and understand rules by child, target, schedule, action, proof level, and last result.
 
 ## Decision Tree
 
@@ -67,6 +70,30 @@ schedule, action, proof level, and last result.
 - Blocked/manual-required: platform permission, adapter authority, account role, conflict, or stale route prevents action.
 - Rollback/recovery: previous state and audit ref are visible.
 
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+route_state
+preview_read_model_state
+typed_request_envelope_state
+parent_access_state
+write_authority_state
+confirmation_action_state
+observer_authz_state
+coparent_authz_state
+controller_authz_state
+unsupported_target_state
+rollback_visibility_state
+delivery_ack_boundary_state
+enforcement_boundary_state
+assistant_preview_boundary_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
 ## Requirement Checklist
 
 - [ ] Use typed intents for rule changes.
@@ -82,11 +109,11 @@ Current slice-scoped truth on this branch/worktree:
 
 - The preview/manage route packet is real and validated.
 - The authZ/lifecycle visibility packet is real and validated.
-- The typed approval/audit preview metadata packet is real and validated, and the current store-backed producer now persists supported assistant-preview confirmations (`app`, `site`, `category`, `device`) with typed `policySourceStatus`, `policyRequestStatus`, reviewer, and audit fields through the activity-store preview projection.
+- The typed approval/audit preview metadata packet is real and validated, and the current store-backed producer persists supported assistant-preview confirmations (`app`, `site`, `category`, `device`) with typed `policySourceStatus`, `policyRequestStatus`, reviewer, and audit fields through the activity-store preview projection.
 - Unsupported `child-profile` and `resource` confirmation targets are still intentionally unclaimed at the store/writer/projection boundary.
 - Parent-facing portal action wiring, rollback execution, and downstream delivery/enforcement truth are still open.
 - Co-parent-specific authZ proof is still open.
-- The next exact executable slice on current source is the preview-envelope bridge that carries the typed request fields into the portal-visible preview seam, because the service/store producer bridge is real for the supported preview target kinds but the current read model still omits the request envelope the portal would need to emit a real confirmation command honestly.
+- The next exact executable slice is the preview-envelope bridge that carries the typed request fields into the portal-visible preview seam.
 
 ## Acceptance And Proof
 
@@ -103,12 +130,12 @@ Expected proof names:
 
 Proof must include screenshots/DOM snapshots, typed intent/preview fixture or live response, denied-role case, and audit/proof refs.
 
-Current 2026-06-18 checkpoint-safe proof on this branch/worktree is narrower than full WP05 completion:
+Current checkpoint-safe proof is narrower than full WP05 completion:
 
 - It proves preview/read-model rendering and manage-route entry.
 - It proves controller-versus-observer visibility wording in the route panel and preview intent.
 - It proves `delivered` and `acknowledged` lifecycle text stay separate from active enforcement claims.
-- It proves the preview seam can now carry typed approval/audit/replay metadata without widening into enforcement claims.
+- It proves the preview seam can carry typed approval/audit/replay metadata without widening into enforcement claims.
 - It proves a live activity-store producer and preview projection for supported assistant-preview confirmation targets (`app`, `site`, `category`, `device`) while leaving unsupported `child-profile` / `resource` rows unclaimed instead of synthetic.
 - It does not yet prove a portal-exposed parent confirmation action, co-parent approval flow, or rollback execution.
 
@@ -117,6 +144,7 @@ Current 2026-06-18 checkpoint-safe proof on this branch/worktree is narrower tha
 - Do not let portal UI compile, evaluate, or enforce policy by itself.
 - Do not equate delivered policy with active enforcement.
 - Do not allow AI/assistant output to write policy without typed preview and parent confirmation.
+- Do not claim WP05 complete until the typed request-envelope bridge and parent-confirmation action proof exist or are explicitly blocked.
 
 ## Parallel Ownership Notes
 

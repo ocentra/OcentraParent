@@ -18,6 +18,13 @@
 
 Define `family.ocentra.ca` as the public family product entry surface with honest privacy, download, support, status, and account-entry routing.
 
+## Ownership boundary
+
+```text
+setup-install-provisioning-plan owns public route map, public/private data boundary, privacy wording, link map, and deployment blocker state.
+account, package/distribution, custody, payment, portal shell, and child activity storage owners remain separate.
+```
+
 ## Required inputs
 
 ```text
@@ -49,6 +56,31 @@ child activity storage
 portal shell internals
 payment checkout
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+route_map_state
+data_collection_state
+child_activity_boundary_state
+privacy_copy_state
+download_link_state
+register_link_state
+support_privacy_status_link_state
+deploy_shape_state
+preview_state
+custom_domain_state
+manual_required_state
+no_deployed_site_claim
+no_account_claim
+no_installer_claim
+no_setup_ready_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Expected output
 

@@ -4,23 +4,22 @@ use ocentra_eventing::{
     ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
     ids::SourceService, ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{constants, ScreenHouseholdMeshPhase};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenHouseholdMeshEventPayload as ProtocolScreenHouseholdMeshEventPayload,
+    ScreenHouseholdMeshPhase, ScreenHouseholdMeshResultValidation, ScreenMeshCustodyBoundary,
+    ScreenMeshPayloadMode, ScreenMeshResultRejectionReason,
+};
 
 use crate::{
     screen_household_mesh_runtime_refs::{
         child_validation_state, claim_state, lease_state, mesh_aggregate_key, policy_state,
         previous_mesh_phase_ref, provider_result_state,
     },
-    screen_household_mesh_runtime_state::{
-        custody_label, ScreenMeshCustodyBoundary, ScreenMeshPayloadMode,
-        ScreenMeshResultRejectionReason,
-    },
+    screen_household_mesh_runtime_state::custody_label,
 };
 
-pub(crate) type ScreenHouseholdMeshResultValidation =
-    ocentra_parent_agent_protocol::ScreenHouseholdMeshResultValidation;
-pub(crate) type ScreenHouseholdMeshEventPayload =
-    ocentra_parent_agent_protocol::ScreenHouseholdMeshEventPayload;
+pub(crate) type ScreenHouseholdMeshEventPayload = ProtocolScreenHouseholdMeshEventPayload;
 pub(crate) type ScreenHouseholdMeshInput =
     ocentra_parent_agent_protocol::screen_evidence::screen_household_mesh_input::ScreenHouseholdMeshInput;
 pub(crate) type ScreenHouseholdMeshResultSubmission =

@@ -1,10 +1,11 @@
 use ocentra_parent_agent_protocol::app_game::*;
 use std::fs::remove_file;
 
-use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEvidenceKind, ActivityEvidenceRef,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEvidenceKind, ActivityEvidenceRef,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 
 use crate::{
     activity_store::ActivityStore,
@@ -29,7 +30,7 @@ fn journal_replay_produces_app_game_sqlite_read_model_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(lines.len(), 5);
 
@@ -85,7 +86,7 @@ fn journal_replay_events() -> [ActivityEvent; 5] {
             std::env::consts::OS,
             &inventory_row(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
@@ -94,7 +95,7 @@ fn journal_replay_events() -> [ActivityEvent; 5] {
                 constants::activity_store::TEST_FIRST_OBSERVED_AT,
             ),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
@@ -103,19 +104,19 @@ fn journal_replay_events() -> [ActivityEvent; 5] {
                 constants::activity_store::TEST_SECOND_OBSERVED_AT,
             ),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
         app_game_foreground_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &foreground_row(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
         app_game_launcher_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &launcher_row(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
     ]
 }
 
@@ -140,19 +141,19 @@ fn duplicate_runtime_observations_do_not_double_count_duration_after_replay() {
             std::env::consts::OS,
             &runtime_start,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &duplicate,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &runtime_latest,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
     ];
 
     let (store, _) = append_and_replay(&events, constants::journal::TEST_ROTATION_SUFFIX);
@@ -161,7 +162,7 @@ fn duplicate_runtime_observations_do_not_double_count_duration_after_replay() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(model.daily_rollups.len(), 1);
     assert_eq!(model.daily_rollups[0].running_duration_ms, 60000);
@@ -179,10 +180,11 @@ fn invalid_inventory_evidence_is_rejected_before_sqlite_ingest() {
         std::env::consts::OS,
         &invalid,
     );
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let status = store
         .status()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(
         result,
@@ -198,21 +200,23 @@ fn append_and_replay(
     let path = temp_journal_path(suffix);
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.clone(), key.clone())
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS)),
         );
     }
-    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader = ActivityJournal::open(path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

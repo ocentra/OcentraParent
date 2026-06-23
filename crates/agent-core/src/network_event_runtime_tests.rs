@@ -1,27 +1,44 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+use std::fmt::Debug;
+
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::{
+    NetworkAiAuditState, NetworkEvidenceScope, NetworkInterventionState, NetworkRiskBudgetState,
+    NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
 };
 
+use crate::network_capture::NetworkObservation;
 use crate::network_event_runtime::review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
     NetworkRuntimeReviewResponse,
 };
-
-use super::{
-    publish_network_runtime_chain_for_observation, NetworkAiAuditState, NetworkEvidenceGrade,
-    NetworkEvidenceScope, NetworkInterventionState, NetworkObservation, NetworkRiskBudgetState,
-    NetworkRuntimeEventPayload, NetworkRuntimePhase, NetworkRuntimeReport,
+use crate::network_event_runtime::{
+    publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload, NetworkRuntimeReport,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
+}
+
 #[tokio::test]
-async fn network_runtime_chain_publishes_full_metadata_only_flow() {
-    let report = publish_network_runtime_chain_for_observation(
-        complete_domain_observation(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    )
-    .await
-    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES);
-    let payloads = decode_payloads(&report);
+async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult {
+    let report = ok(
+        publish_network_runtime_chain_for_observation(
+            complete_domain_observation(),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
 
     assert_eq!(
         report.publish_reports.len(),
@@ -52,7 +69,7 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() {
     );
     assert!(payloads.iter().all(|payload| {
         payload.evidence_scope == NetworkEvidenceScope::MetadataOnly
-            && payload.evidence_grade == NetworkEvidenceGrade::DomainAndProcessMetadata
+            && payload.evidence_grade == NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata
             && payload.risk_budget_state == NetworkRiskBudgetState::ObserveOnly
             && payload.intervention_state == NetworkInterventionState::DryRunOnly
             && !payload.claim_boundary.decrypted_https_payload_available
@@ -60,32 +77,40 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() {
             && !payload.claim_boundary.page_content_available
             && !payload.claim_boundary.adapter_action_executed
     }));
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_chain_carries_exact_refs_without_direct_enforcement_shortcut() {
+async fn network_runtime_chain_carries_exact_refs_without_direct_enforcement_shortcut() -> TestResult
+{
     let observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT;
-    let report =
+    let report = ok(
         publish_network_runtime_chain_for_observation(complete_domain_observation(), observed_at)
-            .await
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES);
-    let payloads = decode_payloads(&report);
+            .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
 
-    assert_ai_request_refs(&payloads, observed_at);
-    assert_policy_evaluation_refs(&payloads, observed_at);
-    assert_enforcement_command_refs(&payloads, observed_at);
-    assert_audit_and_portal_refs(&payloads, observed_at);
+    assert_ai_request_refs(&payloads, observed_at)?;
+    assert_policy_evaluation_refs(&payloads, observed_at)?;
+    assert_enforcement_command_refs(&payloads, observed_at)?;
+    assert_audit_and_portal_refs(&payloads, observed_at)?;
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn manual_required_network_evidence_does_not_publish_enforcement_command() {
-    let report = publish_network_runtime_chain_for_observation(
-        ip_only_unknown_process_observation(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    )
-    .await
-    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES);
-    let payloads = decode_payloads(&report);
+async fn manual_required_network_evidence_does_not_publish_enforcement_command() -> TestResult {
+    let report = ok(
+        publish_network_runtime_chain_for_observation(
+            ip_only_unknown_process_observation(),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
 
     assert!(report.manual_required());
     assert_eq!(
@@ -107,18 +132,18 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
         0
     );
     assert!(payloads.iter().all(|payload| {
-        payload.evidence_grade == NetworkEvidenceGrade::IpOrProcessPartialMetadata
+        payload.evidence_grade == NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata
             && payload.risk_budget_state == NetworkRiskBudgetState::ManualReviewRequired
             && payload.intervention_state == NetworkInterventionState::ManualRequired
             && !payload.claim_boundary.exact_url_available
             && !payload.claim_boundary.adapter_action_executed
     }));
 
-    let audit_entry = payload_for_phase(&payloads, NetworkRuntimePhase::AuditEntryCommitted);
+    let audit_entry = payload_for_phase(&payloads, NetworkRuntimePhase::AuditEntryCommitted)?;
     assert_eq!(
         audit_entry.previous_phase_ref,
         Some(expected_phase_ref(
-            ActivityCaptureCapabilityStatus::Available,
+            &ActivityCaptureCapabilityStatus::Available,
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
             NetworkRuntimePhase::PolicyDecisionCompleted
         ))
@@ -126,17 +151,21 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
     assert_eq!(audit_entry.adapter_capability_ref, None);
     assert_eq!(audit_entry.enforcement_command_ref, None);
     assert_eq!(audit_entry.enforcement_result_ref, None);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() {
-    let report = publish_network_runtime_chain_for_observation(
-        NetworkObservation::degraded(ActivityCaptureCapabilityStatus::AdapterError),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    )
-    .await
-    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES_DEGRADED);
-    let payloads = decode_payloads(&report);
+async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() -> TestResult {
+    let report = ok(
+        publish_network_runtime_chain_for_observation(
+            NetworkObservation::degraded(ActivityCaptureCapabilityStatus::AdapterError),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES_DEGRADED,
+    )?;
+    let payloads = decode_payloads(&report)?;
 
     assert!(!report.manual_required());
     assert_eq!(
@@ -159,22 +188,26 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() {
     );
     assert!(payloads.iter().all(|payload| {
         payload.evidence_scope == NetworkEvidenceScope::AdapterUnavailable
-            && payload.evidence_grade == NetworkEvidenceGrade::AdapterUnavailable
+            && payload.evidence_grade == NetworkRuntimeEvidenceGrade::AdapterUnavailable
             && payload.risk_budget_state == NetworkRiskBudgetState::Unavailable
             && payload.intervention_state == NetworkInterventionState::Unavailable
             && !payload.claim_boundary.decrypted_https_payload_available
             && !payload.claim_boundary.adapter_action_executed
     }));
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn network_runtime_review_request_resolves_associated_response() {
-    let report: NetworkRuntimeReviewReport = request_network_runtime_review_for_observation(
-        ip_only_unknown_process_observation(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    )
-    .await
-    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REVIEW_COMPLETES);
+async fn network_runtime_review_request_resolves_associated_response() -> TestResult {
+    let report: NetworkRuntimeReviewReport = ok(
+        request_network_runtime_review_for_observation(
+            ip_only_unknown_process_observation(),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_REVIEW_COMPLETES,
+    )?;
     let response: &NetworkRuntimeReviewResponse = &report.request_report.response;
 
     assert_eq!(
@@ -184,7 +217,7 @@ async fn network_runtime_review_request_resolves_associated_response() {
     assert_eq!(report.request_report.publish_report.handled_count, 1);
     assert_eq!(
         response.evidence_grade,
-        NetworkEvidenceGrade::IpOrProcessPartialMetadata
+        NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata
     );
     assert_eq!(
         response.risk_budget_state,
@@ -202,18 +235,22 @@ async fn network_runtime_review_request_resolves_associated_response() {
         constants::network_flow::EVENT_NETWORK_REVIEW_REQUESTED
     );
     assert!(report.dead_letters.is_empty());
+
+    Ok(())
 }
 
-fn decode_payloads(report: &NetworkRuntimeReport) -> Vec<NetworkRuntimeEventPayload> {
+fn decode_payloads(
+    report: &NetworkRuntimeReport,
+) -> Result<Vec<NetworkRuntimeEventPayload>, String> {
     report
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
-                event
-                    .decode()
-                    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES);
-            envelope.payload
+            ok(
+                event.decode::<NetworkRuntimeEventPayload>(),
+                constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES,
+            )
+            .map(|envelope| envelope.payload)
         })
         .collect()
 }
@@ -226,8 +263,11 @@ fn count_event_type(report: &NetworkRuntimeReport, event_type: &str) -> usize {
         .count()
 }
 
-fn assert_ai_request_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
-    let ai_request = payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisRequested);
+fn assert_ai_request_refs(
+    payloads: &[NetworkRuntimeEventPayload],
+    observed_at: &str,
+) -> TestResult {
+    let ai_request = payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisRequested)?;
     assert_eq!(
         ai_request.previous_phase_ref,
         Some(expected_available_ref(
@@ -249,11 +289,16 @@ fn assert_ai_request_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: 
     assert_eq!(ai_request.ai_analysis_ref, None);
     assert_eq!(ai_request.policy_decision_ref, None);
     assert_eq!(ai_request.enforcement_command_ref, None);
+
+    Ok(())
 }
 
-fn assert_policy_evaluation_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
+fn assert_policy_evaluation_refs(
+    payloads: &[NetworkRuntimeEventPayload],
+    observed_at: &str,
+) -> TestResult {
     let policy_evaluation =
-        payload_for_phase(payloads, NetworkRuntimePhase::PolicyEvaluationRequested);
+        payload_for_phase(payloads, NetworkRuntimePhase::PolicyEvaluationRequested)?;
     assert_eq!(
         policy_evaluation.previous_phase_ref,
         Some(expected_available_ref(
@@ -284,13 +329,18 @@ fn assert_policy_evaluation_refs(payloads: &[NetworkRuntimeEventPayload], observ
     );
     assert_eq!(policy_evaluation.policy_decision_ref, None);
     assert_eq!(policy_evaluation.enforcement_command_ref, None);
+
+    Ok(())
 }
 
-fn assert_enforcement_command_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
+fn assert_enforcement_command_refs(
+    payloads: &[NetworkRuntimeEventPayload],
+    observed_at: &str,
+) -> TestResult {
     let enforcement_command =
-        payload_for_phase(payloads, NetworkRuntimePhase::EnforcementCommandIssued);
+        payload_for_phase(payloads, NetworkRuntimePhase::EnforcementCommandIssued)?;
     let mut adapter_ref =
-        expected_correlation_ref(ActivityCaptureCapabilityStatus::Available, observed_at);
+        expected_correlation_ref(&ActivityCaptureCapabilityStatus::Available, observed_at);
     adapter_ref.push(constants::delimiter::HYPHEN);
     adapter_ref.push_str(constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN);
 
@@ -321,10 +371,15 @@ fn assert_enforcement_command_refs(payloads: &[NetworkRuntimeEventPayload], obse
     );
     assert_eq!(enforcement_command.enforcement_result_ref, None);
     assert!(!enforcement_command.claim_boundary.adapter_action_executed);
+
+    Ok(())
 }
 
-fn assert_audit_and_portal_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
-    let audit_entry = payload_for_phase(payloads, NetworkRuntimePhase::AuditEntryCommitted);
+fn assert_audit_and_portal_refs(
+    payloads: &[NetworkRuntimeEventPayload],
+    observed_at: &str,
+) -> TestResult {
+    let audit_entry = payload_for_phase(payloads, NetworkRuntimePhase::AuditEntryCommitted)?;
     assert_eq!(
         audit_entry.previous_phase_ref,
         Some(expected_available_ref(
@@ -346,7 +401,7 @@ fn assert_audit_and_portal_refs(payloads: &[NetworkRuntimeEventPayload], observe
             NetworkRuntimePhase::AuditEntryCommitted
         ))
     );
-    let portal_update = payload_for_phase(payloads, NetworkRuntimePhase::PortalReadModelUpdated);
+    let portal_update = payload_for_phase(payloads, NetworkRuntimePhase::PortalReadModelUpdated)?;
     assert_eq!(
         portal_update.previous_phase_ref,
         Some(expected_available_ref(
@@ -361,21 +416,25 @@ fn assert_audit_and_portal_refs(payloads: &[NetworkRuntimeEventPayload], observe
             NetworkRuntimePhase::AuditEntryCommitted
         ))
     );
+
+    Ok(())
 }
 
 fn payload_for_phase(
     payloads: &[NetworkRuntimeEventPayload],
     phase: NetworkRuntimePhase,
-) -> NetworkRuntimeEventPayload {
-    payloads
-        .iter()
-        .find(|payload| payload.phase == phase)
-        .cloned()
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES)
+) -> Result<NetworkRuntimeEventPayload, String> {
+    some(
+        payloads
+            .iter()
+            .find(|payload| payload.phase == phase)
+            .cloned(),
+        constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES,
+    )
 }
 
 fn expected_phase_ref(
-    status: ActivityCaptureCapabilityStatus,
+    status: &ActivityCaptureCapabilityStatus,
     observed_at: &str,
     phase: NetworkRuntimePhase,
 ) -> String {
@@ -387,13 +446,13 @@ fn expected_phase_ref(
 
 fn expected_available_ref(observed_at: &str, phase: NetworkRuntimePhase) -> String {
     expected_phase_ref(
-        ActivityCaptureCapabilityStatus::Available,
+        &ActivityCaptureCapabilityStatus::Available,
         observed_at,
         phase,
     )
 }
 
-fn expected_correlation_ref(status: ActivityCaptureCapabilityStatus, observed_at: &str) -> String {
+fn expected_correlation_ref(status: &ActivityCaptureCapabilityStatus, observed_at: &str) -> String {
     let mut value = String::from(constants::network_flow::CORRELATION_NETWORK_RUNTIME_PREFIX);
     value.push_str(status.as_protocol_str());
     value.push(constants::delimiter::HYPHEN);

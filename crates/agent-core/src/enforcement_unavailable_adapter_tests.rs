@@ -1,28 +1,50 @@
+use std::fmt::Debug;
+
 use super::*;
-use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
-    EnforcementIntent, EnforcementIntentSource, EnforcementMode, EnforcementPermissionState,
-    EnforcementUnavailableReason, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyDecision,
-    PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
+    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
+    EnforcementPermissionState, EnforcementUnavailableReason, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants as policy;
+
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
 
 #[test]
-fn degraded_capability_with_unavailable_adapter_outcome_records_audit_and_timer_recovery() {
+fn degraded_capability_with_unavailable_adapter_outcome_records_audit_and_timer_recovery(
+) -> TestResult {
     let mut input = boundary_input(policy_decision(false), degraded_capability());
     input.adapter_outcome = Some(unavailable_adapter_outcome(
         EnforcementUnavailableReason::AdapterUnavailable,
         policy::TEST_EVALUATED_AT,
     ));
 
-    let outcome = evaluate_enforcement_boundary(input).expect(enforcement::ADAPTER_UNAVAILABLE);
-    let unavailable_status = outcome
-        .result
-        .unavailable_status
-        .as_ref()
-        .expect(enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE);
-    let timer = outcome.timer_event.expect(enforcement::TIMER_UNAVAILABLE);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        enforcement::ADAPTER_UNAVAILABLE,
+    )?;
+    let unavailable_status = some(
+        outcome.result.unavailable_status.as_ref(),
+        enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE,
+    )?;
+    let timer = some(outcome.timer_event.as_ref(), enforcement::TIMER_UNAVAILABLE)?;
 
     assert_eq!(
         outcome.result.status.as_protocol_str(),
@@ -44,14 +66,17 @@ fn degraded_capability_with_unavailable_adapter_outcome_records_audit_and_timer_
     assert_eq!(
         timer
             .unavailable_reason
+            .as_ref()
             .map(|reason| reason.as_protocol_str()),
         Some(enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE)
     );
     assert_eq!(outcome.adapter_request, None);
+
+    Ok(())
 }
 
 #[test]
-fn process_control_capability_advertises_wired_process_and_time_limit_actions() {
+fn process_control_capability_advertises_wired_process_and_time_limit_actions() -> TestResult {
     let capability = process_control_capability(policy::TEST_EVALUATED_AT);
 
     #[cfg(windows)]
@@ -82,10 +107,12 @@ fn process_control_capability_advertises_wired_process_and_time_limit_actions() 
             Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
         );
     }
+
+    Ok(())
 }
 
 #[test]
-fn timer_control_capability_advertises_parent_timer_action_on_every_platform() {
+fn timer_control_capability_advertises_parent_timer_action_on_every_platform() -> TestResult {
     let capability = timer_control_capability(policy::TEST_EVALUATED_AT);
 
     assert_eq!(
@@ -109,10 +136,13 @@ fn timer_control_capability_advertises_parent_timer_action_on_every_platform() {
         vec![EnforcementMode::AskParent]
     );
     assert_eq!(capability.degraded_reason, None);
+
+    Ok(())
 }
 
 #[test]
-fn unwired_blocking_adapters_report_manual_required_or_unavailable_without_adapter_request() {
+fn unwired_blocking_adapters_report_manual_required_or_unavailable_without_adapter_request(
+) -> TestResult {
     for (capability, expected_adapter_kind) in [
         (
             app_block_control_capability(policy::TEST_EVALUATED_AT),
@@ -161,6 +191,8 @@ fn unwired_blocking_adapters_report_manual_required_or_unavailable_without_adapt
             );
         }
     }
+
+    Ok(())
 }
 
 fn boundary_input(

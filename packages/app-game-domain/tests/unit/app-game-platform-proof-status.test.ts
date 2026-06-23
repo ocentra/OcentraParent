@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { createAppGameAndroidAccessibilityOverlayPreflightReadModel } from '../../src/app-game-android-accessibility-overlay-preflight';
-import { createAppGameAndroidAuthorityPreflightReadModel } from '../../src/app-game-android-authority-preflight';
-import { decodeAppGameAndroidPhysicalDeviceProof } from '../../src/app-game-android-physical-device-proof';
-import { createAppGameAndroidUsageEventsReplayReadModel } from '../../src/app-game-android-usage-events-replay';
-import { createAppGameAppleCiPlatformProofPreflightReadModel } from '../../src/app-game-apple-ci-platform-proof-preflight';
-import { createAppGameLinuxDockerHostPreflightReadModel } from '../../src/app-game-linux-docker-host-preflight';
-import { createAppGameLinuxForegroundCaptureReadiness } from '../../src/app-game-linux-foreground-capture-readiness';
-import { decodeAppGameLinuxWslRuntimeProof } from '../../src/app-game-linux-wsl-runtime-proof';
+import { createAppGameAndroidAccessibilityOverlayPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-android-accessibility-overlay-preflight';
+import { createAppGameAndroidAuthorityPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-android-authority-preflight';
+import { decodeAppGameAndroidPhysicalDeviceProof } from '@ocentra-parent/schema-domain/app-game-android-physical-device-proof';
+import { createAppGameAndroidUsageEventsReplayReadModel } from '@ocentra-parent/schema-domain/app-game-android-usage-events-replay';
+import { createAppGameAppleCiPlatformProofPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-apple-ci-platform-proof-preflight';
+import { createAppGameLinuxDockerHostPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-linux-docker-host-preflight';
+import { createAppGameLinuxForegroundCaptureReadiness } from '@ocentra-parent/schema-domain/app-game-linux-foreground-capture-readiness';
+import { decodeAppGameLinuxWslRuntimeProof } from '@ocentra-parent/schema-domain/app-game-linux-wsl-runtime-proof';
+import { createAppGameWindowsBroadBlockingAuthorityPreflightReadModel } from '@ocentra-parent/schema-domain/app-game-windows-broad-blocking-authority-preflight';
+import { AppGamePlatformProofStatusReadModelSchema } from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
 import {
   createAppGamePlatformProofStatusReadModel,
   summarizeAppGamePlatformProofStatus,
 } from '../../src/app-game-platform-proof-status';
-import { createAppGameWindowsBroadBlockingAuthorityPreflightReadModel } from '../../src/app-game-windows-broad-blocking-authority-preflight';
-import { AppGamePlatformProofStatusReadModelSchema } from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
 
 describe('app-game platform proof status', () => {
   it('summarizes Windows, Android, and Linux proof as visibility-only product status', () => {

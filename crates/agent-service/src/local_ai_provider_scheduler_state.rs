@@ -1,10 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiDegradedState, LocalAiProviderSchedulerDecision,
-    LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
-    LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerQueue,
-    LocalAiProviderSchedulerStatus, LocalAiProviderSingletonScope, LocalAiResourceClass,
-    LocalModelRuntimeStatus,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerDecision;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerQueue;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSingletonScope;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 
 pub(crate) fn status_unavailable(checked_at: String) -> LocalAiProviderSchedulerStatus {
     status_unavailable_for_device(

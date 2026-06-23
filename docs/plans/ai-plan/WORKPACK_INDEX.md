@@ -66,3 +66,86 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 | open    | [46 - Security Privacy Negative Gates Lane](workpacks/46-security-privacy-negative-gates-lane.md)                            |   759 | 0/8 checked; 8 open   |
 | open    | [47 - Performance Resource Battery Proof Lane](workpacks/47-performance-resource-battery-proof-lane.md)                      | 1,026 | 0/8 checked; 8 open   |
 | open    | [48 - Rollout Checklist And PR Gate](workpacks/48-rollout-checklist-and-pr-gate.md)                                          | 1,933 | 0/25 checked; 25 open |
+
+## Workpack families and owner paths
+
+Use this section to classify the assigned workpack before opening source. It is a routing aid, not permission to read every workpack in the family.
+
+```text
+Current state and route hygiene:
+  01 source index and reconciliation
+  02 current AI snapshot and gap map
+  48 rollout checklist and PR gate
+  Owners: docs/plans/ai-plan plus named proof roots. No source edits unless the workpack names them.
+
+Canonical contract/schema family:
+  03 contract boundary and Effect schemas
+  04 Rust protocol parity for AI contracts
+  05 LocalModelRuntimeStatus hardening
+  06 LocalProviderCapability hardening
+  10 evidence reference normalization
+  12 prompt template version registry
+  16 output parser and schema validator
+  21 memory reference contract
+  24 knowledge graph reference contract
+  Owners: packages/schema-domain first; crates/agent-protocol or child-ai-core only when Rust/wire parity is assigned.
+
+Runtime/provider/job family:
+  07 AI job queue contract
+  08 AI provider routing contract
+  14 local text LLM adapter boundary
+  15 local text LLM execution dry-run adapter
+  17 degraded timeout invalid-output handling
+  31 guided VLM worker lane
+  32 household AI provider mesh and remote assistant boundary
+  39 device hardware model fit lane
+  40 model catalog artifact integrity lane
+  41 Llama GGUF runtime packaging lane
+  42 inference settings template governance lane
+  Owners: child-ai-core for child-local runtime; schema-domain for shared job/provider contracts; LAN/remote only through explicit provider-job handoff, not direct runtime import.
+
+Evidence context and memory family:
+  09 local evidence context builder V1
+  11 parent rule context builder
+  19 AI result journal SQLite ingest
+  20 parent explanation read model
+  22 short-window recent activity memory
+  23 evidence-backed semantic memory
+  25 minimal graph edges for safety context
+  29 TabAgent memory graph reuse candidate
+  Owners: schema-domain for context/reference shapes; child-ai-core for local evaluation/read-model behavior; storage/eventing/evidence primitives only through neutral boundaries.
+
+TabAgent reuse family:
+  26 TabAgent code audit and reuse map
+  27 TabAgent native bridge reuse candidate
+  28 TabAgent model lifecycle cache reuse candidate
+  29 TabAgent memory graph reuse candidate
+  Owners: docs and selected adapter boundary only. TabAgent must not redefine Ocentra Parent portal, policy, evidence, or child-agent authority.
+
+Feature-evidence bridge family:
+  30 OCR worker lane
+  33 browser URL video AI lane
+  34 browser social feed signup AI lane
+  35 browser game cloud game AI lane
+  36 app game unknown classifier lane
+  37 tracking location safety analysis lane
+  38 screen OCR VLM router lane
+  Owners: evidence-producing plans own capture/runtime; AI consumes evidence/read models/requests and emits validated AI results. No direct imports from browser/screen/tracking/network/app-game runtime internals.
+
+Policy handoff and portal explanation family:
+  13 deterministic no-model classifier lane
+  18 deterministic policy evaluator integration
+  20 parent explanation read model
+  43 AI activity portal surface lane
+  45 remote redacted report assistant lane
+  Owners: AI emits schema-valid evidence/classification/explanation; policy/enforcement own deterministic decisions/actions; portal renders status/explanation only.
+
+Security, privacy, custody, and performance gates:
+  44 provider API authorization custody lane
+  46 security privacy negative gates lane
+  47 performance resource battery proof lane
+  48 rollout checklist and PR gate
+  Owners: selected workpack proof root plus strict no-claim boundaries. Remote/API paths remain opt-in and outside the normal child safety blocking path.
+```
+
+If the workpack belongs to multiple families, use the strictest test/proof path. When a feature bridge needs source facts, consume the owning feature's evidence/read-model/request result; do not import or call its runtime implementation.

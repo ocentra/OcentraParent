@@ -10,11 +10,12 @@ use ocentra_parent_screen_capture_adapter::{
 };
 use serde_json::json;
 
-fn main() {
+fn main() -> Result<(), String> {
     let output_dir = env::args().nth(1).map(PathBuf::from).unwrap_or_else(|| {
         PathBuf::from("output/screen-plan-proof/real-capture/scheduler-decision")
     });
-    std::fs::create_dir_all(&output_dir).expect(constants::error::JOURNAL_OPENS);
+    std::fs::create_dir_all(&output_dir)
+        .map_err(|error| format!("{}: {error:?}", constants::error::JOURNAL_OPENS))?;
 
     let trigger = env::var("OCENTRA_SCREEN_CAPTURE_TRIGGER")
         .ok()
@@ -56,18 +57,20 @@ fn main() {
         },
     );
 
-    write(
-        output_dir.join("00-scheduler-decision.json"),
-        serde_json::to_vec_pretty(&decision_json(
-            decision,
-            settings,
-            trigger,
-            observed_at,
-            state.last_capture_at_epoch_seconds,
-        ))
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
-    )
-    .expect(constants::error::JOURNAL_APPENDS);
+    let decision_json = decision_json(
+        decision,
+        settings,
+        trigger,
+        observed_at,
+        state.last_capture_at_epoch_seconds,
+    );
+    let bytes = serde_json::to_vec_pretty(&decision_json)
+        .map_err(|error| format!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))?;
+
+    write(output_dir.join("00-scheduler-decision.json"), bytes)
+        .map_err(|error| format!("{}: {error:?}", constants::error::JOURNAL_APPENDS))?;
+
+    Ok(())
 }
 
 fn decision_json(

@@ -14,12 +14,15 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await ensureLanDomainBuild();
-  await runCommand('cmd', ['/c', 'npx', 'vitest', 'run', 'tests/unit/lan-signed-discovery-relay-spine.test.ts'], lanDomainRoot);
+  await runCommand(
+    'cmd',
+    ['/c', 'npx', 'vitest', 'run', 'tests/unit/lan-signed-discovery-relay-spine.test.ts'],
+    lanDomainRoot
+  );
 
   const signedDiscoveryRelaySpineContract = await import('@ocentra-parent/schema-domain/lan-relay-spine');
   const pairingDeviceContract = await import('@ocentra-parent/schema-domain/lan-pairing-device');
-  const spine =
-    signedDiscoveryRelaySpineContract.LanRelaySpineSchema.parse(signedDiscoveryRelaySpineFixture());
+  const spine = signedDiscoveryRelaySpineContract.LanRelaySpineSchema.parse(signedDiscoveryRelaySpineFixture());
   const readModel = pairingDeviceContract.LanBrowserAddDeviceReadModelSchema.parse({
     ...addDeviceReadModelFixture(),
     signedDiscoveryRelaySpine: spine,
@@ -69,7 +72,7 @@ async function ensureLanDomainBuild() {
   if (existsSync(signedDiscoveryRelaySpineModulePath) && existsSync(pairingDeviceModulePath)) {
     return;
   }
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build'], lanDomainRoot);
+  await runNpm(['run', 'build'], lanDomainRoot);
 }
 
 function signedDiscoveryRelaySpineFixture() {
@@ -112,13 +115,62 @@ function signedDiscoveryRelaySpineFixture() {
 function adapterRows() {
   return [
     adapterRow('passive-lan-neighbor', 'discovered', 'ci-mechanical-proof', 'strong', 'passive-lan-observation', null),
-    adapterRow('router-infrastructure', 'discovered', 'ci-mechanical-proof', 'strong', 'router-infrastructure-observation', null),
-    adapterRow('mdns-name', 'manual-required', 'manual-required', 'manual-required', 'passive-lan-observation', 'mDNS packet proof'),
-    adapterRow('ssdp-name', 'manual-required', 'manual-required', 'manual-required', 'passive-lan-observation', 'SSDP packet proof'),
-    adapterRow('router-dhcp-name', 'manual-required', 'manual-required', 'manual-required', 'router-infrastructure-observation', 'router DHCP proof'),
-    adapterRow('manual-direct-address', 'manual-required', 'manual-required', 'manual-required', 'manual-parent-entry', 'manual direct address proof'),
-    adapterRow('signed-child-agent-hello', 'manual-required', 'manual-required', 'manual-required', 'signed-child-agent-artifact', 'signed hello proof'),
-    adapterRow('signed-child-agent-heartbeat', 'manual-required', 'manual-required', 'manual-required', 'signed-child-agent-artifact', 'signed heartbeat proof'),
+    adapterRow(
+      'router-infrastructure',
+      'discovered',
+      'ci-mechanical-proof',
+      'strong',
+      'router-infrastructure-observation',
+      null
+    ),
+    adapterRow(
+      'mdns-name',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      'passive-lan-observation',
+      'mDNS packet proof'
+    ),
+    adapterRow(
+      'ssdp-name',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      'passive-lan-observation',
+      'SSDP packet proof'
+    ),
+    adapterRow(
+      'router-dhcp-name',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      'router-infrastructure-observation',
+      'router DHCP proof'
+    ),
+    adapterRow(
+      'manual-direct-address',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      'manual-parent-entry',
+      'manual direct address proof'
+    ),
+    adapterRow(
+      'signed-child-agent-hello',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      'signed-child-agent-artifact',
+      'signed hello proof'
+    ),
+    adapterRow(
+      'signed-child-agent-heartbeat',
+      'manual-required',
+      'manual-required',
+      'manual-required',
+      'signed-child-agent-artifact',
+      'signed heartbeat proof'
+    ),
   ];
 }
 
@@ -139,28 +191,142 @@ function signedProofRows() {
 
 function routeSafetyRows() {
   return [
-    routeSafety('trusted-registry-restart-recovery', 'lan-route-local-network', 'paired', 'accepted', null, 'parent-local-service'),
-    routeSafety('selected-route-custody', 'lan-route-local-network', 'paired', 'accepted', null, 'parent-local-service'),
-    routeSafety('stale-selected-device-rejected', 'lan-route-local-network', 'stale', 'rejected', 'stale', 'parent-local-service'),
-    routeSafety('offline-selected-device-rejected', 'lan-route-local-network', 'offline', 'rejected', 'offline', 'parent-local-service'),
-    routeSafety('wrong-route-rejected', 'lan-route-local-network', 'rejected', 'rejected', 'wrong-device', 'parent-local-service'),
-    routeSafety('revoked-route-rejected', 'lan-route-local-network', 'revoked', 'rejected', 'revoked', 'parent-local-service'),
-    routeSafety('parent-assign-decision-audited', 'lan-route-local-network', 'discovered', 'accepted', null, 'parent-local-service'),
-    routeSafety('parent-rename-decision-audited', 'lan-route-local-network', 'discovered', 'accepted', null, 'parent-local-service'),
-    routeSafety('parent-ignore-decision-audited', 'lan-route-local-network', 'discovered', 'accepted', null, 'parent-local-service'),
-    routeSafety('parent-restore-decision-audited', 'lan-route-local-network', 'discovered', 'accepted', null, 'parent-local-service'),
-    routeSafety('parent-trust-decision-audited', 'lan-route-local-network', 'paired', 'accepted', null, 'parent-local-service'),
-    routeSafety('parent-revoke-decision-audited', 'lan-route-local-network', 'revoked', 'accepted', null, 'parent-local-service'),
+    routeSafety(
+      'trusted-registry-restart-recovery',
+      'lan-route-local-network',
+      'paired',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
+    routeSafety(
+      'selected-route-custody',
+      'lan-route-local-network',
+      'paired',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
+    routeSafety(
+      'stale-selected-device-rejected',
+      'lan-route-local-network',
+      'stale',
+      'rejected',
+      'stale',
+      'parent-local-service'
+    ),
+    routeSafety(
+      'offline-selected-device-rejected',
+      'lan-route-local-network',
+      'offline',
+      'rejected',
+      'offline',
+      'parent-local-service'
+    ),
+    routeSafety(
+      'wrong-route-rejected',
+      'lan-route-local-network',
+      'rejected',
+      'rejected',
+      'wrong-device',
+      'parent-local-service'
+    ),
+    routeSafety(
+      'revoked-route-rejected',
+      'lan-route-local-network',
+      'revoked',
+      'rejected',
+      'revoked',
+      'parent-local-service'
+    ),
+    routeSafety(
+      'parent-assign-decision-audited',
+      'lan-route-local-network',
+      'discovered',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
+    routeSafety(
+      'parent-rename-decision-audited',
+      'lan-route-local-network',
+      'discovered',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
+    routeSafety(
+      'parent-ignore-decision-audited',
+      'lan-route-local-network',
+      'discovered',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
+    routeSafety(
+      'parent-restore-decision-audited',
+      'lan-route-local-network',
+      'discovered',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
+    routeSafety(
+      'parent-trust-decision-audited',
+      'lan-route-local-network',
+      'paired',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
+    routeSafety(
+      'parent-revoke-decision-audited',
+      'lan-route-local-network',
+      'revoked',
+      'accepted',
+      null,
+      'parent-local-service'
+    ),
   ];
 }
 
 function relayCacheRows() {
   return [
-    relayCache('relay-route-unavailable', 'unavailable', 'unavailable', 'not-implemented', 'no-ocentra-child-data-custody'),
-    relayCache('relay-route-queued-not-configured', 'queued-not-configured', 'pending', 'not-implemented', 'no-ocentra-child-data-custody'),
-    relayCache('cache-route-unavailable', 'unavailable', 'unavailable', 'not-implemented', 'no-ocentra-child-data-custody'),
-    relayCache('parent-owned-storage-unavailable', 'unavailable', 'unavailable', 'not-implemented', 'parent-owned-storage-unavailable'),
-    relayCache('ocentra-child-data-custody-not-claimed', 'local-first', 'unavailable', 'ci-mechanical-proof', 'no-ocentra-child-data-custody'),
+    relayCache(
+      'relay-route-unavailable',
+      'unavailable',
+      'unavailable',
+      'not-implemented',
+      'no-ocentra-child-data-custody'
+    ),
+    relayCache(
+      'relay-route-queued-not-configured',
+      'queued-not-configured',
+      'pending',
+      'not-implemented',
+      'no-ocentra-child-data-custody'
+    ),
+    relayCache(
+      'cache-route-unavailable',
+      'unavailable',
+      'unavailable',
+      'not-implemented',
+      'no-ocentra-child-data-custody'
+    ),
+    relayCache(
+      'parent-owned-storage-unavailable',
+      'unavailable',
+      'unavailable',
+      'not-implemented',
+      'parent-owned-storage-unavailable'
+    ),
+    relayCache(
+      'ocentra-child-data-custody-not-claimed',
+      'local-first',
+      'unavailable',
+      'ci-mechanical-proof',
+      'no-ocentra-child-data-custody'
+    ),
   ];
 }
 
@@ -268,12 +434,22 @@ function assertSignedDiscoveryRelaySpine(spine) {
     throw new Error('Signed discovery relay spine was not carried on the add-device read model.');
   }
   assertArrayIncludes(spine.manualProofRequired, 'signed-child-agent-hello', 'signed child-agent hello manual proof');
-  assertArrayIncludes(spine.manualProofRequired, 'signed-child-agent-heartbeat', 'signed child-agent heartbeat manual proof');
+  assertArrayIncludes(
+    spine.manualProofRequired,
+    'signed-child-agent-heartbeat',
+    'signed child-agent heartbeat manual proof'
+  );
   assertArrayIncludes(spine.notImplemented, 'relay-route-unavailable', 'relay unavailable gap');
   assertArrayIncludes(spine.notImplemented, 'cache-route-unavailable', 'cache unavailable gap');
   assertRow(spine.adapterRows, 'adapter', 'passive-lan-neighbor', 'custodyLabel', 'passive-lan-observation');
   assertRow(spine.routeSafetyRows, 'check', 'wrong-route-rejected', 'rejectionReason', 'wrong-device');
-  assertRow(spine.relayCacheRows, 'check', 'ocentra-child-data-custody-not-claimed', 'custodyLabel', 'no-ocentra-child-data-custody');
+  assertRow(
+    spine.relayCacheRows,
+    'check',
+    'ocentra-child-data-custody-not-claimed',
+    'custodyLabel',
+    'no-ocentra-child-data-custody'
+  );
 }
 
 function assertRow(rows, key, value, field, expected) {
@@ -307,6 +483,14 @@ async function runCommand(commandName, args, cwd) {
   });
 }
 
+async function runNpm(args, cwd) {
+  if (process.platform === 'win32') {
+    await runCommand('cmd', ['/c', 'npm', ...args], cwd);
+    return;
+  }
+  await runCommand('npm', args, cwd);
+}
+
 async function gitHead() {
   const chunks = [];
   await new Promise((resolve, reject) => {
@@ -316,10 +500,6 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
-}
-
-function moduleUrl(path) {
-  return `file:///${path.replaceAll('\\', '/')}`;
 }
 
 function relativePath(path) {

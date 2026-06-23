@@ -8,9 +8,14 @@ use ocentra_parent_agent_core::{
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
     screen_evidence_queue::{ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue},
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
+use ocentra_parent_agent_protocol as parent_protocol;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_CAPABILITY_READY, SCREEN_CATEGORY_UNKNOWN, SCREEN_CUSTODY_JOURNAL,
     SCREEN_DELETION_EXPIRED_DELETED, SCREEN_PROVIDER_SERVICE_METADATA,
     SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME, SCREEN_SERVICE_METADATA_CONFIDENCE,
@@ -106,19 +111,18 @@ pub(crate) fn record_screen_ai_retention_sweeper_tick(
     config: &ScreenAiRetentionSweeperRuntimeConfig,
     clock: ScreenAiRetentionSweeperClock,
 ) -> Result<ScreenAiRetentionSweeperOutcome, ActivityCaptureError> {
+    let ScreenAiRetentionSweeperClock { timestamp } = clock;
     let Some(key) = load_existing_screen_key(&config.journal_key_path)? else {
         return Ok(ScreenAiRetentionSweeperOutcome::QueueEmpty);
     };
     let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
-    let sweep = queue.remove_expired_entries(
-        &clock.timestamp,
-        SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
-    )?;
+    let sweep = queue
+        .remove_expired_entries(&timestamp, SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX)?;
     if !sweep.expired_entries.is_empty() {
         let events = sweep
             .expired_entries
             .iter()
-            .map(|entry| expired_entry_event(entry, &clock))
+            .map(|entry| expired_entry_event(entry, &timestamp))
             .collect::<Vec<_>>();
         record_activity_events_to_paths(
             &config.journal_path,
@@ -190,30 +194,30 @@ fn journal_key_from_bytes(bytes: &[u8]) -> Result<JournalKey, ActivityCaptureErr
     Ok(JournalKey::from_bytes(key))
 }
 
-fn env_flag(name: &str, default_value: bool) -> bool {
-    env::var(name)
+fn env_flag(env_var_name: &str, default_value: bool) -> bool {
+    env::var(env_var_name)
         .ok()
         .map(|value| value == constants::value::TRUE)
         .unwrap_or(default_value)
 }
 
-fn env_u64(name: &str, default_value: u64) -> u64 {
-    env::var(name)
+fn env_u64(env_var_name: &str, default_value: u64) -> u64 {
+    env::var(env_var_name)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
         .unwrap_or(default_value)
 }
 
-fn env_optional_u64(name: &str) -> Option<u64> {
-    env::var(name)
+fn env_optional_u64(env_var_name: &str) -> Option<u64> {
+    env::var(env_var_name)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
 }
 
-fn env_path(name: &str) -> Option<PathBuf> {
-    env::var(name)
+fn env_path(env_var_name: &str) -> Option<PathBuf> {
+    env::var(env_var_name)
         .ok()
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)
@@ -227,7 +231,7 @@ fn default_queue_dir() -> PathBuf {
 
 fn expired_entry_event(
     entry: &ScreenEvidenceExpiredQueueEntry,
-    clock: &ScreenAiRetentionSweeperClock,
+    observed_at: &str,
 ) -> ActivityEvent {
     let mut evidence_id = String::from(SCREEN_SERVICE_RETENTION_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(&entry.queue_job_id);
@@ -240,9 +244,9 @@ fn expired_entry_event(
         uri: None,
     }];
     ActivityEvent {
-        schema_version: ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION,
+        schema_version: parent_protocol::ACTIVITY_SCHEMA_VERSION,
         event_id,
-        observed_at: clock.timestamp.clone(),
+        observed_at: observed_at.to_string(),
         source: ActivitySource {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             platform: std::env::consts::OS.to_string(),
@@ -314,7 +318,7 @@ fn expired_entry_fields(
         ),
         string_field(
             constants::field::SCREEN_CAPTURE_SCOPE,
-            ocentra_parent_agent_protocol::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
         ),
         string_field(constants::field::CAPABILITY_STATUS, SCREEN_CAPABILITY_READY),
         string_field(

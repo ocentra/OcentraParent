@@ -9,7 +9,7 @@ import {
 import {
   AppGameTimeBudgetRuntimeMode,
   buildAppGameTimeBudgetRuntimeDecision,
-} from '../../src/app-game-time-budget-policy-runtime';
+} from '@ocentra-parent/schema-domain/app-game-time-budget-policy-runtime';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

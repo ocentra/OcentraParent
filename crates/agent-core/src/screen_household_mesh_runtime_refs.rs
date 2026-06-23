@@ -1,8 +1,7 @@
-use ocentra_parent_agent_protocol::{constants, ScreenHouseholdMeshPhase};
-
-use crate::screen_household_mesh_runtime_state::{
-    ScreenMeshChildValidationState, ScreenMeshClaimState, ScreenMeshLeaseState,
-    ScreenMeshPolicyState, ScreenMeshProviderResultState,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenHouseholdMeshPhase, ScreenMeshChildValidationState, ScreenMeshClaimState,
+    ScreenMeshLeaseState, ScreenMeshPolicyState, ScreenMeshProviderResultState,
 };
 
 pub(crate) fn mesh_aggregate_key(queue_job_id: &str) -> String {

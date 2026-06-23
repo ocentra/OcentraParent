@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const BillingCheckoutPortalBoundarySchemaVersionSchema = withParser(
   Schema.Literal('billing-checkout-portal-boundary')
@@ -32,11 +26,7 @@ export const BillingHostedSessionRejectionReasonSchema = withParser(
 );
 
 export const BillingHostedReturnRouteIdSchema = withParser(
-  Schema.Literal(
-    'family-billing-checkout-success',
-    'family-billing-checkout-cancel',
-    'family-billing-portal-return'
-  )
+  Schema.Literal('family-billing-checkout-success', 'family-billing-checkout-cancel', 'family-billing-portal-return')
 );
 
 export const BillingHostedReturnPathSchema = withParser(
@@ -51,9 +41,7 @@ export const BillingHostedReturnPathSchema = withParser(
   )
 );
 
-export const BillingHostedSessionRequestIdSchema = brandedNonEmptyStringSchema(
-  'BillingHostedSessionRequestId'
-);
+export const BillingHostedSessionRequestIdSchema = brandedNonEmptyStringSchema('BillingHostedSessionRequestId');
 export const BillingHostedSessionIdSchema = brandedNonEmptyStringSchema('BillingHostedSessionId');
 
 export const BillingHostedCheckoutUrlSchema = withParser(
@@ -91,4 +79,3 @@ export type BillingHostedSessionStatus = Infer<typeof BillingHostedSessionStatus
 export type BillingCheckoutAbuseGateState = Infer<typeof BillingCheckoutAbuseGateStateSchema>;
 export type BillingHostedSessionRejectionReason = Infer<typeof BillingHostedSessionRejectionReasonSchema>;
 export type BillingHostedReturnRouteId = Infer<typeof BillingHostedReturnRouteIdSchema>;
-

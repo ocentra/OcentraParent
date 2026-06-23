@@ -4,7 +4,10 @@ use ocentra_eventing::{
     ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
     ids::SourceService, ids::SubscriberId, ids::TargetHandler, topology::EventTopologyManifest,
 };
-use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
+use ocentra_parent_agent_protocol::browser::{
+    BrowserRuntimeEventPayload as ProtocolBrowserRuntimeEventPayload, BrowserRuntimePhase,
+};
+use ocentra_parent_agent_protocol::constants;
 
 pub(crate) mod action_handoff;
 #[cfg(test)]
@@ -90,8 +93,7 @@ pub(crate) fn browser_runtime_stream_report_topology_manifest(
     topology::browser_runtime_stream_report_topology_manifest()
 }
 
-pub(crate) type BrowserRuntimeEventPayload =
-    ocentra_parent_agent_protocol::BrowserRuntimeEventPayload;
+pub(crate) type BrowserRuntimeEventPayload = ProtocolBrowserRuntimeEventPayload;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserRuntimeInput {

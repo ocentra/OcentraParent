@@ -6,4 +6,3 @@ describe('lan domain package boundary', () => {
     expect(LanDomainPackageName).toBe('@ocentra-parent/lan-domain');
   });
 });
-

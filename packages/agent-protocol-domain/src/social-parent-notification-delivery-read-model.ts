@@ -3,11 +3,14 @@ import {
   type SocialParentNotificationDeliveryReadinessReadModel,
   type SocialParentNotificationDeliveryReadinessRow,
 } from '@ocentra-parent/schema-domain/social-parent-notification-delivery-readiness';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
-export {
-  SocialParentNotificationDeliveryReadinessReadModelSchema as SocialParentNotificationDeliveryReadModelSnapshotSchema,
-};
+export { SocialParentNotificationDeliveryReadinessReadModelSchema as SocialParentNotificationDeliveryReadModelSnapshotSchema };
 export type {
   SocialParentNotificationDeliveryReadinessReadModel as SocialParentNotificationDeliveryReadModelSnapshot,
   SocialParentNotificationDeliveryReadinessRow as SocialParentNotificationDeliveryReadModelRow,

@@ -3,13 +3,25 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    ScreenAnalysisParentSetting, ScreenSettingsGetRequest, ScreenSettingsRejectionReason,
-    ScreenSettingsUpdateKind, ScreenSettingsUpdateResponse, ScreenSettingsUpdateStatus,
-    AGENT_PROTOCOL_SCHEMA_VERSION, SCREEN_EVIDENCE_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::screen_settings::ScreenAnalysisParentSetting;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsGetRequest;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsRejectionReason;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateKind;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateResponse;
+use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateStatus;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 
 use crate::{
     lan_pairing::LanPairingRuntime, screen_settings_runtime::ScreenSettingsRuntime,
@@ -24,7 +36,7 @@ async fn screen_settings_replace_persists_and_get_reports_after_runtime_restart(
     let setting = strict_dry_run_setting(2);
 
     let replace_event =
-        send_screen_settings_command(runtime.clone(), replace_command(None, setting.clone())).await;
+        send_screen_settings_command(runtime, replace_command(None, &setting)).await;
     let replace_response = response_from_event(&replace_event);
 
     assert_eq!(
@@ -61,7 +73,7 @@ async fn screen_settings_replace_rejects_raw_image_retention_before_persisting()
     setting.retain_raw_image = true;
 
     let rejected_event =
-        send_screen_settings_command(runtime, replace_command(None, setting)).await;
+        send_screen_settings_command(runtime, replace_command(None, &setting)).await;
     let rejected_response = response_from_event(&rejected_event);
 
     assert_eq!(
@@ -85,7 +97,9 @@ async fn send_screen_settings_command(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     handle_command_text_with_screen_settings_for_test(
-        &serde_json::to_string(&command).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        &serde_json::to_string(&command).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
         LanPairingRuntime::empty(),
         runtime,
         None,
@@ -98,10 +112,10 @@ fn response_from_event(event: &AgentEventEnvelope) -> ScreenSettingsUpdateRespon
         .payload
         .get(constants::field::SCREEN_SETTINGS_RESPONSE)
     {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => unreachable!(),
+        Some(LogFieldValue::String(text)) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        payload => panic!("expected screen settings response string payload, got {payload:?}"),
     }
 }
 
@@ -118,7 +132,7 @@ fn get_command() -> AgentCommandEnvelope {
 
 fn replace_command(
     base_setting_version: Option<u64>,
-    setting: ScreenAnalysisParentSetting,
+    setting: &ScreenAnalysisParentSetting,
 ) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentScreenSettingsReplace,
@@ -139,9 +153,9 @@ where
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::SCREEN_SETTINGS_REQUEST.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&request).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serde_json::to_string(&request).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })),
     );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -196,15 +210,15 @@ fn strict_dry_run_setting(version: u64) -> ScreenAnalysisParentSetting {
     }
 }
 
-fn temp_screen_settings_store_path(label: &str) -> PathBuf {
+fn temp_screen_settings_store_path(path_label: &str) -> PathBuf {
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_default()
         .as_nanos();
     let mut path = std::env::temp_dir();
     let mut file_name = constants::screen_settings::TEST_STORE_FILE_PREFIX.to_string();
     file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(label);
+    file_name.push_str(path_label);
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(&stamp.to_string());
     file_name.push(constants::delimiter::DOT);

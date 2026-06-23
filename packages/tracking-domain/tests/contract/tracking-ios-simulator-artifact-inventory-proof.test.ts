@@ -3,7 +3,7 @@ import {
   RequiredTrackingIosSimulatorArtifactRefs,
   TrackingIosSimulatorArtifactInventoryRowSchema,
   buildTrackingIosSimulatorArtifactInventoryProof,
-} from '../../src/tracking-ios-simulator-artifact-inventory-proof';
+} from '@ocentra-parent/schema-domain/tracking-ios-simulator-artifact-inventory-proof';
 
 const GeneratedAt = '2026-06-08T11:00:00.000Z';
 

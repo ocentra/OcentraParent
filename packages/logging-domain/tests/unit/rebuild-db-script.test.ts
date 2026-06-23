@@ -25,7 +25,11 @@ function makeTempDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-rebuild-db-'));
 }
 
-function runScript(scriptPath: string, env: NodeJS.ProcessEnv, args: readonly string[]): { stdout: string; stderr: string; status: number | null } {
+function runScript(
+  scriptPath: string,
+  env: NodeJS.ProcessEnv,
+  args: readonly string[]
+): { stdout: string; stderr: string; status: number | null } {
   const result = spawnSync(process.execPath, [TSX_CLI, scriptPath, ...args], {
     cwd: workspaceRoot(),
     env,

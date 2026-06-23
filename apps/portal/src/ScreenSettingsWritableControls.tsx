@@ -1,11 +1,12 @@
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import {
   screenEvidenceSettingsWritableUiProof,
   type ScreenEvidenceSettingsUiIntent,
   type ScreenEvidenceSettingsUiIntentKey,
 } from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
-import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
 import type { PortalRenderActions } from './portal-actions';

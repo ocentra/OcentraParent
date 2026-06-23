@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameLinuxWslRuntimeProofSchemaVersionSchema = withParser(
@@ -126,30 +121,56 @@ export function summarizeAppGameLinuxWslRuntimeProof(proof: AppGameLinuxWslRunti
 
 function linuxWslRuntimeProofIsHonest(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
   return (
+    linuxWslIdentityIsHonest(proof) &&
+    linuxWslProofRefsArePresent(proof) &&
+    linuxWslRedactionIsHonest(proof) &&
+    linuxWslDisplayProofIsHonest(proof) &&
+    linuxWslClaimsRemainScoped(proof) &&
+    linuxWslProofRemainsIncomplete(proof)
+  );
+}
+
+function linuxWslIdentityIsHonest(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
+  return (
     proof.targetKind === 'wsl2-distro' &&
     proof.runtimeState === 'runtime-observed' &&
-    proof.distroRef === 'linux-wsl-distro-ref' &&
-    proof.proofRefs.includes('linux-wsl-distro-ref') &&
-    proof.proofRefs.includes('linux-wsl-kernel-ref') &&
-    proof.proofRefs.includes('linux-wsl-package-manager-ref') &&
-    proof.proofRefs.includes('linux-wsl-process-ref') &&
-    proof.proofRefs.includes('linux-wsl-session-ref') &&
-    proof.proofRefs.includes('linux-docker-cli-ref') &&
-    proof.packageNamesRedacted &&
-    proof.processNamesRedacted &&
-    proof.rawDistroNameRedacted &&
-    linuxWslDisplayProofIsHonest(proof) &&
+    proof.distroRef === 'linux-wsl-distro-ref'
+  );
+}
+
+function linuxWslProofRefsArePresent(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
+  return [
+    'linux-wsl-distro-ref',
+    'linux-wsl-kernel-ref',
+    'linux-wsl-package-manager-ref',
+    'linux-wsl-process-ref',
+    'linux-wsl-session-ref',
+    'linux-docker-cli-ref',
+  ].every((ref) => proof.proofRefs.includes(ref as AppGameLinuxWslProofRef));
+}
+
+function linuxWslRedactionIsHonest(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
+  return proof.packageNamesRedacted && proof.processNamesRedacted && proof.rawDistroNameRedacted;
+}
+
+function linuxWslClaimsRemainScoped(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
+  return (
     !proof.foregroundCaptureClaimed &&
     !proof.adapterDispatchClaimed &&
     !proof.broadBlockingClaimed &&
-    !proof.platformEnforcementClaimed &&
-    (!proof.mechanismProofAttached ||
-      !proof.distroProofAttached ||
-      !proof.sessionProofAttached ||
-      !proof.displayProofAttached ||
-      !proof.rollbackProofAttached ||
-      !proof.auditProofAttached)
+    !proof.platformEnforcementClaimed
   );
+}
+
+function linuxWslProofRemainsIncomplete(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
+  return [
+    proof.mechanismProofAttached,
+    proof.distroProofAttached,
+    proof.sessionProofAttached,
+    proof.displayProofAttached,
+    proof.rollbackProofAttached,
+    proof.auditProofAttached,
+  ].some((attached) => attached === false);
 }
 
 function linuxWslDisplayProofIsHonest(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
@@ -172,4 +193,3 @@ function linuxWslDisplayProofIsHonest(proof: AppGameLinuxWslRuntimeProofCandidat
     proof.displayProofAttached
   );
 }
-

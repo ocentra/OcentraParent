@@ -1,14 +1,21 @@
 use serde_json::Value;
 
-use ocentra_parent_agent_protocol::{
-    constants, NetworkActivityClassifiedEvent, NetworkActivityKind,
-    NetworkAiAnalysisCompletedEvent, NetworkAiAnalysisRequestedEvent,
-    NetworkAuditEntryCommittedEvent, NetworkAuditOutcome, NetworkDomainObservedEvent,
-    NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
-    NetworkFlowObservedEvent, NetworkInterventionState, NetworkPolicyDecisionCompletedEvent,
-    NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRuntimeEventPayload,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkActivityClassifiedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkActivityKind;
+use ocentra_parent_agent_protocol::network_flow::NetworkAiAnalysisCompletedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkAiAnalysisRequestedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkAuditEntryCommittedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkAuditOutcome;
+use ocentra_parent_agent_protocol::network_flow::NetworkDomainObservedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkEnforcementCommandIssuedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkEnforcementResultObservedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkFlowObservedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkInterventionState;
+use ocentra_parent_agent_protocol::network_flow::NetworkPolicyDecisionCompletedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkPolicyEvaluationRequestedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkPortalReadModelUpdatedEvent;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimeEventPayload;
 
 use crate::network_runtime_stream_event_values as values;
 

@@ -1,8 +1,6 @@
 use ocentra_eventing::error::EventingError;
 
 use super::remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusError;
-#[cfg(test)]
-use super::remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusReport;
 use super::NetworkRuntimeEventPayload;
 
 #[cfg(test)]

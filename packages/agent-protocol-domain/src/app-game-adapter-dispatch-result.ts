@@ -6,7 +6,11 @@ import {
   type AgentAppGameAdapterDispatchExecuteResult,
   type AgentAppGameAdapterDispatchResultReadModel,
 } from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-result';
-import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export type AgentAppGameAdapterDispatchResultFailureReason =
   | 'wrong-event'

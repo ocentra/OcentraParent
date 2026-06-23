@@ -1,9 +1,4 @@
-import {
-  Schema,
-  withParser,
-  type Infer,
-  NonEmptyStringSchema
-} from './effect';
+import { Schema, withParser, type Infer, NonEmptyStringSchema } from './effect';
 import {
   TrackingPoiAmbiguityState,
   TrackingPoiAmbiguityStateSchema,
@@ -116,5 +111,3 @@ function safeCopyFor(candidate: Infer<typeof TrackingPoiCandidateSchema>): Track
     reasonCodes: [ambiguityReason, 'category-is-policy-input-only'],
   });
 }
-
-

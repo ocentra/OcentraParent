@@ -1,7 +1,4 @@
-import type {
-  TrackingLocationEvidence,
-  TrackingRetentionPolicy,
-} from './tracking-evidence';
+import type { TrackingLocationEvidence, TrackingRetentionPolicy } from './tracking-evidence';
 import type { TrackingReadModel } from './tracking-read-model';
 
 export interface TrackingRetentionDeleteInput {

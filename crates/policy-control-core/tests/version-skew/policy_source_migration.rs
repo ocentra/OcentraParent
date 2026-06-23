@@ -1,3 +1,7 @@
+use super::TestResult;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_source::{
     assess_policy_source_compatibility, parent_policy_source_schema_version, ParentPolicyActorRole,
     ParentPolicyDocumentId, ParentPolicyRule, ParentPolicySourceDocument, PolicyActorId,
@@ -6,8 +10,8 @@ use ocentra_policy_control_core::policy_source::{
     PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
 use ocentra_eventing::ids::SchemaVersion;
@@ -34,45 +38,65 @@ fn sample_policy_schedule_time_budget() -> PolicyScheduleTimeBudget {
     }
 }
 
-fn sample_policy_source_document() -> ParentPolicySourceDocument {
-    ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-household-default")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(6).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+fn sample_policy_source_document() -> TestResult<ParentPolicySourceDocument> {
+    Ok(ParentPolicySourceDocument {
+        schema_version: test_ok!(
+            parent_policy_source_schema_version(),
+            "policy source schema version"
+        ),
+        document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-household-default"),
+            "policy source document id"
+        ),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(6), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("device id")],
+        status: PolicySourceStatus::Confirmed,
+        child_profile_ids: vec![test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        )],
+        device_ids: vec![test_ok!(
+            PolicyDeviceId::parse("device-laptop"),
+            "device id"
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: test_ok!(
+                PolicyRuleId::parse("rule-school-night-block"),
+                "policy rule id"
+            ),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("target reference"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("category-gaming"),
+                    "target reference"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(PolicyScheduleId::parse("schedule-school-night").expect("schedule")),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("school-night"), "reason code"),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night").expect("schedule"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone"),
+            schedule_id: test_ok!(PolicyScheduleId::parse("schedule-school-night"), "schedule"),
+            timezone_name: test_ok!(PolicyTimezoneName::parse("America/Toronto"), "timezone"),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: sample_policy_schedule_time_budget(),
         }],
-        audit_reference_ids: vec![
-            PolicyAuditReferenceId::parse("audit-policy-confirmed").expect("policy audit ref")
-        ],
+        audit_reference_ids: vec![test_ok!(
+            PolicyAuditReferenceId::parse("audit-policy-confirmed"),
+            "policy audit ref"
+        )],
         superseded_by_policy_version: None,
         rollback_ref: None,
         retention: PolicyRetentionMetadata {
@@ -80,24 +104,29 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
             delete_allowed: true,
             sync_allowed: false,
         },
-    }
+    })
 }
 
-fn sample_policy_source_payload() -> Value {
-    serde_json::to_value(sample_policy_source_document()).expect("policy source payload")
+fn sample_policy_source_payload() -> TestResult<Value> {
+    Ok(test_ok!(
+        serde_json::to_value(sample_policy_source_document()?),
+        "policy source payload"
+    ))
 }
 
 #[test]
-fn older_schema_version_is_marked_for_migration() {
-    let document = sample_policy_source_document();
-    let supported_schema_version = SchemaVersion::new(2).expect("supported schema version");
+fn older_schema_version_is_marked_for_migration() -> TestResult {
+    let document = sample_policy_source_document()?;
+    let supported_schema_version = test_ok!(SchemaVersion::new(2), "supported schema version");
 
-    let report = assess_policy_source_compatibility(
-        &document,
-        supported_schema_version,
-        PolicyVersion::new(6).expect("minimum supported policy version"),
-    )
-    .expect("compatibility report");
+    let report = test_ok!(
+        assess_policy_source_compatibility(
+            &document,
+            supported_schema_version,
+            test_ok!(PolicyVersion::new(6), "minimum supported policy version"),
+        ),
+        "compatibility report"
+    );
 
     assert_eq!(
         report.schema_state,
@@ -107,58 +136,74 @@ fn older_schema_version_is_marked_for_migration() {
         report.policy_version_state,
         PolicyDocumentCompatibilityState::Compatible
     );
+    Ok(())
 }
 
 #[test]
-fn future_schema_version_is_rejected_as_unsupported() {
-    let mut document = sample_policy_source_document();
-    document.schema_version = SchemaVersion::new(2).expect("future schema version");
+fn future_schema_version_is_rejected_as_unsupported() -> TestResult {
+    let mut document = sample_policy_source_document()?;
+    document.schema_version = test_ok!(SchemaVersion::new(2), "future schema version");
 
-    let report = assess_policy_source_compatibility(
-        &document,
-        parent_policy_source_schema_version().expect("supported schema version"),
-        PolicyVersion::new(6).expect("minimum supported policy version"),
-    )
-    .expect("compatibility report");
+    let report = test_ok!(
+        assess_policy_source_compatibility(
+            &document,
+            test_ok!(
+                parent_policy_source_schema_version(),
+                "supported schema version"
+            ),
+            test_ok!(PolicyVersion::new(6), "minimum supported policy version"),
+        ),
+        "compatibility report"
+    );
 
     assert_eq!(
         report.schema_state,
         PolicyDocumentCompatibilityState::Unsupported
     );
+    Ok(())
 }
 
 #[test]
-fn stale_policy_version_is_marked_for_migration() {
-    let document = sample_policy_source_document();
+fn stale_policy_version_is_marked_for_migration() -> TestResult {
+    let document = sample_policy_source_document()?;
 
-    let report = assess_policy_source_compatibility(
-        &document,
-        parent_policy_source_schema_version().expect("supported schema version"),
-        PolicyVersion::new(7).expect("minimum supported policy version"),
-    )
-    .expect("compatibility report");
+    let report = test_ok!(
+        assess_policy_source_compatibility(
+            &document,
+            test_ok!(
+                parent_policy_source_schema_version(),
+                "supported schema version"
+            ),
+            test_ok!(PolicyVersion::new(7), "minimum supported policy version"),
+        ),
+        "compatibility report"
+    );
 
     assert_eq!(
         report.policy_version_state,
         PolicyDocumentCompatibilityState::MigrationRequired
     );
+    Ok(())
 }
 
 #[test]
-fn compatibility_input_rejects_schedule_payload_without_time_budget() {
-    let mut payload = sample_policy_source_payload();
-    let schedules = payload
-        .get_mut("schedules")
-        .and_then(Value::as_array_mut)
-        .expect("schedule payload array");
-    let schedule = schedules
-        .first_mut()
-        .and_then(Value::as_object_mut)
-        .expect("schedule payload object");
+fn compatibility_input_rejects_schedule_payload_without_time_budget() -> TestResult {
+    let mut payload = sample_policy_source_payload()?;
+    let schedules = test_some!(
+        payload.get_mut("schedules").and_then(Value::as_array_mut),
+        "schedule payload array"
+    );
+    let schedule = test_some!(
+        schedules.first_mut().and_then(Value::as_object_mut),
+        "schedule payload object"
+    );
     schedule.remove("time_budget");
 
-    let error = serde_json::from_value::<ParentPolicySourceDocument>(payload)
-        .expect_err("compatibility input must preserve schedule time budgets");
+    let error = test_err!(
+        serde_json::from_value::<ParentPolicySourceDocument>(payload),
+        "compatibility input must preserve schedule time budgets"
+    );
 
     assert!(error.to_string().contains("time_budget"));
+    Ok(())
 }

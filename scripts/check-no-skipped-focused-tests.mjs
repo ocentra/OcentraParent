@@ -1,10 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-  readRepoFile,
-  repoRelativePath,
-  resolveScopedFiles,
-} from './check-architecture-scope.mjs';
+import { readRepoFile, repoRelativePath, resolveScopedFiles } from './check-architecture-scope.mjs';
 
 const scriptPath = repoRelativePath(fileURLToPath(import.meta.url));
 const allowedPaths = new Set([scriptPath]);

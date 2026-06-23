@@ -16,14 +16,30 @@
 
 ## Owns
 
-- Data custody guarantees, data taxonomy, encrypted storage, key custody, provider matrix, bundle protocol, event model, retention, export/import, sync, deletion and tombstones, no-stolen-data boundaries, cloud or relay custody, report or query custody, and parent storage settings or apply flow.
+- Data custody guarantees, data taxonomy, encrypted storage policy, key-custody model, provider matrix, bundle protocol, event model, retention, export/import, sync, deletion and tombstones, no-stolen-data boundaries, cloud or relay custody, report or query custody, parent storage settings/apply flow, and custody proof gates.
+- Custody policy/proof/rules for storage, sync, export/import/restore, report/query, assistant citation, deletion/tombstone, and parent-owned provider choices.
+- No-claim boundaries for Ocentra-hosted fallback storage, raw child evidence upload, readable provider payloads, restore resurrection, and derived report/query/assistant outputs.
+
+## Boundary split
+
+```text
+eventing-plan owns event bus implementation, journal/replay/runtime bus behavior, and eventing crate evolution.
+portal-ux-household-surfaces-plan owns parent-visible projection/UI and interaction surfaces.
+account-identity-family-plan owns actor, household, role, guardian/admin/support authority.
+device-trust-bootstrap-plan owns device key/trust material and trusted-device state.
+cloudflare-control-plane-plan owns Cloudflare Worker/backend runtime and storage bindings, but must consume this plan's custody handoffs for retention/export/delete policy.
+payment-subscription-plan owns billing/payment semantics and must not infer custody readiness from payment storage.
+setup-install-provisioning-plan owns setup journey and install/bootstrap surfaces.
+remote-access-plan, LAN, notification, report producers, and AI plans own their own runtime behavior and consume custody rules by typed handoff.
+```
 
 ## Does Not Own
 
-- Adjacent implementation completion in: eventing-plan, portal-ux-household-surfaces-plan, parent-client-runtime-distribution-plan, account-identity-family-plan, payment-subscription-plan.
+- Adjacent implementation completion in: eventing-plan, portal-ux-household-surfaces-plan, parent-client-runtime-distribution-plan, account-identity-family-plan, payment-subscription-plan, device-trust-bootstrap-plan, cloudflare-control-plane-plan, setup-install-provisioning-plan, remote-access-plan, LAN, notification, report producers, or AI plans.
 - Broad source rewrites without selected workpack proof.
+- Event bus implementation, portal shell UX, account/provider authority, payment semantics, Cloudflare deployment, remote transport, setup journey, notification delivery, report rendering, or AI runtime behavior.
 - Release or production claims outside this plan's evidence.
 
 ## Handoff Rule
 
-Open an adjacent plan only after the selected workpack records the exact handoff reason and expected proof.
+Open an adjacent plan only after the selected workpack records the exact handoff reason, owner path, expected proof, and no-claim boundary.

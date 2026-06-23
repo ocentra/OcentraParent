@@ -1,14 +1,10 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 const ProviderAdCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const ProviderAdPositiveCountSchema = Schema.Number.pipe(Schema.positive(), Schema.int());
 
-export const HouseholdAiProviderAdvertisementHeartbeatProofIdSchema = brandedNonEmptyStringSchema('HouseholdAiProviderAdvertisementHeartbeatProofId');
+export const HouseholdAiProviderAdvertisementHeartbeatProofIdSchema = brandedNonEmptyStringSchema(
+  'HouseholdAiProviderAdvertisementHeartbeatProofId'
+);
 
 export const HouseholdAiProviderAdvertisementStateSchema = withParser(
   Schema.Literal('eligible', 'stale', 'offline', 'revoked', 'unsupported')
@@ -256,4 +252,3 @@ function noRawOrRemoteAdvertisement(proof: HouseholdAiProviderAdvertisementHeart
 export const decodeHouseholdAiProviderAdvertisementHeartbeatProof = Schema.decodeUnknownSync(
   HouseholdAiProviderAdvertisementHeartbeatProofSchema
 );
-

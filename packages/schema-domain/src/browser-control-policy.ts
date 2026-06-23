@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   BrowserControlAuditEventIdSchema,
   BrowserControlBudgetIdSchema,
@@ -68,7 +63,10 @@ import {
   browserControlManifestAllowsWritesTo,
   type BrowserControlAuthoringManifest,
 } from './browser-control-manifest';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserControlBudgetSchema = withParser(
   Schema.Struct({
@@ -840,4 +838,3 @@ function defaultFallbacks() {
     platformUnsupported: null,
   };
 }
-

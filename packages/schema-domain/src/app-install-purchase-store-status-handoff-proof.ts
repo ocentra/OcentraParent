@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseParentActionRuntimeHandoffProofReadModel } from './app-install-purchase-parent-action-runtime-handoff-proof';
 import { AppInstallPurchasePlatformAdapterBoundaryProofReadModel } from './app-install-purchase-platform-adapter-boundary-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -73,10 +68,14 @@ const AppInstallPurchaseStoreStatusHostedCustodyClaimSchema = withParser(Schema.
 const AppInstallPurchaseStoreStatusNonClaimSchema = withParser(Schema.Literal(...StoreStatusHandoffNonClaims));
 
 const StoreStatusHandoffRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseStoreStatusHandoffRowId');
-const StoreStatusHandoffSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseStoreStatusHandoffSourceRowId');
+const StoreStatusHandoffSourceRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseStoreStatusHandoffSourceRowId'
+);
 const StoreStatusHandoffRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseStoreStatusHandoffRef');
 const StoreStatusHandoffReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseStoreStatusHandoffReportRef');
-const StoreStatusHandoffClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseStoreStatusHandoffClaimBoundary');
+const StoreStatusHandoffClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseStoreStatusHandoffClaimBoundary'
+);
 
 const StoreStatusHandoffRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseStoreStatusHandoffProofSchemaVersionSchema,
@@ -362,4 +361,3 @@ function storeStatusHandoffBoundaryIsExplicit(boundary: typeof StoreStatusHandof
     boundary.includes('no Ocentra-hosted family data custody')
   );
 }
-

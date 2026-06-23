@@ -1,9 +1,13 @@
 import * as TrackingContracts from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
-export function defaultAgentTrackingRetentionSettingsWriteRequest():
-  TrackingContracts.AgentTrackingRetentionSettingsWriteRequest {
+export function defaultAgentTrackingRetentionSettingsWriteRequest(): TrackingContracts.AgentTrackingRetentionSettingsWriteRequest {
   return TrackingContracts.AgentTrackingRetentionSettingsWriteRequestSchema.parse({
     schemaVersion: AgentProtocolSchemaVersion,
     commandId: TrackingContracts.AgentTrackingRetentionSettingsWriteDefaults.CommandId,
@@ -45,9 +49,7 @@ export const AgentTrackingRetentionSettingsWriteResultParseState = {
 } as const;
 
 export type AgentTrackingRetentionSettingsWriteResultParseState =
-  (typeof AgentTrackingRetentionSettingsWriteResultParseState)[
-    keyof typeof AgentTrackingRetentionSettingsWriteResultParseState
-  ];
+  (typeof AgentTrackingRetentionSettingsWriteResultParseState)[keyof typeof AgentTrackingRetentionSettingsWriteResultParseState];
 
 export type AgentTrackingRetentionSettingsWriteResultParseResult =
   | {

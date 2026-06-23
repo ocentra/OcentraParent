@@ -1,8 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute, LogFieldValue, LogFields, SocialSourceCustodyMutationSnapshot,
-    AGENT_PROTOCOL_SCHEMA_VERSION, SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED,
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute,
 };
+use ocentra_parent_agent_protocol::SocialSourceCustodyMutationSnapshot;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED;
 use serde::de::DeserializeOwned;
 
 use super::social_source_custody_mutation_payload::{
@@ -52,14 +57,14 @@ fn command_envelope() -> AgentCommandEnvelope {
     }
 }
 
-fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
+fn string_payload<T>(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> T
 where
     T: DeserializeOwned,
 {
     match &payload[field] {
         LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

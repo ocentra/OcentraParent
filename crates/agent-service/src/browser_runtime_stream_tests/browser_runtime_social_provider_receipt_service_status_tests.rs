@@ -2,7 +2,7 @@ use ocentra_parent_agent_core::browser_event_runtime::{
     request_browser_runtime_social_provider_receipt_status_for_input, BrowserRuntimeInput,
 };
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::browser_runtime_stream_payload::{
     browser_runtime_event_chain_stream_payload,
@@ -11,12 +11,13 @@ use crate::browser_runtime_stream_payload::{
 };
 
 #[tokio::test]
-async fn service_browser_runtime_social_provider_receipt_status_records_provider_boundary() {
+async fn service_browser_runtime_social_provider_receipt_status_records_provider_boundary(
+) -> super::TestResult {
     let receipt = request_browser_runtime_social_provider_receipt_status_for_input(
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     )
     .await
-    .unwrap()
+    .map_err(|error| std::io::Error::other(format!("{error:?}")))?
     .request_report
     .response;
     let mut report = BrowserRuntimeServiceStreamReport::default();
@@ -41,12 +42,15 @@ async fn service_browser_runtime_social_provider_receipt_status_records_provider
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
     assert_eq!(report.action_intent_enforcement_executions, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn service_browser_runtime_stream_records_store_backed_social_provider_receipt_status() {
+async fn service_browser_runtime_stream_records_store_backed_social_provider_receipt_status(
+) -> super::TestResult {
     let read_model = super::read_model(vec![super::managed_row()]);
-    let policy_preview = super::policy_preview_read_model_for_browser(&read_model);
+    let policy_preview = super::policy_preview_read_model_for_browser(&read_model)?;
     let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
         &read_model,
         Some(&policy_preview),
@@ -72,6 +76,8 @@ async fn service_browser_runtime_stream_records_store_backed_social_provider_rec
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
     assert_eq!(report.action_intent_enforcement_executions, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
@@ -240,7 +246,7 @@ fn assert_social_provider_durable_refs(report: &BrowserRuntimeServiceStreamRepor
 }
 
 fn json_array_value(values: &[&str]) -> LogFieldValue {
-    LogFieldValue::String(
-        serde_json::to_string(values).expect(constants::error::AGENT_EVENT_SERIALIZES),
-    )
+    LogFieldValue::String(serde_json::to_string(values).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    }))
 }

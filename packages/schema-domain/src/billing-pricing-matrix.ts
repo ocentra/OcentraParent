@@ -72,18 +72,18 @@ export const BillingPricingTrialGraceBoundarySchema = withParser(
     ),
     Schema.filter(
       (boundary) =>
-        boundary.trialSnapshot.subscriptionStatus === 'trialing' &&
-        boundary.trialStatusProofRow.subscriptionStatus === 'trialing' &&
-        boundary.trialStatusProofRow.failureState === null ||
+        (boundary.trialSnapshot.subscriptionStatus === 'trialing' &&
+          boundary.trialStatusProofRow.subscriptionStatus === 'trialing' &&
+          boundary.trialStatusProofRow.failureState === null) ||
         'Expected trial boundary rows to remain trialing without degraded failure state'
     ),
     Schema.filter(
       (boundary) =>
-        boundary.graceSnapshot.subscriptionStatus === 'grace' &&
-        boundary.graceStatusProofRow.subscriptionStatus === 'grace' &&
-        boundary.graceSnapshot.failureState !== null &&
-        boundary.graceStatusProofRow.failureState !== null &&
-        boundary.graceStatusProofRow.failureState.failureKind === boundary.graceSnapshot.failureState.failureKind ||
+        (boundary.graceSnapshot.subscriptionStatus === 'grace' &&
+          boundary.graceStatusProofRow.subscriptionStatus === 'grace' &&
+          boundary.graceSnapshot.failureState !== null &&
+          boundary.graceStatusProofRow.failureState !== null &&
+          boundary.graceStatusProofRow.failureState.failureKind === boundary.graceSnapshot.failureState.failureKind) ||
         'Expected grace boundary rows to carry a matching degraded failure state'
     ),
     Schema.filter(
@@ -93,10 +93,10 @@ export const BillingPricingTrialGraceBoundarySchema = withParser(
     ),
     Schema.filter(
       (boundary) =>
-        boundary.graceDeviceLimitDecision.decision === 'grace' &&
-        boundary.graceDeviceLimitDecision.reasonCode === 'payment-required' &&
-        boundary.graceDeviceLimitDecision.requestedDeviceAlreadyTrusted &&
-        boundary.graceDeviceLimitDecision.deviceActivationBehavior === 'grace-existing-devices' ||
+        (boundary.graceDeviceLimitDecision.decision === 'grace' &&
+          boundary.graceDeviceLimitDecision.reasonCode === 'payment-required' &&
+          boundary.graceDeviceLimitDecision.requestedDeviceAlreadyTrusted &&
+          boundary.graceDeviceLimitDecision.deviceActivationBehavior === 'grace-existing-devices') ||
         'Expected trial expiration grace to keep existing trusted devices in an explicit grace state'
     )
   )
@@ -121,22 +121,22 @@ export const BillingPricingSafetyCriticalFreeBoundarySchema = withParser(
     ),
     Schema.filter(
       (boundary) =>
-        boundary.safetyCriticalPlanFeatures.length > 0 &&
-        boundary.safetyCriticalPlanFeatures.every(
-          (feature) => feature.included && !feature.gateable && feature.safetyCritical
-        ) ||
+        (boundary.safetyCriticalPlanFeatures.length > 0 &&
+          boundary.safetyCriticalPlanFeatures.every(
+            (feature) => feature.included && !feature.gateable && feature.safetyCritical
+          )) ||
         'Expected free-plan safety-critical features to remain included and outside paid gates'
     ),
     Schema.filter(
       (boundary) =>
-        boundary.safetyCriticalSnapshotDecisions.length > 0 &&
-        boundary.safetyCriticalSnapshotDecisions.every(
-          (decision) =>
-            decision.safetyCritical &&
-            decision.decision !== 'locked' &&
-            decision.decision !== 'unavailable' &&
-            decision.localSafetyBehavior !== 'unchanged'
-        ) ||
+        (boundary.safetyCriticalSnapshotDecisions.length > 0 &&
+          boundary.safetyCriticalSnapshotDecisions.every(
+            (decision) =>
+              decision.safetyCritical &&
+              decision.decision !== 'locked' &&
+              decision.decision !== 'unavailable' &&
+              decision.localSafetyBehavior !== 'unchanged'
+          )) ||
         'Expected degraded free-plan safety-critical decisions to stay available through local safety behavior'
     ),
     Schema.filter(
@@ -164,8 +164,8 @@ export const BillingPricingEntitlementSourceOwnerSchema = withParser(
     ),
     Schema.filter(
       (owner) =>
-        owner.offlineContinuationSource === 'signed-local-snapshot' &&
-        owner.manualFallbackSource === 'manual-admin-review' ||
+        (owner.offlineContinuationSource === 'signed-local-snapshot' &&
+          owner.manualFallbackSource === 'manual-admin-review') ||
         'Expected offline continuation and manual fallback sources to stay explicit'
     ),
     Schema.filter(
@@ -175,8 +175,8 @@ export const BillingPricingEntitlementSourceOwnerSchema = withParser(
     ),
     Schema.filter(
       (owner) =>
-        owner.offlineEntitlementSnapshot.source === owner.offlineContinuationSource &&
-        owner.offlineEntitlementSnapshot.signatureState !== 'unavailable' ||
+        (owner.offlineEntitlementSnapshot.source === owner.offlineContinuationSource &&
+          owner.offlineEntitlementSnapshot.signatureState !== 'unavailable') ||
         'Expected offline continuation to use a signed or schema-valid entitlement snapshot'
     ),
     Schema.filter(
@@ -186,8 +186,8 @@ export const BillingPricingEntitlementSourceOwnerSchema = withParser(
     ),
     Schema.filter(
       (owner) =>
-        owner.manualReviewEntitlementSnapshot.source === owner.manualFallbackSource &&
-        owner.manualReviewEntitlementSnapshot.failureState !== null ||
+        (owner.manualReviewEntitlementSnapshot.source === owner.manualFallbackSource &&
+          owner.manualReviewEntitlementSnapshot.failureState !== null) ||
         'Expected manual fallback entitlement state to remain explicit and failure-backed'
     )
   )

@@ -7,8 +7,10 @@ fn app_foreground_observation_records_evidence_and_requests_policy_not_ai() {
     let observed = ocentra_app_core::default_app_observed_event();
     let evidence = ocentra_app_core::app_evidence_recorded_event(&observed);
     let ai = ocentra_app_core::app_ai_analysis_requested_event(&evidence);
-    let Some(policy) = ocentra_app_core::app_policy_evaluation_requested_event(&evidence) else {
-        panic!();
+    let policy = ocentra_app_core::app_policy_evaluation_requested_event(&evidence);
+    assert!(policy.is_some(), "foreground app should request policy");
+    let Some(policy) = policy else {
+        return;
     };
 
     assert_eq!(
@@ -41,8 +43,10 @@ fn app_unknown_usage_requests_ai_before_policy() {
         ocentra_app_core::AppObservationIntent::UnknownAppRequiresAi,
     );
     let evidence = ocentra_app_core::app_evidence_recorded_event(&observed);
-    let Some(ai) = ocentra_app_core::app_ai_analysis_requested_event(&evidence) else {
-        panic!();
+    let ai = ocentra_app_core::app_ai_analysis_requested_event(&evidence);
+    assert!(ai.is_some(), "unknown app should request AI");
+    let Some(ai) = ai else {
+        return;
     };
     let policy = ocentra_app_core::app_policy_evaluation_requested_event(&evidence);
 

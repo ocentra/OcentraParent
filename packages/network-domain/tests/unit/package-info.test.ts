@@ -6,4 +6,3 @@ describe('network domain package boundary', () => {
     expect(NetworkDomainPackageName).toBe('@ocentra-parent/network-domain');
   });
 });
-

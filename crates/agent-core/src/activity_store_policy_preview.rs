@@ -6,17 +6,31 @@ use ocentra_network_evidence::{
         NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, policy_preview_finding_kinds_csv, ActivityEvidenceKind,
-    ActivityEvidenceRef, LocalAiParentRuleContextRef, LogFieldValue, LogFields,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
-    PolicyAssistantConfirmationState, PolicyDecision, PolicyPreviewFindingKind,
-    PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
-    PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus, PolicySourceStatus,
-    PolicySourceSurface, APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED,
-    APP_GAME_CAPABILITY_STATUS_STALE, APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM,
-    POLICY_DRY_RUN_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::POLICY_DRY_RUN_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::policy_context::LocalAiParentRuleContextRef;
+use ocentra_parent_agent_protocol::activity::policy_preview::policy_preview_finding_kinds_csv;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyAssistantConfirmationState;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewFindingKind;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewNetworkEvidenceMapping;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModelRow;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewTargetState;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestOrigin;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicySourceStatus;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicySourceSurface;
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED, APP_GAME_CAPABILITY_STATUS_STALE,
+    APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants as policy;
 use rusqlite::Connection;
 
 use crate::{

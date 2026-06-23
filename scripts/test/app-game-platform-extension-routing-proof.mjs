@@ -35,9 +35,9 @@ async function main() {
   );
 
   const { AppGamePlatformExtensionRoutingMatrix } =
-    await import('../../packages/app-game-domain/dist/app-game-platform-extension-routing-data.js');
+    await import('../../packages/schema-domain/dist/app-game-platform-extension-routing-data.js');
   const { AppGamePlatformExtensionRoutingRowSchema } =
-    await import('../../packages/app-game-domain/dist/app-game-platform-extension-routing.js');
+    await import('../../packages/schema-domain/dist/app-game-platform-extension-routing.js');
   const summary = summarizeMatrix(AppGamePlatformExtensionRoutingMatrix);
   assertProof(AppGamePlatformExtensionRoutingMatrix, summary, AppGamePlatformExtensionRoutingRowSchema);
 
@@ -49,15 +49,15 @@ async function main() {
     commands,
     counts: summary,
     evidence: {
-      tsContract: 'packages/app-game-domain/src/app-game-platform-extension-routing.ts',
+      tsContract: 'packages/schema-domain/src/app-game-platform-extension-routing.ts',
       tsContractRules: 'packages/schema-domain/src/app-game-platform-extension-routing-rules.ts',
-      tsContractData: 'packages/app-game-domain/src/app-game-platform-extension-routing-data.ts',
-      tsContractDataSupport: 'packages/app-game-domain/src/app-game-platform-extension-routing-data-support.ts',
+      tsContractData: 'packages/schema-domain/src/app-game-platform-extension-routing-data.ts',
+      tsContractDataSupport: 'packages/schema-domain/src/app-game-platform-extension-routing-data-support.ts',
       tsContractPlatformData: [
-        'packages/app-game-domain/src/app-game-platform-extension-routing-macos-data.ts',
-        'packages/app-game-domain/src/app-game-platform-extension-routing-ios-data.ts',
-        'packages/app-game-domain/src/app-game-platform-extension-routing-android-data.ts',
-        'packages/app-game-domain/src/app-game-platform-extension-routing-linux-data.ts',
+        'packages/schema-domain/src/app-game-platform-extension-routing-macos-data.ts',
+        'packages/schema-domain/src/app-game-platform-extension-routing-ios-data.ts',
+        'packages/schema-domain/src/app-game-platform-extension-routing-android-data.ts',
+        'packages/schema-domain/src/app-game-platform-extension-routing-linux-data.ts',
       ],
       tsContractTest: 'packages/app-game-domain/tests/unit/app-game-platform-extension-routing.test.ts',
       proofHarness: 'scripts/test/app-game-platform-extension-routing-proof.mjs',

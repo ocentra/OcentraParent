@@ -16,7 +16,8 @@ pub enum RunStatus {
 #[serde(rename_all = "camelCase")]
 pub struct AgentRunEvent {
     pub schema_version: u16,
-    pub event_type: String,
+    #[serde(rename = "eventType")]
+    pub record_type: String,
     pub run_id: String,
     pub command_id: String,
     pub lane_id: Option<String>,

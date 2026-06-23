@@ -1,18 +1,17 @@
 import type { CSSProperties, ReactElement } from 'react';
-import {
-  PortalConnectionState,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
   PortalRouteGroup,
   PortalSidebarRouteDescriptors,
-  type PortalRoute as PortalRouteValue,
   type PortalRouteDescriptor,
 } from '@ocentra-parent/portal-domain/routes';
+import {
+  PortalConnectionState,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 import type { PortalRenderActions } from './portal-actions';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { routeDescriptor } from './portal-route-descriptor';
@@ -132,7 +131,7 @@ function SidebarStatus({
           onClick={actions.reconnect}
           type={PortalDom.ButtonType.Button}
         >
-          {PortalText.Resolve(PortalTextToken.Reconnect)}
+          {resolvePortalDevText(PortalDevTextToken.Reconnect)}
         </button>
       </div>
     </div>
@@ -141,7 +140,7 @@ function SidebarStatus({
 
 function connectionStatus(state: PortalRuntimeState): PortalDisplayText {
   if (state.connectionState === PortalConnectionState.Connected) {
-    return PortalText.Resolve(PortalTextToken.Connected);
+    return resolvePortalDevText(PortalDevTextToken.Connected);
   }
-  return PortalText.Resolve(PortalTextToken.Unavailable);
+  return resolvePortalDevText(PortalDevTextToken.Unavailable);
 }

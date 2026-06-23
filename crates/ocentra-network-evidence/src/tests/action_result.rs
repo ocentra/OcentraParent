@@ -6,6 +6,7 @@ use crate::{
     NetworkActionResultState, NetworkActionResultTargetKind, NetworkEvidenceGrade,
     NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn action_result_accepts_blocked_state_from_policy_and_adapter_result_refs() {
@@ -13,7 +14,7 @@ fn action_result_accepts_blocked_state_from_policy_and_adapter_result_refs() {
         NetworkActionResultRequestedAction::Block,
         NetworkActionResultTargetKind::Domain,
     ))
-    .expect("complete adapter result proof should produce blocked state");
+    .expect_value("complete adapter result proof should produce blocked state");
 
     assert_eq!(proof.result_state, NetworkActionResultState::Blocked);
     assert_eq!(proof.action_result_ref, "network-action-result-53");
@@ -55,7 +56,7 @@ fn action_result_accepts_process_termination_result_without_live_mutation_claims
         NetworkActionResultRequestedAction::TerminateProcess,
         NetworkActionResultTargetKind::Process,
     ))
-    .expect("process target can record a terminated result state");
+    .expect_value("process target can record a terminated result state");
 
     assert_eq!(proof.result_state, NetworkActionResultState::Terminated);
     assert!(proof.adapter_result_accepted);
@@ -66,7 +67,7 @@ fn action_result_accepts_process_termination_result_without_live_mutation_claims
         NetworkActionResultRequestedAction::TerminateProcess,
         NetworkActionResultTargetKind::Domain,
     ))
-    .expect("non-process terminate target should stay manual-required");
+    .expect_value("non-process terminate target should stay manual-required");
     assert_eq!(
         non_process.result_state,
         NetworkActionResultState::ManualRequired
@@ -92,7 +93,7 @@ fn action_result_dry_run_is_non_result_without_adapter_artifacts() {
             NetworkActionResultTargetKind::Domain,
         )
     })
-    .expect("dry-run result state should be reportable without artifacts");
+    .expect_value("dry-run result state should be reportable without artifacts");
 
     assert_eq!(proof.result_state, NetworkActionResultState::DryRun);
     assert_eq!(
@@ -125,7 +126,7 @@ fn action_result_routes_weak_policy_or_manual_adapter_state_to_manual_required()
             NetworkActionResultTargetKind::Domain,
         )
     })
-    .expect("weak evidence should not produce blocked state");
+    .expect_value("weak evidence should not produce blocked state");
     assert_eq!(weak.result_state, NetworkActionResultState::ManualRequired);
     assert_eq!(
         weak.boundary_reasons,
@@ -144,7 +145,7 @@ fn action_result_routes_weak_policy_or_manual_adapter_state_to_manual_required()
             NetworkActionResultTargetKind::Domain,
         )
     })
-    .expect("manual adapter proof state should be reportable");
+    .expect_value("manual adapter proof state should be reportable");
     assert_eq!(
         manual.result_state,
         NetworkActionResultState::ManualRequired
@@ -168,7 +169,7 @@ fn action_result_reports_unavailable_without_accepting_adapter_result() {
             NetworkActionResultTargetKind::Domain,
         )
     })
-    .expect("unavailable adapter proof state should be reportable");
+    .expect_value("unavailable adapter proof state should be reportable");
 
     assert_eq!(proof.result_state, NetworkActionResultState::Unavailable);
     assert_eq!(
@@ -193,7 +194,7 @@ fn action_result_requires_adapter_proof_apply_result_and_audit_refs() {
             NetworkActionResultTargetKind::Domain,
         )
     })
-    .expect("missing action-result artifacts should produce manual-required state");
+    .expect_value("missing action-result artifacts should produce manual-required state");
 
     assert_eq!(proof.result_state, NetworkActionResultState::ManualRequired);
     assert_eq!(
@@ -353,5 +354,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: Some(" adapter-capability-proof-ref-53 ".to_owned()),
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

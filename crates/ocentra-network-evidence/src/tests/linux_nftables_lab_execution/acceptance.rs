@@ -5,13 +5,14 @@ use crate::linux_nftables_lab_execution::{
         NetworkLinuxNftablesLabExecutionState,
     },
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 use super::fixtures::{command, lab_execution_input};
 
 #[test]
 fn linux_nftables_lab_accepts_bounded_table_chain_rule_rollback_evidence() {
     let proof = prove_network_linux_nftables_lab_execution(lab_execution_input())
-        .expect("complete nftables lab evidence should prove bounded execution and rollback");
+        .expect_value("complete nftables lab evidence should prove bounded execution and rollback");
 
     assert_eq!(
         proof.state,
@@ -52,7 +53,7 @@ fn linux_nftables_lab_is_manual_required_without_root_or_commands() {
             command_evidence: Vec::new(),
             ..lab_execution_input()
         })
-        .expect("missing root should stay explicit instead of failing");
+        .expect_value("missing root should stay explicit instead of failing");
 
     assert_eq!(
         no_root.state,
@@ -74,7 +75,7 @@ fn linux_nftables_lab_is_manual_required_without_root_or_commands() {
             )],
             ..lab_execution_input()
         })
-        .expect("partial lab command evidence should stay manual-required");
+        .expect_value("partial lab command evidence should stay manual-required");
 
     assert_eq!(
         missing_commands.state,
@@ -92,7 +93,7 @@ fn linux_nftables_lab_reports_unavailable_without_wsl_or_nft_tool() {
             command_evidence: Vec::new(),
             ..lab_execution_input()
         })
-        .expect("missing WSL host should report unavailable");
+        .expect_value("missing WSL host should report unavailable");
 
     assert_eq!(
         no_wsl.state,
@@ -108,7 +109,7 @@ fn linux_nftables_lab_reports_unavailable_without_wsl_or_nft_tool() {
             command_evidence: Vec::new(),
             ..lab_execution_input()
         })
-        .expect("missing nft binary should report unavailable");
+        .expect_value("missing nft binary should report unavailable");
 
     assert_eq!(
         no_nft.state,

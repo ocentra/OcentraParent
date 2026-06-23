@@ -1,17 +1,13 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
-    ActivityProcessAttributionStatus, NetworkRuntimePhase,
+    ActivityProcessAttributionStatus,
+};
+use ocentra_parent_agent_protocol::network_flow::{
+    NetworkAiAuditState, NetworkEvidenceScope, NetworkInterventionState, NetworkRiskBudgetState,
+    NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
 };
 
 use crate::network_capture::NetworkObservation;
-
-pub(crate) type NetworkEvidenceScope = ocentra_parent_agent_protocol::NetworkEvidenceScope;
-pub(crate) type NetworkEvidenceGrade = ocentra_parent_agent_protocol::NetworkRuntimeEvidenceGrade;
-pub(crate) type NetworkAiAuditState = ocentra_parent_agent_protocol::NetworkAiAuditState;
-pub(crate) type NetworkRiskBudgetState = ocentra_parent_agent_protocol::NetworkRiskBudgetState;
-pub(crate) type NetworkInterventionState = ocentra_parent_agent_protocol::NetworkInterventionState;
-pub(crate) type NetworkRuntimeClaimBoundary =
-    ocentra_parent_agent_protocol::NetworkRuntimeClaimBoundary;
 
 pub(crate) fn evidence_scope(observation: &NetworkObservation) -> NetworkEvidenceScope {
     if observation.status == ActivityCaptureCapabilityStatus::Available {
@@ -21,17 +17,17 @@ pub(crate) fn evidence_scope(observation: &NetworkObservation) -> NetworkEvidenc
     }
 }
 
-pub(crate) fn evidence_grade(observation: &NetworkObservation) -> NetworkEvidenceGrade {
+pub(crate) fn evidence_grade(observation: &NetworkObservation) -> NetworkRuntimeEvidenceGrade {
     if observation.status != ActivityCaptureCapabilityStatus::Available {
-        return NetworkEvidenceGrade::AdapterUnavailable;
+        return NetworkRuntimeEvidenceGrade::AdapterUnavailable;
     }
     if observation.domain_attribution_status() == ActivityDomainAttributionStatus::DomainObserved
         && observation.process_attribution_status()
             == ActivityProcessAttributionStatus::ProcessAttributed
     {
-        return NetworkEvidenceGrade::DomainAndProcessMetadata;
+        return NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata;
     }
-    NetworkEvidenceGrade::IpOrProcessPartialMetadata
+    NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata
 }
 
 pub(crate) fn ai_audit_state(phase: NetworkRuntimePhase) -> NetworkAiAuditState {
@@ -52,7 +48,7 @@ pub(crate) fn risk_budget_state(observation: &NetworkObservation) -> NetworkRisk
     if observation.status != ActivityCaptureCapabilityStatus::Available {
         return NetworkRiskBudgetState::Unavailable;
     }
-    if evidence_grade(observation) == NetworkEvidenceGrade::DomainAndProcessMetadata {
+    if evidence_grade(observation) == NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata {
         return NetworkRiskBudgetState::ObserveOnly;
     }
     NetworkRiskBudgetState::ManualReviewRequired

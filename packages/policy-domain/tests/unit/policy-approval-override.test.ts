@@ -72,7 +72,7 @@ function createScheduleBoundary() {
   } as const;
 }
 
-describe('policy approval and override contracts', () => {
+describe('policy approval and override contracts: review lifecycle', () => {
   it('resolvePolicyApprovalLifecycle: keeps assistant-drafted actions preview-only until a parent confirms', () => {
     const resolution = resolvePolicyApprovalLifecycle({
       approval: {
@@ -131,7 +131,9 @@ describe('policy approval and override contracts', () => {
     expect(resolution.state).toBe(PolicyApprovalState.ReplayRejected);
     expect(resolution.replayOfApprovalId).toBe('approval-0');
   });
+});
 
+describe('policy approval and override contracts: bonus time requirements', () => {
   it('resolvePolicyApprovalLifecycle: accepts positive bonus-time grants that stay inside approval and schedule context', () => {
     const resolution = resolvePolicyApprovalLifecycle({
       approval: {
@@ -198,7 +200,9 @@ describe('policy approval and override contracts', () => {
       })
     ).toThrow('bonus-time requests must include scheduleBoundary details');
   });
+});
 
+describe('policy approval and override contracts: expiry and override timing', () => {
   it('resolvePolicyApprovalLifecycle: marks unreviewed requests as expired once their request window passes', () => {
     const resolution = resolvePolicyApprovalLifecycle({
       approval: createApprovalRequest(),

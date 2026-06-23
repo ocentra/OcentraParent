@@ -1,7 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, EnforcementAdapterResultCode,
-    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementPermissionState,
-    EnforcementResultStatus, EnforcementUnavailableReason, EnforcementUnavailableStatus,
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterResultCode, EnforcementCapabilityStatus, EnforcementDependencyState,
+    EnforcementPermissionState, EnforcementResultStatus, EnforcementUnavailableReason,
+    EnforcementUnavailableStatus,
 };
 
 use crate::enforcement_adapter::EnforcementAdapterOutcome;

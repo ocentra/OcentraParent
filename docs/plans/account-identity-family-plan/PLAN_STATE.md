@@ -18,9 +18,9 @@
 
 ```text
 Plan route: upgraded
-Execution-grade workpacks: WP01 has a docs-only proof pack on disk; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk
-Implementation: partial contract implementation exists in family-domain, setup-domain, family-identity-core, and provisioning-core, but account-identity adapter/runtime and custody schema proof remain open
-Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent
+Execution-grade workpacks: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk
+Implementation: central-schema migration is in progress/current for shared account/family shapes; helper/projection implementation exists in family-domain, setup-domain, family-identity-core, and provisioning-core; account-identity adapter/runtime and D1/DO/KV schema/migration proof remain open
+Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
 ```
 
@@ -41,9 +41,44 @@ Auth.js or another app-owned auth layer may be used only as an adapter/session l
 - `docs/features/family-setup-device-roles.md` says family setup is product foundation and not portal polish. It also states the child-device agent remains authority for device role, controller lease, revocation, stale command rejection, and local capability status.
 - `docs/expectations/family-setup.md` separates parent outcome, child-device outcome, data scope, contract families, validation gates, and non-goals.
 - `docs/expectations/portal.md` says portal sends typed queries/intents to the agent and must not become child-device execution authority.
-- `packages/family-domain/package.json` already exports `session-lifecycle`, `child-profile`, `household-authority`, `setup-lifecycle`, and reference primitives.
+- `packages/family-domain/package.json` now describes family-domain as helpers that consume canonical `schema-domain` family contracts; do not move shared canonical shapes back into family-domain.
 - `packages/setup-domain/src/family-setup-bridge.ts` and `packages/setup-domain/src/registration-entry.ts` already consume the household/invite/recovery contracts.
 - `crates/family-identity-core` and `crates/provisioning-core` already carry Rust parity and downstream provisioning consumers for the same authority/session/setup surfaces.
+
+## Module ownership and linkage
+
+```text
+schema-domain:
+  Canonical shared account/family/session/device-authority schemas, brands, parsers, literals, and encoded-shape parity when shapes cross package, crate, app, or plan boundaries.
+
+family-domain:
+  TypeScript helper/projection package for account/family authority. It consumes canonical schema-domain contracts and exposes approved helper surfaces; it must not become a sibling-feature runtime dependency.
+
+family-identity-core:
+  Rust parity/runtime authority boundary for account, household, role, child profile, device, session, invite/recovery, and audit semantics.
+
+setup-domain and provisioning-core:
+  Setup/provisioning consumers of account/family authority, not authority owners.
+
+portal-domain and apps/portal:
+  UI projection/rendering consumers. They may prove honest state visibility but do not prove account runtime, Cloudflare persistence, device trust, LAN/remote transport, or child activity readiness.
+
+Cloudflare control-plane runtime/schema:
+  Future runtime/persistence implementation target for D1/DO/KV authority after provider/schema decisions. This remains open here.
+
+Adjacent plans:
+  Payment, policy, data custody, device trust, LAN, remote, setup-install, and broader portal UX consume account/family authority through handoff contracts, events, requests, read models, and proof routes. They must not re-own the authority model.
+```
+
+## Current proof interpretation
+
+```text
+Workpack proof roots prove local contract/proof slices only.
+Absent `test-results/account-identity-family-plan-*` roots are not automatically fatal because current proof logs live under `output/account-identity-family-plan-proof/**/16-validation-commands.log` unless a selected workpack requires a test-results artifact.
+WP01 10/10 means the provider/custody decision proof pack is filled, not that runtime auth/provider implementation is complete.
+WP03 and WP06 request-safety artifacts are blockers because this plan still does not own a real browser request consumer.
+WP07 proves the local setup route/projection slice; it does not prove physical device trust, Cloudflare account runtime, LAN/remote transport, or custody execution.
+```
 
 ## External research anchors
 
@@ -116,3 +151,5 @@ WP06 is last because it consumes proof from every earlier workpack.
 - Do not use Firebase custom claims for household membership/product data.
 - Do not put child activity evidence into account/identity state.
 - Do not mark rows checked without exact proof artifact names and command logs.
+- Do not move canonical shared account/family shapes out of `schema-domain` into sibling feature owners.
+- Do not claim E2E readiness from a local workpack proof root; use the E2E tiers in `TEST_PROOF_EXPECTATIONS.md`.

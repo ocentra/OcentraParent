@@ -1,26 +1,25 @@
-import {
-  AuditRequirementState,
-  SessionFreshnessState,
-} from '@ocentra-parent/schema-domain/family-household-authority';
+import { AuditRequirementState, SessionFreshnessState } from '@ocentra-parent/schema-domain/family-household-authority';
 import {
   SessionActivityState,
   SessionCredentialIssuanceAction,
-  SessionCredentialIssuanceDecision,
   SessionCredentialIssuanceDecisionSchema,
-  SessionCredentialIssuanceInput,
   SessionCredentialIssuanceInputSchema,
   SessionCredentialIssuanceState,
   SessionCredentialKind,
   SessionLifecycleAction,
   SessionTokenAuthorizationState,
-  SessionTokenDecision,
   SessionTokenDecisionSchema,
   SessionTokenFailureReason,
-  SessionTokenInput,
   SessionTokenInputSchema,
   TokenAuditRedactionState,
   TokenReplayState,
   TokenValidityWindowState,
+} from '@ocentra-parent/schema-domain/family-session-lifecycle';
+import type {
+  SessionCredentialIssuanceDecision,
+  SessionCredentialIssuanceInput,
+  SessionTokenDecision,
+  SessionTokenInput,
 } from '@ocentra-parent/schema-domain/family-session-lifecycle';
 
 const CredentialKindByAction: Record<SessionLifecycleAction, SessionCredentialKind> = Object.freeze({
@@ -34,10 +33,7 @@ const CredentialKindByAction: Record<SessionLifecycleAction, SessionCredentialKi
   'use-remote-session-grant': SessionCredentialKind.RemoteSessionGrant,
 });
 
-const CredentialKindByIssuanceAction: Record<
-  SessionCredentialIssuanceAction,
-  SessionCredentialKind
-> = Object.freeze({
+const CredentialKindByIssuanceAction: Record<SessionCredentialIssuanceAction, SessionCredentialKind> = Object.freeze({
   'create-browser-session': SessionCredentialKind.BrowserUserSession,
   'rotate-browser-session': SessionCredentialKind.BrowserUserSession,
   'issue-device-credential': SessionCredentialKind.DeviceCredential,
@@ -145,10 +141,7 @@ function rejectedSessionCredentialIssuance(
   });
 }
 
-function credentialKindMatchesAction(
-  credentialKind: SessionCredentialKind,
-  action: SessionLifecycleAction
-): boolean {
+function credentialKindMatchesAction(credentialKind: SessionCredentialKind, action: SessionLifecycleAction): boolean {
   return CredentialKindByAction[action] === credentialKind;
 }
 
@@ -159,9 +152,7 @@ function credentialKindMatchesIssuanceAction(
   return CredentialKindByIssuanceAction[issuanceAction] === credentialKind;
 }
 
-function sourceSessionActionForIssuance(
-  issuanceAction: SessionCredentialIssuanceAction
-): SessionLifecycleAction {
+function sourceSessionActionForIssuance(issuanceAction: SessionCredentialIssuanceAction): SessionLifecycleAction {
   if (issuanceAction === SessionCredentialIssuanceAction.RotateBrowserSession) {
     return SessionLifecycleAction.RefreshBrowserSession;
   }
@@ -201,9 +192,7 @@ function tokenValidityWindowFailureReason(
   return SessionTokenFailureReason.TokenNotYetValid;
 }
 
-function sessionActivityFailureReason(
-  activityState: SessionActivityState
-): SessionTokenFailureReason | null {
+function sessionActivityFailureReason(activityState: SessionActivityState): SessionTokenFailureReason | null {
   switch (activityState) {
     case SessionActivityState.Active:
       return null;
@@ -220,7 +209,7 @@ function sessionActivityFailureReason(
 
 function sessionFreshnessFailureReason(
   action: SessionLifecycleAction,
-  sessionFreshnessState: typeof SessionFreshnessState[keyof typeof SessionFreshnessState]
+  sessionFreshnessState: (typeof SessionFreshnessState)[keyof typeof SessionFreshnessState]
 ): SessionTokenFailureReason | null {
   if (sessionActionRequiresFreshness(action) && sessionFreshnessState !== SessionFreshnessState.Fresh) {
     return SessionTokenFailureReason.SessionNotFresh;

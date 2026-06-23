@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseReportRuntimeProofSchema,
   AppInstallPurchaseReportRuntimeSurfaceRowSchema,
   summarizeAppInstallPurchaseReportRuntimeProof,
-} from '../../src/app-install-purchase-report-runtime-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-report-runtime-proof';
 
 describe('app install and purchase report runtime proof', () => {
   acceptsCompilerStatusLinkedReportRowsWithoutDeliveryClaims();

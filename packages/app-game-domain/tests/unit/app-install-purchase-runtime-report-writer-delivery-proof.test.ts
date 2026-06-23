@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseRuntimeReportWriterDeliveryProofSchema,
   AppInstallPurchaseRuntimeReportWriterDeliveryRowSchema,
   summarizeAppInstallPurchaseRuntimeReportWriterDeliveryProof,
-} from '../../src/app-install-purchase-runtime-report-writer-delivery-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-runtime-report-writer-delivery-proof';
 
 describe('app install and purchase runtime report writer delivery proof', () => {
   acceptsParentOwnedReportDeliveryRowsAndReceipts();

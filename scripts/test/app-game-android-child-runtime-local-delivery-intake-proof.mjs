@@ -100,7 +100,7 @@ async function main() {
       'app-game-android-child-runtime-local-delivery-intake-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -115,7 +115,7 @@ async function main() {
       join(
         repoRoot,
         'packages',
-        'app-game-domain',
+        'schema-domain',
         'dist',
         'app-game-android-child-runtime-local-delivery-intake-proof.js'
       )
@@ -151,8 +151,9 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
       androidManifest: 'platforms/android/agent/app/src/main/AndroidManifest.xml',
-      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-delivery-intake-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-delivery-intake-proof.test.ts',
+      contract: 'packages/schema-domain/src/app-game-android-child-runtime-local-delivery-intake-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-delivery-intake-proof.test.ts',
       packageBuild: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
     },
     claimsProved: [

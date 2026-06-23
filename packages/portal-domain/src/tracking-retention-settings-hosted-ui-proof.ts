@@ -7,11 +7,15 @@ import {
   AgentTrackingRemoteSyncState,
 } from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
 import type { AgentTrackingRetentionSettingsWriteResultParseResult } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
-import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import type { DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import {
+  decodePortalDetailValue,
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalFormatting } from './formatting';
-import { TrackingStatusProofArtifacts, type TrackingStatusProofArtifact } from './tracking-status-proof-artifacts';
+import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 
 type PortalDisplayText = DisplayText;
 type PortalTextTokenValue = (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
@@ -170,7 +174,8 @@ function retentionSettingsWritePreflight(
     ),
     appliedRetentionWindowHours: detailFromValue(value.appliedRetentionWindowHours ?? 0),
     appliedDeleteAfterAlertResolved: detailFromFlag(
-      value.appliedDeleteAfterAlertResolutionState === AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved
+      value.appliedDeleteAfterAlertResolutionState ===
+        AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved
     ),
     parentExportPrepared: detailFromFlag(value.parentExportState === AgentTrackingParentExportState.Prepared),
     remoteSyncEnabled: detailFromFlag(value.remoteSyncState === AgentTrackingRemoteSyncState.Enabled),
@@ -180,22 +185,30 @@ function retentionSettingsWritePreflight(
     durableSettingsPersistedRows: detailFromFlag(
       value.durableSettingsPersistenceState === AgentTrackingDurableSettingsPersistenceState.Persisted
     ),
-    commandTransportClaimedRows: detailFromFlag(value.commandTransportClaimState === AgentTrackingExecutionClaimState.Claimed),
+    commandTransportClaimedRows: detailFromFlag(
+      value.commandTransportClaimState === AgentTrackingExecutionClaimState.Claimed
+    ),
     serviceWritePreflightClaimedRows: detailFromFlag(
       value.serviceWritePreflightClaimState === AgentTrackingExecutionClaimState.Claimed
     ),
     serviceMutationExecutedRows: detailFromFlag(
       value.serviceMutationExecutionState === AgentTrackingExecutionClaimState.Claimed
     ),
-    platformRuntimeClaimedRows: detailFromFlag(value.platformRuntimeClaimState === AgentTrackingExecutionClaimState.Claimed),
+    platformRuntimeClaimedRows: detailFromFlag(
+      value.platformRuntimeClaimState === AgentTrackingExecutionClaimState.Claimed
+    ),
     childDeviceDeliveryClaimedRows: detailFromFlag(
       value.childDeviceDeliveryClaimState === AgentTrackingExecutionClaimState.Claimed
     ),
-    providerDeliveryClaimedRows: detailFromFlag(value.providerDeliveryClaimState === AgentTrackingExecutionClaimState.Claimed),
+    providerDeliveryClaimedRows: detailFromFlag(
+      value.providerDeliveryClaimState === AgentTrackingExecutionClaimState.Claimed
+    ),
     notificationReceiptClaimedRows: detailFromFlag(
       value.notificationReceiptClaimState === AgentTrackingExecutionClaimState.Claimed
     ),
-    physicalDeviceClaimedRows: detailFromFlag(value.physicalDeviceClaimState === AgentTrackingExecutionClaimState.Claimed),
+    physicalDeviceClaimedRows: detailFromFlag(
+      value.physicalDeviceClaimState === AgentTrackingExecutionClaimState.Claimed
+    ),
     authorityClaimedRows: detailFromFlag(value.authorityClaimState === AgentTrackingExecutionClaimState.Claimed),
     productClaimReadyRows: detailFromFlag(value.productClaimState === AgentTrackingExecutionClaimState.Claimed),
   };

@@ -1,18 +1,27 @@
 use std::fs::{read_to_string, remove_file};
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
 };
 
+type TestResult = Result<(), String>;
+
 #[tokio::test]
-async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() {
+async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() -> TestResult {
     let paths = temp_paths(constants::enforcement::TIMER_EXPIRED);
     cleanup_paths(&paths);
 
@@ -25,18 +34,22 @@ async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() {
     );
 
     #[cfg(windows)]
-    assert_timer_expiry_uses_persisted_state_and_clears_it(&paths).await;
+    assert_timer_expiry_uses_persisted_state_and_clears_it(&paths).await?;
 
     #[cfg(not(windows))]
     assert_timer_expiry_without_supported_adapter_reports_missing_state(&paths, &execute_event)
-        .await;
+        .await?;
 
     cleanup_paths(&paths);
+
+    Ok(())
 }
 
 #[cfg(windows)]
-async fn assert_timer_expiry_uses_persisted_state_and_clears_it(paths: &EnforcementJournalPaths) {
-    let stored_state = read_state(paths);
+async fn assert_timer_expiry_uses_persisted_state_and_clears_it(
+    paths: &EnforcementJournalPaths,
+) -> TestResult {
+    let stored_state = read_state(paths)?;
     let expire_event =
         build_enforcement_timer_report_with_paths(expire_command(), paths.clone()).await;
     let state_after_expiry = read_to_string(&paths.timer_state_path);
@@ -49,28 +62,37 @@ async fn assert_timer_expiry_uses_persisted_state_and_clears_it(paths: &Enforcem
         expire_event.event,
         AgentEventName::AgentEnforcementTimerReported
     );
-    assert!(state_after_expiry.is_err());
+    assert!(matches!(
+        state_after_expiry,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound
+    ));
     assert_platform_expiry_payload(&expire_event.payload);
 
-    let audit = payload_string(
-        &expire_event.payload,
-        constants::field::ENFORCEMENT_AUDIT_EVENT,
-    )
-    .and_then(|text| {
-        serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementAuditEvent>(text).ok()
-    })
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let audit = ok(
+        serde_json::from_str::<ocentra_parent_agent_protocol::enforcement::EnforcementAuditEvent>(
+            some(
+                payload_string(
+                    &expire_event.payload,
+                    constants::field::ENFORCEMENT_AUDIT_EVENT,
+                ),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            )?,
+        ),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
     assert_eq!(
         audit.audit_event_kind.as_protocol_str(),
         expire_audit_kind()
     );
+
+    Ok(())
 }
 
 #[cfg(not(windows))]
 async fn assert_timer_expiry_without_supported_adapter_reports_missing_state(
     paths: &EnforcementJournalPaths,
-    execute_event: &ocentra_parent_agent_protocol::AgentEventEnvelope,
-) {
+    execute_event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
+) -> TestResult {
     assert_missing_state_file(paths);
     assert_eq!(
         execute_event
@@ -131,6 +153,8 @@ async fn assert_timer_expiry_without_supported_adapter_reports_missing_state(
             constants::enforcement::TIMER_RECOVERY_NEEDED.to_string()
         ))
     );
+
+    Ok(())
 }
 
 #[cfg(windows)]
@@ -281,15 +305,30 @@ fn target() -> AgentMessageTarget {
 #[cfg(windows)]
 fn read_state(
     paths: &EnforcementJournalPaths,
-) -> ocentra_parent_agent_protocol::EnforcementActiveTimerState {
-    let text = read_to_string(&paths.timer_state_path).expect(constants::error::JOURNAL_READS);
-    serde_json::from_str(&text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+) -> Result<ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState, String> {
+    let text = ok(
+        read_to_string(&paths.timer_state_path),
+        constants::error::JOURNAL_READS,
+    )?;
+    ok(
+        serde_json::from_str(&text),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 
 #[cfg(not(windows))]
 fn assert_missing_state_file(paths: &EnforcementJournalPaths) {
-    let error = read_to_string(&paths.timer_state_path)
-        .expect_err(constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED);
+    let error = match read_to_string(&paths.timer_state_path) {
+        Ok(_) => {
+            assert!(
+                false,
+                "{}",
+                constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED
+            );
+            return;
+        }
+        Err(error) => error,
+    };
     assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
 }
 
@@ -355,4 +394,12 @@ fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let mut shm_path = paths.store_path.clone();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
+}
+
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
 }

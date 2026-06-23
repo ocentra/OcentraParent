@@ -52,11 +52,11 @@ async function main() {
     proofMode: 'app-install-purchase-parent-review-action-proof',
     commands,
     evidence: {
-      parentReviewActionContract: 'packages/app-game-domain/src/app-install-purchase-parent-review-action-proof.ts',
-      sourceApprovalContract: 'packages/app-game-domain/src/app-install-purchase-approval-proof.ts',
+      parentReviewActionContract: 'packages/schema-domain/src/app-install-purchase-parent-review-action-proof.ts',
+      sourceApprovalContract: 'packages/schema-domain/src/app-install-purchase-approval-proof.ts',
       sourceApprovedApiEntitlementContract:
-        'packages/app-game-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
-      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
+      sourceReportRuntimeContract: 'packages/schema-domain/src/app-install-purchase-report-runtime-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-parent-review-action-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

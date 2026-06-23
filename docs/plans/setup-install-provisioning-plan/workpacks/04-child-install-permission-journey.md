@@ -18,6 +18,16 @@
 
 Define the child-agent install and permission journey from the parent/setup perspective with honest installed/running/permissioned/paired/trusted/policy-ready separation.
 
+## Ownership boundary
+
+```text
+setup-install-provisioning-plan owns parent-visible child install, permission, disclosure, degraded, and recovery state labels.
+child-agent-runtime-distribution-plan owns child package artifacts and runtime distribution.
+app-plan/runtime owners own child local service/platform behavior.
+device-trust-bootstrap-plan and lan-plan own trust and pairing internals.
+policy-control-plane-plan and enforcement owners own policy-ready/enforcement behavior.
+```
+
 ## Required inputs
 
 ```text
@@ -53,6 +63,36 @@ device-owner or managed-profile implementation
 LAN signed hello protocol
 policy/enforcement behavior
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+child_bootstrap_state
+child_platform_matrix_state
+permission_matrix_state
+installed_state
+running_state
+permissioned_state
+paired_state
+trusted_state
+policy_ready_state
+missing_permission_state
+disclosure_state
+reinstall_recovery_state
+runtime_owner_handoff_state
+package_owner_handoff_state
+device_trust_handoff_state
+lan_handoff_state
+policy_handoff_state
+no_child_runtime_claim
+no_package_claim
+no_pairing_trust_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required output
 

@@ -8,10 +8,7 @@ import {
   BillingParentVisibleStateSchema,
   BillingProviderReferenceSchema,
 } from './billing-entitlement-values';
-import {
-  BillingFailureStateSchema,
-  type BillingFailureState,
-} from './billing-entitlement';
+import { BillingFailureStateSchema, type BillingFailureState } from './billing-entitlement';
 import {
   BillingCollectionRecoveryStateSchema,
   BillingDisputeLifecycleStateSchema,
@@ -86,15 +83,12 @@ const BillingInvoiceTaxRefundDisputeRowRefinedSchema = BillingInvoiceTaxRefundDi
   ),
   Schema.filter(
     (row: BillingInvoiceTaxRefundDisputeRowShape) =>
-      row.periodStart < row.periodEnd ||
-      'Expected invoice lifecycle rows to keep period start before period end'
+      row.periodStart < row.periodEnd || 'Expected invoice lifecycle rows to keep period start before period end'
   ),
   Schema.filter(
     (row: BillingInvoiceTaxRefundDisputeRowShape) =>
       row.providerMode !== 'manual-invoice' ||
-      (!row.portalHosted &&
-        row.providerReference === null &&
-        row.invoiceVisibility === 'manual-support-required') ||
+      (!row.portalHosted && row.providerReference === null && row.invoiceVisibility === 'manual-support-required') ||
       'Expected manual invoice rows to remain non-hosted and app-owned'
   ),
   Schema.filter(
@@ -226,9 +220,7 @@ const BillingInvoiceTaxRefundDisputeRowRefinedSchema = BillingInvoiceTaxRefundDi
   )
 );
 
-export const BillingInvoiceTaxRefundDisputeRowSchema = withParser(
-  BillingInvoiceTaxRefundDisputeRowRefinedSchema
-);
+export const BillingInvoiceTaxRefundDisputeRowSchema = withParser(BillingInvoiceTaxRefundDisputeRowRefinedSchema);
 
 const BillingInvoiceTaxRefundDisputeProofStruct = Schema.Struct({
   schemaVersion: BillingInvoiceTaxRefundDisputeSchemaVersionSchema,
@@ -252,12 +244,8 @@ export const BillingInvoiceTaxRefundDisputeProofSchema = withParser(
   )
 );
 
-export type BillingInvoiceTaxRefundDisputeRow = Infer<
-  typeof BillingInvoiceTaxRefundDisputeRowSchema
->;
-export type BillingInvoiceTaxRefundDisputeProof = Infer<
-  typeof BillingInvoiceTaxRefundDisputeProofSchema
->;
+export type BillingInvoiceTaxRefundDisputeRow = Infer<typeof BillingInvoiceTaxRefundDisputeRowSchema>;
+export type BillingInvoiceTaxRefundDisputeProof = Infer<typeof BillingInvoiceTaxRefundDisputeProofSchema>;
 type BillingLocalSafetyBehavior = Infer<typeof BillingLocalSafetyBehaviorSchema>;
 type BillingParentVisibleState = Infer<typeof BillingParentVisibleStateSchema>;
 
@@ -284,235 +272,233 @@ const RequiredLifecycleBoundaryIds = [
 const RequiredRefundStates = ['refund-settled'] as const;
 const RequiredDisputeStates = ['dispute-opened', 'dispute-won', 'dispute-lost'] as const;
 
-export const BillingInvoiceTaxRefundDisputeProofReadModel =
-  BillingInvoiceTaxRefundDisputeProofSchema.parse({
-    schemaVersion: 'billing-invoice-tax-refund-dispute',
-    rows: [
-      lifecycleRow(
-        'billing-invoice-active',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'none',
-        'active',
-        'available',
-        'unchanged',
-        'retain-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-receipt-download',
-        'download-link-issued',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'none',
-        'active',
-        'available',
-        'unchanged',
-        'retain-paid-access',
-        false,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-grace',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'none',
-        'grace',
-        'grace',
-        'grace-with-local-safety',
-        'grace-paid-access',
-        true,
-        graceFailureState()
-      ),
-      lifecycleRow(
-        'billing-invoice-unpaid',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'none',
-        'unpaid',
-        'past-due',
-        'local-only',
-        'limit-paid-access',
-        true,
-        paymentFailureState()
-      ),
-      lifecycleRow(
-        'billing-invoice-refund-settled',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'refund-settled',
-        'none',
-        'cancelled',
-        'locked',
-        'local-only',
-        'revoke-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-partial-refund-issued',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'refund-issued',
-        'none',
-        'active',
-        'available',
-        'unchanged',
-        'retain-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-refund-denied',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'refund-denied',
-        'none',
-        'active',
-        'available',
-        'unchanged',
-        'retain-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-dispute-opened',
-        'manual-support-required',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'dispute-opened',
-        'support-required',
-        'manual-review',
-        'manual-review-with-local-safety',
-        'manual-review-required',
-        false,
-        supportFailureState()
-      ),
-      lifecycleRow(
-        'billing-invoice-dispute-lost',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'dispute-lost',
-        'cancelled',
-        'locked',
-        'local-only',
-        'revoke-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-dispute-won',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'dispute-won',
-        'active',
-        'available',
-        'unchanged',
-        'retain-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-chargeback-opened',
-        'manual-support-required',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'dispute-opened',
-        'support-required',
-        'manual-review',
-        'manual-review-with-local-safety',
-        'manual-review-required',
-        false,
-        supportFailureState()
-      ),
-      lifecycleRow(
-        'billing-tax-manual-support',
-        'manual-support-required',
-        'manual-support-required',
-        'manual-support-required',
-        'none',
-        'none',
-        'support-required',
-        'manual-review',
-        'manual-review-with-local-safety',
-        'manual-review-required',
-        false,
-        supportFailureState()
-      ),
-      lifecycleRow(
-        'billing-invoice-cancel-immediate',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'none',
-        'cancelled',
-        'locked',
-        'local-only',
-        'revoke-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-cancel-period-end',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'none',
-        'grace',
-        'grace',
-        'grace-with-local-safety',
-        'grace-paid-access',
-        true,
-        null
-      ),
-      lifecycleRow(
-        'billing-invoice-resume-after-past-due',
-        'customer-portal-hosted',
-        'stripe-automatic-tax',
-        'launch-supported',
-        'none',
-        'none',
-        'active',
-        'available',
-        'unchanged',
-        'retain-paid-access',
-        true,
-        null
-      ),
-    ],
-    nonClaims: [
-      'no-invoice-pdf-custody',
-      'no-self-service-refund',
-      'no-self-service-dispute',
-      'no-child-activity-custody',
-    ],
-    hostedInvoiceClaim: 'customer-portal-hosted-only',
-    manualSupportClaim: 'audited-required',
-    childActivityCustodyClaim: 'not-included',
-    updatedAt: Timestamp,
-  });
+export const BillingInvoiceTaxRefundDisputeProofReadModel = BillingInvoiceTaxRefundDisputeProofSchema.parse({
+  schemaVersion: 'billing-invoice-tax-refund-dispute',
+  rows: [
+    lifecycleRow(
+      'billing-invoice-active',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'none',
+      'active',
+      'available',
+      'unchanged',
+      'retain-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-receipt-download',
+      'download-link-issued',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'none',
+      'active',
+      'available',
+      'unchanged',
+      'retain-paid-access',
+      false,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-grace',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'none',
+      'grace',
+      'grace',
+      'grace-with-local-safety',
+      'grace-paid-access',
+      true,
+      graceFailureState()
+    ),
+    lifecycleRow(
+      'billing-invoice-unpaid',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'none',
+      'unpaid',
+      'past-due',
+      'local-only',
+      'limit-paid-access',
+      true,
+      paymentFailureState()
+    ),
+    lifecycleRow(
+      'billing-invoice-refund-settled',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'refund-settled',
+      'none',
+      'cancelled',
+      'locked',
+      'local-only',
+      'revoke-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-partial-refund-issued',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'refund-issued',
+      'none',
+      'active',
+      'available',
+      'unchanged',
+      'retain-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-refund-denied',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'refund-denied',
+      'none',
+      'active',
+      'available',
+      'unchanged',
+      'retain-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-dispute-opened',
+      'manual-support-required',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'dispute-opened',
+      'support-required',
+      'manual-review',
+      'manual-review-with-local-safety',
+      'manual-review-required',
+      false,
+      supportFailureState()
+    ),
+    lifecycleRow(
+      'billing-invoice-dispute-lost',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'dispute-lost',
+      'cancelled',
+      'locked',
+      'local-only',
+      'revoke-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-dispute-won',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'dispute-won',
+      'active',
+      'available',
+      'unchanged',
+      'retain-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-chargeback-opened',
+      'manual-support-required',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'dispute-opened',
+      'support-required',
+      'manual-review',
+      'manual-review-with-local-safety',
+      'manual-review-required',
+      false,
+      supportFailureState()
+    ),
+    lifecycleRow(
+      'billing-tax-manual-support',
+      'manual-support-required',
+      'manual-support-required',
+      'manual-support-required',
+      'none',
+      'none',
+      'support-required',
+      'manual-review',
+      'manual-review-with-local-safety',
+      'manual-review-required',
+      false,
+      supportFailureState()
+    ),
+    lifecycleRow(
+      'billing-invoice-cancel-immediate',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'none',
+      'cancelled',
+      'locked',
+      'local-only',
+      'revoke-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-cancel-period-end',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'none',
+      'grace',
+      'grace',
+      'grace-with-local-safety',
+      'grace-paid-access',
+      true,
+      null
+    ),
+    lifecycleRow(
+      'billing-invoice-resume-after-past-due',
+      'customer-portal-hosted',
+      'stripe-automatic-tax',
+      'launch-supported',
+      'none',
+      'none',
+      'active',
+      'available',
+      'unchanged',
+      'retain-paid-access',
+      true,
+      null
+    ),
+  ],
+  nonClaims: [
+    'no-invoice-pdf-custody',
+    'no-self-service-refund',
+    'no-self-service-dispute',
+    'no-child-activity-custody',
+  ],
+  hostedInvoiceClaim: 'customer-portal-hosted-only',
+  manualSupportClaim: 'audited-required',
+  childActivityCustodyClaim: 'not-included',
+  updatedAt: Timestamp,
+});
 
-export const BillingInvoiceTaxRefundDisputeProof =
-  BillingInvoiceTaxRefundDisputeProofReadModel;
+export const BillingInvoiceTaxRefundDisputeProof = BillingInvoiceTaxRefundDisputeProofReadModel;
 
 export {
   BillingCollectionRecoveryStateSchema,
@@ -566,16 +552,8 @@ function billingInvoiceTaxRefundDisputeProofIsHonest(proof: {
   return (
     RequiredLifecycleNonClaims.every((claim) => proof.nonClaims.includes(claim)) &&
     proofRowsCoverRequiredLifecycleStates(proof) &&
-    proof.rows.some(
-      (row) =>
-        row.providerMode === 'stripe-hosted' &&
-        row.providerReference !== null
-    ) &&
-    proof.rows.some(
-      (row) =>
-        row.providerMode === 'manual-invoice' &&
-        row.providerReference === null
-    ) &&
+    proof.rows.some((row) => row.providerMode === 'stripe-hosted' && row.providerReference !== null) &&
+    proof.rows.some((row) => row.providerMode === 'manual-invoice' && row.providerReference === null) &&
     proof.rows.every((row) => row.supportAuditState === 'audited') &&
     proof.hostedInvoiceClaim === 'customer-portal-hosted-only' &&
     proof.manualSupportClaim === 'audited-required' &&
@@ -596,26 +574,14 @@ function proofRowsCoverRequiredLifecycleStates(proof: {
   }>;
 }): boolean {
   return (
-    proof.rows.some(
-      (row) => row.invoiceVisibility === 'customer-portal-hosted' && row.portalHosted
-    ) &&
+    proof.rows.some((row) => row.invoiceVisibility === 'customer-portal-hosted' && row.portalHosted) &&
     proof.rows.some((row) => row.invoiceVisibility === 'download-link-issued') &&
-    ['grace', 'unpaid'].every((state) =>
-      proof.rows.some((row) => row.recoveryState === state)
-    ) &&
-    RequiredLifecycleBoundaryIds.every((boundaryId) =>
-      proof.rows.some((row) => row.boundaryId === boundaryId)
-    ) &&
-    RequiredRefundStates.every((refundState) =>
-      proof.rows.some((row) => row.refundState === refundState)
-    ) &&
-    RequiredDisputeStates.every((disputeState) =>
-      proof.rows.some((row) => row.disputeState === disputeState)
-    ) &&
+    ['grace', 'unpaid'].every((state) => proof.rows.some((row) => row.recoveryState === state)) &&
+    RequiredLifecycleBoundaryIds.every((boundaryId) => proof.rows.some((row) => row.boundaryId === boundaryId)) &&
+    RequiredRefundStates.every((refundState) => proof.rows.some((row) => row.refundState === refundState)) &&
+    RequiredDisputeStates.every((disputeState) => proof.rows.some((row) => row.disputeState === disputeState)) &&
     proof.rows.some(
-      (row) =>
-        row.taxMode === 'manual-support-required' &&
-        row.taxRegionState === 'manual-support-required'
+      (row) => row.taxMode === 'manual-support-required' && row.taxRegionState === 'manual-support-required'
     )
   );
 }

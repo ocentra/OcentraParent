@@ -1,29 +1,35 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef,
-    AppGameChildRuntimeTransportReceiptReadModel, AppGameChildRuntimeTransportReceiptRow,
-    AppGameControlActionResult, AppGameControlApprovalDecision, AppGameControlApprovalRequest,
-    AppGameEnforcementCapabilityStatus, AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow,
-    AppGameParentActionReference, AppGameParentActorReference, AppGameParentDeviceReference,
-    AppGameParentEvidenceReference, AppGamePolicyTarget, AppGameRuntimeEvidenceRow,
-    AppGameServiceReadModel, LogFieldValue, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
-    APP_GAME_CATALOG_READY, APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_ID,
-    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow,
+    AppGameServiceReadModel, APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_READY,
     APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
+    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT, APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_INVENTORY_STATE_UNAVAILABLE,
+    APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
+    APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW, APP_GAME_OBSERVATION_MODE_PROCESS_START,
+    APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_PERMISSION_LIMITED,
+    APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
+    APP_GAME_TITLE_CAPTURE_TITLE_REF,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    AppGameControlActionResult, AppGameControlApprovalDecision, AppGameControlApprovalRequest,
+    AppGameEnforcementCapabilityStatus, AppGameParentActionReference, AppGameParentActorReference,
+    AppGameParentDeviceReference, AppGameParentEvidenceReference, AppGamePolicyTarget,
     APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_CONTROL_DECISION_APPROVED,
     APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY, APP_GAME_CONTROL_PARENT_RESPONSE_ALLOW_ONCE,
     APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE, APP_GAME_CONTROL_POLICY_KIND_APP,
     APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY, APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL,
-    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED, APP_GAME_FOREGROUND_FOREGROUND,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT,
-    APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD, APP_GAME_INVENTORY_STATE_INSTALLED,
-    APP_GAME_INVENTORY_STATE_UNAVAILABLE, APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE,
-    APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
-    APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_PARENT_ACTOR_ROLE_PARENT,
+    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED, APP_GAME_PARENT_ACTOR_ROLE_PARENT,
     APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION, APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT,
-    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_POLICY_TARGET_TYPE_APP, APP_GAME_PRODUCT_NATIVE_APP,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_PERMISSION_LIMITED, APP_GAME_RUNTIME_RUNNING,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TITLE_CAPTURE_TITLE_REF,
+    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_POLICY_TARGET_TYPE_APP,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::AppGameChildRuntimeTransportReceiptReadModel;
+use ocentra_parent_agent_protocol::AppGameChildRuntimeTransportReceiptRow;
+use ocentra_parent_agent_protocol::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_ID;
+use ocentra_parent_agent_protocol::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED;
 
 use super::app_game_child_runtime_transport_receipt_payload::{
     app_game_child_runtime_transport_receipt_payload,
@@ -80,12 +86,14 @@ fn child_runtime_transport_receipt_payload_serializes_parent_safe_status_model()
     let read_model = app_game_child_runtime_transport_receipt_read_model(GENERATED_AT);
     let payload = app_game_child_runtime_transport_receipt_payload(&read_model);
 
-    let reparsed =
+    let Ok(reparsed) =
         serde_json::from_str::<AppGameChildRuntimeTransportReceiptReadModel>(string_payload(
             &payload,
             constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL,
         ))
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
 
     assert_eq!(
         reparsed.read_model_id,
@@ -136,11 +144,15 @@ fn child_runtime_transport_receipt_rows_come_from_service_model_runtime_sources(
     assert!(read_model.platform_enforcement_claimed);
 }
 
-fn string_payload<'a>(payload: &'a ocentra_parent_agent_protocol::LogFields, key: &str) -> &'a str {
-    match payload.get(key) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
-    }
+fn string_payload<'a>(
+    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
+    field_name: &str,
+) -> &'a str {
+    let Some(LogFieldValue::String(value)) = payload.get(field_name) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    value.as_str()
 }
 
 fn transport_required_rows(
@@ -198,14 +210,14 @@ fn service_model() -> AppGameServiceReadModel {
 
 fn enforced_action_result() -> AppGameControlActionResult {
     let capability = enforcement_capability();
-    serde_json::from_value(serde_json::json!({
+    let Ok(action_result) = serde_json::from_value(serde_json::json!({
         "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
         "resultId": APP_GAME_TEST_ACTION_RESULT_ID,
         "request": approval_request(),
         "decision": approval_decision(),
         "approvalState": APP_GAME_CONTROL_APPROVAL_STATE_APPROVED,
         "capabilityState": APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED,
-        "capability": capability.clone(),
+        "capability": enforcement_capability(),
         "evidenceProofKind": APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY,
         "resultStatus": APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
         "enforcementResult": {
@@ -225,8 +237,11 @@ fn enforced_action_result() -> AppGameControlActionResult {
             "capability": capability
         },
         "recordedAt": APP_GAME_TEST_TIMESTAMP
-    }))
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    })) else {
+        panic!("{}", constants::error::AGENT_EVENT_SERIALIZES);
+    };
+
+    action_result
 }
 
 fn approval_request() -> AppGameControlApprovalRequest {

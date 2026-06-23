@@ -8,7 +8,10 @@ import {
   BrowserFamily,
   BrowserQueryVisibilityLabel,
 } from '@ocentra-parent/schema-domain/browser-values';
-import { BrowserEvidenceReadModelSchema, BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
+import {
+  BrowserEvidenceReadModelSchema,
+  BrowserEvidenceSchemaVersion,
+} from '@ocentra-parent/schema-domain/browser-schemas';
 import {
   BrowserBoundaryState,
   BrowserExactUrlClaimState,

@@ -6,7 +6,10 @@ import {
   EnforcementHostAdapterPreflightStatus,
   V08HostAdapterProofPreflightMatrix,
 } from '@ocentra-parent/schema-domain/enforcement-host-adapter-preflight';
-import { EnforcementBroadAdapterCapability, V08BroadOsAdapterReadinessMatrix } from '@ocentra-parent/schema-domain/enforcement-readiness';
+import {
+  EnforcementBroadAdapterCapability,
+  V08BroadOsAdapterReadinessMatrix,
+} from '@ocentra-parent/schema-domain/enforcement-readiness';
 
 describe('host adapter proof preflight contracts', () => {
   it('captures manual preflight gates without upgrading broad adapter claims', () => {

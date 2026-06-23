@@ -30,7 +30,7 @@ Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit 
 
 - The delivery record JSON/debug proof explicitly omits raw child profile arrays, device arrays, rules, schedules, and retention payloads from serialized output.
 - The delivery side keeps target identity and source audit lineage explicit without claiming UI rendering or cross-process log transport.
-- `packages/schema-domain/src/policy-compiler.ts` and `packages/schema-domain/src/policy-event.ts` keep audit references, rollback refs, and delivery identifiers explicit on the TS contract boundary.
+- `packages/policy-domain/src/policy-compiler.ts` and `packages/policy-domain/src/policy-event.ts` keep audit references, rollback refs, and delivery identifiers explicit on the TS contract boundary.
 
 ## Honest boundary
 

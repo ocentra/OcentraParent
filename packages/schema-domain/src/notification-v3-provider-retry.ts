@@ -5,16 +5,21 @@ import {
   ParentTimestampSchema,
 } from './family-reference-primitives';
 
-export const V3NotificationRuleProviderRetryContractReadModelIdSchema =
-  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractReadModelId');
-export const V3NotificationRuleProviderRetryContractEntryIdSchema =
-  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractEntryId');
-export const V3NotificationRuleProviderRetryContractReferenceSchema =
-  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractReference');
-export const V3NotificationRuleProviderRetryContractRequirementSchema =
-  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractRequirement');
-export const V3NotificationRuleProviderRetryContractTextSchema =
-  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractText');
+export const V3NotificationRuleProviderRetryContractReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V3NotificationRuleProviderRetryContractReadModelId'
+);
+export const V3NotificationRuleProviderRetryContractEntryIdSchema = brandedNonEmptyStringSchema(
+  'V3NotificationRuleProviderRetryContractEntryId'
+);
+export const V3NotificationRuleProviderRetryContractReferenceSchema = brandedNonEmptyStringSchema(
+  'V3NotificationRuleProviderRetryContractReference'
+);
+export const V3NotificationRuleProviderRetryContractRequirementSchema = brandedNonEmptyStringSchema(
+  'V3NotificationRuleProviderRetryContractRequirement'
+);
+export const V3NotificationRuleProviderRetryContractTextSchema = brandedNonEmptyStringSchema(
+  'V3NotificationRuleProviderRetryContractText'
+);
 
 export const V3NotificationRuleReasonCodeSchema = withParser(
   Schema.Literal(
@@ -32,35 +37,15 @@ export const V3NotificationProviderChannelSchema = withParser(
 );
 
 export const V3NotificationDeliveryAttemptStateSchema = withParser(
-  Schema.Literal(
-    'eligible',
-    'queued',
-    'suppressed-quiet-hours',
-    'retry-scheduled',
-    'failed-final',
-    'provider-disabled'
-  )
+  Schema.Literal('eligible', 'queued', 'suppressed-quiet-hours', 'retry-scheduled', 'failed-final', 'provider-disabled')
 );
 
 export const V3NotificationDeliveryResultStateSchema = withParser(
-  Schema.Literal(
-    'not-sent',
-    'queued',
-    'retryable-failure',
-    'permanent-failure',
-    'receipt-required',
-    'manual-required'
-  )
+  Schema.Literal('not-sent', 'queued', 'retryable-failure', 'permanent-failure', 'receipt-required', 'manual-required')
 );
 
 export const V3NotificationRetryPolicyStateSchema = withParser(
-  Schema.Literal(
-    'no-retry',
-    'exponential-backoff',
-    'quiet-hours-deferred',
-    'manual-review',
-    'provider-disabled'
-  )
+  Schema.Literal('no-retry', 'exponential-backoff', 'quiet-hours-deferred', 'manual-review', 'provider-disabled')
 );
 
 export const V3NotificationQuietHoursDecisionSchema = withParser(
@@ -298,8 +283,8 @@ function notificationRuleProviderRetryContractCoversDeliveryAndRetry(
     ['not-sent', 'queued', 'retryable-failure', 'permanent-failure', 'receipt-required', 'manual-required'].every(
       (state) => deliveryResults.has(state as V3NotificationDeliveryResultState)
     ) &&
-    ['no-retry', 'exponential-backoff', 'quiet-hours-deferred', 'manual-review', 'provider-disabled'].every(
-      (state) => retryPolicies.has(state as V3NotificationRetryPolicyState)
+    ['no-retry', 'exponential-backoff', 'quiet-hours-deferred', 'manual-review', 'provider-disabled'].every((state) =>
+      retryPolicies.has(state as V3NotificationRetryPolicyState)
     ) &&
     ['allow', 'defer-noncritical', 'emergency-override', 'manual-required'].every((state) =>
       quietHours.has(state as V3NotificationQuietHoursDecision)
@@ -321,8 +306,7 @@ export type V3NotificationRuleProviderRetryContractReference =
   typeof V3NotificationRuleProviderRetryContractReferenceSchema.Type;
 export type V3NotificationRuleProviderRetryContractRequirement =
   typeof V3NotificationRuleProviderRetryContractRequirementSchema.Type;
-export type V3NotificationRuleProviderRetryContractText =
-  typeof V3NotificationRuleProviderRetryContractTextSchema.Type;
+export type V3NotificationRuleProviderRetryContractText = typeof V3NotificationRuleProviderRetryContractTextSchema.Type;
 export type V3NotificationRuleReasonCode = Infer<typeof V3NotificationRuleReasonCodeSchema>;
 export type V3NotificationProviderChannel = Infer<typeof V3NotificationProviderChannelSchema>;
 export type V3NotificationDeliveryAttemptState = Infer<typeof V3NotificationDeliveryAttemptStateSchema>;

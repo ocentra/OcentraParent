@@ -4,7 +4,7 @@ import {
   TrackingAndroidPermissionBackgroundProofRowSchema,
   buildTrackingAndroidPermissionBackgroundProofReadModel,
   type TrackingAndroidPermissionBackgroundInputRow,
-} from '../../src/tracking-android-permission-background-proof';
+} from '@ocentra-parent/schema-domain/tracking-android-permission-background-proof';
 
 const Timestamp = '2026-06-05T23:46:00.000Z';
 

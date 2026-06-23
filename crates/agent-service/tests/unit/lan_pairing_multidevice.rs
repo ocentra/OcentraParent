@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     fields::fields_from_pairs,
@@ -422,14 +424,14 @@ fn proof_payload_from_challenge(event: &AgentEventEnvelope, expires_at: &str) ->
 fn payload_string(event: &AgentEventEnvelope, field: &str) -> String {
     match event.payload.get(field) {
         Some(LogFieldValue::String(value)) => value.clone(),
-        _ => std::panic::panic_any(field.to_string()),
+        _ => unreachable!("{field}"),
     }
 }
 
 async fn select_first_child(
     runtime: LanPairingRuntime,
     intent_id: &str,
-) -> ocentra_parent_agent_protocol::AgentEventEnvelope {
+) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
     handle_command_text_for_test(
         &serialize_command(route_select_command(intent_payload(
             intent_id,
@@ -445,7 +447,7 @@ async fn select_first_child(
 
 async fn health_for_first_child(
     runtime: LanPairingRuntime,
-) -> ocentra_parent_agent_protocol::AgentEventEnvelope {
+) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
     handle_command_text_for_test(
         &serialize_command(health_command(intent_payload(
             constants::lan_pairing::INTENT_ID,
@@ -461,7 +463,7 @@ async fn health_for_first_child(
 
 async fn health_for_second_child(
     runtime: LanPairingRuntime,
-) -> ocentra_parent_agent_protocol::AgentEventEnvelope {
+) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
     handle_command_text_for_test(
         &serialize_command(health_command_for_target(
             constants::lan_pairing::SECOND_CHILD_DEVICE_ID,

@@ -1,15 +1,20 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityAppUseReadModel, ActivityAppUseReadModelRow, ActivityEvidenceRef,
-    ActivityReadModelState, ActivityRecentSummary, ActivitySurfaceRequest,
-    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow,
-    AppGameServiceReadModel, ACTIVITY_SURFACE_SCHEMA_VERSION,
-    APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED, APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
-    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
-    APP_GAME_CLASSIFICATION_STALE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
-    APP_GAME_CLASSIFICATION_UNSUPPORTED_PLATFORM, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_INVENTORY_STATE_UNAVAILABLE, APP_GAME_PRODUCT_NATIVE_APP,
-    APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE, APP_GAME_RUNTIME_NOT_CLAIMED,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary;
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityAppUseReadModel, ActivityAppUseReadModelRow, ActivityReadModelState,
+    ActivitySurfaceRequest,
 };
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow,
+    AppGameServiceReadModel, APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED,
+    APP_GAME_CLASSIFICATION_ADAPTER_ERROR, APP_GAME_CLASSIFICATION_KNOWN_APP,
+    APP_GAME_CLASSIFICATION_PERMISSION_LIMITED, APP_GAME_CLASSIFICATION_STALE,
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CLASSIFICATION_UNSUPPORTED_PLATFORM,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_STATE_UNAVAILABLE,
+    APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE, APP_GAME_RUNTIME_NOT_CLAIMED,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::activity_surface_read_model_states::{
     empty_app_use_read_model, offline_app_use_read_model, request_targets_remote_device,
@@ -49,17 +54,17 @@ fn app_use_model_from_app_game(
     model: Option<AppGameServiceReadModel>,
 ) -> ActivityAppUseReadModel {
     match model {
-        Some(model) => app_use_model_from_rows(request, model),
+        Some(model) => app_use_model_from_rows(request, &model),
         None => unavailable_app_use_read_model(request),
     }
 }
 
 fn app_use_model_from_rows(
     request: ActivitySurfaceRequest,
-    model: AppGameServiceReadModel,
+    model: &AppGameServiceReadModel,
 ) -> ActivityAppUseReadModel {
     let generated_at = model.generated_at.clone();
-    let rows = app_use_rows(&request, &model);
+    let rows = app_use_rows(&request, model);
     if rows.is_empty() {
         return ActivityAppUseReadModel {
             schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
@@ -262,7 +267,7 @@ fn app_row_id(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
-    rollup: Option<&ocentra_parent_agent_protocol::AppGameSessionDailyRollup>,
+    rollup: Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
 ) -> String {
     rollup
         .and_then(|row| row.session_ids.first().cloned())
@@ -288,7 +293,7 @@ fn app_classification(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
-    rollup: Option<&ocentra_parent_agent_protocol::AppGameSessionDailyRollup>,
+    rollup: Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
 ) -> String {
     rollup
         .map(|row| row.classification_state.clone())

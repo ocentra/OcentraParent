@@ -9,6 +9,7 @@
 
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use serde::{Deserialize, Serialize};
@@ -218,7 +219,7 @@ pub fn record_enforcement_action_decision(
     EnforcementActionDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
         decision_id: EnforcementDecisionId::parse(enforcement_decision_ref(&event.request_id))
-            .expect(ERROR_ENFORCEMENT_DECISION_ID),
+            .expect_value(ERROR_ENFORCEMENT_DECISION_ID),
         source_request_id: event.request_id.clone(),
         decision: evaluate_enforcement_action(event.input),
     }

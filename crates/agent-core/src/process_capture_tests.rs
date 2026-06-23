@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEventKind, ActivityObserver, ActivitySubjectKind, LogFieldValue,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::{collect_process_snapshot, process_observation_event, ProcessObservation};
 

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameLinuxForegroundCaptureReadinessSchema,
   type AppGameLinuxForegroundCaptureReadiness,
@@ -178,4 +173,3 @@ function linuxForegroundSourceStateIsConsistent(readModel: AppGameLinuxForegroun
     readModel.proofRefs.includes('linux-foreground-source-preflight-ref')
   );
 }
-

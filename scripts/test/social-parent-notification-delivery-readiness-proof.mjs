@@ -73,11 +73,7 @@ async function main() {
     checkIncludes(contract, 'providerReceiptIngested: Schema.Literal(false)', 'provider receipt guard'),
     checkIncludes(contract, 'finalPolicyDecisionClaimed: Schema.Literal(false)', 'final policy guard'),
     checkIncludes(contract, 'enforcementClaimed: Schema.Literal(false)', 'enforcement guard'),
-    checkIncludes(
-      packageJson,
-      './social-parent-notification-delivery-readiness',
-      'schema-domain package export'
-    ),
+    checkIncludes(packageJson, './social-parent-notification-delivery-readiness', 'schema-domain package export'),
     checkIncludes(
       featureDoc,
       'social-parent-notification-delivery-readiness-proof',

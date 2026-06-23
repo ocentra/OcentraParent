@@ -24,13 +24,14 @@ fn product_proof_surfaces_have_stable_protocol_strings() {
         V08OsAdapterProductProofSurface::AuditCustody,
         V08OsAdapterProductProofSurface::RollbackArtifactGate,
     ];
-    let serialized =
-        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized
             .as_array()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
             .len(),
         12
     );
@@ -84,10 +85,13 @@ fn product_proof_read_model_serializes_claim_flags_for_runtime_preview() {
             ),
         ],
     };
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let reparsed = serde_json::from_value::<V08OsAdapterProductProofReadModel>(serialized)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        });
     let readiness_counts = count_readiness(&reparsed.entries);
 
     assert_eq!(reparsed.read_model_id, proof_constants::READ_MODEL_ID);

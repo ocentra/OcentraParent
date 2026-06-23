@@ -4,9 +4,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ActivityEvidenceKind } from '../../packages/activity-domain/dist/kinds.js';
-import {
-  ScreenAnalysisParentSettingSchema,
-} from '../../packages/schema-domain/dist/screen-evidence-settings.js';
+import { ScreenAnalysisParentSettingSchema } from '../../packages/schema-domain/dist/screen-evidence-settings.js';
 import { ScreenAnalysisQueueJobSchema } from '../../packages/screen-domain/dist/screen-evidence-queue.js';
 import { ScreenEvidenceRecentSummarySchema } from '../../packages/screen-domain/dist/screen-evidence-read-model.js';
 import { ScreenEvidenceSchemaVersion } from '../../packages/schema-domain/dist/screen-evidence-primitives.js';

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeTransportDeliveryExecutionProofReadModel } from './app-install-purchase-runtime-transport-delivery-execution-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -91,10 +86,18 @@ const ExternalRuntimeWriterTransportExecutionIntegrationClaimSchema = withParser
 const ExternalRuntimeWriterTransportExecutionAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const ExternalRuntimeWriterTransportExecutionCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const ExternalRuntimeWriterTransportExecutionRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionRowId');
-const ExternalRuntimeWriterTransportExecutionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionRef');
-const ExternalRuntimeWriterTransportExecutionAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionAuditRef');
-const ExternalRuntimeWriterTransportExecutionBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionBoundary');
+const ExternalRuntimeWriterTransportExecutionRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportExecutionRowId'
+);
+const ExternalRuntimeWriterTransportExecutionRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportExecutionRef'
+);
+const ExternalRuntimeWriterTransportExecutionAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportExecutionAuditRef'
+);
+const ExternalRuntimeWriterTransportExecutionBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportExecutionBoundary'
+);
 
 const ExternalRuntimeWriterTransportExecutionRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterTransportExecutionProofSchemaVersionSchema,
@@ -399,4 +402,3 @@ function externalRuntimeWriterTransportExecutionBoundaryIsExplicit(
 ): boolean {
   return ExternalRuntimeWriterTransportExecutionBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

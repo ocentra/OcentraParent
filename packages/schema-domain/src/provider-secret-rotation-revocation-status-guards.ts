@@ -2,10 +2,7 @@ import {
   ProviderSecretRotationRevocationRequiredDataClasses,
   type ProviderSecretRotationRevocationStatusEntryCandidate,
 } from './provider-secret-rotation-revocation-status.js';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 export function providerSecretRotationRevocationStatusEntryIsSafe(
   entry: ProviderSecretRotationRevocationStatusEntryCandidate

@@ -5,12 +5,13 @@ use crate::{
     NetworkLinuxAdapterGateError, NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateState,
     NetworkLinuxAdapterKind, NetworkLinuxAdapterRequiredArtifact,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn linux_adapter_gate_allows_distro_proof_ready_with_rollback_and_audit_refs() {
     let proof =
         plan_network_linux_adapter_gate(distro_ready_input(NetworkLinuxAdapterKind::Nftables))
-            .expect("complete Linux adapter gate should become distro-proof ready");
+            .expect_value("complete Linux adapter gate should become distro-proof ready");
 
     assert_eq!(
         proof.gate_state,
@@ -41,7 +42,7 @@ fn linux_adapter_gate_allows_distro_proof_ready_with_rollback_and_audit_refs() {
 #[test]
 fn linux_adapter_gate_preserves_selected_ebpf_and_tun_adapter_kinds() {
     let ebpf = plan_network_linux_adapter_gate(distro_ready_input(NetworkLinuxAdapterKind::Ebpf))
-        .expect("eBPF proof gate should preserve adapter kind");
+        .expect_value("eBPF proof gate should preserve adapter kind");
     assert_eq!(ebpf.adapter_kind, NetworkLinuxAdapterKind::Ebpf);
     assert_eq!(
         ebpf.gate_state,
@@ -49,7 +50,7 @@ fn linux_adapter_gate_preserves_selected_ebpf_and_tun_adapter_kinds() {
     );
 
     let tun = plan_network_linux_adapter_gate(distro_ready_input(NetworkLinuxAdapterKind::Tun))
-        .expect("TUN proof gate should preserve adapter kind");
+        .expect_value("TUN proof gate should preserve adapter kind");
     assert_eq!(tun.adapter_kind, NetworkLinuxAdapterKind::Tun);
     assert_eq!(
         tun.gate_state,
@@ -71,7 +72,7 @@ fn linux_adapter_gate_research_only_is_non_executable_without_artifacts() {
         audit_event_ref: None,
         ..distro_ready_input(NetworkLinuxAdapterKind::Nftables)
     })
-    .expect("research-only Linux adapter gate should be allowed without artifacts");
+    .expect_value("research-only Linux adapter gate should be allowed without artifacts");
 
     assert_eq!(proof.gate_state, NetworkLinuxAdapterGateState::ResearchOnly);
     assert_eq!(
@@ -104,7 +105,7 @@ fn linux_adapter_gate_routes_weak_or_non_block_policy_to_manual_required() {
         policy_mapping: policy_mapping(NetworkEvidenceGrade::B, NetworkEvidencePolicyAction::Block),
         ..distro_ready_input(NetworkLinuxAdapterKind::Nftables)
     })
-    .expect("grade B block policy handoff should not become Linux proof-ready");
+    .expect_value("grade B block policy handoff should not become Linux proof-ready");
 
     assert_eq!(
         weak.gate_state,
@@ -122,7 +123,7 @@ fn linux_adapter_gate_routes_weak_or_non_block_policy_to_manual_required() {
         policy_mapping: policy_mapping(NetworkEvidenceGrade::A, NetworkEvidencePolicyAction::Limit),
         ..distro_ready_input(NetworkLinuxAdapterKind::Nftables)
     })
-    .expect("non-block mapped actions should stay outside the Linux proof boundary");
+    .expect_value("non-block mapped actions should stay outside the Linux proof boundary");
     assert_eq!(
         limit.gate_state,
         NetworkLinuxAdapterGateState::ManualRequired
@@ -139,7 +140,7 @@ fn linux_adapter_gate_marks_manual_required_or_unavailable_capability_without_co
         capability_state: NetworkLinuxAdapterCapabilityState::ManualRequired,
         ..distro_ready_input(NetworkLinuxAdapterKind::Nftables)
     })
-    .expect("manual-required Linux capability should stay reportable");
+    .expect_value("manual-required Linux capability should stay reportable");
     assert_eq!(
         manual.gate_state,
         NetworkLinuxAdapterGateState::ManualRequired
@@ -153,7 +154,7 @@ fn linux_adapter_gate_marks_manual_required_or_unavailable_capability_without_co
         capability_state: NetworkLinuxAdapterCapabilityState::Unavailable,
         ..distro_ready_input(NetworkLinuxAdapterKind::Nftables)
     })
-    .expect("unavailable Linux capability should stay reportable");
+    .expect_value("unavailable Linux capability should stay reportable");
     assert_eq!(
         unavailable.gate_state,
         NetworkLinuxAdapterGateState::Unavailable
@@ -317,5 +318,5 @@ fn policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .expect("policy mapping input should be valid")
+    .expect_value("policy mapping input should be valid")
 }

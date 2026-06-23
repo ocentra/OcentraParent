@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -292,4 +287,3 @@ export type V09HouseholdPhysicalProofManualEvidenceCustody = Infer<
 export type V09HouseholdPhysicalProofArtifactGateReadModel = Infer<
   typeof V09HouseholdPhysicalProofArtifactGateReadModelSchema
 >;
-

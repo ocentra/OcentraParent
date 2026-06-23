@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AgentTrackingRetentionSettingsWriteDefaults } from './agent-tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingEvidenceTraceSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
@@ -11,7 +6,9 @@ import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './
 
 export const TrackingHostedStorageDefaultRowIdSchema = brandedNonEmptyStringSchema('TrackingHostedStorageDefaultRowId');
 
-export const TrackingHostedStorageDefaultProofRefSchema = brandedNonEmptyStringSchema('TrackingHostedStorageDefaultProofRef');
+export const TrackingHostedStorageDefaultProofRefSchema = brandedNonEmptyStringSchema(
+  'TrackingHostedStorageDefaultProofRef'
+);
 
 export const TrackingHostedStorageDefaultKindSchema = withParser(
   Schema.Literal(
@@ -309,4 +306,3 @@ function evidence(
     observedAt,
   });
 }
-

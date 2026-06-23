@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -28,7 +22,9 @@ export const TrackingLocalPlatformProofBatchStatusSchema = withParser(
   Schema.Literal('local-proof-passed', 'manual-required')
 );
 
-export const TrackingLocalPlatformProofBatchRefSchema = brandedNonEmptyStringSchema('TrackingLocalPlatformProofBatchRef');
+export const TrackingLocalPlatformProofBatchRefSchema = brandedNonEmptyStringSchema(
+  'TrackingLocalPlatformProofBatchRef'
+);
 
 export const TrackingLocalPlatformProofBatchMetricSchema = withParser(
   Schema.Struct({
@@ -242,4 +238,3 @@ function row(generatedAt: string, input: TrackingLocalPlatformProofBatchRowInput
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs.filter((ref) => ref.length > 0))];
 }
-

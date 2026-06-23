@@ -1,11 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_cross_platform_enforcement_capability_proof as proof, policy_constants,
-    ParentPlatform, V08CrossPlatformAdapterExecutionState, V08CrossPlatformCapabilityStatus,
-    V08CrossPlatformEnforcementCapabilityClaimState, V08CrossPlatformEnforcementCapabilityName,
-    V08CrossPlatformEnforcementCapabilityProofEntry,
-    V08CrossPlatformEnforcementCapabilityProofReadModel,
-    V08CrossPlatformEnforcementCapabilitySurface,
-};
+use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformAdapterExecutionState;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformCapabilityStatus;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityClaimState;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityName;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilitySurface;
+use ocentra_parent_agent_protocol::policy_constants;
 
 pub(crate) fn v08_cross_platform_enforcement_capability_proof_read_model(
     generated_at: &str,

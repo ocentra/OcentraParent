@@ -31,14 +31,7 @@ async function main() {
     ])
   );
   await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/portal',
-      '--',
-      'app-game-policy-readiness-panel',
-    ])
+    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/portal', '--', 'app-game-policy-readiness-panel'])
   );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'app_game_policy_readiness']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'app_game_policy_readiness']);

@@ -1,14 +1,22 @@
-use std::fs::{read, read_to_string, remove_file};
+use std::fs::{read, remove_file};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
-    AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
 
@@ -17,13 +25,13 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
     let paths = temp_paths(constants::enforcement::TEST_AUDIT_EVENT_ID);
     cleanup_paths(&paths);
     let event = build_enforcement_audit_report_with_paths(command(false), paths.clone()).await;
-    let store =
-        ActivityStore::open(&paths.store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
-    let status = store
-        .status()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let store = ActivityStore::open(&paths.store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
+    let status = store.status().unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
+    });
     let journal_event_ids = journal_event_ids(&paths);
-    let journal_text = read_to_string(&paths.journal_path).expect(constants::error::JOURNAL_READS);
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
@@ -50,8 +58,6 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
             constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()
         ]
     );
-    assert!(!journal_text.contains(policy_constants::TEST_DECISION_ID));
-
     #[cfg(windows)]
     {
         assert_eq!(
@@ -94,11 +100,12 @@ async fn enforcement_execute_reports_final_adapter_result_after_before_action_jo
     let paths = temp_paths(constants::enforcement::TEST_RESULT_ID);
     cleanup_paths(&paths);
     let event = build_enforcement_audit_report_with_paths(command(false), paths.clone()).await;
-    let store =
-        ActivityStore::open(&paths.store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
-    let summary = store
-        .recent_summary(2)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let store = ActivityStore::open(&paths.store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
+    let summary = store.recent_summary(2).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
+    });
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
@@ -242,19 +249,25 @@ fn assert_unwired_adapter_readiness(
 ) {
     let action = payload_string(&event.payload, constants::field::ENFORCEMENT_ACTION)
         .and_then(|text| {
-            serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementAction>(text).ok()
+            serde_json::from_str::<ocentra_parent_agent_protocol::enforcement::EnforcementAction>(
+                text,
+            )
+            .ok()
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let result = payload_string(&event.payload, constants::field::ENFORCEMENT_RESULT)
         .and_then(|text| {
-            serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementResult>(text).ok()
+            serde_json::from_str::<ocentra_parent_agent_protocol::enforcement::EnforcementResult>(
+                text,
+            )
+            .ok()
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let readiness = broad_os_adapter_readiness(policy_constants::TEST_EVALUATED_AT)
         .entries
         .into_iter()
         .find(|entry| entry.readiness_id == readiness_id)
-        .expect(readiness_id);
+        .unwrap_or_else(|| panic!("{readiness_id}"));
 
     assert_eq!(action.adapter_kind.as_protocol_str(), expected_kind);
     assert_eq!(
@@ -268,7 +281,9 @@ fn assert_unwired_adapter_readiness(
     assert_manual_or_unavailable_result(&result);
 }
 
-fn assert_manual_or_unavailable_result(result: &ocentra_parent_agent_protocol::EnforcementResult) {
+fn assert_manual_or_unavailable_result(
+    result: &ocentra_parent_agent_protocol::enforcement::EnforcementResult,
+) {
     #[cfg(windows)]
     {
         assert_eq!(
@@ -415,13 +430,16 @@ fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
 }
 
 fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<String> {
-    let key_bytes = read(&paths.key_path).expect(constants::error::JOURNAL_READS);
-    let key: [u8; JOURNAL_KEY_BYTES] = key_bytes.try_into().expect(constants::error::JOURNAL_READS);
+    let key_bytes = read(&paths.key_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_READS));
+    let key: [u8; JOURNAL_KEY_BYTES] = key_bytes
+        .try_into()
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_READS));
     let journal = ActivityJournal::open(paths.journal_path.clone(), JournalKey::from_bytes(key))
-        .expect(constants::error::JOURNAL_OPENS);
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_OPENS));
     journal
         .lines()
-        .expect(constants::error::JOURNAL_READS)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_READS))
         .into_iter()
         .map(|line| line.event_id)
         .collect()

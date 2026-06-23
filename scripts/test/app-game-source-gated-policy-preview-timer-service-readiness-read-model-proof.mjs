@@ -83,7 +83,8 @@ const proof = {
     rawPrivateSourceRowsIncluded: serviceReadinessReadModel.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model.ts',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model.ts',
     schemaRules:
       'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules.ts',
     consumerSource:

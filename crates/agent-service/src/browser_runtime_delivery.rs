@@ -1,12 +1,21 @@
+use ocentra_parent_agent_core::browser_event_runtime::BrowserRuntimeInput;
+#[cfg(test)]
 use ocentra_parent_agent_core::browser_event_runtime::{
-    publish_browser_runtime_chain_for_input, BrowserRuntimeInput, BrowserRuntimeReport,
+    publish_browser_runtime_chain_for_input, BrowserRuntimeReport,
 };
-use ocentra_parent_agent_protocol::{
-    constants, BrowserCapabilityStatus, BrowserEvidenceReadModel, BrowserQueryVisibilityLabel,
-    BrowserRuntimeEventPayload, BrowserRuntimePhase, BrowserTabEvidence, PolicyPreviewReadModel,
-    PolicyPreviewReadModelRow,
+use ocentra_parent_agent_protocol::activity::{
+    policy_preview::PolicyPreviewReadModel, policy_preview::PolicyPreviewReadModelRow,
 };
+use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::browser::{BrowserRuntimeEventPayload, BrowserRuntimePhase};
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_read_model::{
+    BrowserEvidenceReadModel, BrowserTabEvidence,
+};
+use ocentra_parent_agent_protocol::constants;
 
+#[cfg(test)]
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct BrowserRuntimeServiceDeliveryReport {
     pub(crate) observed_rows: usize,
@@ -21,6 +30,7 @@ pub(crate) struct BrowserRuntimeServiceDeliveryReport {
     pub(crate) read_model_projection_events: usize,
 }
 
+#[cfg(test)]
 pub(crate) async fn deliver_browser_runtime_for_read_model(
     read_model: &BrowserEvidenceReadModel,
 ) -> BrowserRuntimeServiceDeliveryReport {
@@ -71,7 +81,7 @@ pub(crate) fn browser_runtime_input_from_row_with_policy_preview(
         action_intent_id: None,
         intervention_command_ref: None,
         intervention_result_ref: None,
-        audit_entry_ref: latest_event_ref.clone(),
+        audit_entry_ref: latest_event_ref,
         read_model_ref: read_model_ref(read_model, row),
         observed_at: row.observed_at.clone(),
         exact_url_claimed: row_has_exact_url_boundary(row),
@@ -94,6 +104,7 @@ pub(crate) fn browser_runtime_input_from_row_with_policy_preview(
     input
 }
 
+#[cfg(test)]
 impl BrowserRuntimeServiceDeliveryReport {
     fn record_success(&mut self, row: &BrowserTabEvidence, report: &BrowserRuntimeReport) {
         self.delivered_rows += 1;
@@ -163,6 +174,7 @@ fn action_intent_id_from_policy_decision(preview: &PolicyPreviewReadModelRow) ->
     value
 }
 
+#[cfg(test)]
 fn count_phase(report: &BrowserRuntimeReport, phase: BrowserRuntimePhase) -> usize {
     report
         .stored_events

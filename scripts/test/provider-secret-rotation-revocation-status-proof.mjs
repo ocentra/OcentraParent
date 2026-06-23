@@ -144,8 +144,7 @@ function assertReadModel(readModel) {
 
 async function assertPackageExports() {
   const contract = await import('@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status');
-  const readModel =
-    await import('@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status-read-model');
+  const readModel = await import('@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status-read-model');
   assert.equal(typeof contract.ProviderSecretRotationRevocationStatusReadModelSchema.parse, 'function');
   assert.equal(readModel.ProviderSecretRotationRevocationStatusReadModel.entries.length, 7);
 }

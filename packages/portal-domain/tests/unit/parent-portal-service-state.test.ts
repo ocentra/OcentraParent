@@ -84,20 +84,7 @@ function parentPortalProductShellRowTests(): void {
       connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
       events: [],
     });
-    const rowAreas = new Set(state.parentPortalRows.map((row) => normalizedPortalTarget(row.primaryArea ?? '')));
-    const selectableTargets = selectableParentPortalTargets();
-    const missingTargets: string[] = [];
-
-    for (const route of productShellRoutes()) {
-      const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
-      const control = selectableTargets.get(routeContext?.selectedControlId ?? '');
-      if (control === undefined) {
-        throw new Error(`Missing selectable control for route ${route} and id ${routeContext?.selectedControlId ?? ''}`);
-      }
-      if (!rowAreas.has(normalizedPortalTarget(control?.name ?? ''))) {
-        missingTargets.push(`${route}:${routeContext?.selectedControlId ?? ''}:${control?.name ?? ''}`);
-      }
-    }
+    const missingTargets = collectMissingProductShellTargets(state.parentPortalRows);
     expect(missingTargets).toEqual([]);
     expect(rowByPrimaryArea(state.parentPortalRows, 'AI SETUP')).toMatchObject({
       label: 'Assistant entry',
@@ -135,6 +122,28 @@ function parentPortalProductShellRowTests(): void {
       trend: 'degraded',
     });
   });
+}
+
+function collectMissingProductShellTargets(
+  parentPortalRows: ReturnType<typeof resolveParentPortalServiceState>['parentPortalRows']
+): string[] {
+  const rowAreas = new Set(parentPortalRows.map((row) => normalizedPortalTarget(row.primaryArea ?? '')));
+  const selectableTargets = selectableParentPortalTargets();
+  const missingTargets: string[] = [];
+
+  for (const route of productShellRoutes()) {
+    const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
+    const selectedControlId = routeContext?.selectedControlId ?? '';
+    const control = selectableTargets.get(selectedControlId);
+    if (control === undefined) {
+      throw new Error(`Missing selectable control for route ${route} and id ${selectedControlId}`);
+    }
+    if (!rowAreas.has(normalizedPortalTarget(control.name))) {
+      missingTargets.push(`${route}:${selectedControlId}:${control.name}`);
+    }
+  }
+
+  return missingTargets;
 }
 
 function parentPortalRouteOwnershipNormalizationTests(): void {

@@ -1,21 +1,32 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,
-    AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    AppGameChildRuntimeTransportReceiptReadModel, AppGameRuntimeEvidenceRow, LogFieldValue,
-    LogFields, ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
-    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_READY,
-    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_ID, APP_GAME_CLASSIFICATION_KNOWN_APP,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
-    APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE, APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL,
-    APP_GAME_JOURNAL_FIELD_REPLAY_STATE, APP_GAME_JOURNAL_FIELD_ROW_JSON,
-    APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_REPLAY_STATE_STORED,
-    APP_GAME_JOURNAL_ROW_KIND_RUNTIME, APP_GAME_JOURNAL_SOURCE_ID,
-    APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameRuntimeEvidenceRow, APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_READY,
+    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
+    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
+    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
+    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_RUNTIME,
+    APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_RUNTIME_RUNNING,
+    APP_GAME_SCHEMA_VERSION,
+};
+use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::{
+    AppGameChildRuntimeTransportReceiptReadModel,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_ID,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK, lan_pairing::LanPairingRuntime,
@@ -39,13 +50,18 @@ async fn child_runtime_transport_receipt_command_reports_live_read_model() {
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     store
         .ingest_events(&[runtime_activity_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+        });
 
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model = child_runtime_transport_receipt_payload(
         &event.payload[constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL],
@@ -101,10 +117,10 @@ fn child_runtime_transport_receipt_payload(
     value: &LogFieldValue,
 ) -> AppGameChildRuntimeTransportReceiptReadModel {
     match value {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        LogFieldValue::String(text) => serde_json::from_str(text).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
@@ -117,9 +133,9 @@ fn runtime_activity_event() -> ActivityEvent {
     );
     fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&row).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serde_json::to_string(&row).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        })),
     );
     fields.insert(
         APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL.to_string(),

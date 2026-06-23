@@ -1,6 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanPairingDeviceReachability, LanPairingTrustState, LanSelectedRouteTarget,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+use ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget;
 
 pub(super) fn child_device_id(selected: Option<&LanSelectedRouteTarget>) -> String {
     selected
@@ -54,7 +55,8 @@ pub(super) fn offline_at(selected: Option<&LanSelectedRouteTarget>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use ocentra_parent_agent_protocol::{LanPairingNetworkMode, LanSelectedRouteTarget};
+    use ocentra_parent_agent_protocol::lan_pairing::LanPairingNetworkMode;
+    use ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget;
 
     use super::*;
 

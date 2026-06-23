@@ -1,10 +1,15 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityNetworkProtocol, ActivityNetworkTcpState, ActivityObserver, ActivitySubjectKind,
-    LogFieldValue,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use super::{network_observation_event, NetworkObservation};
+
+type TestResult = Result<(), String>;
 
 #[test]
 fn network_observation_event_maps_ip_only_socket_contract() {
@@ -125,13 +130,16 @@ fn netstat_parser_maps_tcp_connection_to_network_observation() {
 
 #[cfg(windows)]
 #[test]
-fn collect_network_snapshot_observes_current_process_socket() {
-    let listener = std::net::TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT)
-        .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
-    let local_port = listener
-        .local_addr()
-        .expect(constants::error::NETWORK_CAPTURE_OBSERVES_SOCKET)
-        .port();
+fn collect_network_snapshot_observes_current_process_socket() -> TestResult {
+    let listener = ok(
+        std::net::TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT),
+        constants::error::LOCALHOST_BIND_SUCCEEDS,
+    )?;
+    let local_port = ok(
+        listener.local_addr(),
+        constants::error::NETWORK_CAPTURE_OBSERVES_SOCKET,
+    )?
+    .port();
     let current_pid = std::process::id();
 
     let observations = super::collect_network_snapshot(usize::MAX);
@@ -139,6 +147,8 @@ fn collect_network_snapshot_observes_current_process_socket() {
     assert!(observations.iter().any(|observation| {
         observation.pid == Some(current_pid) && observation.local_port == Some(local_port)
     }));
+
+    Ok(())
 }
 
 fn assert_string_field(event: &ActivityEvent, key: &str, value: &str) {
@@ -150,4 +160,8 @@ fn assert_string_field(event: &ActivityEvent, key: &str, value: &str) {
 
 fn assert_number_field(event: &ActivityEvent, key: &str, value: f64) {
     assert_eq!(event.fields.get(key), Some(&LogFieldValue::Number(value)));
+}
+
+fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

@@ -38,7 +38,6 @@ mod activity_surface_store;
 mod app;
 mod browser_evidence_payload;
 mod browser_intervention_page;
-#[cfg_attr(not(test), allow(dead_code))]
 mod browser_inventory_read_model;
 #[cfg(test)]
 mod browser_inventory_read_model_tests;
@@ -58,7 +57,6 @@ mod browser_policy_runtime;
 mod browser_policy_runtime_support;
 mod browser_policy_store;
 mod browser_runtime;
-#[cfg_attr(not(test), allow(dead_code))]
 mod browser_runtime_delivery;
 #[cfg(test)]
 mod browser_runtime_delivery_tests;
@@ -74,18 +72,14 @@ mod browser_runtime_stream_tests;
 mod browser_runtime_tests;
 pub mod dev_log;
 mod enforcement_api;
-#[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_browser_domain_adapter_app_control_proof_states;
-#[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_browser_domain_adapter_proof_read_model;
 #[cfg(test)]
 mod enforcement_browser_domain_adapter_proof_read_model_tests;
 mod enforcement_capability;
-#[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_cross_platform_capability_proof_read_model;
 #[cfg(test)]
 mod enforcement_cross_platform_capability_proof_read_model_tests;
-#[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_os_adapter_product_proof_read_model;
 #[cfg(test)]
 mod enforcement_os_adapter_product_proof_read_model_tests;
@@ -106,7 +100,6 @@ mod enforcement_timer_state_path;
 mod enforcement_timer_tests;
 mod event_builder;
 mod fields;
-#[cfg_attr(not(test), allow(dead_code))]
 mod host_identity_read_model;
 #[cfg(test)]
 mod host_identity_read_model_tests;
@@ -135,7 +128,6 @@ mod lan_pairing_household_device_spine_tests;
 #[path = "../tests/unit/lan_pairing_multidevice.rs"]
 mod lan_pairing_multidevice_tests;
 mod lan_pairing_payload;
-#[cfg_attr(not(test), allow(dead_code))]
 mod lan_pairing_provider_selection_read_model;
 #[cfg(test)]
 #[path = "../tests/unit/lan_pairing_provider_selection_read_model.rs"]
@@ -193,7 +185,6 @@ mod local_ai_runtime_model_selection;
 mod local_ai_runtime_payload;
 #[cfg(test)]
 mod local_ai_runtime_payload_tests;
-#[cfg_attr(not(test), allow(dead_code))]
 mod local_ai_runtime_provider_proof_read_model;
 #[cfg(test)]
 mod local_ai_runtime_provider_proof_read_model_tests;
@@ -299,15 +290,12 @@ mod time;
 #[cfg(test)]
 mod tracking_read_model_service_tests;
 mod websocket;
-#[cfg_attr(not(test), allow(dead_code))]
 mod windows_adapter_artifact_gate_read_model;
 #[cfg(test)]
 mod windows_adapter_artifact_gate_read_model_tests;
-#[cfg_attr(not(test), allow(dead_code))]
 mod windows_adapter_artifact_ingestion_read_model;
 #[cfg(test)]
 mod windows_adapter_artifact_ingestion_read_model_tests;
-#[cfg_attr(not(test), allow(dead_code))]
 mod windows_adapter_capability_read_model;
 #[cfg(test)]
 mod windows_adapter_capability_read_model_tests;

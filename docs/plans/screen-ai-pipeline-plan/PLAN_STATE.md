@@ -20,25 +20,61 @@ Generated from the existing `screen-ai-pipeline-plan` docs. This is the default 
 
 This folder is the required second-stage integration plan for the complete screen-capture plus AI-analysis plus policy/action path.
 
+## Current ownership interpretation
+
+```text
+screen-ai-pipeline-plan:
+  Integration proof owner for trigger -> capture -> AI context/result -> policy handoff -> dry-run/action boundary -> journal/read-model/portal -> custody/delete -> live operator -> performance/backpressure -> rollout.
+
+screen-plan:
+  Raw capture mechanics, protected surfaces, disclosure, local screen settings, screenshot custody, and capture-source ownership.
+
+screen-domain:
+  Screen capture, evidence, OCR, VLM, disclosure, settings, screen-intelligence router, and screen handoff contracts. This is a real contract package.
+
+ai-plan/schema-domain:
+  Shared AI context/result/provider/degradation contracts. `ai-domain` is package identity and focused tests; canonical shared AI contracts live in `schema-domain`.
+
+policy-control-plane-plan:
+  Policy authority, parent-rule precedence, policy decision semantics, and no-direct-AI-authority boundary.
+
+v0-8-enforcement-control-plan:
+  Adapter execution, rollback, supported runtime proof, and enforcement authority.
+
+data-custody-storage-plan:
+  Retention/export/delete/privacy/custody for raw images, queue artifacts, screenshots, AI outputs, and proof artifacts.
+
+portal-ux-household-surfaces-plan:
+  Rendered parent-visible projections, screenshots, route proof, and no-fake-data UI boundaries.
+
+browser/app-game/network/tracking plans:
+  Trigger/source truth for browser, native app/game, network, tracking, and related source evidence.
+
+agent-protocol/agent-service/agent-core:
+  Selected protocol, service, queue, journal, read-model, and WebSocket seams.
+```
+
 ## Resume route
 
 1. Read this file.
 2. Read `NEXT_ACTIONS.md` when starting/resuming.
 3. Read `WORKPACK_INDEX.md`.
-4. Open only the assigned workpack.
-5. Use `CHECKLIST_INDEX.md` for exact checklist sections.
-6. Use `PROOF_INDEX.md` for proof artifacts.
+4. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+5. Open only the assigned workpack.
+6. Use `CHECKLIST_INDEX.md` for exact checklist sections.
+7. Use `PROOF_INDEX.md` for proof artifacts.
 
 ## Current snapshot source
 
 - No `current-*.md` snapshot exists.
-- Use this file, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, and the assigned workpack as the current audited route until fresh proof is retained.
+- Use this file, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `WORKPACK_FAMILIES.md` when needed, and the assigned workpack as the current audited route until fresh proof is retained.
 
 ## What is already present / proved
 
 - Real source surface exists across `crates/agent-service`, `crates/agent-core`, `packages/screen-domain`, `packages/ai-domain`, `packages/portal-domain`, and `apps/portal`.
 - Real test surface exists across `packages/*/tests`, `apps/portal/tests`, and `scripts/test`.
 - `implementation-checklist.md`, the workpacks, and `pipeline-proof-matrix.md` all define screen-to-AI pipeline scenarios and proof expectations under `output/screen-ai-pipeline-proof/`.
+- Current source role interpretation: `screen-domain` is a real screen contract package; `ai-domain` is package identity/focused tests with canonical shared AI contracts in `schema-domain`.
 
 ## Open gaps / missing product runtime
 
@@ -49,6 +85,31 @@ This folder is the required second-stage integration plan for the complete scree
   - `packages/screen-domain/src/screen-evidence.ts`
   - `packages/portal-domain/src/contracts.ts`
   - `packages/parent-domain/src/local-ai-runtime.ts`
+
+## Current coupling risks
+
+```text
+- Missing retained proof root blocks closure.
+- Missing PLAN_PROOF_MANIFEST blocks slice closure.
+- Source-only proof is not product proof.
+- Mock-only proof is not product proof.
+- Local capture proof is not AI analysis proof.
+- AI result proof is not policy authority.
+- Policy decision proof is not enforcement execution.
+- Dry-run proof is not adapter runtime proof.
+- Live-operator artifact-gate proof is not a live capture rerun.
+- Custody proof without deletion/retention artifacts is incomplete.
+- Portal screenshot proof is not pipeline/runtime proof.
+```
+
+## Current proof interpretation
+
+```text
+output/screen-ai-pipeline-proof/ is the scenario-based retained proof root.
+docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md is required before any slice-level closeout claim.
+Workpack proof may use scenario-local proof-summary.json or richer numbered bundles, but the selected workpack must state which artifact shape is accepted before any row is checked.
+All rows remain open until retained artifacts, command logs, negative cases, no-claim boundaries, and proof manifest entries exist.
+```
 
 ## Checklist summary
 
@@ -81,6 +142,7 @@ This folder is the required second-stage integration plan for the complete scree
 - `README_FULL_ORIGINAL.md` unless you need historical full README context.
 - Full `implementation-checklist.md` unless `CHECKLIST_INDEX.md` names exact section/row.
 - All workpacks; use `WORKPACK_INDEX.md`.
+- `WORKPACK_FAMILIES.md` unless selected workpack owner/proof family is unclear.
 - Source inventories and pasted-content audits unless source ownership is unclear.
 - Historical checkpoint/proof docs unless `PROOF_INDEX.md` or the assigned workpack names them.
 
@@ -89,17 +151,18 @@ This folder is the required second-stage integration plan for the complete scree
 - See `PLAN_HEALTH.md` before claiming the whole plan is complete or stale.
 - Treat any older `checked`, retained-proof, or completion wording elsewhere in this folder as stale until it matches the current proof artifacts and checklist rows.
 
-## HID Execution Guard (added 2026-06-12)
+## HID Execution Guard
 
 - Scope and completion source:
   - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned `WORKPACK_INDEX.md` and `NEXT_ACTIONS.md`.
+  - use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
+  - a real test run log or explicit known blocker from the assigned implementation boundary,
   - retained scenario proof under `output/screen-ai-pipeline-proof/`,
   - a supporting manifest under `docs/proof/screen-ai-pipeline-plan/` when the workpack claims slice closure.
 - Current audit state: the plan proof root is absent and `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md` is missing, so no checklist row is currently eligible for a fresh checked claim.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice and retained locally.
+- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, rollback/teardown, redaction/custody, no-direct-policy-authority, and retained proof artifacts are present for the assigned slice.
 
 ## HID execution blueprint
 

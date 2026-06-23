@@ -1,12 +1,21 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, policy_preview_finding_kinds_csv, ChildProfileReference,
-    FamilyReference, LocalAiParentRuleContextRef, LogFieldValue, ParentActorReference,
-    ParentActorRole, ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    PolicyAction, PolicyAssistantConfirmationState, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyPreviewFindingKind, PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel,
-    PolicyPreviewReadModelRow, PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus,
-    PolicyRule, PolicySourceStatus, PolicySourceSurface, PolicyTarget, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::{
+    ParentActorReference, ParentActorRole, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyRule, PolicyTarget,
+    PolicyTargetType,
 };
+use ocentra_parent_agent_protocol::activity::policy_context::{
+    ChildProfileReference, FamilyReference, LocalAiParentRuleContextRef, ParentDeviceReference,
+};
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyAssistantConfirmationState, PolicyPreviewFindingKind, PolicyPreviewManualReviewState,
+    PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
+    PolicyPreviewSaveState, PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus,
+    PolicySourceStatus, PolicySourceSurface,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::policy_preview_finding_kinds_csv;
 
 use crate::policy_preview_payload::policy_preview_read_model_payload;
 
@@ -16,6 +25,12 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
 
     let payload = policy_preview_read_model_payload(&read_model);
 
+    assert_preview_payload_core(&payload);
+    assert_preview_payload_review(&payload);
+    assert_preview_payload_network_mapping(&payload);
+}
+
+fn assert_preview_payload_core(payload: &std::collections::BTreeMap<String, LogFieldValue>) {
     assert_eq!(
         payload.get(constants::field::POLICY_PREVIEW_ID),
         Some(&LogFieldValue::String(policy::TEST_PREVIEW_ID.to_string()))
@@ -74,6 +89,9 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
         payload.get(constants::field::POLICY_REQUEST_STATUS),
         Some(&LogFieldValue::Null(()))
     );
+}
+
+fn assert_preview_payload_review(payload: &std::collections::BTreeMap<String, LogFieldValue>) {
     assert_eq!(
         payload.get(constants::field::POLICY_APPROVAL_ID),
         Some(&LogFieldValue::String("approval-1".to_string()))
@@ -104,6 +122,21 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
         payload.get(constants::field::POLICY_AUDIT_REFERENCE_ID),
         Some(&LogFieldValue::String("audit-1".to_string()))
     );
+    assert_eq!(
+        payload.get(policy::PARENT_RULE_CONTEXT_REFERENCE_COUNT_FIELD),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(policy::PARENT_RULE_CONTEXT_REF_IDS_FIELD),
+        Some(&LogFieldValue::String(
+            policy::TEST_PARENT_RULE_CONTEXT_REF_ID.to_string()
+        ))
+    );
+}
+
+fn assert_preview_payload_network_mapping(
+    payload: &std::collections::BTreeMap<String, LogFieldValue>,
+) {
     assert_eq!(
         payload.get(constants::field::NETWORK_EVIDENCE_GRADE),
         Some(&LogFieldValue::String(
@@ -137,16 +170,6 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
     assert_eq!(
         payload.get(constants::field::LOCAL_AI_RESULT_ID),
         Some(&LogFieldValue::Null(()))
-    );
-    assert_eq!(
-        payload.get(policy::PARENT_RULE_CONTEXT_REFERENCE_COUNT_FIELD),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(policy::PARENT_RULE_CONTEXT_REF_IDS_FIELD),
-        Some(&LogFieldValue::String(
-            policy::TEST_PARENT_RULE_CONTEXT_REF_ID.to_string()
-        ))
     );
 }
 
@@ -184,14 +207,8 @@ fn read_model_with_network_mapping() -> PolicyPreviewReadModel {
                 enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
                 expires_at: None,
             },
-            policy_preview_save_state: Some(
-                serde_json::from_value(serde_json::json!("preview-required"))
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
-            policy_preview_manual_review_state: Some(
-                serde_json::from_value(serde_json::json!("required"))
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            policy_preview_save_state: Some(PolicyPreviewSaveState::PreviewRequired),
+            policy_preview_manual_review_state: Some(PolicyPreviewManualReviewState::Required),
             policy_preview_target_state: Some(PolicyPreviewTargetState::Unsupported),
             policy_preview_target_explanation_code: Some(
                 constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string(),

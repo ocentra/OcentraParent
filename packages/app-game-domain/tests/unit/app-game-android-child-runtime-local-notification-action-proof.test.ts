@@ -3,7 +3,7 @@ import {
   AppGameAndroidChildRuntimeLocalNotificationActionProofSchema,
   createAppGameAndroidChildRuntimeLocalNotificationActionProof,
   summarizeAppGameAndroidChildRuntimeLocalNotificationActionProof,
-} from '../../src/app-game-android-child-runtime-local-notification-action-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-child-runtime-local-notification-action-proof';
 
 const expectRejectedNotificationAction = (candidate: unknown): void => {
   expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse(candidate).success).toBe(false);

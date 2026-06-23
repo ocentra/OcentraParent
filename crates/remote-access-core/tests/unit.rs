@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 #[path = "unit/session.rs"]
 mod session;
 
@@ -38,9 +39,9 @@ fn requested_event(
 ) -> RemoteAccessSessionRequestedEvent {
     RemoteAccessSessionRequestedEvent {
         aggregate_id: RemoteAccessAggregateId::parse(aggregate_id)
-            .expect("remote access aggregate id"),
+            .expect_value("remote access aggregate id"),
         session_id: RemoteAccessSessionId::parse(REMOTE_ACCESS_SESSION_ID)
-            .expect("remote access session id"),
+            .expect_value("remote access session id"),
         request,
     }
 }

@@ -1,18 +1,15 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 const TrackingAndroidEmulatorArtifactInventoryCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingAndroidEmulatorArtifactInventoryRefSchema =
-  brandedNonEmptyStringSchema('TrackingAndroidEmulatorArtifactInventoryRef');
+export const TrackingAndroidEmulatorArtifactInventoryRefSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidEmulatorArtifactInventoryRef'
+);
 
-export const TrackingAndroidEmulatorArtifactInventoryRowIdSchema =
-  brandedNonEmptyStringSchema('TrackingAndroidEmulatorArtifactInventoryRowId');
+export const TrackingAndroidEmulatorArtifactInventoryRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingAndroidEmulatorArtifactInventoryRowId'
+);
 
 export const TrackingAndroidEmulatorArtifactInventoryStatusSchema = Schema.Literal(
   'android-emulator-local-artifacts-present-physical-device-required'
@@ -348,4 +345,3 @@ function androidEmulatorArtifactInventoryNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
-

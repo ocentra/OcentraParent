@@ -3,7 +3,8 @@ import {
   V08SupportedAdapterRuntimeProofReadModel,
 } from '@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { parseEnforcementSupportedAdapterRuntimeProofEvent } from '../../src/enforcement-supported-adapter-runtime-proof-adapter';
 
 type AcceptedSupportedAdapterProofEvent = Extract<

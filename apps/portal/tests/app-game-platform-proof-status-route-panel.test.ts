@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { createAppGamePlatformProofStatusPanelIntent } from '@ocentra-parent/portal-domain/app-game-platform-proof-status-panel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import {
@@ -49,8 +49,7 @@ describe('app-game platform proof status portal route panel', () => {
     });
 
     const platformProofStatusReadModel =
-      liveActivity.appGamePlatformProofStatusReadModel !== null &&
-      liveActivity.appGamePlatformProofStatusReadModel.ok
+      liveActivity.appGamePlatformProofStatusReadModel !== null && liveActivity.appGamePlatformProofStatusReadModel.ok
         ? normalizeAppGamePlatformProofStatusReadModel(liveActivity.appGamePlatformProofStatusReadModel.value)
         : null;
 

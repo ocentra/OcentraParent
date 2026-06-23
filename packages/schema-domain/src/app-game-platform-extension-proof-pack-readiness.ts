@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentPlatformSchema, ParentTimestampSchema } from './family-reference-primitives';
 const SchemaVersion = 'app-game-platform-extension-proof-pack-readiness';
 const GeneratedAt = '2026-06-05T20:47:00.000Z';
@@ -85,7 +80,9 @@ export const AppGamePlatformExtensionNonClaimSchema = withParser(Schema.Literal(
 
 const PlatformExtensionRowIdSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionProofPackReadinessRowId');
 const PlatformExtensionRefSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionProofPackReadinessRef');
-const PlatformExtensionClaimBoundarySchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionProofPackReadinessClaimBoundary');
+const PlatformExtensionClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppGamePlatformExtensionProofPackReadinessClaimBoundary'
+);
 
 const PlatformExtensionReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppGamePlatformExtensionProofPackReadinessSchemaVersionSchema,
@@ -226,4 +223,3 @@ function platformExtensionReadinessReadModelIsComplete(
     RequiredNonClaims.every((nonClaim) => readModel.nonClaims.includes(nonClaim))
   );
 }
-

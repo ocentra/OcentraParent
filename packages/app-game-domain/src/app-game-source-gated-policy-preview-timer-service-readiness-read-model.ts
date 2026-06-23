@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-handoff';
@@ -27,11 +22,17 @@ import {
   appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelMatchesHandoff,
 } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelId');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowId');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowId'
+);
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelContractRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelContractRef');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelSummaryRefSchema =
@@ -253,4 +254,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModel
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelState };
-

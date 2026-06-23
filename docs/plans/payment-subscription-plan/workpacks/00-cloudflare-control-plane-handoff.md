@@ -4,6 +4,15 @@
 
 Consume the shared Cloudflare plan handoff before any payment runtime slice starts.
 
+## Ownership boundary
+
+```text
+cloudflare-control-plane-plan owns infra/cloudflare, shared Worker/API module, bindings, auth boundary, route manifest, local dev/test shape, deployment promotion, and payment handoff proof.
+payment-subscription-plan owns billing runtime semantics only after the Cloudflare handoff is accepted or exactly blocked.
+account-identity-family-plan owns account/session authority.
+data-custody-storage-plan owns billing-record privacy/retention/export/delete boundaries.
+```
+
 ## First-touch surface
 
 - `docs/plans/cloudflare-control-plane-plan/PARENT_CLOUDFLARE_MODULE_SPEC.md`
@@ -42,6 +51,26 @@ Consume the shared Cloudflare plan handoff before any payment runtime slice star
 - No provider secrets are in repo.
 - Payment keeps runtime blocked until the handoff proof is explicit.
 
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+cloudflare_plan_state
+module_spec_state
+auth_boundary_state
+route_manifest_state
+local_dev_test_state
+portal_worker_smoke_state
+payment_route_group_state
+secret_boundary_state
+runtime_block_state
+upstream_handoff_artifact
+payment_runtime_no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
 ## Proof IDs
 
 - `payment-route.cloudflare-prerequisite`
@@ -64,7 +93,10 @@ Consume the shared Cloudflare plan handoff before any payment runtime slice star
 
 - Reject starting checkout or webhook runtime work before the shared handoff is explicit.
 - Reject any attempt to move shared auth, bindings, or test-runner ownership into this plan.
+- Reject any provider secret or webhook secret in client or repo-tracked code.
 
 ## Failure conditions
 
 - Do not mark any runtime payment slice ready while the Cloudflare handoff proof is missing.
+- Do not use Cloudflare route presence as payment runtime proof.
+- Do not move Cloudflare scaffold ownership into payment-subscription-plan.

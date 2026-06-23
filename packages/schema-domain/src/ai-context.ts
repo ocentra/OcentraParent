@@ -58,7 +58,10 @@ export const LocalAiEvidenceContextSourceRefSchema = withParser(
     unknownReasons: Schema.Array(LocalAiContextReasonCodeSchema),
     sourceEvidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
   }).pipe(
-    Schema.filter((reference) => reference.sourceEvidenceReferences.length > 0 || 'Expected local AI context evidence to cite stored evidence')
+    Schema.filter(
+      (reference) =>
+        reference.sourceEvidenceReferences.length > 0 || 'Expected local AI context evidence to cite stored evidence'
+    )
   )
 );
 
@@ -75,7 +78,10 @@ export const LocalAiParentRuleContextRefSchema = withParser(
     updatedAt: LocalAiTimestampSchema,
     expiresAt: Schema.Union(LocalAiTimestampSchema, Schema.Null),
   }).pipe(
-    Schema.filter((reference) => reference.targetEvidenceRefs.length > 0 || 'Expected parent rule context to cite target evidence refs')
+    Schema.filter(
+      (reference) =>
+        reference.targetEvidenceRefs.length > 0 || 'Expected parent rule context to cite target evidence refs'
+    )
   )
 );
 

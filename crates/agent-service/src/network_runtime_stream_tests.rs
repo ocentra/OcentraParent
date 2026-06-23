@@ -4,19 +4,41 @@ use ocentra_parent_agent_core::{
     activity_store::ActivityStore, network_capture::NetworkObservation,
     network_capture_event::network_observation_event,
 };
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkEndpoint,
-    ActivityNetworkFlowCounters, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
-    ActivityNetworkProtocol, ActivityNetworkTcpState, ActivityObserver, ActivitySource,
-    ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    NetworkRuntimePhase, ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
-    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
-    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
-    NETWORK_FLOW_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity::ActivityEventKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::activity::ActivityObserver;
+use ocentra_parent_agent_protocol::activity::ActivitySource;
+use ocentra_parent_agent_protocol::activity::ActivitySubject;
+use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::activity_capture::ActivityNetworkProtocol;
+use ocentra_parent_agent_protocol::activity_capture::ActivityNetworkTcpState;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkEndpoint;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowCounters;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
+use ocentra_parent_agent_protocol::transport::AgentPeer;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 use serde_json::Value;
 
 use crate::{
@@ -102,11 +124,22 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
     );
     assert_eq!(report.manual_required_rows, 1);
     assert_eq!(report.enforcement_command_events, 0);
-    assert!(!event_types.contains(&constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED));
-    assert!(!event_types.contains(&constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED));
     assert_eq!(
-        entries.last().unwrap()[constants::field::PAYLOAD]
-            [constants::field::VISIBLE_MANUAL_REQUIRED],
+        event_types,
+        vec![
+            constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
+            constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
+            constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
+            constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
+            constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
+            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
+            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
+            constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
+            constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
+        ]
+    );
+    assert_eq!(
+        entries[8][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
         true
     );
 }
@@ -118,12 +151,17 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain() {
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     store
         .ingest_events(&[network_activity_event()])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+        });
+    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let entries = stream_entries(&event.payload);
 
@@ -156,7 +194,9 @@ async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_de
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
+    });
     let network_event = network_activity_event();
     let deleted_event_id = network_event.event_id.clone();
     store
@@ -164,9 +204,12 @@ async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_de
             network_event,
             network_retention_deleted_event(&deleted_event_id),
         ])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
+        });
+    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let entries = stream_entries(&event.payload);
 
@@ -277,7 +320,7 @@ fn row(
     }
 }
 
-fn network_activity_event() -> ocentra_parent_agent_protocol::ActivityEvent {
+fn network_activity_event() -> ocentra_parent_agent_protocol::activity::ActivityEvent {
     network_observation_event(
         NetworkObservation {
             status: ActivityCaptureCapabilityStatus::Available,
@@ -360,10 +403,8 @@ fn command_envelope() -> AgentCommandEnvelope {
 
 fn stream_entries(payload: &LogFields) -> Vec<Value> {
     match payload.get(constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM) {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        Some(LogFieldValue::String(text)) => serde_json::from_str(text).unwrap_or_default(),
+        _ => Vec::new(),
     }
 }
 

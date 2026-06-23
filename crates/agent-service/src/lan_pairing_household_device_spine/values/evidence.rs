@@ -1,8 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanCanonicalHouseholdDeviceSource, LanDiscoveryEvidenceConfidence,
-    LanDiscoveryEvidenceKind, LanDiscoveryEvidenceRecord, LanDiscoveryEvidenceSource,
-    LanPairingDeviceRef,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceSource;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceConfidence;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource;
 
 use super::{compact_identifier, known_hostname};
 
@@ -13,13 +15,13 @@ struct EvidenceContext {
 
 pub(super) fn evidence_records_for(
     device: &LanPairingDeviceRef,
-    source: LanCanonicalHouseholdDeviceSource,
+    source: &LanCanonicalHouseholdDeviceSource,
 ) -> Vec<LanDiscoveryEvidenceRecord> {
-    let context = evidence_context_for(&source);
+    let context = evidence_context_for(source);
     let mut records = Vec::new();
     push_network_identity_evidence(&mut records, device, &context);
     push_agent_evidence(&mut records, device);
-    push_trusted_registry_evidence(&mut records, device, &source);
+    push_trusted_registry_evidence(&mut records, device, source);
     push_router_evidence(&mut records, device, &context);
     push_fallback_evidence(&mut records, device);
     records

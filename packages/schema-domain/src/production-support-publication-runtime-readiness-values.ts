@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportPublicationRuntimeReadinessSchemaVersionSchema = withParser(
   Schema.Literal('production-support-publication-runtime-readiness-proof')
@@ -45,10 +41,12 @@ export const ProductionSupportPublicationRuntimeReadinessSourceProofSchema = wit
   )
 );
 
-export const ProductionSupportPublicationRuntimeReadinessRuntimeRefSchema =
-  brandedNonEmptyStringSchema('ProductionSupportPublicationRuntimeReadinessRuntimeRef');
-export const ProductionSupportPublicationRuntimeReadinessManualRequirementSchema =
-  brandedNonEmptyStringSchema('ProductionSupportPublicationRuntimeReadinessManualRequirement');
+export const ProductionSupportPublicationRuntimeReadinessRuntimeRefSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportPublicationRuntimeReadinessRuntimeRef'
+);
+export const ProductionSupportPublicationRuntimeReadinessManualRequirementSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportPublicationRuntimeReadinessManualRequirement'
+);
 
 export const ProductionSupportPublicationRuntimeReadinessNonClaimSchema = withParser(
   Schema.Literal(
@@ -117,4 +115,3 @@ export const RequiredPublicationRuntimeReadinessNonClaims = [
   'no-remote-support-session',
   'no-provider-secret-custody',
 ] as const;
-

@@ -66,13 +66,9 @@ export const BillingSecurityPrivacyNonClaimSchema = withParser(
 );
 export const BillingMetadataAllowlistClaimSchema = withParser(Schema.Literal('typed-reference-only'));
 export const BillingMetadataDenylistClaimSchema = withParser(Schema.Literal('child-safety-data-excluded'));
-export const BillingLogRedactionClaimSchema = withParser(
-  Schema.Literal('redacted-billing-identifiers-only')
-);
+export const BillingLogRedactionClaimSchema = withParser(Schema.Literal('redacted-billing-identifiers-only'));
 
-export const BillingSecurityPrivacyBoundaryIdSchema = brandedNonEmptyStringSchema(
-  'BillingSecurityPrivacyBoundaryId'
-);
+export const BillingSecurityPrivacyBoundaryIdSchema = brandedNonEmptyStringSchema('BillingSecurityPrivacyBoundaryId');
 export const BillingSecurityPrivacyAuditReferenceSchema = brandedNonEmptyStringSchema(
   'BillingSecurityPrivacyAuditReference'
 );

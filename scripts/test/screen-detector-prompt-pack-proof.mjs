@@ -12,12 +12,9 @@ await main();
 async function main() {
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-  const promptPackModule = await import(
-    '../../packages/schema-domain/dist/screen-evidence-detector-prompt-pack.js'
-  );
-  const promptPackValuesModule = await import(
-    '../../packages/schema-domain/dist/screen-evidence-detector-prompt-pack-values.js'
-  );
+  const promptPackModule = await import('../../packages/schema-domain/dist/screen-evidence-detector-prompt-pack.js');
+  const promptPackValuesModule =
+    await import('../../packages/schema-domain/dist/screen-evidence-detector-prompt-pack-values.js');
   const screenEvidence = {
     ScreenDetectorPromptDefinitionSchema: promptPackModule.ScreenDetectorPromptDefinitionSchema,
     ScreenDetectorPromptOutputSchema: promptPackModule.ScreenDetectorPromptOutputSchema,

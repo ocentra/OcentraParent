@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel } from './app-install-purchase-provider-store-execution-readiness-proof';
 import { AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel } from './app-install-purchase-runtime-report-writer-delivery-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -65,9 +60,15 @@ const ProviderStoreReportStatusRuntimeNonClaimSchema = withParser(
   Schema.Literal(...ProviderStoreReportStatusRuntimeNonClaims)
 );
 
-const ProviderStoreReportStatusRuntimeRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRuntimeRowId');
-const ProviderStoreReportStatusRuntimeRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRuntimeRef');
-const ProviderStoreReportStatusRuntimeBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRuntimeBoundary');
+const ProviderStoreReportStatusRuntimeRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreReportStatusRuntimeRowId'
+);
+const ProviderStoreReportStatusRuntimeRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreReportStatusRuntimeRef'
+);
+const ProviderStoreReportStatusRuntimeBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseProviderStoreReportStatusRuntimeBoundary'
+);
 
 const ProviderStoreReportStatusRuntimeRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreReportStatusRuntimeProofSchemaVersionSchema,
@@ -280,4 +281,3 @@ function providerStoreReportStatusRuntimeProofIsHonest(
     proof.knownGaps.length > 0
   );
 }
-

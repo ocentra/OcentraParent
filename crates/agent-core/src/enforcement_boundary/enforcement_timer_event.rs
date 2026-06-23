@@ -1,7 +1,8 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::enforcement::{
     EnforcementAction, EnforcementIntent, EnforcementIntentSource, EnforcementResult,
     EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
-    EnforcementTimerEventKind, EnforcementUnavailableReason, PolicyAction,
+    EnforcementTimerEventKind, EnforcementUnavailableReason,
 };
 
 use super::EnforcementBoundaryInput;

@@ -19,7 +19,8 @@ const optionalVisibilityModeValuesModule = await import(
 );
 
 const screenEvidence = {
-  ScreenOptionalVisibilityModeSchemaVersion: optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
+  ScreenOptionalVisibilityModeSchemaVersion:
+    optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
   ScreenRawScreenshotRetentionOptInSettingSchema:
     optionalVisibilityModeModule.ScreenRawScreenshotRetentionOptInSettingSchema,
   ScreenLiveViewOptInSettingSchema: optionalVisibilityModeModule.ScreenLiveViewOptInSettingSchema,

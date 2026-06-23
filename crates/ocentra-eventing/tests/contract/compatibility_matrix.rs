@@ -73,10 +73,10 @@ fn compatibility_matrix_marks_deviations_and_manual_required_scope() {
         EventCompatibilityStatus::ManualRequired
     );
     for entry in matrix.entries() {
-        assert!(!entry.source_semantic().is_empty());
-        assert!(!entry.rust_surface().is_empty());
-        assert!(!entry.proof_artifact().is_empty());
-        assert!(!entry.compatibility_note().is_empty());
+        assert_ne!(entry.source_semantic(), "");
+        assert_ne!(entry.rust_surface(), "");
+        assert_ne!(entry.proof_artifact(), "");
+        assert_ne!(entry.compatibility_note(), "");
     }
 }
 
@@ -85,10 +85,12 @@ fn compatibility_matrix_renders_deterministic_markdown() {
     let matrix = EventCompatibilityMatrix::ocentra_games_lineage();
     let markdown = matrix.render_markdown();
 
-    assert!(markdown.starts_with("# Eventing Compatibility Matrix"));
-    assert!(markdown
-        .contains("| Semantic Id | Source Semantic | Rust Surface | Status | Proof | Note |"));
-    assert!(markdown.contains("| class-backed-contracts | Class-backed contracts expose canonical static event types | Payload-derived DomainEvent::contract plus EventContractRegistry descriptors | intentional-deviation |"));
-    assert!(markdown.contains("| payload-republish-override | Payload-carried republish or force override | Explicit idempotency rejection; constrained override remains unclaimed | intentional-deviation |"));
-    assert!(markdown.contains("| broker-backed-delivery | Cross-process or broker-backed event delivery | Stored envelope transport boundary is not yet broker-backed | manual-required |"));
+    let lines = markdown.lines().collect::<Vec<_>>();
+    assert_eq!(lines.first().copied(), Some("# Eventing Compatibility Matrix"));
+    assert!(lines
+        .iter()
+        .any(|line| *line == "| Semantic Id | Source Semantic | Rust Surface | Status | Proof | Note |"));
+    assert!(lines.iter().any(|line| *line == "| class-backed-contracts | Class-backed contracts expose canonical static event types | Payload-derived DomainEvent::contract plus EventContractRegistry descriptors | intentional-deviation |"));
+    assert!(lines.iter().any(|line| *line == "| payload-republish-override | Payload-carried republish or force override | Explicit idempotency rejection; constrained override remains unclaimed | intentional-deviation |"));
+    assert!(lines.iter().any(|line| *line == "| broker-backed-delivery | Cross-process or broker-backed event delivery | Stored envelope transport boundary is not yet broker-backed | manual-required |"));
 }

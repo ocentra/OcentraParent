@@ -5,10 +5,7 @@ import {
   type LocalAiEvidenceContextBuildResult,
   type LocalAiStoredEvidenceContextBuildInput,
 } from './ai-context';
-import {
-  LocalAiEvidenceContextSummarySchema,
-  LocalAiRejectedFieldSchema,
-} from './ai-context-primitives';
+import { LocalAiEvidenceContextSummarySchema, LocalAiRejectedFieldSchema } from './ai-context-primitives';
 import { selectLocalAiEvidenceContextInput, type LocalAiEvidenceContextSelection } from './local-ai-context-selection';
 import { contextForInput, resultFor } from './local-ai-context-result';
 

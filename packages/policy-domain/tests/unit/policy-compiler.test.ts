@@ -8,6 +8,86 @@ import {
   parsePolicyCompiledArtifact,
 } from '@ocentra-parent/schema-domain/policy-compiler';
 
+function sampleSupportMatrixRows() {
+  return [
+    { targetKind: 'child-profile', capabilityState: PolicyCompilerCapabilityState.ManualRequired },
+    { targetKind: 'device', capabilityState: PolicyCompilerCapabilityState.Unsupported },
+    { targetKind: 'app', capabilityState: PolicyCompilerCapabilityState.Supported },
+    { targetKind: 'site', capabilityState: PolicyCompilerCapabilityState.ManualRequired },
+    { targetKind: 'category', capabilityState: PolicyCompilerCapabilityState.Supported },
+    { targetKind: 'resource', capabilityState: PolicyCompilerCapabilityState.Unsupported },
+  ] as const;
+}
+
+function sampleSchedules() {
+  return [
+    {
+      scheduleId: 'schedule-school-night',
+      timeZone: 'America/Toronto',
+      startsAt: '21:00',
+      endsAt: '07:00',
+      timeBudget: {
+        budgetWindowMinutes: 120,
+        reset: {
+          kind: 'daily',
+          localTime: '00:00',
+          day: null,
+        },
+        carryover: {
+          mode: 'discard-unused',
+          maxMinutes: null,
+        },
+        gracePeriodMinutes: 5,
+        effectiveFrom: '2026-01-01T00:00:00.000Z',
+        effectiveUntil: null,
+        clockSource: 'trusted-service',
+        offlineRecovery: 'recompute-from-journal',
+      },
+    },
+  ] as const;
+}
+
+function sampleRules() {
+  return [
+    {
+      ruleId: 'rule-site-block',
+      target: {
+        kind: 'site',
+        referenceId: 'site-youtube',
+      },
+      action: 'block',
+      scheduleId: 'schedule-school-night',
+      capabilityState: PolicyCompilerCapabilityState.Supported,
+      status: PolicyCompilerRuleStatus.Ready,
+      reasonCode: null,
+    },
+    {
+      ruleId: 'rule-device-review',
+      target: {
+        kind: 'device',
+        referenceId: 'device-laptop',
+      },
+      action: 'warn',
+      scheduleId: 'schedule-school-night',
+      capabilityState: PolicyCompilerCapabilityState.ManualRequired,
+      status: PolicyCompilerRuleStatus.ManualRequired,
+      reasonCode: 'manual-required-target',
+    },
+    {
+      ruleId: 'rule-resource-unsupported',
+      target: {
+        kind: 'resource',
+        referenceId: 'geofence-school',
+      },
+      action: 'warn',
+      scheduleId: 'schedule-school-night',
+      capabilityState: PolicyCompilerCapabilityState.Unsupported,
+      status: PolicyCompilerRuleStatus.Unsupported,
+      reasonCode: 'unsupported-target',
+    },
+  ] as const;
+}
+
 function sampleArtifact() {
   return {
     compiledArtifactId: 'policy-compiler:browser:policy-source-compiler:5',
@@ -25,14 +105,7 @@ function sampleArtifact() {
     },
     supportMatrix: {
       domain: PolicyCompilerDomain.Browser,
-      rows: [
-        { targetKind: 'child-profile', capabilityState: PolicyCompilerCapabilityState.ManualRequired },
-        { targetKind: 'device', capabilityState: PolicyCompilerCapabilityState.Unsupported },
-        { targetKind: 'app', capabilityState: PolicyCompilerCapabilityState.Supported },
-        { targetKind: 'site', capabilityState: PolicyCompilerCapabilityState.ManualRequired },
-        { targetKind: 'category', capabilityState: PolicyCompilerCapabilityState.Supported },
-        { targetKind: 'resource', capabilityState: PolicyCompilerCapabilityState.Unsupported },
-      ],
+      rows: sampleSupportMatrixRows(),
     },
     evidenceCustodyRequirements: {
       exportAllowed: true,
@@ -49,73 +122,12 @@ function sampleArtifact() {
     auditReferenceIds: ['audit-policy-confirmed'],
     supersededByPolicyVersion: null,
     rollbackRef: null,
-    schedules: [
-      {
-        scheduleId: 'schedule-school-night',
-        timeZone: 'America/Toronto',
-        startsAt: '21:00',
-        endsAt: '07:00',
-        timeBudget: {
-          budgetWindowMinutes: 120,
-          reset: {
-            kind: 'daily',
-            localTime: '00:00',
-            day: null,
-          },
-          carryover: {
-            mode: 'discard-unused',
-            maxMinutes: null,
-          },
-          gracePeriodMinutes: 5,
-          effectiveFrom: '2026-01-01T00:00:00.000Z',
-          effectiveUntil: null,
-          clockSource: 'trusted-service',
-          offlineRecovery: 'recompute-from-journal',
-        },
-      },
-    ],
-    rules: [
-      {
-        ruleId: 'rule-site-block',
-        target: {
-          kind: 'site',
-          referenceId: 'site-youtube',
-        },
-        action: 'block',
-        scheduleId: 'schedule-school-night',
-        capabilityState: PolicyCompilerCapabilityState.Supported,
-        status: PolicyCompilerRuleStatus.Ready,
-        reasonCode: null,
-      },
-      {
-        ruleId: 'rule-device-review',
-        target: {
-          kind: 'device',
-          referenceId: 'device-laptop',
-        },
-        action: 'warn',
-        scheduleId: 'schedule-school-night',
-        capabilityState: PolicyCompilerCapabilityState.ManualRequired,
-        status: PolicyCompilerRuleStatus.ManualRequired,
-        reasonCode: 'manual-required-target',
-      },
-      {
-        ruleId: 'rule-resource-unsupported',
-        target: {
-          kind: 'resource',
-          referenceId: 'geofence-school',
-        },
-        action: 'warn',
-        scheduleId: 'schedule-school-night',
-        capabilityState: PolicyCompilerCapabilityState.Unsupported,
-        status: PolicyCompilerRuleStatus.Unsupported,
-        reasonCode: 'unsupported-target',
-      },
-    ],
+    schedules: sampleSchedules(),
+    rules: sampleRules(),
   } as const;
 }
 
-describe('policy compiler contracts', () => {
+describe('policy compiler contracts: deterministic parsing and rule validation', () => {
   it('parsePolicyCompiledArtifact: parses deterministic compiled artifacts with explicit no-claim and status metadata', () => {
     const parsed = parsePolicyCompiledArtifact(sampleArtifact());
     const repeated = parsePolicyCompiledArtifact(sampleArtifact());
@@ -157,7 +169,9 @@ describe('policy compiler contracts', () => {
 
     expect(result.success).toBe(false);
   });
+});
 
+describe('policy compiler contracts: support and lifecycle validation', () => {
   it('PolicyCompiledArtifactSchema: rejects compiler artifacts missing the full no-claim set exactly once', () => {
     const result = PolicyCompiledArtifactSchema.safeParse({
       ...sampleArtifact(),

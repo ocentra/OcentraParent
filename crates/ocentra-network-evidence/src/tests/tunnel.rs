@@ -3,6 +3,7 @@ use crate::{
     NetworkTunnelClassifierError, NetworkTunnelClassifierInput, NetworkTunnelIndicator,
     NetworkTunnelIndicatorEvidence, NetworkTunnelKind,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn tunnel_classifier_flags_vpn_adapter_indicator_without_hidden_destination_claim() {
@@ -13,7 +14,7 @@ fn tunnel_classifier_flags_vpn_adapter_indicator_without_hidden_destination_clai
             source_ref: "adapter-route-1".to_owned(),
         }],
     })
-    .expect("vpn adapter indicator should classify");
+    .expect_value("vpn adapter indicator should classify");
 
     assert_tunnel_classification(
         &classification,
@@ -33,7 +34,7 @@ fn tunnel_classifier_flags_proxy_port_indicator() {
             source_ref: "flow-port-1080".to_owned(),
         }],
     })
-    .expect("proxy port indicator should classify");
+    .expect_value("proxy port indicator should classify");
 
     assert_tunnel_classification(
         &classification,
@@ -60,7 +61,7 @@ fn tunnel_classifier_prioritizes_tor_over_generic_proxy_indicator() {
             },
         ],
     })
-    .expect("tor indicator should classify");
+    .expect_value("tor indicator should classify");
 
     assert_eq!(classification.tunnel_kind, NetworkTunnelKind::Tor);
     assert_eq!(classification.basis, NetworkTunnelBasis::TorIndicator);
@@ -80,7 +81,7 @@ fn tunnel_classifier_does_not_claim_hidden_destination_from_encrypted_dns_only()
             source_ref: "doh-candidate-1".to_owned(),
         }],
     })
-    .expect("encrypted dns only should remain a negative tunnel proof");
+    .expect_value("encrypted dns only should remain a negative tunnel proof");
 
     assert_eq!(classification.tunnel_kind, NetworkTunnelKind::Unknown);
     assert_eq!(

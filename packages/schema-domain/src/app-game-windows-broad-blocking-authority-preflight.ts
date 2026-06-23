@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppGameBroadBlockingGateMatrix } from './app-game-broad-blocking-proof-gate-data';
 import { type AppGameBroadBlockingGate } from './app-game-broad-blocking-proof-gates';
 import {
@@ -54,7 +49,9 @@ export const AppGameWindowsBroadBlockingAuthorityPreflightBlockerSchema = withPa
   )
 );
 
-const WindowsBroadBlockingLabelSchema = brandedNonEmptyStringSchema('AppGameWindowsBroadBlockingAuthorityPreflightLabel');
+const WindowsBroadBlockingLabelSchema = brandedNonEmptyStringSchema(
+  'AppGameWindowsBroadBlockingAuthorityPreflightLabel'
+);
 
 const WindowsBroadBlockingPreflightRowBaseSchema = Schema.Struct({
   action: AppGameWindowsBroadBlockingAuthorityPreflightActionSchema,
@@ -282,16 +279,42 @@ function windowsBroadBlockingPreflightReadModelIsHonest(
   readModel: WindowsBroadBlockingPreflightReadModelCandidate
 ): boolean {
   return (
+    windowsBroadBlockingCountsAreHonest(readModel) &&
+    windowsBroadBlockingAuthorityReadinessIsHonest(readModel) &&
+    windowsBroadBlockingOpenBlockersAreHonest(readModel) &&
+    windowsBroadBlockingClaimsRemainScoped(readModel)
+  );
+}
+
+function windowsBroadBlockingCountsAreHonest(readModel: WindowsBroadBlockingPreflightReadModelCandidate): boolean {
+  return (
     readModel.dispatchableActionCount === readModel.rows.filter((row) => row.canDispatchAdapter).length &&
-    readModel.blockedActionCount === readModel.rows.filter((row) => !row.canDispatchAdapter).length &&
+    readModel.blockedActionCount === readModel.rows.filter((row) => !row.canDispatchAdapter).length
+  );
+}
+
+function windowsBroadBlockingAuthorityReadinessIsHonest(
+  readModel: WindowsBroadBlockingPreflightReadModelCandidate
+): boolean {
+  return (
     readModel.authorityState === 'host-visible-policy-proof-missing' &&
     readModel.windowsHostProbeAttached &&
     !readModel.appLockerProofAttached &&
     !readModel.appControlProofAttached &&
     !readModel.systemAppAllowlistProofAttached &&
     !readModel.rollbackProofAttached &&
-    !readModel.auditCustodyProofAttached &&
-    readModel.openBlockers.includes('windows-adapter-dispatch-blocked-before-authority') &&
+    !readModel.auditCustodyProofAttached
+  );
+}
+
+function windowsBroadBlockingOpenBlockersAreHonest(
+  readModel: WindowsBroadBlockingPreflightReadModelCandidate
+): boolean {
+  return readModel.openBlockers.includes('windows-adapter-dispatch-blocked-before-authority');
+}
+
+function windowsBroadBlockingClaimsRemainScoped(readModel: WindowsBroadBlockingPreflightReadModelCandidate): boolean {
+  return (
     !readModel.rawExecutablePathsClaimed &&
     !readModel.rawPolicyXmlClaimed &&
     !readModel.adapterDispatchClaimed &&
@@ -300,4 +323,3 @@ function windowsBroadBlockingPreflightReadModelIsHonest(
     !readModel.childDeviceDeliveryClaimed
   );
 }
-

@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AgentLanBrowserAddDeviceReadModelSchema,
-  AgentLanDiscoverySourceMatrixSchema,
-  AgentProtocolDefaults,
-} from '../../src/contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentLanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/agent-lan-add-device';
+import { AgentLanDiscoverySourceMatrixSchema } from '@ocentra-parent/schema-domain/lan-source-matrix';
 import { LanPairingSchemaVersion } from '@ocentra-parent/schema-domain/lan-pairing-values';
 
 const generatedAt = '2026-06-02T15:55:00.000Z';

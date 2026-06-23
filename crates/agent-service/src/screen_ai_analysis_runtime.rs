@@ -13,10 +13,10 @@ use std::time::Duration;
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore, screen_evidence_queue::ScreenEvidenceQueue,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityScreenReadModelRow, LocalAiProviderSchedulerJobClass,
-    SCREEN_PROVIDER_SERVICE_METADATA,
-};
+use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
 
 use crate::{
     activity_capture::{record_activity_events_to_paths, ActivityCaptureError},

@@ -1,8 +1,6 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
 
-export const AgentNetworkAppleNetworkExtensionPlatformSchema = withParser(
-  Schema.Literal('mac-os', 'ios')
-);
+export const AgentNetworkAppleNetworkExtensionPlatformSchema = withParser(Schema.Literal('mac-os', 'ios'));
 export const AgentNetworkAppleNetworkExtensionCapabilityStateSchema = withParser(
   Schema.Literal('apple-device-ready', 'manual-required', 'unavailable')
 );
@@ -72,7 +70,9 @@ const AgentNetworkAppleNetworkExtensionGateStatusStructSchema = Schema.Struct({
   pageContentAvailable: Schema.Literal(false),
 });
 
-type AgentNetworkAppleNetworkExtensionGateStatusStruct = Infer<typeof AgentNetworkAppleNetworkExtensionGateStatusStructSchema>;
+type AgentNetworkAppleNetworkExtensionGateStatusStruct = Infer<
+  typeof AgentNetworkAppleNetworkExtensionGateStatusStructSchema
+>;
 
 export const AgentNetworkAppleNetworkExtensionGateStatusSchema = withParser(
   AgentNetworkAppleNetworkExtensionGateStatusStructSchema.pipe(
@@ -84,9 +84,13 @@ export const AgentNetworkAppleNetworkExtensionGateStatusSchema = withParser(
   )
 );
 
-export type AgentNetworkAppleNetworkExtensionGateStatus = Infer<typeof AgentNetworkAppleNetworkExtensionGateStatusSchema>;
+export type AgentNetworkAppleNetworkExtensionGateStatus = Infer<
+  typeof AgentNetworkAppleNetworkExtensionGateStatusSchema
+>;
 
-function appleNetworkExtensionGateStatusIsConsistent(status: AgentNetworkAppleNetworkExtensionGateStatusStruct): boolean {
+function appleNetworkExtensionGateStatusIsConsistent(
+  status: AgentNetworkAppleNetworkExtensionGateStatusStruct
+): boolean {
   if (status.gateState === 'apple-entitlement-proof-ready') {
     return (
       status.capabilityState === 'apple-device-ready' &&

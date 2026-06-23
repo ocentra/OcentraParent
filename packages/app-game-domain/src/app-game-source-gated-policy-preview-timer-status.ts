@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from '@ocentra-parent/schema-domain/app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
 import {
@@ -20,12 +15,23 @@ import {
   appGameSourceGatedPolicyPreviewTimerStatusHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerStatusMatchesHandoff,
 } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-status-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-const AppGameSourceGatedPolicyPreviewTimerStatusIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusId');
-const AppGameSourceGatedPolicyPreviewTimerStatusRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusRowId');
-const AppGameSourceGatedPolicyPreviewTimerStatusContractRefSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusContractRef');
-export const AppGameSourceGatedPolicyPreviewTimerProofRefSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerProofRef');
+const AppGameSourceGatedPolicyPreviewTimerStatusIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerStatusId'
+);
+const AppGameSourceGatedPolicyPreviewTimerStatusRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerStatusRowId'
+);
+const AppGameSourceGatedPolicyPreviewTimerStatusContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerStatusContractRef'
+);
+export const AppGameSourceGatedPolicyPreviewTimerProofRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerProofRef'
+);
 
 const AppGameSourceGatedPolicyPreviewTimerStatusStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerStatusState))
@@ -121,11 +127,13 @@ const AppGameSourceGatedPolicyPreviewTimerStatusSchema = withParser(
       (status) =>
         appGameSourceGatedPolicyPreviewTimerStatusHasNoRuntimeClaims(status) ||
         'Expected source-gated policy preview timer status to avoid runtime, UI, timer, adapter, and raw-source claims'
-      )
     )
+  )
 );
 
-type AppGameSourceGatedPolicyPreviewTimerStatusOptions = Infer<typeof AppGameSourceGatedPolicyPreviewTimerStatusOptionsSchema>;
+type AppGameSourceGatedPolicyPreviewTimerStatusOptions = Infer<
+  typeof AppGameSourceGatedPolicyPreviewTimerStatusOptionsSchema
+>;
 type AppGameSourceGatedPolicyPreviewTimerStatusRow = Infer<typeof AppGameSourceGatedPolicyPreviewTimerStatusRowSchema>;
 type AppGameSourceGatedPolicyPreviewTimerStatus = Infer<typeof AppGameSourceGatedPolicyPreviewTimerStatusSchema>;
 
@@ -209,4 +217,3 @@ function requiredProofRefsForStatus(
       return [options.compilerDecisionProofRef];
   }
 }
-

@@ -27,13 +27,13 @@ async function main() {
       'app-game-android-physical-device-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
   const androidProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
   );
   const authorityModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-authority-preflight.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-game-android-authority-preflight.js')).href
   );
   const authorityPreflight = authorityModule.createAppGameAndroidAuthorityPreflightReadModel({
     androidProof: androidProof.readModel,
@@ -56,7 +56,7 @@ async function main() {
     authorityPreflight,
     authoritySummary,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-android-authority-preflight.ts',
+      contract: 'packages/schema-domain/src/app-game-android-authority-preflight.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-android-authority-preflight.test.ts',
       androidPhysicalProof: 'test-results/app-game-android-physical-device-proof/proof.json',
     },

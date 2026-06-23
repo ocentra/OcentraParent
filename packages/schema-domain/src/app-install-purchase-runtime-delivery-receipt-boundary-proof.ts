@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeTransportDispatchPreflightProofReadModel } from './app-install-purchase-external-runtime-transport-dispatch-preflight-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -80,8 +75,12 @@ const ReceiptCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-d
 
 const ReceiptBoundaryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryRowId');
 const ReceiptBoundaryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryRef');
-const ReceiptBoundaryAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryAuditRef');
-const ReceiptBoundaryClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryClaimBoundary');
+const ReceiptBoundaryAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeDeliveryReceiptBoundaryAuditRef'
+);
+const ReceiptBoundaryClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeDeliveryReceiptBoundaryClaimBoundary'
+);
 
 const ReceiptBoundaryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeDeliveryReceiptBoundaryProofSchemaVersionSchema,
@@ -323,4 +322,3 @@ function receiptBoundaryProofIsHonest(proof: AppInstallPurchaseRuntimeDeliveryRe
 function receiptBoundaryIsExplicit(boundary: typeof ReceiptBoundaryClaimBoundarySchema.Type): boolean {
   return ReceiptBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

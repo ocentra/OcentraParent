@@ -1,13 +1,9 @@
-import {
-  AppGameNotificationPreferenceStatusHandoffReadModelSchema,
-} from '@ocentra-parent/schema-domain/app-game-notification-preference-status-handoff';
+import { AppGameNotificationPreferenceStatusHandoffReadModelSchema } from '@ocentra-parent/schema-domain/app-game-notification-preference-status-handoff';
 import type {
   AppGameNotificationPreferenceStatusHandoffReadModel,
   AppGameNotificationPreferenceStatusHandoffRow,
 } from '@ocentra-parent/schema-domain/app-game-notification-preference-status-handoff';
-import {
-  AppGameNotificationProviderStatusHandoffReadModelSchema,
-} from '@ocentra-parent/schema-domain/app-game-notification-provider-status-handoff';
+import { AppGameNotificationProviderStatusHandoffReadModelSchema } from '@ocentra-parent/schema-domain/app-game-notification-provider-status-handoff';
 import type {
   AppGameNotificationProviderStatusHandoffReadModel,
   AppGameNotificationProviderStatusHandoffRow,

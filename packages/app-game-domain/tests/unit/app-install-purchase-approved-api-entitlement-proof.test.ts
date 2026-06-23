@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseApprovedApiEntitlementProofReadModel,
   AppInstallPurchaseApprovedApiEntitlementProofSchema,
   summarizeAppInstallPurchaseApprovedApiEntitlementProof,
-} from '../../src/app-install-purchase-approved-api-entitlement-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-approved-api-entitlement-proof';
 
 describe('app install and purchase approved API entitlement proof', () => {
   acceptsApprovedApiEntitlementEvidenceRows();

@@ -18,7 +18,14 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
 
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']);
-runNpm(['run', 'test', '--workspace', '@ocentra-parent/notification-domain', '--', 'v3-notification-rule-provider-retry-contract']);
+runNpm([
+  'run',
+  'test',
+  '--workspace',
+  '@ocentra-parent/notification-domain',
+  '--',
+  'v3-notification-rule-provider-retry-contract',
+]);
 
 const preferencePreflight = await importSchemaDist('app-game-notification-preference-preflight.js');
 const preferenceStatusHandoff = await importSchemaDist('app-game-notification-preference-status-handoff.js');
@@ -65,7 +72,8 @@ const proof = {
     source: 'packages/schema-domain/src/app-game-notification-preference-status-handoff.ts',
     sourcePreflight: 'packages/schema-domain/src/app-game-notification-preference-preflight.ts',
     notificationRuleRetryContract: 'packages/schema-domain/src/notification-v3-provider-retry.ts',
-    notificationRuleRetryTest: 'packages/notification-domain/tests/unit/v3-notification-rule-provider-retry-contract.test.ts',
+    notificationRuleRetryTest:
+      'packages/notification-domain/tests/unit/v3-notification-rule-provider-retry-contract.test.ts',
     harness: 'scripts/test/app-game-notification-preference-status-handoff-proof.mjs',
     evidence: 'test-results/app-game-notification-preference-status-handoff-proof/proof.json',
     appGameProofPack: 'output/app-game-plan-proof/65-notification-preference-status-handoff',

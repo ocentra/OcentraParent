@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::http::parse_http_host;
 
 const HTTP_REQUEST_WITH_HOST: &[u8] = b"GET /watch HTTP/1.1\r\nHost: Video.Example.TEST\r\n\r\n";
@@ -8,8 +9,8 @@ const HTTP_RESPONSE_WITH_HOST_LIKE_HEADER: &[u8] =
 #[test]
 fn http_host_parser_extracts_lowercase_host_without_url_or_payload_claims() {
     let observation = parse_http_host(HTTP_REQUEST_WITH_HOST)
-        .expect("valid utf8 should parse")
-        .expect("host should be observed");
+        .expect_value("valid utf8 should parse")
+        .expect_value("host should be observed");
 
     assert_eq!(observation.host, "video.example.test");
     assert!(!observation.exact_url_available);
@@ -19,11 +20,12 @@ fn http_host_parser_extracts_lowercase_host_without_url_or_payload_claims() {
 #[test]
 fn http_host_parser_ignores_non_request_or_missing_host_payloads() {
     assert_eq!(
-        parse_http_host(HTTP_REQUEST_WITHOUT_HOST).expect("valid utf8 should parse"),
+        parse_http_host(HTTP_REQUEST_WITHOUT_HOST).expect_value("valid utf8 should parse"),
         None
     );
     assert_eq!(
-        parse_http_host(HTTP_RESPONSE_WITH_HOST_LIKE_HEADER).expect("valid utf8 should parse"),
+        parse_http_host(HTTP_RESPONSE_WITH_HOST_LIKE_HEADER)
+            .expect_value("valid utf8 should parse"),
         None
     );
 }
@@ -31,7 +33,7 @@ fn http_host_parser_ignores_non_request_or_missing_host_payloads() {
 #[test]
 fn http_host_parser_ignores_invalid_utf8_without_claiming_evidence() {
     assert_eq!(
-        parse_http_host(&[0xff, 0xfe]).expect("invalid utf8 is ignored"),
+        parse_http_host(&[0xff, 0xfe]).expect_value("invalid utf8 is ignored"),
         None
     );
 }

@@ -52,7 +52,9 @@ async function main() {
 }
 
 async function buildProof() {
-  const proofModule = await importSource('packages/tracking-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts');
+  const proofModule = await importSource(
+    'packages/schema-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts'
+  );
   const iosSimulatorProof = await readJson(sourceIosSimulatorProofRef);
   const iosManualRequiredProof = await readJson(iosManualRequiredProofRef);
   const iosPrivacyReleaseProof = await readJson(iosPrivacyReleaseProofRef);
@@ -182,7 +184,7 @@ function sourceSnapshot(proof) {
     `- iosManualRequiredRowCount: ${proof.summary.iosManualRequiredRowCount}`,
     `- iosMissingRuntimeArtifactCount: ${proof.summary.iosMissingRuntimeArtifactCount}`,
     '- does not prove iOS Core Location runtime, Always authorization, region delivery, physical-device behavior, authority enrollment, provider delivery, production runtime, or product readiness',
-    '- proof module: packages/tracking-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-ios-simulator-artifact-inventory-proof.test.ts',
     '- proof harness: scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs',
     '',

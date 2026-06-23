@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -43,8 +38,12 @@ export const TrackingProviderRuntimeReadinessBlockerIdSchema = withParser(
   )
 );
 
-export const TrackingProviderRuntimeReadinessBlockerReferenceSchema = brandedNonEmptyStringSchema('TrackingProviderRuntimeReadinessBlockerReference');
-export const TrackingProviderRuntimeReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema('TrackingProviderRuntimeReadinessBlockerProofId');
+export const TrackingProviderRuntimeReadinessBlockerReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingProviderRuntimeReadinessBlockerReference'
+);
+export const TrackingProviderRuntimeReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingProviderRuntimeReadinessBlockerProofId'
+);
 
 export const TrackingProviderRuntimeReadinessBlockerStatusSchema = withParser(Schema.Literal('manual-required'));
 
@@ -234,4 +233,3 @@ function trackingProviderRuntimeReadinessProofIsHonest(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
-

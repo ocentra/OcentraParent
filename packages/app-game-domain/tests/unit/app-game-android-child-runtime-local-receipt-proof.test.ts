@@ -3,7 +3,7 @@ import {
   AppGameAndroidChildRuntimeLocalReceiptProofSchema,
   createAppGameAndroidChildRuntimeLocalReceiptProof,
   summarizeAppGameAndroidChildRuntimeLocalReceiptProof,
-} from '../../src/app-game-android-child-runtime-local-receipt-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-child-runtime-local-receipt-proof';
 
 const Timestamp = '2026-06-08T22:20:00.000Z';
 

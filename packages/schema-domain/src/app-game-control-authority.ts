@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   approvalDecisionPersistenceIsConsistent,
   approvalDecisionResponseScopeIsConsistent,
@@ -42,7 +38,11 @@ import {
   ParentPolicyVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyTargetSchema } from '@ocentra-parent/schema-domain/policy-contracts';
+import {
+  PolicyActionSchema,
+  PolicyReasonCodeSchema,
+  PolicyTargetSchema,
+} from '@ocentra-parent/schema-domain/policy-contracts';
 
 const ApprovalFlowRefsSchema = Schema.Array(AppGameControlApprovalFlowReferenceSchema);
 const OptionalApprovalFlowRefsSchema = Schema.optionalWith(ApprovalFlowRefsSchema, { default: () => [] });
@@ -246,4 +246,3 @@ export const AppGameControlActionResultSchema = withParser(
       )
     )
 );
-

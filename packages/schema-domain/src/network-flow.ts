@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema,
-  Schema,
-  withParser,
-} from './effect';
+import { type Infer, brandedNonEmptyStringSchema, NonEmptyStringSchema, Schema, withParser } from './effect';
 import {
   ActivityCaptureCapabilityStatusSchema,
   ActivityDomainAttributionStatusSchema,
@@ -14,11 +8,7 @@ import {
 } from './activity-capture';
 import { ActivityEvidenceRefSchema } from './evidence-contracts';
 import { ActivityObserverSchema } from './evidence-kinds';
-import {
-  ActivityEventIdSchema,
-  ActivityEvidenceIdSchema,
-  ActivityTimestampSchema,
-} from './evidence-primitives';
+import { ActivityEventIdSchema, ActivityEvidenceIdSchema, ActivityTimestampSchema } from './evidence-primitives';
 
 export const ActivityQuerySchemaVersion = 1;
 
@@ -30,17 +20,11 @@ export const ActivityNetworkEndpointAddressSchema = withParser(
   brandedNonEmptyStringSchema('ActivityNetworkEndpointAddress')
 );
 
-export const ActivityNetworkDomainNameSchema = withParser(
-  brandedNonEmptyStringSchema('ActivityNetworkDomainName')
-);
+export const ActivityNetworkDomainNameSchema = withParser(brandedNonEmptyStringSchema('ActivityNetworkDomainName'));
 
-export const ActivityNetworkProcessNameSchema = withParser(
-  brandedNonEmptyStringSchema('ActivityNetworkProcessName')
-);
+export const ActivityNetworkProcessNameSchema = withParser(brandedNonEmptyStringSchema('ActivityNetworkProcessName'));
 
-export const ActivityNetworkAdapterIdSchema = withParser(
-  brandedNonEmptyStringSchema('ActivityNetworkAdapterId')
-);
+export const ActivityNetworkAdapterIdSchema = withParser(brandedNonEmptyStringSchema('ActivityNetworkAdapterId'));
 
 export const ActivityNetworkCustodyStateSchema = withParser(
   Schema.Literal(

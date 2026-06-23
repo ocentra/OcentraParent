@@ -1,10 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_browser_domain_adapter_proof as proof, policy_constants, ParentPlatform,
-    V08BrowserDomainAdapterExecutionState, V08BrowserDomainAdapterProofCapabilityName,
-    V08BrowserDomainAdapterProofCapabilityStatus, V08BrowserDomainAdapterProofClaimState,
-    V08BrowserDomainAdapterProofEntry, V08BrowserDomainAdapterProofEvidenceKind,
-    V08BrowserDomainAdapterProofReadModel, V08BrowserDomainAdapterProofSurface,
-};
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterExecutionState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofCapabilityName;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofCapabilityStatus;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofClaimState;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofEntry;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofEvidenceKind;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofSurface;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_browser_domain_adapter_app_control_proof_states::app_control_state_specs;
 
@@ -45,12 +49,14 @@ struct EntrySpec {
     fallback_behavior: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct ProofEvidence {
     linked_proof_commands: &'static [&'static str],
     linked_proof_artifacts: &'static [&'static str],
     manual_proof_requirements: &'static [&'static str],
 }
 
+#[derive(Clone, Copy)]
 struct BoundaryText {
     claim_boundary: &'static str,
     fallback_behavior: &'static str,

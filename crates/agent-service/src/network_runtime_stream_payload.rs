@@ -1,13 +1,16 @@
 use ocentra_parent_agent_core::network_event_runtime::{
     publish_network_runtime_chain_for_observation, NetworkRuntimeReport,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowReadModel, LogFieldValue, LogFields,
-    NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
-    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
-    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
-    NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS;
 
 use crate::{
     fields::fields_from_pairs,
@@ -99,10 +102,7 @@ pub(crate) fn network_runtime_event_chain_stream_payload(
         ),
         (
             constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM,
-            LogFieldValue::String(
-                serde_json::to_string(&report.entries)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialized_stream_entries(&report.entries)),
         ),
     ])
 }
@@ -114,7 +114,7 @@ impl NetworkRuntimeServiceStreamReport {
         self.enforcement_command_events += entries
             .iter()
             .filter(|entry| {
-                entry.event_type == constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+                entry.stream_type == constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
             })
             .count();
         if report.manual_required() {
@@ -126,4 +126,11 @@ impl NetworkRuntimeServiceStreamReport {
 
 fn count_value(value: usize) -> LogFieldValue {
     LogFieldValue::Number(value as f64)
+}
+
+fn serialized_stream_entries(entries: &[NetworkRuntimeServiceStreamEntry]) -> String {
+    match serde_json::to_string(entries) {
+        Ok(json) => json,
+        Err(_error) => constants::value::EMPTY.to_string(),
+    }
 }

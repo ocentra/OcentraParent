@@ -6,12 +6,16 @@ use std::{
     time::Duration,
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiChatGenerationResult, LocalAiGenerationState,
-    LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
-    LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerStatus,
-    LocalAiProviderSingletonScope, LocalAiResourceClass, LocalModelRuntimeStatus,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSingletonScope;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 use tokio::sync::{Mutex as TokioMutex, Notify};
 
 use crate::local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime;
@@ -93,15 +97,11 @@ async fn parent_and_child_jobs_share_one_runtime_lane() {
     let (child_result, parent_result) = tokio::join!(child, parent);
 
     assert_eq!(
-        child_result
-            .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS)
-            .generation_state,
+        join_generation_result(child_result).generation_state,
         LocalAiGenerationState::Complete
     );
     assert_eq!(
-        parent_result
-            .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS)
-            .generation_state,
+        join_generation_result(parent_result).generation_state,
         LocalAiGenerationState::Complete
     );
     assert_eq!(max_active_jobs.load(Ordering::SeqCst), 1);
@@ -240,11 +240,17 @@ fn assert_completed_generation(
     result: Result<LocalAiChatGenerationResult, tokio::task::JoinError>,
 ) {
     assert_eq!(
-        result
-            .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS)
-            .generation_state,
+        join_generation_result(result).generation_state,
         LocalAiGenerationState::Complete
     );
+}
+
+fn join_generation_result(
+    result: Result<LocalAiChatGenerationResult, tokio::task::JoinError>,
+) -> LocalAiChatGenerationResult {
+    result.unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::LOCAL_AI_RUNTIME_SPAWNS)
+    })
 }
 
 async fn assert_observed_job_order(
@@ -360,16 +366,16 @@ fn ready_runtime() -> LocalModelRuntimeStatus {
         provider_id: constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI.to_string(),
         model_id: constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string(),
         model_reference: constants::local_ai_runtime::MODEL_REFERENCE_DEFAULT_GEMMA_4.to_string(),
-        privacy_mode: ocentra_parent_agent_protocol::LocalAiProviderPrivacyMode::LocalOnly,
-        adapter_boundary: ocentra_parent_agent_protocol::LocalAiAdapterBoundary::LocalAdapterReady,
-        execution_state: ocentra_parent_agent_protocol::LocalAiExecutionState::DryRunReady,
-        provider_source: ocentra_parent_agent_protocol::LocalAiProviderSource::LocalModelCache,
-        load_state: ocentra_parent_agent_protocol::LocalAiModelLoadState::Loaded,
+        privacy_mode: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderPrivacyMode::LocalOnly,
+        adapter_boundary: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterBoundary::LocalAdapterReady,
+        execution_state: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiExecutionState::DryRunReady,
+        provider_source: ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiProviderSource::LocalModelCache,
+        load_state: ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiModelLoadState::Loaded,
         capability_flags: vec![
-            ocentra_parent_agent_protocol::LocalAiCapabilityFlag::ChatCompletion,
+            ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiCapabilityFlag::ChatCompletion,
         ],
         resource_class: LocalAiResourceClass::Cpu,
-        degraded_state: ocentra_parent_agent_protocol::LocalAiDegradedState::None,
+        degraded_state: ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState::None,
         last_checked_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
         unavailable_reason: None,
     }

@@ -17,7 +17,7 @@ import {
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
 } from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { isCommandResultEvent } from '@ocentra-parent/portal-domain/command-results';
 import { shouldRenderAppGameTimerParentSurfaceRoute } from '../src/AppGameTimerParentSurfaceRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';

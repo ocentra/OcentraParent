@@ -65,8 +65,8 @@ pub fn date_stamp_now() -> String {
     Utc::now().format("%F").to_string()
 }
 
-fn env_path(name: &str) -> Option<PathBuf> {
-    env::var_os(name)
+fn env_path(env_var_name: &str) -> Option<PathBuf> {
+    env::var_os(env_var_name)
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type SocialChildApprovalBlockUxSnapshot,
   SocialChildApprovalBlockUxSnapshotSchema,
-} from '../../src/social-child-approval-block-ux';
+} from '@ocentra-parent/schema-domain/social-child-approval-block-ux';
 
 describe('social child approval and block UX contracts', () => {
   it('accepts a contract-only child approval and block state snapshot', acceptsHonestSnapshot);

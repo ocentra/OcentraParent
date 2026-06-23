@@ -3,7 +3,7 @@ import {
   AppGameAndroidUsageEventsGrantedSampleProofSchema,
   createAppGameAndroidUsageEventsGrantedSampleProof,
   summarizeAppGameAndroidUsageEventsGrantedSampleProof,
-} from '../../src/app-game-android-usage-events-granted-sample-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-usage-events-granted-sample-proof';
 
 const expectRejectedGrantedSample = (candidate: unknown): void => {
   expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse(candidate).success).toBe(false);

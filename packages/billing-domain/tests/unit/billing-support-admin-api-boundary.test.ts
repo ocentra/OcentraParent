@@ -135,38 +135,22 @@ const invalidInvoicesResponse = {
 
 describe('billing support admin api boundary', () => {
   it('accepts support/admin read envelopes with explicit counts and redacted result rows', () => {
-    const accounts =
-      BillingSupportAdminAccountsResponseSchema.parse(validAccountsResponse);
-    const invoices =
-      BillingSupportAdminInvoicesResponseSchema.parse(validInvoicesResponse);
-    const disputes =
-      BillingSupportAdminDisputesResponseSchema.parse(validDisputesResponse);
-    const referrals =
-      BillingSupportAdminReferralsResponseSchema.parse(validReferralsResponse);
-    const audit = BillingSupportAdminAuditEventsResponseSchema.parse(
-      validAuditEventsResponse
-    );
+    const accounts = BillingSupportAdminAccountsResponseSchema.parse(validAccountsResponse);
+    const invoices = BillingSupportAdminInvoicesResponseSchema.parse(validInvoicesResponse);
+    const disputes = BillingSupportAdminDisputesResponseSchema.parse(validDisputesResponse);
+    const referrals = BillingSupportAdminReferralsResponseSchema.parse(validReferralsResponse);
+    const audit = BillingSupportAdminAuditEventsResponseSchema.parse(validAuditEventsResponse);
 
     expect(accounts.manualActionsPending).toBe(1);
     expect(invoices.results[0]?.totalCents).toBe(1100);
-    expect(disputes.results[0]?.entitlementEffect).toBe(
-      'manual-review-required'
-    );
+    expect(disputes.results[0]?.entitlementEffect).toBe('manual-review-required');
     expect(referrals.results[0]?.invitedFamilies).toBe(2);
     expect(audit.results[0]?.actorRole).toBe('support');
   });
 
   it('rejects mismatched counts and inconsistent manual/support-safe fields', () => {
-    expect(
-      BillingSupportAdminAccountsResponseSchema.safeParse(
-        invalidAccountsResponse
-      ).success
-    ).toBe(false);
+    expect(BillingSupportAdminAccountsResponseSchema.safeParse(invalidAccountsResponse).success).toBe(false);
 
-    expect(
-      BillingSupportAdminInvoicesResponseSchema.safeParse(
-        invalidInvoicesResponse
-      ).success
-    ).toBe(false);
+    expect(BillingSupportAdminInvoicesResponseSchema.safeParse(invalidInvoicesResponse).success).toBe(false);
   });
 });

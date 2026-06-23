@@ -1,16 +1,16 @@
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::tracking::runtime_event::{
-    TrackingAiAnalysisRequestedEvent, TrackingEvidenceRecordedEvent,
-    TrackingNearbyPlaceClassifiedEvent,
-};
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_nearby_place_request_id_from_evidence_ref, TrackingConfidenceBasis,
     TrackingEvidenceRef, TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderKind,
     TrackingNearbyPlaceRequestId, TrackingPlaceCategory, TrackingProviderRef, TrackingReasonCode,
 };
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingAiAnalysisRequestedEvent, TrackingEvidenceRecordedEvent,
+    TrackingNearbyPlaceClassifiedEvent,
+};
 use ocentra_policy_control_core::policy_authority::AiResultAuthorityState;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackingNearbyPlaceProviderAvailabilityState {
     Available,
     Unavailable,
@@ -80,40 +80,45 @@ fn provider_decision_from_evidence_ref(
     provider_availability_state: TrackingNearbyPlaceProviderAvailabilityState,
     candidate_count: u16,
 ) -> TrackingNearbyPlaceProviderDecision {
-    if provider_availability_state == TrackingNearbyPlaceProviderAvailabilityState::Unavailable {
-        return TrackingNearbyPlaceProviderDecision {
-            provider_kind: nearby_provider_kind(
-                constants::tracking_runtime::NEARBY_PROVIDER_KIND_UNAVAILABLE,
-            ),
-            provider_ref: None,
-            request_id: nearby_request_id(evidence_ref),
-            evidence_refs: vec![evidence_ref.clone()],
-            query_radius_meters: constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
-            distance_meters: None,
-            ambiguity_state: nearby_ambiguity_state(
-                constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_PROVIDER_UNAVAILABLE,
-            ),
-            reason_codes: vec![tracking_reason_code(
-                constants::tracking_runtime::REASON_NEARBY_PLACE_PROVIDER_UNAVAILABLE,
-            )],
-            ai_result_authority_state: AiResultAuthorityState::EvidenceOnly,
-        };
-    }
-
-    TrackingNearbyPlaceProviderDecision {
-        provider_kind: nearby_provider_kind(
-            constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
-        ),
-        provider_ref: Some(tracking_provider_ref(
-            constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF,
-        )),
-        request_id: nearby_request_id(evidence_ref),
-        evidence_refs: vec![evidence_ref.clone()],
-        query_radius_meters: constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
-        distance_meters: nearby_distance_meters(candidate_count),
-        ambiguity_state: ambiguity_state_for_candidate_count(candidate_count),
-        reason_codes: nearby_reason_codes(candidate_count),
-        ai_result_authority_state: AiResultAuthorityState::EvidenceOnly,
+    match provider_availability_state {
+        TrackingNearbyPlaceProviderAvailabilityState::Unavailable => {
+            TrackingNearbyPlaceProviderDecision {
+                provider_kind: nearby_provider_kind(
+                    constants::tracking_runtime::NEARBY_PROVIDER_KIND_UNAVAILABLE,
+                ),
+                provider_ref: None,
+                request_id: nearby_request_id(evidence_ref),
+                evidence_refs: vec![evidence_ref.clone()],
+                query_radius_meters:
+                    constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
+                distance_meters: None,
+                ambiguity_state: nearby_ambiguity_state(
+                    constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_PROVIDER_UNAVAILABLE,
+                ),
+                reason_codes: vec![tracking_reason_code(
+                    constants::tracking_runtime::REASON_NEARBY_PLACE_PROVIDER_UNAVAILABLE,
+                )],
+                ai_result_authority_state: AiResultAuthorityState::EvidenceOnly,
+            }
+        }
+        TrackingNearbyPlaceProviderAvailabilityState::Available => {
+            TrackingNearbyPlaceProviderDecision {
+                provider_kind: nearby_provider_kind(
+                    constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
+                ),
+                provider_ref: Some(tracking_provider_ref(
+                    constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF,
+                )),
+                request_id: nearby_request_id(evidence_ref),
+                evidence_refs: vec![evidence_ref.clone()],
+                query_radius_meters:
+                    constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
+                distance_meters: nearby_distance_meters(candidate_count),
+                ambiguity_state: ambiguity_state_for_candidate_count(candidate_count),
+                reason_codes: nearby_reason_codes(candidate_count),
+                ai_result_authority_state: AiResultAuthorityState::EvidenceOnly,
+            }
+        }
     }
 }
 
@@ -145,29 +150,38 @@ fn nearby_request_id(evidence_ref: &TrackingEvidenceRef) -> TrackingNearbyPlaceR
 }
 
 fn nearby_provider_kind(value: &'static str) -> TrackingNearbyPlaceProviderKind {
-    TrackingNearbyPlaceProviderKind::parse(value)
-        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE)
+    parse_contract_text(value, TrackingNearbyPlaceProviderKind::parse)
 }
 
 fn tracking_provider_ref(value: &'static str) -> TrackingProviderRef {
-    TrackingProviderRef::parse(value)
-        .expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
+    parse_contract_text(value, TrackingProviderRef::parse)
 }
 
 fn tracking_place_category(value: &'static str) -> TrackingPlaceCategory {
-    TrackingPlaceCategory::parse(value).expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL)
+    parse_contract_text(value, TrackingPlaceCategory::parse)
 }
 
 fn tracking_confidence_basis(value: &'static str) -> TrackingConfidenceBasis {
-    TrackingConfidenceBasis::parse(value)
-        .expect(constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT)
+    parse_contract_text(value, TrackingConfidenceBasis::parse)
 }
 
 fn nearby_ambiguity_state(value: &'static str) -> TrackingNearbyPlaceAmbiguityState {
-    TrackingNearbyPlaceAmbiguityState::parse(value)
-        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES)
+    parse_contract_text(value, TrackingNearbyPlaceAmbiguityState::parse)
 }
 
 fn tracking_reason_code(value: &'static str) -> TrackingReasonCode {
-    TrackingReasonCode::parse(value).expect(value)
+    parse_contract_text(value, TrackingReasonCode::parse)
+}
+
+fn parse_contract_text<T, E>(
+    value: &'static str,
+    parse: impl FnOnce(&'static str) -> Result<T, E>,
+) -> T
+where
+    E: core::fmt::Debug,
+{
+    match parse(value) {
+        Ok(parsed_value) => parsed_value,
+        Err(_) => unreachable!("tracking nearby-place contract drift: {value}"),
+    }
 }

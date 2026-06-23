@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterReadinessProofReadModel } from './app-install-purchase-external-runtime-writer-readiness-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ExternalRuntimeWriterTransportPreflightProofVersion =
@@ -80,10 +75,18 @@ const ExternalRuntimeWriterTransportPreflightNonClaimSchema = withParser(
   Schema.Literal(...ExternalRuntimeWriterTransportPreflightNonClaims)
 );
 
-const ExternalRuntimeWriterTransportPreflightRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightRowId');
-const ExternalRuntimeWriterTransportPreflightRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightRef');
-const ExternalRuntimeWriterTransportPreflightAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightAuditRef');
-const ExternalRuntimeWriterTransportPreflightBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightBoundary');
+const ExternalRuntimeWriterTransportPreflightRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportPreflightRowId'
+);
+const ExternalRuntimeWriterTransportPreflightRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportPreflightRef'
+);
+const ExternalRuntimeWriterTransportPreflightAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportPreflightAuditRef'
+);
+const ExternalRuntimeWriterTransportPreflightBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseExternalRuntimeWriterTransportPreflightBoundary'
+);
 
 const ExternalRuntimeWriterTransportPreflightRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterTransportPreflightProofSchemaVersionSchema,
@@ -380,4 +383,3 @@ function externalRuntimeWriterTransportPreflightBoundaryIsExplicit(
 ) {
   return ExternalRuntimeWriterTransportPreflightBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

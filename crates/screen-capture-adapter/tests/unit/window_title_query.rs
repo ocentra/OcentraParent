@@ -12,8 +12,10 @@ fn public_window_title_query_rejects_empty_input_before_platform_capture() {
 
 #[test]
 fn public_window_title_query_trims_without_exposing_raw_env_text() {
-    let query = ScreenCaptureWindowTitleQuery::try_from(String::from("  Ocentra Parent  "))
-        .expect("query should parse");
-
-    assert_eq!(query.as_str(), "Ocentra Parent");
+    assert_eq!(
+        ScreenCaptureWindowTitleQuery::try_from(String::from("  Ocentra Parent  "))
+            .as_ref()
+            .map(ScreenCaptureWindowTitleQuery::as_str),
+        Ok("Ocentra Parent")
+    );
 }

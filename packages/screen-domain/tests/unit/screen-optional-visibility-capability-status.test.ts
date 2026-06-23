@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ScreenOptionalVisibilityCapabilityStatusSchema,
-} from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-status';
+import { ScreenOptionalVisibilityCapabilityStatusSchema } from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-status';
 import { screenOptionalVisibilityCapabilityStatusProof } from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-proof';
 
 const GeneratedAt = '2026-06-07T05:55:00Z';
 
 describe('screen optional visibility capability status', () => {
+  registerSummaryTest();
+  registerRejectsRawRetentionReadinessTest();
+  registerAllowsRawRetentionReadinessTest();
+  registerRejectsLiveViewReadinessTest();
+});
+
+function registerSummaryTest(): void {
   it('summarizes disabled and blocked optional visibility modes without enabling raw frames', () => {
     const proof = screenOptionalVisibilityCapabilityStatusProof(GeneratedAt);
 
@@ -22,7 +27,9 @@ describe('screen optional visibility capability status', () => {
     expect(proof.rows.every((row) => !row.remoteInputAllowed)).toBe(true);
     expect(proof.rows.some((row) => row.capabilityKind === 'liveView' && row.productModeReady)).toBe(false);
   });
+}
 
+function registerRejectsRawRetentionReadinessTest(): void {
   it('rejects raw retention readiness without runtime and deletion proof', () => {
     const proof = screenOptionalVisibilityCapabilityStatusProof(GeneratedAt);
     const rawRetentionRow = proof.rows.find(
@@ -50,7 +57,9 @@ describe('screen optional visibility capability status', () => {
 
     expect(parsed.success).toBe(false);
   });
+}
 
+function registerAllowsRawRetentionReadinessTest(): void {
   it('allows raw retention readiness only with runtime and deletion proof', () => {
     const proof = screenOptionalVisibilityCapabilityStatusProof(GeneratedAt);
     const readyRetentionRow = proof.rows.find(
@@ -78,7 +87,9 @@ describe('screen optional visibility capability status', () => {
     expect(readyRetentionRow.rawFramesRetained).toBe(false);
     expect(readyRetentionRow.rawRemoteUploadAllowed).toBe(false);
   });
+}
 
+function registerRejectsLiveViewReadinessTest(): void {
   it('rejects live view readiness when the platform gate only proves capture permission', () => {
     const proof = screenOptionalVisibilityCapabilityStatusProof(GeneratedAt);
     const liveViewRow = proof.rows.find((row) => row.capabilityKind === 'liveView' && row.readinessState === 'blocked');
@@ -102,4 +113,4 @@ describe('screen optional visibility capability status', () => {
 
     expect(parsed.success).toBe(false);
   });
-});
+}

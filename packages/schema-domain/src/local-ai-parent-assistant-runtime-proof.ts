@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { LocalAiProviderSchedulerLifecycleSchema } from './local-ai-provider-scheduler';
 import {
   LocalAiRuntimeProviderProofReadModel,
@@ -20,12 +14,24 @@ import {
 } from './parent-assistant';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const LocalAiParentAssistantRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofReadModelId');
-export const LocalAiParentAssistantRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofEntryId');
-export const LocalAiParentAssistantRuntimeProofEvidenceLabelSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofEvidenceLabel');
-export const LocalAiParentAssistantRuntimeProofRuntimeCommandSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofRuntimeCommand');
-export const LocalAiParentAssistantRuntimeProofClaimBoundarySchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofClaimBoundary');
-export const LocalAiParentAssistantRuntimeProofFallbackSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofFallback');
+export const LocalAiParentAssistantRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiParentAssistantRuntimeProofReadModelId'
+);
+export const LocalAiParentAssistantRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema(
+  'LocalAiParentAssistantRuntimeProofEntryId'
+);
+export const LocalAiParentAssistantRuntimeProofEvidenceLabelSchema = brandedNonEmptyStringSchema(
+  'LocalAiParentAssistantRuntimeProofEvidenceLabel'
+);
+export const LocalAiParentAssistantRuntimeProofRuntimeCommandSchema = brandedNonEmptyStringSchema(
+  'LocalAiParentAssistantRuntimeProofRuntimeCommand'
+);
+export const LocalAiParentAssistantRuntimeProofClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'LocalAiParentAssistantRuntimeProofClaimBoundary'
+);
+export const LocalAiParentAssistantRuntimeProofFallbackSchema = brandedNonEmptyStringSchema(
+  'LocalAiParentAssistantRuntimeProofFallback'
+);
 
 export const LocalAiParentAssistantRuntimeProofRequirementSchema = withParser(
   Schema.Literal(
@@ -280,4 +286,3 @@ export const decodeLocalAiParentAssistantRuntimeProofEntry = Schema.decodeUnknow
 export const decodeLocalAiParentAssistantRuntimeProofReadModel = Schema.decodeUnknownSync(
   LocalAiParentAssistantRuntimeProofReadModelSchema
 );
-

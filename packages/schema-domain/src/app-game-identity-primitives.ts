@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const AppGameIdentityIdSchema = brandedNonEmptyStringSchema('AppGameIdentityId');
 export const AppGameDisplayLabelSchema = brandedNonEmptyStringSchema('AppGameDisplayLabel');

@@ -1,3 +1,7 @@
+use super::TestResult;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_parent_agent_protocol::constants::policy_control;
 use ocentra_policy_control_core::policy_compiler::{
     compile_browser_policy, compile_domain_policy_with_support_matrix,
@@ -14,8 +18,8 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 use serde_json::Value;
 
@@ -40,44 +44,62 @@ fn sample_policy_schedule_time_budget() -> PolicyScheduleTimeBudget {
     }
 }
 
-fn sample_policy_source_document(version: u64) -> ParentPolicySourceDocument {
-    ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-compiler")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(version).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+fn sample_policy_source_document(version: u64) -> TestResult<ParentPolicySourceDocument> {
+    Ok(ParentPolicySourceDocument {
+        schema_version: test_ok!(
+            parent_policy_source_schema_version(),
+            "policy source schema version"
+        ),
+        document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-compiler"),
+            "policy source document id"
+        ),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(version), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("device id")],
+        status: PolicySourceStatus::Confirmed,
+        child_profile_ids: vec![test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        )],
+        device_ids: vec![test_ok!(
+            PolicyDeviceId::parse("device-laptop"),
+            "device id"
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-site-block").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-site-block"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Site,
-                reference_id: PolicyTargetReferenceId::parse("site-youtube").expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("site-youtube"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(PolicyScheduleId::parse("schedule-school-night").expect("schedule")),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("bedtime").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("bedtime"), "reason code"),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night").expect("schedule"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone"),
+            schedule_id: test_ok!(PolicyScheduleId::parse("schedule-school-night"), "schedule"),
+            timezone_name: test_ok!(PolicyTimezoneName::parse("America/Toronto"), "timezone"),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: sample_policy_schedule_time_budget(),
         }],
-        audit_reference_ids: vec![
-            PolicyAuditReferenceId::parse("audit-compiler-source").expect("audit ref")
-        ],
+        audit_reference_ids: vec![test_ok!(
+            PolicyAuditReferenceId::parse("audit-compiler-source"),
+            "audit ref"
+        )],
         superseded_by_policy_version: None,
         rollback_ref: None,
         retention: PolicyRetentionMetadata {
@@ -85,131 +107,182 @@ fn sample_policy_source_document(version: u64) -> ParentPolicySourceDocument {
             delete_allowed: true,
             sync_allowed: false,
         },
-    }
+    })
 }
 
-fn sample_screen_status_source_document(version: u64) -> ParentPolicySourceDocument {
-    let mut source = sample_policy_source_document(version);
+fn sample_screen_status_source_document(version: u64) -> TestResult<ParentPolicySourceDocument> {
+    let mut source = sample_policy_source_document(version)?;
     source.rules = vec![
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-screen-app-review").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-screen-app-review"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::App,
-                reference_id: PolicyTargetReferenceId::parse("app-minecraft").expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("app-minecraft"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::TimeLimit,
-            schedule_id: Some(PolicyScheduleId::parse("schedule-school-night").expect("schedule")),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("screen-app-review").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("screen-app-review"), "reason code"),
             enabled: true,
         },
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-screen-site-review").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-screen-site-review"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Site,
-                reference_id: PolicyTargetReferenceId::parse("site-youtube").expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("site-youtube"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(PolicyScheduleId::parse("schedule-school-night").expect("schedule")),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule"
+            )),
             priority: 90,
-            reason_code: PolicyReasonCode::parse("screen-site-review").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("screen-site-review"), "reason code"),
             enabled: true,
         },
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-screen-device-ready").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-screen-device-ready"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Device,
-                reference_id: PolicyTargetReferenceId::parse("device-laptop").expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("device-laptop"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::Warn,
-            schedule_id: Some(PolicyScheduleId::parse("schedule-school-night").expect("schedule")),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule"
+            )),
             priority: 80,
-            reason_code: PolicyReasonCode::parse("screen-device-ready").expect("reason code"),
+            reason_code: test_ok!(
+                PolicyReasonCode::parse("screen-device-ready"),
+                "reason code"
+            ),
             enabled: true,
         },
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-screen-category-ready").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-screen-category-ready"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-social")
-                    .expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("category-social"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::AskParent,
-            schedule_id: Some(PolicyScheduleId::parse("schedule-school-night").expect("schedule")),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "schedule"
+            )),
             priority: 70,
-            reason_code: PolicyReasonCode::parse("screen-category-ready").expect("reason code"),
+            reason_code: test_ok!(
+                PolicyReasonCode::parse("screen-category-ready"),
+                "reason code"
+            ),
             enabled: true,
         },
     ];
-    source
+    Ok(source)
 }
 
-fn sample_time_boundary_policy_source_document(version: u64) -> ParentPolicySourceDocument {
-    let mut source = sample_policy_source_document(version);
+fn sample_time_boundary_policy_source_document(
+    version: u64,
+) -> TestResult<ParentPolicySourceDocument> {
+    let mut source = sample_policy_source_document(version)?;
     source.rules = vec![
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-dst-spring-forward").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-dst-spring-forward"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Site,
-                reference_id: PolicyTargetReferenceId::parse("site-bedtime-spring-forward")
-                    .expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("site-bedtime-spring-forward"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-dst-spring-forward").expect("schedule"),
-            ),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-dst-spring-forward"),
+                "schedule"
+            )),
             priority: 120,
-            reason_code: PolicyReasonCode::parse("dst-spring-forward").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("dst-spring-forward"), "reason code"),
             enabled: true,
         },
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-dst-fall-back").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-dst-fall-back"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Site,
-                reference_id: PolicyTargetReferenceId::parse("site-bedtime-fall-back")
-                    .expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("site-bedtime-fall-back"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::TimeLimit,
-            schedule_id: Some(PolicyScheduleId::parse("schedule-dst-fall-back").expect("schedule")),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-dst-fall-back"),
+                "schedule"
+            )),
             priority: 110,
-            reason_code: PolicyReasonCode::parse("dst-fall-back").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("dst-fall-back"), "reason code"),
             enabled: true,
         },
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-child-device-clock").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-child-device-clock"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Site,
-                reference_id: PolicyTargetReferenceId::parse("site-child-device-clock")
-                    .expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("site-child-device-clock"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::Warn,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-child-device-clock").expect("schedule"),
-            ),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-child-device-clock"),
+                "schedule"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("child-device-clock").expect("reason code"),
+            reason_code: test_ok!(PolicyReasonCode::parse("child-device-clock"), "reason code"),
             enabled: true,
         },
         ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-manual-clock-review").expect("rule id"),
+            rule_id: test_ok!(PolicyRuleId::parse("rule-manual-clock-review"), "rule id"),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Site,
-                reference_id: PolicyTargetReferenceId::parse("site-manual-clock-review")
-                    .expect("target ref"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("site-manual-clock-review"),
+                    "target ref"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-manual-clock-review").expect("schedule"),
-            ),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-manual-clock-review"),
+                "schedule"
+            )),
             priority: 90,
-            reason_code: PolicyReasonCode::parse("manual-clock-review").expect("reason code"),
+            reason_code: test_ok!(
+                PolicyReasonCode::parse("manual-clock-review"),
+                "reason code"
+            ),
             enabled: true,
         },
     ];
     source.schedules = vec![
         PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-dst-spring-forward").expect("schedule"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-dst-spring-forward"),
+                "schedule"
+            ),
+            timezone_name: test_ok!(PolicyTimezoneName::parse("America/Toronto"), "timezone"),
             starts_at: "02:15".to_string(),
             ends_at: "03:30".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -232,8 +305,11 @@ fn sample_time_boundary_policy_source_document(version: u64) -> ParentPolicySour
             },
         },
         PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-dst-fall-back").expect("schedule"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto").expect("timezone"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-dst-fall-back"),
+                "schedule"
+            ),
+            timezone_name: test_ok!(PolicyTimezoneName::parse("America/Toronto"), "timezone"),
             starts_at: "01:15".to_string(),
             ends_at: "01:45".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -256,8 +332,11 @@ fn sample_time_boundary_policy_source_document(version: u64) -> ParentPolicySour
             },
         },
         PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-child-device-clock").expect("schedule"),
-            timezone_name: PolicyTimezoneName::parse("America/Los_Angeles").expect("timezone"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-child-device-clock"),
+                "schedule"
+            ),
+            timezone_name: test_ok!(PolicyTimezoneName::parse("America/Los_Angeles"), "timezone"),
             starts_at: "20:00".to_string(),
             ends_at: "21:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -280,8 +359,11 @@ fn sample_time_boundary_policy_source_document(version: u64) -> ParentPolicySour
             },
         },
         PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-manual-clock-review").expect("schedule"),
-            timezone_name: PolicyTimezoneName::parse("America/Winnipeg").expect("timezone"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-manual-clock-review"),
+                "schedule"
+            ),
+            timezone_name: test_ok!(PolicyTimezoneName::parse("America/Winnipeg"), "timezone"),
             starts_at: "19:30".to_string(),
             ends_at: "21:30".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -304,7 +386,7 @@ fn sample_time_boundary_policy_source_document(version: u64) -> ParentPolicySour
             },
         },
     ];
-    source
+    Ok(source)
 }
 
 fn support_matrix_row(
@@ -350,21 +432,24 @@ fn sample_browser_support_matrix() -> PolicyCompilerSupportMatrix {
 }
 
 #[test]
-fn policy_compiler_schema_version_is_nonzero() {
-    let version = policy_compiler_schema_version().expect("compiler schema version");
+fn policy_compiler_schema_version_is_nonzero() -> TestResult {
+    let version = test_ok!(policy_compiler_schema_version(), "compiler schema version");
     assert_eq!(version.value(), 1);
+    Ok(())
 }
 
 #[test]
-fn compiled_artifact_serialization_preserves_schedule_payload() {
-    let source = sample_policy_source_document(5);
-    let artifact =
-        compile_browser_policy(&source, source.policy_version).expect("browser policy artifact");
-    let payload = serde_json::to_value(&artifact).expect("compiled artifact payload");
+fn compiled_artifact_serialization_preserves_schedule_payload() -> TestResult {
+    let source = sample_policy_source_document(5)?;
+    let artifact = test_ok!(
+        compile_browser_policy(&source, source.policy_version),
+        "browser policy artifact"
+    );
+    let payload = test_ok!(serde_json::to_value(&artifact), "compiled artifact payload");
     let schedules = payload
         .get("schedules")
         .and_then(Value::as_array)
-        .expect("serialized schedules array");
+        .ok_or_else(|| std::io::Error::other("serialized schedules array"))?;
 
     assert_eq!(schedules.len(), 1);
     assert_eq!(payload["rules"][0]["schedule_id"], "schedule-school-night");
@@ -409,18 +494,21 @@ fn compiled_artifact_serialization_preserves_schedule_payload() {
         payload["schedules"][0]["time_budget"]["budget_window_minutes"],
         120
     );
+    Ok(())
 }
 
 #[test]
-fn compiled_artifact_round_trips_wp07_time_boundary_schedule_payload() {
-    let source = sample_time_boundary_policy_source_document(5);
-    let artifact =
-        compile_browser_policy(&source, source.policy_version).expect("browser policy artifact");
-    let payload = serde_json::to_value(&artifact).expect("compiled artifact payload");
+fn compiled_artifact_round_trips_wp07_time_boundary_schedule_payload() -> TestResult {
+    let source = sample_time_boundary_policy_source_document(5)?;
+    let artifact = test_ok!(
+        compile_browser_policy(&source, source.policy_version),
+        "browser policy artifact"
+    );
+    let payload = test_ok!(serde_json::to_value(&artifact), "compiled artifact payload");
     let schedules = payload
         .get("schedules")
         .and_then(Value::as_array)
-        .expect("serialized schedules array");
+        .ok_or_else(|| std::io::Error::other("serialized schedules array"))?;
 
     assert_eq!(schedules.len(), 4);
     assert_eq!(schedules[0]["starts_at"], "02:15");
@@ -452,8 +540,10 @@ fn compiled_artifact_round_trips_wp07_time_boundary_schedule_payload() {
         "manual-required"
     );
 
-    let round_trip: DomainCompiledPolicyArtifact =
-        serde_json::from_value(payload.clone()).expect("round trip compiled artifact");
+    let round_trip: DomainCompiledPolicyArtifact = test_ok!(
+        serde_json::from_value(payload.clone()),
+        "round trip compiled artifact"
+    );
     assert_eq!(round_trip, artifact);
     assert_eq!(
         payload["rules"][0]["schedule_id"],
@@ -468,18 +558,24 @@ fn compiled_artifact_round_trips_wp07_time_boundary_schedule_payload() {
         payload["rules"][3]["schedule_id"],
         "schedule-manual-clock-review"
     );
+    Ok(())
 }
 
 #[test]
-fn screen_compiler_serialization_preserves_status_strings() {
-    let source = sample_screen_status_source_document(5);
-    let artifact =
-        compile_screen_policy(&source, source.policy_version).expect("screen policy artifact");
-    let payload = serde_json::to_value(&artifact).expect("compiled artifact payload");
+fn screen_compiler_serialization_preserves_status_strings() -> TestResult {
+    let source = sample_screen_status_source_document(5)?;
+    let artifact = test_ok!(
+        compile_screen_policy(&source, source.policy_version),
+        "screen policy artifact"
+    );
+    let payload = test_ok!(serde_json::to_value(&artifact), "compiled artifact payload");
 
     assert_eq!(payload["domain"], "screen");
     assert_eq!(
-        payload["rules"].as_array().expect("serialized rules").len(),
+        payload["rules"]
+            .as_array()
+            .ok_or_else(|| std::io::Error::other("serialized rules"))?
+            .len(),
         4
     );
     assert_eq!(payload["rules"][0]["capability_state"], "manual-required");
@@ -505,15 +601,20 @@ fn screen_compiler_serialization_preserves_status_strings() {
         payload["no_claim_labels"][2],
         policy_control::compiler::NO_CLAIM_ENFORCEMENT
     );
+    Ok(())
 }
 
 #[test]
-fn domain_override_serialization_preserves_rule_capability_reason_pairs() {
-    let source = sample_screen_status_source_document(5);
-    let enforcement = compile_enforcement_policy_hints(&source, source.policy_version)
-        .expect("enforcement policy artifact");
-    let enforcement_payload =
-        serde_json::to_value(&enforcement).expect("enforcement policy payload");
+fn domain_override_serialization_preserves_rule_capability_reason_pairs() -> TestResult {
+    let source = sample_screen_status_source_document(5)?;
+    let enforcement = test_ok!(
+        compile_enforcement_policy_hints(&source, source.policy_version),
+        "enforcement policy artifact"
+    );
+    let enforcement_payload = test_ok!(
+        serde_json::to_value(&enforcement),
+        "enforcement policy payload"
+    );
 
     assert_eq!(
         enforcement_payload["support_matrix"]["rows"][0]["capability_state"],
@@ -538,10 +639,14 @@ fn domain_override_serialization_preserves_rule_capability_reason_pairs() {
         policy_control::compiler::REASON_MANUAL_REQUIRED_TARGET
     );
 
-    let notification = compile_notification_ask_parent_policy(&source, source.policy_version)
-        .expect("notification/ask-parent policy artifact");
-    let notification_payload =
-        serde_json::to_value(&notification).expect("notification/ask-parent policy payload");
+    let notification = test_ok!(
+        compile_notification_ask_parent_policy(&source, source.policy_version),
+        "notification/ask-parent policy artifact"
+    );
+    let notification_payload = test_ok!(
+        serde_json::to_value(&notification),
+        "notification/ask-parent policy payload"
+    );
 
     assert_eq!(
         notification_payload["support_matrix"]["rows"][0]["capability_state"],
@@ -565,29 +670,35 @@ fn domain_override_serialization_preserves_rule_capability_reason_pairs() {
     );
     assert_eq!(notification_payload["rules"][3]["status"], "ready");
     assert!(notification_payload["rules"][3]["reason_code"].is_null());
+    Ok(())
 }
 
 #[test]
-fn compiler_rejects_consumer_version_mismatch() {
-    let source = sample_policy_source_document(5);
-    let stale_consumer_version = PolicyVersion::new(4).expect("policy version");
+fn compiler_rejects_consumer_version_mismatch() -> TestResult {
+    let source = sample_policy_source_document(5)?;
+    let stale_consumer_version = test_ok!(PolicyVersion::new(4), "policy version");
 
-    let error = compile_browser_policy(&source, stale_consumer_version)
-        .expect_err("consumer version mismatch must be rejected");
+    let error = test_err!(
+        compile_browser_policy(&source, stale_consumer_version),
+        "consumer version mismatch must be rejected"
+    );
     assert!(error.to_string().contains("source 5 != consumer 4"));
+    Ok(())
 }
 
 #[test]
-fn compiled_artifact_round_trips_explicit_support_matrix_payload() {
-    let source = sample_screen_status_source_document(5);
-    let artifact = compile_domain_policy_with_support_matrix(
-        &source,
-        source.policy_version,
-        PolicyCompilerDomain::Browser,
-        sample_browser_support_matrix(),
-    )
-    .expect("browser policy artifact with explicit support matrix");
-    let payload = serde_json::to_value(&artifact).expect("compiled artifact payload");
+fn compiled_artifact_round_trips_explicit_support_matrix_payload() -> TestResult {
+    let source = sample_screen_status_source_document(5)?;
+    let artifact = test_ok!(
+        compile_domain_policy_with_support_matrix(
+            &source,
+            source.policy_version,
+            PolicyCompilerDomain::Browser,
+            sample_browser_support_matrix(),
+        ),
+        "browser policy artifact with explicit support matrix"
+    );
+    let payload = test_ok!(serde_json::to_value(&artifact), "compiled artifact payload");
 
     assert_eq!(
         payload["support_matrix"]["rows"][0]["target_kind"],
@@ -601,7 +712,10 @@ fn compiled_artifact_round_trips_explicit_support_matrix_payload() {
     assert_eq!(payload["rules"][1]["capability_state"], "manual-required");
     assert_eq!(payload["rules"][2]["capability_state"], "unsupported");
 
-    let round_trip: DomainCompiledPolicyArtifact =
-        serde_json::from_value(payload).expect("round trip compiled artifact");
+    let round_trip: DomainCompiledPolicyArtifact = test_ok!(
+        serde_json::from_value(payload),
+        "round trip compiled artifact"
+    );
     assert_eq!(round_trip, artifact);
+    Ok(())
 }

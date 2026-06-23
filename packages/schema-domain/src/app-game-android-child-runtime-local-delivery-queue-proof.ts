@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalDeliveryQueueProofSchemaVersionSchema = withParser(
@@ -42,7 +37,9 @@ export const AppGameAndroidChildRuntimeLocalDeliveryQueueGapSchema = withParser(
   )
 );
 
-const AndroidChildRuntimeLocalDeliveryQueueProofIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalDeliveryQueueProofId');
+const AndroidChildRuntimeLocalDeliveryQueueProofIdSchema = brandedNonEmptyStringSchema(
+  'AppGameAndroidChildRuntimeLocalDeliveryQueueProofId'
+);
 
 const AppGameAndroidChildRuntimeLocalDeliveryQueueProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalDeliveryQueueProofSchemaVersionSchema,
@@ -174,35 +171,91 @@ function androidChildRuntimeLocalDeliveryQueueProofIsHonest(
   proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
 ): boolean {
   return (
+    androidChildRuntimeLocalDeliveryQueueStateIsHonest(proof) &&
+    androidChildRuntimeLocalDeliveryQueueProofRefsArePresent(proof) &&
+    androidChildRuntimeLocalDeliveryQueueOpenGapsArePresent(proof) &&
+    androidChildRuntimeLocalDeliveryQueueClaimsRemainScoped(proof)
+  );
+}
+
+function androidChildRuntimeLocalDeliveryQueueStateIsHonest(
+  proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
+): boolean {
+  return (
+    androidChildRuntimeLocalDeliveryQueueLifecycleIsHonest(proof) &&
+    androidChildRuntimeLocalDeliveryQueueCountsAreHonest(proof) &&
+    androidChildRuntimeLocalDeliveryQueueReceiptMarkersAreHonest(proof)
+  );
+}
+
+function androidChildRuntimeLocalDeliveryQueueLifecycleIsHonest(
+  proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
+): boolean {
+  return (
     proof.deliveryIntakeState === 'package-local-delivery-intake-recorded' &&
     proof.deliveryReadbackState === 'package-local-delivery-readback-observed' &&
     proof.deliveryQueueState === 'package-local-delivery-queue-recorded' &&
     proof.deliveryDrainState === 'package-local-delivery-drain-recorded' &&
-    proof.receiptChannelState === 'package-local-receipt-channel-recorded' &&
-    proof.receiptAppendState === 'local-receipt-append-recorded' &&
-    proof.receiptLocalAckState === 'local-receipt-ack-recorded' &&
+    proof.packageLocalDeliveryQueued &&
+    proof.packageLocalDeliveryDrained
+  );
+}
+
+function androidChildRuntimeLocalDeliveryQueueCountsAreHonest(
+  proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
+): boolean {
+  return (
     proof.packageLocalDeliveryRecordCount === 1 &&
     proof.packageLocalDeliveryQueueRecordCount === 1 &&
     proof.packageLocalDeliveryDrainRecordCount === 1 &&
     proof.packageLocalChannelRecordCount === 1 &&
     proof.localReceiptRecordCount === 1 &&
-    proof.localReceiptAckRecordCount === 1 &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-intake-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-readback-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-queue-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-delivery-drain-ref') &&
-    proof.proofRefs.includes('android-child-runtime-package-local-receipt-channel-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-write-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-ack-write-ref') &&
-    proof.openGaps.includes('android-child-runtime-service-delivery-ingestion-not-proved') &&
-    proof.openGaps.includes('android-child-runtime-service-receipt-ingestion-not-proved') &&
-    proof.openGaps.includes('android-provider-delivery-not-executed') &&
-    proof.openGaps.includes('android-platform-delivery-channel-not-proved-outside-package') &&
-    proof.openGaps.includes('android-adapter-dispatch-not-proved') &&
-    proof.openGaps.includes('android-platform-enforcement-not-proved') &&
-    proof.openGaps.includes('android-raw-private-source-rows-not-included') &&
-    proof.packageLocalDeliveryQueued &&
-    proof.packageLocalDeliveryDrained &&
+    proof.localReceiptAckRecordCount === 1
+  );
+}
+
+function androidChildRuntimeLocalDeliveryQueueReceiptMarkersAreHonest(
+  proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
+): boolean {
+  return (
+    proof.receiptChannelState === 'package-local-receipt-channel-recorded' &&
+    proof.receiptAppendState === 'local-receipt-append-recorded' &&
+    proof.receiptLocalAckState === 'local-receipt-ack-recorded'
+  );
+}
+
+function androidChildRuntimeLocalDeliveryQueueProofRefsArePresent(
+  proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
+): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-child-runtime-package-local-delivery-intake-ref',
+    'android-child-runtime-package-local-delivery-readback-ref',
+    'android-child-runtime-package-local-delivery-queue-ref',
+    'android-child-runtime-package-local-delivery-drain-ref',
+    'android-child-runtime-package-local-receipt-channel-ref',
+    'android-child-runtime-local-receipt-write-ref',
+    'android-child-runtime-local-receipt-ack-write-ref',
+  ] as const);
+}
+
+function androidChildRuntimeLocalDeliveryQueueOpenGapsArePresent(
+  proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
+): boolean {
+  return includesAll(proof.openGaps, [
+    'android-child-runtime-service-delivery-ingestion-not-proved',
+    'android-child-runtime-service-receipt-ingestion-not-proved',
+    'android-provider-delivery-not-executed',
+    'android-platform-delivery-channel-not-proved-outside-package',
+    'android-adapter-dispatch-not-proved',
+    'android-platform-enforcement-not-proved',
+    'android-raw-private-source-rows-not-included',
+  ] as const);
+}
+
+function androidChildRuntimeLocalDeliveryQueueClaimsRemainScoped(
+  proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
+): boolean {
+  return (
     !proof.serviceDeliveryIngested &&
     !proof.serviceReceiptIngested &&
     !proof.providerDeliveryExecuted &&
@@ -213,3 +266,6 @@ function androidChildRuntimeLocalDeliveryQueueProofIsHonest(
   );
 }
 
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

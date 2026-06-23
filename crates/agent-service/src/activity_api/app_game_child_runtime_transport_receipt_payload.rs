@@ -1,9 +1,19 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameInventoryEvidenceRow, AppGameServiceReadModel, APP_GAME_INVENTORY_STATE_ADAPTER_ERROR,
+    APP_GAME_INVENTORY_STATE_PERMISSION_LIMITED, APP_GAME_INVENTORY_STATE_UNAVAILABLE,
+    APP_GAME_RUNTIME_ADAPTER_ERROR, APP_GAME_RUNTIME_DEGRADED, APP_GAME_RUNTIME_PERMISSION_LIMITED,
+    APP_GAME_RUNTIME_RUNNING, APP_GAME_RUNTIME_UNAVAILABLE, APP_GAME_RUNTIME_UNKNOWN,
+    APP_GAME_SCHEMA_VERSION,
+};
+use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
+    APP_GAME_ADAPTER_PRODUCT_NATIVE_APP, APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    AppGameControlActionResult, APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
+    APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
+};
+use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::{
     AppGameChildRuntimeTransportReceiptReadModel, AppGameChildRuntimeTransportReceiptRow,
-    AppGameControlActionResult, AppGameInventoryEvidenceRow, AppGameServiceReadModel,
-    LogFieldValue, LogFields, LogLevel, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_CAPABILITY_REQUIRED,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_CUSTODY_LABEL,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_PLATFORM_CHANNEL_NOT_PROVED,
@@ -18,12 +28,11 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_MANUAL_REQUIRED,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_UNAVAILABLE,
-    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
-    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED, APP_GAME_INVENTORY_STATE_ADAPTER_ERROR,
-    APP_GAME_INVENTORY_STATE_PERMISSION_LIMITED, APP_GAME_INVENTORY_STATE_UNAVAILABLE,
-    APP_GAME_RUNTIME_ADAPTER_ERROR, APP_GAME_RUNTIME_DEGRADED, APP_GAME_RUNTIME_PERMISSION_LIMITED,
-    APP_GAME_RUNTIME_RUNNING, APP_GAME_RUNTIME_UNAVAILABLE, APP_GAME_RUNTIME_UNKNOWN,
-    APP_GAME_SCHEMA_VERSION,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::{
@@ -67,9 +76,11 @@ pub fn app_game_child_runtime_transport_receipt_read_model_from_service_model(
                 result.status == APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED
             })
     });
+    let rows = child_runtime_rows_from_service_model(&model);
+    let generated_at = model.generated_at;
     read_model_from_rows(
-        &model.generated_at,
-        child_runtime_rows_from_service_model(&model),
+        &generated_at,
+        rows,
         adapter_dispatch_claimed,
         adapter_dispatch_claimed,
     )
@@ -136,9 +147,7 @@ pub fn app_game_child_runtime_transport_receipt_payload(
         ),
         (
             constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ])
 }
@@ -335,7 +344,7 @@ fn open_gaps_for(boundary_state: &str) -> Vec<String> {
 }
 
 fn evidence_reference_ids(
-    evidence: &[ocentra_parent_agent_protocol::ActivityEvidenceRef],
+    evidence: &[ocentra_parent_agent_protocol::activity::ActivityEvidenceRef],
 ) -> Vec<String> {
     evidence
         .iter()

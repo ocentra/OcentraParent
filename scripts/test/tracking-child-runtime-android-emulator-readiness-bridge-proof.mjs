@@ -41,7 +41,13 @@ async function main() {
   const childRuntimeArtifactGateProof = await readJson(childRuntimeArtifactGateProofRef);
   const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-child-runtime-android-emulator-readiness-bridge-proof.ts')
+      join(
+        repoRoot,
+        'packages',
+        'schema-domain',
+        'src',
+        'tracking-child-runtime-android-emulator-readiness-bridge-proof.ts'
+      )
     ).href,
     import.meta.url
   );

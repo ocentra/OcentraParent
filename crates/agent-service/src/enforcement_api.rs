@@ -9,12 +9,23 @@ use ocentra_parent_agent_core::{
         EnforcementBoundaryOutcome,
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityIngestStatus, ActivityObserver,
-    ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope, AgentEventEnvelope,
-    AgentEventName, EnforcementAdapterKind, EnforcementMode, LogFieldValue, LogFields, LogLevel,
-    ACTIVITY_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity::ActivityEventKind;
+use ocentra_parent_agent_protocol::activity::ActivityObserver;
+use ocentra_parent_agent_protocol::activity::ActivitySource;
+use ocentra_parent_agent_protocol::activity::ActivitySubject;
+use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAdapterKind;
+use ocentra_parent_agent_protocol::enforcement::EnforcementMode;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     activity_capture::record_activity_events_to_paths,
@@ -178,7 +189,7 @@ async fn execute_enforcement_command(
 
 fn adapter_outcome_for_request(
     request: &EnforcementCommandPayload,
-    action: &ocentra_parent_agent_protocol::EnforcementAction,
+    action: &ocentra_parent_agent_protocol::enforcement::EnforcementAction,
     adapter_kind: EnforcementAdapterKind,
     mode: EnforcementMode,
     completed_at: &str,
@@ -223,8 +234,8 @@ async fn record_enforcement_audit(
         record_activity_events_to_paths(&journal_path, &key_path, &store_path, &[event])
     })
     .await
-    .map_err(|_| constants::value::ACTIVITY_CAPTURE_STORE_ERROR)?
-    .map_err(|_| constants::value::ACTIVITY_CAPTURE_STORE_ERROR)
+    .map_err(activity_capture_store_error)?
+    .map_err(activity_capture_store_error)
 }
 
 fn enforcement_activity_event(
@@ -342,22 +353,20 @@ fn serialized_enforcement_field_pairs(
         (
             constants::field::ENFORCEMENT_ACTION,
             LogFieldValue::String(
-                serde_json::to_string(&outcome.action)
-                    .map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+                serde_json::to_string(&outcome.action).map_err(agent_event_serializes_error)?,
             ),
         ),
         (
             constants::field::ENFORCEMENT_RESULT,
             LogFieldValue::String(
-                serde_json::to_string(&outcome.result)
-                    .map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+                serde_json::to_string(&outcome.result).map_err(agent_event_serializes_error)?,
             ),
         ),
         (
             constants::field::ENFORCEMENT_AUDIT_EVENT,
             LogFieldValue::String(
                 serde_json::to_string(&outcome.audit_event)
-                    .map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+                    .map_err(agent_event_serializes_error)?,
             ),
         ),
         (
@@ -370,7 +379,7 @@ fn serialized_enforcement_field_pairs(
 fn enforcement_report_payload(
     outcome: &EnforcementBoundaryOutcome,
     status: &ActivityIngestStatus,
-    active_state: Option<&ocentra_parent_agent_protocol::EnforcementActiveTimerState>,
+    active_state: Option<&ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState>,
 ) -> Result<LogFields, &'static str> {
     let mut payload = enforcement_journal_fields(outcome)?;
     payload.insert(
@@ -411,7 +420,7 @@ fn optional_timer_event(
 ) -> Result<LogFieldValue, &'static str> {
     match &outcome.timer_event {
         Some(timer) => Ok(LogFieldValue::String(
-            serde_json::to_string(timer).map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+            serde_json::to_string(timer).map_err(agent_event_serializes_error)?,
         )),
         None => Ok(LogFieldValue::Null(())),
     }
@@ -424,22 +433,31 @@ fn optional_string_value(value: Option<&str>) -> LogFieldValue {
 }
 
 fn optional_timer_state(
-    active_state: Option<&ocentra_parent_agent_protocol::EnforcementActiveTimerState>,
+    active_state: Option<&ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState>,
 ) -> Result<LogFieldValue, &'static str> {
     match active_state {
         Some(state) => Ok(LogFieldValue::String(
-            serde_json::to_string(state).map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+            serde_json::to_string(state).map_err(agent_event_serializes_error)?,
         )),
         None => Ok(LogFieldValue::Null(())),
     }
 }
 
 fn evidence_reference_ids(outcome: &EnforcementBoundaryOutcome) -> String {
+    let mut separator = [0; 4];
     outcome
         .action
         .evidence_references
         .iter()
         .map(|reference| reference.evidence_reference_id.as_str())
         .collect::<Vec<_>>()
-        .join(&constants::delimiter::LIST.to_string())
+        .join(constants::delimiter::LIST.encode_utf8(&mut separator))
+}
+
+fn activity_capture_store_error(_: impl std::fmt::Debug) -> &'static str {
+    constants::value::ACTIVITY_CAPTURE_STORE_ERROR
+}
+
+fn agent_event_serializes_error(_: serde_json::Error) -> &'static str {
+    constants::error::AGENT_EVENT_SERIALIZES
 }

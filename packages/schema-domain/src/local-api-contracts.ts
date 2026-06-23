@@ -25,9 +25,12 @@ export const LocalApiRouteSchema = withParser(
     owner: LocalApiRuntimeOwnerSchema,
     operation: LocalApiOperationKindSchema,
     command: Schema.Union(AgentCommandNameSchema, Schema.Null),
-    deliveryMode: Schema.optionalWith(Schema.Union(Schema.Literal(AgentEventDeliveryMode.RequestResponse), Schema.Null), {
-      default: () => null,
-    }),
+    deliveryMode: Schema.optionalWith(
+      Schema.Union(Schema.Literal(AgentEventDeliveryMode.RequestResponse), Schema.Null),
+      {
+        default: () => null,
+      }
+    ),
   })
 );
 

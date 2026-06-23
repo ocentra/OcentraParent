@@ -1,20 +1,25 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePlatformAuthorityTierSchema,
   AppGamePlatformSetupStateSchema,
 } from './app-game-control-platform-authority';
 import { platformExtensionRoutingRowIsHonest } from '@ocentra-parent/schema-domain/app-game-platform-extension-routing-rules';
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/schema-domain/enforcement';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPlatformSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
-export const AppGamePlatformExtensionRoutingRowIdSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionRoutingRowId');
-export const AppGamePlatformExtensionRoutingMatrixIdSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionRoutingMatrixId');
-export const AppGamePlatformExtensionProofPackRefSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionProofPackRef');
+export const AppGamePlatformExtensionRoutingRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGamePlatformExtensionRoutingRowId'
+);
+export const AppGamePlatformExtensionRoutingMatrixIdSchema = brandedNonEmptyStringSchema(
+  'AppGamePlatformExtensionRoutingMatrixId'
+);
+export const AppGamePlatformExtensionProofPackRefSchema = brandedNonEmptyStringSchema(
+  'AppGamePlatformExtensionProofPackRef'
+);
 export const AppGamePlatformExtensionSourceRefSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionSourceRef');
 export const AppGamePlatformExtensionLabelSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionLabel');
 
@@ -214,4 +219,3 @@ export const decodeAppGamePlatformExtensionRoutingRow = (input: unknown) =>
   AppGamePlatformExtensionRoutingRowSchema.parse(input);
 export const decodeAppGamePlatformExtensionRoutingMatrix = (input: unknown) =>
   AppGamePlatformExtensionRoutingMatrixSchema.parse(input);
-

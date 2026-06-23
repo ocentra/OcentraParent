@@ -1,24 +1,16 @@
 import type { ReactElement } from 'react';
 import type { AgentAppGamePlatformProofStatusResult } from '@ocentra-parent/agent-protocol-domain/app-game-platform-proof-status';
-import {
-  AgentCommand,
-  AgentEvent
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import type {
   AppGamePlatformProofStatusReadModel,
   AppGamePlatformProofStatusRow,
 } from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import {
-  isPortalAppGameParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import {
   createAppGamePlatformProofStatusPanelIntent,
@@ -52,7 +44,7 @@ export function AppGamePlatformProofStatusRoutePanel({
   const intent = createAppGamePlatformProofStatusPanelIntent(readModel);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -69,7 +61,7 @@ export function AppGamePlatformProofStatusRoutePanel({
               actions.sendCommand(AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
           </button>
         </header>
         <div
@@ -204,8 +196,7 @@ function normalizeAppGamePlatformProofStatusRow(
     proofState: row.proofState,
     authorityState: row.authorityState,
     hostCapabilityState: deriveHostCapabilityState(row),
-    hostCapabilityEvidenceRefs:
-      row.packageVisibilityCount > 0 || row.runtimeVisibilityCount > 0 ? row.proofRefs : [],
+    hostCapabilityEvidenceRefs: row.packageVisibilityCount > 0 || row.runtimeVisibilityCount > 0 ? row.proofRefs : [],
     hostCapabilityProbeRefs: [],
     adapterDispatchClaimed: row.adapterDispatchClaimed,
     broadInstalledAppBlockingClaimed: row.broadBlockingClaimed,

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   LocalAiDegradedStateSchema,
   LocalAiModelIdSchema,
@@ -13,8 +8,12 @@ import {
 } from './ai-primitives';
 import { LocalAiPhysicalDeviceIdSchema, LocalAiProviderSchedulerDecisionSchema } from './local-ai-provider-scheduler';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
-const ScreenAiModelRuntimeBackpressureProofIdSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeBackpressureProofId');
-const ScreenAiModelRuntimeBackpressureJobIdSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeBackpressureJobId');
+const ScreenAiModelRuntimeBackpressureProofIdSchema = brandedNonEmptyStringSchema(
+  'ScreenAiModelRuntimeBackpressureProofId'
+);
+const ScreenAiModelRuntimeBackpressureJobIdSchema = brandedNonEmptyStringSchema(
+  'ScreenAiModelRuntimeBackpressureJobId'
+);
 const ScreenAiModelRuntimeEvidenceRefSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeEvidenceRef');
 const BackpressureCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
@@ -201,4 +200,3 @@ function screenAiModelRuntimeBackpressureProofIsSafe(proof: ScreenAiModelRuntime
     activeHeavyRuntimeCount === 1
   );
 }
-

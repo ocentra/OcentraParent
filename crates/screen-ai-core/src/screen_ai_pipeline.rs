@@ -214,7 +214,7 @@ pub fn record_screen_ai_pipeline_decision(
         decision_id: ScreenAiPipelineDecisionId::parse(screen_ai_decision_ref(
             &event.evaluation_id,
         ))
-        .expect(ERROR_SCREEN_AI_DECISION_ID),
+        .unwrap_or_else(|_| unreachable!("{}", ERROR_SCREEN_AI_DECISION_ID)),
         source_evaluation_id: event.evaluation_id.clone(),
         decision: evaluate_screen_ai_pipeline(event.input),
     }

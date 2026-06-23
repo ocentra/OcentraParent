@@ -1,20 +1,40 @@
+use std::fmt::Debug;
+
 use super::{evaluate_enforcement_boundary, EnforcementBoundaryInput};
-use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
-    EnforcementIntent, EnforcementIntentSource, EnforcementMode, EnforcementPermissionState,
-    ParentActionReference, ParentActorReference, ParentActorRole, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
-    PolicyDecision, PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
+    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
+    EnforcementPermissionState, ParentActionReference, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants as policy;
+
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
 
 #[test]
-fn parent_approval_survives_action_and_audit_boundary_as_reference_data() {
+fn parent_approval_survives_action_and_audit_boundary_as_reference_data() -> TestResult {
     let mut input = boundary_input(policy_decision(), supported_capability());
     input.intent.actor = Some(parent_actor());
     input.intent.parent_approval = Some(parent_action_reference());
 
-    let outcome = evaluate_enforcement_boundary(input).expect(policy::TEST_PARENT_ACTOR_ID);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        policy::TEST_PARENT_ACTOR_ID,
+    )?;
 
     assert_eq!(
         outcome.result.status.as_protocol_str(),
@@ -34,6 +54,8 @@ fn parent_approval_survives_action_and_audit_boundary_as_reference_data() {
         outcome.audit_event.action.parent_approval,
         outcome.action.parent_approval
     );
+
+    Ok(())
 }
 
 fn boundary_input(
@@ -112,7 +134,7 @@ fn parent_actor() -> ParentActorReference {
 fn parent_action_reference() -> ParentActionReference {
     ParentActionReference {
         action_reference_id: enforcement::TEST_PARENT_ACTION_REFERENCE_ID.to_string(),
-        actor: parent_actor().into(),
+        actor: parent_actor(),
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
         created_at: policy::TEST_EVALUATED_AT.to_string(),
     }

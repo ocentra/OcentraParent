@@ -9,7 +9,8 @@ import {
   parseParentAssistantRunCancelEvent,
   parseParentAssistantThreadEvent,
 } from '../../src/parent-assistant-adapter';
-import { AgentEvent, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 const Source = {
   peerId: 'portal-dev',

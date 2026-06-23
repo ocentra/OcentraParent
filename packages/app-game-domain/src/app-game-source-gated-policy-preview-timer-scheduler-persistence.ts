@@ -120,4 +120,3 @@ function requiredProofRefsForSchedulerPersistence(
   }
   return runtimeReadinessRow.requiredProofRefs;
 }
-

@@ -197,13 +197,24 @@ fn has_unsupported_claims(report: &NetworkRuntimeRemoteDeliveryFixtureTransportR
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
+
     use super::*;
 
+    type TestResult = Result<(), String>;
+
+    fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> TestResultValue<T> {
+        result.map_err(|error| format!("{context}: {error:?}"))
+    }
+
+    type TestResultValue<T> = Result<T, String>;
+
     #[tokio::test]
-    async fn preserves_fixture_ack_refs_without_live_delivery() {
-        let report = prove_network_runtime_remote_delivery_provider_child_readiness()
-            .await
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS);
+    async fn preserves_fixture_ack_refs_without_live_delivery() -> TestResult {
+        let report = ok(
+            prove_network_runtime_remote_delivery_provider_child_readiness().await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS,
+        )?;
 
         assert_eq!(
             report.provider_route_ref.as_str(),
@@ -223,14 +234,17 @@ mod tests {
         );
         assert_provider_child_readiness_counts(&report);
         assert_provider_child_readiness_no_delivery_claims(&report);
+
+        Ok(())
     }
 
     #[tokio::test]
-    async fn rejects_live_delivery_claims() {
-        let mut fixture_transport =
+    async fn rejects_live_delivery_claims() -> TestResult {
+        let mut fixture_transport = ok(
             crate::network_event_runtime::remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport()
-                .await
-                .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT);
+                .await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT,
+        )?;
         fixture_transport.provider_delivery_implemented = true;
 
         let proof_result =
@@ -242,6 +256,8 @@ mod tests {
             proof_result,
             Err(NetworkRuntimeRemoteDeliveryProviderChildReadinessError::UnsupportedClaim)
         ));
+
+        Ok(())
     }
 
     fn assert_provider_child_readiness_counts(

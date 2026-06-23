@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import {
   statusBackendRedactionManifestCoversRequiredStates,
@@ -174,4 +169,3 @@ export const decodeStatusBackendRedactionManifestEntry = Schema.decodeUnknownSyn
 export const decodeStatusBackendRedactionManifestReadModel = Schema.decodeUnknownSync(
   StatusBackendRedactionManifestReadModelSchema
 );
-

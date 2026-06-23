@@ -12,14 +12,15 @@ use screen_capture_real_proof_support::{
     write_run_metadata, write_trigger_input, DEFAULT_DIR,
 };
 
-fn main() {
+fn main() -> Result<(), String> {
     let output_dir = env::args()
         .nth(1)
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(DEFAULT_DIR));
-    create_dir_all(&output_dir).expect(constants::error::JOURNAL_OPENS);
+    create_dir_all(&output_dir)
+        .map_err(|error| format!("{}: {error:?}", constants::error::JOURNAL_OPENS))?;
 
-    let run_id = run_id();
+    let run_id = run_id()?;
     let target_title = env::var("OCENTRA_SCREEN_CAPTURE_WINDOW_TITLE_CONTAINS")
         .ok()
         .and_then(|value| ScreenCaptureWindowTitleQuery::try_from(value).ok());
@@ -44,32 +45,35 @@ fn main() {
             .unwrap_or_else(capture_active_window_png),
         ScreenCaptureScope::PrimaryDisplay => capture_primary_display_png(),
     };
+    let status = attempt.status();
     let requested_scope_label = proof_scope_label(requested_scope);
 
     write_run_metadata(
         &output_dir,
         &run_id,
-        attempt.status(),
+        &status,
         target_title.as_ref(),
         requested_scope_label,
         keep_raw_until_analysis,
-    );
-    write_trigger_input(&output_dir, requested_scope_label);
+    )?;
+    write_trigger_input(&output_dir, requested_scope_label)?;
 
     match attempt {
         ScreenCaptureAttempt::Captured(image) => {
             write_captured_artifacts(
                 &output_dir,
                 &run_id,
-                image,
+                &image,
                 requested_scope_label,
                 keep_raw_until_analysis,
-            );
+            )?;
         }
         ScreenCaptureAttempt::Degraded(metadata) => {
-            write_degraded_artifacts(&output_dir, metadata.status);
+            write_degraded_artifacts(&output_dir, &metadata.status)?;
         }
     }
+
+    Ok(())
 }
 
 fn requested_scope(value: &str) -> ScreenCaptureScope {

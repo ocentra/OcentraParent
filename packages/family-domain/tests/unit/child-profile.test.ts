@@ -2,10 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import {
-  doesChildProfileMatchDeviceReference,
-  toChildProfileReference,
-} from '../../src/child-profile';
+import { doesChildProfileMatchDeviceReference, toChildProfileReference } from '../../src/child-profile';
 import { ChildProfileSchema } from '@ocentra-parent/schema-domain/family-child-profile';
 import { ParentMemberSchema } from '@ocentra-parent/schema-domain/family-household-authority';
 import { ParentDeviceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
@@ -63,7 +60,7 @@ describe('child profile contracts', () => {
     for (const fileName of childProfileConsumerFiles) {
       const fileContents = readFileSync(path.join(setupDomainSourceDirectory, fileName), 'utf8');
 
-      expect(fileContents.includes("@ocentra-parent/schema-domain/family-references")).toBe(true);
+      expect(fileContents.includes('@ocentra-parent/schema-domain/family-references')).toBe(true);
       expect(fileContents.includes('ChildProfileSchema')).toBe(false);
     }
   });

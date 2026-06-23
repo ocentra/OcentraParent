@@ -5,10 +5,10 @@ import {
   AppInstallPurchaseApprovalPlatformSupportRowSchema,
   AppInstallPurchaseApprovalStateSnapshotSchema,
   AppInstallPurchaseApprovalStoreMetadataSchema,
-} from '../../src/app-install-purchase-approval';
-import { AppInstallPurchaseApprovalPackageSourceArtifactRowSchema } from '../../src/app-install-purchase-approval-package-sources';
-import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from '../../src/app-install-purchase-approval-platform-sources';
-import { AppInstallPurchaseApprovalContractProofReadModel } from '../../src/app-install-purchase-approval-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-approval';
+import { AppInstallPurchaseApprovalPackageSourceArtifactRowSchema } from '@ocentra-parent/schema-domain/app-install-purchase-approval-package-sources';
+import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from '@ocentra-parent/schema-domain/app-install-purchase-approval-platform-sources';
+import { AppInstallPurchaseApprovalContractProofReadModel } from '@ocentra-parent/schema-domain/app-install-purchase-approval-proof';
 
 describe('app install and purchase approval contracts', () => {
   acceptsTheContractOnlyInstallPurchaseAndSubscriptionProof();

@@ -1,10 +1,15 @@
-use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, SocialDashboardUxSnapshot, SOCIAL_DASHBOARD_CAPABILITY_READY,
-    SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED, SOCIAL_DASHBOARD_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    SOCIAL_DASHBOARD_PANEL_ACCOUNT_APPROVAL_QUEUE, SOCIAL_DASHBOARD_PANEL_FEED_VIDEO_GATES,
-    SOCIAL_DASHBOARD_PANEL_SETTINGS_CUSTODY, SOCIAL_DASHBOARD_REASON_SETTINGS_CUSTODY_RUNTIME_GAP,
-    SOCIAL_DASHBOARD_SCHEMA_VERSION,
-};
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::SocialDashboardUxSnapshot;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CAPABILITY_READY;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_PANEL_ACCOUNT_APPROVAL_QUEUE;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_PANEL_FEED_VIDEO_GATES;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_PANEL_SETTINGS_CUSTODY;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_REASON_SETTINGS_CUSTODY_RUNTIME_GAP;
+use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_SCHEMA_VERSION;
 
 use super::social_dashboard_read_model_payload::{
     social_dashboard_read_model_from_service, social_dashboard_read_model_payload,
@@ -18,8 +23,8 @@ fn social_dashboard_payload_reports_seven_honest_service_rows() {
         &payload,
         constants::field::BROWSER_SOCIAL_DASHBOARD_READ_MODEL,
     );
-    let decoded: SocialDashboardUxSnapshot =
-        serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let decoded: SocialDashboardUxSnapshot = serde_json::from_str(read_model_json)
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(decoded.schema_version, SOCIAL_DASHBOARD_SCHEMA_VERSION);
     assert_eq!(decoded.panels.len(), 7);
@@ -61,18 +66,18 @@ fn social_dashboard_payload_reports_seven_honest_service_rows() {
 }
 
 fn string_payload<'a>(
-    payload: &'a ocentra_parent_agent_protocol::LogFields,
+    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
     field: &str,
 ) -> &'a str {
     match &payload[field] {
         LogFieldValue::String(text) => text,
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }
 
-fn number_payload(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> f64 {
+fn number_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> f64 {
     match &payload[field] {
         LogFieldValue::Number(value) => *value,
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

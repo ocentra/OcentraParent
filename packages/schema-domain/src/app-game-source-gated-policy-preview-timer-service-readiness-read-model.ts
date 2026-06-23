@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema } from './app-game-source-gated-policy-preview-timer-audit-rollback-handoff';
@@ -29,9 +24,12 @@ import {
 } from './app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelId');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowId');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowId'
+);
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelContractRefSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelContractRef');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelSummaryRefSchema =

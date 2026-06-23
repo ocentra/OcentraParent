@@ -3,7 +3,7 @@ import {
   RequiredTrackingChildRuntimeProductReadinessBlockers,
   TrackingChildRuntimeProductReadinessBlockerRowSchema,
   buildTrackingChildRuntimeProductReadinessBlockerProof,
-} from '../../src/tracking-child-runtime-product-readiness-blocker-proof';
+} from '@ocentra-parent/schema-domain/tracking-child-runtime-product-readiness-blocker-proof';
 import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 const GeneratedAt = '2026-06-07T16:05:00.000Z';
@@ -124,7 +124,7 @@ function snapshotRequirementsProof(): unknown {
       generatedAt: GeneratedAt,
       sourceExecutionReadinessId: 'tracking-child-runtime-execution-readiness-proof',
       sourceExecutionReadinessGeneratedAt: GeneratedAt,
-      sourceContractRefs: ['packages/tracking-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts'],
+      sourceContractRefs: ['packages/schema-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts'],
       rows: [snapshotRequirementsRow()],
       requiredSnapshotKindCount: 5,
       deliveryEnvelopeRequirementCount: 1,

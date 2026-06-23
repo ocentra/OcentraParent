@@ -1,11 +1,18 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserPolicyActionExecutionState, BrowserPolicyAiAuthority,
-    BrowserPolicyApprovalState, BrowserPolicyCapabilityState, BrowserPolicyDefaultPosture,
-    BrowserPolicyEvidenceProofLevel, BrowserPolicyExecutionMode,
-    BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserMode,
-    BrowserPolicyRule, BrowserPolicyRuleAction, BrowserPolicyTargetProofRequirement,
-    BrowserPolicyUrlTargetType, BrowserPolicyValue,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::BrowserPolicyActionExecutionState;
+use ocentra_parent_agent_protocol::BrowserPolicyAiAuthority;
+use ocentra_parent_agent_protocol::BrowserPolicyApprovalState;
+use ocentra_parent_agent_protocol::BrowserPolicyCapabilityState;
+use ocentra_parent_agent_protocol::BrowserPolicyDefaultPosture;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceProofLevel;
+use ocentra_parent_agent_protocol::BrowserPolicyExecutionMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserIntegrationMechanism;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserMode;
+use ocentra_parent_agent_protocol::BrowserPolicyRule;
+use ocentra_parent_agent_protocol::BrowserPolicyRuleAction;
+use ocentra_parent_agent_protocol::BrowserPolicyTargetProofRequirement;
+use ocentra_parent_agent_protocol::BrowserPolicyUrlTargetType;
+use ocentra_parent_agent_protocol::BrowserPolicyValue;
 
 #[derive(Clone, Copy)]
 pub(crate) struct RuleCompileAssessment {

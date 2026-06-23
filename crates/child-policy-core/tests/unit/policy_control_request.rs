@@ -1,4 +1,8 @@
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
+};
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_child_device_id, child_domain_child_profile_id, child_domain_evidence_ref,
     child_domain_observed_at, child_domain_policy_request_id,
@@ -7,8 +11,7 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 use ocentra_policy_control_core::policy_request::{
-    PolicyAssistantConfirmationState, PolicyAssistantPreviewId, PolicyDurationMinutes,
-    PolicyRequestKind, PolicyRequestOrigin, PolicyRequestStatus, PolicyRequestTarget,
+    PolicyAssistantPreviewId, PolicyDurationMinutes, PolicyRequestKind, PolicyRequestTarget,
     PolicyRequestTimestamp,
 };
 use ocentra_policy_control_core::policy_source::{
@@ -25,34 +28,35 @@ fn child_origin_violation_becomes_pending_parent_review_request() {
     let request = build_policy_control_request_from_child_violation(
         &violation(),
         ChildPolicyControlRequestInput {
-            household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
+            household_id: PolicyHouseholdId::parse("household-default")
+                .expect_value("household id"),
             source_document_id: ParentPolicyDocumentId::parse("policy-source-browser-default")
-                .expect("policy source document id"),
-            policy_version: PolicyVersion::new(3).expect("policy version"),
+                .expect_value("policy source document id"),
+            policy_version: PolicyVersion::new(3).expect_value("policy version"),
             request_kind: PolicyRequestKind::AskParent,
             target: PolicyRequestTarget {
                 kind: PolicyTargetKind::Site,
                 reference_id: PolicyTargetReferenceId::parse("site:example-video")
-                    .expect("policy target ref"),
+                    .expect_value("policy target ref"),
             },
             requested_action: PolicyRuleAction::AskParent,
             rule_id: Some(
-                PolicyRuleId::parse("rule-browser-video-default").expect("policy rule id"),
+                PolicyRuleId::parse("rule-browser-video-default").expect_value("policy rule id"),
             ),
             requested_bonus_minutes: None,
             origin: PolicyRequestOrigin::Child,
             assistant_preview_id: None,
             expires_at: PolicyRequestTimestamp::parse("2026-06-13T22:30:00Z")
-                .expect("policy request expiry"),
+                .expect_value("policy request expiry"),
             audit_reference_ids: vec![
                 PolicyAuditReferenceId::parse("audit-request-browser-video")
-                    .expect("policy audit ref"),
+                    .expect_value("policy audit ref"),
                 PolicyAuditReferenceId::parse("audit-request-browser-video")
-                    .expect("policy audit ref"),
+                    .expect_value("policy audit ref"),
             ],
         },
     )
-    .expect("child-origin request");
+    .expect_value("child-origin request");
 
     assert_eq!(request.status, PolicyRequestStatus::PendingParentReview);
     assert_eq!(request.origin, PolicyRequestOrigin::Child);
@@ -84,31 +88,36 @@ fn assistant_draft_violation_becomes_preview_only_bonus_time_request() {
     let request = build_policy_control_request_from_child_violation(
         &violation(),
         ChildPolicyControlRequestInput {
-            household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
+            household_id: PolicyHouseholdId::parse("household-default")
+                .expect_value("household id"),
             source_document_id: ParentPolicyDocumentId::parse("policy-source-browser-default")
-                .expect("policy source document id"),
-            policy_version: PolicyVersion::new(4).expect("policy version"),
+                .expect_value("policy source document id"),
+            policy_version: PolicyVersion::new(4).expect_value("policy version"),
             request_kind: PolicyRequestKind::BonusTime,
             target: PolicyRequestTarget {
                 kind: PolicyTargetKind::App,
                 reference_id: PolicyTargetReferenceId::parse("app:video-player")
-                    .expect("policy target ref"),
+                    .expect_value("policy target ref"),
             },
             requested_action: PolicyRuleAction::Allow,
-            rule_id: Some(PolicyRuleId::parse("rule-bonus-time-default").expect("policy rule id")),
-            requested_bonus_minutes: Some(PolicyDurationMinutes::new(15).expect("bonus minutes")),
+            rule_id: Some(
+                PolicyRuleId::parse("rule-bonus-time-default").expect_value("policy rule id"),
+            ),
+            requested_bonus_minutes: Some(
+                PolicyDurationMinutes::new(15).expect_value("bonus minutes"),
+            ),
             origin: PolicyRequestOrigin::AssistantDraft,
             assistant_preview_id: Some(
                 PolicyAssistantPreviewId::parse("assistant-preview-browser-video")
-                    .expect("assistant preview id"),
+                    .expect_value("assistant preview id"),
             ),
             expires_at: PolicyRequestTimestamp::parse("2026-06-13T22:45:00Z")
-                .expect("policy request expiry"),
+                .expect_value("policy request expiry"),
             audit_reference_ids: vec![PolicyAuditReferenceId::parse("audit-preview-browser-video")
-                .expect("policy audit ref")],
+                .expect_value("policy audit ref")],
         },
     )
-    .expect("assistant preview request");
+    .expect_value("assistant preview request");
 
     assert_eq!(request.status, PolicyRequestStatus::PreviewOnly);
     assert_eq!(request.origin, PolicyRequestOrigin::AssistantDraft);
@@ -144,7 +153,7 @@ fn policy_control_request_bridge_rejects_wrong_event_shape() {
 
     let wrong_event_error =
         build_policy_control_request_from_child_violation(&wrong_event, child_origin_input())
-            .expect_err("must reject wrong event type");
+            .expect_err_value("must reject wrong event type");
     assert_eq!(
         wrong_event_error,
         EventingError::InvalidValue {
@@ -160,7 +169,7 @@ fn policy_control_request_bridge_rejects_wrong_event_shape() {
     missing_evidence.evidence_refs.clear();
     let missing_evidence_error =
         build_policy_control_request_from_child_violation(&missing_evidence, child_origin_input())
-            .expect_err("must reject missing evidence");
+            .expect_err_value("must reject missing evidence");
     assert_eq!(
         missing_evidence_error,
         EventingError::InvalidValue {
@@ -172,26 +181,27 @@ fn policy_control_request_bridge_rejects_wrong_event_shape() {
 
 fn child_origin_input() -> ChildPolicyControlRequestInput {
     ChildPolicyControlRequestInput {
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
+        household_id: PolicyHouseholdId::parse("household-default").expect_value("household id"),
         source_document_id: ParentPolicyDocumentId::parse("policy-source-browser-default")
-            .expect("policy source document id"),
-        policy_version: PolicyVersion::new(3).expect("policy version"),
+            .expect_value("policy source document id"),
+        policy_version: PolicyVersion::new(3).expect_value("policy version"),
         request_kind: PolicyRequestKind::AskParent,
         target: PolicyRequestTarget {
             kind: PolicyTargetKind::Site,
             reference_id: PolicyTargetReferenceId::parse("site:example-video")
-                .expect("policy target ref"),
+                .expect_value("policy target ref"),
         },
         requested_action: PolicyRuleAction::AskParent,
-        rule_id: Some(PolicyRuleId::parse("rule-browser-video-default").expect("policy rule id")),
+        rule_id: Some(
+            PolicyRuleId::parse("rule-browser-video-default").expect_value("policy rule id"),
+        ),
         requested_bonus_minutes: None,
         origin: PolicyRequestOrigin::Child,
         assistant_preview_id: None,
         expires_at: PolicyRequestTimestamp::parse("2026-06-13T22:30:00Z")
-            .expect("policy request expiry"),
-        audit_reference_ids: vec![
-            PolicyAuditReferenceId::parse("audit-request-browser-video").expect("policy audit ref")
-        ],
+            .expect_value("policy request expiry"),
+        audit_reference_ids: vec![PolicyAuditReferenceId::parse("audit-request-browser-video")
+            .expect_value("policy audit ref")],
     }
 }
 
@@ -208,8 +218,8 @@ fn violation() -> ChildDomainPolicyViolationDetectedEvent {
         child_profile_id: child_domain_child_profile_id(),
         violation_id: child_domain_policy_violation_id_from_policy_request_id(&request_id),
         policy_rule_ref: ChildDomainPolicyRuleRef::parse("child-domain.policy.default")
-            .expect("policy rule ref"),
-        severity: ChildDomainPolicySeverity::parse("review").expect("policy severity"),
+            .expect_value("policy rule ref"),
+        severity: ChildDomainPolicySeverity::parse("review").expect_value("policy severity"),
         detected_at: child_domain_observed_at(),
         evidence_refs: vec![child_domain_evidence_ref(
             ChildRuntimeDomain::Browser,

@@ -1,15 +1,6 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { LocalAiContextNonNegativeCountSchema, LocalAiContextReasonCodeSchema } from './ai-context-primitives';
-import {
-  LocalAiConfidenceSchema,
-  LocalAiDerivedIndexVersionSchema,
-  LocalAiTimestampSchema,
-} from './ai-primitives';
+import { LocalAiConfidenceSchema, LocalAiDerivedIndexVersionSchema, LocalAiTimestampSchema } from './ai-primitives';
 import { ParentPolicyVersionSchema } from './family-reference-primitives';
 import {
   ChildProfileReferenceSchema,
@@ -159,4 +150,3 @@ function edgeReferencesReturnedNodes(
   const nodeIds = new Set(nodes.map((node) => node.nodeId));
   return nodeIds.has(edge.fromNodeId) && nodeIds.has(edge.toNodeId);
 }
-

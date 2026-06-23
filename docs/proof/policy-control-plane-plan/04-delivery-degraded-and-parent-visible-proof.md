@@ -22,7 +22,7 @@ Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit 
 
 ## TypeScript contract support
 
-- `packages/schema-domain/src/policy-event.ts` keeps delivery event kinds explicit: `policy.delivery.queued`, `policy.delivery.sent`, `policy.delivery.acknowledged`, `policy.delivery.rejected`, `policy.delivery.expired`, `policy.delivery.retry-scheduled`, `policy.domain.applied`, `policy.manual-required`, `policy.rollback.applied`, and `policy.audit.recorded`.
+- `packages/policy-domain/src/policy-event.ts` keeps delivery event kinds explicit: `policy.delivery.queued`, `policy.delivery.sent`, `policy.delivery.acknowledged`, `policy.delivery.rejected`, `policy.delivery.expired`, `policy.delivery.retry-scheduled`, `policy.domain.applied`, `policy.manual-required`, `policy.rollback.applied`, and `policy.audit.recorded`.
 - `policyEventAggregateKey: keeps delivery keys stable and redacted summaries free of private identifiers` proves the TS event boundary keeps delivery identity stable while avoiding private raw identifiers in summarized output.
 
 ## No fake-success boundary

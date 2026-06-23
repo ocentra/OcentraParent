@@ -8,7 +8,8 @@ pub const LOG_SCHEMA_VERSION: u16 = 1;
 #[serde(rename_all = "camelCase")]
 pub struct ParentLogEvent {
     pub schema_version: u16,
-    pub id: String,
+    #[serde(rename = "id")]
+    pub entry_id: String,
     pub timestamp: String,
     pub level: LogLevel,
     pub source: LogSource,

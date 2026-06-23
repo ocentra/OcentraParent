@@ -5,10 +5,7 @@ import {
   ScreenOcrTextSnippetSchema,
   ScreenRiskSignalCandidateSchema,
 } from './screen-evidence-result';
-import {
-  ScreenEvidenceConfidenceSchema,
-  ScreenEvidenceSummaryTextSchema,
-} from './screen-evidence-primitives';
+import { ScreenEvidenceConfidenceSchema, ScreenEvidenceSummaryTextSchema } from './screen-evidence-primitives';
 import {
   ScreenRedactionNoteSchema,
   ScreenRiskSignalSchema,

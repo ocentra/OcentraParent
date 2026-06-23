@@ -1,10 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, LogFieldValue, LogFields, ScreenAnalysisResult,
-    ScreenCategoryCandidate, ScreenEvidenceQueueHealth, ScreenEvidenceRecentSummary,
-    SCREEN_CUSTODY_QUERY_STORE, SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED,
-    SCREEN_DELETION_EXPIRED_DELETED, SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_QUEUE_STATUS_DELETED,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenAnalysisResult, ScreenCategoryCandidate, ScreenEvidenceQueueHealth,
+    ScreenEvidenceRecentSummary, SCREEN_CUSTODY_QUERY_STORE, SCREEN_DELETION_DELETED,
+    SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_EXPIRED_DELETED, SCREEN_QUEUE_STATUS_DELETED,
     SCREEN_QUEUE_STATUS_EXPIRED, SCREEN_QUEUE_STATUS_FAILED,
 };
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;

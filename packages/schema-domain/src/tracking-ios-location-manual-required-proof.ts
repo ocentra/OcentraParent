@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -15,9 +10,15 @@ const TrackingIosLocationManualRequiredNonNegativeIntegerSchema = Schema.Number.
   Schema.nonNegative()
 );
 
-export const TrackingIosLocationManualRequiredProofIdSchema = brandedNonEmptyStringSchema('TrackingIosLocationManualRequiredProofId');
-export const TrackingIosLocationManualRequiredProofReferenceSchema = brandedNonEmptyStringSchema('TrackingIosLocationManualRequiredProofReference');
-export const TrackingIosLocationRuntimeArtifactRefSchema = brandedNonEmptyStringSchema('TrackingIosLocationRuntimeArtifactRef');
+export const TrackingIosLocationManualRequiredProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingIosLocationManualRequiredProofId'
+);
+export const TrackingIosLocationManualRequiredProofReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingIosLocationManualRequiredProofReference'
+);
+export const TrackingIosLocationRuntimeArtifactRefSchema = brandedNonEmptyStringSchema(
+  'TrackingIosLocationRuntimeArtifactRef'
+);
 
 export const TrackingIosLocationManualRequiredCaseSchema = withParser(
   Schema.Literal(
@@ -521,4 +522,3 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
-

@@ -1,13 +1,6 @@
 import { EventingEventTypeSchema } from './eventing';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
-import {
-  AgentEventDeliveryMode,
-  AgentEventEnvelopeSchema,
   AgentDeviceIdSchema,
   AgentMessageIdSchema,
   AgentPeerIdSchema,
@@ -23,35 +16,19 @@ const AgentTrackingSharedRuntimeEventTypeLiteral = {
   PortalReadModelUpdated: 'portal.read_model.updated',
 } as const;
 
-export const AgentTrackingRetentionCommandIdSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingRetentionCommandId'
-);
-export const AgentTrackingWriterIntentRefSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingWriterIntentRef'
-);
-export const AgentTrackingReadModelProofRefSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingReadModelProofRef'
-);
-export const AgentTrackingMutationProofRefSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingMutationProofRef'
-);
-export const AgentTrackingAcceptedAtSchema = brandedNonEmptyStringSchema('AgentTrackingAcceptedAt');
-export const AgentTrackingEventRefSchema = brandedNonEmptyStringSchema('AgentTrackingEventRef');
-export const AgentTrackingLocalServiceStateSnapshotRefSchema = brandedNonEmptyStringSchema(
+const AgentTrackingRetentionCommandIdSchema = brandedNonEmptyStringSchema('AgentTrackingRetentionCommandId');
+const AgentTrackingWriterIntentRefSchema = brandedNonEmptyStringSchema('AgentTrackingWriterIntentRef');
+const AgentTrackingReadModelProofRefSchema = brandedNonEmptyStringSchema('AgentTrackingReadModelProofRef');
+const AgentTrackingMutationProofRefSchema = brandedNonEmptyStringSchema('AgentTrackingMutationProofRef');
+const AgentTrackingAcceptedAtSchema = brandedNonEmptyStringSchema('AgentTrackingAcceptedAt');
+const AgentTrackingEventRefSchema = brandedNonEmptyStringSchema('AgentTrackingEventRef');
+const AgentTrackingLocalServiceStateSnapshotRefSchema = brandedNonEmptyStringSchema(
   'AgentTrackingLocalServiceStateSnapshotRef'
 );
-export const AgentTrackingDurableSettingsStoreRefSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingDurableSettingsStoreRef'
-);
-export const AgentTrackingPolicyRuleRefSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingPolicyRuleRef'
-);
-export const AgentTrackingReadModelEventIdSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingReadModelEventId'
-);
-export const AgentTrackingRejectionReasonCodeSchema = brandedNonEmptyStringSchema(
-  'AgentTrackingRejectionReasonCode'
-);
+const AgentTrackingDurableSettingsStoreRefSchema = brandedNonEmptyStringSchema('AgentTrackingDurableSettingsStoreRef');
+const AgentTrackingPolicyRuleRefSchema = brandedNonEmptyStringSchema('AgentTrackingPolicyRuleRef');
+const AgentTrackingReadModelEventIdSchema = brandedNonEmptyStringSchema('AgentTrackingReadModelEventId');
+const AgentTrackingRejectionReasonCodeSchema = brandedNonEmptyStringSchema('AgentTrackingRejectionReasonCode');
 
 export const AgentTrackingConfigUpdateEventType = {
   Parent: EventingEventTypeSchema.parse('tracking.config.updated.parent'),
@@ -69,15 +46,13 @@ export const AgentTrackingConfigCommandFlowEventType = {
   PolicyDecisionCompleted: EventingEventTypeSchema.parse(
     AgentTrackingSharedRuntimeEventTypeLiteral.PolicyDecisionCompleted
   ),
-  AuditEntryCommitted: EventingEventTypeSchema.parse(
-    AgentTrackingSharedRuntimeEventTypeLiteral.AuditEntryCommitted
-  ),
+  AuditEntryCommitted: EventingEventTypeSchema.parse(AgentTrackingSharedRuntimeEventTypeLiteral.AuditEntryCommitted),
   PortalReadModelUpdated: EventingEventTypeSchema.parse(
     AgentTrackingSharedRuntimeEventTypeLiteral.PortalReadModelUpdated
   ),
 } as const;
 
-export const AgentTrackingConfigUpdateTargetScopeLiteral = {
+const AgentTrackingConfigUpdateTargetScopeLiteral = {
   Family: 'family',
   ChildProfile: 'child-profile',
   ChildDevice: 'child-device',
@@ -95,47 +70,47 @@ export const AgentTrackingEffectiveStateLiteral = {
   Degraded: 'degraded',
 } as const;
 
-export const AgentTrackingDeleteAfterAlertResolutionStateLiteral = {
+const AgentTrackingDeleteAfterAlertResolutionStateLiteral = {
   DeleteAfterAlertResolved: 'delete-after-alert-resolved',
   RetainAfterAlertResolved: 'retain-after-alert-resolved',
 } as const;
 
-export const AgentTrackingParentExportStateLiteral = {
+const AgentTrackingParentExportStateLiteral = {
   Prepared: 'prepared',
   NotPrepared: 'not-prepared',
 } as const;
 
-export const AgentTrackingEnabledStateLiteral = {
+const AgentTrackingEnabledStateLiteral = {
   Enabled: 'enabled',
   Disabled: 'disabled',
 } as const;
 
-export const AgentTrackingRuntimeModeLiteral = {
+const AgentTrackingRuntimeModeLiteral = {
   ObserveOnly: 'observe-only',
   PolicyEligible: 'policy-eligible',
 } as const;
 
-export const AgentTrackingAiBoundaryModeLiteral = {
+const AgentTrackingAiBoundaryModeLiteral = {
   RequestWhenUncertain: 'request-when-uncertain',
   Disabled: 'disabled',
 } as const;
 
-export const AgentTrackingNotificationModeLiteral = {
+const AgentTrackingNotificationModeLiteral = {
   ParentPortalOnly: 'portal-only',
   Disabled: 'disabled',
 } as const;
 
-export const AgentTrackingDurableSettingsPersistenceStateLiteral = {
+const AgentTrackingDurableSettingsPersistenceStateLiteral = {
   Persisted: 'persisted',
   NotPersisted: 'not-persisted',
 } as const;
 
-export const AgentTrackingConfigAckStateLiteral = {
+const AgentTrackingConfigAckStateLiteral = {
   Received: 'received',
   Missing: 'missing',
 } as const;
 
-export const AgentTrackingExecutionClaimStateLiteral = {
+const AgentTrackingExecutionClaimStateLiteral = {
   Claimed: 'claimed',
   Unclaimed: 'unclaimed',
 } as const;
@@ -189,14 +164,14 @@ export const AgentTrackingRetentionSettingsWriteStateSchema = withParser(
   )
 );
 
-export const AgentTrackingConfigUpdateResponseStateSchema = withParser(
+const AgentTrackingConfigUpdateResponseStateSchema = withParser(
   Schema.Literal(
     AgentTrackingConfigUpdateResponseStateLiteral.Applied,
     AgentTrackingConfigUpdateResponseStateLiteral.Rejected
   )
 );
 
-export const AgentTrackingEffectiveStateSchema = withParser(
+const AgentTrackingEffectiveStateSchema = withParser(
   Schema.Literal(
     AgentTrackingEffectiveStateLiteral.Enabled,
     AgentTrackingEffectiveStateLiteral.Disabled,
@@ -204,83 +179,68 @@ export const AgentTrackingEffectiveStateSchema = withParser(
   )
 );
 
-export const AgentTrackingDeleteAfterAlertResolutionStateSchema = withParser(
+const AgentTrackingDeleteAfterAlertResolutionStateSchema = withParser(
   Schema.Literal(
     AgentTrackingDeleteAfterAlertResolutionStateLiteral.DeleteAfterAlertResolved,
     AgentTrackingDeleteAfterAlertResolutionStateLiteral.RetainAfterAlertResolved
   )
 );
 
-export const AgentTrackingParentExportStateSchema = withParser(
-  Schema.Literal(
-    AgentTrackingParentExportStateLiteral.Prepared,
-    AgentTrackingParentExportStateLiteral.NotPrepared
-  )
+const AgentTrackingParentExportStateSchema = withParser(
+  Schema.Literal(AgentTrackingParentExportStateLiteral.Prepared, AgentTrackingParentExportStateLiteral.NotPrepared)
 );
 
-export const AgentTrackingRuntimeEnabledStateSchema = withParser(
+const AgentTrackingRuntimeEnabledStateSchema = withParser(
   Schema.Literal(AgentTrackingEnabledStateLiteral.Enabled, AgentTrackingEnabledStateLiteral.Disabled)
 );
 
-export const AgentTrackingRuntimeModeSchema = withParser(
-  Schema.Literal(
-    AgentTrackingRuntimeModeLiteral.ObserveOnly,
-    AgentTrackingRuntimeModeLiteral.PolicyEligible
-  )
+const AgentTrackingRuntimeModeSchema = withParser(
+  Schema.Literal(AgentTrackingRuntimeModeLiteral.ObserveOnly, AgentTrackingRuntimeModeLiteral.PolicyEligible)
 );
 
-export const AgentTrackingAiBoundaryModeSchema = withParser(
-  Schema.Literal(
-    AgentTrackingAiBoundaryModeLiteral.RequestWhenUncertain,
-    AgentTrackingAiBoundaryModeLiteral.Disabled
-  )
+const AgentTrackingAiBoundaryModeSchema = withParser(
+  Schema.Literal(AgentTrackingAiBoundaryModeLiteral.RequestWhenUncertain, AgentTrackingAiBoundaryModeLiteral.Disabled)
 );
 
-export const AgentTrackingNotificationModeSchema = withParser(
-  Schema.Literal(
-    AgentTrackingNotificationModeLiteral.ParentPortalOnly,
-    AgentTrackingNotificationModeLiteral.Disabled
-  )
+const AgentTrackingNotificationModeSchema = withParser(
+  Schema.Literal(AgentTrackingNotificationModeLiteral.ParentPortalOnly, AgentTrackingNotificationModeLiteral.Disabled)
 );
 
-export const AgentTrackingRemoteSyncStateSchema = withParser(
+const AgentTrackingRemoteSyncStateSchema = withParser(
   Schema.Literal(AgentTrackingEnabledStateLiteral.Enabled, AgentTrackingEnabledStateLiteral.Disabled)
 );
 
-export const AgentTrackingRemoteAiStateSchema = withParser(
+const AgentTrackingRemoteAiStateSchema = withParser(
   Schema.Literal(AgentTrackingEnabledStateLiteral.Enabled, AgentTrackingEnabledStateLiteral.Disabled)
 );
 
-export const AgentTrackingDurableSettingsPersistenceStateSchema = withParser(
+const AgentTrackingDurableSettingsPersistenceStateSchema = withParser(
   Schema.Literal(
     AgentTrackingDurableSettingsPersistenceStateLiteral.Persisted,
     AgentTrackingDurableSettingsPersistenceStateLiteral.NotPersisted
   )
 );
 
-export const AgentTrackingConfigAckStateSchema = withParser(
+const AgentTrackingConfigAckStateSchema = withParser(
   Schema.Literal(AgentTrackingConfigAckStateLiteral.Received, AgentTrackingConfigAckStateLiteral.Missing)
 );
 
-export const AgentTrackingExecutionClaimStateSchema = withParser(
+const AgentTrackingExecutionClaimStateSchema = withParser(
   Schema.Literal(AgentTrackingExecutionClaimStateLiteral.Claimed, AgentTrackingExecutionClaimStateLiteral.Unclaimed)
 );
 
-export const AgentTrackingConfigPolicyDecisionStateSchema = withParser(
+const AgentTrackingConfigPolicyDecisionStateSchema = withParser(
   Schema.Literal(
     AgentTrackingConfigPolicyDecisionStateLiteral.Approved,
     AgentTrackingConfigPolicyDecisionStateLiteral.Rejected
   )
 );
 
-export const AgentTrackingConfigAuditOutcomeSchema = withParser(
-  Schema.Literal(
-    AgentTrackingConfigAuditOutcomeLiteral.Committed,
-    AgentTrackingConfigAuditOutcomeLiteral.Failed
-  )
+const AgentTrackingConfigAuditOutcomeSchema = withParser(
+  Schema.Literal(AgentTrackingConfigAuditOutcomeLiteral.Committed, AgentTrackingConfigAuditOutcomeLiteral.Failed)
 );
 
-export const AgentTrackingConfigPortalUpdateKindSchema = withParser(
+const AgentTrackingConfigPortalUpdateKindSchema = withParser(
   Schema.Literal(
     AgentTrackingConfigPortalUpdateKindLiteral.TrackingConfigState,
     AgentTrackingConfigPortalUpdateKindLiteral.ManualRequiredState
@@ -319,9 +279,7 @@ export const AgentTrackingAiBoundaryMode = {
 } as const;
 
 export const AgentTrackingNotificationMode = {
-  ParentPortalOnly: AgentTrackingNotificationModeSchema.parse(
-    AgentTrackingNotificationModeLiteral.ParentPortalOnly
-  ),
+  ParentPortalOnly: AgentTrackingNotificationModeSchema.parse(AgentTrackingNotificationModeLiteral.ParentPortalOnly),
   Disabled: AgentTrackingNotificationModeSchema.parse(AgentTrackingNotificationModeLiteral.Disabled),
 } as const;
 
@@ -358,15 +316,7 @@ const AgentTrackingNonEmptyPolicyRuleRefsSchema = Schema.Array(AgentTrackingPoli
   Schema.filter((refs) => refs.length > 0 || 'Tracking config flow requires parent policy rule refs')
 );
 
-export const AgentTrackingConfigUpdateEventNameSchema = withParser(
-  Schema.Literal(
-    AgentTrackingConfigUpdateEventType.Parent,
-    AgentTrackingConfigUpdateEventType.Child,
-    AgentTrackingConfigUpdateEventType.Applied
-  )
-);
-
-export const AgentTrackingConfigUpdateTargetScopeSchema = withParser(
+const AgentTrackingConfigUpdateTargetScopeSchema = withParser(
   Schema.Literal(
     AgentTrackingConfigUpdateTargetScopeLiteral.Family,
     AgentTrackingConfigUpdateTargetScopeLiteral.ChildProfile,
@@ -404,7 +354,7 @@ export const AgentTrackingRetentionSettingsWriteRequestSchema = withParser(
     )
 );
 
-export const AgentTrackingRuntimeConfigSchema = withParser(
+const AgentTrackingRuntimeConfigSchema = withParser(
   Schema.Struct({
     trackingEnabledState: AgentTrackingRuntimeEnabledStateSchema,
     trackingMode: AgentTrackingRuntimeModeSchema,
@@ -427,7 +377,7 @@ export const AgentTrackingConfigUpdateRequestSchema = withParser(
   )
 );
 
-export const AgentTrackingConfigUpdateTargetSchema = withParser(
+const AgentTrackingConfigUpdateTargetSchema = withParser(
   Schema.Struct({
     scope: AgentTrackingConfigUpdateTargetScopeSchema,
     deviceId: AgentDeviceIdSchema,
@@ -468,7 +418,7 @@ export const TrackingConfigUpdateAppliedEventSchema = withParser(
   })
 );
 
-export const TrackingRuntimeEventNameLiteral = {
+const TrackingRuntimeEventNameLiteral = {
   LocationObserved: 'tracking.location.observed',
   EvidenceRecorded: 'tracking.evidence.recorded',
   AiAnalysisRequested: 'tracking.ai.analysis.requested',
@@ -501,75 +451,6 @@ export const TrackingEventNameSchema = withParser(
       (eventName) =>
         EventingEventTypeSchema.safeParse(eventName).success ||
         'Expected tracking event name to satisfy the shared eventing taxonomy'
-    )
-  )
-);
-
-export const TrackingRuntimeConfigUpdatedPayloadSchema = AgentTrackingConfigUpdateRequestSchema;
-
-export const TrackingRuntimeConfigUpdatedEventSchema = withParser(
-  Schema.Struct({
-    envelope: AgentEventEnvelopeSchema,
-    payload: TrackingRuntimeConfigUpdatedPayloadSchema,
-  }).pipe(
-    Schema.filter(
-      (event) =>
-        (event.envelope.eventName === TrackingEventName.ConfigUpdated &&
-          event.envelope.deliveryMode === AgentEventDeliveryMode.RequestResponse) ||
-        'Tracking config update events use the tracking-owned payload schema and request-response delivery'
-    )
-  )
-);
-
-export const TrackingRuntimeChildConfigUpdatedEventSchema = withParser(
-  Schema.Struct({
-    envelope: AgentEventEnvelopeSchema,
-    payload: TrackingRuntimeConfigUpdatedPayloadSchema,
-  }).pipe(
-    Schema.filter(
-      (event) =>
-        (event.envelope.eventName === TrackingEventName.ChildConfigUpdated &&
-          event.envelope.deliveryMode === AgentEventDeliveryMode.FireAndForget) ||
-        'Child tracking config update events use the tracking-owned payload schema and fire-and-forget child delivery'
-    )
-  )
-);
-
-export const TrackingRuntimeChildConfigAppliedEventSchema = withParser(
-  Schema.Struct({
-    envelope: AgentEventEnvelopeSchema,
-    payload: TrackingConfigUpdateAppliedEventSchema,
-  }).pipe(
-    Schema.filter(
-      (event) =>
-        (event.envelope.eventName === TrackingEventName.ChildConfigApplied &&
-          event.envelope.deliveryMode === AgentEventDeliveryMode.FireAndForget) ||
-        'Child tracking config applied events use the canonical applied payload schema and fire-and-forget delivery'
-    )
-  )
-);
-
-export const TrackingRuntimeEventEnvelopeSchema = withParser(
-  Schema.Struct({
-    envelope: AgentEventEnvelopeSchema,
-    eventName: TrackingEventNameSchema,
-  }).pipe(
-    Schema.filter(
-      (event) =>
-        event.envelope.eventName === event.eventName ||
-        'Expected tracking runtime envelope eventName to match the typed tracking event name'
-    ),
-    Schema.filter(
-      (event) =>
-        event.eventName !== TrackingEventName.ConfigUpdated ||
-        event.envelope.deliveryMode === AgentEventDeliveryMode.RequestResponse ||
-        'Tracking config updates require request-response delivery'
-    ),
-    Schema.filter(
-      (event) =>
-        event.eventName === TrackingEventName.ConfigUpdated ||
-        event.envelope.deliveryMode === AgentEventDeliveryMode.FireAndForget ||
-        'Tracking runtime evidence-flow events are fire-and-forget events'
     )
   )
 );
@@ -688,12 +569,8 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
     localServiceStateSnapshotRef: AgentTrackingLocalServiceStateSnapshotRefSchema,
     durableSettingsStoreRef: AgentTrackingDurableSettingsStoreRefSchema,
     durableSettingsPersistenceState: AgentTrackingDurableSettingsPersistenceStateSchema,
-    childConfigResponseState: Schema.optional(
-      Schema.Union(AgentTrackingConfigUpdateResponseStateSchema, Schema.Null)
-    ),
-    effectiveTrackingState: Schema.optional(
-      Schema.Union(AgentTrackingEffectiveStateSchema, Schema.Null)
-    ),
+    childConfigResponseState: Schema.optional(Schema.Union(AgentTrackingConfigUpdateResponseStateSchema, Schema.Null)),
+    effectiveTrackingState: Schema.optional(Schema.Union(AgentTrackingEffectiveStateSchema, Schema.Null)),
     childConfigAckState: Schema.optionalWith(AgentTrackingConfigAckStateSchema, {
       default: () => AgentTrackingConfigAckState.Missing,
     }),
@@ -759,64 +636,11 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
 );
 
 export type AgentTrackingRetentionSettingsWriteKind = Infer<typeof AgentTrackingRetentionSettingsWriteKindSchema>;
-export type AgentTrackingDeleteAfterAlertResolutionState = Infer<
-  typeof AgentTrackingDeleteAfterAlertResolutionStateSchema
->;
-export type AgentTrackingParentExportState = Infer<typeof AgentTrackingParentExportStateSchema>;
-export type AgentTrackingRemoteSyncState = Infer<typeof AgentTrackingRemoteSyncStateSchema>;
-export type AgentTrackingRemoteAiState = Infer<typeof AgentTrackingRemoteAiStateSchema>;
-export type AgentTrackingDurableSettingsPersistenceState = Infer<
-  typeof AgentTrackingDurableSettingsPersistenceStateSchema
->;
-export type AgentTrackingConfigAckState = Infer<typeof AgentTrackingConfigAckStateSchema>;
-export type AgentTrackingExecutionClaimState = Infer<typeof AgentTrackingExecutionClaimStateSchema>;
 export type AgentTrackingRetentionSettingsWriteRequest = Infer<typeof AgentTrackingRetentionSettingsWriteRequestSchema>;
 export type AgentTrackingRetentionSettingsWriteResult = Infer<typeof AgentTrackingRetentionSettingsWriteResultSchema>;
-export type AgentTrackingRuntimeEnabledState = Infer<typeof AgentTrackingRuntimeEnabledStateSchema>;
-export type AgentTrackingRuntimeMode = Infer<typeof AgentTrackingRuntimeModeSchema>;
-export type AgentTrackingAiBoundaryMode = Infer<typeof AgentTrackingAiBoundaryModeSchema>;
-export type AgentTrackingNotificationMode = Infer<typeof AgentTrackingNotificationModeSchema>;
-export type AgentTrackingRuntimeConfig = Infer<typeof AgentTrackingRuntimeConfigSchema>;
 export type AgentTrackingConfigUpdateRequest = Infer<typeof AgentTrackingConfigUpdateRequestSchema>;
-export type AgentTrackingConfigUpdateTargetScope = Infer<typeof AgentTrackingConfigUpdateTargetScopeSchema>;
-export type AgentTrackingConfigUpdateTarget = Infer<typeof AgentTrackingConfigUpdateTargetSchema>;
-export type AgentTrackingConfigPolicyDecisionState = Infer<
-  typeof AgentTrackingConfigPolicyDecisionStateSchema
->;
-export type AgentTrackingConfigAuditOutcome = Infer<typeof AgentTrackingConfigAuditOutcomeSchema>;
-export type AgentTrackingConfigPortalUpdateKind = Infer<
-  typeof AgentTrackingConfigPortalUpdateKindSchema
->;
 export type TrackingEventName = Infer<typeof TrackingEventNameSchema>;
-export type TrackingRuntimeEnabledState = AgentTrackingRuntimeEnabledState;
-export type TrackingRuntimeConfigUpdatedPayload = Infer<typeof TrackingRuntimeConfigUpdatedPayloadSchema>;
-export type TrackingRuntimeConfigUpdatedEvent = Infer<typeof TrackingRuntimeConfigUpdatedEventSchema>;
-export type TrackingRuntimeChildConfigUpdatedEvent = Infer<
-  typeof TrackingRuntimeChildConfigUpdatedEventSchema
->;
-export type TrackingRuntimeChildConfigAppliedEvent = Infer<
-  typeof TrackingRuntimeChildConfigAppliedEventSchema
->;
-export type TrackingRuntimeEventEnvelope = Infer<typeof TrackingRuntimeEventEnvelopeSchema>;
-export type ParentTrackingConfigUpdatedEvent = Infer<typeof ParentTrackingConfigUpdatedEventSchema>;
-export type ChildTrackingConfigUpdatedEvent = Infer<typeof ChildTrackingConfigUpdatedEventSchema>;
-export type TrackingConfigUpdateAppliedEvent = Infer<typeof TrackingConfigUpdateAppliedEventSchema>;
 export type TrackingConfigUpdateResponse = Infer<typeof TrackingConfigUpdateResponseSchema>;
-export type TrackingConfigChangeRequestedEvent = Infer<typeof TrackingConfigChangeRequestedEventSchema>;
-export type TrackingConfigPolicyEvaluationRequestedEvent = Infer<
-  typeof TrackingConfigPolicyEvaluationRequestedEventSchema
->;
-export type TrackingConfigPolicyDecisionCompletedEvent = Infer<
-  typeof TrackingConfigPolicyDecisionCompletedEventSchema
->;
-export type TrackingConfigChangeApprovedEvent = Infer<typeof TrackingConfigChangeApprovedEventSchema>;
-export type TrackingConfigChangeRejectedEvent = Infer<typeof TrackingConfigChangeRejectedEventSchema>;
-export type TrackingConfigAuditEntryCommittedEvent = Infer<
-  typeof TrackingConfigAuditEntryCommittedEventSchema
->;
-export type TrackingConfigPortalReadModelUpdatedEvent = Infer<
-  typeof TrackingConfigPortalReadModelUpdatedEventSchema
->;
 
 export const TrackingEventName = {
   ConfigUpdated: TrackingEventNameSchema.parse(AgentTrackingConfigUpdateEventType.Parent),
@@ -824,30 +648,18 @@ export const TrackingEventName = {
   ChildConfigApplied: TrackingEventNameSchema.parse(AgentTrackingConfigUpdateEventType.Applied),
   LocationObserved: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.LocationObserved),
   EvidenceRecorded: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.EvidenceRecorded),
-  AiAnalysisRequested: TrackingEventNameSchema.parse(
-    TrackingRuntimeEventNameLiteral.AiAnalysisRequested
-  ),
-  NearbyPlaceClassified: TrackingEventNameSchema.parse(
-    TrackingRuntimeEventNameLiteral.NearbyPlaceClassified
-  ),
-  GeofenceTransitionDetected: TrackingEventNameSchema.parse(
-    TrackingRuntimeEventNameLiteral.GeofenceTransitionDetected
-  ),
+  AiAnalysisRequested: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.AiAnalysisRequested),
+  NearbyPlaceClassified: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.NearbyPlaceClassified),
+  GeofenceTransitionDetected: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.GeofenceTransitionDetected),
   ExpectedPlaceStateEvaluated: TrackingEventNameSchema.parse(
     TrackingRuntimeEventNameLiteral.ExpectedPlaceStateEvaluated
   ),
-  PolicyViolationDetected: TrackingEventNameSchema.parse(
-    TrackingRuntimeEventNameLiteral.PolicyViolationDetected
-  ),
+  PolicyViolationDetected: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.PolicyViolationDetected),
   ParentAcknowledgementRecorded: TrackingEventNameSchema.parse(
     TrackingRuntimeEventNameLiteral.ParentAcknowledgementRecorded
   ),
-  ChildCheckInRecorded: TrackingEventNameSchema.parse(
-    TrackingRuntimeEventNameLiteral.ChildCheckInRecorded
-  ),
+  ChildCheckInRecorded: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.ChildCheckInRecorded),
   ParentNotificationRequested: TrackingEventNameSchema.parse(
     TrackingRuntimeEventNameLiteral.ParentNotificationRequested
   ),
 } as const;
-
-export const TrackingRuntimeEnabledState = AgentTrackingRuntimeEnabledState;

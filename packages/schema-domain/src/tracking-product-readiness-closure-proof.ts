@@ -1,15 +1,11 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
 
-export const TrackingProductReadinessClosureProofIdSchema = brandedNonEmptyStringSchema('TrackingProductReadinessClosureProofId');
+export const TrackingProductReadinessClosureProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingProductReadinessClosureProofId'
+);
 
 export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'pre-device-gate',
@@ -610,4 +606,3 @@ function trackingProductReadinessClosureRowNonClaimsAreHonest(row: TrackingProdu
     row.productReadyClaimed === false
   );
 }
-

@@ -76,17 +76,15 @@ export const FamilyWebPageRouteSchema = withParser(
     statusReference: FamilyWebReferenceSchema,
     manualRequirement: FamilyWebRequirementSchema,
   }).pipe(
-    Schema.filter(
-      (row) =>
-        row.routeState !== 'implemented' && row.routeState !== 'executed'
-          ? true
-          : 'Expected family web routes to stay source-contract only in this slice'
+    Schema.filter((row) =>
+      row.routeState !== 'implemented' && row.routeState !== 'executed'
+        ? true
+        : 'Expected family web routes to stay source-contract only in this slice'
     ),
-    Schema.filter(
-      (row) =>
-        row.linkTargets.length > 0 && row.linkTargets.every((target) => target !== row.page)
-          ? true
-          : 'Expected family web routes to link to other public pages without self links'
+    Schema.filter((row) =>
+      row.linkTargets.length > 0 && row.linkTargets.every((target) => target !== row.page)
+        ? true
+        : 'Expected family web routes to link to other public pages without self links'
     )
   )
 );
@@ -101,11 +99,10 @@ export const FamilyWebDataCollectionPolicySchema = withParser(
     sourceProof: FamilyWebSourceProofSchema,
     manualRequirement: FamilyWebRequirementSchema,
   }).pipe(
-    Schema.filter(
-      (row) =>
-        row.collectionMode !== 'forbidden-child-data' || row.collectionState === 'forbidden'
-          ? true
-          : 'Expected child data collection rows to stay forbidden on the public family surface'
+    Schema.filter((row) =>
+      row.collectionMode !== 'forbidden-child-data' || row.collectionState === 'forbidden'
+        ? true
+        : 'Expected child data collection rows to stay forbidden on the public family surface'
     )
   )
 );
@@ -121,11 +118,10 @@ export const FamilyWebDeploymentShapeSchema = withParser(
     sourceProof: FamilyWebSourceProofSchema,
     manualRequirement: FamilyWebRequirementSchema,
   }).pipe(
-    Schema.filter(
-      (deployment) =>
-        deployment.publicRuntimeState !== 'implemented'
-          ? true
-          : 'Expected family.ocentra.ca deployment shape to avoid runtime implementation claims'
+    Schema.filter((deployment) =>
+      deployment.publicRuntimeState !== 'implemented'
+        ? true
+        : 'Expected family.ocentra.ca deployment shape to avoid runtime implementation claims'
     )
   )
 );
@@ -142,11 +138,10 @@ export const FamilyWebRegistrationHandoffSchema = withParser(
     handoffReference: FamilyWebReferenceSchema,
     manualRequirement: FamilyWebRequirementSchema,
   }).pipe(
-    Schema.filter(
-      (handoff) =>
-        handoff.localCaptureState !== 'implemented'
-          ? true
-          : 'Expected register/login to hand off to account identity instead of claiming local auth implementation'
+    Schema.filter((handoff) =>
+      handoff.localCaptureState !== 'implemented'
+        ? true
+        : 'Expected register/login to hand off to account identity instead of claiming local auth implementation'
     )
   )
 );
@@ -162,11 +157,10 @@ export const FamilyWebRouteMapSchema = withParser(
     nonClaims: Schema.Array(FamilyWebNonClaimSchema),
     updatedAt: ParentTimestampSchema,
   }).pipe(
-    Schema.filter(
-      (proof) =>
-        familyWebRouteMapIsHonest(proof)
-          ? true
-          : 'Expected family web route map proof to cover required pages, privacy boundaries, deployment shape, and registration handoff'
+    Schema.filter((proof) =>
+      familyWebRouteMapIsHonest(proof)
+        ? true
+        : 'Expected family web route map proof to cover required pages, privacy boundaries, deployment shape, and registration handoff'
     )
   )
 );
@@ -219,6 +213,16 @@ export function summarizeFamilyWebCollectionPolicies(
 
 function familyWebRouteMapIsHonest(proof: FamilyWebRouteMapCandidate): boolean {
   return (
+    familyWebPagesMatch(proof) &&
+    familyWebCollectionPoliciesMatch(proof) &&
+    familyWebConstraintsAndNonClaimsMatch(proof) &&
+    familyWebDeploymentIsHonest(proof) &&
+    familyWebRegistrationHandoffIsHonest(proof)
+  );
+}
+
+function familyWebPagesMatch(proof: FamilyWebRouteMapCandidate): boolean {
+  return (
     proof.pages.length === RequiredFamilyWebPages.length &&
     RequiredFamilyWebPages.every((page) => {
       const row = proof.pages.find((entry) => entry.page === page);
@@ -229,7 +233,12 @@ function familyWebRouteMapIsHonest(proof: FamilyWebRouteMapCandidate): boolean {
         row.pagePurpose === FamilyWebPurposeByPage[page] &&
         orderedEqual(row.linkTargets, FamilyWebLinksByPage[page])
       );
-    }) &&
+    })
+  );
+}
+
+function familyWebCollectionPoliciesMatch(proof: FamilyWebRouteMapCandidate): boolean {
+  return (
     proof.collectionPolicies.length === RequiredFamilyWebCollectionModes.length &&
     RequiredFamilyWebCollectionModes.every((collectionMode) => {
       const row = proof.collectionPolicies.find((entry) => entry.collectionMode === collectionMode);
@@ -238,16 +247,31 @@ function familyWebRouteMapIsHonest(proof: FamilyWebRouteMapCandidate): boolean {
         orderedEqual(row.pageCoverage, FamilyWebCollectionCoverage[collectionMode]) &&
         row.collectionState === FamilyWebCollectionStateByMode[collectionMode]
       );
-    }) &&
+    })
+  );
+}
+
+function familyWebConstraintsAndNonClaimsMatch(proof: FamilyWebRouteMapCandidate): boolean {
+  return (
     proof.copyConstraints.length === RequiredFamilyWebCopyConstraints.length &&
     includesAll(proof.copyConstraints, RequiredFamilyWebCopyConstraints) &&
     proof.nonClaims.length === RequiredFamilyWebNonClaims.length &&
-    includesAll(proof.nonClaims, RequiredFamilyWebNonClaims) &&
+    includesAll(proof.nonClaims, RequiredFamilyWebNonClaims)
+  );
+}
+
+function familyWebDeploymentIsHonest(proof: FamilyWebRouteMapCandidate): boolean {
+  return (
     proof.deployment.publicHost === 'family.ocentra.ca' &&
     proof.deployment.surfaceShape === 'separate-vite-app' &&
     proof.deployment.deploymentTarget === 'cloudflare-pages-or-workers' &&
     proof.deployment.previewUrlState === 'preview-url-required' &&
-    proof.deployment.publicRuntimeState === 'not-implemented' &&
+    proof.deployment.publicRuntimeState === 'not-implemented'
+  );
+}
+
+function familyWebRegistrationHandoffIsHonest(proof: FamilyWebRouteMapCandidate): boolean {
+  return (
     proof.registrationHandoff.entryPage === 'register-login' &&
     proof.registrationHandoff.owningPlan === 'account-identity-family-plan' &&
     proof.registrationHandoff.handoffState === 'account-handoff-required' &&

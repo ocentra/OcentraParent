@@ -45,11 +45,13 @@ async function main() {
       includeArtifactRefs: true,
       limit: 100,
     });
-    process.stdout.write(formatRunEvidence({
-      run: result.run,
-      diagnostics: result.diagnostics,
-      artifacts: result.artifacts,
-    }));
+    process.stdout.write(
+      formatRunEvidence({
+        run: result.run,
+        diagnostics: result.diagnostics,
+        artifacts: result.artifacts,
+      })
+    );
     return;
   }
 
@@ -108,9 +110,7 @@ async function main() {
   }
 
   if (command === 'proof-inventory') {
-    process.stdout.write(
-      `${JSON.stringify(await getProofInventoryStatus(), null, 2)}\n`
-    );
+    process.stdout.write(`${JSON.stringify(await getProofInventoryStatus(), null, 2)}\n`);
     return;
   }
 

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidAccessibilityEnabledSampleProofSchemaVersionSchema = withParser(
@@ -133,19 +128,40 @@ export function summarizeAppGameAndroidAccessibilityEnabledSampleProof(
 
 function enabledSampleProofIsHonest(proof: EnabledSampleCandidate): boolean {
   return (
-    proof.packageId === 'ca.ocentra.parent.agent' &&
-    proof.runtimeState === 'accessibility-runtime-bound' &&
-    proof.eventSampleState === 'accessibility-event-sample-observed' &&
-    proof.eventSampleCount > 0 &&
-    proof.proofRefs.includes('android-physical-adb-device-ref') &&
-    proof.proofRefs.includes('android-accessibility-service-settings-enable-ref') &&
-    proof.proofRefs.includes('android-accessibility-service-ui-ref') &&
-    proof.proofRefs.includes('android-accessibility-window-state-count-ref') &&
-    proof.openGaps.includes('android-accessibility-overlay-runtime-not-proved') &&
-    proof.openGaps.includes('android-device-owner-authority-not-proved') &&
-    proof.openGaps.includes('android-play-policy-not-proved') &&
-    proof.openGaps.includes('android-child-device-delivery-not-proved') &&
-    proof.openGaps.includes('android-platform-enforcement-not-proved')
+    enabledSampleCoreStateIsHonest(proof) &&
+    enabledSampleProofRefsArePresent(proof) &&
+    enabledSampleOpenGapsArePresent(proof)
   );
 }
 
+function enabledSampleCoreStateIsHonest(proof: EnabledSampleCandidate): boolean {
+  return (
+    proof.packageId === 'ca.ocentra.parent.agent' &&
+    proof.runtimeState === 'accessibility-runtime-bound' &&
+    proof.eventSampleState === 'accessibility-event-sample-observed' &&
+    proof.eventSampleCount > 0
+  );
+}
+
+function enabledSampleProofRefsArePresent(proof: EnabledSampleCandidate): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-physical-adb-device-ref',
+    'android-accessibility-service-settings-enable-ref',
+    'android-accessibility-service-ui-ref',
+    'android-accessibility-window-state-count-ref',
+  ] as const);
+}
+
+function enabledSampleOpenGapsArePresent(proof: EnabledSampleCandidate): boolean {
+  return includesAll(proof.openGaps, [
+    'android-accessibility-overlay-runtime-not-proved',
+    'android-device-owner-authority-not-proved',
+    'android-play-policy-not-proved',
+    'android-child-device-delivery-not-proved',
+    'android-platform-enforcement-not-proved',
+  ] as const);
+}
+
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

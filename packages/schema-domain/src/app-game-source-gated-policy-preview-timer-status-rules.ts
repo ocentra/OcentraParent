@@ -106,4 +106,3 @@ export const appGameSourceGatedPolicyPreviewTimerStatusMatchesHandoff = (
     timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.SourceFreshnessProofRequired) ||
   (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffState.CompilerManualRequiredBeforeTimer &&
     timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.CompilerDecisionProofRequired);
-

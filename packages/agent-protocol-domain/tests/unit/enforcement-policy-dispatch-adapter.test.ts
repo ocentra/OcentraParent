@@ -1,6 +1,7 @@
 import { EnforcementPolicyDispatchReadModel } from '@ocentra-parent/schema-domain/enforcement-policy-dispatch';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { parseEnforcementPolicyDispatchEvent } from '../../src/enforcement-policy-dispatch-adapter';
 
 describe('enforcement policy dispatch adapter', () => {
@@ -31,12 +32,10 @@ describe('enforcement policy dispatch adapter', () => {
       expect(entryForIntent(result.readModel, 'dispatch-ask-parent-dry-run')?.matrixRow.outcomeState).toBe(
         'dry-run-only'
       );
-      expect(entryForIntent(result.readModel, 'dispatch-stale-policy-version-rejected')?.matrixRow.rejectionReason).toBe(
-        'stale-policy-version'
-      );
-      expect(entryForIntent(result.readModel, 'dispatch-missing-source-rejected')?.intent.sourceState).toBe(
-        'missing'
-      );
+      expect(
+        entryForIntent(result.readModel, 'dispatch-stale-policy-version-rejected')?.matrixRow.rejectionReason
+      ).toBe('stale-policy-version');
+      expect(entryForIntent(result.readModel, 'dispatch-missing-source-rejected')?.intent.sourceState).toBe('missing');
       expect(entryForIntent(result.readModel, 'dispatch-network-domain-manual-required')?.matrixRow.outcomeState).toBe(
         'manual-required'
       );
@@ -80,9 +79,6 @@ describe('enforcement policy dispatch adapter', () => {
   });
 });
 
-function entryForIntent(
-  readModel: typeof EnforcementPolicyDispatchReadModel,
-  intentId: string
-) {
+function entryForIntent(readModel: typeof EnforcementPolicyDispatchReadModel, intentId: string) {
   return readModel.entries.find((entry) => entry.intent.intentId === intentId);
 }

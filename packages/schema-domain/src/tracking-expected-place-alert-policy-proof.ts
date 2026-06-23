@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import {
   TrackingAlertIntentSchema,
@@ -41,8 +36,12 @@ export const RequiredTrackingExpectedPlaceAlertPolicyNonClaims = [
   'no-adapter-dispatch',
 ] as const;
 
-export const TrackingExpectedPlaceAlertPolicyProofRefSchema = brandedNonEmptyStringSchema('TrackingExpectedPlaceAlertPolicyProofRef');
-export const TrackingExpectedPlaceAlertPolicyRowIdSchema = brandedNonEmptyStringSchema('TrackingExpectedPlaceAlertPolicyRowId');
+export const TrackingExpectedPlaceAlertPolicyProofRefSchema = brandedNonEmptyStringSchema(
+  'TrackingExpectedPlaceAlertPolicyProofRef'
+);
+export const TrackingExpectedPlaceAlertPolicyRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingExpectedPlaceAlertPolicyRowId'
+);
 export const TrackingExpectedPlaceAlertPolicyRowStatusSchema = withParser(
   Schema.Literal(...Object.values(TrackingExpectedPlaceAlertPolicyRowStatus))
 );
@@ -263,4 +262,3 @@ function countRows(
 ) {
   return rows.filter((row) => row.status === status).length;
 }
-

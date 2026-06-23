@@ -63,9 +63,9 @@ async function main() {
     commands,
     packageExportState: 'not-claimed-internal-proof-contract',
     evidence: {
-      productClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+      productClaimGateContract: 'packages/schema-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       sourceManualEvidencePacketContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-gate-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',

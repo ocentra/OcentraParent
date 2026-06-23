@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/schema-domain/social-audit-explanation-read-model';
-import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from '../../src/contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 
 const Source = {

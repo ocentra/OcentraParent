@@ -30,7 +30,7 @@ fn schema_domain_ai_wire_runtime_status_serializes_to_typescript_shape() {
         last_checked_at: LocalAiTimestamp::from("2026-06-20T18:10:00.000Z"),
         unavailable_reason: None,
     })
-    .expect("local model runtime status wire serializes");
+    .unwrap_or_else(|error| unreachable!("local model runtime status wire serializes: {error:?}"));
 
     assert_eq!(value["runtimeReferenceId"], "runtime-ref-1");
     assert_eq!(value["privacyMode"], "local-only");
@@ -66,7 +66,7 @@ fn schema_domain_ai_wire_build_request_and_result_keep_nested_parent_shapes() {
         allowed_custody: vec![LocalAiEvidenceCustody::LiveLocalChildAgent],
         prompt_version: LocalAiPromptVersion::from("prompt-v1"),
     })
-    .expect("local ai build request serializes");
+    .unwrap_or_else(|error| unreachable!("local ai build request serializes: {error:?}"));
 
     let result = serde_json::to_value(LocalAiEvidenceContextBuildResultWire {
         schema_version: "v0.6".to_string(),
@@ -80,7 +80,7 @@ fn schema_domain_ai_wire_build_request_and_result_keep_nested_parent_shapes() {
         validation_gate_summary: "ready".to_string(),
         audit_evidence_references: vec![],
     })
-    .expect("local ai build result serializes");
+    .unwrap_or_else(|error| unreachable!("local ai build result serializes: {error:?}"));
 
     assert_eq!(request["requestedEvaluationKind"], "mixed-context");
     assert_eq!(request["childProfile"]["childProfileId"], "child-1");

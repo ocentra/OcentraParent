@@ -1,10 +1,12 @@
 use std::path::PathBuf;
 
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-    AppGameTimerParentPreferenceSetupRequest, AppGameTimerParentPreferenceSetupRequestResult,
-    LogFieldValue, LogFields, LogLevel,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
+use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequest;
+use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequestResult;
 
 use super::app_game_timer_parent_preference_setup_request_persistence::persist_setup_handoff;
 use super::app_game_timer_parent_preference_setup_request_status::apply_persisted_setup_statuses;
@@ -743,9 +745,7 @@ fn result_pairs(result: &AppGameTimerParentPreferenceSetupRequestResult) -> Vec<
         ),
         (
             constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST,
-            LogFieldValue::String(
-                serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serialized_setup_request_result(result)),
         ),
     ]
 }
@@ -758,14 +758,32 @@ fn request_from_command(
         .get(constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST)
     {
         Some(LogFieldValue::String(value)) if !value.is_empty() => {
-            serde_json::from_str(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            match serde_json::from_str(value) {
+                Ok(request) => request,
+                Err(_error) => default_request_from_command(command),
+            }
         }
-        _ => AppGameTimerParentPreferenceSetupRequest {
-            request_id: command.message_id.clone(),
-            requested_at: command.sent_at.clone(),
-            parent_surface_intent_reference_id: command.message_id.clone(),
-            parent_preference_setup_reference_id: command.message_id.clone(),
-            request_reference_ids: vec![command.message_id.clone()],
-        },
+        _ => default_request_from_command(command),
+    }
+}
+
+fn default_request_from_command(
+    command: &AgentCommandEnvelope,
+) -> AppGameTimerParentPreferenceSetupRequest {
+    AppGameTimerParentPreferenceSetupRequest {
+        request_id: command.message_id.clone(),
+        requested_at: command.sent_at.clone(),
+        parent_surface_intent_reference_id: command.message_id.clone(),
+        parent_preference_setup_reference_id: command.message_id.clone(),
+        request_reference_ids: vec![command.message_id.clone()],
+    }
+}
+
+fn serialized_setup_request_result(
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) -> String {
+    match serde_json::to_string(result) {
+        Ok(json) => json,
+        Err(_error) => constants::value::EMPTY.to_string(),
     }
 }

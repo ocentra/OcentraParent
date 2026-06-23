@@ -3,7 +3,7 @@ import {
   AppGameAndroidAccessibilityRuntimeProofSchema,
   createAppGameAndroidAccessibilityRuntimeProof,
   summarizeAppGameAndroidAccessibilityRuntimeProof,
-} from '../../src/app-game-android-accessibility-runtime-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-accessibility-runtime-proof';
 
 describe('app-game Android Accessibility runtime proof', () => {
   recordsDeclaredServiceWithoutPromotingOverlayExecution();

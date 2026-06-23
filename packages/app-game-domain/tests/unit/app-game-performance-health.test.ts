@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { AppGamePerformanceHealthProofMatrix } from '../../src/app-game-performance-health-proof';
+import { AppGamePerformanceHealthProofMatrix } from '@ocentra-parent/schema-domain/app-game-performance-health-proof';
 import {
   AppGamePerformanceHealthMatrixSchema,
   AppGamePerformanceHealthRowSchema,
-} from '../../src/app-game-performance-health';
+} from '@ocentra-parent/schema-domain/app-game-performance-health';
 
 const rowFor = (healthCheckId: string) => {
   const row = AppGamePerformanceHealthProofMatrix.rows.find((candidate) => candidate.healthCheckId === healthCheckId);

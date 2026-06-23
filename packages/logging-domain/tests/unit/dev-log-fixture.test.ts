@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-import { DevLogEntrySchema } from '@ocentra-parent/schema-domain/contracts';
+import { DevLogEntrySchema } from '@ocentra-parent/schema-domain/logging-contracts';
 
 const thisDir = path.dirname(fileURLToPath(import.meta.url));
 const packageFixturePath = path.resolve(thisDir, '../../fixtures/dev-log-entry.json');

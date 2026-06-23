@@ -10,11 +10,13 @@
 > Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
 > Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
 > Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Proof rule: If this index changes status or claims, update the assigned workpack, checklist row, and proof path.
 
 <!-- /agent-capsule -->
 
 Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
+
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
 
 | Status  | Workpack                                                                                              |  Size | Boxes                 |
 | ------- | ----------------------------------------------------------------------------------------------------- | ----: | --------------------- |
@@ -38,3 +40,12 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 | open    | [18 Parent Mobile Shell Readiness](workpacks/18-parent-mobile-shell-readiness.md)                     | 1,323 | 1/6 checked; 5 open   |
 | open    | [19 Product Docs And Checklist Sync](workpacks/19-product-docs-and-checklist-sync.md)                 | 1,036 | 0/5 checked; 5 open   |
 | open    | [20 Manual User Review Gate](workpacks/20-manual-user-review-gate.md)                                 | 1,116 | 0/5 checked; 5 open   |
+
+## Selection rules
+
+- Choose exactly one workpack.
+- If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`; do not scan every family.
+- Do not use checked shell/device/LAN rows to close open policy, assistant, reports, degraded-state, accessibility, no-fake-data, screenshot, mobile, docs, or manual-review workpacks.
+- Do not use portal-domain exports or route existence as proof of rendered portal UX.
+- Do not use screenshot proof as service-backed validation.
+- Do not use service-backed parser proof as rendered user-facing proof.

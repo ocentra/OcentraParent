@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 
 use ocentra_child_runtime::tracking_config_update_flow::{
@@ -11,22 +11,28 @@ use ocentra_eventing::{
     ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
     ids::TargetHandler, request::RequestOptions, request::RequestReport,
 };
-use ocentra_parent_agent_protocol::{
-    constants, tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
-    tracking_config_change_rejected_event, tracking_config_change_requested_event,
-    tracking_config_policy_decision_completed_event,
-    tracking_config_policy_evaluation_requested_event,
-    tracking_config_portal_read_model_updated_event, ParentTrackingConfigUpdatedEvent,
-    TrackingConfigAuditEntryCommittedEvent, TrackingConfigAuditOutcome,
-    TrackingConfigChangeApprovedEvent, TrackingConfigChangeRejectedEvent,
-    TrackingConfigChangeRequestedEvent, TrackingConfigEffectiveState,
-    TrackingConfigPolicyDecisionCompletedEvent, TrackingConfigPolicyDecisionState,
-    TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
-    TrackingConfigPortalUpdateKind, TrackingConfigUpdateEventName, TrackingConfigUpdateRequest,
-    TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState,
-    TrackingDurableSettingsPersistenceState, TrackingPolicyRuleRef, TrackingRemoteAiState,
-    TrackingRemoteSyncState, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::{
+    config_update_event::{
+        tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
+        tracking_config_change_rejected_event, tracking_config_change_requested_event,
+        tracking_config_policy_decision_completed_event,
+        tracking_config_policy_evaluation_requested_event,
+        tracking_config_portal_read_model_updated_event, ParentTrackingConfigUpdatedEvent,
+        TrackingConfigAuditEntryCommittedEvent, TrackingConfigAuditOutcome,
+        TrackingConfigChangeApprovedEvent, TrackingConfigChangeRejectedEvent,
+        TrackingConfigChangeRequestedEvent, TrackingConfigEffectiveState,
+        TrackingConfigPolicyDecisionCompletedEvent, TrackingConfigPolicyDecisionState,
+        TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
+        TrackingConfigPortalUpdateKind, TrackingConfigUpdateEventName, TrackingConfigUpdateRequest,
+        TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState,
+    },
+    identifiers::TrackingPolicyRuleRef,
+    retention_settings_write_command::{
+        TrackingDurableSettingsPersistenceState, TrackingRemoteAiState, TrackingRemoteSyncState,
+    },
 };
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::tracking_dispatch::{
     parent_runtime_tracking_dispatch_evaluated_event_from_origin,
@@ -466,88 +472,53 @@ struct ParentTrackingConfigUpdateEventState {
 
 impl ParentTrackingConfigUpdateEventState {
     fn record_parent_event(&self, event: ParentTrackingConfigUpdatedEvent) {
-        self.parent_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.parent_events).push(event);
     }
 
     fn record_change_requested_event(&self, event: TrackingConfigChangeRequestedEvent) {
-        self.change_requested_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.change_requested_events).push(event);
     }
 
     fn record_policy_evaluation_event(&self, event: TrackingConfigPolicyEvaluationRequestedEvent) {
-        self.policy_evaluation_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.policy_evaluation_events).push(event);
     }
 
     fn record_policy_decision_event(&self, event: TrackingConfigPolicyDecisionCompletedEvent) {
-        self.policy_decision_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.policy_decision_events).push(event);
     }
 
     fn record_dispatch_event(&self, event: ParentRuntimeTrackingDispatchEvaluatedEvent) {
-        self.dispatch_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.dispatch_events).push(event);
     }
 
     fn record_change_approved_event(&self, event: TrackingConfigChangeApprovedEvent) {
-        self.change_approved_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.change_approved_events).push(event);
     }
 
     fn record_change_rejected_event(&self, event: TrackingConfigChangeRejectedEvent) {
-        self.change_rejected_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.change_rejected_events).push(event);
     }
 
     fn record_audit_event(&self, event: TrackingConfigAuditEntryCommittedEvent) {
-        self.audit_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.audit_events).push(event);
     }
 
     fn record_portal_event(&self, event: TrackingConfigPortalReadModelUpdatedEvent) {
-        self.portal_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        lock_recover(&self.portal_events).push(event);
     }
 
     fn record_final_response(&self, response: TrackingConfigUpdateResponse) {
-        self.final_responses
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(response);
+        lock_recover(&self.final_responses).push(response);
     }
 
     fn record_child_runtime_flow(&self, flow: Option<TrackingConfigUpdateEventFlowReport>) {
         if let Some(flow) = flow {
-            self.child_runtime_flows
-                .lock()
-                .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-                .push(flow);
+            lock_recover(&self.child_runtime_flows).push(flow);
         }
     }
 
     fn parent_event(&self) -> Result<ParentTrackingConfigUpdatedEvent, EventingError> {
-        self.parent_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.parent_events)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -557,9 +528,7 @@ impl ParentTrackingConfigUpdateEventState {
     }
 
     fn change_requested_event(&self) -> Result<TrackingConfigChangeRequestedEvent, EventingError> {
-        self.change_requested_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.change_requested_events)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -571,9 +540,7 @@ impl ParentTrackingConfigUpdateEventState {
     fn policy_evaluation_event(
         &self,
     ) -> Result<TrackingConfigPolicyEvaluationRequestedEvent, EventingError> {
-        self.policy_evaluation_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.policy_evaluation_events)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -585,9 +552,7 @@ impl ParentTrackingConfigUpdateEventState {
     fn policy_decision_event(
         &self,
     ) -> Result<TrackingConfigPolicyDecisionCompletedEvent, EventingError> {
-        self.policy_decision_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.policy_decision_events)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -597,9 +562,7 @@ impl ParentTrackingConfigUpdateEventState {
     }
 
     fn dispatch_event(&self) -> Result<ParentRuntimeTrackingDispatchEvaluatedEvent, EventingError> {
-        self.dispatch_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.dispatch_events)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -611,25 +574,15 @@ impl ParentTrackingConfigUpdateEventState {
     }
 
     fn change_approved_event(&self) -> Option<TrackingConfigChangeApprovedEvent> {
-        self.change_approved_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .last()
-            .cloned()
+        lock_recover(&self.change_approved_events).last().cloned()
     }
 
     fn change_rejected_event(&self) -> Option<TrackingConfigChangeRejectedEvent> {
-        self.change_rejected_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .last()
-            .cloned()
+        lock_recover(&self.change_rejected_events).last().cloned()
     }
 
     fn audit_event(&self) -> Result<TrackingConfigAuditEntryCommittedEvent, EventingError> {
-        self.audit_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.audit_events)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -639,9 +592,7 @@ impl ParentTrackingConfigUpdateEventState {
     }
 
     fn portal_event(&self) -> Result<TrackingConfigPortalReadModelUpdatedEvent, EventingError> {
-        self.portal_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.portal_events)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -651,9 +602,7 @@ impl ParentTrackingConfigUpdateEventState {
     }
 
     fn final_response(&self) -> Result<TrackingConfigUpdateResponse, EventingError> {
-        self.final_responses
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+        lock_recover(&self.final_responses)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
@@ -663,36 +612,35 @@ impl ParentTrackingConfigUpdateEventState {
     }
 
     fn child_runtime_flow(&self) -> Option<TrackingConfigUpdateEventFlowReport> {
-        self.child_runtime_flows
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .last()
-            .cloned()
+        lock_recover(&self.child_runtime_flows).last().cloned()
     }
 }
 
 fn tracking_policy_rule_refs(request: &TrackingConfigUpdateRequest) -> Vec<TrackingPolicyRuleRef> {
-    let mut rule_refs = vec![TrackingPolicyRuleRef::parse(
+    let mut rule_refs = vec![tracking_policy_rule_ref(
         constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
-    )
-    .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME)];
+    )];
     if request.retention_settings.requested_remote_sync_state == TrackingRemoteSyncState::Disabled {
-        rule_refs.push(
-            TrackingPolicyRuleRef::parse(
-                constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
-            )
-            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED),
-        );
+        rule_refs.push(tracking_policy_rule_ref(
+            constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
+        ));
     }
     if request.retention_settings.requested_remote_ai_state == TrackingRemoteAiState::Disabled {
-        rule_refs.push(
-            TrackingPolicyRuleRef::parse(
-                constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED,
-            )
-            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED),
-        );
+        rule_refs.push(tracking_policy_rule_ref(
+            constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED,
+        ));
     }
     rule_refs
+}
+
+fn lock_recover<T>(value: &Arc<Mutex<T>>) -> MutexGuard<'_, T> {
+    value
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
+fn tracking_policy_rule_ref(value: &str) -> TrackingPolicyRuleRef {
+    TrackingPolicyRuleRef::parse(value).unwrap_or_else(|error| unreachable!("{value}: {error:?}"))
 }
 
 fn rejected_tracking_config_update_response(

@@ -1,13 +1,14 @@
-import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import {
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import {
   type TrackingRetentionSettingsHostedUiProof,
   type TrackingRetentionSettingsWritePreflight,
 } from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
-import {
-  type TrackingStatusProofArtifact,
-} from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
 import { appendDetail, portalDetailFromValue } from './detail-list';
 
 export function renderTrackingRetentionSettingsHostedUiProof(

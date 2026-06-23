@@ -42,9 +42,7 @@ export function screenPolicyEvidenceChainFieldsWithDefaults() {
 }
 
 const ScreenPolicyEvidenceChainBaseSchema = Schema.Struct(screenPolicyEvidenceChainFields());
-const ScreenPolicyEvidenceChainWithDefaultsBaseSchema = Schema.Struct(
-  screenPolicyEvidenceChainFieldsWithDefaults()
-);
+const ScreenPolicyEvidenceChainWithDefaultsBaseSchema = Schema.Struct(screenPolicyEvidenceChainFieldsWithDefaults());
 
 export const ScreenPolicyEvidenceChainSchema = withParser(
   ScreenPolicyEvidenceChainBaseSchema.pipe(

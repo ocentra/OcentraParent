@@ -151,7 +151,7 @@ function sourceSnapshot(proof) {
     `- acceptanceCriteriaCount: ${proof.summary.acceptanceCriteriaCount}`,
     `- manualValidationCommandCount: ${proof.summary.manualValidationCommandCount}`,
     `- artifactAcceptanceNoteCount: ${proof.summary.artifactAcceptanceNoteCount}`,
-    '- proof module: packages/tracking-domain/src/tracking-claim-audit-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-claim-audit-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-claim-audit-proof.test.ts',
     '- proof harness: scripts/test/tracking-claim-audit-proof.mjs',
     '',
@@ -163,7 +163,10 @@ function validationLog() {
 }
 
 function importDist(name) {
-  return tsImport(pathToFileURL(path.join(repoRoot, 'packages', 'tracking-domain', 'src', name.replace(/\.js$/u, '.ts'))).href, import.meta.url);
+  return tsImport(
+    pathToFileURL(path.join(repoRoot, 'packages', 'schema-domain', 'src', name.replace(/\.js$/u, '.ts'))).href,
+    import.meta.url
+  );
 }
 
 function run(command, args) {

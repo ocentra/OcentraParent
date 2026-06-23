@@ -16,6 +16,8 @@
 
 Choose one workpack. Do not open all workpacks.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | open | [WP01 Custody Source Of Truth](workpacks/01-custody-source-of-truth.md) | 0/12 | `DATA_CLASSIFICATION.md`, `DECISIONS.md` | `output/data-custody-storage-plan-proof/01-custody-source-of-truth/` |
@@ -49,4 +51,6 @@ WP07 is last and consumes all previous proof roots.
 
 ## Do not select
 
-Do not implement adjacent plan internals from this plan. Keep eventing, account, payment, remote, portal shell, setup, and device-trust implementation in their owning plans.
+Do not implement adjacent plan internals from this plan. Keep eventing, account, payment, remote, portal shell, setup, device-trust, Cloudflare, notification, report producer, and AI implementation in their owning plans.
+
+Do not use the source-only migrated UI plan as executable implementation scope by default. Do not raise status from docs/checklist/proof text alone, source presence alone, schema proof alone, sync manifest proof, portal UI proof, or a proof root for another workpack.

@@ -1,15 +1,8 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const SocialDashboardUxSchemaVersionSchema = withParser(Schema.Literal('social-dashboard-ux-contract'));
 
-export const SocialDashboardPanelIdSchema = withParser(
-  brandedNonEmptyStringSchema('SocialDashboardPanelId')
-);
+export const SocialDashboardPanelIdSchema = withParser(brandedNonEmptyStringSchema('SocialDashboardPanelId'));
 
 export const SocialDashboardPanelKindSchema = withParser(
   Schema.Literal(
@@ -55,4 +48,3 @@ export const SocialDashboardPanelReasonSchema = withParser(
 
 export type SocialDashboardPanelKind = Infer<typeof SocialDashboardPanelKindSchema>;
 export type SocialDashboardPanelStatus = Infer<typeof SocialDashboardPanelStatusSchema>;
-

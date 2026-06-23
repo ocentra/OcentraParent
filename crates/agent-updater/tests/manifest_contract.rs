@@ -1,5 +1,6 @@
 use ocentra_parent_agent_maintenance::constants::{MSI_INSTALLER_TYPE, WINDOWS_X64_TARGET};
 use ocentra_parent_agent_maintenance::crypto::generate_key_pair;
+use ocentra_parent_agent_maintenance::error::UpdaterError;
 use ocentra_parent_agent_maintenance::manifest::{
     parse_payload, sign_payload, verify_manifest, ArtifactManifest, InstallerManifest,
     ServiceManifest, UpdateManifestPayload,
@@ -9,9 +10,23 @@ use ocentra_parent_agent_maintenance::manifest::{
 fn signed_manifest_round_trip_verifies_with_trusted_key() {
     let keys = generate_key_pair();
     let payload = sample_payload("0.2.0");
-    let signed = sign_payload(payload.clone(), &keys.private_key_base64).expect("manifest signs");
+    let signed_result = sign_payload(payload.clone(), &keys.private_key_base64);
+    assert!(
+        signed_result.is_ok(),
+        "manifest signs failed: {signed_result:?}"
+    );
+    let Ok(signed) = signed_result else {
+        return;
+    };
 
-    let verified = verify_manifest(signed, &keys.public_key_base64).expect("manifest verifies");
+    let verified_result = verify_manifest(signed, &keys.public_key_base64);
+    assert!(
+        verified_result.is_ok(),
+        "manifest verifies failed: {verified_result:?}"
+    );
+    let Ok(verified) = verified_result else {
+        return;
+    };
 
     assert_eq!(verified.version, payload.version);
     assert_eq!(verified.artifact.sha256, payload.artifact.sha256);
@@ -20,13 +35,23 @@ fn signed_manifest_round_trip_verifies_with_trusted_key() {
 #[test]
 fn signed_manifest_rejects_unsigned_payload_changes() {
     let keys = generate_key_pair();
-    let mut signed =
-        sign_payload(sample_payload("0.2.0"), &keys.private_key_base64).expect("manifest signs");
+    let signed_result = sign_payload(sample_payload("0.2.0"), &keys.private_key_base64);
+    assert!(
+        signed_result.is_ok(),
+        "manifest signs failed: {signed_result:?}"
+    );
+    let Ok(mut signed) = signed_result else {
+        return;
+    };
     signed.payload.version = "9.9.9".to_owned();
 
     let result = verify_manifest(signed, &keys.public_key_base64);
 
-    assert!(result.is_err());
+    assert!(matches!(
+        result,
+        Err(UpdaterError::Crypto(message))
+            if message.starts_with("manifest signature verification failed:")
+    ));
 }
 
 #[test]
@@ -37,17 +62,33 @@ fn payload_policy_rejects_non_github_artifacts() {
 
     let result = sign_payload(payload, &keys.private_key_base64);
 
-    assert!(result.is_err());
+    assert!(matches!(
+        result,
+        Err(UpdaterError::Policy(message))
+            if message == "artifact download URL must use GitHub HTTPS releases"
+    ));
 }
 
 #[test]
 fn payload_parser_accepts_windows_utf8_bom() {
-    let text = format!(
-        "\u{feff}{}",
-        serde_json::to_string(&sample_payload("0.2.0")).expect("json")
+    let json_result = serde_json::to_string(&sample_payload("0.2.0"));
+    assert!(
+        json_result.is_ok(),
+        "json serialization failed: {json_result:?}"
     );
+    let Ok(json) = json_result else {
+        return;
+    };
+    let text = format!("\u{feff}{json}");
 
-    let parsed = parse_payload(&text).expect("payload parses");
+    let parsed_result = parse_payload(&text);
+    assert!(
+        parsed_result.is_ok(),
+        "payload parses failed: {parsed_result:?}"
+    );
+    let Ok(parsed) = parsed_result else {
+        return;
+    };
 
     assert_eq!(parsed.version, "0.2.0");
 }

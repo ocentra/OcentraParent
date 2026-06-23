@@ -16,7 +16,6 @@ const STORAGE_CUSTODY_DECISION_RECORDED_EVENT_TYPE: &str = "storage-custody.deci
 const STORAGE_CUSTODY_ACTION_PLANNED_EVENT_TYPE: &str = "storage-custody.action.planned";
 const STORAGE_CUSTODY_IDEMPOTENCY_SEPARATOR: &str = ":";
 const STORAGE_CUSTODY_ACTION_PREFIX: &str = "storage-custody-action:";
-const ERROR_STORAGE_CUSTODY_ACTION_ID: &str = "storage custody action id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StorageCustodyLocation {
@@ -270,10 +269,7 @@ pub fn storage_custody_action_planned_event(
 ) -> StorageCustodyActionPlannedEvent {
     StorageCustodyActionPlannedEvent {
         aggregate_id: event.aggregate_id,
-        action_plan_id: StorageCustodyActionPlanId::parse(storage_custody_action_ref(
-            &event.decision_id,
-        ))
-        .expect(ERROR_STORAGE_CUSTODY_ACTION_ID),
+        action_plan_id: StorageCustodyActionPlanId(storage_custody_action_ref(&event.decision_id)),
         source_decision_id: event.decision_id,
         action_plan: plan_storage_custody_actions(event.input),
     }

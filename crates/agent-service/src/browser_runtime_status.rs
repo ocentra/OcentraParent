@@ -1,9 +1,15 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserBridgeKind, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
-    BrowserManagedSessionStatus, BrowserManagedState, BrowserQueryVisibilityLabel,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
+use ocentra_parent_agent_protocol::browser::BrowserChannel;
+use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
+use ocentra_parent_agent_protocol::browser::BrowserFamily;
+use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::browser_managed::BrowserBridgeKind;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedState;
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::constants;
 
 #[cfg(test)]
 use ocentra_parent_agent_core::browser_managed_session::BrowserManagedLaunchPlan;

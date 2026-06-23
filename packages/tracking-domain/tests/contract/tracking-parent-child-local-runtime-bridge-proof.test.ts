@@ -4,7 +4,7 @@ import {
   RequiredTrackingParentChildLocalRuntimeBridgeSourceRefs,
   TrackingParentChildLocalRuntimeBridgeRowSchema,
   buildTrackingParentChildLocalRuntimeBridgeProof,
-} from '../../src/tracking-parent-child-local-runtime-bridge-proof';
+} from '@ocentra-parent/schema-domain/tracking-parent-child-local-runtime-bridge-proof';
 
 const GeneratedAt = '2026-06-08T18:10:00.000Z';
 

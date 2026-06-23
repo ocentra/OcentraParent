@@ -1,18 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
 } from '@ocentra-parent/schema-domain/app-game-notification-parent-surface-intent';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
   createAppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelIntent,
 } from '@ocentra-parent/portal-domain/app-game-notification-parent-surface-panel';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { shouldRenderAppGameNotificationParentSurfaceRoute } from '../src/AppGameNotificationParentSurfaceRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 

@@ -1,4 +1,4 @@
-# V0.8 Enforcement Control Plan Health Report
+# V0.8 Enforcement Control Plan Health
 
 <!-- agent-capsule -->
 
@@ -14,54 +14,114 @@
 
 <!-- /agent-capsule -->
 
-This file records documentation health and consistency checks for the plan. It is generated from the existing docs and should be updated manually when the plan state is cleaned further.
+Health: audit-open. Route docs and proof routing are now aligned, but the plan
+remains open because 14 workpacks still lack runtime or proof closure.
 
-## Status sources
+Known risks: AI/UI/evidence treated as authority, broad app blocking without
+narrow adapter proof, managed-browser exact-URL overclaim, network blocking
+overclaim, approval/expiry drift, missing audit, read-model/UI drift,
+heartbeat mistaken for anti-tamper, and fake-green rollout claims.
 
-- Short README: `README.md`
-- Preserved full README: `README_FULL_ORIGINAL.md`
-- Current snapshot: `missing`
-- Implementation checklist present: false
-- Workpacks indexed: 20
+## Scope and ownership
 
-## Consistency warnings
+- Scope and ownership: this file governs documentation routing, state, and
+  proof expectations for `v0-8-enforcement-control-plan`.
+- Ownership path: this plan is coordinated via `AGENTS.md`, `PLAN_STATE.md`,
+  `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `WORKPACK_FAMILIES.md`, the selected
+  workpack, and `PROOF_INDEX.md`.
 
-- No current snapshot file was found. Treat workpack/checklist indexes as routing state and create/update a snapshot when product state changes.
+## State
+
+- Current state: route docs now carry explicit ownership doctrine,
+  workpack-family routing, enforcement E2E proof tiers, and a cleaned proof
+  index. This is docs-only cleanup and does not close product/runtime gaps.
+- Proof status: checked slices exist for WP01, WP02, WP03, WP07, WP09, and
+  WP18 under `docs/proof/v0-8-enforcement-control-plan/` and
+  `output/v0-8-enforcement-control-plan-proof/`.
+- Current blockers: WP04, WP05, WP06, WP08, WP10, WP11, WP12, WP13, WP14,
+  WP15, WP16, WP17, WP19, and WP20 remain open.
 
 ## Required hygiene before PR_READY
 
 - Update the assigned workpack.
-- Update the relevant checklist row/section.
-- Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
-- Update feature/product docs if a product claim, gap, or proof changed.
-- Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Update proof links under `docs/proof/v0-8-enforcement-control-plan/` and the
+  selected deterministic proof root.
+- Update `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, and
+  `PROOF_INDEX.md` if current state changes.
+- Use `WORKPACK_FAMILIES.md` only when owner or handoff boundaries are unclear.
+- Do not claim READY from evidence capture, UI rendering, AI output, or focused
+  contract passes alone.
+- Do not claim READY from managed-browser proof as exact-URL control.
+- Do not claim READY from network visibility as network blocking.
+- Do not claim READY from heartbeat/install visibility as anti-tamper proof.
+- Do not claim READY from one checked workpack while the selected assigned
+  workpack or its prerequisite family remains open.
 
-## Agent Route Walkthrough
+## Known healthy boundaries
 
-- Landing decision: root `AGENTS.md` routes enforcement policy handoff, adapter capability, execution/rollback, audit, and rollout proof here.
-- Scope split: enforcement starts from deterministic policy decisions and adapter authority. Evidence capture, AI classification, browser/app/screen/network facts, and portal presentation stay in owning plans unless the assigned enforcement workpack names the handoff.
-- Minimum read set: assigned enforcement workpack, exact checklist row, `TEST_PROOF_EXPECTATIONS.md`, source-boundary flow, and owning producer plan only when validating a handoff contract.
-- Test/proof decision: require authN/authZ, privilege escalation, token lifecycle, replay/idempotency, race/order, rollback/unblock, audit/log/trace, abuse/rate-limit, platform manual-required, canary/rollback, and CI proof where touched.
-- DONE blocker: no enforcement row may claim actual control unless proof shows policy input, authority tier, adapter capability, execution result, rollback path, audit trail, and manual-required states.
+This plan intentionally separates:
 
-## High-Information-Density Gate
+```text
+policy authority
+evidence refs
+adapter capability
+execution state
+rollback and recovery
+approval and override
+audit and journal
+service read model
+portal visibility
+integrity and non-claim state
+rollout proof gate
+```
 
-### Scope and ownership
+Do not collapse those boundaries.
 
-- Scope and ownership: this file governs documentation routing, state, and proof expectations for `v0-8-enforcement-control-plan`.
-- Ownership path: this plan is coordinated via `v0-8-enforcement-control-plan/AGENTS.md`, `v0-8-enforcement-control-plan/PLAN_STATE.md`, and `v0-8-enforcement-control-plan/NEXT_ACTIONS.md` plus selected workpack files.
+## Known incomplete areas
 
-### State
+```text
+WP04 owned-process narrow execution proof
+WP05 app/game session evidence handoff
+WP06 managed browser session control
+WP08 network/domain report-only boundary
+WP10 parent approval and override
+WP11 audit and journal events
+WP12 child-facing status and reasons
+WP13 service read models and API
+WP14 portal control state consumption
+WP15 integrity heartbeat and permission loss
+WP16 tamper/uninstall non-claim design
+WP17 cross-platform unavailable states
+WP19 Playwright and UI proof
+WP20 rollout docs and CI/PR gate
+```
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `v0-8-enforcement-control-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+## Decision routes and failure controls
 
-### Decision routes and failure controls
+- Decision route: follow `AGENTS.md`, the selected workpack path,
+  `WORKPACK_FAMILIES.md` when needed, and the proof matrix referenced here.
+- Failure controls: do not claim completion when handoff routes are missing,
+  checklist/workpack states diverge, proof artifacts are absent, or known risks
+  remain unmitigated with no explicit deferral.
+- Platform proof boundary: real iOS/macOS proof is an external-platform
+  constraint on this Windows host. Windows proof is expected where relevant.
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
-- Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+## Proof mapping
 
-### Proof mapping
+- Required proof before READY: explicit artifact files under
+  `output/v0-8-enforcement-control-plan-proof/`, matching notes under
+  `docs/proof/v0-8-enforcement-control-plan/`, focused validation logs, and
+  cross-plan handoff notes when a selected workpack names them.
+- At minimum, align `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`,
+  `WORKPACK_INDEX.md`, `PROOF_INDEX.md`, `TEST_PROOF_EXPECTATIONS.md`, and the
+  selected workpack before READY.
 
-- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
-- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.
+## PR-ready rule
+
+The whole plan is PR-ready only when the open execution, approval, audit,
+read-model, integrity, and rollout workpacks are closed with proof artifacts or
+explicit carried blockers and WP20 consumes the final status honestly.
+
+A partial PR may be ready only when one selected workpack is closed with proof
+artifacts, validation logs, negative cases, no-claim language, and the
+remaining open workpacks are listed explicitly.

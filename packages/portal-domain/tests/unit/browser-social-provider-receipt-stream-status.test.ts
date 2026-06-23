@@ -6,9 +6,7 @@ import {
   AgentBrowserRuntimePhase,
   AgentBrowserRuntimeQueryVisibility,
 } from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
-import {
-  parseAgentBrowserRuntimeEventChainStreamFields,
-} from '@ocentra-parent/agent-protocol-domain/browser-runtime-events';
+import { parseAgentBrowserRuntimeEventChainStreamFields } from '@ocentra-parent/agent-protocol-domain/browser-runtime-events';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { createBrowserSocialProviderReceiptStreamStatusIntent } from '../../src/browser-social-provider-receipt-stream-status';
 

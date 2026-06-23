@@ -1,12 +1,21 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkEndpoint,
-    ActivityNetworkFlowCounters, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
-    LogFieldValue, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
-    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
-    NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
-    NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS, NETWORK_FLOW_SCHEMA_VERSION,
-};
+use std::{error::Error, io::Error as IoError};
+
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkEndpoint;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowCounters;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY;
+use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS;
+use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 
 use super::{
     activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
@@ -14,8 +23,10 @@ use super::{
     network_runtime_delivery::NetworkRuntimeServiceDeliveryReport,
 };
 
+type TestResult<T = ()> = Result<T, Box<dyn Error>>;
+
 #[test]
-fn network_flow_payload_contains_contract_shaped_digest_json() {
+fn network_flow_payload_contains_contract_shaped_digest_json() -> TestResult {
     let read_model = read_model();
 
     let payload = network_flow_read_model_payload_with_runtime_delivery(&read_model, None, None);
@@ -25,9 +36,14 @@ fn network_flow_payload_contains_contract_shaped_digest_json() {
             LogFieldValue::String(text) => Some(text),
             _ => None,
         })
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let digest: ocentra_parent_agent_protocol::ActivityNetworkFlowDigest =
-        serde_json::from_str(digest_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
+    let digest: ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowDigest =
+        serde_json::from_str(digest_json).map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::AGENT_EVENT_SERIALIZES
+            ))
+        })?;
 
     assert_eq!(
         digest.top_destinations[0].label,
@@ -48,6 +64,8 @@ fn network_flow_payload_contains_contract_shaped_digest_json() {
             NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT.to_string()
         ))
     );
+
+    Ok(())
 }
 
 #[test]
@@ -128,7 +146,19 @@ fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
 #[test]
 fn network_flow_payload_includes_product_path_counts_and_refs_when_supplied() {
     let read_model = read_model();
-    let product_path = NetworkProductPathServiceProofReport {
+    let product_path = product_path_report();
+
+    let payload = network_flow_read_model_payload_with_runtime_delivery(
+        &read_model,
+        None,
+        Some(&product_path),
+    );
+
+    assert_product_path_payload(&payload);
+}
+
+fn product_path_report() -> NetworkProductPathServiceProofReport {
+    NetworkProductPathServiceProofReport {
         observed_rows: 1,
         proved_rows: 1,
         skipped_rows: 0,
@@ -166,14 +196,10 @@ fn network_flow_payload_includes_product_path_counts_and_refs_when_supplied() {
         portal_read_model_refs: vec![
             constants::network_flow::TEST_PORTAL_READ_MODEL_REF.to_string()
         ],
-    };
+    }
+}
 
-    let payload = network_flow_read_model_payload_with_runtime_delivery(
-        &read_model,
-        None,
-        Some(&product_path),
-    );
-
+fn assert_product_path_payload(payload: &std::collections::BTreeMap<String, LogFieldValue>) {
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_OBSERVED_ROWS),
         Some(&LogFieldValue::Number(1.0))

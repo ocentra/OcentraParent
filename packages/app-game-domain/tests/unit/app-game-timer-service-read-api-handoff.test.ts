@@ -5,7 +5,7 @@ import {
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiHandoffSchema,
   buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiHandoff,
 } from '../../src/app-game-timer-service-read-api-handoff';
-import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiHandoffState } from '../../src/app-game-timer-service-read-api-handoff-rules';
+import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiHandoffState } from '@ocentra-parent/schema-domain/app-game-timer-service-read-api-handoff-rules';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamServiceEventHandoffPath = new URL(

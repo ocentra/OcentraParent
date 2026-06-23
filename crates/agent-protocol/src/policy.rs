@@ -1,7 +1,5 @@
+use crate::policy_constants;
 use serde::{Deserialize, Serialize};
-
-#[path = "constants/policy.rs"]
-pub mod policy_constants;
 
 pub const POLICY_DRY_RUN_SCHEMA_VERSION: &str = policy_constants::CONTRACT_SCHEMA_VERSION_V0_6;
 

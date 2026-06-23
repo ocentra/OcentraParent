@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -33,8 +28,9 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureStatusSchema = with
   Schema.Literal('local-artifact-captured')
 );
 
-export const TrackingFullProductUiLocalRuntimeArtifactCapturePathSchema =
-  brandedNonEmptyStringSchema('TrackingFullProductUiLocalRuntimeArtifactCapturePath');
+export const TrackingFullProductUiLocalRuntimeArtifactCapturePathSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiLocalRuntimeArtifactCapturePath'
+);
 
 export const TrackingFullProductUiLocalRuntimeArtifactCaptureRowSchema = withParser(
   Schema.Struct({
@@ -297,4 +293,3 @@ function captureRow(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
-

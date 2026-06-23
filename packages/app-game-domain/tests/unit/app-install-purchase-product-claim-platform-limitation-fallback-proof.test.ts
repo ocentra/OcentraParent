@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProductClaimPlatformLimitationFallbackProofSchema,
   AppInstallPurchaseProductClaimPlatformLimitationFallbackRowSchema,
   summarizeAppInstallPurchaseProductClaimPlatformLimitationFallbackProof,
-} from '../../src/app-install-purchase-product-claim-platform-limitation-fallback-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof';
 
 describe('app install purchase product claim platform limitation fallback proof', () => {
   acceptsPlatformLimitationFallbackRows();

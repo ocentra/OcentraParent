@@ -1,21 +1,32 @@
+use std::fmt::Debug;
+
 use ocentra_eventing::{
     delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
 };
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::broker_delivery::{
-    prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliveryProofError,
-    NetworkRuntimeBrokerDeliverySemantics, NetworkRuntimeBrokerDeliverySemanticsReport,
+    prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliverySemantics,
+    NetworkRuntimeBrokerDeliverySemanticsReport,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| context.to_string())
+}
+
 #[tokio::test]
-async fn network_runtime_broker_delivery_semantics_preserve_refs_without_live_broker() {
-    let proof_result: Result<
-        NetworkRuntimeBrokerDeliverySemanticsReport,
-        NetworkRuntimeBrokerDeliveryProofError,
-    > = prove_network_runtime_broker_delivery_semantics().await;
-    let report = proof_result
-        .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_BROKER_DELIVERY_SEMANTICS);
+async fn network_runtime_broker_delivery_semantics_preserve_refs_without_live_broker() -> TestResult
+{
+    let report: NetworkRuntimeBrokerDeliverySemanticsReport = ok(
+        prove_network_runtime_broker_delivery_semantics().await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_BROKER_DELIVERY_SEMANTICS,
+    )?;
 
     assert_eq!(
         report.delivery_decision.decision_state,
@@ -25,13 +36,12 @@ async fn network_runtime_broker_delivery_semantics_preserve_refs_without_live_br
         report.delivery_semantics,
         NetworkRuntimeBrokerDeliverySemantics::LocalIdempotencyQueueProof
     );
+    let retention_policy_ref = some(
+        report.delivery_decision.retention_policy_ref.as_ref(),
+        constants::network_flow::ERROR_NETWORK_RUNTIME_BROKER_DELIVERY_SEMANTICS,
+    )?;
     assert_eq!(
-        report
-            .delivery_decision
-            .retention_policy_ref
-            .as_ref()
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_BROKER_DELIVERY_SEMANTICS)
-            .as_str(),
+        retention_policy_ref.as_str(),
         constants::network_flow::TEST_BROKER_RETENTION_POLICY_REF
     );
     assert_eq!(
@@ -66,4 +76,5 @@ async fn network_runtime_broker_delivery_semantics_preserve_refs_without_live_br
         .delivery_decision
         .required_artifacts
         .contains(&EventDeliveryRequiredArtifact::TransportConfig));
+    Ok(())
 }

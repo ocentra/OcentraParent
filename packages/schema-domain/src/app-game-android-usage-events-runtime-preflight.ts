@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   AppGameAndroidUsageEventsCommandName,
@@ -170,4 +165,3 @@ function androidUsageEventsRuntimePreflightIsHonest(readModel: RuntimePreflightC
     readModel.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
-

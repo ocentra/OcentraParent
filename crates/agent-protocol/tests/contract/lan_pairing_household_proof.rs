@@ -12,14 +12,14 @@ use ocentra_parent_agent_protocol::lan_pairing::{
 
 #[test]
 fn v09_production_discovery_household_proof_read_model_serializes_honest_route_states() {
-    let serialized =
-        serde_json::to_value(read_model()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(read_model()).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
     let reparsed =
         serde_json::from_value::<V09ProductionDiscoveryHouseholdProofReadModel>(serialized.clone())
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let serialized_text =
-        serde_json::to_string(&serialized).expect(constants::error::AGENT_EVENT_SERIALIZES);
-
+            .unwrap_or_else(|error| {
+                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+            });
     assert_eq!(
         serialized["proofBoundary"],
         "local-real-service-not-physical-household-lan"
@@ -49,9 +49,30 @@ fn v09_production_discovery_household_proof_read_model_serializes_honest_route_s
         "manual-required"
     );
     assert_eq!(reparsed.manual_household_proof_checklist.len(), 11);
-    assert!(!serialized_text.contains(constants::lan_pairing::RAW_MARKER_RAW_EVIDENCE));
-    assert!(!serialized_text.contains(constants::lan_pairing::RAW_MARKER_RAW_TOKEN));
-    assert!(!serialized_text.contains(constants::lan_pairing::RAW_MARKER_ACTIVITY_SQLITE));
+    assert!(
+        !json_surface_contains_marker(&serialized, constants::lan_pairing::RAW_MARKER_RAW_EVIDENCE)
+    );
+    assert!(!json_surface_contains_marker(
+        &serialized,
+        constants::lan_pairing::RAW_MARKER_RAW_TOKEN
+    ));
+    assert!(!json_surface_contains_marker(
+        &serialized,
+        constants::lan_pairing::RAW_MARKER_ACTIVITY_SQLITE
+    ));
+}
+
+fn json_surface_contains_marker(value: &serde_json::Value, marker: &str) -> bool {
+    match value {
+        serde_json::Value::String(text) => text.contains(marker),
+        serde_json::Value::Array(values) => values
+            .iter()
+            .any(|nested_value| json_surface_contains_marker(nested_value, marker)),
+        serde_json::Value::Object(entries) => entries.iter().any(|(key, nested_value)| {
+            key.contains(marker) || json_surface_contains_marker(nested_value, marker)
+        }),
+        _ => false,
+    }
 }
 
 fn read_model() -> V09ProductionDiscoveryHouseholdProofReadModel {

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovalStateSnapshotSchema } from './app-install-purchase-approval';
 import {
   AppInstallPurchaseApprovalContractProofReadModel,
@@ -69,7 +64,9 @@ const AppInstallPurchaseRuntimeReportSurfaceSchema = withParser(
 const AppInstallPurchaseRuntimeNonClaimSchema = withParser(Schema.Literal(...RuntimeNonClaims));
 const RuntimeProofTextRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeProofTextRef');
 const RuntimePlatformSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimePlatformSourceRowId');
-const RuntimePackageSourceArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimePackageSourceArtifactRowId');
+const RuntimePackageSourceArtifactRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimePackageSourceArtifactRowId'
+);
 const RuntimeChildStateIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeChildStateId');
 const RuntimeRequestIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeRequestId');
 const RuntimeAuditEventIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeAuditEventId');
@@ -306,4 +303,3 @@ function statusReadinessRow(
     claimBoundary: RuntimeBoundary,
   } as const;
 }
-

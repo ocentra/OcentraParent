@@ -1,8 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-    LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingRejectionReason,
-    LanSelectedRouteTarget, LogFieldValue, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingChallengeRequest;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
@@ -67,9 +72,9 @@ pub(crate) fn pairing_challenge_status_event(
                     .extend(challenge_issued_audit_fields(&challenge));
                 event
             }
-            Err(reason) => challenge_rejection_event(command, reason, origin),
+            Err(reason) => challenge_rejection_event(command, &reason, origin),
         },
-        Err(reason) => challenge_rejection_event(command, reason, origin),
+        Err(reason) => challenge_rejection_event(command, &reason, origin),
     }
 }
 
@@ -138,10 +143,10 @@ fn challenge_state_for_request(
 
 fn challenge_rejection_event(
     command: AgentCommandEnvelope,
-    reason: LanPairingRejectionReason,
+    reason: &LanPairingRejectionReason,
     origin: Option<&str>,
 ) -> AgentEventEnvelope {
-    let payload = rejected_control_audit_fields(&command, &reason, None, origin);
+    let payload = rejected_control_audit_fields(&command, reason, None, origin);
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,

@@ -18,7 +18,8 @@ import {
   parseActivityReportHistoryEvent,
   parseActivityServiceUiSpineEvents,
 } from '../../src/activity-surface-adapter';
-import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 const Source = {
   peerId: 'portal-dev',

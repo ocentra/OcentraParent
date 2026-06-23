@@ -18,15 +18,22 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
-    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-performance-health'])
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/app-game-domain',
+      '--',
+      'app-game-performance-health',
+    ])
   );
 
   const { AppGamePerformanceHealthProofMatrix } =
-    await import('../../packages/app-game-domain/dist/app-game-performance-health-proof.js');
+    await import('../../packages/schema-domain/dist/app-game-performance-health-proof.js');
   const { AppGamePerformanceHealthMatrixSchema, AppGamePerformanceHealthRowSchema } =
-    await import('../../packages/app-game-domain/dist/app-game-performance-health.js');
+    await import('../../packages/schema-domain/dist/app-game-performance-health.js');
   const matrix = AppGamePerformanceHealthMatrixSchema.parse(AppGamePerformanceHealthProofMatrix);
   const measurements = await collectMeasurements(matrix);
   assertProof(matrix, measurements, AppGamePerformanceHealthRowSchema);
@@ -40,9 +47,9 @@ async function main() {
     summary: summarizeMatrix(matrix, measurements),
     measurements,
     evidence: {
-      contract: 'packages/app-game-domain/src/app-game-performance-health.ts',
+      contract: 'packages/schema-domain/src/app-game-performance-health.ts',
       rules: 'packages/schema-domain/src/app-game-performance-health-rules.ts',
-      proofMatrix: 'packages/app-game-domain/src/app-game-performance-health-proof.ts',
+      proofMatrix: 'packages/schema-domain/src/app-game-performance-health-proof.ts',
       contractTest: 'packages/app-game-domain/tests/unit/app-game-performance-health.test.ts',
       proofHarness: 'scripts/test/app-game-performance-health-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/27-performance-and-service-health',
@@ -442,7 +449,7 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-performance-health: PASS',
       '- Matrix rows: 8',
       '- Required surfaces: inventory, runtime, foreground, journal, replay, policy, portal intent, degraded health',
@@ -454,7 +461,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust/service protocol not changed. This workpack adds app-game-domain performance health contracts plus centralized schema rules and generated scale proof only.\n',
+    'Rust/service protocol not changed. This workpack consumes centralized schema performance health contracts plus generated scale proof only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof);
@@ -534,7 +541,7 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Validation run:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-performance-health: PASS',
       '- cmd /c npm exec tsx -- test-results/app-game-performance-health-proof/portal-scale-smoke.ts: PASS',
       '- node scripts/test/app-game-performance-health-proof.mjs: PASS',

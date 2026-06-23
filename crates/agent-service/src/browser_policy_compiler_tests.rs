@@ -1,15 +1,30 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
-    AgentEventEnvelope, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    BrowserPolicyActionExecutionState, BrowserPolicyAiAuthority, BrowserPolicyApprovalState,
-    BrowserPolicyCapabilityState, BrowserPolicyDefaultPosture, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyExecutionMode, BrowserPolicyManagedBrowserIntegrationMechanism,
-    BrowserPolicyProofFallback, BrowserPolicyRule, BrowserPolicyRuleAction,
-    BrowserPolicyRuleActionPlan, BrowserPolicyTargetProofRequirement,
-    BrowserPolicyUnmanagedBrowserClassificationTarget, BrowserPolicyUpdateKind,
-    BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType,
-    BrowserPolicyValue, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyRuleActionPlan;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::BrowserPolicyActionExecutionState;
+use ocentra_parent_agent_protocol::BrowserPolicyAiAuthority;
+use ocentra_parent_agent_protocol::BrowserPolicyApprovalState;
+use ocentra_parent_agent_protocol::BrowserPolicyCapabilityState;
+use ocentra_parent_agent_protocol::BrowserPolicyDefaultPosture;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceProofLevel;
+use ocentra_parent_agent_protocol::BrowserPolicyExecutionMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserIntegrationMechanism;
+use ocentra_parent_agent_protocol::BrowserPolicyProofFallback;
+use ocentra_parent_agent_protocol::BrowserPolicyRule;
+use ocentra_parent_agent_protocol::BrowserPolicyRuleAction;
+use ocentra_parent_agent_protocol::BrowserPolicyTargetProofRequirement;
+use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserClassificationTarget;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateKind;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateResponse;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateStatus;
+use ocentra_parent_agent_protocol::BrowserPolicyUrlTargetType;
+use ocentra_parent_agent_protocol::BrowserPolicyValue;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, browser_policy_runtime_support::default_policy,
@@ -132,7 +147,7 @@ async fn browser_policy_preview_reports_policy_writer_as_manual_required_capabil
     let registry = response
         .capability_registry
         .as_ref()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert!(registry.capabilities.iter().any(|capability| {
         capability.capability_id == constants::browser_policy::POLICY_WRITER_CAPABILITY_ID
@@ -278,7 +293,7 @@ fn policy_with_writer_controls() -> BrowserPolicyValue {
     policy.managed_browser.integration_mechanisms =
         vec![BrowserPolicyManagedBrowserIntegrationMechanism::BrowserPolicy];
     policy.managed_browser.policy_writer_controls =
-        vec![ocentra_parent_agent_protocol::BrowserPolicyManagedPolicyWriterControl::UrlBlockList];
+        vec![ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyManagedPolicyWriterControl::UrlBlockList];
     policy.rules.url_block_list = vec![constants::browser_policy::DEFAULT_TARGET_VALUE.to_string()];
     policy
 }
@@ -309,24 +324,22 @@ fn rule_for_target(
 
 async fn preview_response_for_policy(policy: BrowserPolicyValue) -> BrowserPolicyUpdateResponse {
     let event =
-        send_browser_policy_command(BrowserPolicyRuntime::in_memory(), preview_command(policy))
+        send_browser_policy_command(BrowserPolicyRuntime::in_memory(), preview_command(&policy))
             .await;
     match event.payload.get(constants::field::BROWSER_POLICY_RESPONSE) {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => unreachable!(),
+        Some(LogFieldValue::String(text)) => parse_test_json(text),
+        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
 
 fn first_effective_rule(
     response: &BrowserPolicyUpdateResponse,
-) -> &ocentra_parent_agent_protocol::BrowserPolicyEffectiveRule {
+) -> &ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyEffectiveRule {
     response
         .effective_policy
         .as_ref()
         .and_then(|policy| policy.rules.first())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 async fn send_browser_policy_command(
@@ -334,7 +347,7 @@ async fn send_browser_policy_command(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     handle_command_text_with_browser_policy_for_test(
-        &serde_json::to_string(&command).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        &serialize_test_json(&command),
         LanPairingRuntime::empty(),
         runtime,
         None,
@@ -342,7 +355,7 @@ async fn send_browser_policy_command(
     .await
 }
 
-fn preview_command(policy_value: BrowserPolicyValue) -> AgentCommandEnvelope {
+fn preview_command(policy_value: &BrowserPolicyValue) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPreview,
         serde_json::json!({
@@ -361,9 +374,7 @@ where
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::BROWSER_POLICY_REQUEST.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&request).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_test_json(&request)),
     );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -381,4 +392,22 @@ where
         command,
         payload,
     }
+}
+
+fn serialize_test_json<T>(value: &T) -> String
+where
+    T: serde::Serialize + ?Sized,
+{
+    serde_json::to_string(value).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
+}
+
+fn parse_test_json<T>(text: &str) -> T
+where
+    T: serde::de::DeserializeOwned,
+{
+    serde_json::from_str(text).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }

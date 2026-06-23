@@ -6,4 +6,3 @@ describe('screen domain package boundary', () => {
     expect(ScreenDomainPackageName).toBe('@ocentra-parent/screen-domain');
   });
 });
-

@@ -1,8 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, DeviceRoleRuntimeReadModel, DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim,
-    DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
-    DeviceRuntimeSurface, LanPairingParentAuthority,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeAiProviderState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeLocalAiClaim;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleEntry;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
@@ -134,8 +139,10 @@ pub(super) fn lan_ai_provider_capabilities_from_env() -> Vec<String> {
     }
 }
 
-pub(super) fn non_empty_env(name: &str) -> Option<String> {
-    std::env::var(name).ok().filter(|value| !value.is_empty())
+pub(super) fn non_empty_env(env_var_name: &str) -> Option<String> {
+    std::env::var(env_var_name)
+        .ok()
+        .filter(|value| !value.is_empty())
 }
 
 fn default_roles_for_surface(surface: &DeviceRuntimeSurface) -> Vec<DeviceRuntimeRoleEntry> {

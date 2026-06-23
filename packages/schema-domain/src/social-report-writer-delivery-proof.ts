@@ -352,4 +352,3 @@ function socialReportWriterReadModelHasRequiredNonClaims(readModel: {
     nonClaims.has(RequiredNonClaims.NoEnforcement)
   );
 }
-

@@ -66,11 +66,11 @@ async function main() {
     checklistState: 'pending-current-checklist-lock-e-c',
     evidence: {
       providerStoreReportStatusRuntimeContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-report-status-runtime-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-report-status-runtime-proof.ts',
       sourceProviderStoreExecutionReadinessContract:
-        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
       sourceRuntimeReportWriterDeliveryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',

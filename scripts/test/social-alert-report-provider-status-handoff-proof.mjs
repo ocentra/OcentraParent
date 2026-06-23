@@ -27,7 +27,9 @@ async function main() {
   ]);
 
   const source = await readText('packages/schema-domain/src/social-alert-report-provider-status-handoff-proof.ts');
-  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-preference-status-handoff.test.ts');
+  const test = await readText(
+    'packages/browser-domain/tests/unit/social-alert-report-preference-status-handoff.test.ts'
+  );
   const socialFeature = await readText('docs/features/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
   const preflightModule = await importDist('social-alert-report-provider-preflight-proof.js');

@@ -5,7 +5,12 @@ import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
 import { RunType, TestLogScope, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
-import { fetchRunInfoFromBridge, flushBridgeRun, notifyBridgeRunStarted, sendToBridge } from '../../src/transport/bridgeTransport';
+import {
+  fetchRunInfoFromBridge,
+  flushBridgeRun,
+  notifyBridgeRunStarted,
+  sendToBridge,
+} from '../../src/transport/bridgeTransport';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 
@@ -47,34 +52,34 @@ function makeBridgeEntry(runId: string) {
   };
 }
 
+const bridgeLifecycleTempDirs: string[] = [];
+const bridgeLifecycleServers: Array<ReturnType<typeof createBridgeServer>> = [];
+
+afterEach(async () => {
+  await Promise.all(
+    bridgeLifecycleServers.splice(0, bridgeLifecycleServers.length).map(
+      (server) =>
+        new Promise<void>((resolve, reject) => {
+          server.close((error) => {
+            if (error != null) {
+              reject(error);
+              return;
+            }
+            resolve();
+          });
+        })
+    )
+  );
+
+  for (const tempDir of bridgeLifecycleTempDirs.splice(0, bridgeLifecycleTempDirs.length)) {
+    fs.rmSync(tempDir, { force: true, recursive: true });
+  }
+});
+
 describe('bridge run lifecycle', () => {
-  const tempDirs: string[] = [];
-  const servers: Array<ReturnType<typeof createBridgeServer>> = [];
-
-  afterEach(async () => {
-    await Promise.all(
-      servers.splice(0, servers.length).map(
-        (server) =>
-          new Promise<void>((resolve, reject) => {
-            server.close((error) => {
-              if (error != null) {
-                reject(error);
-                return;
-              }
-              resolve();
-            });
-          })
-      )
-    );
-
-    for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      fs.rmSync(tempDir, { force: true, recursive: true });
-    }
-  });
-
   it('records run metadata, wipes the selected scope, and rejects stale run ids for that scope', async () => {
     const tempDir = makeTempDir();
-    tempDirs.push(tempDir);
+    bridgeLifecycleTempDirs.push(tempDir);
 
     appendTestLogEntries(
       [
@@ -107,7 +112,7 @@ describe('bridge run lifecycle', () => {
     );
 
     const server = createBridgeServer({ rootDir: tempDir });
-    servers.push(server);
+    bridgeLifecycleServers.push(server);
     const address = await listen(server);
     const endpoint = `http://127.0.0.1:${address.port}`;
 

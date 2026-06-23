@@ -77,8 +77,9 @@ function selectGroundedMemoryReferences(
   selectedReferenceIds: ReadonlySet<string>
 ): LocalAiMemoryReference[] {
   return input.memoryReferences.filter((reference) =>
-    reference.sourceEvidenceReferences.every((sourceReference: LocalAiMemoryReference['sourceEvidenceReferences'][number]) =>
-      hasSelectedEvidenceGrounding(sourceReference, selectedReferenceIds)
+    reference.sourceEvidenceReferences.every(
+      (sourceReference: LocalAiMemoryReference['sourceEvidenceReferences'][number]) =>
+        hasSelectedEvidenceGrounding(sourceReference, selectedReferenceIds)
     )
   );
 }
@@ -88,8 +89,9 @@ function selectGroundedGraphReferences(
   selectedReferenceIds: ReadonlySet<string>
 ): LocalAiGraphReference[] {
   return input.graphReferences.filter((reference) =>
-    reference.sourceEvidenceReferences.every((sourceReference: LocalAiGraphReference['sourceEvidenceReferences'][number]) =>
-      hasSelectedEvidenceGrounding(sourceReference, selectedReferenceIds)
+    reference.sourceEvidenceReferences.every(
+      (sourceReference: LocalAiGraphReference['sourceEvidenceReferences'][number]) =>
+        hasSelectedEvidenceGrounding(sourceReference, selectedReferenceIds)
     )
   );
 }

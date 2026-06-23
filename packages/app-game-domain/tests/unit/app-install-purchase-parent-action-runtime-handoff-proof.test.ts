@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseParentActionRuntimeHandoffProofSchema,
   AppInstallPurchaseParentActionRuntimeHandoffRowSchema,
   summarizeAppInstallPurchaseParentActionRuntimeHandoffProof,
-} from '../../src/app-install-purchase-parent-action-runtime-handoff-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-parent-action-runtime-handoff-proof';
 
 describe('app install and purchase parent action runtime handoff proof', () => {
   acceptsReviewActionRuntimeHandoffRowsWithoutDeliveryClaims();

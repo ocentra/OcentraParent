@@ -1,12 +1,17 @@
 use std::env;
 
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, LogFieldValue,
-    ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
-    ParentAssistantApiProviderBoundary, ParentAssistantEvidenceContext,
-    ParentAssistantProviderRoute, ParentAssistantProviderRoutingState,
-    ParentAssistantProviderSelection, ParentAssistantProviderState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::parent_assistant::provider_route::ParentAssistantProviderRoute;
+use ocentra_parent_agent_protocol::parent_assistant::provider_route::ParentAssistantProviderRoutingState;
+use ocentra_parent_agent_protocol::parent_assistant::provider_route::ParentAssistantProviderSelection;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantApiAuthorizationState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantApiProviderAccessState;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantApiProviderBoundary;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantEvidenceContext;
+use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderState;
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 pub(crate) fn api_provider_boundary(
     citations: &[ParentAssistantEvidenceContext],
@@ -140,7 +145,7 @@ fn authorized_unavailable_boundary(
 ) -> ParentAssistantApiProviderBoundary {
     boundary(
         citations,
-        ApiProviderBoundaryParts {
+        &ApiProviderBoundaryParts {
             provider_id: constants::parent_assistant::API_PROVIDER_ID_AUTHORIZED,
             authorization_state: ParentAssistantApiAuthorizationState::Authorized,
             access_state: ParentAssistantApiProviderAccessState::AuthorizedUnavailable,
@@ -157,7 +162,7 @@ fn authorized_degraded_boundary(
 ) -> ParentAssistantApiProviderBoundary {
     boundary(
         citations,
-        ApiProviderBoundaryParts {
+        &ApiProviderBoundaryParts {
             provider_id: constants::parent_assistant::API_PROVIDER_ID_AUTHORIZED,
             authorization_state: ParentAssistantApiAuthorizationState::Authorized,
             access_state: ParentAssistantApiProviderAccessState::AuthorizedDegraded,
@@ -174,7 +179,7 @@ fn not_authorized_boundary(
 ) -> ParentAssistantApiProviderBoundary {
     boundary(
         citations,
-        ApiProviderBoundaryParts {
+        &ApiProviderBoundaryParts {
             provider_id: constants::parent_assistant::API_PROVIDER_ID_NOT_AUTHORIZED,
             authorization_state: ParentAssistantApiAuthorizationState::NotAuthorized,
             access_state: ParentAssistantApiProviderAccessState::NotAuthorized,
@@ -196,7 +201,7 @@ struct ApiProviderBoundaryParts {
 
 fn boundary(
     citations: &[ParentAssistantEvidenceContext],
-    parts: ApiProviderBoundaryParts,
+    parts: &ApiProviderBoundaryParts,
 ) -> ParentAssistantApiProviderBoundary {
     ParentAssistantApiProviderBoundary {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),

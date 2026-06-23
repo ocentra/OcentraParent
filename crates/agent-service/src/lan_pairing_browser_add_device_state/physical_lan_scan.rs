@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::{AgentCommandEnvelope, AgentCommandName};
+use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentCommandName};
 
 use crate::lan_network_inventory::{discover_lan_network_devices, LanNetworkInventoryDevice};
 

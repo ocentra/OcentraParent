@@ -6,6 +6,7 @@ import {
   type AgentEventEnvelope,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/schema-domain/social-audit-explanation-read-model';
 import { PortalDom, PortalEnvironment } from '@ocentra-parent/portal-domain/contracts';
 import {
@@ -14,10 +15,7 @@ import {
   type SocialAuditExplanationPanelIntent,
   type SocialAuditExplanationPanelRow,
 } from '@ocentra-parent/portal-domain/social-audit-explanation-panel';
-import {
-  isPortalBrowserParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
+import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderSocialAuditExplanationRoute(route: PortalRouteValue): boolean {

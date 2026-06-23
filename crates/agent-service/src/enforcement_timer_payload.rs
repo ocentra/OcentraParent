@@ -1,9 +1,14 @@
 use ocentra_parent_agent_core::enforcement_timer_state::EnforcementTimerTransitionIds;
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants,
-    schema_domain_mirrors::family::{ParentActorReference, ParentActorRole},
-    AgentCommandEnvelope, LogFieldValue, LogFields, ParentActionReference,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_parent_agent_protocol::schema_domain_mirrors::family::ParentActionReference;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+
+type EnforcementTimerDeviceRefText = String;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementTimerCommandPayload {
@@ -11,7 +16,7 @@ pub(crate) struct EnforcementTimerCommandPayload {
     pub expected_action_id: Option<String>,
     pub parent_override: Option<ParentActionReference>,
     pub process_id: Option<u32>,
-    pub device_id: String,
+    pub device_id: EnforcementTimerDeviceRefText,
     pub platform: String,
 }
 

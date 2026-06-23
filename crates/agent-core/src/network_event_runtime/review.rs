@@ -6,7 +6,9 @@ use ocentra_eventing::{
     ids::IdempotencyKey, ids::RequestId, ids::SchemaVersion, ids::SubscriberId, ids::TargetHandler,
     request::RequestEvent, request::RequestOptions,
 };
-use ocentra_parent_agent_protocol::{constants, NetworkRuntimePhase};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkInterventionState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase;
 use serde::{Deserialize, Serialize};
 
 use crate::NetworkObservation;
@@ -59,8 +61,7 @@ fn network_runtime_review_response_from_payload(
         evidence_grade: payload.evidence_grade,
         risk_budget_state: payload.risk_budget_state,
         intervention_state: payload.intervention_state,
-        review_required: payload.intervention_state
-            != ocentra_parent_agent_protocol::NetworkInterventionState::DryRunOnly,
+        review_required: payload.intervention_state != NetworkInterventionState::DryRunOnly,
         claim_boundary: payload.claim_boundary,
     }
 }

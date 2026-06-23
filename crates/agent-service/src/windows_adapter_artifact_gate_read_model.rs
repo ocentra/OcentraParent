@@ -1,14 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants::{
-        windows_adapter_artifact_gate as artifact_gate,
-        windows_adapter_capability as windows_adapter,
-    },
-    policy_constants as policy,
-    windows_adapter_artifact_gate::{
-        WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
-        WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof,
-        WindowsAdapterArtifactKind,
-    },
+use ocentra_parent_agent_protocol::constants::{
+    windows_adapter_artifact_gate as artifact_gate, windows_adapter_capability as windows_adapter,
+};
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::windows_adapter_artifact_gate::{
+    WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
+    WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
+};
+use ocentra_parent_agent_protocol::windows_adapter_capability::{
     WindowsAdapterCapabilityProof, WindowsAdapterCapabilityProofEntry,
     WindowsAdapterCapabilitySurface,
 };
@@ -67,33 +65,33 @@ fn artifact_gate_entries(
     generated_at: &str,
 ) -> Vec<WindowsAdapterArtifactGateEntry> {
     vec![
-        artifact_gate_entry(app_target_spec(), capability, artifacts, generated_at),
+        artifact_gate_entry(&app_target_spec(), capability, artifacts, generated_at),
         artifact_gate_entry(
-            domain_network_target_spec(),
+            &domain_network_target_spec(),
             capability,
             artifacts,
             generated_at,
         ),
         artifact_gate_entry(
-            managed_browser_target_spec(),
+            &managed_browser_target_spec(),
             capability,
             artifacts,
             generated_at,
         ),
         artifact_gate_entry(
-            unmanaged_browser_target_spec(),
+            &unmanaged_browser_target_spec(),
             capability,
             artifacts,
             generated_at,
         ),
         artifact_gate_entry(
-            unsupported_os_target_spec(),
+            &unsupported_os_target_spec(),
             capability,
             artifacts,
             generated_at,
         ),
         artifact_gate_entry(
-            rollback_audit_target_spec(),
+            &rollback_audit_target_spec(),
             capability,
             artifacts,
             generated_at,
@@ -195,15 +193,15 @@ fn rollback_audit_target_spec() -> ArtifactGateSpec {
 }
 
 fn artifact_gate_entry(
-    spec: ArtifactGateSpec,
+    spec: &ArtifactGateSpec,
     capability: &WindowsAdapterCapabilityProof,
     artifacts: &[WindowsAdapterArtifactEvidence],
     generated_at: &str,
 ) -> WindowsAdapterArtifactGateEntry {
     let capability_entry = capability_entry_for(capability, spec.surface);
-    let present_artifacts = present_artifacts(&spec, artifacts);
-    let missing_artifact_kinds = missing_artifact_kinds(&spec, &present_artifacts);
-    let decision = gate_decision(&spec, &missing_artifact_kinds);
+    let present_artifacts = present_artifacts(spec, artifacts);
+    let missing_artifact_kinds = missing_artifact_kinds(spec, &present_artifacts);
+    let decision = gate_decision(spec, &missing_artifact_kinds);
     let ready_for_manual_review =
         decision == WindowsAdapterArtifactGateDecision::ReadyForManualReview;
 
@@ -218,7 +216,7 @@ fn artifact_gate_entry(
             .map(|artifact| artifact.artifact_id.clone())
             .collect(),
         missing_artifact_kinds,
-        refusal_reasons: refusal_reasons(&spec, ready_for_manual_review),
+        refusal_reasons: refusal_reasons(spec, ready_for_manual_review),
         decision,
         ready_for_manual_review,
         claim_upgrade_allowed: false,
@@ -235,7 +233,7 @@ fn capability_entry_for(
         .entries
         .iter()
         .find(|entry| entry.surface == surface)
-        .expect(windows_adapter::READ_MODEL_ID_V0_8)
+        .unwrap_or_else(|| panic!("{}", windows_adapter::READ_MODEL_ID_V0_8))
 }
 
 fn present_artifacts<'a>(

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameTimeBudgetDryRunDecisionSchema } from '../../src/app-game-time-budget-policy';
+import { AppGameTimeBudgetDryRunDecisionSchema } from '@ocentra-parent/schema-domain/app-game-time-budget-policy';
 import {
   AppGameTimeBudgetApprovalState,
   AppGameTimeBudgetBonusState,

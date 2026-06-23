@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
 use crate::lan_pairing::LanPairingRuntime;
 

@@ -14,7 +14,8 @@ use crate::{
 #[test]
 fn serializes_policy_dispatch_read_model_with_stable_fields() {
     let read_model = proof_read_model();
-    let json = serde_json::to_value(&read_model).expect("read model serializes");
+    let json = serde_json::to_value(&read_model)
+        .unwrap_or_else(|error| unreachable!("read model serializes: {error:?}"));
 
     assert_eq!(json["readModelId"], dispatch::READ_MODEL_ID);
     assert_eq!(
@@ -42,9 +43,10 @@ fn serializes_policy_dispatch_read_model_with_stable_fields() {
 #[test]
 fn deserializes_report_only_and_scaffold_states_without_claim_upgrade() {
     let read_model = proof_read_model();
-    let encoded = serde_json::to_string(&read_model).expect("read model serializes");
-    let decoded: EnforcementPolicyDispatchReadModel =
-        serde_json::from_str(&encoded).expect("read model deserializes");
+    let encoded = serde_json::to_string(&read_model)
+        .unwrap_or_else(|error| unreachable!("read model serializes: {error:?}"));
+    let decoded: EnforcementPolicyDispatchReadModel = serde_json::from_str(&encoded)
+        .unwrap_or_else(|error| unreachable!("read model deserializes: {error:?}"));
 
     assert_eq!(
         decoded.entries[0].matrix_row.proof_level,
@@ -72,14 +74,16 @@ fn proof_read_model() -> EnforcementPolicyDispatchReadModel {
                 V08EnforcementProductControlSurface::WindowsOwnedProcessTimeLimit,
                 EnforcementAdapterKind::ProcessControl,
                 V08EnforcementProductControlParentAction::BlockScopedProcess,
-                EnforcementMode::TerminateProcess,
-                EnforcementCapabilityState::Supported,
-                EnforcementPolicyDispatchProofLevel::Implemented,
-                EnforcementPolicyDispatchOutcomeState::DispatchReady,
-                EnforcementPolicyDispatchRejectionReason::None,
-                EnforcementPolicyDispatchSourceState::Ready,
-                EnforcementPolicyDispatchApprovalState::NotRequired,
-                EnforcementPolicyDispatchTimerState::Active,
+                (
+                    EnforcementMode::TerminateProcess,
+                    EnforcementCapabilityState::Supported,
+                    EnforcementPolicyDispatchProofLevel::Implemented,
+                    EnforcementPolicyDispatchOutcomeState::DispatchReady,
+                    EnforcementPolicyDispatchRejectionReason::None,
+                    EnforcementPolicyDispatchSourceState::Ready,
+                    EnforcementPolicyDispatchApprovalState::NotRequired,
+                    EnforcementPolicyDispatchTimerState::Active,
+                ),
                 dispatch::CHILD_REASON_TIME_LIMIT,
             ),
             entry(
@@ -88,37 +92,50 @@ fn proof_read_model() -> EnforcementPolicyDispatchReadModel {
                 V08EnforcementProductControlSurface::WindowsNetworkDomainBlocking,
                 EnforcementAdapterKind::NetworkControl,
                 V08EnforcementProductControlParentAction::ReportOnly,
-                EnforcementMode::TemporaryBlock,
-                EnforcementCapabilityState::ManualRequired,
-                EnforcementPolicyDispatchProofLevel::ManualRequired,
-                EnforcementPolicyDispatchOutcomeState::ManualRequired,
-                EnforcementPolicyDispatchRejectionReason::AdapterManualRequired,
-                EnforcementPolicyDispatchSourceState::Ready,
-                EnforcementPolicyDispatchApprovalState::ManualRequired,
-                EnforcementPolicyDispatchTimerState::NotRequired,
+                (
+                    EnforcementMode::TemporaryBlock,
+                    EnforcementCapabilityState::ManualRequired,
+                    EnforcementPolicyDispatchProofLevel::ManualRequired,
+                    EnforcementPolicyDispatchOutcomeState::ManualRequired,
+                    EnforcementPolicyDispatchRejectionReason::AdapterManualRequired,
+                    EnforcementPolicyDispatchSourceState::Ready,
+                    EnforcementPolicyDispatchApprovalState::ManualRequired,
+                    EnforcementPolicyDispatchTimerState::NotRequired,
+                ),
                 dispatch::CHILD_REASON_MANUAL_REQUIRED,
             ),
         ],
     }
 }
 
-#[allow(clippy::too_many_arguments)]
 fn entry(
     intent_id: &str,
     matrix_id: &str,
     surface: V08EnforcementProductControlSurface,
     adapter_kind: EnforcementAdapterKind,
     requested_action: V08EnforcementProductControlParentAction,
-    mode: EnforcementMode,
-    capability_state: EnforcementCapabilityState,
-    proof_level: EnforcementPolicyDispatchProofLevel,
-    outcome_state: EnforcementPolicyDispatchOutcomeState,
-    rejection_reason: EnforcementPolicyDispatchRejectionReason,
-    source_state: EnforcementPolicyDispatchSourceState,
-    approval_state: EnforcementPolicyDispatchApprovalState,
-    timer_state: EnforcementPolicyDispatchTimerState,
+    states: (
+        EnforcementMode,
+        EnforcementCapabilityState,
+        EnforcementPolicyDispatchProofLevel,
+        EnforcementPolicyDispatchOutcomeState,
+        EnforcementPolicyDispatchRejectionReason,
+        EnforcementPolicyDispatchSourceState,
+        EnforcementPolicyDispatchApprovalState,
+        EnforcementPolicyDispatchTimerState,
+    ),
     child_reason_code: &str,
 ) -> EnforcementPolicyDispatchReadModelEntry {
+    let (
+        mode,
+        capability_state,
+        proof_level,
+        outcome_state,
+        rejection_reason,
+        source_state,
+        approval_state,
+        timer_state,
+    ) = states;
     EnforcementPolicyDispatchReadModelEntry {
         schema_version: "v0.6".to_string(),
         intent: crate::EnforcementPolicyDispatchIntent {
@@ -187,7 +204,7 @@ fn approval_reference(
 
     Some(ParentActionReference {
         action_reference_id: "approval-dispatch".to_string(),
-        actor: parent_actor().into(),
+        actor: parent_actor(),
         policy_version: "policy-version-v0-8-dispatch".to_string(),
         created_at: dispatch::GENERATED_AT.to_string(),
     })

@@ -1,8 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityReportDocument, ActivityReportFrequency, ActivityReportRequest,
-    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope,
-    LogFieldValue, ACTIVITY_SURFACE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReportDocument, ActivityReportFrequency, ActivityReportRequest, ActivitySurfaceRequest,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::time::timestamp_now;
 
@@ -65,8 +68,8 @@ fn scope_from_command(command: &AgentCommandEnvelope) -> ActivitySurfaceScope {
     }
 }
 
-fn string_payload_field(command: &AgentCommandEnvelope, key: &str) -> Option<String> {
-    match command.payload.get(key) {
+fn string_payload_field(command: &AgentCommandEnvelope, field_key: &str) -> Option<String> {
+    match command.payload.get(field_key) {
         Some(LogFieldValue::String(value)) if !value.trim().is_empty() => {
             Some(value.trim().to_string())
         }

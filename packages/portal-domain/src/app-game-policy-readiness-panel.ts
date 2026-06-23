@@ -1,14 +1,12 @@
-import {
-  type AgentAppGamePolicyReadinessResult,
-} from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
+import { type AgentAppGamePolicyReadinessResult } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
 import {
   AgentAppGamePolicyReadinessKind,
   AgentAppGamePolicyReadinessState,
   type AgentAppGamePolicyReadinessReadModel,
   type AgentAppGamePolicyReadinessRow,
 } from '@ocentra-parent/schema-domain/app-game-policy-readiness';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';
 
 const DetailSeparator = ' | ';

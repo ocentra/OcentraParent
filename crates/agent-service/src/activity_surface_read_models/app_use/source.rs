@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{ActivityRecentSummary, AppGameServiceReadModel};
+use ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary;
+use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
 
 pub(crate) enum AppUseReadModelSource {
     AppGame(Box<Option<AppGameServiceReadModel>>),

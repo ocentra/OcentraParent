@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalNotificationProofSchemaVersionSchema = withParser(
@@ -40,7 +35,9 @@ export const AppGameAndroidChildRuntimeLocalNotificationGapSchema = withParser(
   )
 );
 
-const LocalNotificationLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalNotificationProofLabel');
+const LocalNotificationLabelSchema = brandedNonEmptyStringSchema(
+  'AppGameAndroidChildRuntimeLocalNotificationProofLabel'
+);
 
 const AppGameAndroidChildRuntimeLocalNotificationProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalNotificationProofSchemaVersionSchema,
@@ -130,19 +127,40 @@ export function summarizeAppGameAndroidChildRuntimeLocalNotificationProof(
 
 function localNotificationProofIsHonest(proof: LocalNotificationCandidate): boolean {
   return (
+    localNotificationStateIsHonest(proof) &&
+    localNotificationProofRefsArePresent(proof) &&
+    localNotificationOpenGapsArePresent(proof)
+  );
+}
+
+function localNotificationStateIsHonest(proof: LocalNotificationCandidate): boolean {
+  return (
     proof.packageId === 'ca.ocentra.parent.agent' &&
     proof.notificationChannelState === 'local-notification-channel-declared' &&
     proof.notificationPostState === 'local-notification-post-recorded' &&
     proof.notificationMarkerState === 'local-notification-marker-recorded' &&
-    proof.markerReadbackObserved &&
-    proof.proofRefs.includes('android-physical-adb-device-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-notification-channel-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-notification-post-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-notification-marker-ref') &&
-    proof.openGaps.includes('provider-delivery-not-proved') &&
-    proof.openGaps.includes('platform-delivery-outside-package-not-proved') &&
-    proof.openGaps.includes('adapter-dispatch-not-proved') &&
-    proof.openGaps.includes('platform-enforcement-not-proved')
+    proof.markerReadbackObserved
   );
 }
 
+function localNotificationProofRefsArePresent(proof: LocalNotificationCandidate): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-physical-adb-device-ref',
+    'android-child-runtime-local-notification-channel-ref',
+    'android-child-runtime-local-notification-post-ref',
+    'android-child-runtime-local-notification-marker-ref',
+  ] as const);
+}
+
+function localNotificationOpenGapsArePresent(proof: LocalNotificationCandidate): boolean {
+  return includesAll(proof.openGaps, [
+    'provider-delivery-not-proved',
+    'platform-delivery-outside-package-not-proved',
+    'adapter-dispatch-not-proved',
+    'platform-enforcement-not-proved',
+  ] as const);
+}
+
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

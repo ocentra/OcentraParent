@@ -1,8 +1,4 @@
-import {
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportProofStatusMatrixClosureSchemaVersionSchema = withParser(
   Schema.Literal('production-support-proof-status-matrix-closure-proof')
@@ -57,7 +53,9 @@ export const ProductionSupportProofStatusMatrixClosureNonClaimSchema = withParse
   )
 );
 
-export const ProofStatusMatrixClosureReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportProofStatusMatrixClosureReference');
+export const ProofStatusMatrixClosureReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportProofStatusMatrixClosureReference'
+);
 
 export const RequiredProofStatusMatrixClosureAreas = [
   'status-backend-runtime',
@@ -97,4 +95,3 @@ export const RequiredProofStatusMatrixClosureNonClaims = [
   'no-provider-secret-custody',
   'no-child-activity-custody',
 ] as const;
-

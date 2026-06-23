@@ -1,26 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {
-  StoredTestLogLineSchema,
-  type StoredTestLogLine,
-} from '@ocentra-parent/schema-domain/test-log/types';
+import { StoredTestLogLineSchema, type StoredTestLogLine } from '@ocentra-parent/schema-domain/test-log/types';
 import { ensureDirectory, getRunNdjsonFilePath } from './ndjsonPaths';
 
-export function appendTestLogEntries(
-  entries: readonly StoredTestLogLine[],
-  rootDir?: string
-): string[] {
+export function appendTestLogEntries(entries: readonly StoredTestLogLine[], rootDir?: string): string[] {
   const grouped = new Map<string, StoredTestLogLine[]>();
 
   for (const rawEntry of entries) {
     const entry = StoredTestLogLineSchema.parse(rawEntry);
-    const filePath = getRunNdjsonFilePath(
-      entry.scope,
-      entry.runType,
-      entry.runId,
-      entry.suiteType,
-      rootDir
-    );
+    const filePath = getRunNdjsonFilePath(entry.scope, entry.runType, entry.runId, entry.suiteType, rootDir);
     const existing = grouped.get(filePath);
     if (existing == null) {
       grouped.set(filePath, [entry]);

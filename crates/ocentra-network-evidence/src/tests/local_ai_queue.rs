@@ -5,12 +5,13 @@ use crate::{
     NetworkLocalAiQueueError, NetworkLocalAiQueueInput, NetworkLocalAiQueueInputKind,
     NetworkLocalAiQueueStatus,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn local_ai_queue_enqueues_weak_network_bundle_with_refs_only() {
     let plan = plan_network_local_ai_queue(queue_input(weak_transfer_bundle()))
-        .expect("weak transfer bundle should queue local AI review");
-    let job = plan.job.expect("queued plan should contain a job");
+        .expect_value("weak transfer bundle should queue local AI review");
+    let job = plan.job.expect_value("queued plan should contain a job");
 
     assert_eq!(plan.status, NetworkLocalAiQueueStatus::Queued);
     assert!(plan.local_ai_review_recommended);
@@ -45,12 +46,12 @@ fn local_ai_queue_enqueues_weak_network_bundle_with_refs_only() {
 #[test]
 fn local_ai_queue_keeps_managed_browser_exact_url_as_evidence_ref_only() {
     let plan = plan_network_local_ai_queue(queue_input(weak_managed_browser_bundle()))
-        .expect("weak managed browser evidence should queue local AI review");
-    let job = plan.job.expect("queued plan should contain a job");
+        .expect_value("weak managed browser evidence should queue local AI review");
+    let job = plan.job.expect_value("queued plan should contain a job");
 
     assert_eq!(plan.status, NetworkLocalAiQueueStatus::Queued);
     assert_eq!(job.exact_url_evidence_refs, vec!["managed-browser-url-ref"]);
-    assert!(job.summary_refs.contains(&"network-summary-1".to_owned()));
+    assert_eq!(job.summary_refs, vec!["network-summary-1".to_owned()]);
     assert!(!job.page_content_available);
     assert!(!job.raw_network_payload_available);
     assert!(!job.decrypted_payload_available);
@@ -59,7 +60,7 @@ fn local_ai_queue_keeps_managed_browser_exact_url_as_evidence_ref_only() {
 #[test]
 fn local_ai_queue_skips_when_review_not_recommended() {
     let plan = plan_network_local_ai_queue(queue_input(confirmed_domain_bundle()))
-        .expect("confirmed domain bundle should produce a skip plan");
+        .expect_value("confirmed domain bundle should produce a skip plan");
 
     assert_eq!(plan.status, NetworkLocalAiQueueStatus::NotRecommended);
     assert!(!plan.local_ai_review_recommended);
@@ -75,7 +76,7 @@ fn local_ai_queue_disabled_or_unavailable_states_cannot_carry_job() {
         local_ai_enabled: false,
         ..queue_input(weak_transfer_bundle())
     })
-    .expect("disabled state should be explicit");
+    .expect_value("disabled state should be explicit");
     assert_eq!(disabled.status, NetworkLocalAiQueueStatus::DisabledByParent);
     assert!(disabled.job.is_none());
 
@@ -83,7 +84,7 @@ fn local_ai_queue_disabled_or_unavailable_states_cannot_carry_job() {
         model_runtime_available: false,
         ..queue_input(weak_transfer_bundle())
     })
-    .expect("model unavailable state should be explicit");
+    .expect_value("model unavailable state should be explicit");
     assert_eq!(
         model_unavailable.status,
         NetworkLocalAiQueueStatus::ModelUnavailable
@@ -94,7 +95,7 @@ fn local_ai_queue_disabled_or_unavailable_states_cannot_carry_job() {
         queue_available: false,
         ..queue_input(weak_transfer_bundle())
     })
-    .expect("queue unavailable state should be explicit");
+    .expect_value("queue unavailable state should be explicit");
     assert_eq!(
         queue_unavailable.status,
         NetworkLocalAiQueueStatus::QueueUnavailable
@@ -241,7 +242,7 @@ fn bundle(
         trigger_ref: trigger_ref.to_owned(),
         sources: vec![source],
     })
-    .expect("test bundle should be valid")
+    .expect_value("test bundle should be valid")
 }
 
 fn source(

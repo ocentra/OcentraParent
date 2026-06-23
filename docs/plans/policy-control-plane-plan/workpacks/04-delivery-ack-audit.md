@@ -6,6 +6,16 @@ Owns: event-driven delivery lifecycle, per-child/device/domain status, offline d
 
 Handoff: eventing and enforcement plans own runtime mechanics; this workpack defines the policy delivery contract and proof.
 
+## Ownership boundary
+
+```text
+policy-control-plane-plan owns delivery contract, per-child/device/domain status, ack requirement, retry/degraded states, rollback refs, and audit proof.
+eventing-plan owns reusable event bus, idempotency, replay, journal, and request/response mechanics.
+domain plans own runtime apply behavior after typed handoff.
+v0-8-enforcement-control-plan owns enforcement authority and action execution.
+portal plan owns rendered parent-visible state.
+```
+
 ## Required lifecycle
 
 ```text
@@ -28,6 +38,34 @@ blockedByPermission
 blockedByCapability
 manualRequired
 ```
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+delivery_id
+source_policy_version
+child_profile_ref
+child_device_ref
+domain_target
+delivery_state
+ack_state
+retry_state
+offline_state
+partial_apply_state
+rejected_state
+superseded_state
+rollback_state
+previous_state_ref
+audit_ref
+redaction_state
+parent_visible_state
+enforcement_authority_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Required behavior
 
@@ -70,4 +108,4 @@ raw child or policy data appears in logs
 
 ## Failure
 
-Do not mark policy active globally when only one domain or device acknowledged, and do not hide offline/manualRequired delivery behind success UI.
+Do not mark policy active globally when only one domain or device acknowledged, and do not hide offline/manualRequired delivery behind success UI. Do not claim enforcement authority from delivery proof.

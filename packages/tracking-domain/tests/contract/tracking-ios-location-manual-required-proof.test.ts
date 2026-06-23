@@ -5,7 +5,7 @@ import {
   TrackingIosLocationManualRequiredProofRowSchema,
   buildTrackingIosLocationManualRequiredProofReadModel,
   type TrackingIosLocationManualRequiredInputRow,
-} from '../../src/tracking-ios-location-manual-required-proof';
+} from '@ocentra-parent/schema-domain/tracking-ios-location-manual-required-proof';
 
 const Timestamp = '2026-06-06T02:30:00.000Z';
 

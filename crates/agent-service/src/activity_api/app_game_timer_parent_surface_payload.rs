@@ -1,17 +1,25 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, AgentCommandEnvelope, AgentEventEnvelope,
-    AgentEventName, AppGameServiceReadModel, AppGameTimerParentSurfaceReadModel,
-    AppGameTimerParentSurfaceRow, EnforcementActiveTimerState, LogFieldValue, LogFields, LogLevel,
-    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION,
-    APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
-    APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
-    APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED,
-    APP_GAME_TIMER_PARENT_SURFACE_STATUS_NO_ROWS, APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL,
-    APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
-    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameServiceReadModel, APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+};
+use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceReadModel;
+use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceRow;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATUS_NO_ROWS;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP;
+use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME;
 
 use crate::{
     activity_surface_store::load_app_game_model,
@@ -209,9 +217,7 @@ pub fn app_game_timer_parent_surface_payload(
         ),
         (
             constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ])
 }

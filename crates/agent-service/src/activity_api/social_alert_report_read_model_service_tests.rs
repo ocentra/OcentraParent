@@ -1,16 +1,21 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    SocialAlertReportReadModelSnapshot, AGENT_PROTOCOL_SCHEMA_VERSION,
-    SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK, SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED,
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::social_alert_report_read_model::SocialAlertReportReadModelSnapshot;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK;
+use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
 
 #[tokio::test]
 async fn social_alert_report_command_reports_service_backed_intent_rows() {
-    let body =
-        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let body = serde_json::to_string(&command_envelope())
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model = social_alert_report_payload(
         &event.payload[constants::field::BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL],
@@ -67,8 +72,8 @@ fn command_envelope() -> AgentCommandEnvelope {
 fn social_alert_report_payload(value: &LogFieldValue) -> SocialAlertReportReadModelSnapshot {
     match value {
         LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
         }
-        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+        _ => std::process::abort(),
     }
 }

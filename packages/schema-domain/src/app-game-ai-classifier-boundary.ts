@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from "./effect";
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameAiClassifierCandidateKind,
   AppGameAiClassifierFallbackState,
@@ -13,17 +8,17 @@ import {
   AppGameAiClassifierSchemaVersion,
   AppGameAiClassifierSourceDigestKind,
   AppGameAiClassifierState,
-} from "./app-game-ai-classifier-boundary-values";
+} from './app-game-ai-classifier-boundary-values';
 
-export const AppGameAiClassifierRunIdSchema = brandedNonEmptyStringSchema("AppGameAiClassifierRunId");
-export const AppGameAiClassifierDigestRefSchema = brandedNonEmptyStringSchema("AppGameAiClassifierDigestRef");
-export const AppGameAiClassifierEvidenceRefSchema = brandedNonEmptyStringSchema("AppGameAiClassifierEvidenceRef");
-export const AppGameAiClassifierSessionRefSchema = brandedNonEmptyStringSchema("AppGameAiClassifierSessionRef");
-export const AppGameAiClassifierRuntimeRefSchema = brandedNonEmptyStringSchema("AppGameAiClassifierRuntimeRef");
-export const AppGameAiClassifierPromptRefSchema = brandedNonEmptyStringSchema("AppGameAiClassifierPromptRef");
-export const AppGameAiClassifierLabelSchema = brandedNonEmptyStringSchema("AppGameAiClassifierLabel");
-export const AppGameAiClassifierReasonCodeSchema = brandedNonEmptyStringSchema("AppGameAiClassifierReasonCode");
-export const AppGameAiClassifierTimestampSchema = brandedNonEmptyStringSchema("AppGameAiClassifierTimestamp");
+export const AppGameAiClassifierRunIdSchema = brandedNonEmptyStringSchema('AppGameAiClassifierRunId');
+export const AppGameAiClassifierDigestRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierDigestRef');
+export const AppGameAiClassifierEvidenceRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierEvidenceRef');
+export const AppGameAiClassifierSessionRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierSessionRef');
+export const AppGameAiClassifierRuntimeRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierRuntimeRef');
+export const AppGameAiClassifierPromptRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierPromptRef');
+export const AppGameAiClassifierLabelSchema = brandedNonEmptyStringSchema('AppGameAiClassifierLabel');
+export const AppGameAiClassifierReasonCodeSchema = brandedNonEmptyStringSchema('AppGameAiClassifierReasonCode');
+export const AppGameAiClassifierTimestampSchema = brandedNonEmptyStringSchema('AppGameAiClassifierTimestamp');
 
 const AppGameAiClassifierProductKindSchema = withParser(
   Schema.Literal(...Object.values(AppGameAiClassifierProductKind))
@@ -43,7 +38,7 @@ const AppGameAiClassifierFallbackStateSchema = withParser(
 );
 const AppGameAiClassifierConfidenceSchema = withParser(Schema.Number.pipe(Schema.between(0, 1)));
 const AppGameAiClassifierEvidenceRefsSchema = Schema.Array(AppGameAiClassifierEvidenceRefSchema).pipe(
-  Schema.filter((refs) => refs.length > 0 || "Expected AI classifier output to cite stored evidence refs")
+  Schema.filter((refs) => refs.length > 0 || 'Expected AI classifier output to cite stored evidence refs')
 );
 
 const AppGameAiClassifierResultBaseSchema = Schema.Struct({
@@ -75,7 +70,7 @@ export const AppGameAiClassifierResultSchema = withParser(
     Schema.filter(
       (result) =>
         appGameAiClassifierPolicyHandoffIsEvidenceOnly(result) ||
-        "Expected AI classifier output to remain evidence-only for policy handoff"
+        'Expected AI classifier output to remain evidence-only for policy handoff'
     )
   )
     .pipe(
@@ -83,7 +78,7 @@ export const AppGameAiClassifierResultSchema = withParser(
         (result) =>
           result.classifierState !== AppGameAiClassifierState.ProviderUnavailable ||
           result.fallbackState !== AppGameAiClassifierFallbackState.NotNeeded ||
-          "Expected provider-unavailable classifier output to name a fallback state"
+          'Expected provider-unavailable classifier output to name a fallback state'
       )
     )
     .pipe(
@@ -91,7 +86,7 @@ export const AppGameAiClassifierResultSchema = withParser(
         (result) =>
           result.fallbackState !== AppGameAiClassifierFallbackState.LowConfidence ||
           result.confidence < 0.5 ||
-          "Expected low-confidence fallback to keep confidence below 0.5"
+          'Expected low-confidence fallback to keep confidence below 0.5'
       )
     )
 );
@@ -112,7 +107,7 @@ export function appGameAiClassifierPolicyHandoffIsEvidenceOnly(
 export function parseAppGameAiClassifierResult(input: unknown): AppGameAiClassifierResult {
   const forbiddenKeys = appGameAiClassifierForbiddenOutputKeyPaths(input);
   if (forbiddenKeys.length > 0) {
-    throw new Error(`Forbidden AI classifier output keys: ${forbiddenKeys.join(",")}`);
+    throw new Error(`Forbidden AI classifier output keys: ${forbiddenKeys.join(',')}`);
   }
 
   return AppGameAiClassifierResultSchema.parse(input);
@@ -140,7 +135,7 @@ function collectForbiddenOutputKeyPaths(value: unknown, path: readonly PropertyK
     const currentPath = AppGameAiClassifierForbiddenOutputKeys.includes(
       key as (typeof AppGameAiClassifierForbiddenOutputKeys)[number]
     )
-      ? [nextPath.join(".")]
+      ? [nextPath.join('.')]
       : [];
 
     return [...currentPath, ...collectForbiddenOutputKeyPaths(nested, nextPath)];
@@ -148,5 +143,5 @@ function collectForbiddenOutputKeyPaths(value: unknown, path: readonly PropertyK
 }
 
 function appGameAiClassifierIsRecord(value: unknown): value is Record<PropertyKey, unknown> {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }

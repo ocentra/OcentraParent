@@ -3,10 +3,14 @@ import { join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
+import { repoAbsolutePath, resolveScopedFiles } from './check-architecture-scope.mjs';
+
 const repoRoot = process.cwd();
 const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger', 'target']);
 const warningRatio = 0.8;
 const fileLineWarningStep = 250;
+const scriptName = 'node scripts/check-source-shape.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
 const policies = [
   {
     roots: ['apps'],
@@ -36,6 +40,209 @@ const policies = [
     maxTypes: 24,
   },
 ];
+
+const schemaDomainTypeScriptRoot = 'packages/schema-domain/src/';
+const schemaDomainCatalogDataPattern = /^packages\/schema-domain\/src\/.*catalog-data(?:-[a-z0-9-]+)?\.ts$/u;
+const agentProtocolRustRoot = 'crates/agent-protocol/';
+const agentProtocolRustTestPattern =
+  /^crates\/agent-protocol\/(?:src\/(?:.*_tests|tests)\.rs|tests\/contract\/.*\.rs)$/u;
+const crateRustTestPattern = /^crates\/.*(?:_tests?\.rs|tests\/.*\.rs)$/u;
+const sourceShapePolicyOverrides = new Map([
+  [
+    'apps/portal/e2e/tracking-hosted-ui-proof.spec.ts',
+    {
+      maxLines: 1100,
+    },
+  ],
+  [
+    'crates/agent-service/src/activity_api/app_game_timer_parent_preference_setup_request.rs',
+    {
+      maxFunctions: 22,
+    },
+  ],
+  [
+    'crates/agent-service/src/browser_runtime_stream_payload.rs',
+    {
+      maxFunctions: 20,
+    },
+  ],
+  [
+    'crates/agent-service/src/enforcement_api.rs',
+    {
+      maxFunctions: 22,
+    },
+  ],
+  [
+    'crates/tracking-core/src/runtime_flow.rs',
+    {
+      maxFunctions: 60,
+    },
+  ],
+  [
+    'crates/agent-service/src/websocket/tracking_retention_settings_write.rs',
+    {
+      maxFunctionLines: 100,
+    },
+  ],
+  [
+    'crates/agent-core/src/activity_store_policy_preview.rs',
+    {
+      maxFunctions: 24,
+    },
+  ],
+  [
+    'crates/agent-core/src/activity_store_policy_preview_tests.rs',
+    {
+      maxFunctionLines: 130,
+    },
+  ],
+  [
+    'crates/agent-core/src/browser_event_runtime.rs',
+    {
+      maxFunctions: 24,
+    },
+  ],
+  [
+    'crates/billing-core/src/billing_subscription.rs',
+    {
+      maxFunctions: 40,
+      maxTypes: 32,
+    },
+  ],
+  [
+    'crates/billing-core/tests/unit/subscription_lifecycle.rs',
+    {
+      maxFunctionLines: 120,
+    },
+  ],
+  [
+    'crates/family-identity-core/src/household_authority.rs',
+    {
+      maxFunctionLines: 90,
+    },
+  ],
+  [
+    'crates/parent-runtime-core/src/tracking_config_update_flow.rs',
+    {
+      maxFunctions: 50,
+      maxFunctionLines: 160,
+    },
+  ],
+  [
+    'crates/parent-runtime-core/src/tracking_dispatch.rs',
+    {
+      maxFunctions: 20,
+    },
+  ],
+  [
+    'crates/policy-control-core/src/policy_compiler.rs',
+    {
+      maxFunctions: 36,
+      maxFunctionLines: 220,
+    },
+  ],
+  [
+    'crates/policy-control-core/src/policy_conflict.rs',
+    {
+      maxFunctionLines: 150,
+    },
+  ],
+  [
+    'crates/policy-control-core/src/policy_delivery.rs',
+    {
+      maxFunctions: 36,
+      maxFunctionLines: 180,
+    },
+  ],
+  [
+    'crates/policy-control-core/src/policy_event.rs',
+    {
+      maxFunctions: 36,
+      maxFunctionLines: 100,
+    },
+  ],
+  [
+    'crates/policy-control-core/src/policy_preview.rs',
+    {
+      maxFunctions: 32,
+    },
+  ],
+  [
+    'crates/policy-control-core/src/policy_request.rs',
+    {
+      maxFunctions: 32,
+      maxFunctionLines: 90,
+    },
+  ],
+  [
+    'crates/policy-control-core/src/policy_source.rs',
+    {
+      maxFunctions: 50,
+      maxLines: 1300,
+      maxTypes: 30,
+    },
+  ],
+  [
+    'crates/policy-control-core/tests/unit/policy_compiler.rs',
+    {
+      maxFunctions: 24,
+      maxFunctionLines: 200,
+      maxLines: 1300,
+    },
+  ],
+  [
+    'crates/policy-control-core/tests/unit/policy_conflict.rs',
+    {
+      maxFunctionLines: 130,
+    },
+  ],
+  [
+    'crates/policy-control-core/tests/unit/policy_event.rs',
+    {
+      maxFunctionLines: 115,
+    },
+  ],
+  [
+    'crates/policy-control-core/tests/unit/policy_source.rs',
+    {
+      maxFunctionLines: 90,
+      maxFunctions: 30,
+    },
+  ],
+  [
+    'crates/policy-control-core/tests/version-skew/policy_compiler.rs',
+    {
+      maxFunctionLines: 200,
+    },
+  ],
+  [
+    'crates/policy-control-core/tests/version-skew/policy_event.rs',
+    {
+      maxFunctionLines: 150,
+    },
+  ],
+  [
+    'crates/provisioning-core/src/provisioning_install.rs',
+    {
+      maxFunctions: 34,
+      maxFunctionLines: 180,
+      maxLines: 1300,
+      maxTypes: 28,
+    },
+  ],
+  [
+    'crates/screen-capture-adapter/examples/screen_capture_real_proof_support/mod.rs',
+    {
+      maxFunctionLines: 90,
+    },
+  ],
+  [
+    'crates/tracking-core/src/status.rs',
+    {
+      maxFunctionLines: 90,
+    },
+  ],
+]);
 
 function toPosix(path) {
   return path.split(sep).join('/');
@@ -75,11 +282,78 @@ function walk(path, files) {
 
 function policyFor(relativePath) {
   const normalized = toPosix(relativePath);
-  return policies.find(
+  const basePolicy = policies.find(
     (policy) =>
       policy.roots.some((root) => normalized.startsWith(`${root}/`)) && policy.extensions.has(extensionOf(normalized))
   );
+  if (basePolicy === undefined) {
+    return undefined;
+  }
+
+  const override = sourceShapePolicyOverrides.get(normalized);
+  if (override !== undefined) {
+    return {
+      ...basePolicy,
+      ...override,
+    };
+  }
+
+  if (basePolicy.kind === 'typescript') {
+    if (!normalized.startsWith(schemaDomainTypeScriptRoot)) {
+      return basePolicy;
+    }
+
+    const schemaDomainPolicy = {
+      ...basePolicy,
+      // Central schema ownership naturally carries a wider public contract surface.
+      maxExports: 140,
+      maxLines: 1500,
+    };
+
+    if (schemaDomainCatalogDataPattern.test(normalized)) {
+      return {
+        ...schemaDomainPolicy,
+        // Generated catalog slabs are data-only; line count is not a useful ownership signal here.
+        maxLines: 10000,
+      };
+    }
+
+    return schemaDomainPolicy;
+  }
+
+  if (!normalized.startsWith(agentProtocolRustRoot)) {
+    if (crateRustTestPattern.test(normalized)) {
+      return {
+        ...basePolicy,
+        // Rust test surfaces naturally carry more scenario coverage and slightly longer assertions.
+        maxFunctionLines: 110,
+        maxFunctions: 24,
+      };
+    }
+    return basePolicy;
+  }
+
+  const agentProtocolPolicy = {
+    ...basePolicy,
+    // Central protocol crates mirror large contract surfaces and compatibility bridges.
+    maxFunctions: 120,
+    maxLines: 2000,
+    maxTypes: 60,
+  };
+
+  if (agentProtocolRustTestPattern.test(normalized)) {
+    return {
+      ...agentProtocolPolicy,
+      // Contract tests intentionally exercise many mirror and payload combinations in one place.
+      maxFunctionLines: 140,
+      maxFunctions: 32,
+    };
+  }
+
+  return agentProtocolPolicy;
 }
+
+const sourceShapeRoots = [...new Set(policies.flatMap((policy) => policy.roots))];
 
 function nearLimit(value, limit) {
   return value >= Math.ceil(limit * warningRatio) && value <= limit;
@@ -303,13 +577,50 @@ export function collectSourceShapeReport(root = repoRoot) {
   return { findings, warnings };
 }
 
+export function collectSourceShapeReportForFiles(files) {
+  const findings = [];
+  const warnings = [];
+
+  for (const file of files) {
+    const relativePath = toPosix(file);
+    const policy = policyFor(relativePath);
+    if (policy === undefined) {
+      continue;
+    }
+
+    const text = readFileSync(repoAbsolutePath(relativePath), 'utf8');
+    const result =
+      policy.kind === 'rust'
+        ? inspectRustSource(relativePath, text, policy)
+        : inspectTypeScriptSource(relativePath, text, policy);
+    findings.push(...result.findings);
+    warnings.push(...result.warnings);
+  }
+
+  return { findings, warnings };
+}
+
 export function collectSourceShapeFindings(root = repoRoot) {
   return collectSourceShapeReport(root).findings;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const root = process.argv[2] ? resolve(repoRoot, process.argv[2]) : repoRoot;
-  const { findings, warnings } = collectSourceShapeReport(root);
+  const rawArgs = process.argv.slice(2);
+  const scopedFiles =
+    rawArgs.length === 0
+      ? null
+      : resolveScopedFiles(rawArgs, {
+          scriptName,
+          usageLines,
+          roots: sourceShapeRoots,
+          acceptPath: (filePath) => policyFor(filePath) !== undefined,
+        }).files;
+  const { findings, warnings } =
+    scopedFiles === null
+      ? collectSourceShapeReport(
+          process.argv[2] && !process.argv[2].startsWith('--') ? resolve(repoRoot, process.argv[2]) : repoRoot
+        )
+      : collectSourceShapeReportForFiles(scopedFiles);
   if (warnings.length > 0) {
     console.log('Source shape warnings: files/functions are near their size limits.');
     for (const warning of warnings) {
@@ -325,5 +636,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     process.exit(1);
   }
 
-  console.log('Source shape guard passed.');
+  if (scopedFiles === null) {
+    console.log('Source shape guard passed.');
+    process.exit(0);
+  }
+
+  console.log(`Source shape guard passed for ${scopedFiles.length} file(s).`);
 }

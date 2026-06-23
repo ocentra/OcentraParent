@@ -3,6 +3,7 @@ use crate::{
     NetworkLiveCaptureExecutionSource, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,
     NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 pub fn executed_input(
     live_capture_proof: NetworkLiveCaptureProof,
@@ -42,7 +43,7 @@ pub fn executed_input(
 
 pub fn proof_ready_live_capture() -> NetworkLiveCaptureProof {
     plan_network_live_capture_proof(live_capture_input())
-        .expect("complete live capture proof refs should parse")
+        .expect_value("complete live capture proof refs should parse")
 }
 
 pub fn live_capture_with_state(state: NetworkLiveCaptureProofState) -> NetworkLiveCaptureProof {
@@ -63,7 +64,7 @@ pub fn live_capture_with_state(state: NetworkLiveCaptureProofState) -> NetworkLi
             plan_network_live_capture_proof(live_capture_input())
         }
     }
-    .expect("live capture state fixture should parse")
+    .expect_value("live capture state fixture should parse")
 }
 
 fn live_capture_input() -> NetworkLiveCaptureProofInput {

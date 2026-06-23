@@ -1,10 +1,4 @@
-﻿import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+﻿import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 import {
   AppGameNotificationPreferencePreflightReadModelSchema,
   AppGameNotificationPreferencePreflightStatus,
@@ -383,5 +377,3 @@ const countSourceStatus = (
   rows: ReadonlyArray<{ readonly sourcePreferenceStatus: AppGameNotificationPreferencePreflightStatus }>,
   status: AppGameNotificationPreferencePreflightStatus
 ): number => rows.filter((row) => row.sourcePreferenceStatus === status).length;
-
-

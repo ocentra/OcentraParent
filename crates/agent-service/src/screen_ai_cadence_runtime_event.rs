@@ -51,6 +51,38 @@ pub(crate) struct ScreenAiServiceCaptureRecord<'a> {
 pub(crate) fn record_captured_screen_image_to_paths(
     record: ScreenAiServiceCaptureRecord<'_>,
 ) -> Result<String, ActivityCaptureError> {
+    let ScreenAiServiceCaptureRecord {
+        paths,
+        image,
+        clock,
+        sequence_index,
+        capture_reason,
+        source_id,
+        queue_job_id_prefix,
+        result_id_prefix,
+        event_id_prefix,
+        evidence_id_prefix,
+        summary,
+        model_id,
+        template_version,
+        temporary_image_ttl_seconds,
+    } = record;
+    let record = ScreenAiServiceCaptureRecord {
+        paths,
+        image,
+        clock,
+        sequence_index,
+        capture_reason,
+        source_id,
+        queue_job_id_prefix,
+        result_id_prefix,
+        event_id_prefix,
+        evidence_id_prefix,
+        summary,
+        model_id,
+        template_version,
+        temporary_image_ttl_seconds,
+    };
     let key = load_or_create_screen_key(record.paths.journal_key_path)?;
     let image = record.image;
     let image_digest = digest_image(&image.png_bytes);

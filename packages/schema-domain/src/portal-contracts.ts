@@ -43,6 +43,7 @@ export const PortalRouteLiteral = {
   PlatformsInstall: 'platforms-install',
   InstallUpdates: 'install-updates',
   Diagnostics: 'diagnostics',
+  ProofPanels: 'proof-panels',
   SettingsRules: 'settings-rules',
   FrameTuner: 'app-layout',
   Commands: 'commands',
@@ -52,10 +53,10 @@ export const PortalRouteLiteral = {
 
 export const PortalRouteSchema = withParser(
   Schema.Literal(
-    ...Object.values(PortalRouteLiteral) as [
-      typeof PortalRouteLiteral[keyof typeof PortalRouteLiteral],
-      ...Array<typeof PortalRouteLiteral[keyof typeof PortalRouteLiteral]>
-    ]
+    ...(Object.values(PortalRouteLiteral) as [
+      (typeof PortalRouteLiteral)[keyof typeof PortalRouteLiteral],
+      ...Array<(typeof PortalRouteLiteral)[keyof typeof PortalRouteLiteral]>,
+    ])
   )
 );
 export type PortalRoute = Infer<typeof PortalRouteSchema>;
@@ -103,6 +104,7 @@ export const PortalRoute = {
   PlatformsInstall: PortalRouteSchema.parse(PortalRouteLiteral.PlatformsInstall),
   InstallUpdates: PortalRouteSchema.parse(PortalRouteLiteral.InstallUpdates),
   Diagnostics: PortalRouteSchema.parse(PortalRouteLiteral.Diagnostics),
+  ProofPanels: PortalRouteSchema.parse(PortalRouteLiteral.ProofPanels),
   SettingsRules: PortalRouteSchema.parse(PortalRouteLiteral.SettingsRules),
   FrameTuner: PortalRouteSchema.parse(PortalRouteLiteral.FrameTuner),
   Commands: PortalRouteSchema.parse(PortalRouteLiteral.Commands),
@@ -113,7 +115,8 @@ export const PortalRoute = {
 export const PortalRouteHashPrefix = '#/' as const;
 export const PortalRouteHashQuerySeparator = '?' as const;
 export type PortalRouteHashPath = `${typeof PortalRouteHashPrefix}${PortalRoute}`;
-export type PortalRouteHashQueryPath = `${typeof PortalRouteHashPrefix}${PortalRoute}${typeof PortalRouteHashQuerySeparator}${string}`;
+export type PortalRouteHashQueryPath =
+  `${typeof PortalRouteHashPrefix}${PortalRoute}${typeof PortalRouteHashQuerySeparator}${string}`;
 
 export const PortalConnectionStateSchema = withParser(
   Schema.Literal('disconnected', 'connecting', 'connected', 'error')
@@ -137,8 +140,6 @@ export const PortalClipboardTextSchema = withParser(brandedNonEmptyStringSchema(
 export type PortalClipboardText = Infer<typeof PortalClipboardTextSchema>;
 export const decodePortalClipboardText = PortalClipboardTextSchema.parse;
 
-export const TrackingStatusProofArtifactSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingStatusProofArtifact')
-);
+export const TrackingStatusProofArtifactSchema = withParser(brandedNonEmptyStringSchema('TrackingStatusProofArtifact'));
 export type TrackingStatusProofArtifact = Infer<typeof TrackingStatusProofArtifactSchema>;
 export const decodeTrackingStatusProofArtifact = TrackingStatusProofArtifactSchema.parse;

@@ -230,6 +230,122 @@ function trackingReadModelSample() {
   };
 }
 
+const DistinctExpectedPlaceRuntimeCases = [
+  {
+    observedAt: '2026-06-03T12:05:00.000Z',
+    schedule: {
+      ...ExpectedPlaceSchedule,
+      scheduleId: 'school-weekday-schedule',
+      ruleId: 'school-arrival-rule',
+      placeId: 'school-campus',
+      label: 'School weekday arrival',
+      windows: [
+        {
+          startsAt: '2026-06-03T11:45:00.000Z',
+          endsAt: '2026-06-03T19:00:00.000Z',
+          timezone: 'America/Toronto',
+        },
+      ],
+      distanceToleranceMeters: 75,
+      lateGraceSeconds: 900,
+      earlyExitGraceSeconds: 60,
+    },
+    transition: {
+      ...GeofenceTransition,
+      transitionId: 'school-enter-transition',
+      observedAt: '2026-06-03T12:05:00.000Z',
+      ruleId: 'school-arrival-rule',
+      transition: 'enter' as const,
+      distanceMeters: 18,
+      reasonCodes: ['school-arrival-sample'],
+    },
+    expectedOutcome: 'where-expected' as const,
+    expectedReasonCode: 'inside-expected-place-window',
+  },
+  {
+    observedAt: '2026-06-03T21:20:00.000Z',
+    schedule: {
+      ...ExpectedPlaceSchedule,
+      scheduleId: 'after-school-activity-schedule',
+      ruleId: 'soccer-practice-rule',
+      placeId: 'soccer-practice',
+      label: 'After-school soccer practice',
+      windows: [
+        {
+          startsAt: '2026-06-03T20:00:00.000Z',
+          endsAt: '2026-06-03T22:00:00.000Z',
+          timezone: 'America/Toronto',
+        },
+      ],
+      distanceToleranceMeters: 120,
+      lateGraceSeconds: 300,
+      earlyExitGraceSeconds: 180,
+    },
+    transition: {
+      ...GeofenceTransition,
+      transitionId: 'activity-exit-transition',
+      observedAt: '2026-06-03T21:20:00.000Z',
+      ruleId: 'soccer-practice-rule',
+      transition: 'exit' as const,
+      distanceMeters: 140,
+      reasonCodes: ['activity-exit-sample'],
+    },
+    expectedOutcome: 'left-expected-place' as const,
+    expectedReasonCode: 'exited-expected-place-window',
+  },
+  {
+    observedAt: '2026-06-03T14:36:00.000Z',
+    schedule: {
+      ...ExpectedPlaceSchedule,
+      scheduleId: 'calendar-appointment-schedule',
+      ruleId: 'calendar-appointment-rule',
+      placeId: 'calendar-appointment',
+      label: 'Calendar-backed appointment',
+      windows: [
+        {
+          startsAt: '2026-06-03T14:00:00.000Z',
+          endsAt: '2026-06-03T15:00:00.000Z',
+          timezone: 'America/Toronto',
+        },
+      ],
+      distanceToleranceMeters: 30,
+      lateGraceSeconds: 300,
+      earlyExitGraceSeconds: 0,
+    },
+    transition: {
+      ...GeofenceTransition,
+      transitionId: 'calendar-missed-arrival-transition',
+      observedAt: '2026-06-03T14:36:00.000Z',
+      ruleId: 'calendar-appointment-rule',
+      transition: 'missed-arrival' as const,
+      distanceMeters: null,
+      reasonCodes: ['calendar-missed-arrival-sample'],
+    },
+    expectedOutcome: 'late-arrival' as const,
+    expectedReasonCode: 'missed-expected-place-arrival',
+  },
+] as const;
+
+function assertDistinctExpectedPlaceRuntimeCases() {
+  for (const testCase of DistinctExpectedPlaceRuntimeCases) {
+    const decision = evaluateTrackingExpectedPlaceDecision({
+      decisionId: `runtime-${testCase.schedule.scheduleId}-decision`,
+      observedAt: testCase.observedAt,
+      schedule: TrackingExpectedPlaceScheduleSchema.parse(testCase.schedule),
+      location: TrackingLocationEvidenceSchema.parse(LocationEvidence),
+      transition: TrackingGeofenceTransitionSchema.parse(testCase.transition),
+    });
+
+    expect(decision.scheduleId).toBe(testCase.schedule.scheduleId);
+    expect(decision.ruleId).toBe(testCase.schedule.ruleId);
+    expect(decision.outcome).toBe(testCase.expectedOutcome);
+    expect(decision.reasonCodes).toEqual([testCase.expectedReasonCode]);
+    expect(decision.distanceToleranceMeters).toBe(testCase.schedule.distanceToleranceMeters);
+    expect(decision.lateGraceSeconds).toBe(testCase.schedule.lateGraceSeconds);
+    expect(decision.earlyExitGraceSeconds).toBe(testCase.schedule.earlyExitGraceSeconds);
+  }
+}
+
 describe('tracking evidence contracts', () => {
   it('parses location, device status, capability, and retention evidence', () => {
     const location = TrackingLocationEvidenceSchema.parse(LocationEvidence);
@@ -428,121 +544,11 @@ describe('tracking first-target runtime helpers', () => {
   });
 
   it('evaluates distinct school, activity, and calendar-backed expected-place rules', () => {
-    const cases = [
-      {
-        observedAt: '2026-06-03T12:05:00.000Z',
-        schedule: {
-          ...ExpectedPlaceSchedule,
-          scheduleId: 'school-weekday-schedule',
-          ruleId: 'school-arrival-rule',
-          placeId: 'school-campus',
-          label: 'School weekday arrival',
-          windows: [
-            {
-              startsAt: '2026-06-03T11:45:00.000Z',
-              endsAt: '2026-06-03T19:00:00.000Z',
-              timezone: 'America/Toronto',
-            },
-          ],
-          distanceToleranceMeters: 75,
-          lateGraceSeconds: 900,
-          earlyExitGraceSeconds: 60,
-        },
-        transition: {
-          ...GeofenceTransition,
-          transitionId: 'school-enter-transition',
-          observedAt: '2026-06-03T12:05:00.000Z',
-          ruleId: 'school-arrival-rule',
-          transition: 'enter' as const,
-          distanceMeters: 18,
-          reasonCodes: ['school-arrival-sample'],
-        },
-        expectedOutcome: 'where-expected' as const,
-        expectedReasonCode: 'inside-expected-place-window',
-      },
-      {
-        observedAt: '2026-06-03T21:20:00.000Z',
-        schedule: {
-          ...ExpectedPlaceSchedule,
-          scheduleId: 'after-school-activity-schedule',
-          ruleId: 'soccer-practice-rule',
-          placeId: 'soccer-practice',
-          label: 'After-school soccer practice',
-          windows: [
-            {
-              startsAt: '2026-06-03T20:00:00.000Z',
-              endsAt: '2026-06-03T22:00:00.000Z',
-              timezone: 'America/Toronto',
-            },
-          ],
-          distanceToleranceMeters: 120,
-          lateGraceSeconds: 300,
-          earlyExitGraceSeconds: 180,
-        },
-        transition: {
-          ...GeofenceTransition,
-          transitionId: 'activity-exit-transition',
-          observedAt: '2026-06-03T21:20:00.000Z',
-          ruleId: 'soccer-practice-rule',
-          transition: 'exit' as const,
-          distanceMeters: 140,
-          reasonCodes: ['activity-exit-sample'],
-        },
-        expectedOutcome: 'left-expected-place' as const,
-        expectedReasonCode: 'exited-expected-place-window',
-      },
-      {
-        observedAt: '2026-06-03T14:36:00.000Z',
-        schedule: {
-          ...ExpectedPlaceSchedule,
-          scheduleId: 'calendar-appointment-schedule',
-          ruleId: 'calendar-appointment-rule',
-          placeId: 'calendar-appointment',
-          label: 'Calendar-backed appointment',
-          windows: [
-            {
-              startsAt: '2026-06-03T14:00:00.000Z',
-              endsAt: '2026-06-03T15:00:00.000Z',
-              timezone: 'America/Toronto',
-            },
-          ],
-          distanceToleranceMeters: 30,
-          lateGraceSeconds: 300,
-          earlyExitGraceSeconds: 0,
-        },
-        transition: {
-          ...GeofenceTransition,
-          transitionId: 'calendar-missed-arrival-transition',
-          observedAt: '2026-06-03T14:36:00.000Z',
-          ruleId: 'calendar-appointment-rule',
-          transition: 'missed-arrival' as const,
-          distanceMeters: null,
-          reasonCodes: ['calendar-missed-arrival-sample'],
-        },
-        expectedOutcome: 'late-arrival' as const,
-        expectedReasonCode: 'missed-expected-place-arrival',
-      },
-    ];
-
-    for (const testCase of cases) {
-      const decision = evaluateTrackingExpectedPlaceDecision({
-        decisionId: `runtime-${testCase.schedule.scheduleId}-decision`,
-        observedAt: testCase.observedAt,
-        schedule: TrackingExpectedPlaceScheduleSchema.parse(testCase.schedule),
-        location: TrackingLocationEvidenceSchema.parse(LocationEvidence),
-        transition: TrackingGeofenceTransitionSchema.parse(testCase.transition),
-      });
-
-      expect(decision.scheduleId).toBe(testCase.schedule.scheduleId);
-      expect(decision.ruleId).toBe(testCase.schedule.ruleId);
-      expect(decision.outcome).toBe(testCase.expectedOutcome);
-      expect(decision.reasonCodes).toEqual([testCase.expectedReasonCode]);
-      expect(decision.distanceToleranceMeters).toBe(testCase.schedule.distanceToleranceMeters);
-      expect(decision.lateGraceSeconds).toBe(testCase.schedule.lateGraceSeconds);
-      expect(decision.earlyExitGraceSeconds).toBe(testCase.schedule.earlyExitGraceSeconds);
-    }
+    assertDistinctExpectedPlaceRuntimeCases();
   });
+});
 
+describe('tracking first-target runtime helpers ambiguity handling', () => {
   it('keeps low-accuracy geofence samples ambiguous instead of alert-ready', () => {
     const transition = evaluateTrackingGeofenceTransition({
       transitionId: 'runtime-low-accuracy-transition',
@@ -589,7 +595,9 @@ describe('tracking first-target runtime helpers', () => {
     expect(decision.ruleId).toBe('home-arrival-rule');
     expect(decision.distanceToleranceMeters).toBe(150);
   });
+});
 
+describe('tracking first-target runtime helpers boundary handling', () => {
   it('treats the geofence boundary as the expected-place tolerance equivalent', () => {
     const exactBoundaryLocation = TrackingLocationEvidenceSchema.parse({
       ...LocationEvidence,
@@ -664,7 +672,9 @@ describe('tracking first-target runtime helpers', () => {
     expect(outsideDecision.distanceToleranceMeters).toBe(0);
     expect(outsideDecision.reasonCodes).toEqual(['expected-place-ambiguous']);
   });
+});
 
+describe('tracking first-target runtime helpers freshness handling', () => {
   it('keeps stale and permission-denied geofence samples ambiguous instead of alert-ready', () => {
     const transition = evaluateTrackingGeofenceTransition({
       transitionId: 'runtime-permission-denied-transition',
@@ -683,7 +693,9 @@ describe('tracking first-target runtime helpers', () => {
     expect(transition.transition).toBe('ambiguous');
     expect(transition.reasonCodes).toContain('fresh-location-required');
   });
+});
 
+describe('tracking first-target runtime helpers grace periods', () => {
   it('maps missed-arrival transitions outside late grace to late-arrival', () => {
     const decision = evaluateTrackingExpectedPlaceDecision({
       decisionId: 'runtime-late-arrival-decision',
@@ -743,7 +755,9 @@ describe('tracking first-target runtime helpers', () => {
     expect(decision.outcome).toBe('unknown');
     expect(decision.reasonCodes).toEqual(['expected-place-early-exit-grace-active']);
   });
+});
 
+describe('tracking first-target runtime helpers exception handling', () => {
   it('suppresses expected-place actions while a schedule exception is active', () => {
     const exceptionStates = [
       {
@@ -786,7 +800,9 @@ describe('tracking first-target runtime helpers', () => {
       expect(decision.reasonCodes).toEqual([exception.reasonCode]);
     }
   });
+});
 
+describe('tracking first-target runtime helpers degraded capability handling', () => {
   it('marks the Rust degraded expected-place capability states as manual-required', () => {
     const manualReviewStatuses = [
       'stale',
@@ -824,7 +840,9 @@ describe('tracking first-target runtime helpers', () => {
       expect(decision.reasonCodes).toEqual(['fresh-location-required']);
     }
   });
+});
 
+describe('tracking first-target runtime helpers time windows', () => {
   it('keeps DST-spanning expected-place windows active when the UTC observation falls inside the encoded window', () => {
     const decision = evaluateTrackingExpectedPlaceDecision({
       decisionId: 'runtime-dst-window-decision',

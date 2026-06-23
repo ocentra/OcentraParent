@@ -5,10 +5,8 @@ import {
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { PortalDiagnostics } from '@ocentra-parent/portal-domain/diagnostics';
-import {
-  decodePortalClipboardText,
-  type PortalClipboardText,
-} from '@ocentra-parent/portal-domain/detail-values';
+import { decodePortalClipboardText } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type PortalClipboardText } from '@ocentra-parent/schema-domain/portal-contracts';
 import { resolveLiveActivityState } from './live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
 
@@ -34,7 +32,8 @@ export function buildDiagnosticsExport(state: PortalRuntimeState): PortalClipboa
       [PortalDiagnostics.Field.NetworkLinuxNftablesLabStatus]: liveActivity.networkLinuxNftablesLabStatusResult,
       [PortalDiagnostics.Field.NetworkWindowsFirewallLabStatus]: liveActivity.networkWindowsFirewallLabStatusResult,
       [PortalDiagnostics.Field.NetworkWindowsWfpGateStatus]: liveActivity.networkWindowsWfpGateStatusResult,
-      [PortalDiagnostics.Field.NetworkAndroidVpnServiceGateStatus]: liveActivity.networkAndroidVpnServiceGateStatusResult,
+      [PortalDiagnostics.Field.NetworkAndroidVpnServiceGateStatus]:
+        liveActivity.networkAndroidVpnServiceGateStatusResult,
       [PortalDiagnostics.Field.NetworkAppleNetworkExtensionGateStatus]:
         liveActivity.networkAppleNetworkExtensionGateStatusResult,
     },

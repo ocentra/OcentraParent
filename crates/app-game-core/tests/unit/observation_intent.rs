@@ -26,12 +26,12 @@ fn foreground_usage_requires_policy_without_ai_analysis() {
         ChildDomainPolicyEvaluationRequirement::Required
     );
     assert_eq!(app_game_ai_analysis_requested_event(&evidence), None);
-    assert_eq!(
-        app_game_policy_evaluation_requested_event(&evidence)
-            .expect("app game policy request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
+    let policy = app_game_policy_evaluation_requested_event(&evidence);
+    assert!(policy.is_some(), "app game policy request");
+    let Some(policy) = policy else {
+        return;
+    };
+    assert_eq!(policy.evidence_refs, vec![evidence.evidence_ref]);
 }
 
 #[test]
@@ -43,13 +43,13 @@ fn ambiguous_usage_requests_ai_and_policy_evidence() {
         observed.observed_state,
         ChildDomainObservedSignal::RequiresAi.into_observed_state()
     );
-    assert_eq!(
-        app_game_ai_analysis_requested_event(&evidence)
-            .expect("app game ai request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
+    let ai = app_game_ai_analysis_requested_event(&evidence);
+    assert!(ai.is_some(), "app game ai request");
+    let Some(ai) = ai else {
+        return;
+    };
     assert_eq!(app_game_policy_evaluation_requested_event(&evidence), None);
+    assert_eq!(ai.evidence_refs, vec![evidence.evidence_ref]);
 }
 
 #[test]

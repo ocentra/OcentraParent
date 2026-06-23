@@ -18,7 +18,9 @@ fn windows_adapter_capability_proof_serializes_claim_boundaries() {
         entries: vec![app_entry(), unmanaged_entry()],
     };
 
-    let serialized = serde_json::to_value(proof).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(proof).unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
 
     assert_eq!(
         serialized[constants::field::READ_MODEL_ID],
@@ -69,7 +71,7 @@ fn unsupported_windows_adapter_outcome_does_not_deserialize() {
 
     let parsed = serde_json::from_value::<WindowsAdapterCapabilityProofEntry>(payload);
 
-    assert!(parsed.is_err());
+    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
 }
 
 fn app_entry() -> WindowsAdapterCapabilityProofEntry {

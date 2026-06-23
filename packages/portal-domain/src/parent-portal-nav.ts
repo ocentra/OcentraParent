@@ -1,6 +1,6 @@
 import type { ParentPortalIconName, ParentPortalTabId, ParentPortalTone } from './parent-portal-data';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
-  PortalRoute,
   portalRouteHashPath,
   portalRouteHashPathWithQuery,
   type PortalRouteHashPath,
@@ -59,6 +59,8 @@ export const PARENT_PORTAL_NAV_LABELS = {
   Platforms: 'PLATFORMS',
   Updates: 'UPDATES',
   Support: 'SUPPORT',
+  Diagnostics: 'DIAGNOSTICS',
+  ProofPanels: 'PROOF PANELS',
   Settings: 'SETTINGS',
   Commands: 'COMMANDS',
   Events: 'EVENTS',
@@ -106,7 +108,7 @@ export const PARENT_PORTAL_NAV_GROUPS: readonly ParentPortalNavGroup[] = [
   {
     id: 'devTools',
     label: PARENT_PORTAL_NAV_LABELS.DevTools,
-    detail: 'Commands, events, logs, app layout, background',
+    detail: 'Diagnostics, proof panels, commands, events, logs, app layout, background',
   },
 ] as const;
 
@@ -346,6 +348,24 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     tone: 'gold',
     routePath: portalRouteHashPath(PortalRoute.Subscription),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Diagnostics,
+    detail: 'Copy redacted support diagnostics',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: portalRouteHashPath(PortalRoute.Diagnostics),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.ProofPanels,
+    detail: 'Inspect tracking, network, and policy proof panels',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'purple',
+    routePath: portalRouteHashPath(PortalRoute.ProofPanels),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Commands,

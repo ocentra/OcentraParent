@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseParentActionDeliveryReadinessProofReadModel } from './app-install-purchase-parent-action-delivery-readiness-proof';
 import { AppInstallPurchaseRuntimeWriterDeliveryProofReadModel } from './app-install-purchase-runtime-writer-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -62,10 +57,18 @@ const RuntimeWriterExecutionDeliveryNonClaimSchema = withParser(
   Schema.Literal(...RuntimeWriterExecutionDeliveryNonClaims)
 );
 
-const RuntimeWriterExecutionDeliveryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeWriterExecutionDeliveryRowId');
-const RuntimeWriterExecutionDeliveryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeWriterExecutionDeliveryRef');
-const RuntimeWriterExecutionDeliveryAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeWriterExecutionDeliveryAuditRef');
-const RuntimeWriterExecutionDeliveryBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeWriterExecutionDeliveryBoundary');
+const RuntimeWriterExecutionDeliveryRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeWriterExecutionDeliveryRowId'
+);
+const RuntimeWriterExecutionDeliveryRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeWriterExecutionDeliveryRef'
+);
+const RuntimeWriterExecutionDeliveryAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeWriterExecutionDeliveryAuditRef'
+);
+const RuntimeWriterExecutionDeliveryBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeWriterExecutionDeliveryBoundary'
+);
 
 const RuntimeWriterExecutionDeliveryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeWriterExecutionDeliveryProofSchemaVersionSchema,
@@ -308,4 +311,3 @@ function runtimeWriterExecutionDeliveryBoundaryIsExplicit(
 ): boolean {
   return RuntimeWriterExecutionDeliveryBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

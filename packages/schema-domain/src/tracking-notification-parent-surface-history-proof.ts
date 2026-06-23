@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -56,8 +51,12 @@ export const TrackingNotificationParentSurfaceHistoryStatusSchema = withParser(
 export const TrackingNotificationParentSurfaceHistoryNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationParentSurfaceHistoryNonClaims)
 );
-export const TrackingNotificationParentSurfaceHistoryProofIdSchema = brandedNonEmptyStringSchema('TrackingNotificationParentSurfaceHistoryProofId');
-export const TrackingNotificationParentSurfaceHistoryReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationParentSurfaceHistoryReference');
+export const TrackingNotificationParentSurfaceHistoryProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationParentSurfaceHistoryProofId'
+);
+export const TrackingNotificationParentSurfaceHistoryReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingNotificationParentSurfaceHistoryReference'
+);
 
 const TrackingNotificationParentSurfaceHistoryRowBaseSchema = Schema.Struct({
   historyRowId: TrackingNotificationParentSurfaceHistoryReferenceSchema,
@@ -332,4 +331,3 @@ function countHistoryStatus(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
-

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameMemoryCacheSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-memory-cache-contract')
@@ -81,4 +76,3 @@ export type BrowserGameMemoryCacheKeyKind = Infer<typeof BrowserGameMemoryCacheK
 export type BrowserGameMemoryState = Infer<typeof BrowserGameMemoryStateSchema>;
 export type BrowserGameMemorySubjectKind = Infer<typeof BrowserGameMemorySubjectKindSchema>;
 export type BrowserGameMemoryTtlClass = Infer<typeof BrowserGameMemoryTtlClassSchema>;
-

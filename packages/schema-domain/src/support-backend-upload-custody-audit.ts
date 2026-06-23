@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
 import {
   supportBackendUploadCustodyAuditCoversRequiredStates,
@@ -193,4 +188,3 @@ export const decodeSupportBackendUploadCustodyAuditEntry = Schema.decodeUnknownS
 export const decodeSupportBackendUploadCustodyAuditReadModel = Schema.decodeUnknownSync(
   SupportBackendUploadCustodyAuditReadModelSchema
 );
-

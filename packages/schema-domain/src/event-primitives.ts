@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const AgentProtocolSchemaVersion = 1;
 
@@ -42,11 +37,7 @@ export const AgentEventAcknowledgementStateLiteral = {
 } as const;
 
 export const AgentPeerRoleSchema = withParser(
-  Schema.Literal(
-    AgentPeerRoleLiteral.Portal,
-    AgentPeerRoleLiteral.AgentService,
-    AgentPeerRoleLiteral.CloudRelay
-  )
+  Schema.Literal(AgentPeerRoleLiteral.Portal, AgentPeerRoleLiteral.AgentService, AgentPeerRoleLiteral.CloudRelay)
 );
 
 export const AgentRouteSchema = withParser(

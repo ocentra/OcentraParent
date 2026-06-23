@@ -1,13 +1,5 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 const providerSecretExecutionText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
@@ -238,4 +230,3 @@ function providerSecretExecutionPreflightStatesAreCoherent(
 
   return entry.executionState === 'manual-required';
 }
-

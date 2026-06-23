@@ -1,37 +1,17 @@
-import {
-  type Infer,
-  NonEmptyStringSchema,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import {
   ParentContractSchemaVersionSchema,
   ParentDeviceIdSchema,
   ParentTimestampSchema,
 } from './family-reference-primitives';
 
-export const TrackingControlCatalogIdSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingControlCatalogId')
-);
-export const TrackingControlSectionIdSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingControlSectionId')
-);
-export const TrackingControlGroupIdSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingControlGroupId')
-);
-export const TrackingControlSettingIdSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingControlSettingId')
-);
-export const TrackingControlOptionIdSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingControlOptionId')
-);
-export const TrackingControlCapabilityIdSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingControlCapabilityId')
-);
-export const TrackingControlWritesToPathSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingControlWritesToPath')
-);
+export const TrackingControlCatalogIdSchema = withParser(brandedNonEmptyStringSchema('TrackingControlCatalogId'));
+export const TrackingControlSectionIdSchema = withParser(brandedNonEmptyStringSchema('TrackingControlSectionId'));
+export const TrackingControlGroupIdSchema = withParser(brandedNonEmptyStringSchema('TrackingControlGroupId'));
+export const TrackingControlSettingIdSchema = withParser(brandedNonEmptyStringSchema('TrackingControlSettingId'));
+export const TrackingControlOptionIdSchema = withParser(brandedNonEmptyStringSchema('TrackingControlOptionId'));
+export const TrackingControlCapabilityIdSchema = withParser(brandedNonEmptyStringSchema('TrackingControlCapabilityId'));
+export const TrackingControlWritesToPathSchema = withParser(brandedNonEmptyStringSchema('TrackingControlWritesToPath'));
 
 const TrackingControlSidePanelCategorySchema = withParser(Schema.Literal('tracking'));
 

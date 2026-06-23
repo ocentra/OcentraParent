@@ -1,9 +1,11 @@
 use std::path::{Path, PathBuf};
 
-use ocentra_parent_agent_protocol::{
-    constants, BrowserChannel, BrowserFamily, BrowserUnmanagedDetectionConfidence,
-    BrowserUnmanagedDetectionReason, BrowserUnmanagedProcessKind,
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_managed::{
+    BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
+    BrowserUnmanagedProcessKind,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     browser_windows_inventory::windows_browser_executable_identity,

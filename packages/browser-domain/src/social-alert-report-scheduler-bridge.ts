@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxSchedulerRecordSchema,
   RequiredNotificationLocalOutboxSchedulerNonClaims,
@@ -254,4 +249,3 @@ const countRows = (
   rows: ReadonlyArray<{ readonly status: SocialAlertReportSchedulerBridgeStatus }>,
   status: SocialAlertReportSchedulerBridgeStatus
 ): number => rows.filter((row) => row.status === status).length;
-

@@ -1,6 +1,5 @@
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
-import net from 'node:net';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { tsImport } from 'tsx/esm/api';
@@ -47,7 +46,7 @@ async function main() {
   const trackingRuntime = await importTsModule('packages/tracking-domain/src/tracking-runtime.ts');
   const trackingRetentionRuntime = await importTsModule('packages/tracking-domain/src/tracking-retention-runtime.ts');
   const policySchemas = await importTsModule('packages/schema-domain/src/tracking-location-policy.ts');
-  const policyRuntime = await importTsModule('packages/tracking-domain/src/tracking-location-policy-runtime.ts');
+  const policyRuntime = await importTsModule('packages/schema-domain/src/tracking-location-policy-runtime.ts');
   const tracking = {
     ...trackingGeofence,
     ...trackingEvidence,
@@ -131,7 +130,7 @@ async function runTrackingSourceSurfaceProof(tracking, policy) {
 
   commands.push({
     command:
-      'source-surface-check packages/schema-domain/src/tracking-geofence.ts packages/schema-domain/src/tracking-evidence.ts packages/schema-domain/src/tracking-read-model.ts packages/schema-domain/src/tracking-location-policy.ts packages/tracking-domain/src/tracking-runtime.ts packages/tracking-domain/src/tracking-retention-runtime.ts packages/tracking-domain/src/tracking-location-policy-runtime.ts',
+      'source-surface-check packages/schema-domain/src/tracking-geofence.ts packages/schema-domain/src/tracking-evidence.ts packages/schema-domain/src/tracking-read-model.ts packages/schema-domain/src/tracking-location-policy.ts packages/schema-domain/src/tracking-location-policy-runtime.ts packages/tracking-domain/src/tracking-runtime.ts packages/tracking-domain/src/tracking-retention-runtime.ts',
     exitCode: 0,
   });
 }
@@ -940,73 +939,6 @@ async function importTsModule(relativePath) {
   return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
-async function waitForHttp(url, timeoutMs) {
-  const deadline = Date.now() + timeoutMs;
-  let lastError;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(url);
-      if (response.ok) {
-        return;
-      }
-      lastError = new Error(`${url} returned ${response.status}`);
-    } catch (error) {
-      lastError = error;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 300));
-  }
-  throw lastError ?? new Error(`${url} did not respond before timeout`);
-}
-
-async function availablePort(preferredPort) {
-  if (Number.isInteger(preferredPort) && preferredPort > 0 && (await canListen(preferredPort))) {
-    return preferredPort;
-  }
-  return new Promise((resolve, reject) => {
-    const server = net.createServer();
-    server.once('error', reject);
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      server.close(() => {
-        if (typeof address === 'object' && address !== null) {
-          resolve(address.port);
-          return;
-        }
-        reject(new Error('Unable to allocate an available port'));
-      });
-    });
-  });
-}
-
-async function canListen(port) {
-  return new Promise((resolve) => {
-    const server = net.createServer();
-    server.once('error', () => resolve(false));
-    server.listen(port, '127.0.0.1', () => {
-      server.close(() => resolve(true));
-    });
-  });
-}
-
-async function stopProcessTree(child) {
-  if (child.exitCode !== null) {
-    return;
-  }
-  if (process.platform === 'win32' && child.pid !== undefined) {
-    await new Promise((resolve) => {
-      const killer = spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], {
-        cwd: repoRoot,
-        stdio: 'ignore',
-        windowsHide: true,
-      });
-      killer.once('exit', () => resolve());
-      killer.once('error', () => resolve());
-    });
-    return;
-  }
-  child.kill('SIGTERM');
-}
-
 async function runNpm(args, ...rest) {
   const command = process.platform === 'win32' ? 'cmd' : 'npm';
   const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
@@ -1023,10 +955,4 @@ async function runCommand(command, args) {
     });
     child.once('error', reject);
   });
-}
-
-function npmCommand(args) {
-  const command = process.platform === 'win32' ? 'cmd' : 'npm';
-  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
-  return [command, commandArgs];
 }

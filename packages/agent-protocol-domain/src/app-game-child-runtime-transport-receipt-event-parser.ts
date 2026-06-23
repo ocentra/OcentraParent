@@ -3,7 +3,11 @@ import {
   AgentAppGameChildRuntimeTransportReceiptReadModelSchema,
   type AgentAppGameChildRuntimeTransportReceiptReadModel,
 } from '@ocentra-parent/schema-domain/app-game-child-runtime-transport-receipt';
-import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import {
+  AgentEvent,
+  isAgentProtocolLogText,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export type AgentAppGameChildRuntimeTransportReceiptFailureReason =
   | 'wrong-event'

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseLimitationSummaryProofReadModel } from './app-install-purchase-limitation-summary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
@@ -219,4 +214,3 @@ function proofIsHonest(proof: AppInstallPurchasePlatformProofReadinessProof): bo
     proof.knownGaps.length > 0
   );
 }
-

@@ -1,5 +1,8 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import { repoAbsolutePath, resolveScopedFiles } from './check-architecture-scope.mjs';
 
 const repoRoot = process.cwd();
 const sourceRoots = ['apps', 'packages', 'scripts'];
@@ -17,6 +20,8 @@ const forbiddenSourcePatterns = [
 ];
 const forbiddenDependencyNames = new Set(['zod', 'zod-to-json-schema', 'zod-validation-error']);
 const findings = [];
+const scriptName = 'node scripts/check-no-zod-source.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
 
 function toPosix(path) {
   return path.split('\\').join('/');
@@ -31,6 +36,10 @@ function shouldIgnorePath(path) {
 function extensionOf(path) {
   const index = path.lastIndexOf('.');
   return index === -1 ? '' : path.slice(index);
+}
+
+function isEligibleFile(filePath) {
+  return filePath.endsWith('package.json') || textExtensions.has(extensionOf(filePath));
 }
 
 function walk(path, files) {
@@ -89,30 +98,57 @@ function inspectPackageManifest(path) {
   }
 }
 
-const files = [];
-for (const root of sourceRoots) {
-  walk(join(repoRoot, root), files);
-}
-for (const file of standaloneFiles) {
-  const path = join(repoRoot, file);
-  if (existsSync(path)) {
-    files.push(path);
+function collectFullFiles() {
+  const files = [];
+  for (const root of sourceRoots) {
+    walk(join(repoRoot, root), files);
   }
+  for (const file of standaloneFiles) {
+    const path = join(repoRoot, file);
+    if (existsSync(path)) {
+      files.push(path);
+    }
+  }
+  return files;
 }
 
-for (const file of files) {
-  if (file.endsWith('package.json')) {
-    inspectPackageManifest(file);
+function collectScopedFiles(rawArgs) {
+  const scope = resolveScopedFiles(rawArgs, {
+    scriptName,
+    usageLines,
+    roots: [...sourceRoots, ...standaloneFiles],
+    acceptPath: isEligibleFile,
+  });
+
+  if (scope.mode === 'skip') {
+    return [];
   }
-  inspectSourceFile(file);
+
+  return scope.files.map((filePath) => repoAbsolutePath(filePath));
 }
 
-if (findings.length > 0) {
-  console.error('Direct Zod usage is not allowed. Use Effect Schema through domain-owned schemas.');
-  for (const finding of findings) {
-    console.error(`${finding.path}:${finding.line} ${finding.reason}`);
+export function main(rawArgs = process.argv.slice(2)) {
+  findings.length = 0;
+  const files = rawArgs.length === 0 ? collectFullFiles() : collectScopedFiles(rawArgs);
+
+  for (const file of files) {
+    if (file.endsWith('package.json')) {
+      inspectPackageManifest(file);
+    }
+    inspectSourceFile(file);
   }
-  process.exit(1);
+
+  if (findings.length > 0) {
+    console.error('Direct Zod usage is not allowed. Use Effect Schema through domain-owned schemas.');
+    for (const finding of findings) {
+      console.error(`${finding.path}:${finding.line} ${finding.reason}`);
+    }
+    process.exit(1);
+  }
+
+  console.log(`No direct Zod source usage found across ${files.length} checked files.`);
 }
 
-console.log(`No direct Zod source usage found across ${files.length} checked files.`);
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

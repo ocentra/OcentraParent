@@ -10,10 +10,10 @@ use ocentra_parent_agent_core::network_event_runtime::{
         NetworkRuntimeRemoteDeliveryProviderChildReadinessState as RuntimeProviderChildReadinessState,
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants, NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
-    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryCrossProcessCustodyReadinessState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryProviderChildReadinessState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatus;
 
 pub(crate) fn apply_provider_child_readiness_status(
     status: &mut NetworkRemoteDeliveryStatus,

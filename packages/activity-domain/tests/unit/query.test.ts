@@ -44,7 +44,7 @@ describe('activity query contracts', () => {
 
     expect(query.limit).toBe(10);
     expect(summary.returned).toBe(1);
-    expect(summary.mostRecentKind).toBe('activity.process.observed');
+    expect(summary.mostRecentKind).toBe(ActivityEventKind.ProcessObserved);
     expect(summary.mostRecentSubjectName).toBe('chrome.exe');
   });
 

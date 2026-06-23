@@ -3,12 +3,15 @@ use ocentra_child_policy_core::policy_control_request_handoff::{
     register_policy_control_request_handoff, resolve_policy_control_request_handoff,
 };
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
+};
 use ocentra_policy_control_core::policy_request::{
     policy_request_schema_version, AssistantPolicyRequestConfirmation, ChildPolicyRequest,
-    ParentPolicyApproval, PolicyApprovalDecision, PolicyApprovalId,
-    PolicyAssistantConfirmationState, PolicyAssistantPreviewId, PolicyDurationMinutes,
-    PolicyRequestId, PolicyRequestKind, PolicyRequestOrigin, PolicyRequestScope,
-    PolicyRequestStatus, PolicyRequestSubmissionKey, PolicyRequestTarget, PolicyRequestTimestamp,
+    ParentPolicyApproval, PolicyApprovalDecision, PolicyApprovalId, PolicyAssistantPreviewId,
+    PolicyDurationMinutes, PolicyRequestId, PolicyRequestKind, PolicyRequestScope,
+    PolicyRequestSubmissionKey, PolicyRequestTarget, PolicyRequestTimestamp,
 };
 use ocentra_policy_control_core::policy_source::{
     ParentPolicyActorRole, ParentPolicyDocumentId, PolicyActorId, PolicyAuditReferenceId,
@@ -17,11 +20,11 @@ use ocentra_policy_control_core::policy_source::{
 };
 
 fn timestamp(value: &str) -> PolicyRequestTimestamp {
-    PolicyRequestTimestamp::parse(value).expect("policy request timestamp")
+    PolicyRequestTimestamp::parse(value).expect_value("policy request timestamp")
 }
 
 fn audit_ref(value: &str) -> PolicyAuditReferenceId {
-    PolicyAuditReferenceId::parse(value).expect("policy audit ref")
+    PolicyAuditReferenceId::parse(value).expect_value("policy audit ref")
 }
 
 fn request_scope(kind: PolicyRequestKind, minutes: Option<u16>) -> PolicyRequestScope {
@@ -30,29 +33,32 @@ fn request_scope(kind: PolicyRequestKind, minutes: Option<u16>) -> PolicyRequest
         target: PolicyRequestTarget {
             kind: PolicyTargetKind::Category,
             reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                .expect("policy target ref"),
+                .expect_value("policy target ref"),
         },
         requested_action: PolicyRuleAction::TimeLimit,
-        rule_id: Some(PolicyRuleId::parse("rule-school-night").expect("policy rule id")),
+        rule_id: Some(PolicyRuleId::parse("rule-school-night").expect_value("policy rule id")),
         requested_bonus_minutes: minutes
             .map(PolicyDurationMinutes::new)
             .transpose()
-            .expect("policy duration"),
+            .expect_value("policy duration"),
     }
 }
 
 fn child_request() -> ChildPolicyRequest {
     ChildPolicyRequest {
-        schema_version: policy_request_schema_version().expect("policy request schema version"),
-        request_id: PolicyRequestId::parse("request-bonus-time").expect("policy request id"),
+        schema_version: policy_request_schema_version()
+            .expect_value("policy request schema version"),
+        request_id: PolicyRequestId::parse("request-bonus-time").expect_value("policy request id"),
         submission_key: PolicyRequestSubmissionKey::parse("request-bonus-time-submit")
-            .expect("policy submission key"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("policy household id"),
-        child_profile_id: PolicyChildProfileId::parse("child-primary").expect("child profile id"),
-        device_id: Some(PolicyDeviceId::parse("device-laptop").expect("policy device id")),
+            .expect_value("policy submission key"),
+        household_id: PolicyHouseholdId::parse("household-default")
+            .expect_value("policy household id"),
+        child_profile_id: PolicyChildProfileId::parse("child-primary")
+            .expect_value("child profile id"),
+        device_id: Some(PolicyDeviceId::parse("device-laptop").expect_value("policy device id")),
         source_document_id: ParentPolicyDocumentId::parse("policy-source-default")
-            .expect("policy source id"),
-        policy_version: PolicyVersion::new(7).expect("policy version"),
+            .expect_value("policy source id"),
+        policy_version: PolicyVersion::new(7).expect_value("policy version"),
         origin: PolicyRequestOrigin::Child,
         assistant_preview_id: None,
         assistant_confirmation_state: PolicyAssistantConfirmationState::NotRequired,
@@ -71,13 +77,14 @@ fn assistant_preview_request() -> ChildPolicyRequest {
         origin: PolicyRequestOrigin::AssistantDraft,
         assistant_preview_id: Some(
             PolicyAssistantPreviewId::parse("assistant-preview-default")
-                .expect("assistant preview id"),
+                .expect_value("assistant preview id"),
         ),
         assistant_confirmation_state: PolicyAssistantConfirmationState::ParentConfirmationRequired,
         status: PolicyRequestStatus::PreviewOnly,
-        request_id: PolicyRequestId::parse("request-assistant-preview").expect("policy request id"),
+        request_id: PolicyRequestId::parse("request-assistant-preview")
+            .expect_value("policy request id"),
         submission_key: PolicyRequestSubmissionKey::parse("request-assistant-preview-submit")
-            .expect("policy submission key"),
+            .expect_value("policy submission key"),
         scope: request_scope(PolicyRequestKind::AskParent, None),
         ..child_request()
     }
@@ -98,11 +105,11 @@ fn approval(
                 PolicyApprovalDecision::Expire => "expire",
             }
         ))
-        .expect("policy approval id"),
+        .expect_value("policy approval id"),
         request_id: request.request_id.clone(),
         household_id: request.household_id.clone(),
         policy_version: request.policy_version,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+        actor_id: PolicyActorId::parse("actor-parent").expect_value("policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
         actor_state: PolicySourceActorState::Active,
         decision,
@@ -117,10 +124,10 @@ fn approval(
 #[test]
 fn request_handoff_dedupes_duplicate_submission_key() {
     let request = child_request();
-    let first =
-        register_policy_control_request_handoff(None, request.clone()).expect("first registration");
+    let first = register_policy_control_request_handoff(None, request.clone())
+        .expect_value("first registration");
     let second = register_policy_control_request_handoff(Some(&first.request), request)
-        .expect("duplicate registration");
+        .expect_value("duplicate registration");
 
     assert_eq!(second.request, first.request);
     assert_eq!(second.temporary_override, None);
@@ -133,7 +140,7 @@ fn request_handoff_rejects_submission_key_payload_drift() {
     drifted.expires_at = timestamp("2026-06-13T22:30:00Z");
 
     let error = register_policy_control_request_handoff(Some(&first), drifted)
-        .expect_err("drifted duplicate must fail");
+        .expect_err_value("drifted duplicate must fail");
 
     assert_eq!(
         error,
@@ -152,7 +159,7 @@ fn assistant_preview_requires_parent_confirmation_before_resolution() {
     let approval = approval(&request, PolicyApprovalDecision::Grant);
 
     let error = resolve_policy_control_request_handoff(&request, approval, None)
-        .expect_err("preview cannot resolve before confirmation");
+        .expect_err_value("preview cannot resolve before confirmation");
 
     assert_eq!(
         error,
@@ -166,18 +173,18 @@ fn assistant_preview_requires_parent_confirmation_before_resolution() {
 #[test]
 fn assistant_preview_confirmation_moves_request_into_parent_review() {
     let preview = register_policy_control_request_handoff(None, assistant_preview_request())
-        .expect("preview registration");
+        .expect_value("preview registration");
     let confirmed = confirm_policy_control_request_handoff(
         &preview.request,
         AssistantPolicyRequestConfirmation {
-            actor_id: PolicyActorId::parse("actor-parent").expect("actor id"),
+            actor_id: PolicyActorId::parse("actor-parent").expect_value("actor id"),
             actor_role: ParentPolicyActorRole::Parent,
             actor_state: PolicySourceActorState::Active,
             confirmed_at: timestamp("2026-06-13T20:03:00Z"),
             audit_reference_id: audit_ref("audit-assistant-confirmed"),
         },
     )
-    .expect("confirmed preview");
+    .expect_value("confirmed preview");
 
     assert_eq!(
         confirmed.request.status,
@@ -196,22 +203,31 @@ fn grant_modify_deny_and_expire_resolution_shape_is_correct() {
         approval(&request, PolicyApprovalDecision::Grant),
         None,
     )
-    .expect("grant resolution");
+    .expect_value("grant resolution");
     assert_eq!(granted.request.status, PolicyRequestStatus::Approved);
-    assert!(granted.temporary_override.is_some());
+    let granted_override = granted
+        .temporary_override
+        .as_ref()
+        .expect("grant resolution temporary override");
+    assert_eq!(granted_override.source_request_id, request.request_id);
+    assert_eq!(granted_override.approved_bonus_minutes, None);
+    assert_eq!(
+        granted_override.audit_reference_ids,
+        vec![audit_ref("audit-parent-decision")]
+    );
 
     let modified = resolve_policy_control_request_handoff(
         &request,
         ParentPolicyApproval {
             decision: PolicyApprovalDecision::Modify,
             approved_action: Some(PolicyRuleAction::Allow),
-            approved_bonus_minutes: Some(PolicyDurationMinutes::new(45).expect("minutes")),
+            approved_bonus_minutes: Some(PolicyDurationMinutes::new(45).expect_value("minutes")),
             override_expires_at: Some(timestamp("2026-06-13T21:00:00Z")),
             ..approval(&request, PolicyApprovalDecision::Modify)
         },
         None,
     )
-    .expect("modify resolution");
+    .expect_value("modify resolution");
     assert_eq!(modified.request.status, PolicyRequestStatus::Modified);
     assert_eq!(
         modified
@@ -227,7 +243,7 @@ fn grant_modify_deny_and_expire_resolution_shape_is_correct() {
         approval(&request, PolicyApprovalDecision::Deny),
         None,
     )
-    .expect("deny resolution");
+    .expect_value("deny resolution");
     assert_eq!(denied.request.status, PolicyRequestStatus::Denied);
     assert_eq!(denied.temporary_override, None);
 
@@ -236,7 +252,7 @@ fn grant_modify_deny_and_expire_resolution_shape_is_correct() {
         approval(&request, PolicyApprovalDecision::Expire),
         None,
     )
-    .expect("expire resolution");
+    .expect_value("expire resolution");
     assert_eq!(expired.request.status, PolicyRequestStatus::Expired);
     assert_eq!(expired.temporary_override, None);
 }
@@ -248,14 +264,14 @@ fn expired_request_cannot_be_approved() {
         timestamp("2026-06-13T22:05:00Z"),
         audit_ref("audit-request-expired"),
     )
-    .expect("request expires");
+    .expect_value("request expires");
 
     let error = resolve_policy_control_request_handoff(
         &expired.request,
         approval(&expired.request, PolicyApprovalDecision::Grant),
         None,
     )
-    .expect_err("expired request cannot be approved");
+    .expect_err_value("expired request cannot be approved");
 
     assert_eq!(
         error,
@@ -271,13 +287,13 @@ fn approval_replay_is_override_safe() {
     let request = child_request();
     let parent_approval = approval(&request, PolicyApprovalDecision::Grant);
     let resolved = resolve_policy_control_request_handoff(&request, parent_approval.clone(), None)
-        .expect("grant resolves handoff");
+        .expect_value("grant resolves handoff");
     let replay = resolve_policy_control_request_handoff(
         &resolved.request,
         parent_approval,
         resolved.temporary_override.as_ref(),
     )
-    .expect("replay is safe");
+    .expect_value("replay is safe");
 
     assert_eq!(replay.request, resolved.request);
     assert_eq!(replay.temporary_override, resolved.temporary_override);
@@ -289,14 +305,14 @@ fn observer_and_revoked_parent_are_denied_through_request_handoff() {
     let observer_confirmation_error = confirm_policy_control_request_handoff(
         &preview,
         AssistantPolicyRequestConfirmation {
-            actor_id: PolicyActorId::parse("actor-observer").expect("actor id"),
+            actor_id: PolicyActorId::parse("actor-observer").expect_value("actor id"),
             actor_role: ParentPolicyActorRole::Observer,
             actor_state: PolicySourceActorState::Active,
             confirmed_at: timestamp("2026-06-13T20:03:00Z"),
             audit_reference_id: audit_ref("audit-observer-confirm-attempt"),
         },
     )
-    .expect_err("observer cannot confirm preview through handoff");
+    .expect_err_value("observer cannot confirm preview through handoff");
     assert_eq!(
         observer_confirmation_error,
         EventingError::InvalidValue {
@@ -308,12 +324,12 @@ fn observer_and_revoked_parent_are_denied_through_request_handoff() {
     let request = child_request();
     let mut revoked_parent_approval = approval(&request, PolicyApprovalDecision::Grant);
     revoked_parent_approval.actor_id =
-        PolicyActorId::parse("actor-revoked-parent").expect("actor id");
+        PolicyActorId::parse("actor-revoked-parent").expect_value("actor id");
     revoked_parent_approval.actor_state = PolicySourceActorState::Revoked;
 
     let revoked_parent_error =
         resolve_policy_control_request_handoff(&request, revoked_parent_approval, None)
-            .expect_err("revoked parent cannot approve through handoff");
+            .expect_err_value("revoked parent cannot approve through handoff");
     assert_eq!(
         revoked_parent_error,
         EventingError::InvalidValue {

@@ -1,10 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
 
 const BoundedPolicyQuestionText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => value.length <= 240 || 'Expected screen policy question text within 240 characters')
@@ -16,9 +10,7 @@ const BoundedStructuredText = NonEmptyStringSchema.pipe(
 export const ScreenIntelligenceRouterSchemaVersion = 1;
 export const ScreenManagedBrowserStructuredTextLimit = 480;
 
-export const ScreenIntelligenceRouteIdSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenIntelligenceRouteId')
-);
+export const ScreenIntelligenceRouteIdSchema = withParser(brandedNonEmptyStringSchema('ScreenIntelligenceRouteId'));
 export const ScreenIntelligenceRouteRequestIdSchema = withParser(
   brandedNonEmptyStringSchema('ScreenIntelligenceRouteRequestId')
 );

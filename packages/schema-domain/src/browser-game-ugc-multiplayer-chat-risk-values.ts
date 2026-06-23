@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGameUgcRiskSchemaVersionSchema = withParser(
@@ -14,9 +9,7 @@ export const BrowserGameUgcRiskAssessmentIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserGameUgcRiskAssessmentId')
 );
 
-export const BrowserGameUgcRiskRowIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserGameUgcRiskRowId')
-);
+export const BrowserGameUgcRiskRowIdSchema = withParser(brandedNonEmptyStringSchema('BrowserGameUgcRiskRowId'));
 
 export const BrowserGameUgcPlatformSurfaceKindSchema = withParser(
   Schema.Literal(
@@ -103,4 +96,3 @@ export type BrowserGameUgcRecommendedControl = Infer<typeof BrowserGameUgcRecomm
 export type BrowserGameUgcRiskConfidence = Infer<typeof BrowserGameUgcRiskConfidenceSchema>;
 export type BrowserGameUgcRiskKind = Infer<typeof BrowserGameUgcRiskKindSchema>;
 export type BrowserGameUgcRiskSeverity = Infer<typeof BrowserGameUgcRiskSeveritySchema>;
-

@@ -1,18 +1,24 @@
-use ocentra_parent_agent_protocol::{
-    AppGameAdapterDispatchPreflightReadModel, AppGameAdapterDispatchPreflightRow,
-    APP_GAME_ADAPTER_DISPATCH_AUDIT_OWNED_PROCESS, APP_GAME_ADAPTER_DISPATCH_CLAIM_SCOPED_TIMER,
-    APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE, APP_GAME_ADAPTER_DISPATCH_EVIDENCE_OWNED_PROCESS,
-    APP_GAME_ADAPTER_DISPATCH_FALLBACK_SCOPED_TIMER,
-    APP_GAME_ADAPTER_DISPATCH_INTENT_OWNED_PROCESS_TIME_LIMIT,
-    APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY, APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_ROW_ID_PREFIX,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
-    APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
-    APP_GAME_ADAPTER_EXECUTION_ROW_ID_PREFIX, APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED,
-    APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME, APP_GAME_PARENT_PLATFORM_WINDOWS,
-    APP_GAME_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::AppGameAdapterDispatchPreflightReadModel;
+use ocentra_parent_agent_protocol::AppGameAdapterDispatchPreflightRow;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_AUDIT_OWNED_PROCESS;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_CLAIM_SCOPED_TIMER;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_EVIDENCE_OWNED_PROCESS;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_FALLBACK_SCOPED_TIMER;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_INTENT_OWNED_PROCESS_TIME_LIMIT;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_ROW_ID_PREFIX;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_EXECUTION_ROW_ID_PREFIX;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_PRODUCT_NATIVE_APP;
+use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME;
+use ocentra_parent_agent_protocol::APP_GAME_PARENT_PLATFORM_WINDOWS;
+use ocentra_parent_agent_protocol::APP_GAME_SCHEMA_VERSION;
 
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof::REF_ADAPTER_CAPABILITY_STATE;
 
@@ -89,16 +95,30 @@ fn app_game_adapter_dispatch_preflight_serializes_parent_safe_rows() {
         rows: vec![row],
     };
 
-    let serialized = serde_json::to_string(&read_model).expect("dispatch preflight serializes");
+    let serialized = serde_json::to_value(&read_model)
+        .unwrap_or_else(|error| unreachable!("dispatch preflight serializes: {error}"));
 
-    assert!(serialized.contains(APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID));
-    assert!(serialized.contains(APP_GAME_ADAPTER_DISPATCH_INTENT_OWNED_PROCESS_TIME_LIMIT));
-    assert!(
-        serialized.contains("\"hostCapabilityEvidenceRefs\":[\"adapter-capability-state-ref\"]")
+    assert_eq!(
+        serialized["readModelId"],
+        APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID
     );
-    assert!(serialized.contains("\"hostCapabilityProbeRefs\":[\"windows-host-local-probe-ref\"]"));
-    assert!(serialized.contains("\"hostCapabilityState\":\"available\""));
-    assert!(serialized.contains("\"hostCapabilityAvailableCount\":1"));
-    assert!(serialized.contains("\"hostCapabilityProbeRefCount\":1"));
-    assert!(serialized.contains("\"adapterDispatchExecutedClaimed\":false"));
+    assert_eq!(
+        serialized["rows"][0]["dispatchIntentId"],
+        APP_GAME_ADAPTER_DISPATCH_INTENT_OWNED_PROCESS_TIME_LIMIT
+    );
+    assert_eq!(
+        serialized["rows"][0]["hostCapabilityEvidenceRefs"][0],
+        REF_ADAPTER_CAPABILITY_STATE
+    );
+    assert_eq!(
+        serialized["rows"][0]["hostCapabilityProbeRefs"][0],
+        "windows-host-local-probe-ref"
+    );
+    assert_eq!(serialized["rows"][0]["hostCapabilityState"], "available");
+    assert_eq!(serialized["hostCapabilityAvailableCount"], 1);
+    assert_eq!(serialized["hostCapabilityProbeRefCount"], 1);
+    assert_eq!(
+        serialized["rows"][0]["adapterDispatchExecutedClaimed"],
+        APP_GAME_ADAPTER_DISPATCH_EXECUTED_CLAIM_FALSE
+    );
 }

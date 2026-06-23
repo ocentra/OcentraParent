@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseRuntimeDeliveryReceiptBoundaryProofSchema,
   AppInstallPurchaseRuntimeDeliveryReceiptBoundaryRowSchema,
   summarizeAppInstallPurchaseRuntimeDeliveryReceiptBoundaryProof,
-} from '../../src/app-install-purchase-runtime-delivery-receipt-boundary-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-runtime-delivery-receipt-boundary-proof';
 
 describe('app install and purchase runtime delivery receipt boundary proof', () => {
   acceptsReceiptBoundaryRowsWithoutChildDelivery();

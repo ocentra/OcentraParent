@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
 import { collectBrowserFailures } from './browser-failures';
 
 test.setTimeout(120_000);
@@ -72,7 +73,7 @@ type HostedTrackingProofCards = {
   readonly unsupportedManual: Locator;
 };
 
-test('hosted policy tracking route renders real-service proof without product claims', async ({ page }) => {
+test('proof panels route renders hosted policy tracking proof without product claims', async ({ page }) => {
   const browserFailures = collectBrowserFailures(page);
 
   await assertHostedPolicyTrackingRoute(page);
@@ -85,7 +86,8 @@ test('hosted policy tracking route renders real-service proof without product cl
 });
 
 async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
-  await page.goto('/#/policy-tracking');
+  await page.goto('/#/proof-panels');
+  await page.getByRole('button', { name: 'Tracking status' }).click();
   const trackingProofRegion = page.getByRole('region', { name: 'Tracking status proof' });
   await expect(trackingProofRegion).toBeVisible({ timeout: portalShellReadyTimeoutMs });
   await expect(page.getByRole('heading', { name: 'Tracking status proof' })).toBeVisible({
@@ -296,10 +298,14 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
   await expect(retentionSettingsCard.getByText('22-retention-local-service-state-proof.json')).toBeVisible();
   await ensureHostedTrackingCommandEnabled(page, trackingProofRegion, localWrite);
   await localWrite.click();
-  await expect(page.getByText('service-write-command-accepted')).toBeVisible();
-  await expect(page.getByText('retention-window-setting').first()).toBeVisible();
+  await expect(page.getByText(AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted)).toBeVisible();
+  await expect(
+    page.getByText(AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow).first()
+  ).toBeVisible();
   await expect(page.getByText('20-retention-settings-mutation-proof.json', { exact: false }).first()).toBeVisible();
-  await expect(page.getByText('agent-service-local-retention-settings-state').first()).toBeVisible();
+  await expect(
+    page.getByText(AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef).first()
+  ).toBeVisible();
   await expect(
     page.getByText('Portal command/result rendering proves local service mutation execution').first()
   ).toBeVisible();
@@ -402,7 +408,16 @@ async function captureParentPortalShellScreenshots(page: Page): Promise<{
   await assertAndCaptureParentPortalShellRoute(page, {
     route: '#/devices',
     screenshotPath: parentDevicesShellScreenshotPath,
-    expectedSvgText: ['SELECTED DEVICE CONTEXT', 'SELECTED DEVICE', 'SOURCE', 'CONTROL', 'Info', 'Pair', 'Update', 'Capability'],
+    expectedSvgText: [
+      'SELECTED DEVICE CONTEXT',
+      'SELECTED DEVICE',
+      'SOURCE',
+      'CONTROL',
+      'Info',
+      'Pair',
+      'Update',
+      'Capability',
+    ],
   });
   return {
     routes: [
@@ -697,7 +712,7 @@ async function writeAccessibilitySummary(
     accessibilitySummaryPath,
     `${JSON.stringify(
       {
-        route: '#/policy-tracking',
+        route: '#/proof-panels',
         assertions: hostedTrackingAssertions(),
         summary,
         screenshots: {
@@ -854,13 +869,13 @@ function assertAccessibilityRetentionAndEvidenceValues(actualValues: readonly st
     'tracking-retention-settings-evidence-window',
     'tracking-retention-settings-evidence-remote-ai-disabled',
     'Retention local service write result',
-    'service-write-command-accepted',
-    'tracking-retention-settings-write-command',
-    'tracking-retention-settings-write-retention-window',
-    'retention-window-setting',
-    'agent-service-local-retention-settings-state',
+    AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
+    AgentTrackingRetentionSettingsWriteDefaults.CommandId,
+    AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef,
+    AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
+    AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
     'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json',
-    'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
+    AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef,
     'Portal command/result rendering proves local service mutation execution, local durable settings persistence, and local state revision only; product-ready writable settings, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'read-only evidence drawer',
     'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',

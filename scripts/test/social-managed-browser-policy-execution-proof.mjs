@@ -26,7 +26,10 @@ async function main() {
     'social-managed-browser-policy-execution.js'
   );
   const { SocialParentPolicyCompilerInputSchema } = await importDist('schema-domain', 'social-policy-compiler.js');
-  const { compileSocialParentPolicyCandidate } = await importDist('browser-domain', 'social-policy-compiler.js');
+  const { compileSocialParentPolicyCandidate } = await importDist(
+    'browser-domain',
+    'social-policy-candidate-compiler.js'
+  );
 
   const decisionCandidate = compileSocialParentPolicyCandidate({
     input: SocialParentPolicyCompilerInputSchema.parse(policyInput()),

@@ -1,22 +1,51 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, BrowserPolicyApprovalState, BrowserPolicyApprovals,
-    BrowserPolicyAudit, BrowserPolicyAuditState, BrowserPolicyBrowserGames, BrowserPolicyBudgets,
-    BrowserPolicyChildFacing, BrowserPolicyCustody, BrowserPolicyDefaultPosture,
-    BrowserPolicyDiscovery, BrowserPolicyDownloadBlockedType, BrowserPolicyDownloadState,
-    BrowserPolicyDownloads, BrowserPolicyEffectivePolicy, BrowserPolicyEvidenceNeverCollect,
-    BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
-    BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks, BrowserPolicyManagedBrowser,
-    BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
-    BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
-    BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
-    BrowserPolicyManagementMode, BrowserPolicyPlatforms, BrowserPolicyPortalAi,
-    BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyReportState,
-    BrowserPolicyReports, BrowserPolicyRetention, BrowserPolicyRetentionExactUrl,
-    BrowserPolicyRetentionState, BrowserPolicyRuleAction, BrowserPolicyRules,
-    BrowserPolicyUnmanagedBrowser, BrowserPolicyUnmanagedBrowserClassificationTarget,
-    BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
-    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, BrowserPolicyValue,
-};
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason;
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateResponse;
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateStatus;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyDownloadBlockedType;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyEvidenceNeverCollect;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyEvidenceUrlScope;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyManagedBrowserBridgeRequirement;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyManagedBrowserFamily;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyManagedBrowserIntegrationMechanism;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyManagedBrowserLaunchMode;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyManagedBrowserProfileMode;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyRetentionExactUrl;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyRuleAction;
+use ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyUnmanagedBrowserClassificationTarget;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyApprovals;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyAudit;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyBrowserGames;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyBudgets;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyDiscovery;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyDownloads;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyEffectivePolicy;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyEvidenceRequirement;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyManagedBrowser;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyReports;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyRetention;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyRules;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyUnmanagedBrowser;
+use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue;
+use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyChildFacing;
+use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyCustody;
+use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyFallbacks;
+use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyPlatforms;
+use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyPortalAi;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyApprovalState;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyAuditState;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyDefaultPosture;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyDownloadState;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyEvidenceProofLevel;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyManagedBrowserMode;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyManagementMode;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyProofFallback;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyReportState;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyRetentionState;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyUnmanagedBrowserMode;
+use ocentra_parent_agent_protocol::browser_policy_values::BrowserPolicyUrlTargetType;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::{
     browser_policy_compiler::browser_policy_capability_registry,

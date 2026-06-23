@@ -1,6 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     lan_pairing::{rejection_event, LanPairingRuntime},
@@ -43,7 +45,7 @@ pub(crate) fn browser_add_device_request_event(
                 LogLevel::Info,
             );
         }
-        Some(Err(reason)) => return rejection_event(command, reason, None, origin),
+        Some(Err(reason)) => return rejection_event(command, &reason, None, origin),
         None => {}
     }
 

@@ -1,22 +1,27 @@
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::activity_surface::source_status::ActivityAppGameSourceStatusRow;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityReadModelState,
-    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
-    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
-    AppGameRuntimeEvidenceRow, AppGameServiceReadModel, ACTIVITY_SURFACE_SCHEMA_VERSION,
-    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_KNOWN_GAME,
-    APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
-    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT, APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
-    APP_GAME_INVENTORY_SOURCE_SHORTCUT, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
-    APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_PRODUCT_NATIVE_APP,
-    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TITLE_CAPTURE_TITLE_REF,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
 };
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
+    AppGameRuntimeEvidenceRow, AppGameServiceReadModel, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
+    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_APP,
+    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
+    APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED, APP_GAME_FOREGROUND_FOREGROUND,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT,
+    APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD, APP_GAME_INVENTORY_SOURCE_SHORTCUT,
+    APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE, APP_GAME_INVENTORY_STATE_INSTALLED,
+    APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW, APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
+    APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
+    APP_GAME_TITLE_CAPTURE_TITLE_REF,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
-use super::{app_use_read_model, games_read_model};
+use super::app_use::app_use_read_model;
+use super::games::games_read_model;
 
 const APP_GAME_INVENTORY_STATE_DETECTABLE: &str = "detectable";
 const APP_GAME_LAUNCHER_KIND_STEAM: &str = "steam";
@@ -115,7 +120,7 @@ fn assert_source_status(
     let row = rows
         .iter()
         .find(|row| row.source_kind == source_kind)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|| panic!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(row.state, ActivityReadModelState::Ready);
     assert_eq!(row.row_count, row_count);
@@ -129,10 +134,12 @@ fn service_model() -> AppGameServiceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
-        custody_label: ocentra_parent_agent_protocol::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE
-            .to_string(),
-        replay_state: ocentra_parent_agent_protocol::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED
-            .to_string(),
+        custody_label:
+            ocentra_parent_agent_protocol::app_game::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE
+                .to_string(),
+        replay_state:
+            ocentra_parent_agent_protocol::app_game::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED
+                .to_string(),
         capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
         inventory_returned: 3,
         running_now_returned: 2,

@@ -1,12 +1,7 @@
-use ocentra_parent_agent_protocol::{constants, ScreenRuntimePhase};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
 
 use crate::screen_event_runtime_input::ScreenRuntimeInput;
-
-pub(crate) fn screen_aggregate_key(queue_job_id: &str) -> String {
-    let mut value = String::from(constants::screen_flow::AGGREGATE_SCREEN_QUEUE_PREFIX);
-    value.push_str(queue_job_id);
-    value
-}
 
 pub(crate) fn screen_correlation_id(queue_job_id: &str) -> String {
     let mut value = String::from(constants::screen_flow::CORRELATION_SCREEN_RUNTIME_PREFIX);

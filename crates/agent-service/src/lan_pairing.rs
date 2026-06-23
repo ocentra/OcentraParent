@@ -28,11 +28,20 @@ pub(crate) mod lan_ai_route_metadata;
 mod lan_ai_route_metadata_tests;
 
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentRoute, DeviceRoleRuntimeReadModel, LanPairingDeviceRef, LanPairingParentAuthority,
-    LanPairingProof, LanPairingRejectionReason, LanParentIntentEnvelope, LogFields, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
 
 use crate::{
     event_builder::build_event,
@@ -162,23 +171,27 @@ pub async fn route_lan_command(
     }
 
     if command.command == AgentCommandName::AgentLanAiJobSubmit {
-        return LanCommandDecision::Respond(lan_ai_job_submit(runtime, origin, command));
+        return LanCommandDecision::Respond(lan_ai_job_submit(
+            &runtime,
+            origin.as_deref(),
+            command,
+        ));
     }
 
     let observed_origin = origin.as_deref();
     match parse_intent(&command.payload) {
         Ok(intent) => validate_control_intent(runtime, observed_origin, command, intent),
         Err(reason) => {
-            LanCommandDecision::Respond(rejection_event(command, reason, None, observed_origin))
+            LanCommandDecision::Respond(rejection_event(command, &reason, None, observed_origin))
         }
     }
 }
 
 pub fn build_lan_pairing_status_report(
-    runtime: LanPairingRuntime,
+    runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    pairing_status_event(&runtime, command)
+    pairing_status_event(runtime, command)
 }
 
 async fn submit_pairing_proof(
@@ -192,7 +205,7 @@ async fn submit_pairing_proof(
             if let Err(reason) =
                 validate_pairing_proof_target(&runtime, &command, &proof, observed_origin)
             {
-                return pairing_rejection_event(command, reason);
+                return pairing_rejection_event(command, &reason);
             }
             let child_device = device_ref(&proof.child_device_id, &command.target.platform);
             let parent_device = device_ref(&proof.parent_device_id, &command.target.platform);
@@ -211,7 +224,7 @@ async fn submit_pairing_proof(
             event.payload.extend(audit_fields);
             event
         }
-        Err(reason) => pairing_rejection_event(command, reason),
+        Err(reason) => pairing_rejection_event(command, &reason),
     }
 }
 
@@ -221,7 +234,7 @@ fn lan_pairing_route_select(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload) {
+    let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
         {
@@ -233,12 +246,15 @@ fn lan_pairing_route_select(
                     event.payload.extend(audit_fields);
                     event
                 }
-                Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+                Err(reason) => rejection_event(command, &reason, Some(&intent), observed_origin),
             },
-            Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+            Err(reason) => rejection_event(command, &reason, Some(&intent), observed_origin),
         },
-        Err(reason) => rejection_event(command, reason, None, observed_origin),
-    }
+        Err(reason) => rejection_event(command, &reason, None, observed_origin),
+    };
+    drop(origin);
+    drop(runtime);
+    event
 }
 
 fn lan_pairing_status_get(
@@ -250,7 +266,7 @@ fn lan_pairing_status_get(
     if is_challenge_request(&command.payload) {
         return pairing_challenge_status_event(&runtime, observed_origin, command);
     }
-    match parse_intent(&command.payload) {
+    let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
         {
@@ -261,10 +277,13 @@ fn lan_pairing_status_get(
                 event.payload.extend(audit_fields);
                 event
             }
-            Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+            Err(reason) => rejection_event(command, &reason, Some(&intent), observed_origin),
         },
-        Err(reason) => rejection_event(command, reason, None, observed_origin),
-    }
+        Err(reason) => rejection_event(command, &reason, None, observed_origin),
+    };
+    drop(origin);
+    drop(runtime);
+    event
 }
 
 fn lan_pairing_route_revoke(
@@ -273,7 +292,7 @@ fn lan_pairing_route_revoke(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload) {
+    let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
         {
@@ -284,10 +303,13 @@ fn lan_pairing_route_revoke(
                 event.payload.extend(audit_fields);
                 event
             }
-            Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+            Err(reason) => rejection_event(command, &reason, Some(&intent), observed_origin),
         },
-        Err(reason) => rejection_event(command, reason, None, observed_origin),
-    }
+        Err(reason) => rejection_event(command, &reason, None, observed_origin),
+    };
+    drop(origin);
+    drop(runtime);
+    event
 }
 
 fn validate_control_intent(
@@ -296,7 +318,7 @@ fn validate_control_intent(
     command: AgentCommandEnvelope,
     intent: LanParentIntentEnvelope,
 ) -> LanCommandDecision {
-    match validate_command_target(&runtime, &command, &intent)
+    let decision = match validate_command_target(&runtime, &command, &intent)
         .and_then(|()| validate_intent_result(&runtime, origin, &intent))
     {
         Ok(()) => LanCommandDecision::Continue {
@@ -304,9 +326,12 @@ fn validate_control_intent(
             command,
         },
         Err(reason) => {
-            LanCommandDecision::Respond(rejection_event(command, reason, Some(&intent), origin))
+            LanCommandDecision::Respond(rejection_event(command, &reason, Some(&intent), origin))
         }
-    }
+    };
+    drop(intent);
+    drop(runtime);
+    decision
 }
 
 fn validate_pairing_proof_target(
@@ -423,11 +448,11 @@ fn revoke_pairing(runtime: &LanPairingRuntime, intent: &LanParentIntentEnvelope)
 
 pub(crate) fn rejection_event(
     command: AgentCommandEnvelope,
-    reason: LanPairingRejectionReason,
+    reason: &LanPairingRejectionReason,
     intent: Option<&LanParentIntentEnvelope>,
     origin: Option<&str>,
 ) -> AgentEventEnvelope {
-    let payload = rejected_control_audit_fields(&command, &reason, intent, origin);
+    let payload = rejected_control_audit_fields(&command, reason, intent, origin);
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,
@@ -441,9 +466,9 @@ pub(crate) fn rejection_event(
 
 fn pairing_rejection_event(
     command: AgentCommandEnvelope,
-    reason: LanPairingRejectionReason,
+    reason: &LanPairingRejectionReason,
 ) -> AgentEventEnvelope {
-    let payload = rejected_pairing_audit_fields(&command, &reason);
+    let payload = rejected_pairing_audit_fields(&command, reason);
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,
@@ -455,11 +480,11 @@ fn pairing_rejection_event(
     )
 }
 
-fn device_ref(device_id: &str, platform: &str) -> LanPairingDeviceRef {
+fn device_ref(paired_device_id: &str, platform: &str) -> LanPairingDeviceRef {
     LanPairingDeviceRef::new(
-        device_id.to_string(),
+        paired_device_id.to_string(),
         None,
-        device_id.to_string(),
+        paired_device_id.to_string(),
         platform.to_string(),
     )
 }

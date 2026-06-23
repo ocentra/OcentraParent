@@ -1,18 +1,6 @@
-import {
-  FamilyReferenceSchema,
-  ParentActorReferenceSchema,
-  ParentDeviceReferenceSchema,
-} from './family-references';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { FamilyReferenceSchema, ParentActorReferenceSchema, ParentDeviceReferenceSchema } from './family-references';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const RemoteAccessRequestIdSchema = brandedNonEmptyStringSchema('RemoteAccessRequestId');
 export const RemoteAccessSessionIdSchema = brandedNonEmptyStringSchema('RemoteAccessSessionId');
@@ -52,10 +40,7 @@ export const RemoteAccessTransportModeSchema = withParser(
 );
 
 export const RemoteAccessDecisionStateSchema = withParser(
-  Schema.Literal(
-    RemoteAccessDecisionStateLiteral.Allowed,
-    RemoteAccessDecisionStateLiteral.Blocked
-  )
+  Schema.Literal(RemoteAccessDecisionStateLiteral.Allowed, RemoteAccessDecisionStateLiteral.Blocked)
 );
 
 export const RemoteAccessSessionRequestSchema = withParser(
@@ -90,9 +75,7 @@ export type RemoteAccessSessionRequest = Infer<typeof RemoteAccessSessionRequest
 export type RemoteAccessSessionDecision = Infer<typeof RemoteAccessSessionDecisionSchema>;
 
 export const RemoteAccessConsentState = {
-  PendingChildConsent: RemoteAccessConsentStateSchema.parse(
-    RemoteAccessConsentStateLiteral.PendingChildConsent
-  ),
+  PendingChildConsent: RemoteAccessConsentStateSchema.parse(RemoteAccessConsentStateLiteral.PendingChildConsent),
   ChildConsented: RemoteAccessConsentStateSchema.parse(RemoteAccessConsentStateLiteral.ChildConsented),
   Denied: RemoteAccessConsentStateSchema.parse(RemoteAccessConsentStateLiteral.Denied),
 } as const;

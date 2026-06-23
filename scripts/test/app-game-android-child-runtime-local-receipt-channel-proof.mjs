@@ -85,7 +85,7 @@ async function main() {
       'app-game-android-child-runtime-local-receipt-channel-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -99,7 +99,7 @@ async function main() {
       join(
         repoRoot,
         'packages',
-        'app-game-domain',
+        'schema-domain',
         'dist',
         'app-game-android-child-runtime-local-receipt-channel-proof.js'
       )
@@ -131,14 +131,15 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
       androidManifest: 'platforms/android/agent/app/src/main/AndroidManifest.xml',
-      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-receipt-channel-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-receipt-channel-proof.test.ts',
+      contract: 'packages/schema-domain/src/app-game-android-child-runtime-local-receipt-channel-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-receipt-channel-proof.test.ts',
       packageBuild: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
     },
     claimsProved: [
       'The Android child app package compiles with a non-exported package-local receipt channel receiver',
       'MainActivity can trigger the package-local receipt channel proof without exposing an external broadcast target',
-      'App-game-domain accepts the channel proof only when receipt, ack, receiver, and activity trigger evidence is present',
+      'The centralized receipt-channel proof accepts the evidence only when receipt, ack, receiver, and activity-trigger markers are present',
     ],
     claimsNotProved: [
       'Service receipt ingestion',

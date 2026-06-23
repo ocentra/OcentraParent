@@ -7,15 +7,17 @@ import {
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
+  AgentLanPairingSupportedWebSocketCommand,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import {
   AgentLanChildAgentResponseSchema,
   AgentLanPairingAuditEventSchema,
   AgentLanPairingChallengeSchema,
   AgentLanPairingDiscoveryDeviceSchema,
   AgentLanPairingProofPreviewSchema,
   AgentLanParentIntentEnvelopeSchema,
-  AgentLanPairingSupportedWebSocketCommand,
-  AgentProtocolDefaults,
-} from '../../src/contracts';
+} from '@ocentra-parent/schema-domain/agent-lan';
 import { AgentLanPairingChallengeRequestSchema } from '@ocentra-parent/schema-domain/agent-lan-pairing-challenge';
 import { AgentLanBrowserRuntimeCommandNameLiteral } from '@ocentra-parent/schema-domain/lan-pairing-browser-runtime';
 

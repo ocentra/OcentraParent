@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExternalRuntimeDeliveryHandoffProofSchema,
   AppInstallPurchaseExternalRuntimeDeliveryHandoffRowSchema,
   summarizeAppInstallPurchaseExternalRuntimeDeliveryHandoffProof,
-} from '../../src/app-install-purchase-external-runtime-delivery-handoff-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-delivery-handoff-proof';
 
 describe('app install and purchase external runtime delivery handoff proof', () => {
   acceptsParentOwnedExternalRuntimeHandoffPacketsWithoutDeliveryClaims();

@@ -1,32 +1,55 @@
+use std::{error::Error, io::Error as IoError};
+
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore, network_capture::NetworkObservation,
     network_capture_event::network_observation_event,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEvidenceKind,
-    ActivityNetworkProtocol, ActivityNetworkTcpState, LogFieldValue,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceKind;
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::activity_capture::ActivityNetworkProtocol;
+use ocentra_parent_agent_protocol::activity_capture::ActivityNetworkTcpState;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
     network_product_path_bridge::prove_network_product_path_for_read_model,
 };
 
+type TestResult<T = ()> = Result<T, Box<dyn Error>>;
+
 #[test]
-fn captured_network_metadata_drives_product_path_payload_without_content_or_enforcement_claims() {
+fn captured_network_metadata_drives_product_path_payload_without_content_or_enforcement_claims(
+) -> TestResult {
     let event = product_path_network_event();
     let evidence_id = event.evidence[0].evidence_id.clone();
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
 
     store
         .ingest_events(std::slice::from_ref(&event))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
     let read_model = store
         .network_flow_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
     let product_path = prove_network_product_path_for_read_model(&read_model);
     let payload = network_flow_read_model_payload_with_runtime_delivery(
         &read_model,
@@ -42,7 +65,9 @@ fn captured_network_metadata_drives_product_path_payload_without_content_or_enfo
     );
     assert!(evidence_id.starts_with(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX));
     assert_product_path_report_refs(&product_path, &evidence_id);
-    assert_product_path_payload_refs(&payload, &evidence_id);
+    assert_product_path_payload_refs(&payload, &evidence_id)?;
+
+    Ok(())
 }
 
 fn product_path_network_event() -> ActivityEvent {
@@ -71,35 +96,58 @@ fn assert_product_path_report_refs(
     product_path: &crate::network_product_path_bridge::NetworkProductPathServiceProofReport,
     evidence_id: &str,
 ) {
+    let analyzer_alert_ref = product_path_ref(
+        constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX,
+        evidence_id,
+    );
+    let ai_detection_ref = product_path_ref(
+        constants::network_flow::PRODUCT_PATH_AI_DETECTION_REF_PREFIX,
+        evidence_id,
+    );
+    let policy_decision_ref = product_path_ref(
+        constants::network_flow::PRODUCT_PATH_POLICY_DECISION_REF_PREFIX,
+        evidence_id,
+    );
+    let action_result_ref = product_path_ref(
+        constants::network_flow::PRODUCT_PATH_ACTION_RESULT_REF_PREFIX,
+        evidence_id,
+    );
+    let retention_ref = product_path_ref(
+        constants::network_flow::PRODUCT_PATH_RETENTION_REF_PREFIX,
+        evidence_id,
+    );
+    let deletion_ref = product_path_ref(
+        constants::network_flow::PRODUCT_PATH_DELETION_REF_PREFIX,
+        evidence_id,
+    );
+    let export_ref = product_path_ref(
+        constants::network_flow::PRODUCT_PATH_EXPORT_REF_PREFIX,
+        evidence_id,
+    );
+
     assert_eq!(product_path.observed_rows, 1);
     assert_eq!(product_path.proved_rows, 1);
     assert_eq!(product_path.enforcement_command_events, 0);
     assert_eq!(product_path.adapter_action_executed_count, 0);
     assert_eq!(product_path.ai_advisory_rows, 1);
     assert_eq!(product_path.weak_or_unavailable_blocked_rows, 1);
-    assert!(product_path
-        .analyzer_alert_refs
-        .iter()
-        .any(|value| value.contains(evidence_id)));
-    assert!(product_path
-        .ai_detection_refs
-        .iter()
-        .any(|value| value.contains(evidence_id)));
+    assert_eq!(&product_path.analyzer_alert_refs, &vec![analyzer_alert_ref]);
+    assert_eq!(&product_path.ai_detection_refs, &vec![ai_detection_ref]);
     assert_eq!(
         product_path.risk_budget_refs,
         vec![constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()]
     );
-    assert!(product_path.policy_decision_refs[0].contains(evidence_id));
-    assert!(product_path.action_result_refs[0].contains(evidence_id));
-    assert!(product_path.retention_refs[0].contains(evidence_id));
-    assert!(product_path.deletion_refs[0].contains(evidence_id));
-    assert!(product_path.export_refs[0].contains(evidence_id));
+    assert_eq!(&product_path.policy_decision_refs, &vec![policy_decision_ref]);
+    assert_eq!(&product_path.action_result_refs, &vec![action_result_ref]);
+    assert_eq!(&product_path.retention_refs, &vec![retention_ref]);
+    assert_eq!(&product_path.deletion_refs, &vec![deletion_ref]);
+    assert_eq!(&product_path.export_refs, &vec![export_ref]);
 }
 
 fn assert_product_path_payload_refs(
-    payload: &ocentra_parent_agent_protocol::LogFields,
+    payload: &ocentra_parent_agent_protocol::logging::LogFields,
     evidence_id: &str,
-) {
+) -> TestResult {
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_PROVED_ROWS),
         Some(&LogFieldValue::Number(1.0))
@@ -112,49 +160,85 @@ fn assert_product_path_payload_refs(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_ADAPTER_ACTION_EXECUTED),
         Some(&LogFieldValue::Number(0.0))
     );
-    assert_payload_ref_contains(
+    assert_payload_ref_equals(
         payload,
         constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS,
-        evidence_id,
-    );
-    assert_payload_ref_contains(
+        &product_path_ref(
+            constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX,
+            evidence_id,
+        ),
+    )?;
+    assert_payload_ref_equals(
         payload,
         constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS,
-        evidence_id,
-    );
+        &product_path_ref(
+            constants::network_flow::PRODUCT_PATH_AI_DETECTION_REF_PREFIX,
+            evidence_id,
+        ),
+    )?;
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS),
         Some(&LogFieldValue::String(
             constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()
         ))
     );
-    assert_payload_ref_contains(
+    assert_payload_ref_equals(
         payload,
         constants::field::NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS,
-        evidence_id,
-    );
-    assert_payload_ref_contains(
+        &product_path_ref(
+            constants::network_flow::PRODUCT_PATH_POLICY_DECISION_REF_PREFIX,
+            evidence_id,
+        ),
+    )?;
+    assert_payload_ref_equals(
         payload,
         constants::field::NETWORK_PRODUCT_PATH_ACTION_RESULT_REFS,
-        evidence_id,
-    );
-    assert_payload_ref_contains(
+        &product_path_ref(
+            constants::network_flow::PRODUCT_PATH_ACTION_RESULT_REF_PREFIX,
+            evidence_id,
+        ),
+    )?;
+    assert_payload_ref_equals(
         payload,
         constants::field::NETWORK_PRODUCT_PATH_RETENTION_REFS,
-        evidence_id,
-    );
+        &product_path_ref(
+            constants::network_flow::PRODUCT_PATH_RETENTION_REF_PREFIX,
+            evidence_id,
+        ),
+    )?;
+    assert_payload_ref_equals(
+        payload,
+        constants::field::NETWORK_PRODUCT_PATH_DELETION_REFS,
+        &product_path_ref(
+            constants::network_flow::PRODUCT_PATH_DELETION_REF_PREFIX,
+            evidence_id,
+        ),
+    )?;
+    assert_payload_ref_equals(
+        payload,
+        constants::field::NETWORK_PRODUCT_PATH_EXPORT_REFS,
+        &product_path_ref(
+            constants::network_flow::PRODUCT_PATH_EXPORT_REF_PREFIX,
+            evidence_id,
+        ),
+    )?;
+
+    Ok(())
 }
 
-fn assert_payload_ref_contains(
-    payload: &ocentra_parent_agent_protocol::LogFields,
+fn assert_payload_ref_equals(
+    payload: &ocentra_parent_agent_protocol::logging::LogFields,
     field: &str,
     expected: &str,
-) {
-    let value = payload
-        .get(field)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let LogFieldValue::String(text) = value else {
-        std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES);
-    };
-    assert!(text.contains(expected));
+) -> TestResult {
+    assert_eq!(
+        payload.get(field),
+        Some(&LogFieldValue::String(expected.to_string()))
+    );
+
+    Ok(())
+}
+
+fn product_path_ref(prefix: &str, evidence_id: &str) -> String {
+    format!("{prefix}{evidence_id}")
 }

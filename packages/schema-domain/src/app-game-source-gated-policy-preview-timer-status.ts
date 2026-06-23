@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import {
@@ -22,10 +17,18 @@ import {
 } from './app-game-source-gated-policy-preview-timer-status-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
-export const AppGameSourceGatedPolicyPreviewTimerStatusIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusId');
-export const AppGameSourceGatedPolicyPreviewTimerStatusRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusRowId');
-export const AppGameSourceGatedPolicyPreviewTimerStatusContractRefSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusContractRef');
-export const AppGameSourceGatedPolicyPreviewTimerProofRefSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerProofRef');
+export const AppGameSourceGatedPolicyPreviewTimerStatusIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerStatusId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerStatusRowIdSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerStatusRowId'
+);
+export const AppGameSourceGatedPolicyPreviewTimerStatusContractRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerStatusContractRef'
+);
+export const AppGameSourceGatedPolicyPreviewTimerProofRefSchema = brandedNonEmptyStringSchema(
+  'AppGameSourceGatedPolicyPreviewTimerProofRef'
+);
 
 export const AppGameSourceGatedPolicyPreviewTimerStatusStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerStatusState))
@@ -219,5 +222,3 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerStatus = Schema.decodeUnk
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerStatusState };
-
-

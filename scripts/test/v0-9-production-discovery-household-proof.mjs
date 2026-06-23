@@ -19,7 +19,11 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await ensureSchemaDomainBuild();
-  await runCommand('cmd', ['/c', 'npx', 'vitest', 'run', 'tests/unit/v0-9-production-discovery-household-proof.test.ts'], lanDomainRoot);
+  await runCommand(
+    'cmd',
+    ['/c', 'npx', 'vitest', 'run', 'tests/unit/v0-9-production-discovery-household-proof.test.ts'],
+    lanDomainRoot
+  );
 
   const productionDiscoveryContract = await import(moduleUrl(productionDiscoveryModulePath));
   const sourceMatrixProof = await readJson(sourceMatrixProofPath);
@@ -27,9 +31,17 @@ async function main() {
   const readModel =
     productionDiscoveryContract.V09ProductionDiscoveryHouseholdProofReadModelSchema.parse(readModelFixture());
 
-  assertArrayIncludes(sourceMatrixProof.claimsNotProved, 'Physical two-device household LAN readiness.', 'source matrix non-claim');
+  assertArrayIncludes(
+    sourceMatrixProof.claimsNotProved,
+    'Physical two-device household LAN readiness.',
+    'source matrix non-claim'
+  );
   assertArrayIncludes(signedRelayProof.manualProofRequired, 'signed-child-agent-hello', 'signed relay manual source');
-  assertArrayIncludes(signedRelayProof.manualProofRequired, 'signed-child-agent-heartbeat', 'signed relay manual source');
+  assertArrayIncludes(
+    signedRelayProof.manualProofRequired,
+    'signed-child-agent-heartbeat',
+    'signed relay manual source'
+  );
   assertManualChecklist(readModel.manualHouseholdProofChecklist);
 
   const proof = {
@@ -75,7 +87,7 @@ async function ensureSchemaDomainBuild() {
   if (existsSync(productionDiscoveryModulePath)) {
     return;
   }
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build'], schemaDomainRoot);
+  await runNpm(['run', 'build'], schemaDomainRoot);
 }
 
 function readModelFixture() {
@@ -93,37 +105,104 @@ function readModelFixture() {
       evidence(routeId, 'production-discovery-states', 'revoked', 'revoked', 'revoked', 'online', 'revoked'),
       evidence(routeId, 'production-discovery-states', 'stale', 'stale', 'paired', 'stale', 'stale'),
       evidence(routeId, 'production-discovery-states', 'offline', 'offline', 'paired', 'offline', 'offline'),
-      evidence(routeId, 'production-discovery-states', 'unavailable', 'unavailable', 'unpaired', 'offline', 'unsupported-route'),
+      evidence(
+        routeId,
+        'production-discovery-states',
+        'unavailable',
+        'unavailable',
+        'unpaired',
+        'offline',
+        'unsupported-route'
+      ),
     ],
     routeChecks: [
       evidence(routeId, 'paired-route-accepted', 'paired', 'paired', 'paired', 'online', null),
-      evidence(routeId, 'failed-unpaired-rejected', 'failed-unpaired', 'unavailable', 'unpaired', 'online', 'anonymous'),
+      evidence(
+        routeId,
+        'failed-unpaired-rejected',
+        'failed-unpaired',
+        'unavailable',
+        'unpaired',
+        'online',
+        'anonymous'
+      ),
       evidence(routeId, 'stale-source-rejected', 'stale', 'stale', 'paired', 'stale', 'stale'),
       evidence(routeId, 'offline-device-rejected', 'offline', 'offline', 'paired', 'offline', 'offline'),
       evidence(routeId, 'revoked-pairing-rejected', 'revoked', 'revoked', 'revoked', 'online', 'revoked'),
-      evidence(routeId, 'unavailable-route-rejected', 'unavailable', 'unavailable', 'paired', 'online', 'unsupported-route'),
+      evidence(
+        routeId,
+        'unavailable-route-rejected',
+        'unavailable',
+        'unavailable',
+        'paired',
+        'online',
+        'unsupported-route'
+      ),
       evidence(routeId, 'wrong-origin-rejected', 'wrong-origin', 'unavailable', 'paired', 'online', 'wrong-origin'),
       evidence(routeId, 'wrong-device-rejected', 'wrong-device', 'unavailable', 'paired', 'online', 'wrong-device'),
     ],
     restartRecovery: [
-      evidence(routeId, 'restart-selected-route-recovered', 'restart-recovered', 'paired', 'paired', 'online', null, 'registry-restored-after-restart'),
-      evidence(routeId, 'restart-registry-state-recovered', 'restart-recovered', 'paired', 'paired', 'online', null, 'selected-route-persisted'),
+      evidence(
+        routeId,
+        'restart-selected-route-recovered',
+        'restart-recovered',
+        'paired',
+        'paired',
+        'online',
+        null,
+        'registry-restored-after-restart'
+      ),
+      evidence(
+        routeId,
+        'restart-registry-state-recovered',
+        'restart-recovered',
+        'paired',
+        'paired',
+        'online',
+        null,
+        'selected-route-persisted'
+      ),
     ],
     sourceDeviceStates: [
       evidence(routeId, 'stale-source-rejected', 'stale', 'stale', 'paired', 'stale', 'stale'),
       evidence(routeId, 'offline-device-rejected', 'offline', 'offline', 'paired', 'offline', 'offline'),
       evidence(routeId, 'revoked-pairing-rejected', 'revoked', 'revoked', 'revoked', 'online', 'revoked'),
-      evidence(routeId, 'unavailable-route-rejected', 'unavailable', 'unavailable', 'unpaired', 'offline', 'local-network-disabled'),
-      evidence(routeId, 'manual-physical-household-checklist', 'manual-required', 'unavailable', 'unpaired', 'offline', 'local-network-disabled', 'manual-required-physical-route-recovery', 'manual-required', 'manual-proof'),
+      evidence(
+        routeId,
+        'unavailable-route-rejected',
+        'unavailable',
+        'unavailable',
+        'unpaired',
+        'offline',
+        'local-network-disabled'
+      ),
+      evidence(
+        routeId,
+        'manual-physical-household-checklist',
+        'manual-required',
+        'unavailable',
+        'unpaired',
+        'offline',
+        'local-network-disabled',
+        'manual-required-physical-route-recovery',
+        'manual-required',
+        'manual-proof'
+      ),
     ],
     manualHouseholdProofChecklist: [
       manualChecklistItem('two-physical-hosts', 'two named household devices on the same LAN'),
       manualChecklistItem('household-router-reachability', 'router or network reachability artifact'),
-      manualChecklistItem('os-firewall-or-local-network-permission', 'firewall or OS local-network permission artifact'),
+      manualChecklistItem(
+        'os-firewall-or-local-network-permission',
+        'firewall or OS local-network permission artifact'
+      ),
       manualChecklistItem('allowed-origin-on-physical-controller', 'allowed origin from the physical controller host'),
       manualChecklistItem('physical-route-selection-and-takeover', 'physical route selection and takeover artifact'),
       manualChecklistItem('physical-revocation-and-rejection', 'physical revocation before rejected follow-up control'),
-      manualChecklistItem('physical-stale-offline-selected-device', 'stopped or paused selected child service artifact'),
+      manualChecklistItem(
+        'physical-stale-offline-selected-device',
+        'stopped or paused selected child service artifact'
+      ),
       manualChecklistItem('real-mobile-controller-package', 'real Android or iOS controller package proof'),
       manualChecklistItem('real-mobile-observer-package', 'real Android or iOS observer package proof'),
       manualChecklistItem('real-lan-ai-provider-host', 'real opted-in provider host proof'),
@@ -141,7 +220,18 @@ function readModelFixture() {
   };
 }
 
-function evidence(routeId, check, sourceState, discoveryState, trustState, reachability, rejectionReason, routeRecoveryState = 'fail-closed-unpaired', proofState = 'ci-mechanical-proof', runtimeOwner = 'proof-harness') {
+function evidence(
+  routeId,
+  check,
+  sourceState,
+  discoveryState,
+  trustState,
+  reachability,
+  rejectionReason,
+  routeRecoveryState = 'fail-closed-unpaired',
+  proofState = 'ci-mechanical-proof',
+  runtimeOwner = 'proof-harness'
+) {
   return {
     schemaVersion: 'v0.9',
     check,
@@ -202,6 +292,14 @@ async function runCommand(commandName, args, cwd) {
     });
     child.once('error', reject);
   });
+}
+
+async function runNpm(args, cwd) {
+  if (process.platform === 'win32') {
+    await runCommand('cmd', ['/c', 'npm', ...args], cwd);
+    return;
+  }
+  await runCommand('npm', args, cwd);
 }
 
 async function readJson(path) {

@@ -1,21 +1,14 @@
-import {
-  AgentEvent,
-  type AgentEventEnvelope
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  PortalTiming,
-} from '@ocentra-parent/portal-domain/contracts';
-import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
+import { decodePortalClipboardText } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import {
   createAppGameTimerParentPreferenceSetupCommandResultDetails,
   type AppGameTimerParentSurfacePanelDetail,
 } from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
-import { decodePortalClipboardText } from '@ocentra-parent/portal-domain/detail-values';
 import { latestCommandResult } from '@ocentra-parent/portal-domain/command-results';
+import { PortalDom, PortalTiming } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
 import { writeClipboardText } from './clipboard';
 import { writePortalDevLog } from './dev-logger';
 import type { PortalRuntimeState } from './portal-state';
@@ -25,7 +18,7 @@ export function renderCommandResultPanel(container: HTMLElement, state: PortalRu
   panel.className = PortalDom.Classes.CommandResultPanel;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.CommandResult);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.CommandResult);
 
   panel.append(title, renderSelectedResult(state));
   container.append(panel);
@@ -38,7 +31,7 @@ function renderSelectedResult(state: PortalRuntimeState): HTMLElement {
   if (event === null) {
     const empty = document.createElement(PortalDom.Tags.Paragraph);
     empty.className = PortalDom.Classes.CommandResultEmpty;
-    empty.textContent = PortalText.Resolve(PortalTextToken.NoCommandResult);
+    empty.textContent = resolvePortalDevText(PortalDevTextToken.NoCommandResult);
     panel.append(empty);
     return panel;
   }
@@ -62,7 +55,7 @@ function renderResultEvent(event: AgentEventEnvelope): HTMLElement {
   const copyButton = document.createElement(PortalDom.Tags.Button);
   copyButton.type = PortalDom.ButtonType.Button;
   copyButton.className = PortalDom.Classes.CopyResultButton;
-  copyButton.textContent = PortalText.Resolve(PortalTextToken.CopyResult);
+  copyButton.textContent = resolvePortalDevText(PortalDevTextToken.CopyResult);
   copyButton.addEventListener(PortalDom.Events.Click, () => {
     void copyResultEvent(copyButton, event);
   });
@@ -115,19 +108,19 @@ async function copyResultEvent(button: HTMLButtonElement, event: AgentEventEnvel
   try {
     const didCopy = await writeClipboardText(decodePortalClipboardText(JSON.stringify(event, null, 2)));
     if (!didCopy) {
-      button.textContent = PortalText.Resolve(PortalTextToken.CopyResultFailed);
+      button.textContent = resolvePortalDevText(PortalDevTextToken.CopyResultFailed);
       return;
     }
     writePortalDevLog(DevLogMessage.PortalResultCopied, {
       [DevLogField.Event]: event.event,
     });
-    button.textContent = PortalText.Resolve(PortalTextToken.CopiedResult);
+    button.textContent = resolvePortalDevText(PortalDevTextToken.CopiedResult);
   } catch {
-    button.textContent = PortalText.Resolve(PortalTextToken.CopyResultFailed);
+    button.textContent = resolvePortalDevText(PortalDevTextToken.CopyResultFailed);
   } finally {
     button.disabled = false;
     window.setTimeout(() => {
-      button.textContent = PortalText.Resolve(PortalTextToken.CopyResult);
+      button.textContent = resolvePortalDevText(PortalDevTextToken.CopyResult);
     }, PortalTiming.CopyFeedbackMs);
   }
 }

@@ -1,9 +1,4 @@
-import {
-  Schema,
-  withParser,
-  type Infer,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { Schema, withParser, type Infer, brandedNonEmptyStringSchema } from './effect';
 import {
   TrackingAiProviderRouteSchema,
   TrackingEvidenceTraceSchema,
@@ -203,4 +198,3 @@ function reasonCode(value: string): Infer<typeof TrackingPolicyReasonCodeSchema>
 function custodyRef(value: string): Infer<typeof CustodyRefSchema> {
   return CustodyRefParsedSchema.parse(value);
 }
-

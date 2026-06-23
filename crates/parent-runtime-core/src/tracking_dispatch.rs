@@ -7,9 +7,10 @@ use ocentra_eventing::{
     ids::RuntimeInstanceId, ids::RuntimeRole, ids::SchemaVersion, ids::SourceComponent,
     ids::SourceService, ids::TargetHandler, request::RequestOptions, request::RequestReport,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ParentTrackingConfigUpdatedEvent, TrackingChildCheckInRequestReceipt,
-    TrackingChildCheckInRequestedEvent, TrackingConfigUpdateTargetScope,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::{
+    config_update_event::{ParentTrackingConfigUpdatedEvent, TrackingConfigUpdateTargetScope},
+    runtime_event::{TrackingChildCheckInRequestReceipt, TrackingChildCheckInRequestedEvent},
 };
 use serde::{Deserialize, Serialize};
 
@@ -251,7 +252,9 @@ pub fn parent_runtime_tracking_dispatch_evaluated_event_from_origin(
 ) -> ParentRuntimeTrackingDispatchEvaluatedEvent {
     ParentRuntimeTrackingDispatchEvaluatedEvent {
         dispatch_id: ParentRuntimeDispatchId::parse(parent_runtime_dispatch_ref(event))
-            .expect(PARENT_RUNTIME_TRACKING_DISPATCH_PREFIX),
+            .unwrap_or_else(|error| {
+                unreachable!("{PARENT_RUNTIME_TRACKING_DISPATCH_PREFIX}: {error:?}")
+            }),
         source_event: event.clone(),
         child_acknowledgement_state,
         decision: route_parent_tracking_config_update_event_from_origin(

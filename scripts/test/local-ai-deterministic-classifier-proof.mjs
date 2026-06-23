@@ -48,9 +48,8 @@ runCommand(
   ])
 );
 
-const { runLocalAiDeterministicClassifier } = await import(
-  '@ocentra-parent/schema-domain/local-ai-deterministic-classifier-proof'
-);
+const { runLocalAiDeterministicClassifier } =
+  await import('@ocentra-parent/schema-domain/local-ai-deterministic-classifier-proof');
 
 const rows = [
   rowFor('video-warning', classifierInput('video')),

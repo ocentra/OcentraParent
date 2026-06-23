@@ -1,7 +1,8 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_evidence::PrivatePayloadState;
-use ocentra_parent_agent_protocol::{
-    constants, TrackingAiAnalysisRequestedEvent, TrackingNearbyPlaceClassifiedEvent,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingAiAnalysisRequestedEvent, TrackingNearbyPlaceClassifiedEvent,
 };
 
 pub fn classify_tracking_nearby_place(

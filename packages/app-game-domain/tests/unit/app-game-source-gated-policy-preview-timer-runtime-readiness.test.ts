@@ -2,9 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildAppGameSourceGatedPolicyPreviewReadModel } from '../../src/app-game-source-gated-policy-preview-read-model';
 import { buildAppGameSourceGatedPolicyPreviewTimerHandoff } from '../../src/app-game-source-gated-policy-preview-timer-handoff';
 import { buildAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness } from '../../src/app-game-source-gated-policy-preview-timer-runtime-readiness';
-import {
-  AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessSchema,
-} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-runtime-readiness';
+import { AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessSchema } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-runtime-readiness';
 import { AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-runtime-readiness-rules';
 import { buildAppGameSourceGatedPolicyPreviewTimerStatus } from '../../src/app-game-source-gated-policy-preview-timer-status';
 import { buildAppGameSourceFreshnessPreviewGateReadModel } from '../../src/app-game-source-freshness-preview-gate';

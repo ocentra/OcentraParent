@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseExecutionReceiptGateProofSchema,
   AppInstallPurchaseExecutionReceiptGateRowSchema,
   summarizeAppInstallPurchaseExecutionReceiptGateProof,
-} from '../../src/app-install-purchase-execution-receipt-gate-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-execution-receipt-gate-proof';
 
 describe('app install and purchase execution receipt gate proof', () => {
   acceptsExecutionReceiptGateRowsWithoutDeliveryClaims();

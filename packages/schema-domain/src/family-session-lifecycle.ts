@@ -1,8 +1,5 @@
 import { type Infer, Schema, withParser } from './effect';
-import {
-  AuditRequirementStateSchema,
-  SessionFreshnessStateSchema,
-} from './family-household-authority';
+import { AuditRequirementStateSchema, SessionFreshnessStateSchema } from './family-household-authority';
 
 export const SessionCredentialKindLiteral = {
   BrowserUserSession: 'browser-user-session',
@@ -151,9 +148,7 @@ export const SessionActivityStateSchema = withParser(Schema.Literal(...sessionAc
 export const TokenReplayStateSchema = withParser(Schema.Literal(...tokenReplayStateValues));
 export const TokenValidityWindowStateSchema = withParser(Schema.Literal(...tokenValidityWindowStateValues));
 export const SessionTokenAuthorizationStateSchema = withParser(Schema.Literal(...sessionTokenAuthorizationStateValues));
-export const SessionCredentialIssuanceStateSchema = withParser(
-  Schema.Literal(...sessionCredentialIssuanceStateValues)
-);
+export const SessionCredentialIssuanceStateSchema = withParser(Schema.Literal(...sessionCredentialIssuanceStateValues));
 export const TokenAuditRedactionStateSchema = withParser(Schema.Literal(...tokenAuditRedactionStateValues));
 export const SessionTokenFailureReasonSchema = withParser(Schema.Literal(...sessionTokenFailureReasonValues));
 

@@ -1,24 +1,27 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, AppGameNotificationReadinessReadModel,
-    AppGameNotificationReadinessRow, AppGameServiceReadModel, LogFieldValue, LogFields,
-    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
-    APP_GAME_NOTIFICATION_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_APPROVAL_REQUEST,
-    APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_MANUAL_REQUIRED,
-    APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_SUSPICIOUS_UNKNOWN,
-    APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_TIME_LIMIT,
-    APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_UNAVAILABLE,
-    APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST,
-    APP_GAME_NOTIFICATION_READINESS_REASON_CAPABILITY_UNAVAILABLE,
-    APP_GAME_NOTIFICATION_READINESS_REASON_MANUAL_REQUIRED,
-    APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN,
-    APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED,
-    APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED,
-    APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT,
-    APP_GAME_NOTIFICATION_READINESS_STATE_UNAVAILABLE,
-    APP_GAME_NOTIFICATION_READINESS_STATUS_NO_ROWS, APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL,
-    APP_GAME_NOTIFICATION_READINESS_STATUS_READY, APP_GAME_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_CONTROL_ACTION_STATUS_ENFORCED;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::AppGameNotificationReadinessReadModel;
+use ocentra_parent_agent_protocol::AppGameNotificationReadinessRow;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_APPROVAL_REQUEST;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_SUSPICIOUS_UNKNOWN;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_TIME_LIMIT;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_UNAVAILABLE;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_CAPABILITY_UNAVAILABLE;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATE_UNAVAILABLE;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATUS_NO_ROWS;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL;
+use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATUS_READY;
 
 use crate::fields::fields_from_pairs;
 
@@ -83,9 +86,7 @@ pub fn app_game_notification_readiness_payload(
         ),
         (
             constants::field::APP_GAME_NOTIFICATION_READINESS_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ])
 }
@@ -107,7 +108,7 @@ fn notification_rows(model: &AppGameServiceReadModel) -> Vec<AppGameNotification
     }
 
     if !policy_evidence.is_empty() && !approval_evidence.is_empty() {
-        let mut evidence = policy_evidence.clone();
+        let mut evidence = policy_evidence;
         push_evidence(&mut evidence, approval_evidence);
         rows.push(notification_row(
             APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST,

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel } from './app-install-purchase-child-device-delivery-runtime-writer-proof';
 import { AppInstallPurchaseParentActionRuntimeHandoffProofReadModel } from './app-install-purchase-parent-action-runtime-handoff-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -73,10 +68,18 @@ const AppInstallPurchaseParentActionDeliveryReadinessNonClaimSchema = withParser
   Schema.Literal(...ParentActionDeliveryReadinessNonClaims)
 );
 
-const ParentActionDeliveryReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessRowId');
-const ParentActionDeliveryReadinessRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessRef');
-const ParentActionDeliveryReadinessAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessAuditRef');
-const ParentActionDeliveryReadinessClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessClaimBoundary');
+const ParentActionDeliveryReadinessRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionDeliveryReadinessRowId'
+);
+const ParentActionDeliveryReadinessRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionDeliveryReadinessRef'
+);
+const ParentActionDeliveryReadinessAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionDeliveryReadinessAuditRef'
+);
+const ParentActionDeliveryReadinessClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseParentActionDeliveryReadinessClaimBoundary'
+);
 
 const ParentActionDeliveryReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseParentActionDeliveryReadinessProofSchemaVersionSchema,
@@ -325,4 +328,3 @@ function parentActionDeliveryReadinessBoundaryIsExplicit(
 ) {
   return ParentActionDeliveryReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

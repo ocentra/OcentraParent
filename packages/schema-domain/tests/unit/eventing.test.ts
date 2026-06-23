@@ -12,20 +12,14 @@ import {
 } from '../../src/eventing';
 import { TrackingEventName } from '../../src/agent-tracking-retention-settings-write-command';
 
-describe('event-domain eventing contracts', () => {
+describe('event-domain eventing taxonomy and envelopes', () => {
   it('rejects malformed eventing taxonomy values through the shared schema owner', () => {
     expect(EventingEventTypeSchema.safeParse(TrackingEventName.LocationObserved).success).toBe(true);
+    expect(EventingEventTypeSchema.safeParse(`.${TrackingEventName.LocationObserved}`).success).toBe(false);
     expect(
-      EventingEventTypeSchema.safeParse(`.${TrackingEventName.LocationObserved}`).success
+      EventingEventTypeSchema.safeParse(TrackingEventName.LocationObserved.replace('.location.', '..location.')).success
     ).toBe(false);
-    expect(
-      EventingEventTypeSchema.safeParse(
-        TrackingEventName.LocationObserved.replace('.location.', '..location.')
-      ).success
-    ).toBe(false);
-    expect(
-      EventingEventTypeSchema.safeParse(`${TrackingEventName.LocationObserved}/`).success
-    ).toBe(false);
+    expect(EventingEventTypeSchema.safeParse(`${TrackingEventName.LocationObserved}/`).success).toBe(false);
   });
 
   it('parses eventing contract and stored envelope header without a feature-local schema clone', () => {
@@ -91,7 +85,9 @@ describe('event-domain eventing contracts', () => {
 
     expect(result.success).toBe(false);
   });
+});
 
+describe('event-domain eventing manifests and reports', () => {
   it('parses event topology manifests with subscriber targets from the common schema', () => {
     const manifest = EventingTopologyManifestSchema.parse({
       entries: [

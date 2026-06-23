@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimGateProofReadModel } from './app-install-purchase-product-claim-gate-proof';
 import { AppInstallPurchaseProductClaimPortalTestReadinessProofReadModel } from './app-install-purchase-product-claim-portal-test-readiness-proof';
 import { AppInstallPurchaseProductClaimProviderStoreProofReadModel } from './app-install-purchase-product-claim-provider-store-proof';
@@ -439,4 +434,3 @@ function storeUpgradeReadinessProofIsHonest(proof: AppInstallPurchaseProductClai
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
-

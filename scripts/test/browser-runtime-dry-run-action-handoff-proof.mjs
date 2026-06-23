@@ -10,7 +10,10 @@ mkdirSync(testResultsDir, { recursive: true });
 mkdirSync(outputDir, { recursive: true });
 
 const protocolSource = readFileSync('packages/agent-protocol-domain/src/browser-runtime-events.ts', 'utf8');
-const protocolTestSource = readFileSync('packages/agent-protocol-domain/tests/unit/browser-runtime-events.test.ts', 'utf8');
+const protocolTestSource = readFileSync(
+  'packages/agent-protocol-domain/tests/unit/browser-runtime-events.test.ts',
+  'utf8'
+);
 const coreSource = readFileSync('crates/agent-core/src/browser_event_runtime.rs', 'utf8');
 const coreTestSource = readFileSync('crates/agent-core/src/browser_event_runtime_tests.rs', 'utf8');
 const deliverySource = readFileSync('crates/agent-service/src/browser_runtime_delivery.rs', 'utf8');

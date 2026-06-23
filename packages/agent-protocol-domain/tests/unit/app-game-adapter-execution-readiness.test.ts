@@ -6,10 +6,8 @@ import {
   type AppGameAdapterExecutionReadinessReadModel,
 } from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import {
-  parseAgentAppGameAdapterExecutionReadinessEvent,
-} from '../../src/app-game-adapter-execution-readiness';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { parseAgentAppGameAdapterExecutionReadinessEvent } from '../../src/app-game-adapter-execution-readiness';
 
 const AppGameAdapterExecutionReadinessPayloadField = 'appGameAdapterExecutionReadinessReadModel' as const;
 

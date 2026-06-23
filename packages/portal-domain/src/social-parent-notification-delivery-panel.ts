@@ -3,8 +3,8 @@ import {
   type SocialParentNotificationDeliveryReadinessReadModel as SocialParentNotificationDeliveryReadModelSnapshot,
   type SocialParentNotificationDeliveryReadinessRow as SocialParentNotificationDeliveryReadModelRow,
 } from '@ocentra-parent/schema-domain/social-parent-notification-delivery-readiness';
-import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
-import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { type DisplayText, decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDetails } from './details';
 
 export type SocialParentNotificationDeliveryPanelDetail = {

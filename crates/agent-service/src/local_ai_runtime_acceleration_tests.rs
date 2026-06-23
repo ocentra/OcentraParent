@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, LocalAiResourceClass};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
 
 use crate::{
     local_ai_chat_generation_args::llama_acceleration_args,

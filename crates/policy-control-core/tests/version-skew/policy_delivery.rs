@@ -1,3 +1,7 @@
+use super::TestResult;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryApplyOutcome,
     PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
@@ -11,46 +15,70 @@ use ocentra_policy_control_core::policy_source::{
     PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
-    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
-    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
+    PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
+    PolicyVersion,
 };
 
-fn sample_policy_source_document(version: u64) -> ParentPolicySourceDocument {
-    ParentPolicySourceDocument {
-        schema_version: parent_policy_source_schema_version()
-            .expect("policy source schema version"),
-        document_id: ParentPolicyDocumentId::parse("policy-source-delivery")
-            .expect("policy source document id"),
-        household_id: PolicyHouseholdId::parse("household-default").expect("household id"),
-        policy_version: PolicyVersion::new(version).expect("policy version"),
-        source_surface: PolicySourceWriteSurface::ParentPortal,
-        actor_id: PolicyActorId::parse("actor-parent").expect("policy actor id"),
+fn sample_policy_source_document(version: u64) -> TestResult<ParentPolicySourceDocument> {
+    Ok(ParentPolicySourceDocument {
+        schema_version: test_ok!(
+            parent_policy_source_schema_version(),
+            "policy source schema version"
+        ),
+        document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-delivery"),
+            "policy source document id"
+        ),
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "household id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(version), "policy version"),
+        source_surface: PolicySourceSurface::ParentPortal,
+        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "policy actor id"),
         actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceDocumentStatus::Confirmed,
-        child_profile_ids: vec![
-            PolicyChildProfileId::parse("child-primary").expect("child profile id")
-        ],
-        device_ids: vec![PolicyDeviceId::parse("device-laptop").expect("policy device id")],
+        status: PolicySourceStatus::Confirmed,
+        child_profile_ids: vec![test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        )],
+        device_ids: vec![test_ok!(
+            PolicyDeviceId::parse("device-laptop"),
+            "policy device id"
+        )],
         rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").expect("policy rule id"),
+            rule_id: test_ok!(
+                PolicyRuleId::parse("rule-school-night-block"),
+                "policy rule id"
+            ),
             target: PolicyRuleTarget {
                 kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .expect("policy target reference"),
+                reference_id: test_ok!(
+                    PolicyTargetReferenceId::parse("category-gaming"),
+                    "policy target reference"
+                ),
             },
             action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").expect("policy schedule id"),
-            ),
+            schedule_id: Some(test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id"
+            )),
             priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").expect("policy reason code"),
+            reason_code: test_ok!(
+                PolicyReasonCode::parse("school-night"),
+                "policy reason code"
+            ),
             enabled: true,
         }],
         schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .expect("policy schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .expect("policy timezone name"),
+            schedule_id: test_ok!(
+                PolicyScheduleId::parse("schedule-school-night"),
+                "policy schedule id"
+            ),
+            timezone_name: test_ok!(
+                PolicyTimezoneName::parse("America/Toronto"),
+                "policy timezone name"
+            ),
             starts_at: "21:00".to_string(),
             ends_at: "07:00".to_string(),
             time_budget: PolicyScheduleTimeBudget {
@@ -72,9 +100,10 @@ fn sample_policy_source_document(version: u64) -> ParentPolicySourceDocument {
                 offline_recovery: PolicyScheduleOfflineRecovery::RecomputeFromJournal,
             },
         }],
-        audit_reference_ids: vec![
-            PolicyAuditReferenceId::parse("audit-policy-confirmed").expect("policy audit ref")
-        ],
+        audit_reference_ids: vec![test_ok!(
+            PolicyAuditReferenceId::parse("audit-policy-confirmed"),
+            "policy audit ref"
+        )],
         superseded_by_policy_version: None,
         rollback_ref: None,
         retention: PolicyRetentionMetadata {
@@ -82,58 +111,79 @@ fn sample_policy_source_document(version: u64) -> ParentPolicySourceDocument {
             delete_allowed: true,
             sync_allowed: false,
         },
-    }
+    })
 }
 
-fn sample_delivery_target() -> PolicyDeliveryTarget {
-    PolicyDeliveryTarget {
-        child_profile_id: PolicyChildProfileId::parse("child-primary").expect("child profile id"),
-        device_id: PolicyDeviceId::parse("device-laptop").expect("policy device id"),
+fn sample_delivery_target() -> TestResult<PolicyDeliveryTarget> {
+    Ok(PolicyDeliveryTarget {
+        child_profile_id: test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        ),
+        device_id: test_ok!(PolicyDeviceId::parse("device-laptop"), "policy device id"),
         domain: PolicyConsumerDomain::Tracking,
-    }
+    })
 }
 
-fn sample_queued_delivery() -> PolicyDeliveryRecord {
-    let compiled = compile_domain_policy_artifact(
-        &sample_policy_source_document(7),
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled domain policy artifact");
+fn sample_queued_delivery() -> TestResult<PolicyDeliveryRecord> {
+    let source = sample_policy_source_document(7)?;
+    let compiled = test_ok!(
+        compile_domain_policy_artifact(&source, PolicyConsumerDomain::Tracking),
+        "compiled domain policy artifact"
+    );
 
-    queue_policy_delivery(
-        &compiled,
-        sample_delivery_target(),
-        PolicyDeliveryId::parse("delivery-version-skew").expect("policy delivery id"),
-        PolicyDeliveryAttemptId::parse("attempt-queued").expect("policy attempt id"),
-        vec![audit_ref("audit-policy-queued")],
-    )
-    .expect("queued policy delivery")
+    Ok(test_ok!(
+        queue_policy_delivery(
+            &compiled,
+            sample_delivery_target()?,
+            test_ok!(
+                PolicyDeliveryId::parse("delivery-version-skew"),
+                "policy delivery id"
+            ),
+            test_ok!(
+                PolicyDeliveryAttemptId::parse("attempt-queued"),
+                "policy attempt id"
+            ),
+            vec![audit_ref("audit-policy-queued")?],
+        ),
+        "queued policy delivery"
+    ))
 }
 
-fn audit_ref(value: &str) -> PolicyAuditReferenceId {
-    PolicyAuditReferenceId::parse(value).expect("policy audit ref")
+fn audit_ref(value: &str) -> TestResult<PolicyAuditReferenceId> {
+    Ok(test_ok!(
+        PolicyAuditReferenceId::parse(value),
+        "policy audit ref"
+    ))
 }
 
 fn transition(
     sequence: u64,
     attempt_id: &str,
     state: PolicyDeliveryState,
-) -> PolicyDeliveryTransition {
-    PolicyDeliveryTransition {
-        attempt_id: PolicyDeliveryAttemptId::parse(attempt_id).expect("policy attempt id"),
-        sequence: PolicyDeliverySequence::new(sequence).expect("policy delivery sequence"),
+) -> TestResult<PolicyDeliveryTransition> {
+    Ok(PolicyDeliveryTransition {
+        attempt_id: test_ok!(
+            PolicyDeliveryAttemptId::parse(attempt_id),
+            "policy attempt id"
+        ),
+        sequence: test_ok!(
+            PolicyDeliverySequence::new(sequence),
+            "policy delivery sequence"
+        ),
         state,
-        audit_reference_ids: vec![audit_ref(&format!("audit-{attempt_id}-{sequence}"))],
+        audit_reference_ids: vec![audit_ref(&format!("audit-{attempt_id}-{sequence}"))?],
         reason_code: None,
         superseded_by_policy_version: None,
         rollback_reference_state: None,
-    }
+    })
 }
 
 #[test]
-fn policy_delivery_serde_rejects_zero_schema_version() {
-    let error = serde_json::from_str::<PolicyDeliveryRecord>(
-        r#"{
+fn policy_delivery_serde_rejects_zero_schema_version() -> TestResult {
+    let error = test_err!(
+        serde_json::from_str::<PolicyDeliveryRecord>(
+            r#"{
             "schema_version": 0,
             "delivery_id": "delivery-version-skew",
             "household_id": "household-default",
@@ -152,67 +202,92 @@ fn policy_delivery_serde_rejects_zero_schema_version() {
             "superseded_by_policy_version": null,
             "rollback_reference_state": null
         }"#,
-    )
-    .expect_err("policy delivery schema version zero must be rejected");
+        ),
+        "policy delivery schema version zero must be rejected"
+    );
 
     assert!(error
         .to_string()
         .contains("event schema version must be nonzero"));
+    Ok(())
 }
 
 #[test]
-fn delivery_replay_same_sequence_is_duplicate_and_older_sequence_is_stale() {
-    let queued = sample_queued_delivery();
-    let delivered = transition(3, "attempt-delivered", PolicyDeliveryState::Delivered);
-    let delivered_record = apply_policy_delivery_transition(&queued, delivered.clone())
-        .expect("deliver policy")
-        .into_record();
+fn delivery_replay_same_sequence_is_duplicate_and_older_sequence_is_stale() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered = transition(3, "attempt-delivered", PolicyDeliveryState::Delivered)?;
+    let delivered_record = test_ok!(
+        apply_policy_delivery_transition(&queued, delivered.clone()),
+        "deliver policy"
+    )
+    .into_record();
 
-    let replay = apply_policy_delivery_transition(&delivered_record, delivered)
-        .expect("same-sequence replay is idempotent");
+    let replay = test_ok!(
+        apply_policy_delivery_transition(&delivered_record, delivered),
+        "same-sequence replay is idempotent"
+    );
     let stale = apply_policy_delivery_transition(
         &delivered_record,
-        transition(2, "attempt-stale", PolicyDeliveryState::Queued),
+        transition(2, "attempt-stale", PolicyDeliveryState::Queued)?,
     )
-    .expect("older transition is ignored");
+    .map_err(|error| std::io::Error::other(format!("older transition is ignored: {error}")))?;
 
     match replay {
         PolicyDeliveryApplyOutcome::Duplicate(record) => assert_eq!(record, delivered_record),
-        other => panic!("expected duplicate replay outcome, got {other:?}"),
+        other => {
+            return Err(std::io::Error::other(format!(
+                "expected duplicate replay outcome, got {other:?}"
+            ))
+            .into())
+        }
     }
 
     match stale {
         PolicyDeliveryApplyOutcome::Stale(record) => assert_eq!(record, delivered_record),
-        other => panic!("expected stale replay outcome, got {other:?}"),
+        other => {
+            return Err(std::io::Error::other(format!(
+                "expected stale replay outcome, got {other:?}"
+            ))
+            .into())
+        }
     }
+    Ok(())
 }
 
 #[test]
-fn conflicting_same_sequence_replay_is_rejected() {
-    let queued = sample_queued_delivery();
-    let delivered_record = apply_policy_delivery_transition(
-        &queued,
-        transition(3, "attempt-delivered", PolicyDeliveryState::Delivered),
+fn conflicting_same_sequence_replay_is_rejected() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered_record = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(3, "attempt-delivered", PolicyDeliveryState::Delivered)?,
+        ),
+        "deliver policy"
     )
-    .expect("deliver policy")
     .into_record();
 
-    let error = apply_policy_delivery_transition(
-        &delivered_record,
-        transition(3, "attempt-conflict", PolicyDeliveryState::Acknowledged),
-    )
-    .expect_err("conflicting replay must be rejected");
+    let error = test_err!(
+        apply_policy_delivery_transition(
+            &delivered_record,
+            transition(3, "attempt-conflict", PolicyDeliveryState::Acknowledged)?,
+        ),
+        "conflicting replay must be rejected"
+    );
 
     assert!(error
         .to_string()
         .contains("conflicting replay for sequence 3"));
+    Ok(())
 }
 
 #[test]
-fn queued_delivery_serialization_preserves_source_metadata_fields() {
-    let queued = sample_queued_delivery();
+fn queued_delivery_serialization_preserves_source_metadata_fields() -> TestResult {
+    let queued = sample_queued_delivery()?;
 
-    let payload = serde_json::to_value(&queued).expect("serialize policy delivery record");
+    let payload = test_ok!(
+        serde_json::to_value(&queued),
+        "serialize policy delivery record"
+    );
 
     assert_eq!(
         payload["source_audit_reference_ids"][0],
@@ -221,8 +296,10 @@ fn queued_delivery_serialization_preserves_source_metadata_fields() {
     assert!(payload["source_superseded_by_policy_version"].is_null());
     assert!(payload["source_rollback_ref"].is_null());
 
-    let round_trip: PolicyDeliveryRecord =
-        serde_json::from_value(payload).expect("deserialize policy delivery record");
+    let round_trip: PolicyDeliveryRecord = test_ok!(
+        serde_json::from_value(payload),
+        "deserialize policy delivery record"
+    );
     assert_eq!(
         round_trip.source_audit_reference_ids,
         queued.source_audit_reference_ids
@@ -232,11 +309,12 @@ fn queued_delivery_serialization_preserves_source_metadata_fields() {
         queued.source_superseded_by_policy_version
     );
     assert_eq!(round_trip.source_rollback_ref, queued.source_rollback_ref);
+    Ok(())
 }
 
 #[test]
-fn policy_delivery_round_trips_explicit_wp04_delivery_states() {
-    let queued = sample_queued_delivery();
+fn policy_delivery_round_trips_explicit_wp04_delivery_states() -> TestResult {
+    let queued = sample_queued_delivery()?;
     let cases = [
         (
             PolicyDeliveryState::Delivering,
@@ -307,26 +385,35 @@ fn policy_delivery_round_trips_explicit_wp04_delivery_states() {
     ];
 
     for (state, expected_state, transition_meta, reason_code) in cases {
-        let (attempt_id, audit_reference_id) = transition_meta.expect("transition metadata");
-        let mut transition = transition(2, attempt_id, state);
-        transition.audit_reference_ids = vec![audit_ref(audit_reference_id)];
-        transition.reason_code = reason_code.map(|value| {
-            PolicyReasonCode::parse(value).expect("policy reason code for explicit wp04 state")
-        });
+        let (attempt_id, audit_reference_id) = test_some!(transition_meta, "transition metadata");
+        let mut transition = transition(2, attempt_id, state)?;
+        transition.audit_reference_ids = vec![audit_ref(audit_reference_id)?];
+        transition.reason_code = test_ok!(
+            reason_code.map(PolicyReasonCode::parse).transpose(),
+            "policy reason code for explicit wp04 state"
+        );
         if state == PolicyDeliveryState::Superseded {
             transition.superseded_by_policy_version =
-                Some(PolicyVersion::new(8).expect("policy version"));
+                Some(test_ok!(PolicyVersion::new(8), "policy version"));
         }
 
-        let record = apply_policy_delivery_transition(&queued, transition)
-            .expect("explicit wp04 delivery state transition")
-            .into_record();
+        let record = test_ok!(
+            apply_policy_delivery_transition(&queued, transition),
+            "explicit wp04 delivery state transition"
+        )
+        .into_record();
 
-        let serialized = serde_json::to_value(&record).expect("serialize policy delivery record");
+        let serialized = test_ok!(
+            serde_json::to_value(&record),
+            "serialize policy delivery record"
+        );
         assert_eq!(serialized["state"], expected_state);
 
-        let round_trip: PolicyDeliveryRecord =
-            serde_json::from_value(serialized).expect("deserialize policy delivery record");
+        let round_trip: PolicyDeliveryRecord = test_ok!(
+            serde_json::from_value(serialized),
+            "deserialize policy delivery record"
+        );
         assert_eq!(round_trip.state, state);
     }
+    Ok(())
 }

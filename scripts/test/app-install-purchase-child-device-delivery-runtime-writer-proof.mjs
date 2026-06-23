@@ -63,18 +63,17 @@ async function main() {
     packageExportState: 'not-claimed-new-public-export-deferred',
     evidence: {
       childDeviceDeliveryRuntimeWriterContract:
-        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
       sourceRuntimeWriterDeliveryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts',
       sourcePackageSourceCaptureStatusContract:
-        'packages/app-game-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-child-device-delivery-runtime-writer-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
-      packageExport:
-        '@ocentra-parent/app-game-domain/app-install-purchase-child-device-delivery-runtime-writer-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-child-device-delivery-runtime-writer-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       output: relative(repoRoot, proofPath),
     },

@@ -5,10 +5,10 @@ use ocentra_parent_agent_core::{
     network_capture::NetworkObservation,
     network_event_runtime::{publish_network_runtime_chain_for_observation, NetworkRuntimeReport},
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkFlowObservation,
-    ActivityNetworkFlowReadModel,
-};
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct NetworkRuntimeServiceDeliveryReport {
@@ -98,10 +98,10 @@ where
     serde_json::from_value(Value::String(value.to_owned())).ok()
 }
 
-fn count_event_type(report: &NetworkRuntimeReport, event_type: &str) -> usize {
+fn count_event_type(report: &NetworkRuntimeReport, event_name: &str) -> usize {
     report
         .stored_events
         .iter()
-        .filter(|event| event.contract.event_type.as_str() == event_type)
+        .filter(|event| event.contract.event_type.as_str() == event_name)
         .count()
 }

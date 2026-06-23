@@ -1,20 +1,22 @@
-use ocentra_parent_agent_protocol::{constants, ACTIVITY_QUERY_SCHEMA_VERSION};
-
-use ocentra_parent_agent_protocol::{
-    TrackingEvidenceRef, TrackingReadModel, TrackingReadModelCapabilityStatus,
-    TrackingReadModelCount, TrackingReadModelCountValue, TrackingReadModelCustodyLabel,
-    TrackingReadModelDeviceId, TrackingReadModelEventId, TrackingReadModelGeneratedAt,
-    TrackingReadModelKind, TrackingReadModelObservedAt, TrackingReadModelObserver,
-    TrackingReadModelPlatform, TrackingReadModelQueryVisibility, TrackingReadModelRow,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::identifiers::{
+    TrackingEvidenceRef, TrackingReadModelCapabilityStatus, TrackingReadModelCountValue,
+    TrackingReadModelCustodyLabel, TrackingReadModelDeviceId, TrackingReadModelEventId,
+    TrackingReadModelGeneratedAt, TrackingReadModelKind, TrackingReadModelObservedAt,
+    TrackingReadModelObserver, TrackingReadModelPlatform, TrackingReadModelQueryVisibility,
     TrackingReadModelSubjectDisplayName, TrackingReadModelSubjectId, TrackingReadModelSubjectKind,
+};
+use ocentra_parent_agent_protocol::tracking::read_model::{
+    TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
     TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_SCHEMA_VERSION,
+    TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
 
 #[test]
 fn tracking_read_model_serializes_without_product_completion_claims() {
     let read_model = TrackingReadModel {
-        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        schema_version: TRACKING_READ_MODEL_SCHEMA_VERSION,
         generated_at: generated_at(
             constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
         ),
@@ -37,10 +39,12 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
         rows: Vec::new(),
     };
 
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = parse_or_unreachable(serde_json::to_value(read_model));
 
-    assert_eq!(serialized["schemaVersion"], ACTIVITY_QUERY_SCHEMA_VERSION);
+    assert_eq!(
+        serialized["schemaVersion"],
+        TRACKING_READ_MODEL_SCHEMA_VERSION
+    );
     assert_eq!(
         serialized["custodyLabel"],
         TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE
@@ -71,7 +75,7 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
 #[test]
 fn tracking_read_model_serializes_active_product_surface_counts() {
     let read_model = TrackingReadModel {
-        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        schema_version: TRACKING_READ_MODEL_SCHEMA_VERSION,
         generated_at: generated_at(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT),
         custody_label: custody_label(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -111,8 +115,7 @@ fn tracking_read_model_serializes_active_product_surface_counts() {
         rows: Vec::new(),
     };
 
-    let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = parse_or_unreachable(serde_json::to_value(read_model));
 
     assert_eq!(
         serialized["latestActiveEventId"],
@@ -136,7 +139,7 @@ fn tracking_read_model_serializes_active_product_surface_counts() {
 #[test]
 fn tracking_read_model_row_serializes_journal_citation_ids_and_visibility() {
     let row = TrackingReadModelRow {
-        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        schema_version: TRACKING_READ_MODEL_SCHEMA_VERSION,
         event_id: event_id(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID),
         observed_at: observed_at(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT),
         device_id: device_id(constants::activity_store::TEST_REMOTE_DEVICE_ID),
@@ -160,7 +163,7 @@ fn tracking_read_model_row_serializes_journal_citation_ids_and_visibility() {
         evidence: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = parse_or_unreachable(serde_json::to_value(row));
 
     assert_eq!(
         serialized["evidenceReferenceIds"][0],
@@ -188,8 +191,7 @@ fn tracking_read_model_row_serializes_tracking_alert_and_parent_notification_kin
         constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
     );
 
-    let serialized = serde_json::to_value(vec![alert_row, notification_row])
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = parse_or_unreachable(serde_json::to_value(vec![alert_row, notification_row]));
 
     assert_eq!(
         serialized[0]["kind"],
@@ -203,7 +205,7 @@ fn tracking_read_model_row_serializes_tracking_alert_and_parent_notification_kin
 
 fn tracking_row(event_id_value: &str, kind_value: &str) -> TrackingReadModelRow {
     TrackingReadModelRow {
-        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        schema_version: TRACKING_READ_MODEL_SCHEMA_VERSION,
         event_id: event_id(event_id_value),
         observed_at: observed_at(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT),
         device_id: device_id(constants::activity_store::TEST_REMOTE_DEVICE_ID),
@@ -229,63 +231,72 @@ fn tracking_row(event_id_value: &str, kind_value: &str) -> TrackingReadModelRow 
 }
 
 fn generated_at(value: &str) -> TrackingReadModelGeneratedAt {
-    TrackingReadModelGeneratedAt::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelGeneratedAt::parse(value))
 }
 
 fn custody_label() -> TrackingReadModelCustodyLabel {
-    TrackingReadModelCustodyLabel::parse(TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelCustodyLabel::parse(
+        TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    ))
 }
 
 fn capability_status(value: &str) -> TrackingReadModelCapabilityStatus {
-    TrackingReadModelCapabilityStatus::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelCapabilityStatus::parse(value))
 }
 
 fn event_id(value: &str) -> TrackingReadModelEventId {
-    TrackingReadModelEventId::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelEventId::parse(value))
 }
 
 fn observed_at(value: &str) -> TrackingReadModelObservedAt {
-    TrackingReadModelObservedAt::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelObservedAt::parse(value))
 }
 
 fn count_value(value: &str) -> TrackingReadModelCountValue {
-    TrackingReadModelCountValue::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelCountValue::parse(value))
 }
 
 fn device_id(value: &str) -> TrackingReadModelDeviceId {
-    TrackingReadModelDeviceId::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelDeviceId::parse(value))
 }
 
 fn platform(value: &str) -> TrackingReadModelPlatform {
-    TrackingReadModelPlatform::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelPlatform::parse(value))
 }
 
 fn observer(value: &str) -> TrackingReadModelObserver {
-    TrackingReadModelObserver::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelObserver::parse(value))
 }
 
 fn kind(value: &str) -> TrackingReadModelKind {
-    TrackingReadModelKind::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelKind::parse(value))
 }
 
 fn subject_kind(value: &str) -> TrackingReadModelSubjectKind {
-    TrackingReadModelSubjectKind::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelSubjectKind::parse(value))
 }
 
 fn subject_id(value: &str) -> TrackingReadModelSubjectId {
-    TrackingReadModelSubjectId::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelSubjectId::parse(value))
 }
 
 fn subject_display_name(value: &str) -> TrackingReadModelSubjectDisplayName {
-    TrackingReadModelSubjectDisplayName::parse(value)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelSubjectDisplayName::parse(value))
 }
 
 fn query_visibility(value: &str) -> TrackingReadModelQueryVisibility {
-    TrackingReadModelQueryVisibility::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingReadModelQueryVisibility::parse(value))
 }
 
 fn evidence_ref(value: &str) -> TrackingEvidenceRef {
-    TrackingEvidenceRef::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    parse_or_unreachable(TrackingEvidenceRef::parse(value))
+}
+
+fn parse_or_unreachable<T, E>(result: Result<T, E>) -> T
+where
+    E: core::fmt::Debug,
+{
+    result.unwrap_or_else(|error| {
+        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+    })
 }

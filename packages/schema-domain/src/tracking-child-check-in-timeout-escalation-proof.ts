@@ -1,14 +1,5 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from './effect';
-import {
-  TrackingLocationPolicyReadModelSchema,
-  TrackingPolicySchemaVersion,
-} from './tracking-location-policy';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
+import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
 import { resolveTrackingChildCheckIn } from './tracking-location-policy-runtime';
 import { TrackingPolicyAuditRefSchema } from './tracking-location-policy-primitives';
 import type {
@@ -35,7 +26,9 @@ export const TrackingChildCheckInTimeoutNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingChildCheckInTimeoutNonClaims)
 );
 
-export const TrackingChildCheckInTimeoutReadinessIdSchema = brandedNonEmptyStringSchema('TrackingChildCheckInTimeoutReadinessId');
+export const TrackingChildCheckInTimeoutReadinessIdSchema = brandedNonEmptyStringSchema(
+  'TrackingChildCheckInTimeoutReadinessId'
+);
 export const TrackingChildCheckInTimeoutRowIdSchema = brandedNonEmptyStringSchema('TrackingChildCheckInTimeoutRowId');
 export const TrackingChildCheckInTimeoutStateSchema = withParser(
   Schema.Literal(
@@ -489,4 +482,3 @@ function locationSampleStateFromRow(
   }
   return 'requested-not-yet-attached';
 }
-

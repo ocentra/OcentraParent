@@ -20,6 +20,8 @@
 output/eventing-plan-proof/<workpack-file-stem>/
 ```
 
+`docs/proof/eventing-plan/` is accepted only for the current WP12 route-proof manifest bundle. Historical `docs/proof` references do not close runtime work by themselves.
+
 ## Expected route-closure proof bundle
 
 ```text
@@ -32,9 +34,7 @@ output/eventing-plan-proof/rollout-proof/pr-done-report.md
 output/eventing-plan-proof/rollout-proof/command-logs/
 ```
 
-If any path above is missing, keep WP12 open and record the blocker in
-`PLAN_STATE.md` and `NEXT_ACTIONS.md`. Historical doc references do not prove
-route closure by themselves.
+If any path above is missing, keep WP12 open and record the blocker in `PLAN_STATE.md` and `NEXT_ACTIONS.md`. Historical doc references do not prove route closure by themselves.
 
 ## Current WP11 local proof roots
 
@@ -55,3 +55,78 @@ result: pass | fail | blocked
 artifact: <path or n/a>
 notes: <short note>
 ```
+
+If blocked:
+
+```text
+blocker:
+required environment:
+why this does not prove completion:
+next command:
+```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: eventing-plan
+workpack: <workpack id and name>
+owner: ocentra-eventing | schema-domain | event-domain | agent-protocol | agent-service | agent-protocol-domain | lan-handoff | remote-handoff | network-handoff | ai-handoff | policy-handoff | enforcement-handoff | portal-handoff | data-custody-handoff | docs-only
+event_namespace: <namespace or n/a>
+event_type: <event type or n/a>
+schema_version: <schema version or n/a>
+aggregate_key: <aggregate key or n/a>
+event_id_state: generated | validated | rejected | not-tested | n/a
+idempotency_state: accepted | duplicate-rejected | missing-rejected | not-tested | n/a
+correlation_id_state: present | missing | rejected | not-tested | n/a
+causation_id_state: present | missing | rejected | not-tested | n/a
+request_response_state: requested | completed | timed-out | cancelled | duplicate-completion-rejected | not-tested | n/a
+queue_state: enqueued | drained | no-subscriber | overflowed | ttl-expired | not-tested | n/a
+retry_dead_letter_state: retried | dead-lettered | not-tested | n/a
+journal_replay_state: appended | replayed | hash-checked | version-skew-checked | corrupted-rejected | not-tested | n/a
+delivery_route_state: local-only | transport-required | blocked | manual-required | not-applicable
+consumer_handoff_state: not-tested | validated | rejected | local-republish-only | blocked | manual-required | n/a
+transport_boundary: local-bus-only | lan-handoff | remote-handoff | service-handoff | not-applicable
+redaction_state: redacted | blocked | not-tested | n/a
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <stdout/stderr artifact pointer, proof file, test result path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+manual_required_note: <explicit manual-required gap or n/a>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store command output, test reports, proof JSON, route-sync reports, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
+## Runtime and local harness split
+
+Runtime/product-safe proof must show event identity, schema, idempotency, queue, journal/replay, request/response, delivery route, consumer handoff, redaction, and no-claim boundaries. Local harness proof may include richer diagnostics, but it still stores logs by pointer and keeps plan docs compact.
+
+```text
+runtime-safe: no private payload bodies, child activity payloads, provider secrets, account tokens, raw policy/enforcement payloads, or consumer-private data unless a selected expectation explicitly allows the field.
+local harness: enough file/line/command/artifact/event/queue/journal/handoff context for Codex/MCP/humans to debug without reading terminal walls.
+```
+
+## No-claim language
+
+Do not claim:
+
+```text
+cross-device transport ready
+LAN mesh ready
+remote relay ready
+service delivery ready
+policy/enforcement behavior ready
+AI behavior ready
+portal behavior ready
+production durability/retention ready
+consumer product behavior ready
+WP10 ready
+PR_READY
+```
+
+unless the selected proof root proves the exact claim and WP12/WP10 aggregation rules allow it.

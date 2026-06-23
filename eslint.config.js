@@ -127,6 +127,17 @@ const standardConfig = tseslint.config(
       ecmaVersion: 2022,
       globals: globals.node,
     },
+  },
+  {
+    files: [
+      'packages/schema-domain/src/browser-control-full-catalog-data-*.ts',
+      'packages/schema-domain/src/network-control-catalog-data.ts',
+      'packages/schema-domain/src/screen-control-catalog-data-*.ts',
+      'packages/schema-domain/src/tracking-control-catalog-data.ts',
+    ],
+    rules: {
+      'max-lines': 'off',
+    },
   }
 );
 

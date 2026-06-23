@@ -4,7 +4,7 @@ import {
   AppInstallPurchaseProviderStoreManualEvidencePacketProofSchema,
   AppInstallPurchaseProviderStoreManualEvidencePacketRowSchema,
   summarizeAppInstallPurchaseProviderStoreManualEvidencePacketProof,
-} from '../../src/app-install-purchase-provider-store-manual-evidence-packet-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-provider-store-manual-evidence-packet-proof';
 
 describe('app install purchase provider store manual evidence packet proof', () => {
   acceptsManualEvidencePacketRows();

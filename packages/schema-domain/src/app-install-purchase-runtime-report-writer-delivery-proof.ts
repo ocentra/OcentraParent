@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel } from './app-install-purchase-runtime-writer-execution-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -58,10 +53,18 @@ const RuntimeReportWriterDeliveryDeliveryClaimSchema = withParser(Schema.Literal
 const RuntimeReportWriterDeliveryCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 const RuntimeReportWriterDeliveryNonClaimSchema = withParser(Schema.Literal(...RuntimeReportWriterDeliveryNonClaims));
 
-const RuntimeReportWriterDeliveryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryRowId');
-const RuntimeReportWriterDeliveryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryRef');
-const RuntimeReportWriterDeliveryAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryAuditRef');
-const RuntimeReportWriterDeliveryBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryBoundary');
+const RuntimeReportWriterDeliveryRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeReportWriterDeliveryRowId'
+);
+const RuntimeReportWriterDeliveryRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeReportWriterDeliveryRef'
+);
+const RuntimeReportWriterDeliveryAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeReportWriterDeliveryAuditRef'
+);
+const RuntimeReportWriterDeliveryBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseRuntimeReportWriterDeliveryBoundary'
+);
 
 const RuntimeReportWriterDeliveryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeReportWriterDeliveryProofSchemaVersionSchema,
@@ -183,9 +186,7 @@ function runtimeReportWriterDeliveryRow(
     sourceRuntimeWriterExecutionDeliveryProofVersion: SourceRuntimeWriterExecutionDeliveryProofVersion,
     sourceRuntimeWriterExecutionDeliveryRowId: row.runtimeWriterExecutionDeliveryRowId,
     sourceReportRuntimeProofVersion: SourceReportRuntimeProofVersion,
-    sourceReportRuntimeRowIds: reportRows.map(
-      (reportRow: (typeof reportRows)[number]) => reportRow.reportRuntimeRowId
-    ),
+    sourceReportRuntimeRowIds: reportRows.map((reportRow: (typeof reportRows)[number]) => reportRow.reportRuntimeRowId),
     sourceDecisionAction: row.sourceDecisionAction,
     runtimeReportWriterDeliveryState: manual ? 'manual-required' : 'report-delivery-ready',
     runtimeReportWriterReceiptState: manual ? 'manual-required' : 'parent-owned-report-receipt-recorded',
@@ -297,4 +298,3 @@ function runtimeReportWriterDeliveryBoundaryIsExplicit(
 ): boolean {
   return RuntimeReportWriterDeliveryBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
-

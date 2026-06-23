@@ -1,15 +1,40 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanAiProviderRoutingState, LanPairingDeviceReachability,
-    LanPairingProductionDiscoveryState, LanPairingRejectionReason, LanPairingTrustState,
-    LanProviderSelectionCandidateEvidence, LanProviderSelectionCloudRelayDecisionState,
-    LanProviderSelectionCloudRelayImplementationState, LanProviderSelectionLifecycleState,
-    LanProviderSelectionManualRequirement, LanProviderSelectionManualRequirementEvidence,
-    LanProviderSelectionPolicyDecision, LanProviderSelectionProofState,
-    LanProviderSelectionReadModel, LanSelectedRouteTarget,
-};
+#[cfg(test)]
+use ocentra_parent_agent_protocol::constants;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing::LanAiProviderRoutingState;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionCandidateEvidence;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionCloudRelayDecisionState;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionCloudRelayImplementationState;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionLifecycleState;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionManualRequirement;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionManualRequirementEvidence;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionPolicyDecision;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionProofState;
+#[cfg(test)]
+use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionReadModel;
 
+#[cfg(test)]
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
+#[cfg(test)]
 pub(crate) fn provider_selection_read_model(
     runtime: &LanPairingRuntime,
 ) -> LanProviderSelectionReadModel {
@@ -42,6 +67,7 @@ pub(crate) fn provider_selection_read_model(
     }
 }
 
+#[cfg(test)]
 fn selected_route_candidate(
     runtime: &LanPairingRuntime,
     selected: Option<&LanSelectedRouteTarget>,
@@ -66,6 +92,7 @@ fn selected_route_candidate(
     }
 }
 
+#[cfg(test)]
 fn unsupported_capability_candidate(
     runtime: &LanPairingRuntime,
     selected: Option<&LanSelectedRouteTarget>,
@@ -86,6 +113,7 @@ fn unsupported_capability_candidate(
     }
 }
 
+#[cfg(test)]
 fn physical_household_candidate(
     runtime: &LanPairingRuntime,
 ) -> LanProviderSelectionCandidateEvidence {
@@ -105,6 +133,7 @@ fn physical_household_candidate(
     }
 }
 
+#[cfg(test)]
 fn cloud_relay_candidate() -> LanProviderSelectionCandidateEvidence {
     LanProviderSelectionCandidateEvidence {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -122,6 +151,7 @@ fn cloud_relay_candidate() -> LanProviderSelectionCandidateEvidence {
     }
 }
 
+#[cfg(test)]
 fn manual_requirements() -> Vec<LanProviderSelectionManualRequirementEvidence> {
     vec![
         manual_requirement(
@@ -147,6 +177,7 @@ fn manual_requirements() -> Vec<LanProviderSelectionManualRequirementEvidence> {
     ]
 }
 
+#[cfg(test)]
 fn manual_requirement(
     requirement: LanProviderSelectionManualRequirement,
     required_artifact_summary: &'static str,
@@ -159,6 +190,7 @@ fn manual_requirement(
     }
 }
 
+#[cfg(test)]
 fn selected_provider_route_id(
     selected: Option<&LanSelectedRouteTarget>,
     routing_state: &LanAiProviderRoutingState,
@@ -172,6 +204,7 @@ fn selected_provider_route_id(
     None
 }
 
+#[cfg(test)]
 fn lifecycle_state_for_selected(
     selected: Option<&LanSelectedRouteTarget>,
     routing_state: &LanAiProviderRoutingState,
@@ -193,6 +226,7 @@ fn lifecycle_state_for_selected(
     }
 }
 
+#[cfg(test)]
 fn policy_decision_for_selected(
     selected: Option<&LanSelectedRouteTarget>,
     routing_state: &LanAiProviderRoutingState,
@@ -217,6 +251,7 @@ fn policy_decision_for_selected(
     }
 }
 
+#[cfg(test)]
 fn selected_route_rejection_reason(
     selected: Option<&LanSelectedRouteTarget>,
     routing_state: &LanAiProviderRoutingState,
@@ -240,6 +275,7 @@ fn selected_route_rejection_reason(
     }
 }
 
+#[cfg(test)]
 fn evidence_label_for_selected(
     selected: Option<&LanSelectedRouteTarget>,
     rejection_reason: Option<&LanPairingRejectionReason>,
@@ -262,6 +298,7 @@ fn evidence_label_for_selected(
     .to_string()
 }
 
+#[cfg(test)]
 fn discovery_state_for_selected(
     selected: Option<&LanSelectedRouteTarget>,
 ) -> LanPairingProductionDiscoveryState {
@@ -275,12 +312,14 @@ fn discovery_state_for_selected(
     }
 }
 
+#[cfg(test)]
 fn trust_state_for_selected(selected: Option<&LanSelectedRouteTarget>) -> LanPairingTrustState {
     selected
         .map(|target| target.trust_state.clone())
         .unwrap_or(LanPairingTrustState::Unpaired)
 }
 
+#[cfg(test)]
 fn reachability_for_selected(
     selected: Option<&LanSelectedRouteTarget>,
 ) -> LanPairingDeviceReachability {
@@ -289,16 +328,19 @@ fn reachability_for_selected(
         .unwrap_or(LanPairingDeviceReachability::Offline)
 }
 
+#[cfg(test)]
 fn route_id_for_selected(selected: Option<&LanSelectedRouteTarget>) -> String {
     selected
         .map(|target| target.route_id.clone())
         .unwrap_or_else(|| constants::lan_pairing::ROUTE_ID_UNSUPPORTED.to_string())
 }
 
+#[cfg(test)]
 fn provider_peer_id(runtime: &LanPairingRuntime) -> String {
     runtime.device_role_read_model().physical_device_id
 }
 
+#[cfg(test)]
 fn routing_state(runtime: &LanPairingRuntime) -> LanAiProviderRoutingState {
     match runtime.lan_ai_provider_routing_state() {
         constants::value::LAN_AI_PROVIDER_ROUTING_AUTHORIZED_RESULT => {

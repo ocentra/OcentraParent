@@ -1,3 +1,4 @@
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::app_game::*;
 use std::fs::remove_file;
 
@@ -80,14 +81,14 @@ fn live_foreground_snapshot_omits_empty_title_without_content_capture() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         &snapshot,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let (store, _) = append_and_replay(&[event], APP_GAME_TEST_FOREGROUND_PERMISSION_EVIDENCE_ID);
     let model = app_game_journal_sqlite_read_model(
         &store.connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(model.foreground_now_returned, 1);
     assert_eq!(model.foreground_now_rows[0].window_title_ref, None);
@@ -109,14 +110,14 @@ fn live_foreground_snapshot_journal_event_replays_into_sqlite_read_model() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         &foreground_snapshot(),
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
     let (store, lines) = append_and_replay(&[event], APP_GAME_TEST_FOREGROUND_CLOSED_EVIDENCE_ID);
     let model = app_game_journal_sqlite_read_model(
         &store.connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.running_now_returned, 0);
@@ -144,7 +145,7 @@ fn live_foreground_adapter_smoke_keeps_unavailable_platform_optional() {
         std::env::consts::OS,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
 
     if let Some(record) = record {
         let rows = windows_foreground_rows_from_records(&[record]);
@@ -168,27 +169,29 @@ fn foreground_snapshot() -> LiveWindowsForegroundWindowSnapshot {
 }
 
 fn append_and_replay(
-    events: &[ocentra_parent_agent_protocol::ActivityEvent],
+    events: &[ActivityEvent],
     suffix: &str,
 ) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path(suffix);
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.clone(), key.clone())
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS)),
         );
     }
-    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader = ActivityJournal::open(path.clone(), key)
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

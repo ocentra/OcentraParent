@@ -272,12 +272,10 @@ fn invalid_signature_blocks_capability_before_subscription_state_is_considered()
 }
 
 #[test]
-fn entitlement_evaluation_request_records_typed_decision_event() {
+fn entitlement_evaluation_request_records_typed_decision_event() -> Result<(), EventingError> {
     let request = EntitlementCapabilityEvaluationRequestedEvent {
-        aggregate_id: EntitlementAggregateId::parse("entitlement-family-default")
-            .expect("entitlement aggregate"),
-        evaluation_id: EntitlementEvaluationId::parse("entitlement-evaluation-default")
-            .expect("entitlement evaluation"),
+        aggregate_id: EntitlementAggregateId::parse("entitlement-family-default")?,
+        evaluation_id: EntitlementEvaluationId::parse("entitlement-evaluation-default")?,
         input: EntitlementCapabilityInput {
             capability: EntitlementCapability::Tracking,
             subscription_state: SubscriptionState::Active,
@@ -303,19 +301,14 @@ fn entitlement_evaluation_request_records_typed_decision_event() {
     );
     assert_eq!(decision.decision.rejection_reason, None);
     assert_eq!(
-        request
-            .contract()
-            .expect("entitlement request contract")
-            .event_type
-            .as_str(),
+        request.contract()?.event_type.as_str(),
         "entitlement.capability-evaluation.requested"
     );
     assert_eq!(
-        decision
-            .contract()
-            .expect("entitlement decision contract")
-            .event_type
-            .as_str(),
+        decision.contract()?.event_type.as_str(),
         "entitlement.capability-decision.recorded"
     );
+
+    Ok(())
 }
+use ocentra_eventing::error::EventingError;

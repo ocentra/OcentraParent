@@ -3,7 +3,7 @@ import {
   AppInstallPurchaseRuntimeProofReadModel,
   AppInstallPurchaseRuntimeProofSchema,
   summarizeAppInstallPurchaseRuntimeProof,
-} from '../../src/app-install-purchase-runtime-proof';
+} from '@ocentra-parent/schema-domain/app-install-purchase-runtime-proof';
 
 describe('app install and purchase runtime proof boundary', () => {
   acceptsRuntimeProofBoundaryRows();

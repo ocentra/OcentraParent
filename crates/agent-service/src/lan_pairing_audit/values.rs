@@ -1,6 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanPairingIntentKind, LanPairingParentAuthority, LanPairingRejectionReason,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingIntentKind;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 
 pub(crate) fn intent_kind_value(intent_kind: &LanPairingIntentKind) -> &'static str {
     match intent_kind {

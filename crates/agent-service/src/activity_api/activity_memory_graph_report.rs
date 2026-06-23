@@ -1,6 +1,8 @@
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::{
@@ -32,7 +34,7 @@ pub async fn build_activity_memory_graph_report(
 }
 
 async fn load_activity_memory_graph(
-) -> Option<ocentra_parent_agent_protocol::ActivityMemoryGraphReadModel> {
+) -> Option<ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path).ok()?;

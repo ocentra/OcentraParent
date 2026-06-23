@@ -1,11 +1,7 @@
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
-import {
-  repoRoot,
-  resolveScopedFiles,
-  toPosix,
-} from './check-architecture-scope.mjs';
+import { repoRoot, resolveScopedFiles, toPosix } from './check-architecture-scope.mjs';
 
 const scriptName = 'node scripts/check-rust-dependency-policy.mjs';
 const usageLines = ['--all', '--base <sha> --head <sha>'];

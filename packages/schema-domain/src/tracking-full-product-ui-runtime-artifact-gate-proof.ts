@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
 import {
   RequiredTrackingFullProductUiRuntimeArtifactRefs,
@@ -16,11 +11,13 @@ export const TrackingFullProductUiRuntimeArtifactGateStatusSchema = Schema.Liter
   'artifact-set-present'
 );
 
-export const TrackingFullProductUiRuntimeArtifactGatePathSchema =
-  brandedNonEmptyStringSchema('TrackingFullProductUiRuntimeArtifactGatePath');
+export const TrackingFullProductUiRuntimeArtifactGatePathSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiRuntimeArtifactGatePath'
+);
 
-export const TrackingFullProductUiRuntimeArtifactGateRowIdSchema =
-  brandedNonEmptyStringSchema('TrackingFullProductUiRuntimeArtifactGateRowId');
+export const TrackingFullProductUiRuntimeArtifactGateRowIdSchema = brandedNonEmptyStringSchema(
+  'TrackingFullProductUiRuntimeArtifactGateRowId'
+);
 
 export const TrackingFullProductUiRuntimeArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -226,4 +223,3 @@ function fullProductUiArtifactRow(
     productClaimReady: false,
   });
 }
-

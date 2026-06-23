@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProviderStoreApiExecutionProofReadModel } from './app-install-purchase-provider-store-api-execution-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
@@ -429,4 +424,3 @@ function platformAdapterEvidenceGapProofIsHonest(proof: AppInstallPurchasePlatfo
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
-

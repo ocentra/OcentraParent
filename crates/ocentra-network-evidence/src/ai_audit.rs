@@ -118,9 +118,9 @@ pub enum NetworkAiAuditReportError {
 }
 
 pub fn build_network_ai_audit_report(
-    input: NetworkAiAuditReportInput,
+    input: &NetworkAiAuditReportInput,
 ) -> Result<NetworkAiAuditReport, NetworkAiAuditReportError> {
-    reject_global_claims(&input)?;
+    reject_global_claims(input)?;
     if input.detection_results.is_empty() {
         return Err(NetworkAiAuditReportError::EmptyDetectionResults);
     }

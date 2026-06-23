@@ -1,17 +1,20 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import {
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { createPolicyPreviewPanelIntent } from '@ocentra-parent/portal-domain/policy-preview-panel';
 import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from '../src/PolicyPreviewRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('policy preview portal route panel', () => {
+  policyPreviewRouteAttachmentTests();
+  policyPreviewLatestEventTests();
+  policyPreviewObserverAccessTests();
+});
+
+function policyPreviewRouteAttachmentTests(): void {
   it('attaches only to the policy authoring routes', () => {
     expect(shouldRenderPolicyPreviewRoute(PortalRoute.RuleManagement)).toBe(true);
     expect(shouldRenderPolicyPreviewRoute(PortalRoute.Schedules)).toBe(true);
@@ -22,7 +25,9 @@ describe('policy preview portal route panel', () => {
     expect(shouldRenderPolicyPreviewRoute(PortalRoute.AppGameSessions)).toBe(false);
     expect(shouldRenderPolicyPreviewRoute(PortalRoute.AiRuntime)).toBe(false);
   });
+}
 
+function policyPreviewLatestEventTests(): void {
   it('uses the latest policy preview event and read model for the shared panel intent', () => {
     const liveActivity = resolveLiveActivityState([
       policyPreviewEvent({
@@ -89,7 +94,9 @@ describe('policy preview portal route panel', () => {
     expect(markup).toContain('Approval authority');
     expect(markup).toContain('Active controller');
   });
+}
 
+function policyPreviewObserverAccessTests(): void {
   it('keeps observer-only policy routes read-only in rendered markup', () => {
     const liveActivity = resolveLiveActivityState([
       policyPreviewEvent({
@@ -115,7 +122,7 @@ describe('policy preview portal route panel', () => {
     expect(markup).toContain('cannot confirm or save writes');
     expect(markup).toContain('Delivered is reported, but active enforcement is separate.');
   });
-});
+}
 
 function policyPreviewEvent({
   eventId,

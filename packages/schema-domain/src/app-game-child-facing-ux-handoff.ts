@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { AppGameChildUxCardSchema, type AppGameChildUxCard } from './app-game-child-facing-ux';
 import {
   ParentContractSchemaVersion,
@@ -133,4 +128,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

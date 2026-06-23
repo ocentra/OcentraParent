@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -19,11 +14,21 @@ import {
   V08NotificationProviderStatusBoundaryReadModelSchema,
 } from '@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary';
 
-export const V08EnforcementIntegrityRuntimeAuditReadModelIdSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditReadModelId');
-export const V08EnforcementIntegrityRuntimeAuditEntryIdSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditEntryId');
-export const V08EnforcementIntegrityRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditReference');
-export const V08EnforcementIntegrityRuntimeAuditRequirementSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditRequirement');
-export const V08EnforcementIntegrityRuntimeAuditBoundarySchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditBoundary');
+export const V08EnforcementIntegrityRuntimeAuditReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementIntegrityRuntimeAuditReadModelId'
+);
+export const V08EnforcementIntegrityRuntimeAuditEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementIntegrityRuntimeAuditEntryId'
+);
+export const V08EnforcementIntegrityRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementIntegrityRuntimeAuditReference'
+);
+export const V08EnforcementIntegrityRuntimeAuditRequirementSchema = brandedNonEmptyStringSchema(
+  'V08EnforcementIntegrityRuntimeAuditRequirement'
+);
+export const V08EnforcementIntegrityRuntimeAuditBoundarySchema = brandedNonEmptyStringSchema(
+  'V08EnforcementIntegrityRuntimeAuditBoundary'
+);
 
 export const V08EnforcementIntegrityRuntimeAuditSurfaceSchema = withParser(
   Schema.Literal(
@@ -191,12 +196,8 @@ export const V08EnforcementIntegrityRuntimeAuditReadModelSchema = withParser(
   }).pipe(
     Schema.filter(
       (readModel) =>
-        new Set(
-          readModel.entries.map(
-            (entry: V08EnforcementIntegrityRuntimeAuditEntryCandidate) =>
-              entry.auditEntryId
-          )
-        ).size === readModel.entries.length ||
+        new Set(readModel.entries.map((entry: V08EnforcementIntegrityRuntimeAuditEntryCandidate) => entry.auditEntryId))
+          .size === readModel.entries.length ||
         'Expected V0.8 enforcement integrity runtime audit entry ids to be unique'
     )
   )
@@ -688,10 +689,7 @@ function entry(input: V08EnforcementIntegrityRuntimeAuditEntryInput): V08Enforce
 
 export const decodeV08EnforcementIntegrityRuntimeAuditEntry = (
   input: unknown
-): V08EnforcementIntegrityRuntimeAuditEntry =>
-  V08EnforcementIntegrityRuntimeAuditEntrySchema.parse(input);
+): V08EnforcementIntegrityRuntimeAuditEntry => V08EnforcementIntegrityRuntimeAuditEntrySchema.parse(input);
 export const decodeV08EnforcementIntegrityRuntimeAuditReadModel = (
   input: unknown
-): V08EnforcementIntegrityRuntimeAuditReadModel =>
-  V08EnforcementIntegrityRuntimeAuditReadModelSchema.parse(input);
-
+): V08EnforcementIntegrityRuntimeAuditReadModel => V08EnforcementIntegrityRuntimeAuditReadModelSchema.parse(input);

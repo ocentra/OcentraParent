@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  BrowserCustodyLabel,
-  BrowserQueryVisibilityLabel,
-} from '@ocentra-parent/schema-domain/browser-values';
+import { BrowserCustodyLabel, BrowserQueryVisibilityLabel } from '@ocentra-parent/schema-domain/browser-values';
 import {
   BrowserBoundaryState,
   BrowserExactUrlClaimState,

@@ -3,6 +3,7 @@ use crate::{
     NetworkEvidencePolicyMappingError, NetworkEvidencePolicyMappingInput,
     NetworkEvidencePolicyMode,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn policy_mapping_allows_grade_a_dry_run_without_adapter_authority() {
@@ -10,7 +11,7 @@ fn policy_mapping_allows_grade_a_dry_run_without_adapter_authority() {
         NetworkEvidenceGrade::A,
         NetworkEvidencePolicyAction::Block,
     ))
-    .expect("grade A evidence should map to a dry-run policy handoff");
+    .expect_value("grade A evidence should map to a dry-run policy handoff");
 
     assert_eq!(mapping.mode, NetworkEvidencePolicyMode::DryRun);
     assert_eq!(mapping.mapped_action, NetworkEvidencePolicyAction::Block);
@@ -41,7 +42,7 @@ fn policy_mapping_routes_grade_b_block_requests_to_parent_review() {
         NetworkEvidenceGrade::B,
         NetworkEvidencePolicyAction::Block,
     ))
-    .expect("grade B block request should map to parent review");
+    .expect_value("grade B block request should map to parent review");
 
     assert_eq!(mapping.mode, NetworkEvidencePolicyMode::ParentReview);
     assert_eq!(mapping.requested_action, NetworkEvidencePolicyAction::Block);
@@ -59,7 +60,7 @@ fn policy_mapping_allows_grade_b_monitor_dry_run() {
         NetworkEvidenceGrade::B,
         NetworkEvidencePolicyAction::Monitor,
     ))
-    .expect("grade B monitor request should stay dry-run");
+    .expect_value("grade B monitor request should stay dry-run");
 
     assert_eq!(mapping.mode, NetworkEvidencePolicyMode::DryRun);
     assert_eq!(mapping.mapped_action, NetworkEvidencePolicyAction::Monitor);
@@ -72,7 +73,7 @@ fn policy_mapping_keeps_grade_c_and_d_non_enforcing() {
         NetworkEvidenceGrade::C,
         NetworkEvidencePolicyAction::Limit,
     ))
-    .expect("grade C evidence should require parent review");
+    .expect_value("grade C evidence should require parent review");
     assert_eq!(weak.mode, NetworkEvidencePolicyMode::ParentReview);
     assert_eq!(weak.mapped_action, NetworkEvidencePolicyAction::AskParent);
     assert!(!weak.enforcement_command_authorized);
@@ -81,7 +82,7 @@ fn policy_mapping_keeps_grade_c_and_d_non_enforcing() {
         NetworkEvidenceGrade::D,
         NetworkEvidencePolicyAction::Block,
     ))
-    .expect("grade D evidence should stay observe-only");
+    .expect_value("grade D evidence should stay observe-only");
     assert_eq!(unusable.mode, NetworkEvidencePolicyMode::ObserveOnly);
     assert_eq!(unusable.mapped_action, NetworkEvidencePolicyAction::None);
     assert!(!unusable.adapter_action_authorized);

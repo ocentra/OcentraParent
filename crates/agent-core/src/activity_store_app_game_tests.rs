@@ -1,7 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, APP_GAME_CATALOG_NOT_LOADED,
-    APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use super::{
     foreground_window_observation_event, process_observation_event, ActivityStore,
@@ -10,7 +12,8 @@ use super::{
 
 #[test]
 fn activity_store_reports_app_game_sessions_from_process_and_window_events() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let process = process_observation_event(
         ProcessObservation {
             pid: 4242,
@@ -28,10 +31,10 @@ fn activity_store_reports_app_game_sessions_from_process_and_window_events() {
 
     store
         .ingest_events(&[window, process])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let report = store
         .app_game_session_report(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(
         report.most_recent_session_id,
@@ -51,7 +54,8 @@ fn activity_store_reports_app_game_sessions_from_process_and_window_events() {
 
 #[test]
 fn activity_store_reports_unknown_process_without_catalog_claims() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
     let process = process_observation_event(
         ProcessObservation {
             pid: 4242,
@@ -64,10 +68,10 @@ fn activity_store_reports_unknown_process_without_catalog_claims() {
 
     store
         .ingest_events(&[process])
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
     let report = store
         .app_game_session_report(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(report.returned, 1);
     assert_eq!(report.catalog_ready_state, APP_GAME_CATALOG_NOT_LOADED);
@@ -79,11 +83,12 @@ fn activity_store_reports_unknown_process_without_catalog_claims() {
 
 #[test]
 fn activity_store_reports_empty_app_game_sessions_without_inventing_rows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open_in_memory()
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
 
     let report = store
         .app_game_session_report(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(report.returned, 0);
     assert_eq!(report.first_observed_at, None);

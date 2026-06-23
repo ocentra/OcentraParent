@@ -16,7 +16,6 @@ await mkdir(testOutputDir, { recursive: true });
 await mkdir(screenshotDir, { recursive: true });
 
 runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 runNpm([
   'run',
   'test',
@@ -27,7 +26,7 @@ runNpm([
 ]);
 
 const tracking = await importSchemaDist('tracking-location-policy.js');
-const proofModule = await importTrackingDist('tracking-missing-device-mode-proof.js');
+const proofModule = await importSchemaDist('tracking-missing-device-mode-proof.js');
 const sourceReadModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceTrackingReadModel(tracking));
 const readModel = proofModule.buildTrackingMissingDeviceModeProofReadModel(
   {
@@ -60,7 +59,7 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-missing-device-mode-proof.ts',
+    source: 'packages/schema-domain/src/tracking-missing-device-mode-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-missing-device-mode-proof.test.ts',
     harness: 'scripts/test/tracking-missing-device-mode-proof.mjs',
     evidence: 'test-results/tracking-missing-device-mode-proof/proof.json',
@@ -79,10 +78,6 @@ console.log(`evidence=${join('test-results', 'tracking-missing-device-mode-proof
 
 function importSchemaDist(name) {
   return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
-}
-
-function importTrackingDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function sourceTrackingReadModel(tracking) {

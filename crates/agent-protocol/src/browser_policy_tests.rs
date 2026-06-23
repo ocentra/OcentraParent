@@ -29,7 +29,10 @@ fn browser_policy_patch_command_serializes_to_typescript_contract_shape() {
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::BROWSER_POLICY_REQUEST.to_string(),
-        LogFieldValue::String(serde_json::to_string(&request).expect("request serializes")),
+        LogFieldValue::String(
+            serde_json::to_string(&request)
+                .unwrap_or_else(|error| unreachable!("request serializes: {error:?}")),
+        ),
     );
     payload.insert(
         constants::field::BROWSER_POLICY_UPDATE_KIND.to_string(),
@@ -52,12 +55,13 @@ fn browser_policy_patch_command_serializes_to_typescript_contract_shape() {
         command: AgentCommandName::AgentBrowserPolicyPatch,
         payload,
     };
-    let serialized = serde_json::to_value(command).expect("browser policy command serializes");
+    let serialized = serde_json::to_value(command)
+        .unwrap_or_else(|error| unreachable!("browser policy command serializes: {error:?}"));
     let request_text = serialized["payload"][constants::field::BROWSER_POLICY_REQUEST]
         .as_str()
-        .expect("request is encoded as JSON text");
-    let request_value: serde_json::Value =
-        serde_json::from_str(request_text).expect("request payload decodes as JSON");
+        .unwrap_or_else(|| unreachable!("request is encoded as JSON text"));
+    let request_value: serde_json::Value = serde_json::from_str(request_text)
+        .unwrap_or_else(|error| unreachable!("request payload decodes as JSON: {error:?}"));
 
     assert_eq!(
         serialized["command"],
@@ -94,7 +98,10 @@ fn browser_policy_rejected_event_serializes_typed_reason() {
     let mut payload = LogFields::new();
     payload.insert(
         constants::field::BROWSER_POLICY_RESPONSE.to_string(),
-        LogFieldValue::String(serde_json::to_string(&response).expect("response serializes")),
+        LogFieldValue::String(
+            serde_json::to_string(&response)
+                .unwrap_or_else(|error| unreachable!("response serializes: {error:?}")),
+        ),
     );
     payload.insert(
         constants::field::BROWSER_POLICY_REJECTION_REASON.to_string(),
@@ -121,12 +128,13 @@ fn browser_policy_rejected_event_serializes_typed_reason() {
         payload,
         snapshot: None,
     };
-    let serialized = serde_json::to_value(event).expect("browser policy event serializes");
+    let serialized = serde_json::to_value(event)
+        .unwrap_or_else(|error| unreachable!("browser policy event serializes: {error:?}"));
     let response_text = serialized["payload"][constants::field::BROWSER_POLICY_RESPONSE]
         .as_str()
-        .expect("response is encoded as JSON text");
-    let response_value: serde_json::Value =
-        serde_json::from_str(response_text).expect("response payload decodes as JSON");
+        .unwrap_or_else(|| unreachable!("response is encoded as JSON text"));
+    let response_value: serde_json::Value = serde_json::from_str(response_text)
+        .unwrap_or_else(|error| unreachable!("response payload decodes as JSON: {error:?}"));
 
     assert_eq!(
         serialized["event"],
@@ -180,7 +188,8 @@ fn browser_policy_effective_rule_serializes_compiler_result_fields() {
         }],
     };
 
-    let serialized = serde_json::to_value(effective_policy).expect("effective policy serializes");
+    let serialized = serde_json::to_value(effective_policy)
+        .unwrap_or_else(|error| unreachable!("effective policy serializes: {error:?}"));
     let rule = &serialized["rules"][0];
 
     assert_eq!(rule["targetType"], "cloud-gaming");

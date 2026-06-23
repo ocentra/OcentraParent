@@ -3,7 +3,7 @@ import {
   Schema,
   withParser,
   brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  NonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
 import {
   ActivityDeviceIdSchema,
@@ -103,14 +103,10 @@ export const BrowserQueryVisibilityLabelSchema = withParser(
   Schema.Literal('live-local', 'live-lan', 'parent-cache', 'parent-owned-export', 'unavailable')
 );
 export const BrowserAdapterIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAdapterId'));
-export const BrowserBridgeEndpointRefSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserBridgeEndpointRef')
-);
+export const BrowserBridgeEndpointRefSchema = withParser(brandedNonEmptyStringSchema('BrowserBridgeEndpointRef'));
 export const BrowserDegradedReasonSchema = withParser(brandedNonEmptyStringSchema('BrowserDegradedReason'));
 export const BrowserDomainSchema = withParser(brandedNonEmptyStringSchema('BrowserDomain'));
-export const BrowserManagedSessionIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserManagedSessionId')
-);
+export const BrowserManagedSessionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserManagedSessionId'));
 export const BrowserOriginSchema = withParser(brandedNonEmptyStringSchema('BrowserOrigin'));
 export const BrowserPageTitleSchema = withParser(brandedNonEmptyStringSchema('BrowserPageTitle'));
 export const BrowserProfileIdSchema = withParser(brandedNonEmptyStringSchema('BrowserProfileId'));
@@ -418,4 +414,3 @@ function normalizedHost(value: string): string | null {
 function browserRedactedRefIsSafe(value: string): boolean {
   return !value.includes('/') && !value.includes('\\') && !value.includes(':');
 }
-

@@ -1,5 +1,7 @@
 use std::{
+    error::Error,
     fs::{create_dir_all, read, remove_dir_all, remove_file, write},
+    io::Error as IoError,
     path::{Path, PathBuf},
 };
 
@@ -8,12 +10,13 @@ use ocentra_parent_agent_core::{
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, AppGameServiceReadModel,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
-    APP_GAME_INVENTORY_SOURCE_SHORTCUT, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_LIVE_INVENTORY_SUFFIX,
+use ocentra_parent_agent_protocol::activity::{ActivityEvent, ActivityEventKind};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameServiceReadModel, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD, APP_GAME_INVENTORY_SOURCE_SHORTCUT,
+    APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE, APP_GAME_INVENTORY_STATE_INSTALLED,
+    APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_LIVE_INVENTORY_SUFFIX,
     APP_GAME_TEST_SHORTCUT_FILE_NAME, APP_GAME_TEST_STORE_APP_DISPLAY_LABEL,
     APP_GAME_TEST_STORE_APP_PACKAGE_ID, APP_GAME_TEST_STORE_PACKAGE_MANIFEST_USER_MODEL_ID,
     APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML, APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
@@ -21,6 +24,7 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION, APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE,
     APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE, APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::activity_capture::capture_events::{
     record_activity_capture_to_paths_at_with_inventory_roots,
@@ -28,8 +32,10 @@ use crate::activity_capture::capture_events::{
     record_activity_capture_to_paths_at_with_store_package_roots,
 };
 
+type TestResult = Result<(), Box<dyn Error>>;
+
 #[test]
-fn record_capture_with_inventory_root_writes_inventory_journal_and_sqlite_rows() {
+fn record_capture_with_inventory_root_writes_inventory_journal_and_sqlite_rows() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_CAPTURE_APP_GAME_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -45,53 +51,63 @@ fn record_capture_with_inventory_root_writes_inventory_journal_and_sqlite_rows()
     let inventory_root = temp_inventory_root();
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&inventory_root);
-    create_dir_all(&inventory_root).expect(constants::error::JOURNAL_APPENDS);
-    let mut shortcut_path = inventory_root.clone();
-    shortcut_path.push(APP_GAME_TEST_SHORTCUT_FILE_NAME);
-    write(&shortcut_path, []).expect(constants::error::JOURNAL_APPENDS);
+    let result = (|| -> TestResult {
+        create_dir_all(&inventory_root)?;
+        let mut shortcut_path = inventory_root.clone();
+        shortcut_path.push(APP_GAME_TEST_SHORTCUT_FILE_NAME);
+        write(&shortcut_path, [])?;
 
-    let status = record_activity_capture_to_paths_at_with_inventory_roots(
-        &journal_path,
-        &key_path,
-        &store_path,
-        1,
-        1,
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        std::slice::from_ref(&inventory_root),
-    )
-    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    let events = decrypted_events(&journal_path, &key_path);
-    let app_game = app_game_read_model(&store_path);
+        let status = record_activity_capture_to_paths_at_with_inventory_roots(
+            &journal_path,
+            &key_path,
+            &store_path,
+            1,
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            std::slice::from_ref(&inventory_root),
+        )
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_CAPTURE_RECORDS
+            ))
+        })?;
+        let events = decrypted_events(&journal_path, &key_path)?;
+        let app_game = app_game_read_model(&store_path)?;
+
+        assert_eq!(status.events_ingested, status.events_stored);
+        assert!(events.iter().any(|event| event.kind
+            == ActivityEventKind::DeviceIdleStateObserved
+            && event.subject.subject_id == APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID));
+        assert_eq!(app_game.inventory_returned, 1);
+        assert_eq!(
+            app_game.inventory_rows[0].source_kind,
+            APP_GAME_INVENTORY_SOURCE_SHORTCUT
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].inventory_state,
+            APP_GAME_INVENTORY_STATE_INSTALLED
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].runtime_state,
+            APP_GAME_RUNTIME_NOT_CLAIMED
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].foreground_state,
+            APP_GAME_FOREGROUND_NOT_CLAIMED
+        );
+
+        Ok(())
+    })();
 
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&inventory_root);
 
-    assert_eq!(status.events_ingested, status.events_stored);
-    assert!(events.iter().any(
-        |event| event.kind == ActivityEventKind::DeviceIdleStateObserved
-            && event.subject.subject_id == APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID
-    ));
-    assert_eq!(app_game.inventory_returned, 1);
-    assert_eq!(
-        app_game.inventory_rows[0].source_kind,
-        APP_GAME_INVENTORY_SOURCE_SHORTCUT
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].inventory_state,
-        APP_GAME_INVENTORY_STATE_INSTALLED
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].runtime_state,
-        APP_GAME_RUNTIME_NOT_CLAIMED
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].foreground_state,
-        APP_GAME_FOREGROUND_NOT_CLAIMED
-    );
+    result
 }
 
 #[test]
-fn record_capture_with_store_package_root_writes_inventory_journal_and_sqlite_rows() {
+fn record_capture_with_store_package_root_writes_inventory_journal_and_sqlite_rows() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_CAPTURE_STORE_PACKAGE_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -107,58 +123,68 @@ fn record_capture_with_store_package_root_writes_inventory_journal_and_sqlite_ro
     let store_package_root = temp_store_package_root();
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&store_package_root);
-    write_store_package_manifest(&store_package_root);
+    let result = (|| -> TestResult {
+        write_store_package_manifest(&store_package_root)?;
 
-    let status = record_activity_capture_to_paths_at_with_store_package_roots(
-        &journal_path,
-        &key_path,
-        &store_path,
-        1,
-        1,
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        std::slice::from_ref(&store_package_root),
-    )
-    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    let events = decrypted_events(&journal_path, &key_path);
-    let app_game = app_game_read_model(&store_path);
+        let status = record_activity_capture_to_paths_at_with_store_package_roots(
+            &journal_path,
+            &key_path,
+            &store_path,
+            1,
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            std::slice::from_ref(&store_package_root),
+        )
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_CAPTURE_RECORDS
+            ))
+        })?;
+        let events = decrypted_events(&journal_path, &key_path)?;
+        let app_game = app_game_read_model(&store_path)?;
+
+        assert_eq!(status.events_ingested, status.events_stored);
+        assert!(events.iter().any(|event| event.kind
+            == ActivityEventKind::DeviceIdleStateObserved
+            && event.subject.subject_id == APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID));
+        assert_eq!(app_game.inventory_returned, 1);
+        assert_eq!(
+            app_game.inventory_rows[0].display_label,
+            APP_GAME_TEST_STORE_APP_DISPLAY_LABEL
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].source_kind,
+            APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].package_id.as_deref(),
+            Some(APP_GAME_TEST_STORE_APP_PACKAGE_ID)
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].app_user_model_id.as_deref(),
+            Some(APP_GAME_TEST_STORE_PACKAGE_MANIFEST_USER_MODEL_ID)
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].runtime_state,
+            APP_GAME_RUNTIME_NOT_CLAIMED
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].foreground_state,
+            APP_GAME_FOREGROUND_NOT_CLAIMED
+        );
+
+        Ok(())
+    })();
 
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&store_package_root);
 
-    assert_eq!(status.events_ingested, status.events_stored);
-    assert!(events.iter().any(
-        |event| event.kind == ActivityEventKind::DeviceIdleStateObserved
-            && event.subject.subject_id == APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID
-    ));
-    assert_eq!(app_game.inventory_returned, 1);
-    assert_eq!(
-        app_game.inventory_rows[0].display_label,
-        APP_GAME_TEST_STORE_APP_DISPLAY_LABEL
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].source_kind,
-        APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].package_id.as_deref(),
-        Some(APP_GAME_TEST_STORE_APP_PACKAGE_ID)
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].app_user_model_id.as_deref(),
-        Some(APP_GAME_TEST_STORE_PACKAGE_MANIFEST_USER_MODEL_ID)
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].runtime_state,
-        APP_GAME_RUNTIME_NOT_CLAIMED
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].foreground_state,
-        APP_GAME_FOREGROUND_NOT_CLAIMED
-    );
+    result
 }
 
 #[test]
-fn record_capture_with_registry_root_writes_inventory_journal_and_sqlite_rows() {
+fn record_capture_with_registry_root_writes_inventory_journal_and_sqlite_rows() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -174,50 +200,60 @@ fn record_capture_with_registry_root_writes_inventory_journal_and_sqlite_rows() 
     let registry_root = temp_registry_inventory_root();
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&registry_root);
-    write_registry_inventory_export(&registry_root);
+    let result = (|| -> TestResult {
+        write_registry_inventory_export(&registry_root)?;
 
-    let status = record_activity_capture_to_paths_at_with_registry_inventory_roots(
-        &journal_path,
-        &key_path,
-        &store_path,
-        1,
-        1,
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        std::slice::from_ref(&registry_root),
-    )
-    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
-    let events = decrypted_events(&journal_path, &key_path);
-    let app_game = app_game_read_model(&store_path);
+        let status = record_activity_capture_to_paths_at_with_registry_inventory_roots(
+            &journal_path,
+            &key_path,
+            &store_path,
+            1,
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            std::slice::from_ref(&registry_root),
+        )
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_CAPTURE_RECORDS
+            ))
+        })?;
+        let events = decrypted_events(&journal_path, &key_path)?;
+        let app_game = app_game_read_model(&store_path)?;
+
+        assert_eq!(status.events_ingested, status.events_stored);
+        assert!(events.iter().any(|event| event.kind
+            == ActivityEventKind::DeviceIdleStateObserved
+            && event.subject.subject_id == APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID));
+        assert_eq!(app_game.inventory_returned, 1);
+        assert_eq!(
+            app_game.inventory_rows[0].display_label,
+            APP_GAME_TEST_DISPLAY_LABEL
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].source_kind,
+            APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].inventory_state,
+            APP_GAME_INVENTORY_STATE_INSTALLED
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].runtime_state,
+            APP_GAME_RUNTIME_NOT_CLAIMED
+        );
+        assert_eq!(
+            app_game.inventory_rows[0].foreground_state,
+            APP_GAME_FOREGROUND_NOT_CLAIMED
+        );
+
+        Ok(())
+    })();
 
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&registry_root);
 
-    assert_eq!(status.events_ingested, status.events_stored);
-    assert!(events.iter().any(
-        |event| event.kind == ActivityEventKind::DeviceIdleStateObserved
-            && event.subject.subject_id == APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID
-    ));
-    assert_eq!(app_game.inventory_returned, 1);
-    assert_eq!(
-        app_game.inventory_rows[0].display_label,
-        APP_GAME_TEST_DISPLAY_LABEL
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].source_kind,
-        APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].inventory_state,
-        APP_GAME_INVENTORY_STATE_INSTALLED
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].runtime_state,
-        APP_GAME_RUNTIME_NOT_CLAIMED
-    );
-    assert_eq!(
-        app_game.inventory_rows[0].foreground_state,
-        APP_GAME_FOREGROUND_NOT_CLAIMED
-    );
+    result
 }
 
 fn temp_path(suffix: &str, extension: &str) -> PathBuf {
@@ -265,42 +301,57 @@ fn temp_registry_inventory_root() -> PathBuf {
     path
 }
 
-fn decrypted_events(journal_path: &Path, key_path: &Path) -> Vec<ActivityEvent> {
-    let key_bytes = read(key_path).expect(constants::error::JOURNAL_READS);
+fn decrypted_events(journal_path: &Path, key_path: &Path) -> Result<Vec<ActivityEvent>, IoError> {
+    let key_bytes = read(key_path)?;
     let mut key = [0; JOURNAL_KEY_BYTES];
     key.copy_from_slice(&key_bytes);
     let journal = ActivityJournal::open(journal_path.to_path_buf(), JournalKey::from_bytes(key))
-        .expect(constants::error::JOURNAL_OPENS);
+        .map_err(|error| {
+            IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_OPENS))
+        })?;
     journal
         .lines()
-        .expect(constants::error::JOURNAL_READS)
+        .map_err(|error| IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_READS)))?
         .iter()
         .map(|line| journal.decrypt_line(line))
         .collect::<Result<Vec<_>, _>>()
-        .expect(constants::error::JOURNAL_DECRYPTS)
+        .map_err(|error| {
+            IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_DECRYPTS))
+        })
 }
 
-fn app_game_read_model(store_path: &Path) -> AppGameServiceReadModel {
-    let store = ActivityStore::open(store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+fn app_game_read_model(store_path: &Path) -> Result<AppGameServiceReadModel, IoError> {
+    let store = ActivityStore::open(store_path).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
     store
         .app_game_service_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .expect(constants::error::ACTIVITY_STORE_QUERIES)
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })
 }
 
-fn write_store_package_manifest(root: &Path) {
-    create_dir_all(root).expect(constants::error::JOURNAL_APPENDS);
+fn write_store_package_manifest(root: &Path) -> Result<(), IoError> {
+    create_dir_all(root)?;
     let mut path = root.to_path_buf();
     path.push(APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME);
-    write(path, APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML).expect(constants::error::JOURNAL_APPENDS);
+    write(path, APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML)?;
+    Ok(())
 }
 
-fn write_registry_inventory_export(root: &Path) {
-    create_dir_all(root).expect(constants::error::JOURNAL_APPENDS);
-    write(registry_export_path(root), registry_inventory_export())
-        .expect(constants::error::JOURNAL_APPENDS);
+fn write_registry_inventory_export(root: &Path) -> Result<(), IoError> {
+    create_dir_all(root)?;
+    write(registry_export_path(root), registry_inventory_export())?;
+    Ok(())
 }
 
 fn registry_export_path(root: &Path) -> PathBuf {
@@ -340,9 +391,9 @@ fn registry_key() -> String {
     key
 }
 
-fn push_registry_value(export: &mut String, name: &str, value: &str) {
+fn push_registry_value(export: &mut String, registry_value_name: &str, value: &str) {
     export.push(constants::delimiter::QUOTE);
-    export.push_str(name);
+    export.push_str(registry_value_name);
     export.push(constants::delimiter::QUOTE);
     export.push(constants::delimiter::EQUALS);
     export.push(constants::delimiter::QUOTE);

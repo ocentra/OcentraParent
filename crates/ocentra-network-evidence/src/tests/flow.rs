@@ -2,6 +2,7 @@ use crate::{
     aggregate_network_flows, aggregate_pcap_flows, dns_query_pcap_fixture, NetworkEvidenceGrade,
     NetworkFlowPacket, NetworkFlowProtocol,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn flow_aggregation_merges_reverse_direction_into_single_session() {
@@ -45,7 +46,7 @@ fn flow_aggregation_splits_same_tuple_after_idle_timeout() {
 #[test]
 fn flow_aggregation_uses_pcap_parser_packet_metadata() {
     let summary = aggregate_pcap_flows(&dns_query_pcap_fixture(), 30_000_000)
-        .expect("dns pcap fixture should aggregate");
+        .expect_value("dns pcap fixture should aggregate");
 
     assert_eq!(summary.packet_count, 1);
     assert_eq!(summary.flow_count, 1);

@@ -14,7 +14,7 @@
 
 # Setup Install Provisioning Plan Workpack Index
 
-Use this index to select exactly one workpack.
+Use this index to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
@@ -24,7 +24,15 @@ Use this index to select exactly one workpack.
 | done | [WP04 Child Install Permission Journey](workpacks/04-child-install-permission-journey.md) | 14/14 | `docs/expectations/platforms.md`, `child-agent-runtime-distribution-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/04-child-install-permission-journey/` |
 | done | [WP05 Pairing Readiness Recovery](workpacks/05-pairing-readiness-recovery.md) | 13/13 | `docs/expectations/lan-pairing.md`, `lan-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/05-pairing-readiness-recovery/` |
 | done | [WP07 First-Run Setup UI And State Machine](workpacks/07-first-run-setup-ui-and-state-machine.md) | 14/14 | `docs/expectations/family-setup.md`, `docs/expectations/portal.md` | `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/` |
-| done | [WP06 Rollout Proof And Route Gate](workpacks/06-rollout-proof-and-route-gate.md) | 15/15 | all prior workpack proof roots | `output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/` |
+| done-but-blocked-for-whole-plan | [WP06 Rollout Proof And Route Gate](workpacks/06-rollout-proof-and-route-gate.md) | 15/15 | all prior workpack proof roots | `output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/` |
+
+## Status interpretation
+
+```text
+Done means the setup-plan-owned workpack proof root/checklist closed for its local slice.
+Done does not mean deployed site, account readiness, signed installer readiness, child runtime readiness, trusted pairing, custody readiness, policy baseline readiness, entitlement readiness, or production onboarding readiness.
+WP06 can be done as a blocker/aggregation pack while whole-plan PR_READY remains false.
+```
 
 ## Default execution order
 
@@ -44,8 +52,10 @@ WP07 depends on WP01-WP05 state shapes or records UI blockers.
 WP06 is last and consumes all previous proof roots.
 ```
 
-## Do not select
+## Selection rules
 
-Do not create a new workpack unless the existing seven cannot represent the slice.
-
-Do not move account identity, runtime packaging, LAN protocol, device trust, data custody, payment, policy, or portal shell ownership into this plan.
+- Choose exactly one workpack.
+- If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`; do not scan every family.
+- Do not create a new workpack unless the existing seven cannot represent the slice.
+- Do not move account identity, runtime packaging, LAN protocol, device trust, data custody, payment, policy, or portal shell ownership into this plan.
+- Do not use done setup journey proof as production onboarding readiness while sibling-owner proofs remain blocked.

@@ -1,63 +1,86 @@
 use std::fs::{read_to_string, remove_file};
 
-use ocentra_parent_agent_protocol::{
-    constants, journal::ActivityJournalRotationPolicy, ActivityEvent, ActivityEventKind,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
-    LogFields, ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::{ActivityJournalLine, ActivityJournalRotationPolicy};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use super::{
     journal::ActivityJournal,
-    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    journal_crypto::{JOURNAL_KEY_BYTES, JournalKey},
     journal_error::JournalError,
 };
 
+type TestResult = Result<(), String>;
+
 #[test]
-fn journal_appends_encrypted_activity_without_plaintext_payload() {
+fn journal_appends_encrypted_activity_without_plaintext_payload() -> TestResult {
     let path = temp_journal_path(constants::journal::TEST_APPEND_SUFFIX);
     cleanup_journal_files(&path);
-    let mut journal =
-        ActivityJournal::open(path.clone(), test_key()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ok(
+        ActivityJournal::open(path.clone(), test_key()),
+        constants::error::JOURNAL_OPENS,
+    )?;
     let event = activity_event(constants::event_id::HEALTH_REPORTED);
 
-    let line = journal
-        .append(&event)
-        .expect(constants::error::JOURNAL_APPENDS);
-    let raw = read_to_string(&path).expect(constants::error::JOURNAL_READS);
+    let line = ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
+    let raw = ok(read_to_string(&path), constants::error::JOURNAL_READS)?;
     cleanup_journal_files(&path);
+    let persisted_line = ok(
+        serde_json::from_str::<ActivityJournalLine>(raw.trim()),
+        constants::error::JOURNAL_READS,
+    )?;
+    let expected_raw = ok(
+        serde_json::to_string(&line),
+        "serialize activity journal line",
+    )?;
+    let plaintext_event = ok(serde_json::to_string(&event), "serialize activity event")?;
 
     assert_eq!(line.event_id, constants::event_id::HEALTH_REPORTED);
-    assert!(!raw.contains(constants::field::ONLINE));
-    assert!(!raw.contains(constants::peer::LOCAL_DEV_AGENT));
+    assert_eq!(persisted_line, line);
+    assert_eq!(raw.trim(), expected_raw);
+    assert_ne!(persisted_line.ciphertext, plaintext_event);
     assert_eq!(journal.status().entries_written, 1);
+
+    Ok(())
 }
 
 #[test]
-fn journal_replays_decrypted_activity_event() {
+fn journal_replays_decrypted_activity_event() -> TestResult {
     let path = temp_journal_path(constants::journal::TEST_REPLAY_SUFFIX);
     cleanup_journal_files(&path);
     let key = test_key();
     let event = activity_event(constants::event_id::HEALTH_REPORTED);
-    let mut journal =
-        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ok(
+        ActivityJournal::open(path.clone(), key.clone()),
+        constants::error::JOURNAL_OPENS,
+    )?;
 
-    journal
-        .append(&event)
-        .expect(constants::error::JOURNAL_APPENDS);
-    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let lines = reader.lines().expect(constants::error::JOURNAL_READS);
-    let replayed = reader
-        .decrypt_line(&lines[0])
-        .expect(constants::error::JOURNAL_DECRYPTS);
+    ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
+    let reader = ok(
+        ActivityJournal::open(path.clone(), key),
+        constants::error::JOURNAL_OPENS,
+    )?;
+    let lines = ok(reader.lines(), constants::error::JOURNAL_READS)?;
+    let replayed = ok(
+        reader.decrypt_line(&lines[0]),
+        constants::error::JOURNAL_DECRYPTS,
+    )?;
     cleanup_journal_files(&path);
 
     assert_eq!(lines.len(), 1);
     assert_eq!(replayed, event);
     assert_eq!(reader.status().entries_written, 1);
+
+    Ok(())
 }
 
 #[test]
-fn journal_rotates_and_replays_segments_in_write_order() {
+fn journal_rotates_and_replays_segments_in_write_order() -> TestResult {
     let path = temp_journal_path(constants::journal::TEST_ROTATION_SUFFIX);
     cleanup_journal_files(&path);
     let key = test_key();
@@ -66,30 +89,32 @@ fn journal_rotates_and_replays_segments_in_write_order() {
     };
     let first = activity_event(constants::event_id::HEALTH_REPORTED);
     let second = activity_event(constants::event_id::LOG_SNAPSHOT_REPORTED);
-    let mut journal = ActivityJournal::open_with_policy(path.clone(), key.clone(), policy)
-        .expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ok(
+        ActivityJournal::open_with_policy(path.clone(), key.clone(), policy),
+        constants::error::JOURNAL_OPENS,
+    )?;
 
-    journal
-        .append(&first)
-        .expect(constants::error::JOURNAL_APPENDS);
-    journal
-        .append(&second)
-        .expect(constants::error::JOURNAL_APPENDS);
-    let reader = ActivityJournal::open_with_policy(
-        path.clone(),
-        key,
-        ActivityJournalRotationPolicy {
-            max_segment_bytes: constants::journal::TEST_ROTATION_BYTES,
-        },
-    )
-    .expect(constants::error::JOURNAL_OPENS);
-    let lines = reader.lines().expect(constants::error::JOURNAL_READS);
-    let replayed_first = reader
-        .decrypt_line(&lines[0])
-        .expect(constants::error::JOURNAL_DECRYPTS);
-    let replayed_second = reader
-        .decrypt_line(&lines[1])
-        .expect(constants::error::JOURNAL_DECRYPTS);
+    ok(journal.append(&first), constants::error::JOURNAL_APPENDS)?;
+    ok(journal.append(&second), constants::error::JOURNAL_APPENDS)?;
+    let reader = ok(
+        ActivityJournal::open_with_policy(
+            path.clone(),
+            key,
+            ActivityJournalRotationPolicy {
+                max_segment_bytes: constants::journal::TEST_ROTATION_BYTES,
+            },
+        ),
+        constants::error::JOURNAL_OPENS,
+    )?;
+    let lines = ok(reader.lines(), constants::error::JOURNAL_READS)?;
+    let replayed_first = ok(
+        reader.decrypt_line(&lines[0]),
+        constants::error::JOURNAL_DECRYPTS,
+    )?;
+    let replayed_second = ok(
+        reader.decrypt_line(&lines[1]),
+        constants::error::JOURNAL_DECRYPTS,
+    )?;
     cleanup_journal_files(&path);
 
     assert_eq!(lines.len(), 2);
@@ -97,23 +122,30 @@ fn journal_rotates_and_replays_segments_in_write_order() {
     assert_eq!(replayed_first.event_id, first.event_id);
     assert_eq!(replayed_second.event_id, second.event_id);
     assert_eq!(reader.status().segment_count, 2);
+
+    Ok(())
 }
 
 #[test]
-fn journal_rejects_tampered_ciphertext() {
+fn journal_rejects_tampered_ciphertext() -> TestResult {
     let path = temp_journal_path(constants::journal::TEST_TAMPER_SUFFIX);
     cleanup_journal_files(&path);
-    let mut journal =
-        ActivityJournal::open(path.clone(), test_key()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ok(
+        ActivityJournal::open(path.clone(), test_key()),
+        constants::error::JOURNAL_OPENS,
+    )?;
 
-    let mut line = journal
-        .append(&activity_event(constants::event_id::HEALTH_REPORTED))
-        .expect(constants::error::JOURNAL_APPENDS);
+    let mut line = ok(
+        journal.append(&activity_event(constants::event_id::HEALTH_REPORTED)),
+        constants::error::JOURNAL_APPENDS,
+    )?;
     line.ciphertext = line.nonce.clone();
     let result = journal.decrypt_line(&line);
     cleanup_journal_files(&path);
 
     assert!(matches!(result, Err(JournalError::Crypto)));
+
+    Ok(())
 }
 
 fn activity_event(event_id: &str) -> ActivityEvent {
@@ -170,4 +202,8 @@ fn cleanup_journal_files(path: &std::path::PathBuf) {
 
 fn test_key() -> JournalKey {
     JournalKey::from_bytes([7; JOURNAL_KEY_BYTES])
+}
+
+fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
 }

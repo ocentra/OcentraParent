@@ -215,8 +215,8 @@ mod tests {
     use super::{
         app_runtime_decision_recorded_event, app_runtime_observed_event, evaluate_app_runtime,
         AppAggregateId, AppAiHandoffState, AppCapabilityState, AppClassificationState,
-        AppForegroundState, AppPolicyHandoffState, AppRuntimeActionState,
-        AppRuntimeDecisionId, AppRuntimeInput,
+        AppForegroundState, AppPolicyHandoffState, AppRuntimeActionState, AppRuntimeDecisionId,
+        AppRuntimeInput,
     };
     use crate::AppObservationIntent;
     use ocentra_eventing::envelope::DomainEvent;
@@ -315,12 +315,24 @@ mod tests {
             foreground_state: AppForegroundState::Background,
             classification_state: AppClassificationState::InventoryOnly,
         };
-
-        let recorded = app_runtime_decision_recorded_event(
-            AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id"),
-            AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id"),
-            input,
+        let aggregate_id_result = AppAggregateId::parse("app.aggregate.child-device-1");
+        assert!(
+            aggregate_id_result.is_ok(),
+            "aggregate id parses: {aggregate_id_result:?}"
         );
+        let Ok(aggregate_id) = aggregate_id_result else {
+            return;
+        };
+        let decision_id_result = AppRuntimeDecisionId::parse("app.runtime-decision-1");
+        assert!(
+            decision_id_result.is_ok(),
+            "decision id parses: {decision_id_result:?}"
+        );
+        let Ok(decision_id) = decision_id_result else {
+            return;
+        };
+
+        let recorded = app_runtime_decision_recorded_event(aggregate_id, decision_id, input);
 
         assert_eq!(
             recorded.decision.observation_intent,
@@ -330,12 +342,16 @@ mod tests {
             recorded.decision.runtime_action_state,
             AppRuntimeActionState::RecordInventory
         );
+        let contract_result = recorded.contract();
+        assert!(
+            contract_result.is_ok(),
+            "app runtime contract parses: {contract_result:?}"
+        );
+        let Ok(contract) = contract_result else {
+            return;
+        };
         assert_eq!(
-            recorded
-                .contract()
-                .expect("app runtime contract")
-                .event_type
-                .as_str(),
+            contract.event_type.as_str(),
             "app.runtime.decision-recorded"
         );
     }

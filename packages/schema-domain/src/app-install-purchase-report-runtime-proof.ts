@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildArtifactDeliveryProofReadModel } from './app-install-purchase-child-artifact-delivery-proof';
 import { AppInstallPurchasePlatformArtifactProofReadModel } from './app-install-purchase-platform-artifact-proof';
 import {
@@ -60,7 +55,9 @@ const AppInstallPurchaseReportRuntimeNonClaimSchema = withParser(Schema.Literal(
 
 const ReportRuntimeRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeRowId');
 const ReportRuntimeRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeRef');
-const ReportRuntimeChildArtifactRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeChildArtifactRef');
+const ReportRuntimeChildArtifactRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchaseReportRuntimeChildArtifactRef'
+);
 const ReportRuntimeClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeClaimBoundary');
 
 const ReportRuntimeSurfaceRowBaseSchema = Schema.Struct({
@@ -310,4 +307,3 @@ function reportRuntimeBoundaryIsExplicit(boundary: typeof ReportRuntimeClaimBoun
     boundary.includes('no Ocentra-hosted family data custody')
   );
 }
-

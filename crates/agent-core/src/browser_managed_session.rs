@@ -6,11 +6,13 @@ use std::{
     process::Command,
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-    BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser::{
+    BrowserChannel, BrowserCustodyLabel, BrowserFamily, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::browser_managed::{
+    BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
+};
+use ocentra_parent_agent_protocol::constants;
 
 use crate::browser_managed_discovery::managed_browser_executable_identity;
 

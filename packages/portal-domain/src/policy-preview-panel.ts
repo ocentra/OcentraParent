@@ -1,4 +1,4 @@
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 import type { PortalShellParentAccessState } from './parent-portal-shell-status';
 
@@ -262,29 +262,20 @@ function previewCard(readModel: PolicyPreviewPanelReadModel): PolicyPreviewPanel
       detail(PortalDetails.TargetType, optionalValue(readModel.targetType)),
       detail(PortalDetails.TargetValue, optionalValue(readModel.targetValue)),
       detail(PortalDetails.DecisionAction, optionalValue(readModel.decisionAction)),
-      detail(PreviewDetails.SaveState, previewReadableValue(readModel.policyPreviewSaveState ?? null)),
-      detail(
-        PortalDetails.ManualReview,
-        previewReadableValue(readModel.policyPreviewManualReviewState ?? null)
-      ),
-      detail(PreviewDetails.TargetState, previewReadableValue(readModel.policyPreviewTargetState ?? null)),
-      detail(
-        PreviewDetails.TargetExplanationCode,
-        optionalValue(readModel.policyPreviewTargetExplanationCode ?? null)
-      ),
-      detail(PreviewDetails.FindingKinds, optionalValue(readModel.policyPreviewFindingKinds ?? null)),
-      detail(PreviewDetails.RequestOrigin, previewReadableValue(readModel.policyRequestOrigin ?? null)),
-      detail(
-        PreviewDetails.AssistantConfirmation,
-        previewReadableValue(readModel.policyAssistantConfirmationState ?? null)
-      ),
-      detail(PreviewDetails.RequestStatus, previewReadableValue(readModel.policyRequestStatus ?? null)),
-      detail(PreviewDetails.ApprovalId, optionalValue(readModel.policyApprovalId ?? null)),
-      detail(PreviewDetails.OverrideId, optionalValue(readModel.policyOverrideId ?? null)),
-      detail(PreviewDetails.ReplayOfApproval, optionalValue(readModel.policyReplayOfApprovalId ?? null)),
+      detail(PreviewDetails.SaveState, previewReadableValue(readModel.policyPreviewSaveState)),
+      detail(PortalDetails.ManualReview, previewReadableValue(readModel.policyPreviewManualReviewState)),
+      detail(PreviewDetails.TargetState, previewReadableValue(readModel.policyPreviewTargetState)),
+      detail(PreviewDetails.TargetExplanationCode, optionalValue(readModel.policyPreviewTargetExplanationCode)),
+      detail(PreviewDetails.FindingKinds, optionalValue(readModel.policyPreviewFindingKinds)),
+      detail(PreviewDetails.RequestOrigin, previewReadableValue(readModel.policyRequestOrigin)),
+      detail(PreviewDetails.AssistantConfirmation, previewReadableValue(readModel.policyAssistantConfirmationState)),
+      detail(PreviewDetails.RequestStatus, previewReadableValue(readModel.policyRequestStatus)),
+      detail(PreviewDetails.ApprovalId, optionalValue(readModel.policyApprovalId)),
+      detail(PreviewDetails.OverrideId, optionalValue(readModel.policyOverrideId)),
+      detail(PreviewDetails.ReplayOfApproval, optionalValue(readModel.policyReplayOfApprovalId)),
       detail(PreviewDetails.ReviewedBy, reviewedByValue(readModel)),
-      detail(PreviewDetails.ReviewedAt, optionalValue(readModel.policyReviewedAt ?? null)),
-      detail(PreviewDetails.AuditReference, optionalValue(readModel.policyAuditReferenceId ?? null)),
+      detail(PreviewDetails.ReviewedAt, optionalValue(readModel.policyReviewedAt)),
+      detail(PreviewDetails.AuditReference, optionalValue(readModel.policyAuditReferenceId)),
     ],
   };
 }
@@ -307,7 +298,7 @@ function sourceCard(readModel: PolicyPreviewPanelReadModel): PolicyPreviewPanelC
     summary: sourceLifecycleSummary(sourceStatus),
     details: [
       detail(PreviewDetails.SourceStatus, previewReadableValue(sourceStatus)),
-      detail(PreviewDetails.SourceSurface, previewReadableValue(readModel.policySourceSurface ?? null)),
+      detail(PreviewDetails.SourceSurface, previewReadableValue(readModel.policySourceSurface)),
     ],
   };
 }
@@ -321,17 +312,14 @@ function accessCard(
     summary: accessSummary(parentAccessState, readModel),
     details: [
       detail(PreviewDetails.ParentAccess, parentAccessReadableValue(parentAccessState)),
-      detail(
-        PreviewDetails.AssistantConfirmation,
-        previewReadableValue(readModel?.policyAssistantConfirmationState ?? null)
-      ),
-      detail(PreviewDetails.RequestStatus, previewReadableValue(readModel?.policyRequestStatus ?? null)),
-      detail(PreviewDetails.ApprovalId, optionalValue(readModel?.policyApprovalId ?? null)),
-      detail(PreviewDetails.OverrideId, optionalValue(readModel?.policyOverrideId ?? null)),
-      detail(PreviewDetails.ReplayOfApproval, optionalValue(readModel?.policyReplayOfApprovalId ?? null)),
+      detail(PreviewDetails.AssistantConfirmation, previewReadableValue(readModel?.policyAssistantConfirmationState)),
+      detail(PreviewDetails.RequestStatus, previewReadableValue(readModel?.policyRequestStatus)),
+      detail(PreviewDetails.ApprovalId, optionalValue(readModel?.policyApprovalId)),
+      detail(PreviewDetails.OverrideId, optionalValue(readModel?.policyOverrideId)),
+      detail(PreviewDetails.ReplayOfApproval, optionalValue(readModel?.policyReplayOfApprovalId)),
       detail(PreviewDetails.ReviewedBy, reviewedByValue(readModel)),
-      detail(PreviewDetails.ReviewedAt, optionalValue(readModel?.policyReviewedAt ?? null)),
-      detail(PreviewDetails.AuditReference, optionalValue(readModel?.policyAuditReferenceId ?? null)),
+      detail(PreviewDetails.ReviewedAt, optionalValue(readModel?.policyReviewedAt)),
+      detail(PreviewDetails.AuditReference, optionalValue(readModel?.policyAuditReferenceId)),
       detail(PreviewDetails.WriteAuthority, accessWriteAuthority(parentAccessState, readModel)),
     ],
   };
@@ -348,8 +336,7 @@ function boundaryCard(): PolicyPreviewPanelCard {
 function previewSummary(readModel: PolicyPreviewPanelReadModel): DisplayText {
   if (
     readModel.policyRequestOrigin === PreviewState.RequestOrigin.AssistantDraft &&
-    readModel.policyAssistantConfirmationState !==
-      PreviewState.AssistantConfirmationState.ParentConfirmed
+    readModel.policyAssistantConfirmationState !== PreviewState.AssistantConfirmationState.ParentConfirmed
   ) {
     return decodeDisplayText('Assistant draft remains preview-only until parent confirmation.');
   }
@@ -382,10 +369,7 @@ function sourceLifecycleSummary(sourceStatus: string): DisplayText {
   if (sourceStatus === PreviewState.SourceStatus.Acknowledged) {
     return decodeDisplayText('Acknowledged delivery is reported, but active enforcement is separate.');
   }
-  if (
-    sourceStatus === PreviewState.SourceStatus.Active ||
-    sourceStatus === PreviewState.SourceStatus.PartiallyActive
-  ) {
+  if (sourceStatus === PreviewState.SourceStatus.Active || sourceStatus === PreviewState.SourceStatus.PartiallyActive) {
     return decodeDisplayText('Active lifecycle is adapter-owned and stays distinct from delivery or audit claims.');
   }
   return displayText(`Source lifecycle: ${String(previewReadableValue(sourceStatus))}`);
@@ -395,37 +379,74 @@ function accessSummary(
   parentAccessState: PortalShellParentAccessState,
   readModel: PolicyPreviewPanelReadModel | null
 ): DisplayText {
-  if (parentAccessState === 'observer-only') {
-    return decodeDisplayText('Observer-only parents can review policy explanation but cannot confirm or save writes.');
+  const parentAccessSummary = parentAccessSummaryText(parentAccessState);
+  if (parentAccessSummary !== null) {
+    return parentAccessSummary;
   }
-  if (parentAccessState === 'unauthenticated') {
-    return decodeDisplayText('Sign-in is required before reviewing or confirming policy changes.');
-  }
-  if (parentAccessState === 'proof-missing') {
-    return decodeDisplayText('Parent authority proof is missing, so the portal cannot claim write permission.');
-  }
-  if (readModel?.policyRequestStatus === PreviewState.RequestStatus.ReplayRejected) {
+  if (isReplayRejected(readModel)) {
     return decodeDisplayText('The latest approval attempt was rejected as a replay, so no new override was created.');
   }
-  if (readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmationRequired) {
-    return decodeDisplayText('Controller authority is present, but parent confirmation is still required before any write.');
+  if (requiresParentConfirmation(readModel)) {
+    return decodeDisplayText(
+      'Controller authority is present, but parent confirmation is still required before any write.'
+    );
   }
-  if (
-    readModel?.policyAuditReferenceId !== null &&
-    readModel?.policyAuditReferenceId !== undefined &&
-    (readModel?.policyRequestStatus === PreviewState.RequestStatus.Approved ||
-      readModel?.policyRequestStatus === PreviewState.RequestStatus.Modified ||
-      readModel?.policyRequestStatus === PreviewState.RequestStatus.Denied)
-  ) {
-    return decodeDisplayText('Controller review is recorded with reviewer and audit details, but delivery and enforcement remain separate states.');
+  if (hasRecordedAuditDecision(readModel)) {
+    return decodeDisplayText(
+      'Controller review is recorded with reviewer and audit details, but delivery and enforcement remain separate states.'
+    );
   }
-  if (
+  if (hasConfirmedControllerDecision(readModel)) {
+    return decodeDisplayText(
+      'Controller confirmation is recorded, but delivery and enforcement remain separate states.'
+    );
+  }
+  return decodeDisplayText(
+    'Controller authority is present, but the portal still treats this policy path as preview-only.'
+  );
+}
+
+function parentAccessSummaryText(parentAccessState: PortalShellParentAccessState): DisplayText | null {
+  switch (parentAccessState) {
+    case 'observer-only':
+      return decodeDisplayText(
+        'Observer-only parents can review policy explanation but cannot confirm or save writes.'
+      );
+    case 'unauthenticated':
+      return decodeDisplayText('Sign-in is required before reviewing or confirming policy changes.');
+    case 'proof-missing':
+      return decodeDisplayText('Parent authority proof is missing, so the portal cannot claim write permission.');
+    default:
+      return null;
+  }
+}
+
+function isReplayRejected(readModel: PolicyPreviewPanelReadModel | null): boolean {
+  return readModel?.policyRequestStatus === PreviewState.RequestStatus.ReplayRejected;
+}
+
+function requiresParentConfirmation(readModel: PolicyPreviewPanelReadModel | null): boolean {
+  return (
+    readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmationRequired
+  );
+}
+
+function hasRecordedAuditDecision(readModel: PolicyPreviewPanelReadModel | null): boolean {
+  if (readModel?.policyAuditReferenceId === null || readModel?.policyAuditReferenceId === undefined) {
+    return false;
+  }
+  return [
+    PreviewState.RequestStatus.Approved,
+    PreviewState.RequestStatus.Modified,
+    PreviewState.RequestStatus.Denied,
+  ].some((status) => status === readModel.policyRequestStatus);
+}
+
+function hasConfirmedControllerDecision(readModel: PolicyPreviewPanelReadModel | null): boolean {
+  return (
     readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmed ||
     readModel?.policyRequestStatus === PreviewState.RequestStatus.Approved
-  ) {
-    return decodeDisplayText('Controller confirmation is recorded, but delivery and enforcement remain separate states.');
-  }
-  return decodeDisplayText('Controller authority is present, but the portal still treats this policy path as preview-only.');
+  );
 }
 
 function accessWriteAuthority(
@@ -444,7 +465,9 @@ function accessWriteAuthority(
   if (readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmed) {
     return decodeDisplayText('Parent-confirmed preview is visible, but the portal still has no typed write command.');
   }
-  if (readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmationRequired) {
+  if (
+    readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmationRequired
+  ) {
     return decodeDisplayText('Parent confirmation is required before any write.');
   }
   return decodeDisplayText('Preview-only route; no typed write command is exposed from this surface.');
@@ -473,8 +496,8 @@ function boundaryDetails(): readonly PolicyPreviewPanelDetail[] {
   ];
 }
 
-function previewReadableValue(value: string | null): DisplayText {
-  if (value === null) {
+function previewReadableValue(value: string | null | undefined): DisplayText {
+  if (value === null || value === undefined) {
     return optionalValue(null);
   }
   return PreviewReadableValues[value] ?? PortalReadableValues[value] ?? displayText(value);
@@ -496,8 +519,8 @@ function reviewedByValue(readModel: PolicyPreviewPanelReadModel | null): Display
   return optionalValue(actorId ?? actorRole);
 }
 
-function optionalValue(value: string | null): DisplayText {
-  if (value === null || value.length === 0) {
+function optionalValue(value: string | null | undefined): DisplayText {
+  if (value === null || value === undefined || value.length === 0) {
     return decodeDisplayText('Not reported');
   }
   return displayText(value);

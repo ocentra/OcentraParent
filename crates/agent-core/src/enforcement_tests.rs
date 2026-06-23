@@ -1,18 +1,48 @@
+use std::fmt::Debug;
+
 use super::*;
-use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
-    EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
-    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform,
-    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecision;
+use ocentra_parent_agent_protocol::activity::policy::PolicyDecisionHandoffState;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementCapabilityState,
+    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementIntent,
+    EnforcementIntentSource, EnforcementMode, EnforcementPermissionState, EnforcementResultStatus,
+    EnforcementRollbackState, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants as policy;
+
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
+    match result {
+        Ok(_) => Err(format!("{context}: expected error")),
+        Err(error) => Ok(error),
+    }
+}
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
 
 #[test]
-fn dry_run_decision_never_requests_adapter_execution() {
+fn dry_run_decision_never_requests_adapter_execution() -> TestResult {
     let input = boundary_input(policy_decision(true), supported_capability());
 
-    let outcome = evaluate_enforcement_boundary(input).expect(policy::TEST_DECISION_ID);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        policy::TEST_DECISION_ID,
+    )?;
 
     assert!(outcome.action.dry_run);
     assert_eq!(
@@ -40,55 +70,71 @@ fn dry_run_decision_never_requests_adapter_execution() {
     assert_eq!(
         outcome
             .timer_event
-            .expect(policy::TEST_EXPIRES_AT)
+            .as_ref()
+            .ok_or_else(|| policy::TEST_EXPIRES_AT.to_string())?
             .timer_event_kind
             .as_protocol_str(),
         enforcement::TIMER_CREATED
     );
-    let authorization = authorize_enforcement_boundary(boundary_input(
-        policy_decision(true),
-        supported_capability(),
-    ))
-    .expect(enforcement::ADAPTER_DRY_RUN_NO_ACTION);
+    let authorization = ok(
+        authorize_enforcement_boundary(boundary_input(
+            policy_decision(true),
+            supported_capability(),
+        )),
+        enforcement::ADAPTER_DRY_RUN_NO_ACTION,
+    )?;
 
     assert!(authorization.action.dry_run);
     assert_eq!(authorization.adapter_request, None);
+
+    Ok(())
 }
 
 #[test]
-fn mismatched_policy_decision_id_rejects_before_action_building() {
+fn mismatched_policy_decision_id_rejects_before_action_building() -> TestResult {
     let mut input = boundary_input(policy_decision(true), supported_capability());
     input.intent.policy_decision_id = enforcement::TEST_RESULT_ID.to_string();
 
-    let rejected = evaluate_enforcement_boundary(input)
-        .expect_err(enforcement::REJECTION_DECISION_ID_MISMATCH);
+    let rejected = err(
+        evaluate_enforcement_boundary(input),
+        enforcement::REJECTION_DECISION_ID_MISMATCH,
+    )?;
 
     assert_eq!(
         rejected.as_protocol_str(),
         enforcement::REJECTION_DECISION_ID_MISMATCH
     );
+
+    Ok(())
 }
 
 #[test]
-fn missing_policy_evidence_rejects_before_adapter_path() {
+fn missing_policy_evidence_rejects_before_adapter_path() -> TestResult {
     let mut decision = policy_decision(false);
     decision.evidence_references = Vec::new();
     let input = boundary_input(decision, supported_capability());
 
-    let rejected =
-        evaluate_enforcement_boundary(input).expect_err(enforcement::REJECTION_MISSING_EVIDENCE);
+    let rejected = err(
+        evaluate_enforcement_boundary(input),
+        enforcement::REJECTION_MISSING_EVIDENCE,
+    )?;
 
     assert_eq!(
         rejected.as_protocol_str(),
         enforcement::REJECTION_MISSING_EVIDENCE
     );
+
+    Ok(())
 }
 
 #[test]
-fn unavailable_capability_returns_auditable_unavailable_result() {
+fn unavailable_capability_returns_auditable_unavailable_result() -> TestResult {
     let input = boundary_input(policy_decision(false), unavailable_capability());
 
-    let outcome = evaluate_enforcement_boundary(input).expect(enforcement::ADAPTER_UNAVAILABLE);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        enforcement::ADAPTER_UNAVAILABLE,
+    )?;
 
     assert_eq!(
         outcome.result.status.as_protocol_str(),
@@ -102,11 +148,10 @@ fn unavailable_capability_returns_auditable_unavailable_result() {
         outcome.result.rollback_state.as_protocol_str(),
         enforcement::ROLLBACK_UNAVAILABLE
     );
-    let unavailable_status = outcome
-        .result
-        .unavailable_status
-        .as_ref()
-        .expect(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM);
+    let unavailable_status = some(
+        outcome.result.unavailable_status.as_ref(),
+        enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM,
+    )?;
     assert_eq!(
         unavailable_status.unavailable_reason.as_protocol_str(),
         enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM
@@ -125,7 +170,7 @@ fn unavailable_capability_returns_auditable_unavailable_result() {
             .audit_event
             .unavailable_status
             .as_ref()
-            .expect(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
+            .ok_or_else(|| enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM.to_string())?
             .unavailable_reason
             .as_protocol_str(),
         enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM
@@ -135,13 +180,18 @@ fn unavailable_capability_returns_auditable_unavailable_result() {
         enforcement::AUDIT_UNAVAILABLE
     );
     assert_eq!(outcome.adapter_request, None);
+
+    Ok(())
 }
 
 #[test]
-fn unsupported_action_returns_typed_unavailable_status_without_adapter_execution() {
+fn unsupported_action_returns_typed_unavailable_status_without_adapter_execution() -> TestResult {
     let input = boundary_input(policy_decision(false), unsupported_action_capability());
 
-    let outcome = evaluate_enforcement_boundary(input).expect(enforcement::ADAPTER_UNAVAILABLE);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        enforcement::ADAPTER_UNAVAILABLE,
+    )?;
 
     assert_eq!(
         outcome.result.status.as_protocol_str(),
@@ -152,7 +202,7 @@ fn unsupported_action_returns_typed_unavailable_status_without_adapter_execution
             .result
             .unavailable_status
             .as_ref()
-            .expect(enforcement::UNAVAILABLE_UNSUPPORTED_ACTION)
+            .ok_or_else(|| enforcement::UNAVAILABLE_UNSUPPORTED_ACTION.to_string())?
             .unavailable_reason
             .as_protocol_str(),
         enforcement::UNAVAILABLE_UNSUPPORTED_ACTION
@@ -162,11 +212,13 @@ fn unsupported_action_returns_typed_unavailable_status_without_adapter_execution
         Some(enforcement::UNAVAILABLE_UNSUPPORTED_ACTION)
     );
     assert_eq!(outcome.adapter_request, None);
+
+    Ok(())
 }
 
 #[test]
-fn manual_required_network_and_browser_targets_return_unavailable_audit_without_adapter_execution()
-{
+fn manual_required_network_and_browser_targets_return_unavailable_audit_without_adapter_execution(
+) -> TestResult {
     for (target_type, capability, expected_adapter_kind) in [
         (
             PolicyTargetType::Domain,
@@ -182,8 +234,10 @@ fn manual_required_network_and_browser_targets_return_unavailable_audit_without_
         let mut input = boundary_input(policy_decision(false), capability);
         input.intent.target.target_type = target_type;
         input.intent.target.target_value = enforcement::TEST_PROCESS_TARGET_VALUE.to_string();
-        let outcome =
-            evaluate_enforcement_boundary(input).expect(enforcement::UNAVAILABLE_MANUAL_REQUIRED);
+        let outcome = ok(
+            evaluate_enforcement_boundary(input),
+            enforcement::UNAVAILABLE_MANUAL_REQUIRED,
+        )?;
 
         assert_eq!(outcome.action.adapter_kind, expected_adapter_kind);
         assert_eq!(
@@ -201,40 +255,48 @@ fn manual_required_network_and_browser_targets_return_unavailable_audit_without_
         );
         assert_eq!(outcome.adapter_request, None);
     }
+
+    Ok(())
 }
 
 #[test]
-fn supported_non_dry_run_requires_adapter_outcome_for_process_control() {
+fn supported_non_dry_run_requires_adapter_outcome_for_process_control() -> TestResult {
     let input = boundary_input(policy_decision(false), supported_capability());
 
-    let rejected = evaluate_enforcement_boundary(input)
-        .expect_err(enforcement::REJECTION_ADAPTER_RESULT_REQUIRED);
+    let rejected = err(
+        evaluate_enforcement_boundary(input),
+        enforcement::REJECTION_ADAPTER_RESULT_REQUIRED,
+    )?;
 
     assert_eq!(
         rejected.as_protocol_str(),
         enforcement::REJECTION_ADAPTER_RESULT_REQUIRED
     );
 
-    let authorization = authorize_enforcement_boundary(boundary_input(
-        policy_decision(false),
-        supported_capability(),
-    ))
-    .expect(enforcement::ADAPTER_PROCESS_TERMINATED);
+    let authorization = ok(
+        authorize_enforcement_boundary(boundary_input(
+            policy_decision(false),
+            supported_capability(),
+        )),
+        enforcement::ADAPTER_PROCESS_TERMINATED,
+    )?;
 
     assert!(!authorization.action.dry_run);
     assert_eq!(
         authorization
             .adapter_request
             .as_ref()
-            .expect(enforcement::TEST_ACTION_ID)
+            .ok_or_else(|| enforcement::TEST_ACTION_ID.to_string())?
             .mode
             .as_protocol_str(),
         enforcement::MODE_TERMINATE_PROCESS
     );
+
+    Ok(())
 }
 
 #[test]
-fn adapter_outcome_maps_to_success_result_and_audit() {
+fn adapter_outcome_maps_to_success_result_and_audit() -> TestResult {
     let mut input = boundary_input(policy_decision(false), supported_capability());
     input.adapter_outcome = Some(EnforcementAdapterOutcome {
         status: EnforcementResultStatus::ActuallyEnforced,
@@ -246,8 +308,10 @@ fn adapter_outcome_maps_to_success_result_and_audit() {
         rollback_state: EnforcementRollbackState::Available,
     });
 
-    let outcome =
-        evaluate_enforcement_boundary(input).expect(enforcement::ADAPTER_PROCESS_TERMINATED);
+    let outcome = ok(
+        evaluate_enforcement_boundary(input),
+        enforcement::ADAPTER_PROCESS_TERMINATED,
+    )?;
 
     assert_eq!(
         outcome.result.status.as_protocol_str(),
@@ -263,10 +327,12 @@ fn adapter_outcome_maps_to_success_result_and_audit() {
     );
     assert_eq!(outcome.audit_event.unavailable_status, None);
     assert_eq!(outcome.adapter_request, None);
+
+    Ok(())
 }
 
 #[test]
-fn process_adapter_reports_real_platform_result_with_explicit_rollback_state() {
+fn process_adapter_reports_real_platform_result_with_explicit_rollback_state() -> TestResult {
     let outcome = terminate_owned_process(
         OwnedProcessTerminationTarget {
             pid: u32::MAX,
@@ -298,6 +364,8 @@ fn process_adapter_reports_real_platform_result_with_explicit_rollback_state() {
             enforcement::ROLLBACK_UNAVAILABLE
         );
     }
+
+    Ok(())
 }
 
 fn boundary_input(

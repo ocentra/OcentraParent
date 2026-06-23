@@ -54,7 +54,7 @@ const proof = {
       'docs/product-capability-checklist.md update deferred to primary/shared checklist sequencing for product status row changes',
   },
   evidence: {
-    source: 'packages/app-game-domain/src/app-install-purchase-limitation-summary-proof.ts',
+    source: 'packages/schema-domain/src/app-install-purchase-limitation-summary-proof.ts',
     tests: 'packages/app-game-domain/tests/unit/app-install-purchase-limitation-summary-proof.test.ts',
     output: 'test-results/app-install-purchase-limitation-summary-proof/proof.json',
   },

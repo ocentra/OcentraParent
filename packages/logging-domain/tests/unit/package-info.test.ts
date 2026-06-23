@@ -1,5 +1,10 @@
 import { expect, it } from 'vitest';
-import { AgentLogSnapshotSchema, DevLogEntrySchema, DevLogMessage, LogSource } from '@ocentra-parent/schema-domain/contracts';
+import {
+  AgentLogSnapshotSchema,
+  DevLogEntrySchema,
+  DevLogMessage,
+  LogSource,
+} from '@ocentra-parent/schema-domain/logging-contracts';
 import { LoggingDomainPackage } from '../../src/package-info';
 
 it('LoggingDomainPackage: identifies the operational logging boundary', () => {

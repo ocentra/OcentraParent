@@ -1,9 +1,4 @@
-﻿import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+﻿import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   AppGameChildUxLocalOutboxBridgeReadModelSchema,
   AppGameChildUxLocalOutboxBridgeStatus,
@@ -31,8 +26,12 @@ export const AppGameChildUxLocalOutboxSchedulerBridgeStatus = {
 export const AppGameChildUxLocalOutboxSchedulerBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxLocalOutboxSchedulerBridgeStatus))
 );
-export const AppGameChildUxLocalOutboxSchedulerBridgeIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxSchedulerBridgeId');
-export const AppGameChildUxLocalOutboxSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxSchedulerBridgeReference');
+export const AppGameChildUxLocalOutboxSchedulerBridgeIdSchema = brandedNonEmptyStringSchema(
+  'AppGameChildUxLocalOutboxSchedulerBridgeId'
+);
+export const AppGameChildUxLocalOutboxSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameChildUxLocalOutboxSchedulerBridgeReference'
+);
 
 const AppGameChildUxLocalOutboxSchedulerBridgeRowBaseSchema = Schema.Struct({
   schedulerBridgeRecordId: AppGameChildUxLocalOutboxSchedulerBridgeReferenceSchema,
@@ -251,26 +250,50 @@ function appGameChildUxLocalOutboxSchedulerBridgeReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxSchedulerBridgeReadModelBaseSchema>
 ): boolean {
   return (
+    appGameChildUxLocalOutboxSchedulerBridgeCountsAreHonest(readModel) &&
+    appGameChildUxLocalOutboxSchedulerBridgeNonClaimsArePresent(readModel) &&
+    appGameChildUxLocalOutboxSchedulerBridgeClaimsRemainScoped(readModel)
+  );
+}
+
+function appGameChildUxLocalOutboxSchedulerBridgeCountsAreHonest(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxSchedulerBridgeReadModelBaseSchema>
+): boolean {
+  return (
     readModel.scheduledRecordCount ===
       countRows(readModel.rows, AppGameChildUxLocalOutboxSchedulerBridgeStatus.ScheduledLocal) &&
     readModel.unscheduledManualRequiredCount ===
       countRows(readModel.rows, AppGameChildUxLocalOutboxSchedulerBridgeStatus.ManualRequired) &&
     readModel.unscheduledUnavailableCount ===
-      countRows(readModel.rows, AppGameChildUxLocalOutboxSchedulerBridgeStatus.Unavailable) &&
-    RequiredNotificationLocalOutboxSchedulerNonClaims.every((claim) => readModel.schedulerNonClaims.includes(claim)) &&
-    !readModel.childDeliveryRuntimeClaimed &&
-    !readModel.providerDeliveryRuntimeClaimed &&
-    !readModel.providerReceiptIngestionClaimed &&
-    !readModel.providerCredentialsClaimed &&
-    !readModel.cloudRoutingClaimed &&
-    !readModel.parentNotificationUiClaimed &&
-    !readModel.retryExecutionRuntimeClaimed &&
-    !readModel.quietHoursTimerRuntimeClaimed &&
-    !readModel.productionDurableOutboxStorageClaimed &&
-    !readModel.adapterDispatchClaimed &&
-    !readModel.platformEnforcementClaimed &&
-    !readModel.rawPrivateSourceRowsIncluded
+      countRows(readModel.rows, AppGameChildUxLocalOutboxSchedulerBridgeStatus.Unavailable)
   );
+}
+
+function appGameChildUxLocalOutboxSchedulerBridgeNonClaimsArePresent(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxSchedulerBridgeReadModelBaseSchema>
+): boolean {
+  return RequiredNotificationLocalOutboxSchedulerNonClaims.every((claim) =>
+    readModel.schedulerNonClaims.includes(claim)
+  );
+}
+
+function appGameChildUxLocalOutboxSchedulerBridgeClaimsRemainScoped(
+  readModel: Infer<typeof AppGameChildUxLocalOutboxSchedulerBridgeReadModelBaseSchema>
+): boolean {
+  return [
+    readModel.childDeliveryRuntimeClaimed,
+    readModel.providerDeliveryRuntimeClaimed,
+    readModel.providerReceiptIngestionClaimed,
+    readModel.providerCredentialsClaimed,
+    readModel.cloudRoutingClaimed,
+    readModel.parentNotificationUiClaimed,
+    readModel.retryExecutionRuntimeClaimed,
+    readModel.quietHoursTimerRuntimeClaimed,
+    readModel.productionDurableOutboxStorageClaimed,
+    readModel.adapterDispatchClaimed,
+    readModel.platformEnforcementClaimed,
+    readModel.rawPrivateSourceRowsIncluded,
+  ].every((claim) => claim === false);
 }
 
 function countRows(
@@ -279,4 +302,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiParentExplanationIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserAiParentExplanationId')
@@ -58,4 +53,3 @@ export const BrowserAiParentExplanationTextToken = {
   Degraded: BrowserAiParentExplanationTextTokenSchema.parse('browser.parent.explanation.degraded'),
   Audit: BrowserAiParentExplanationTextTokenSchema.parse('browser.parent.explanation.audit'),
 } as const;
-

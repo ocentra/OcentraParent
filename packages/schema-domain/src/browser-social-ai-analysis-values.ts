@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import {
   BrowserAiModelRuntimeRefSchema,
@@ -95,4 +90,3 @@ function browserSocialAiPromptTemplateIsConsistent(value: Infer<typeof BrowserSo
     !value.capturesScreenshot
   );
 }
-

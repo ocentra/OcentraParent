@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PortalConnectionState } from '@ocentra-parent/portal-domain/contracts';
-import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { PortalConnectionState } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { shouldRequestNetworkFlowReadModelForRoute } from '../../src/portal-route-refresh';
 
 describe('portal route refresh', () => {

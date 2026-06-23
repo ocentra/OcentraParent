@@ -4,11 +4,14 @@ use std::{
 };
 
 use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
 #[cfg(windows)]
-use ocentra_parent_agent_protocol::{constants, APP_GAME_WINDOWS_PATH_WINDOWS_APPS};
-use ocentra_parent_agent_protocol::{
-    ActivityEvent, APP_GAME_INVENTORY_ENTRY_ID_PREFIX, APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
+use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_PATH_WINDOWS_APPS;
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_INVENTORY_ENTRY_ID_PREFIX, APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
 };
+#[cfg(windows)]
+use ocentra_parent_agent_protocol::constants;
 use sha2::{Digest, Sha256};
 
 use super::{

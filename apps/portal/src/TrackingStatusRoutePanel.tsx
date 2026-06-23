@@ -1,16 +1,26 @@
 import React, { type ReactElement } from 'react';
-import {
-  AgentCommand,
-  AgentEvent,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import {
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { defaultAgentTrackingRetentionSettingsWriteRequest } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,
   type TrackingChildCheckInProof,
   type TrackingChildRuntimeUiProof,
 } from '@ocentra-parent/portal-domain/tracking-child-check-in-proof';
+import {
+  TrackingEvidenceDrawerHostedUiProofDetails,
+  trackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-evidence-drawer-hosted-ui-proof';
 import {
   TrackingMissingDeviceHostedUiDetails,
   trackingMissingDeviceHostedUiProof,
@@ -35,17 +45,9 @@ import {
   type TrackingReportPolicyConsumerHostedUiProof,
 } from '@ocentra-parent/portal-domain/tracking-report-policy-consumer-hosted-ui-proof';
 import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
-import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import {
-  TrackingEvidenceDrawerHostedUiProofDetails,
-  trackingEvidenceDrawerHostedUiProof,
-  type TrackingEvidenceDrawerHostedUiProof,
-} from '@ocentra-parent/portal-domain/tracking-evidence-drawer-hosted-ui-proof';
+  trackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
 import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
@@ -59,24 +61,8 @@ import {
   type TrackingStatusProofRow,
   type TrackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/tracking-status-panel';
-import {
-  trackingRetentionSettingsHostedUiProof,
-  type TrackingRetentionSettingsHostedUiProof,
-} from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
-import {
-  isPortalTrackingStatusRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
-import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
-import {
-  type TrackingStatusProofArtifact,
-} from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
-
-export function shouldRenderTrackingStatusRoute(route: PortalRouteValue): boolean {
-  return isPortalTrackingStatusRoute(route);
-}
 
 export function TrackingStatusRoutePanel({
   actions,
@@ -91,14 +77,16 @@ export function TrackingStatusRoutePanel({
   const serviceDataCoverage = trackingStatusServiceDataCoverage(liveActivity);
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.TrackingStatusSurface)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.TrackingStatusSurface)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{PortalText.Resolve(PortalTextToken.TrackingFirstTarget)}</p>
-          <h2>{PortalText.Resolve(PortalTextToken.TrackingStatusSurface)}</h2>
-          <p>{PortalText.Resolve(PortalTextToken.TrackingStatusSurfaceBody)}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>
+            {resolvePortalDevText(PortalDevTextToken.TrackingFirstTarget)}
+          </p>
+          <h2>{resolvePortalDevText(PortalDevTextToken.TrackingStatusSurface)}</h2>
+          <p>{resolvePortalDevText(PortalDevTextToken.TrackingStatusSurfaceBody)}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
@@ -108,7 +96,7 @@ export function TrackingStatusRoutePanel({
               actions.sendCommand(AgentCommand.ActivityTrackingReadModelGet, {});
             }}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityTrackingReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityTrackingReadModel)}
           </button>
         </header>
         <div
@@ -607,7 +595,7 @@ function TrackingRetentionSettingsHostedUiProofCard({
           });
         }}
       >
-        {PortalText.Resolve(PortalTextToken.TrackingRetentionSettingsWritePreflightButton)}
+        {resolvePortalDevText(PortalDevTextToken.TrackingRetentionSettingsWritePreflightButton)}
       </button>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />

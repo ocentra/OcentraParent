@@ -4,13 +4,13 @@ use std::collections::BTreeSet;
 
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicySourceStatus, PolicySourceSurface,
+};
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
 const POLICY_SOURCE_SCHEMA_VERSION_VALUE: u16 = 1;
-
-pub type PolicySourceWriteSurface = ocentra_parent_agent_protocol::PolicySourceSurface;
-pub type PolicySourceDocumentStatus = ocentra_parent_agent_protocol::PolicySourceStatus;
 
 macro_rules! policy_source_text_id {
     ($name:ident, $field:expr) => {
@@ -325,10 +325,10 @@ pub struct ParentPolicySourceDocument {
     pub document_id: ParentPolicyDocumentId,
     pub household_id: PolicyHouseholdId,
     pub policy_version: PolicyVersion,
-    pub source_surface: PolicySourceWriteSurface,
+    pub source_surface: PolicySourceSurface,
     pub actor_id: PolicyActorId,
     pub actor_role: ParentPolicyActorRole,
-    pub status: PolicySourceDocumentStatus,
+    pub status: PolicySourceStatus,
     pub child_profile_ids: Vec<PolicyChildProfileId>,
     pub device_ids: Vec<PolicyDeviceId>,
     pub rules: Vec<ParentPolicyRule>,
@@ -370,7 +370,7 @@ pub struct PolicyAuditEvent {
     pub policy_version: PolicyVersion,
     pub actor_id: PolicyActorId,
     pub actor_role: ParentPolicyActorRole,
-    pub status: PolicySourceDocumentStatus,
+    pub status: PolicySourceStatus,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -508,7 +508,7 @@ pub fn mark_parent_policy_source_document_active(
     }
 
     let mut activated = document.clone();
-    activated.status = PolicySourceDocumentStatus::Active;
+    activated.status = PolicySourceStatus::Active;
     validate_parent_policy_source_document(&activated)?;
     Ok(activated)
 }
@@ -541,7 +541,7 @@ pub fn supersede_parent_policy_source_document(
     }
 
     let mut superseded = current.clone();
-    superseded.status = PolicySourceDocumentStatus::Superseded;
+    superseded.status = PolicySourceStatus::Superseded;
     superseded.superseded_by_policy_version = Some(replacement_policy_version);
     superseded.rollback_ref = None;
     superseded
@@ -607,7 +607,7 @@ pub fn rollback_parent_policy_source_document(
     }
 
     let mut rolled_back = current.clone();
-    rolled_back.status = PolicySourceDocumentStatus::RolledBack;
+    rolled_back.status = PolicySourceStatus::RolledBack;
     rolled_back.superseded_by_policy_version = None;
     rolled_back.rollback_ref = Some(rollback_ref.clone());
     rolled_back
@@ -707,11 +707,11 @@ pub fn assess_policy_source_compatibility(
 }
 
 fn assert_write_surface_can_author_source_truth(
-    surface: PolicySourceWriteSurface,
+    surface: PolicySourceSurface,
 ) -> Result<(), EventingError> {
     if matches!(
         surface,
-        PolicySourceWriteSurface::ParentPortal | PolicySourceWriteSurface::ParentCompanion
+        PolicySourceSurface::ParentPortal | PolicySourceSurface::ParentCompanion
     ) {
         return Ok(());
     }
@@ -791,7 +791,7 @@ fn assert_status_lifecycle_refs(
     document: &ParentPolicySourceDocument,
 ) -> Result<(), EventingError> {
     match document.status {
-        PolicySourceDocumentStatus::Superseded => {
+        PolicySourceStatus::Superseded => {
             let replacement_policy_version =
                 document.superseded_by_policy_version.ok_or_else(|| {
                     EventingError::InvalidValue {
@@ -817,7 +817,7 @@ fn assert_status_lifecycle_refs(
                 });
             }
         }
-        PolicySourceDocumentStatus::RolledBack => {
+        PolicySourceStatus::RolledBack => {
             let rollback_ref =
                 document
                     .rollback_ref
@@ -1118,7 +1118,7 @@ fn parse_time_component(field: &'static str, value: &str) -> Result<u8, Eventing
 fn assert_active_policy_has_rules(
     document: &ParentPolicySourceDocument,
 ) -> Result<(), EventingError> {
-    if document.status == PolicySourceDocumentStatus::Active && document.rules.is_empty() {
+    if document.status == PolicySourceStatus::Active && document.rules.is_empty() {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_RULES,
             value: policy_control::source::VALUE_ACTIVE_POLICY_HAS_NO_RULES.to_string(),
@@ -1128,12 +1128,10 @@ fn assert_active_policy_has_rules(
     Ok(())
 }
 
-fn assert_source_status_can_compile(
-    status: PolicySourceDocumentStatus,
-) -> Result<(), EventingError> {
+fn assert_source_status_can_compile(status: PolicySourceStatus) -> Result<(), EventingError> {
     if matches!(
         status,
-        PolicySourceDocumentStatus::Draft | PolicySourceDocumentStatus::Preview
+        PolicySourceStatus::Draft | PolicySourceStatus::Preview
     ) {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_STATUS,
@@ -1144,21 +1142,19 @@ fn assert_source_status_can_compile(
     Ok(())
 }
 
-fn policy_status_requires_audit_refs(status: PolicySourceDocumentStatus) -> bool {
+fn policy_status_requires_audit_refs(status: PolicySourceStatus) -> bool {
     !matches!(
         status,
-        PolicySourceDocumentStatus::Draft | PolicySourceDocumentStatus::Preview
+        PolicySourceStatus::Draft | PolicySourceStatus::Preview
     )
 }
 
-fn policy_surface_name(surface: PolicySourceWriteSurface) -> &'static str {
+fn policy_surface_name(surface: PolicySourceSurface) -> &'static str {
     match surface {
-        PolicySourceWriteSurface::ParentPortal => policy_control::source::SURFACE_PARENT_PORTAL,
-        PolicySourceWriteSurface::ParentCompanion => {
-            policy_control::source::SURFACE_PARENT_COMPANION
-        }
-        PolicySourceWriteSurface::AiPreview => policy_control::source::SURFACE_AI_PREVIEW,
-        PolicySourceWriteSurface::DomainCache => policy_control::source::SURFACE_DOMAIN_CACHE,
+        PolicySourceSurface::ParentPortal => policy_control::source::SURFACE_PARENT_PORTAL,
+        PolicySourceSurface::ParentCompanion => policy_control::source::SURFACE_PARENT_COMPANION,
+        PolicySourceSurface::AiPreview => policy_control::source::SURFACE_AI_PREVIEW,
+        PolicySourceSurface::DomainCache => policy_control::source::SURFACE_DOMAIN_CACHE,
     }
 }
 
@@ -1179,26 +1175,22 @@ pub(crate) fn policy_actor_state_name(state: PolicySourceActorState) -> &'static
     }
 }
 
-pub(crate) fn policy_status_name(status: PolicySourceDocumentStatus) -> &'static str {
+pub(crate) fn policy_status_name(status: PolicySourceStatus) -> &'static str {
     match status {
-        PolicySourceDocumentStatus::Draft => policy_control::source::STATUS_DRAFT,
-        PolicySourceDocumentStatus::Preview => policy_control::source::STATUS_PREVIEW,
-        PolicySourceDocumentStatus::Confirmed => policy_control::source::STATUS_CONFIRMED,
-        PolicySourceDocumentStatus::Queued => policy_control::source::STATUS_QUEUED,
-        PolicySourceDocumentStatus::Delivered => policy_control::source::STATUS_DELIVERED,
-        PolicySourceDocumentStatus::Acknowledged => policy_control::source::STATUS_ACKNOWLEDGED,
-        PolicySourceDocumentStatus::Active => policy_control::source::STATUS_ACTIVE,
-        PolicySourceDocumentStatus::PartiallyActive => {
-            policy_control::source::STATUS_PARTIALLY_ACTIVE
-        }
-        PolicySourceDocumentStatus::Rejected => policy_control::source::STATUS_REJECTED,
-        PolicySourceDocumentStatus::Superseded => policy_control::source::STATUS_SUPERSEDED,
-        PolicySourceDocumentStatus::RolledBack => policy_control::source::STATUS_ROLLED_BACK,
-        PolicySourceDocumentStatus::Stale => policy_control::source::STATUS_STALE,
-        PolicySourceDocumentStatus::Expired => policy_control::source::STATUS_EXPIRED,
-        PolicySourceDocumentStatus::ManualRequired => {
-            policy_control::source::STATUS_MANUAL_REQUIRED
-        }
+        PolicySourceStatus::Draft => policy_control::source::STATUS_DRAFT,
+        PolicySourceStatus::Preview => policy_control::source::STATUS_PREVIEW,
+        PolicySourceStatus::Confirmed => policy_control::source::STATUS_CONFIRMED,
+        PolicySourceStatus::Queued => policy_control::source::STATUS_QUEUED,
+        PolicySourceStatus::Delivered => policy_control::source::STATUS_DELIVERED,
+        PolicySourceStatus::Acknowledged => policy_control::source::STATUS_ACKNOWLEDGED,
+        PolicySourceStatus::Active => policy_control::source::STATUS_ACTIVE,
+        PolicySourceStatus::PartiallyActive => policy_control::source::STATUS_PARTIALLY_ACTIVE,
+        PolicySourceStatus::Rejected => policy_control::source::STATUS_REJECTED,
+        PolicySourceStatus::Superseded => policy_control::source::STATUS_SUPERSEDED,
+        PolicySourceStatus::RolledBack => policy_control::source::STATUS_ROLLED_BACK,
+        PolicySourceStatus::Stale => policy_control::source::STATUS_STALE,
+        PolicySourceStatus::Expired => policy_control::source::STATUS_EXPIRED,
+        PolicySourceStatus::ManualRequired => policy_control::source::STATUS_MANUAL_REQUIRED,
     }
 }
 
@@ -1224,14 +1216,14 @@ fn duplicate_source_truth_value(
     value
 }
 
-fn missing_audit_reference_for_status_value(status: PolicySourceDocumentStatus) -> String {
+fn missing_audit_reference_for_status_value(status: PolicySourceStatus) -> String {
     let mut value =
         String::from(policy_control::source::VALUE_MISSING_AUDIT_REFERENCE_FOR_STATUS_PREFIX);
     value.push_str(policy_status_name(status));
     value
 }
 
-fn missing_audit_references_for_status_value(status: PolicySourceDocumentStatus) -> String {
+fn missing_audit_references_for_status_value(status: PolicySourceStatus) -> String {
     let mut value =
         String::from(policy_control::source::VALUE_MISSING_AUDIT_REFERENCES_FOR_STATUS_PREFIX);
     value.push_str(policy_status_name(status));

@@ -1,12 +1,19 @@
 use crate::enforcement_readiness::broad_os_adapter_readiness;
-use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementBroadAdapterCapability,
-    EnforcementCapabilityState, EnforcementReadinessProofLevel, EnforcementReadinessRuntimeOwner,
-    EnforcementReadinessState,
+use ocentra_parent_agent_protocol::constants::enforcement;
+use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
+use ocentra_parent_agent_protocol::enforcement_readiness::{
+    EnforcementBroadAdapterCapability, EnforcementBroadAdapterReadinessEntry,
+    EnforcementBroadOsAdapterReadinessMatrix, EnforcementReadinessProofLevel,
+    EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
 };
+use ocentra_parent_agent_protocol::policy_constants as policy;
+
+fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
+    value.ok_or_else(|| format!("{context}: missing value"))
+}
 
 #[test]
-fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() {
+fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() -> Result<(), String> {
     let matrix = broad_os_adapter_readiness(policy::TEST_EVALUATED_AT);
 
     assert_eq!(
@@ -15,14 +22,14 @@ fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() {
     );
     assert_eq!(matrix.entries.len(), 9);
     assert_eq!(
-        entry(&matrix, EnforcementBroadAdapterCapability::BroadAppBlocking).readiness_state,
+        entry(&matrix, EnforcementBroadAdapterCapability::BroadAppBlocking)?.readiness_state,
         expected_manual_or_unavailable()
     );
     assert_eq!(
         entry(
             &matrix,
             EnforcementBroadAdapterCapability::NetworkDomainBlocking
-        )
+        )?
         .runtime_owner,
         EnforcementReadinessRuntimeOwner::ManualProof
     );
@@ -30,7 +37,7 @@ fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() {
         entry(
             &matrix,
             EnforcementBroadAdapterCapability::ManagedBrowserServiceCommand
-        )
+        )?
         .claim_boundary,
         enforcement::CLAIM_BOUNDARY_MANAGED_BROWSER_SERVICE_COMMAND
     );
@@ -38,7 +45,7 @@ fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() {
         entry(
             &matrix,
             EnforcementBroadAdapterCapability::UnmanagedBrowserExactEvidence
-        )
+        )?
         .readiness_state,
         EnforcementReadinessState::NotClaimed
     );
@@ -46,14 +53,16 @@ fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() {
         entry(
             &matrix,
             EnforcementBroadAdapterCapability::UnmanagedBrowserExactEvidence
-        )
+        )?
         .proof_level,
         EnforcementReadinessProofLevel::NotProved
     );
+
+    Ok(())
 }
 
 #[test]
-fn implemented_readiness_entries_stay_limited_to_supported_capabilities() {
+fn implemented_readiness_entries_stay_limited_to_supported_capabilities() -> Result<(), String> {
     let matrix = broad_os_adapter_readiness(policy::TEST_EVALUATED_AT);
 
     for capability in [
@@ -61,7 +70,7 @@ fn implemented_readiness_entries_stay_limited_to_supported_capabilities() {
         EnforcementBroadAdapterCapability::AppTimeLimit,
         EnforcementBroadAdapterCapability::UnmanagedBrowserProcessOnly,
     ] {
-        let entry = entry(&matrix, capability);
+        let entry = entry(&matrix, capability)?;
         #[cfg(windows)]
         {
             assert_eq!(
@@ -87,20 +96,27 @@ fn implemented_readiness_entries_stay_limited_to_supported_capabilities() {
                 entry.readiness_state,
                 EnforcementReadinessState::Unavailable
             );
-            assert!(!entry.required_artifacts.is_empty());
+            assert_eq!(
+                entry.required_artifacts,
+                vec![enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM.to_string()]
+            );
         }
     }
+
+    Ok(())
 }
 
 fn entry(
-    matrix: &ocentra_parent_agent_protocol::EnforcementBroadOsAdapterReadinessMatrix,
+    matrix: &EnforcementBroadOsAdapterReadinessMatrix,
     capability: EnforcementBroadAdapterCapability,
-) -> &ocentra_parent_agent_protocol::EnforcementBroadAdapterReadinessEntry {
-    matrix
-        .entries
-        .iter()
-        .find(|entry| entry.capability == capability)
-        .expect(enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER)
+) -> Result<&EnforcementBroadAdapterReadinessEntry, String> {
+    some(
+        matrix
+            .entries
+            .iter()
+            .find(|entry| entry.capability == capability),
+        enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER,
+    )
 }
 
 #[cfg(windows)]

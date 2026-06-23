@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGameUnblockedSiteDetectionSchemaVersionSchema = withParser(
@@ -104,4 +99,3 @@ export type BrowserGameUnblockedSiteDetectionState = Infer<typeof BrowserGameUnb
 export type BrowserGameUnblockedSiteReasonCode = Infer<typeof BrowserGameUnblockedSiteReasonCodeSchema>;
 export type BrowserGameUnblockedSiteSignalKind = Infer<typeof BrowserGameUnblockedSiteSignalKindSchema>;
 export type BrowserGameUnblockedSiteSurfaceKind = Infer<typeof BrowserGameUnblockedSiteSurfaceKindSchema>;
-

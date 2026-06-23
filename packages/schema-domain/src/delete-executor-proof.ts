@@ -1,14 +1,6 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  NonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from './effect';
 
-import {
-  supportProofHasAnyClaimUpgrade,
-  supportProofRequiredValuesArePresent,
-} from './support-proof-contract.js';
+import { supportProofHasAnyClaimUpgrade, supportProofRequiredValuesArePresent } from './support-proof-contract.js';
 
 const deleteExecutorText = <Brand extends string>(brand: Brand) => NonEmptyStringSchema.pipe(Schema.brand(brand));
 
@@ -218,4 +210,3 @@ function deleteExecutorHasOverclaim(row: DeleteExecutorRowCandidate): boolean {
     row.containsRemoteSupportTranscripts,
   ]);
 }
-

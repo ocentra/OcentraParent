@@ -1,11 +1,4 @@
 #![forbid(unsafe_code)]
-#![allow(
-    clippy::clone_on_copy,
-    clippy::enum_variant_names,
-    clippy::expect_used,
-    clippy::needless_pass_by_value
-)]
-
 pub mod ai_boundary;
 pub mod alerting;
 pub mod child_check_in;

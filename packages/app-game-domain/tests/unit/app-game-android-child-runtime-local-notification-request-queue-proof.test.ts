@@ -3,7 +3,7 @@ import {
   AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema,
   createAppGameAndroidChildRuntimeLocalNotificationRequestQueueProof,
   summarizeAppGameAndroidChildRuntimeLocalNotificationRequestQueueProof,
-} from '../../src/app-game-android-child-runtime-local-notification-request-queue-proof';
+} from '@ocentra-parent/schema-domain/app-game-android-child-runtime-local-notification-request-queue-proof';
 
 const expectRejectedNotificationRequestQueue = (candidate: unknown): void => {
   expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse(candidate).success).toBe(false);

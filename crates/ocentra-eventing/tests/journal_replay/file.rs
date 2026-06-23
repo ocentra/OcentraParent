@@ -32,7 +32,7 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     assert_eq!(first_append.sequence, 1);
     assert_eq!(second_append.sequence, 2);
     assert!(first_append.previous_hash.is_none());
-    assert!(first_append.current_hash.is_some());
+    assert_eq!(first_entry.append.current_hash, first_append.current_hash);
     assert_eq!(second_append.previous_hash, first_append.current_hash);
     assert_eq!(second_entry.append.current_hash, second_append.current_hash);
     assert_eq!(first_entry.envelope.event_id, first.event_id);
@@ -98,7 +98,10 @@ async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
 
     match result {
         Err(EventingError::JournalCorruptLine { line: 1, reason }) => {
-            assert!(reason.contains("current hash mismatch"));
+            assert_eq!(
+                reason.split(": expected ").next(),
+                Some("journal hash-chain current hash mismatch at sequence 1")
+            );
         }
         _other => std::process::abort(),
     }

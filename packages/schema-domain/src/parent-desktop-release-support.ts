@@ -1,13 +1,6 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { parentDesktopReleaseSupportReadModelIsHonest } from './parent-desktop-release-support-guards';
-import {
-  ParentDesktopReleaseSupportIncidentHandoffSchema,
-} from './parent-desktop-release-support-incident';
+import { ParentDesktopReleaseSupportIncidentHandoffSchema } from './parent-desktop-release-support-incident';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ParentDesktopReleaseSupportSchemaVersionSchema = withParser(

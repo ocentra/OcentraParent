@@ -8,18 +8,63 @@ import {
 import { LanProductionHouseholdProofRuntimeOwnerSchema } from './lan-production-household-proof';
 
 export const LanPlanWorkpackIdSchema = withParser(
-  Schema.Literal('01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20')
+  Schema.Literal(
+    '01',
+    '02',
+    '03',
+    '04',
+    '05',
+    '06',
+    '07',
+    '08',
+    '09',
+    '10',
+    '11',
+    '12',
+    '13',
+    '14',
+    '15',
+    '16',
+    '17',
+    '18',
+    '19',
+    '20'
+  )
 );
 
 export const LanDiscoverySourceKindSchema = withParser(
   Schema.Literal(
-    'contract-boundary','evidence-model','interface-selection','windows-neighbor-table','linux-proc-net-arp',
-    'linux-ip-neigh','macos-arp','targeted-arp-refresh','bounded-arp-sweep','passive-arp-listener',
-    'passive-mdns-listener','passive-ssdp-listener','passive-llmnr-listener','passive-netbios-listener',
-    'mdns-dns-sd-query','ssdp-upnp-query','netbios-name-cache','llmnr-name-query','reverse-dns-query',
-    'service-identity-probe','oui-vendor-lookup','merge-deduplication','explainable-classification',
-    'household-device-store','read-model-event-stream','parent-mdns-advertisement','child-mdns-advertisement',
-    'signed-child-agent-hello','signed-child-agent-heartbeat','assignment-revocation-audit','proof-gate-rollout'
+    'contract-boundary',
+    'evidence-model',
+    'interface-selection',
+    'windows-neighbor-table',
+    'linux-proc-net-arp',
+    'linux-ip-neigh',
+    'macos-arp',
+    'targeted-arp-refresh',
+    'bounded-arp-sweep',
+    'passive-arp-listener',
+    'passive-mdns-listener',
+    'passive-ssdp-listener',
+    'passive-llmnr-listener',
+    'passive-netbios-listener',
+    'mdns-dns-sd-query',
+    'ssdp-upnp-query',
+    'netbios-name-cache',
+    'llmnr-name-query',
+    'reverse-dns-query',
+    'service-identity-probe',
+    'oui-vendor-lookup',
+    'merge-deduplication',
+    'explainable-classification',
+    'household-device-store',
+    'read-model-event-stream',
+    'parent-mdns-advertisement',
+    'child-mdns-advertisement',
+    'signed-child-agent-hello',
+    'signed-child-agent-heartbeat',
+    'assignment-revocation-audit',
+    'proof-gate-rollout'
   )
 );
 
@@ -27,10 +72,27 @@ export const LanDiscoverySourceStatusSchema = withParser(
   Schema.Literal('implemented', 'partial', 'parser-proof', 'manual-required', 'not-implemented')
 );
 export const LanDiscoverySourceAuthoritySchema = withParser(
-  Schema.Literal('strong-identity','weak-identity','name-only','classification-only','presence-only','manual-parent-decision','route-custody','proof-gate','no-child-confirmation')
+  Schema.Literal(
+    'strong-identity',
+    'weak-identity',
+    'name-only',
+    'classification-only',
+    'presence-only',
+    'manual-parent-decision',
+    'route-custody',
+    'proof-gate',
+    'no-child-confirmation'
+  )
 );
 export const LanDiscoverySourceRuntimePathSchema = withParser(
-  Schema.Literal('typescript-contract','agent-protocol','rust-service-read-model','portal-read-model','proof-harness','manual-artifact')
+  Schema.Literal(
+    'typescript-contract',
+    'agent-protocol',
+    'rust-service-read-model',
+    'portal-read-model',
+    'proof-harness',
+    'manual-artifact'
+  )
 );
 export const LanDiscoverySourceUiSurfaceSchema = withParser(
   Schema.Literal('devices-lan', 'activity-network', 'policy-network', 'setup-flow', 'proof-report', 'not-visible')
@@ -86,8 +148,41 @@ export const LanDiscoverySourceMatrixSchema = withParser(
   )
 );
 
-const RequiredWorkpacks = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20'] as const satisfies ReadonlyArray<LanPlanWorkpackId>;
-const WeakSources = ['windows-neighbor-table','linux-proc-net-arp','linux-ip-neigh','macos-arp','netbios-name-cache','llmnr-name-query','reverse-dns-query','service-identity-probe','oui-vendor-lookup','mdns-dns-sd-query','ssdp-upnp-query'] as const satisfies ReadonlyArray<LanDiscoverySourceKind>;
+const RequiredWorkpacks = [
+  '01',
+  '02',
+  '03',
+  '04',
+  '05',
+  '06',
+  '07',
+  '08',
+  '09',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15',
+  '16',
+  '17',
+  '18',
+  '19',
+  '20',
+] as const satisfies ReadonlyArray<LanPlanWorkpackId>;
+const WeakSources = [
+  'windows-neighbor-table',
+  'linux-proc-net-arp',
+  'linux-ip-neigh',
+  'macos-arp',
+  'netbios-name-cache',
+  'llmnr-name-query',
+  'reverse-dns-query',
+  'service-identity-probe',
+  'oui-vendor-lookup',
+  'mdns-dns-sd-query',
+  'ssdp-upnp-query',
+] as const satisfies ReadonlyArray<LanDiscoverySourceKind>;
 const WeakSourceSet: ReadonlySet<LanDiscoverySourceKind> = new Set(WeakSources);
 const ClaimPacketMode = 'packet' + '-mode';
 const ClaimPhysicalHousehold = 'physical ' + 'household';
@@ -110,11 +205,15 @@ function allWorkpacksAreRepresented(rows: ReadonlyArray<LanPlanWorkpackStatusRow
 }
 
 function weakSourcesCannotConfirmOrAssign(rows: ReadonlyArray<LanDiscoverySourceRow>): boolean {
-  return rows.filter((row) => WeakSourceSet.has(row.source)).every((row) => !row.canConfirmChildAgent && !row.canAssignChildProfile);
+  return rows
+    .filter((row) => WeakSourceSet.has(row.source))
+    .every((row) => !row.canConfirmChildAgent && !row.canAssignChildProfile);
 }
 
 function signedSourcesRequireArtifacts(rows: ReadonlyArray<LanDiscoverySourceRow>): boolean {
-  return rows.filter((row) => row.source === 'signed-child-agent-hello' || row.source === 'signed-child-agent-heartbeat').every((row) => row.canConfirmChildAgent && row.requiredArtifactSummary !== null);
+  return rows
+    .filter((row) => row.source === 'signed-child-agent-hello' || row.source === 'signed-child-agent-heartbeat')
+    .every((row) => row.canConfirmChildAgent && row.requiredArtifactSummary !== null);
 }
 
 export type LanPlanWorkpackId = Infer<typeof LanPlanWorkpackIdSchema>;

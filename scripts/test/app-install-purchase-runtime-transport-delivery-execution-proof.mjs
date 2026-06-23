@@ -67,16 +67,15 @@ async function main() {
     checklistState: 'updated-docs-product-capability-checklist-install-purchase-row',
     evidence: {
       runtimeTransportDeliveryExecutionContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-transport-delivery-execution-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-transport-delivery-execution-proof.ts',
       sourceReceiptBoundaryContract:
-        'packages/app-game-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts',
+        'packages/schema-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts',
       contractTest:
         'packages/app-game-domain/tests/unit/app-install-purchase-runtime-transport-delivery-execution-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport:
-        '@ocentra-parent/app-game-domain/app-install-purchase-runtime-transport-delivery-execution-proof',
+      packageExport: '@ocentra-parent/schema-domain/app-install-purchase-runtime-transport-delivery-execution-proof',
       packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
       output: relative(repoRoot, proofPath),

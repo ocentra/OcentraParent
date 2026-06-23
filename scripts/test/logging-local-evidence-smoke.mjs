@@ -84,7 +84,14 @@ async function main() {
     ensure(passing.exitCode === 0, 'controlled passing command did not return exit code 0');
 
     const failing = await runNpm(
-      ['run', 'agent:run', '--', 'node', '-e', 'process.stderr.write("logging-local-evidence-smoke\\n"); process.exit(2)'],
+      [
+        'run',
+        'agent:run',
+        '--',
+        'node',
+        '-e',
+        'process.stderr.write("logging-local-evidence-smoke\\n"); process.exit(2)',
+      ],
       env
     );
     ensure(failing.exitCode === 2, 'controlled failing command did not preserve exit code 2');
@@ -104,8 +111,14 @@ async function main() {
     ensure(latest != null, 'latest-failures query did not return the controlled failed run');
     ensure(latest.diagnostics.length > 0, 'latest-failures query did not include diagnostics');
 
-    ensure(latest.artifacts.some((artifact) => artifact.kind === 'stdout'), 'stdout artifact ref missing');
-    ensure(latest.artifacts.some((artifact) => artifact.kind === 'stderr'), 'stderr artifact ref missing');
+    ensure(
+      latest.artifacts.some((artifact) => artifact.kind === 'stdout'),
+      'stdout artifact ref missing'
+    );
+    ensure(
+      latest.artifacts.some((artifact) => artifact.kind === 'stderr'),
+      'stderr artifact ref missing'
+    );
     ensure(
       latest.artifacts.every((artifact) => fs.existsSync(artifact.path)),
       'artifact files were not written to disk'
@@ -130,10 +143,7 @@ async function main() {
     );
 
     const scopeRoot = getScopeRoot(evidenceScope);
-    ensure(
-      fs.existsSync(scopeRoot),
-      'evidence scope root was not created'
-    );
+    ensure(fs.existsSync(scopeRoot), 'evidence scope root was not created');
 
     process.stdout.write(`logging-local-evidence-smoke passed for ${latest.runId}\n`);
   } finally {

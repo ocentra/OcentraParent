@@ -13,7 +13,7 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
+  await runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   await runNpm([
     'run',
     'test',
@@ -29,7 +29,7 @@ async function main() {
     import.meta.url
   );
   const temporaryLive = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', 'tracking-temporary-live-mode-proof.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-temporary-live-mode-proof.js'))
   );
   const checkedAt = new Date().toISOString();
   const commit = gitOutput(['rev-parse', 'HEAD']);
@@ -39,7 +39,7 @@ async function main() {
       proofId: 'tracking-temporary-live-mode-proof',
       sourceContractRefs: [
         'packages/schema-domain/src/tracking-location-policy.ts',
-        'packages/tracking-domain/src/tracking-temporary-live-mode-proof.ts',
+        'packages/schema-domain/src/tracking-temporary-live-mode-proof.ts',
         'docs/plans/tracking-plan/workpacks/28-temporary-live-tracking-mode.md',
         'docs/expectations/location-geofence.md',
         'docs/expectations/data-custody.md',
@@ -199,7 +199,7 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- requiredProofTier: P3_LOCAL_DEV_MACHINE',
     '- currentProofTier: P1_FIXTURE_SIMULATION',
     '- status: proved',
-    '- proof module: packages/tracking-domain/src/tracking-temporary-live-mode-proof.ts',
+    '- proof module: packages/schema-domain/src/tracking-temporary-live-mode-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-temporary-live-mode-proof.test.ts',
     '- proof harness: scripts/test/tracking-temporary-live-mode-proof.mjs',
     '- source contracts: packages/schema-domain/src/tracking-location-policy.ts',

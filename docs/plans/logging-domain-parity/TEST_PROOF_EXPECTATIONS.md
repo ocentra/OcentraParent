@@ -17,6 +17,57 @@
 
 Use focused commands first. Broader validation is allowed only after focused commands pass or a precise blocker is recorded.
 
+Run through `npm run agent:run --` when collecting proof if the wrapper is available.
+
+## Command ownership notes
+
+- `packages/logging-domain` owns TypeScript local logging helpers, bridge, NDJSON, DuckDB/query, log-control/wipe/retention, MCP query, and proof-trace helper surfaces.
+- `crates/logging-core` owns Rust NDJSON/artifact/dev-log/diagnostic/redaction/source/context helper behavior.
+- `scripts/dev` owns local agent wrapper/query/evidence/MCP/proof-trace entrypoints.
+- `apps/portal` is a selected dev-log producer/consumer only when the workpack names that path.
+- `crates/agent-service` is a selected Rust producer/consumer only when the workpack names that path.
+- Product telemetry, production support workflows, Cloudflare infra logging, and repo-wide instrumentation are not owned by this plan unless a selected handoff explicitly names them.
+
+## Logging E2E meaning
+
+Do not use one proof family to claim the whole logging path. For this plan, E2E has separate meanings:
+
+```text
+TypeScript package E2E: logging-domain package exports -> bridge/NDJSON/DuckDB/query tests -> local package proof only.
+Rust logging-core E2E: logging-core event/artifact/dev-log/redaction helpers -> cargo tests -> Rust helper proof only.
+bridge/NDJSON E2E: producer row -> bridge conversion -> NDJSON file -> local artifact proof.
+DuckDB/query E2E: NDJSON ingest -> DuckDB/query service -> bounded structured result.
+agent wrapper E2E: agent:run controlled pass/fail -> artifact row -> latest failure/evidence query.
+MCP query E2E: MCP tool -> shared query service -> bounded result and CLI parity.
+instrumentation E2E: selected source path -> source/context fields -> storage/query proof -> no repo-wide adoption claim.
+retention/wipe E2E: selected scope/run/file -> wipe/retention action -> stale data absent and current rows preserved.
+validation/enforcement E2E: checker script -> positive/negative fixture -> explicit pass/fail/blocker.
+proof-trace E2E: enable selected proof trace -> exercise one path -> ingest/query ordered trace -> disable/cleanup.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Product/runtime-safe logging:
+
+```text
+redact credential material, private payloads, raw command dumps, raw screenshots, full browser URLs, customer data, support-private diagnostics, and sensitive environment data unless the selected proof explicitly allows a bounded field
+log scope, run_id, command_id, proof_id, correlation_id, log source, log context, artifact ref, bridge state, NDJSON state, DuckDB state, MCP tool, retention state, validation state, and no-claim boundary when safe
+separate local development evidence, product-safe logging, proof-trace mode, MCP query, wrapper command capture, and production telemetry states
+never treat raw logs, proof roots, or query smoke output as checklist/workpack closure without matching commands and no-claim boundaries
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, scope, exit code, result, artifact pointer, diagnostics summary, blocker note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
 ## WP01 Current State and Reference Audit
 
 Expected commands:
@@ -132,7 +183,7 @@ new crate unit tests pass
 agent-service direct consumer tests pass
 NDJSON writer writes one JSON object per line
 artifact writer writes file metadata, sha256, byte length, and line count
-secret-like fields are redacted by default helpers
+sensitive fields are redacted by default helpers
 ```
 
 ## WP05 Local Validation Evidence
@@ -230,7 +281,7 @@ proof mode can be disabled after the run/test
 proof rows include proof_id and correlation_id
 ordered trace query matches expected steps
 missing/out-of-order trace query reports gaps
-Playwright or equivalent smoke proves a click-to-result path
+Playwright or equivalent smoke proves one click-to-result path
 proof artifact records matched/missing/out-of-order steps
 retention/wipe cleans stale proof traces
 ```
@@ -260,3 +311,14 @@ proof trace mode cannot stay globally enabled after tests
 ```
 
 Use temporary fixtures or script-internal fixtures. Do not mutate the real branch for negative checks.
+
+## Required negative states
+
+```text
+local dev evidence not used as production telemetry proof
+MCP smoke not used as full MCP readiness proof
+proof-trace smoke not used as product-flow coverage proof
+portal dev logger proof not used as repo-wide portal instrumentation proof
+agent-service startup proof not used as full Rust logging adoption proof
+proof-inventory query proof not used as missing-proof closure
+```

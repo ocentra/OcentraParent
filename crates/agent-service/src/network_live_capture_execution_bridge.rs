@@ -7,7 +7,8 @@ use ocentra_network_evidence::{
         NetworkLiveCaptureExecutionState,
     },
 };
-use ocentra_parent_agent_protocol::{constants, NetworkLiveCaptureExecutionStatusState};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureExecutionStatusState;
 
 pub(crate) fn execution_input(proof: &NetworkLiveCaptureProof) -> NetworkLiveCaptureExecutionInput {
     let bounded_execution = proof.proof_state == NetworkLiveCaptureProofState::ProofReady;

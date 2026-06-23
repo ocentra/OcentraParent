@@ -1,12 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_supported_adapter_runtime_proof as proof, policy_constants, ParentPlatform,
-    V08SupportedAdapterAuditReferenceState, V08SupportedAdapterCapability,
-    V08SupportedAdapterPlatformSupportState, V08SupportedAdapterRefusalReason,
-    V08SupportedAdapterResult, V08SupportedAdapterRollbackReferenceState,
-    V08SupportedAdapterRuntimeBoundary, V08SupportedAdapterRuntimeProofEntry,
-    V08SupportedAdapterRuntimeProofReadModel, V08SupportedAdapterRuntimeState,
-    V08SupportedAdapterTargetIdentityState,
-};
+use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterAuditReferenceState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterCapability;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterPlatformSupportState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRefusalReason;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterResult;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRollbackReferenceState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeBoundary;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofEntry;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterTargetIdentityState;
+use ocentra_parent_agent_protocol::policy_constants;
 
 pub(crate) fn v08_supported_adapter_runtime_proof_read_model(
     generated_at: &str,
@@ -51,6 +56,7 @@ struct EntrySpec {
     fallback_behavior: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct ImplementedSpecInput {
     proof_entry_id: &'static str,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,
@@ -64,6 +70,7 @@ struct ImplementedSpecInput {
     fallback_behavior: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct ManualSpecInput {
     proof_entry_id: &'static str,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,
@@ -350,6 +357,7 @@ fn unsupported_spec() -> EntrySpec {
     }
 }
 
+#[derive(Clone, Copy)]
 struct ArtifactStatusSpecInput {
     proof_entry_id: &'static str,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,

@@ -7,7 +7,11 @@ import {
 import type { ActivityEvidenceRef } from '@ocentra-parent/schema-domain/evidence-contracts';
 import { decodeActivityEvidenceId, type ActivityEvidenceId } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/schema-domain/activity-query';
-import { AgentProtocolDefaults, isAgentProtocolLogText, type AgentProtocolLogFields } from './contracts';
+import {
+  isAgentProtocolLogText,
+  type AgentProtocolLogFields,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): ActivityNetworkFlowReadModel | null {
   const returned = requiredNumber(payload[AgentProtocolDefaults.Field.Returned]);

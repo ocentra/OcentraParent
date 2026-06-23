@@ -1,8 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus,
-    BrowserChannel, BrowserCustodyLabel, BrowserEvidenceReadModel, BrowserFamily,
-    BrowserQueryVisibilityLabel, BrowserTabEvidence, BROWSER_EVIDENCE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_read_model::{
+    BrowserEvidenceReadModel, BrowserTabEvidence,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::BROWSER_EVIDENCE_SCHEMA_VERSION;
 
 use super::browser_runtime_delivery::{
     browser_runtime_input_from_row, deliver_browser_runtime_for_read_model,

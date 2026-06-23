@@ -4,7 +4,8 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{constants, LocalAiGenerationState};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
 
 use crate::{
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
@@ -95,7 +96,7 @@ async fn unsupported_requested_model_returns_unavailable_without_spawning_runtim
 fn write_temp_file(prefix: &str) -> PathBuf {
     let path = unique_temp_path(prefix);
     fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT)
-        .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+        .unwrap_or_else(|_| panic!("{}", constants::error::LOCAL_AI_RUNTIME_SPAWNS));
     path
 }
 
@@ -113,7 +114,7 @@ fn unique_temp_path(prefix: &str) -> PathBuf {
 fn nanos_now() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .unwrap_or_default()
         .as_nanos()
 }
 

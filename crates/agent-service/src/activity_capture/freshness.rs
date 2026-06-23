@@ -1,7 +1,9 @@
 use std::path::Path;
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{constants, ActivityIngestStatus, AppGameServiceReadModel};
+use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
+use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
+use ocentra_parent_agent_protocol::constants;
 
 use crate::activity_capture::{record_activity_capture_to_paths_at, ActivityCaptureError};
 
@@ -27,7 +29,7 @@ pub(crate) struct ActivityCaptureFreshnessRequest<'a> {
 }
 
 pub(crate) fn record_activity_capture_freshness_to_paths(
-    request: ActivityCaptureFreshnessRequest<'_>,
+    request: &ActivityCaptureFreshnessRequest<'_>,
 ) -> Result<ActivityCaptureFreshnessStatus, ActivityCaptureError> {
     let mut capture_runs = 1;
     let mut latest_ingest = record_activity_capture_to_paths_at(
@@ -58,19 +60,19 @@ pub(crate) fn record_activity_capture_freshness_to_paths(
     Ok(app_game_freshness_status(
         capture_runs,
         latest_ingest,
-        app_game,
+        &app_game,
     ))
 }
 
 fn app_game_freshness_status(
     capture_runs: u64,
     latest_ingest: ActivityIngestStatus,
-    app_game: AppGameServiceReadModel,
+    app_game: &AppGameServiceReadModel,
 ) -> ActivityCaptureFreshnessStatus {
     ActivityCaptureFreshnessStatus {
         capture_runs,
         latest_ingest,
-        app_game_generated_at: app_game.generated_at,
+        app_game_generated_at: app_game.generated_at.clone(),
         app_game_last_observed_at: app_game
             .running_now_rows
             .iter()

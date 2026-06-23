@@ -25,7 +25,10 @@ function makeTempDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-ensure-db-'));
 }
 
-function runScript(scriptPath: string, env: NodeJS.ProcessEnv): { stdout: string; stderr: string; status: number | null } {
+function runScript(
+  scriptPath: string,
+  env: NodeJS.ProcessEnv
+): { stdout: string; stderr: string; status: number | null } {
   const result = spawnSync(process.execPath, [TSX_CLI, scriptPath, 'parent-test'], {
     cwd: workspaceRoot(),
     env,

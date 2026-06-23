@@ -39,9 +39,8 @@ async function main() {
 
   const sourceWriteProof = JSON.parse(await readFile(writeProofPath, 'utf8'));
   const proofModule = await tsImport(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-retention-local-service-state-proof.ts')
-    ).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-retention-local-service-state-proof.ts'))
+      .href,
     import.meta.url
   );
   const proof = {

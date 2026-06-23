@@ -1,13 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_notification_provider_status_boundary as boundary,
-    notification_provider_status_boundary::{
-        V08NotificationEscalationReadiness, V08NotificationProviderDeliveryClaim,
-        V08NotificationProviderStatus, V08NotificationProviderStatusBoundaryEntry,
-        V08NotificationProviderStatusBoundaryReadModel, V08NotificationProviderStatusProofState,
-        V08NotificationQuietHoursReadiness,
-    },
-    policy_constants,
-};
+use ocentra_parent_agent_protocol::constants::v08_notification_provider_status_boundary as boundary;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationEscalationReadiness;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderDeliveryClaim;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatus;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusBoundaryEntry;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusBoundaryReadModel;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusProofState;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationQuietHoursReadiness;
+use ocentra_parent_agent_protocol::policy_constants;
 
 pub(crate) fn v08_notification_provider_status_boundary_read_model(
     generated_at: &str,

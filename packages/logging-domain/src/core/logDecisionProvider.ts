@@ -28,6 +28,29 @@ function normalizeSource(source: string | null): string | null {
   return source.trim().toLowerCase();
 }
 
+function matchesConfiguredDebugSource(config: ParentLogConfig, normalizedSource: string): boolean {
+  return config.debugSources.includes(normalizedSource);
+}
+
+function matchesRequestedDebugSource(normalizedSource: string, context?: ParentLogDecisionContext): boolean {
+  return context?.requestDebugSources?.some((entry) => entry.trim().toLowerCase() === normalizedSource) === true;
+}
+
+function matchesDebugFile(config: ParentLogConfig, filePath?: string | null): boolean {
+  if (filePath == null || filePath.trim().length === 0) {
+    return false;
+  }
+  const normalizedFile = normalizeDebugPath(filePath);
+  return config.debugFiles.some((entry) => normalizedFile.includes(entry));
+}
+
+function matchesDebugRun(config: ParentLogConfig, runId?: string | null): boolean {
+  if (runId == null || runId.trim().length === 0) {
+    return false;
+  }
+  return config.debugRuns.includes(runId.trim());
+}
+
 function matchesDebugSelection(
   config: ParentLogConfig,
   source: string | null,
@@ -36,24 +59,16 @@ function matchesDebugSelection(
   const normalizedSource = normalizeSource(source);
   if (
     normalizedSource != null &&
-    (config.debugSources.includes(normalizedSource) ||
-      context?.requestDebugSources?.some((entry) => entry.trim().toLowerCase() === normalizedSource) === true)
+    (matchesConfiguredDebugSource(config, normalizedSource) || matchesRequestedDebugSource(normalizedSource, context))
   ) {
     return true;
   }
 
-  if (context?.filePath != null && context.filePath.trim().length > 0) {
-    const normalizedFile = normalizeDebugPath(context.filePath);
-    if (config.debugFiles.some((entry) => normalizedFile.includes(entry))) {
-      return true;
-    }
+  if (matchesDebugFile(config, context?.filePath)) {
+    return true;
   }
 
-  if (context?.runId != null && context.runId.trim().length > 0) {
-    return config.debugRuns.includes(context.runId.trim());
-  }
-
-  return false;
+  return matchesDebugRun(config, context?.runId);
 }
 
 export class ParentLogDecisionProvider implements LogDecisionProvider {

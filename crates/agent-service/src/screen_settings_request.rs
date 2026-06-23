@@ -1,7 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, LogFieldValue, ScreenSettingsGetRequest,
-    ScreenSettingsRejectionReason, ScreenSettingsUpdateKind, ScreenSettingsUpdateRequest,
+use ocentra_parent_agent_protocol as parent_protocol;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::screen_settings::{
+    ScreenSettingsGetRequest, ScreenSettingsRejectionReason, ScreenSettingsUpdateKind,
+    ScreenSettingsUpdateRequest,
 };
+use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentCommandName};
 
 pub(crate) fn parse_screen_settings_request(
     command: &AgentCommandEnvelope,
@@ -10,12 +14,11 @@ pub(crate) fn parse_screen_settings_request(
         .payload
         .get(constants::field::SCREEN_SETTINGS_REQUEST)
     {
-        Some(LogFieldValue::String(text)) => {
-            serde_json::from_str(text).map_err(|_| ScreenSettingsRejectionReason::InvalidSetting)
-        }
+        Some(LogFieldValue::String(text)) => serde_json::from_str(text)
+            .map_err(|_parse_error| ScreenSettingsRejectionReason::InvalidSetting),
         _ if command.command == AgentCommandName::AgentScreenSettingsGet => {
             Ok(ScreenSettingsUpdateRequest::Get(ScreenSettingsGetRequest {
-                schema_version: ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
+                schema_version: parent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
                 request_id: command.message_id.clone(),
                 kind: ScreenSettingsUpdateKind::Get,
             }))

@@ -2,10 +2,6 @@ use serde::{Deserialize, Serialize};
 
 pub mod family {
     use super::*;
-    use crate::activity::policy::{
-        ParentActorReference as PolicyParentActorReference,
-        ParentActorRole as PolicyParentActorRole,
-    };
 
     pub type ParentActorId = String;
     pub type ParentAccountId = String;
@@ -19,33 +15,13 @@ pub mod family {
     pub type ParentContractSchemaVersion = String;
     pub type ParentTimestamp = String;
 
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum ParentActorRole {
-        Parent,
-        Guardian,
-        System,
-    }
-
-    impl From<PolicyParentActorRole> for ParentActorRole {
-        fn from(role: PolicyParentActorRole) -> Self {
-            match role {
-                PolicyParentActorRole::Parent => Self::Parent,
-                PolicyParentActorRole::Guardian => Self::Guardian,
-                PolicyParentActorRole::System => Self::System,
-            }
-        }
-    }
-
-    impl From<ParentActorRole> for PolicyParentActorRole {
-        fn from(role: ParentActorRole) -> Self {
-            match role {
-                ParentActorRole::Parent => Self::Parent,
-                ParentActorRole::Guardian => Self::Guardian,
-                ParentActorRole::System => Self::System,
-            }
-        }
-    }
+    pub type ParentActorRole = crate::activity::policy::ParentActorRole;
+    pub type ParentActorReference = crate::activity::policy::ParentActorReference;
+    pub type FamilyReference = crate::activity::policy_context::FamilyReference;
+    pub type ChildProfileReference = crate::activity::policy_context::ChildProfileReference;
+    pub type ParentEvidenceReferenceKind = crate::activity::policy::ParentEvidenceReferenceKind;
+    pub type ParentEvidenceReference = crate::activity::policy::ParentEvidenceReference;
+    pub type ParentActionReference = crate::enforcement::ParentActionReference;
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "kebab-case")]
@@ -59,102 +35,11 @@ pub mod family {
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
-    pub struct ParentActorReference {
-        pub actor_id: ParentActorId,
-        pub role: ParentActorRole,
-    }
-
-    impl From<PolicyParentActorReference> for ParentActorReference {
-        fn from(actor: PolicyParentActorReference) -> Self {
-            Self {
-                actor_id: actor.actor_id,
-                role: actor.role.into(),
-            }
-        }
-    }
-
-    impl From<ParentActorReference> for PolicyParentActorReference {
-        fn from(actor: ParentActorReference) -> Self {
-            Self {
-                actor_id: actor.actor_id,
-                role: actor.role.into(),
-            }
-        }
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct FamilyReference {
-        pub family_id: FamilyId,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct ChildProfileReference {
-        pub child_profile_id: ChildProfileId,
-        pub display_name: ChildProfileDisplayName,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
     pub struct ParentDeviceReference {
         pub device_id: ParentDeviceId,
         pub child_profile_id: Option<ChildProfileId>,
         pub label: String,
         pub platform: ParentDevicePlatform,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum ParentEvidenceReferenceKind {
-        JournalEvent,
-        QueryStoreSummary,
-        ActivityEvent,
-        PolicyDecision,
-        LocalAiResult,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct ParentEvidenceReference {
-        pub evidence_reference_id: ParentEvidenceReferenceId,
-        pub kind: ParentEvidenceReferenceKind,
-        pub observed_at: ParentTimestamp,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct ParentActionReference {
-        pub action_reference_id: ParentActionReferenceId,
-        pub actor: ParentActorReference,
-        pub policy_version: ParentPolicyVersion,
-        pub created_at: ParentTimestamp,
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn schema_domain_mirrors_parent_actor_role_converts_from_policy_role() {
-            let mirror: ParentActorRole = PolicyParentActorRole::Guardian.into();
-            let policy: PolicyParentActorRole = mirror.into();
-
-            assert_eq!(policy, PolicyParentActorRole::Guardian);
-        }
-
-        #[test]
-        fn schema_domain_mirrors_parent_actor_reference_round_trips_with_policy_actor() {
-            let policy = PolicyParentActorReference {
-                actor_id: "actor-1".to_string(),
-                role: PolicyParentActorRole::Parent,
-            };
-
-            let mirror: ParentActorReference = policy.clone().into();
-            let restored: PolicyParentActorReference = mirror.into();
-
-            assert_eq!(restored, policy);
-        }
     }
 }
 
@@ -175,31 +60,11 @@ pub mod policy {
     pub type PolicyScheduleExceptionId = String;
     pub type PolicyPreviewId = String;
 
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum PolicyAction {
-        Allow,
-        Warn,
-        Block,
-        TimeLimit,
-        AskParent,
-        Unknown,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum PolicyTargetType {
-        App,
-        Process,
-        Window,
-        Domain,
-        Site,
-        Category,
-        Video,
-        Channel,
-        ActivityType,
-        Device,
-    }
+    pub type PolicyAction = crate::activity::policy::PolicyAction;
+    pub type PolicyTargetType = crate::activity::policy::PolicyTargetType;
+    pub type PolicyDecisionHandoffState = crate::activity::policy::PolicyDecisionHandoffState;
+    pub type PolicyTarget = crate::activity::policy::PolicyTarget;
+    pub type PolicyDecision = crate::activity::policy::PolicyDecision;
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "kebab-case")]
@@ -211,15 +76,6 @@ pub mod policy {
         Friday,
         Saturday,
         Sunday,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum PolicyDecisionHandoffState {
-        NotRequested,
-        Disabled,
-        Pending,
-        HandedOff,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -323,14 +179,6 @@ pub mod policy {
         BonusTimeExpiring,
         ManualRequired,
         Expired,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PolicyTarget {
-        pub target_id: PolicyTargetId,
-        pub target_type: PolicyTargetType,
-        pub target_value: String,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -497,21 +345,6 @@ pub mod policy {
 
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
-    pub struct PolicyDecision {
-        pub schema_version: ParentContractSchemaVersion,
-        pub decision_id: PolicyDecisionId,
-        pub action: PolicyAction,
-        pub reason_codes: Vec<PolicyReasonCode>,
-        pub evidence_references: Vec<ParentEvidenceReference>,
-        pub rule_ids: Vec<PolicyRuleId>,
-        pub local_ai_result_id: Option<LocalAiResultReferenceId>,
-        pub dry_run: bool,
-        pub enforcement_handoff_state: PolicyDecisionHandoffState,
-        pub expires_at: Option<PolicyTimestamp>,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
     pub struct PolicyPreview {
         pub preview_id: PolicyPreviewId,
         pub origin: PolicyPreviewOrigin,
@@ -543,6 +376,11 @@ pub mod ai {
     pub type LocalAiTimestamp = String;
     pub type LocalAiDerivedIndexVersion = String;
     pub type LocalAiUnavailableReason = String;
+    pub type LocalAiModelLoadState = crate::local_ai_runtime::lifecycle::LocalAiModelLoadState;
+    pub type LocalAiCapabilityFlag = crate::local_ai_runtime::lifecycle::LocalAiCapabilityFlag;
+    pub type LocalAiResourceClass = crate::local_ai_runtime::lifecycle::LocalAiResourceClass;
+    pub type LocalAiDegradedState = crate::local_ai_runtime::lifecycle::LocalAiDegradedState;
+    pub type LocalAiUnknownState = crate::activity::local_ai::LocalAiUnknownState;
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "kebab-case")]
@@ -556,55 +394,6 @@ pub mod ai {
         Domain,
         Network,
         RecentActivity,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum LocalAiModelLoadState {
-        Unavailable,
-        Loading,
-        Loaded,
-        Degraded,
-        Failed,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum LocalAiCapabilityFlag {
-        Classification,
-        Summarization,
-        Embedding,
-        SafetyDecision,
-        ChatCompletion,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum LocalAiResourceClass {
-        Cpu,
-        Gpu,
-        Npu,
-        RemoteUnavailable,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum LocalAiDegradedState {
-        None,
-        ProviderUnavailable,
-        ModelLoadFailed,
-        Overloaded,
-        InvalidOutput,
-    }
-
-    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-    #[serde(rename_all = "kebab-case")]
-    pub enum LocalAiUnknownState {
-        None,
-        MissingEvidence,
-        LowConfidence,
-        ModelUnavailable,
-        PolicyConflict,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

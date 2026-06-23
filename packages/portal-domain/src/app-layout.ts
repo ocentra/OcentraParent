@@ -1,5 +1,6 @@
+import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalFrameTuner } from './frame-tuner';
-import { PortalRoute, portalRouteHashPath } from './routes';
+import { portalRouteHashPath } from './routes';
 
 export type PortalAppLayoutSurfaceKey = (typeof PortalFrameTuner.AppSurface)[keyof typeof PortalFrameTuner.AppSurface];
 
@@ -194,7 +195,13 @@ function defaultMainSidePanelFoldouts(): readonly PortalAppLayoutFoldoutDraft[] 
         'ai-setup',
         text.AppLayoutTone.Purple
       ),
-      button('reports', 'Reports', 'Stored reports and summaries.', portalRouteHashPath(PortalRoute.Activity), 'reports'),
+      button(
+        'reports',
+        'Reports',
+        'Stored reports and summaries.',
+        portalRouteHashPath(PortalRoute.Activity),
+        'reports'
+      ),
       button(
         'private',
         'Private',

@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   NotificationAuditHistoryEntrySchema,
   NotificationAuditHistoryRequiredPayloadFields,
@@ -25,8 +20,12 @@ export const NotificationAuditHistoryHandoffSourceStatusSchema = withParser(
 );
 
 export const NotificationAuditHistoryHandoffIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryHandoffId');
-export const NotificationAuditHistoryHandoffReferenceSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryHandoffReference');
-export const NotificationAuditHistoryHandoffTimestampSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryHandoffTimestamp');
+export const NotificationAuditHistoryHandoffReferenceSchema = brandedNonEmptyStringSchema(
+  'NotificationAuditHistoryHandoffReference'
+);
+export const NotificationAuditHistoryHandoffTimestampSchema = brandedNonEmptyStringSchema(
+  'NotificationAuditHistoryHandoffTimestamp'
+);
 
 const NotificationAuditHistoryHandoffSourceRowBaseSchema = Schema.Struct({
   handoffEntryId: NotificationAuditHistoryHandoffReferenceSchema,
@@ -240,4 +239,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.sourceStatus === sourceStatus).length;
 }
-

@@ -1,16 +1,9 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { BrowserKnowledgeGraphRefSchema } from './browser-ai-analysis-values';
 
 export { BrowserKnowledgeGraphRefSchema };
 
-export const BrowserAiKnowledgeGraphIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphId')
-);
+export const BrowserAiKnowledgeGraphIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphId'));
 export const BrowserAiKnowledgeGraphSnapshotIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphSnapshotId')
 );
@@ -76,4 +69,3 @@ export type BrowserKnowledgeGraphRef = Infer<typeof BrowserKnowledgeGraphRefSche
 export type BrowserAiKnowledgeGraphNodeRef = Infer<typeof BrowserAiKnowledgeGraphNodeRefSchema>;
 export type BrowserAiKnowledgeGraphSourceKind = Infer<typeof BrowserAiKnowledgeGraphSourceKindSchema>;
 export type BrowserAiKnowledgeGraphUse = Infer<typeof BrowserAiKnowledgeGraphUseSchema>;
-

@@ -10,13 +10,41 @@ export const LocalAiEvidenceContextSummarySchema = brandedNonEmptyStringSchema('
 export const LocalAiRejectedFieldSchema = brandedNonEmptyStringSchema('LocalAiRejectedField');
 
 export const LocalAiRequestedEvaluationKindSchema = withParser(
-  Schema.Literal('page', 'url', 'video', 'app', 'game', 'domain', 'network-digest', 'screen-summary', 'recent-activity', 'mixed-context')
+  Schema.Literal(
+    'page',
+    'url',
+    'video',
+    'app',
+    'game',
+    'domain',
+    'network-digest',
+    'screen-summary',
+    'recent-activity',
+    'mixed-context'
+  )
 );
 export const LocalAiEvidenceContextKindSchema = withParser(
-  Schema.Literal('browser', 'app-game', 'network-flow', 'screen-summary', 'policy-decision', 'parent-action', 'recent-activity')
+  Schema.Literal(
+    'browser',
+    'app-game',
+    'network-flow',
+    'screen-summary',
+    'policy-decision',
+    'parent-action',
+    'recent-activity'
+  )
 );
 export const LocalAiEvidenceCustodySchema = withParser(
-  Schema.Literal('live-local-child-agent', 'live-lan-child-agent', 'child-device-journal', 'child-device-query-store', 'parent-device-cache', 'parent-owned-export', 'ocentra-hosted-non-activity', 'unavailable')
+  Schema.Literal(
+    'live-local-child-agent',
+    'live-lan-child-agent',
+    'child-device-journal',
+    'child-device-query-store',
+    'parent-device-cache',
+    'parent-owned-export',
+    'ocentra-hosted-non-activity',
+    'unavailable'
+  )
 );
 export const LocalAiEvidenceRetentionStateSchema = withParser(
   Schema.Literal('local', 'temporary', 'deleted-source', 'export-copy', 'parent-owned-copy', 'unavailable')
@@ -25,7 +53,16 @@ export const LocalAiConfidenceKindSchema = withParser(
   Schema.Literal('observation', 'correlation', 'classifier', 'model', 'memory-match', 'graph-edge', 'rule-match')
 );
 export const LocalAiContextCapabilityStatusSchema = withParser(
-  Schema.Literal('available', 'unsupported', 'permission-limited', 'stale', 'degraded', 'adapter-error', 'disabled-by-parent', 'unavailable')
+  Schema.Literal(
+    'available',
+    'unsupported',
+    'permission-limited',
+    'stale',
+    'degraded',
+    'adapter-error',
+    'disabled-by-parent',
+    'unavailable'
+  )
 );
 export const LocalAiContextReasonCodeSchema = withParser(
   Schema.Literal(

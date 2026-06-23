@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalReceiptProofSchemaVersionSchema = withParser(
@@ -42,7 +37,9 @@ export const AppGameAndroidChildRuntimeLocalReceiptGapSchema = withParser(
   )
 );
 
-const AndroidChildRuntimeLocalReceiptProofIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalReceiptProofId');
+const AndroidChildRuntimeLocalReceiptProofIdSchema = brandedNonEmptyStringSchema(
+  'AppGameAndroidChildRuntimeLocalReceiptProofId'
+);
 
 const AppGameAndroidChildRuntimeLocalReceiptProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalReceiptProofSchemaVersionSchema,
@@ -167,6 +164,15 @@ function androidChildRuntimeLocalReceiptProofRefs(input: {
 
 function androidChildRuntimeLocalReceiptProofIsHonest(proof: AndroidChildRuntimeLocalReceiptCandidate): boolean {
   return (
+    androidChildRuntimeLocalReceiptStateIsHonest(proof) &&
+    androidChildRuntimeLocalReceiptProofRefsArePresent(proof) &&
+    androidChildRuntimeLocalReceiptOpenGapsArePresent(proof) &&
+    androidChildRuntimeLocalReceiptClaimsRemainScoped(proof)
+  );
+}
+
+function androidChildRuntimeLocalReceiptStateIsHonest(proof: AndroidChildRuntimeLocalReceiptCandidate): boolean {
+  return (
     proof.receiptStoreState === 'internal-receipt-store-available' &&
     proof.receiptAppendState === 'local-receipt-append-recorded' &&
     proof.receiptReadbackState === 'local-receipt-readback-observed' &&
@@ -174,18 +180,33 @@ function androidChildRuntimeLocalReceiptProofIsHonest(proof: AndroidChildRuntime
     proof.packageActivityVisible &&
     proof.uiReceiptAppendStateObserved &&
     proof.uiReceiptReadbackStateObserved &&
-    proof.proofRefs.includes('android-child-runtime-internal-receipt-store-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-write-ref') &&
-    proof.proofRefs.includes('android-child-runtime-local-receipt-readback-ref') &&
-    proof.proofRefs.includes('android-child-runtime-status-ui-ref') &&
-    proof.openGaps.includes('android-child-runtime-transport-not-executed') &&
-    proof.openGaps.includes('android-child-runtime-receipt-not-ingested-by-service') &&
-    proof.openGaps.includes('android-provider-delivery-not-executed') &&
-    proof.openGaps.includes('android-platform-delivery-channel-not-proved') &&
-    proof.openGaps.includes('android-adapter-dispatch-not-proved') &&
-    proof.openGaps.includes('android-platform-enforcement-not-proved') &&
     proof.localReceiptAppendExecuted &&
-    proof.localReceiptReadbackObserved &&
+    proof.localReceiptReadbackObserved
+  );
+}
+
+function androidChildRuntimeLocalReceiptProofRefsArePresent(proof: AndroidChildRuntimeLocalReceiptCandidate): boolean {
+  return includesAll(proof.proofRefs, [
+    'android-child-runtime-internal-receipt-store-ref',
+    'android-child-runtime-local-receipt-write-ref',
+    'android-child-runtime-local-receipt-readback-ref',
+    'android-child-runtime-status-ui-ref',
+  ] as const);
+}
+
+function androidChildRuntimeLocalReceiptOpenGapsArePresent(proof: AndroidChildRuntimeLocalReceiptCandidate): boolean {
+  return includesAll(proof.openGaps, [
+    'android-child-runtime-transport-not-executed',
+    'android-child-runtime-receipt-not-ingested-by-service',
+    'android-provider-delivery-not-executed',
+    'android-platform-delivery-channel-not-proved',
+    'android-adapter-dispatch-not-proved',
+    'android-platform-enforcement-not-proved',
+  ] as const);
+}
+
+function androidChildRuntimeLocalReceiptClaimsRemainScoped(proof: AndroidChildRuntimeLocalReceiptCandidate): boolean {
+  return (
     !proof.runtimeTransportExecuted &&
     !proof.serviceReceiptIngested &&
     !proof.providerDeliveryExecuted &&
@@ -196,3 +217,6 @@ function androidChildRuntimeLocalReceiptProofIsHonest(proof: AndroidChildRuntime
   );
 }
 
+function includesAll<T extends string>(values: readonly T[], required: readonly T[]): boolean {
+  return required.every((value) => values.includes(value));
+}

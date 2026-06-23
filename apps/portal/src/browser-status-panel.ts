@@ -1,8 +1,9 @@
 import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 
@@ -11,7 +12,7 @@ export function renderBrowserManagedStatus(container: HTMLElement, liveActivity:
   panel.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.BrowserManagedStatus);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.BrowserManagedStatus);
 
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
   appendDetail(metadata, PortalDetails.Status, eventStatus(liveActivity.browserManagedEvent));
@@ -53,7 +54,7 @@ export function renderBrowserManagedStatus(container: HTMLElement, liveActivity:
 function emptyMessage(): HTMLElement {
   const message = document.createElement(PortalDom.Tags.Paragraph);
   message.className = PortalDom.Classes.CommandResultEmpty;
-  message.textContent = PortalText.Resolve(PortalTextToken.NoBrowserManagedStatus);
+  message.textContent = resolvePortalDevText(PortalDevTextToken.NoBrowserManagedStatus);
   return message;
 }
 
@@ -79,5 +80,5 @@ function detailFromValue(value: unknown): PortalDetailValue {
 }
 
 function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+  return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
 }

@@ -42,9 +42,8 @@ const providerModule = await import(
   pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-provider-notification-proof.js')).href
 );
 const receiptModule = await import(
-  pathToFileURL(
-    join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-notification-receipt-boundary-proof.js')
-  ).href
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-notification-receipt-boundary-proof.js'))
+    .href
 );
 const historyModule = await import(
   pathToFileURL(

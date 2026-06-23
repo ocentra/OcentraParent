@@ -1,12 +1,8 @@
-import {
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
-import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
-
 export function appendDetail(list: HTMLDListElement, label: PortalDisplayText, value: PortalDetailValue): void {
   const term = document.createElement(PortalDom.Tags.DefinitionTerm);
   term.textContent = label;
@@ -33,5 +29,5 @@ export function portalDetailFromSequence(values: readonly unknown[]): PortalDeta
 }
 
 export function notReportedDetail(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+  return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
 }

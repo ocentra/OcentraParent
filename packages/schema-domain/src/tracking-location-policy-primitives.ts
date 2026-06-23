@@ -1,8 +1,4 @@
-import {
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from './effect';
+import { Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const TrackingPolicySchemaVersion = 'v0.5-tracking';
 
@@ -16,9 +12,7 @@ export const TrackingProviderRouteIdSchema = brandedNonEmptyStringSchema('Tracki
 export const TrackingEscalationIdSchema = brandedNonEmptyStringSchema('TrackingEscalationId');
 export const TrackingLiveTrackingGrantIdSchema = brandedNonEmptyStringSchema('TrackingLiveTrackingGrantId');
 export const TrackingMissingDeviceCaseIdSchema = brandedNonEmptyStringSchema('TrackingMissingDeviceCaseId');
-export const TrackingPolicyReasonCodeSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingPolicyReasonCode')
-);
+export const TrackingPolicyReasonCodeSchema = withParser(brandedNonEmptyStringSchema('TrackingPolicyReasonCode'));
 export const TrackingPolicyAuditRefSchema = brandedNonEmptyStringSchema('TrackingPolicyAuditRef');
 
 export const TrackingPolicyTargetKindSchema = withParser(
@@ -46,20 +40,10 @@ export const TrackingPolicyActionSchema = withParser(
   )
 );
 
-export const TrackingAlertSeveritySchema = withParser(
-  Schema.Literal('info', 'watch', 'warning', 'urgent', 'critical')
-);
+export const TrackingAlertSeveritySchema = withParser(Schema.Literal('info', 'watch', 'warning', 'urgent', 'critical'));
 
 export const TrackingAcknowledgementStateSchema = withParser(
-  Schema.Literal(
-    'open',
-    'acknowledged-safe',
-    'expected',
-    'holiday-mode',
-    'trip-exception',
-    'false-alarm',
-    'expired'
-  )
+  Schema.Literal('open', 'acknowledged-safe', 'expected', 'holiday-mode', 'trip-exception', 'false-alarm', 'expired')
 );
 
 export const TrackingCheckInRequestStateSchema = withParser(

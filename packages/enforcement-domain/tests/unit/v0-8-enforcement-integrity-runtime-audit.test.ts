@@ -68,12 +68,8 @@ function registerReadModelSummaryTest() {
     expect(entries.every((entry) => !entry.mobilePrivilegeClaimed)).toBe(true);
     expect(entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
     expect(entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
-    expect(notificationProviderEntries.every((entry) => !entry.providerDeliveryObserved)).toBe(
-      true
-    );
-    expect(
-      notificationProviderEntries.every((entry) => !entry.deliveredNotificationClaimed)
-    ).toBe(true);
+    expect(notificationProviderEntries.every((entry) => !entry.providerDeliveryObserved)).toBe(true);
+    expect(notificationProviderEntries.every((entry) => !entry.deliveredNotificationClaimed)).toBe(true);
   });
 }
 
@@ -234,9 +230,7 @@ function registerRejectionTest() {
 function entryFor(auditEntryId: string): V08EnforcementIntegrityRuntimeAuditEntry {
   const entries: readonly V08EnforcementIntegrityRuntimeAuditEntry[] =
     V08EnforcementIntegrityRuntimeAuditReadModel.entries;
-  const entry = entries.find(
-    (candidate) => candidate.auditEntryId === auditEntryId
-  );
+  const entry = entries.find((candidate) => candidate.auditEntryId === auditEntryId);
   if (entry === undefined) {
     throw new Error(`Missing V0.8 enforcement integrity runtime audit entry: ${auditEntryId}`);
   }

@@ -18,14 +18,17 @@ use ocentra_network_evidence::{
         },
     },
 };
-use ocentra_parent_agent_protocol::{
-    constants,
-    network_windows_firewall_lab_status::{
-        NetworkWindowsFirewallLabCommandStatusKind, NetworkWindowsFirewallLabCommandStatusRow,
-        NetworkWindowsFirewallLabStatus, NetworkWindowsFirewallLabStatusState,
-    },
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::network_windows_firewall_lab_status::{
+    NetworkWindowsFirewallLabCommandStatusKind, NetworkWindowsFirewallLabCommandStatusRow,
+    NetworkWindowsFirewallLabStatus, NetworkWindowsFirewallLabStatusState,
 };
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
@@ -66,7 +69,7 @@ pub(crate) fn build_network_windows_firewall_lab_status_report(
 pub(crate) fn network_windows_firewall_lab_status_payload() -> Result<LogFields, ()> {
     let proof = lab_execution_proof()?;
     let status = status_from_proof(&proof);
-    let serialized = serde_json::to_string(&status).map_err(|_| ())?;
+    let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
     Ok(fields_from_pairs(vec![(
         constants::network_flow::FIELD_NETWORK_WINDOWS_FIREWALL_LAB_STATUS,
         LogFieldValue::String(serialized),
@@ -75,8 +78,9 @@ pub(crate) fn network_windows_firewall_lab_status_payload() -> Result<LogFields,
 
 fn lab_execution_proof() -> Result<NetworkWindowsFirewallLabExecutionProof, ()> {
     let adapter_proof =
-        plan_network_windows_firewall_adapter_proof(adapter_input()).map_err(|_| ())?;
-    prove_network_windows_firewall_lab_execution(lab_execution_input(adapter_proof)).map_err(|_| ())
+        plan_network_windows_firewall_adapter_proof(adapter_input()).map_err(|_error| ())?;
+    prove_network_windows_firewall_lab_execution(lab_execution_input(adapter_proof))
+        .map_err(|_error| ())
 }
 
 fn status_from_proof(
@@ -178,7 +182,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
             constants::network_flow::TEST_WINDOWS_FIREWALL_CAPABILITY_PROOF_REF.to_string(),
         ),
     })
-    .unwrap_or_else(|_| unreachable!())
+    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn lab_execution_input(

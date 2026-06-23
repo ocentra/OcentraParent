@@ -26,12 +26,12 @@ fn foreground_app_requires_policy_without_ai_analysis() {
         ChildDomainPolicyEvaluationRequirement::Required
     );
     assert_eq!(app_ai_analysis_requested_event(&evidence), None);
-    assert_eq!(
-        app_policy_evaluation_requested_event(&evidence)
-            .expect("foreground app policy request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
+    let policy = app_policy_evaluation_requested_event(&evidence);
+    assert!(policy.is_some(), "foreground app policy request");
+    let Some(policy) = policy else {
+        return;
+    };
+    assert_eq!(policy.evidence_refs, vec![evidence.evidence_ref]);
 }
 
 #[test]
@@ -43,13 +43,13 @@ fn unknown_app_requests_ai_then_policy_evidence() {
         observed.observed_state,
         ChildDomainObservedSignal::RequiresAi.into_observed_state()
     );
-    assert_eq!(
-        app_ai_analysis_requested_event(&evidence)
-            .expect("unknown app ai request")
-            .evidence_refs,
-        vec![evidence.evidence_ref.clone()]
-    );
+    let ai = app_ai_analysis_requested_event(&evidence);
+    assert!(ai.is_some(), "unknown app ai request");
+    let Some(ai) = ai else {
+        return;
+    };
     assert_eq!(app_policy_evaluation_requested_event(&evidence), None);
+    assert_eq!(ai.evidence_refs, vec![evidence.evidence_ref]);
 }
 
 #[test]

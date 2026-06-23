@@ -238,15 +238,24 @@ fn has_unsupported_claims(
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
+
     use super::*;
 
+    type TestResult = Result<(), String>;
+
+    fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> TestResultValue<T> {
+        result.map_err(|error| format!("{context}: {error:?}"))
+    }
+
+    type TestResultValue<T> = Result<T, String>;
+
     #[tokio::test]
-    async fn preserves_provider_child_readiness_refs_without_cross_process_claims() {
-        let report = prove_network_runtime_remote_delivery_cross_process_custody_readiness()
-            .await
-            .expect(
-                constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS,
-            );
+    async fn preserves_provider_child_readiness_refs_without_cross_process_claims() -> TestResult {
+        let report = ok(
+            prove_network_runtime_remote_delivery_cross_process_custody_readiness().await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS,
+        )?;
 
         assert_eq!(
             report.cross_process_custody_status_ref.as_str(),
@@ -270,14 +279,17 @@ mod tests {
         );
         assert_cross_process_custody_readiness_counts(&report);
         assert_cross_process_custody_readiness_no_claims(&report);
+
+        Ok(())
     }
 
     #[tokio::test]
-    async fn rejects_cross_process_replay_claims() {
-        let mut provider_child_readiness =
+    async fn rejects_cross_process_replay_claims() -> TestResult {
+        let mut provider_child_readiness = ok(
             crate::network_event_runtime::remote_delivery_provider_child_readiness::prove_network_runtime_remote_delivery_provider_child_readiness()
-                .await
-                .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS);
+                .await,
+            constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS,
+        )?;
         provider_child_readiness
             .fixture_transport
             .outbox_handoff
@@ -295,6 +307,8 @@ mod tests {
             proof_result,
             Err(NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError::UnsupportedClaim)
         ));
+
+        Ok(())
     }
 
     fn assert_cross_process_custody_readiness_counts(

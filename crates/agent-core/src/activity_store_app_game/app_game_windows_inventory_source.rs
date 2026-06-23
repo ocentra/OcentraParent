@@ -4,17 +4,19 @@ use std::{
 };
 
 use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
-#[cfg(windows)]
-use ocentra_parent_agent_protocol::{
-    constants, APP_GAME_WINDOWS_PATH_MICROSOFT, APP_GAME_WINDOWS_PATH_PROGRAMS,
-    APP_GAME_WINDOWS_PATH_START_MENU, APP_GAME_WINDOWS_PATH_WINDOWS,
-};
-use ocentra_parent_agent_protocol::{
-    ActivityEvent, APP_GAME_CONFIDENCE_SHORTCUT_INVENTORY, APP_GAME_DESKTOP_ENTRY_ID_PREFIX,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CONFIDENCE_SHORTCUT_INVENTORY, APP_GAME_DESKTOP_ENTRY_ID_PREFIX,
     APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT, APP_GAME_INVENTORY_ENTRY_ID_PREFIX,
     APP_GAME_INVENTORY_SOURCE_SHORTCUT, APP_GAME_INVENTORY_STATE_INSTALLED,
     APP_GAME_WINDOWS_SHORTCUT_EXTENSION,
 };
+#[cfg(windows)]
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_WINDOWS_PATH_MICROSOFT, APP_GAME_WINDOWS_PATH_PROGRAMS,
+    APP_GAME_WINDOWS_PATH_START_MENU, APP_GAME_WINDOWS_PATH_WINDOWS,
+};
+use ocentra_parent_agent_protocol::constants;
 use sha2::{Digest, Sha256};
 
 use super::{

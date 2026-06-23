@@ -12,17 +12,8 @@ import {
   ParentAccountReferenceSchema,
   ParentDeviceReferenceSchema,
 } from './family-references';
-import {
-  type RecoveryOperation,
-  RecoveryOperationSchema,
-  RecoveryState,
-} from './family-restore-lifecycle';
-import {
-  type SetupInvite,
-  SetupInvitePurpose,
-  SetupInviteSchema,
-  SetupInviteState,
-} from './family-setup-invite';
+import { type RecoveryOperation, RecoveryOperationSchema, RecoveryState } from './family-restore-lifecycle';
+import { type SetupInvite, SetupInvitePurpose, SetupInviteSchema, SetupInviteState } from './family-setup-invite';
 import { type Infer, Schema, withParser } from './effect';
 import { SetupPairingIntentIdSchema } from './setup-pairing-intent';
 
@@ -293,93 +284,113 @@ export const RegistrationEntryRouteContracts = [
 ] as const;
 
 export const RegistrationStateMatrix = [
-  registrationStateMatrixRowShape(RegistrationSetupState.Unauthenticated, [
-    RegistrationEntryRoute.Register,
-    RegistrationEntryRoute.Login,
-    RegistrationEntryRoute.InviteAccept,
-    RegistrationEntryRoute.Recovery,
-  ], [
-    RegistrationHandoffFieldLiteral.ProviderState,
-    RegistrationHandoffFieldLiteral.SetupInvite,
-    RegistrationHandoffFieldLiteral.RecoveryMethod,
-    RegistrationHandoffFieldLiteral.RecoveryOperation,
-  ]),
-  registrationStateMatrixRowShape(RegistrationSetupState.AuthenticatedNoHousehold, [
-    RegistrationEntryRoute.Logout,
-    RegistrationEntryRoute.ResumeSetup,
-    RegistrationEntryRoute.InviteAccept,
-    RegistrationEntryRoute.Recovery,
-  ], [
-    RegistrationHandoffFieldLiteral.ProviderState,
-    RegistrationHandoffFieldLiteral.SessionFreshness,
-    RegistrationHandoffFieldLiteral.ParentAccount,
-    RegistrationHandoffFieldLiteral.SetupInvite,
-    RegistrationHandoffFieldLiteral.RecoveryMethod,
-    RegistrationHandoffFieldLiteral.RecoveryOperation,
-  ]),
-  registrationStateMatrixRowShape(RegistrationSetupState.HouseholdNoChild, [
-    RegistrationEntryRoute.Logout,
-    RegistrationEntryRoute.ResumeSetup,
-    RegistrationEntryRoute.InviteAccept,
-    RegistrationEntryRoute.Recovery,
-  ], [
-    RegistrationHandoffFieldLiteral.ProviderState,
-    RegistrationHandoffFieldLiteral.SessionFreshness,
-    RegistrationHandoffFieldLiteral.ParentAccount,
-    RegistrationHandoffFieldLiteral.Family,
-    RegistrationHandoffFieldLiteral.SetupInvite,
-    RegistrationHandoffFieldLiteral.RecoveryMethod,
-    RegistrationHandoffFieldLiteral.RecoveryOperation,
-  ]),
-  registrationStateMatrixRowShape(RegistrationSetupState.HouseholdChildNoDevice, [
-    RegistrationEntryRoute.Logout,
-    RegistrationEntryRoute.ResumeSetup,
-    RegistrationEntryRoute.InviteAccept,
-    RegistrationEntryRoute.Recovery,
-  ], [
-    RegistrationHandoffFieldLiteral.ProviderState,
-    RegistrationHandoffFieldLiteral.SessionFreshness,
-    RegistrationHandoffFieldLiteral.ParentAccount,
-    RegistrationHandoffFieldLiteral.Family,
-    RegistrationHandoffFieldLiteral.ChildProfile,
-    RegistrationHandoffFieldLiteral.SetupInvite,
-    RegistrationHandoffFieldLiteral.RecoveryMethod,
-    RegistrationHandoffFieldLiteral.RecoveryOperation,
-    RegistrationHandoffFieldLiteral.PairingIntentId,
-  ]),
-  registrationStateMatrixRowShape(RegistrationSetupState.Paired, [
-    RegistrationEntryRoute.Logout,
-    RegistrationEntryRoute.ResumeSetup,
-    RegistrationEntryRoute.Recovery,
-  ], [
-    RegistrationHandoffFieldLiteral.ProviderState,
-    RegistrationHandoffFieldLiteral.SessionFreshness,
-    RegistrationHandoffFieldLiteral.ParentAccount,
-    RegistrationHandoffFieldLiteral.Family,
-    RegistrationHandoffFieldLiteral.ChildProfile,
-    RegistrationHandoffFieldLiteral.ChildDevice,
-    RegistrationHandoffFieldLiteral.RecoveryMethod,
-    RegistrationHandoffFieldLiteral.RecoveryOperation,
-    RegistrationHandoffFieldLiteral.PairingIntentId,
-  ]),
-  registrationStateMatrixRowShape(RegistrationSetupState.Degraded, [
-    RegistrationEntryRoute.Login,
-    RegistrationEntryRoute.Logout,
-    RegistrationEntryRoute.InviteAccept,
-    RegistrationEntryRoute.ResumeSetup,
-    RegistrationEntryRoute.Recovery,
-  ], [
-    RegistrationHandoffFieldLiteral.ProviderState,
-    RegistrationHandoffFieldLiteral.SessionFreshness,
-    RegistrationHandoffFieldLiteral.ParentAccount,
-    RegistrationHandoffFieldLiteral.Family,
-    RegistrationHandoffFieldLiteral.ChildProfile,
-    RegistrationHandoffFieldLiteral.ChildDevice,
-    RegistrationHandoffFieldLiteral.SetupInvite,
-    RegistrationHandoffFieldLiteral.RecoveryMethod,
-    RegistrationHandoffFieldLiteral.RecoveryOperation,
-    RegistrationHandoffFieldLiteral.PairingIntentId,
-  ]),
+  registrationStateMatrixRowShape(
+    RegistrationSetupState.Unauthenticated,
+    [
+      RegistrationEntryRoute.Register,
+      RegistrationEntryRoute.Login,
+      RegistrationEntryRoute.InviteAccept,
+      RegistrationEntryRoute.Recovery,
+    ],
+    [
+      RegistrationHandoffFieldLiteral.ProviderState,
+      RegistrationHandoffFieldLiteral.SetupInvite,
+      RegistrationHandoffFieldLiteral.RecoveryMethod,
+      RegistrationHandoffFieldLiteral.RecoveryOperation,
+    ]
+  ),
+  registrationStateMatrixRowShape(
+    RegistrationSetupState.AuthenticatedNoHousehold,
+    [
+      RegistrationEntryRoute.Logout,
+      RegistrationEntryRoute.ResumeSetup,
+      RegistrationEntryRoute.InviteAccept,
+      RegistrationEntryRoute.Recovery,
+    ],
+    [
+      RegistrationHandoffFieldLiteral.ProviderState,
+      RegistrationHandoffFieldLiteral.SessionFreshness,
+      RegistrationHandoffFieldLiteral.ParentAccount,
+      RegistrationHandoffFieldLiteral.SetupInvite,
+      RegistrationHandoffFieldLiteral.RecoveryMethod,
+      RegistrationHandoffFieldLiteral.RecoveryOperation,
+    ]
+  ),
+  registrationStateMatrixRowShape(
+    RegistrationSetupState.HouseholdNoChild,
+    [
+      RegistrationEntryRoute.Logout,
+      RegistrationEntryRoute.ResumeSetup,
+      RegistrationEntryRoute.InviteAccept,
+      RegistrationEntryRoute.Recovery,
+    ],
+    [
+      RegistrationHandoffFieldLiteral.ProviderState,
+      RegistrationHandoffFieldLiteral.SessionFreshness,
+      RegistrationHandoffFieldLiteral.ParentAccount,
+      RegistrationHandoffFieldLiteral.Family,
+      RegistrationHandoffFieldLiteral.SetupInvite,
+      RegistrationHandoffFieldLiteral.RecoveryMethod,
+      RegistrationHandoffFieldLiteral.RecoveryOperation,
+    ]
+  ),
+  registrationStateMatrixRowShape(
+    RegistrationSetupState.HouseholdChildNoDevice,
+    [
+      RegistrationEntryRoute.Logout,
+      RegistrationEntryRoute.ResumeSetup,
+      RegistrationEntryRoute.InviteAccept,
+      RegistrationEntryRoute.Recovery,
+    ],
+    [
+      RegistrationHandoffFieldLiteral.ProviderState,
+      RegistrationHandoffFieldLiteral.SessionFreshness,
+      RegistrationHandoffFieldLiteral.ParentAccount,
+      RegistrationHandoffFieldLiteral.Family,
+      RegistrationHandoffFieldLiteral.ChildProfile,
+      RegistrationHandoffFieldLiteral.SetupInvite,
+      RegistrationHandoffFieldLiteral.RecoveryMethod,
+      RegistrationHandoffFieldLiteral.RecoveryOperation,
+      RegistrationHandoffFieldLiteral.PairingIntentId,
+    ]
+  ),
+  registrationStateMatrixRowShape(
+    RegistrationSetupState.Paired,
+    [RegistrationEntryRoute.Logout, RegistrationEntryRoute.ResumeSetup, RegistrationEntryRoute.Recovery],
+    [
+      RegistrationHandoffFieldLiteral.ProviderState,
+      RegistrationHandoffFieldLiteral.SessionFreshness,
+      RegistrationHandoffFieldLiteral.ParentAccount,
+      RegistrationHandoffFieldLiteral.Family,
+      RegistrationHandoffFieldLiteral.ChildProfile,
+      RegistrationHandoffFieldLiteral.ChildDevice,
+      RegistrationHandoffFieldLiteral.RecoveryMethod,
+      RegistrationHandoffFieldLiteral.RecoveryOperation,
+      RegistrationHandoffFieldLiteral.PairingIntentId,
+    ]
+  ),
+  registrationStateMatrixRowShape(
+    RegistrationSetupState.Degraded,
+    [
+      RegistrationEntryRoute.Login,
+      RegistrationEntryRoute.Logout,
+      RegistrationEntryRoute.InviteAccept,
+      RegistrationEntryRoute.ResumeSetup,
+      RegistrationEntryRoute.Recovery,
+    ],
+    [
+      RegistrationHandoffFieldLiteral.ProviderState,
+      RegistrationHandoffFieldLiteral.SessionFreshness,
+      RegistrationHandoffFieldLiteral.ParentAccount,
+      RegistrationHandoffFieldLiteral.Family,
+      RegistrationHandoffFieldLiteral.ChildProfile,
+      RegistrationHandoffFieldLiteral.ChildDevice,
+      RegistrationHandoffFieldLiteral.SetupInvite,
+      RegistrationHandoffFieldLiteral.RecoveryMethod,
+      RegistrationHandoffFieldLiteral.RecoveryOperation,
+      RegistrationHandoffFieldLiteral.PairingIntentId,
+    ]
+  ),
 ] as const;
 
 export function registrationEntryRouteContract(routeId: RegistrationEntryRoute): RegistrationEntryRouteContract {
@@ -494,7 +505,10 @@ function assertRegistrationRouteRequirements(input: RegistrationIdentityHandoff)
 }
 
 function assertRegistrationChildDataBoundary(input: RegistrationIdentityHandoff): void {
-  if (input.family === null && (input.childProfile !== null || input.childDevice !== null || input.pairingIntentId !== null)) {
+  if (
+    input.family === null &&
+    (input.childProfile !== null || input.childDevice !== null || input.pairingIntentId !== null)
+  ) {
     throw new Error('registration.no-child-data-before-household');
   }
 
@@ -599,7 +613,8 @@ function doesSetupInviteMatchTargetRole(input: SetupInvite): boolean {
   return (
     (invite.purpose === SetupInvitePurpose.CoParentInvite && invite.targetRole === HouseholdRole.CoParentGuardian) ||
     (invite.purpose === SetupInvitePurpose.ObserverInvite && invite.targetRole === HouseholdRole.Observer) ||
-    (invite.purpose === SetupInvitePurpose.ChildDevicePairing && invite.targetRole === HouseholdRole.ChildDeviceAgent) ||
+    (invite.purpose === SetupInvitePurpose.ChildDevicePairing &&
+      invite.targetRole === HouseholdRole.ChildDeviceAgent) ||
     (invite.purpose === SetupInvitePurpose.HouseholdTransfer && invite.targetRole === HouseholdRole.ParentOwner)
   );
 }

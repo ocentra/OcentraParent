@@ -2,7 +2,6 @@ import {
   type HouseholdAuthorityInput,
   DeviceTrustState,
   HouseholdAuthorityInputSchema,
-  HouseholdAuthorizationFailureReasonSchema,
   HouseholdAuthorizationFailureReason,
   HouseholdAuthorizationState,
   ParentStepUpValidationFailureReason,
@@ -12,9 +11,7 @@ import {
   authorizeHouseholdAction,
   validateParentStepUpAssertion,
 } from '@ocentra-parent/family-domain/household-authority';
-import {
-  ParentAccountReferenceSchema,
-} from '@ocentra-parent/schema-domain/family-references';
+import { ParentAccountReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import {
   deviceTrustStateForRecoveryOperation,
   isSetupInviteSinglePurpose,
@@ -45,29 +42,25 @@ import {
 } from '@ocentra-parent/schema-domain/family-setup-bridge';
 import {
   SetupAccountReadinessState,
-  SetupAccountReadinessStateSchema,
   SetupChildInstallState,
   SetupChildServiceState,
   SetupDataCustodySyncState,
   SetupNetworkReachabilityState,
   SetupPermissionReadinessState,
-  SetupReadinessChecklistItem,
   createSetupReadinessChecklist,
   deriveSetupChildInstallStateFromAppState,
   deriveSetupChildServiceStateFromAppState,
-  SetupReadinessReport,
+  type SetupReadinessChecklistItem,
+  type SetupReadinessReport,
   SetupReadinessReportSchema,
-  SetupRecoveryOperation,
+  type SetupRecoveryOperation,
   SetupRecoveryOperationSchema,
   SetupRecoveryState,
-  SetupRecoveryStateSchema,
 } from '@ocentra-parent/schema-domain/setup-readiness';
 import {
   deriveParentStepUpAssertionFromSetupPairingApproval,
   SetupPairingFailureReason,
-  SetupPairingFailureReasonSchema,
   SetupPairingState,
-  SetupPairingStateSchema,
 } from '@ocentra-parent/schema-domain/setup-pairing-intent';
 
 function resolvedChildInstallState(input: SetupFamilyReadinessInput) {
@@ -78,21 +71,26 @@ function resolvedChildServiceState(input: SetupFamilyReadinessInput) {
   return input.childServiceState ?? deriveSetupChildServiceStateFromAppState(input.childAppState);
 }
 
-export function deriveSetupPairingProjectionFromFamilyContext(
-  input: SetupFamilyReadinessInput
-): SetupPairingProjection {
-  const parsedInput = SetupFamilyReadinessInputSchema.parse(input);
-  const authorityDecision = authorizeHouseholdAction(parsedInput.householdAuthorityInput);
-  const familyRecoveryState = setupRecoveryStateFromFamilyOperation(parsedInput.recoveryOperation);
-  const childInstallState = resolvedChildInstallState(parsedInput);
-  const childServiceState = resolvedChildServiceState(parsedInput);
-  const inviteAccepted = parsedInput.setupInvite.state === SetupInviteState.Accepted;
+type SetupPairingAuthorityDecision = ReturnType<typeof authorizeHouseholdAction>;
+type RequiredPairingStepUpStatus = ReturnType<typeof evaluateRequiredPairingStepUp>;
+type SetupPairingContext = {
+  readonly parsedInput: SetupFamilyReadinessInput;
+  readonly authorityDecision: SetupPairingAuthorityDecision;
+  readonly accountState: SetupAccountReadinessState;
+  readonly familyRecoveryState: SetupRecoveryState;
+  readonly childInstallState: ReturnType<typeof resolvedChildInstallState>;
+  readonly childServiceState: ReturnType<typeof resolvedChildServiceState>;
+  readonly inviteAccepted: boolean;
+};
+
+function pairingProjectionForImmediateFailures(context: SetupPairingContext): SetupPairingProjection | null {
+  const { parsedInput, accountState, childServiceState } = context;
 
   if (parsedInput.replayDetected) {
     return pairingProjection(
       SetupPairingState.Replayed,
       SetupPairingFailureReason.ReplayRejected,
-      accountStateForPairing(parsedInput, authorityDecision),
+      accountState,
       SetupRecoveryState.Required
     );
   }
@@ -101,7 +99,7 @@ export function deriveSetupPairingProjectionFromFamilyContext(
     return pairingProjection(
       SetupPairingState.StaleSignedHello,
       SetupPairingFailureReason.StaleSignedHello,
-      accountStateForPairing(parsedInput, authorityDecision),
+      accountState,
       SetupRecoveryState.Required
     );
   }
@@ -110,7 +108,7 @@ export function deriveSetupPairingProjectionFromFamilyContext(
     return pairingProjection(
       SetupPairingState.Expired,
       SetupPairingFailureReason.StaleCode,
-      accountStateForPairing(parsedInput, authorityDecision),
+      accountState,
       SetupRecoveryState.Required
     );
   }
@@ -133,31 +131,32 @@ export function deriveSetupPairingProjectionFromFamilyContext(
     );
   }
 
-  if (parsedInput.childDeviceRevoked || parsedInput.setupInvite.state === SetupInviteState.Revoked) {
-    return pairingProjection(
-      SetupPairingState.Revoked,
-      SetupPairingFailureReason.RevokedDevice,
-      accountStateForPairing(parsedInput, authorityDecision),
-      SetupRecoveryState.Required
-    );
-  }
-
-  if (childServiceState === SetupChildServiceState.Revoked) {
-    return pairingProjection(
-      SetupPairingState.Revoked,
-      SetupPairingFailureReason.RevokedDevice,
-      accountStateForPairing(parsedInput, authorityDecision),
-      SetupRecoveryState.Required
-    );
-  }
-
   if (
-    authorityDecision.authorizationState === HouseholdAuthorizationState.Rejected &&
-    !(
-      parsedInput.setupInvite.state === SetupInviteState.Accepted &&
-      parsedInput.householdAuthorityInput.deviceTrustState === DeviceTrustState.Pending
-    )
+    parsedInput.childDeviceRevoked ||
+    parsedInput.setupInvite.state === SetupInviteState.Revoked ||
+    childServiceState === SetupChildServiceState.Revoked
   ) {
+    return pairingProjection(
+      SetupPairingState.Revoked,
+      SetupPairingFailureReason.RevokedDevice,
+      accountState,
+      SetupRecoveryState.Required
+    );
+  }
+
+  return null;
+}
+
+function pairingProjectionForAuthorityAndReadiness(context: SetupPairingContext): SetupPairingProjection | null {
+  const {
+    parsedInput,
+    authorityDecision,
+    accountState,
+    familyRecoveryState,
+    inviteAccepted,
+  } = context;
+
+  if (rejectedAuthorityRequiresRecoveryProjection(context)) {
     return pairingProjection(
       pairingStateForRejectedAuthority(authorityDecision.failureReason),
       pairingFailureReasonForRejectedAuthority(authorityDecision.failureReason),
@@ -166,82 +165,61 @@ export function deriveSetupPairingProjectionFromFamilyContext(
     );
   }
 
-  if (
-    inviteAccepted &&
-    (childInstallState !== SetupChildInstallState.Installed ||
-      childServiceState === SetupChildServiceState.NotStarted ||
-      parsedInput.permissionState !== SetupPermissionReadinessState.Granted)
-  ) {
-    return pairingProjection(
-      SetupPairingState.Accepted,
-      null,
-      accountStateForPairing(parsedInput, authorityDecision),
-      familyRecoveryState
-    );
+  if (inviteAcceptedWithPendingSetupDependencies(context)) {
+    return pairingProjection(SetupPairingState.Accepted, null, accountState, familyRecoveryState);
   }
 
   if (parsedInput.permissionState !== SetupPermissionReadinessState.Granted) {
     return pairingProjection(
       SetupPairingState.Untrusted,
       SetupPairingFailureReason.PermissionLoss,
-      accountStateForPairing(parsedInput, authorityDecision),
+      accountState,
       SetupRecoveryState.Required
     );
   }
 
-  if (
-    childServiceState === SetupChildServiceState.Offline ||
-    parsedInput.networkReachabilityState === SetupNetworkReachabilityState.OfflineChild
-  ) {
+  if (pairingChildIsOffline(context)) {
     return pairingProjection(
       inviteAccepted ? SetupPairingState.Accepted : SetupPairingState.Untrusted,
       SetupPairingFailureReason.OfflineChild,
-      accountStateForPairing(parsedInput, authorityDecision),
+      accountState,
       inviteAccepted ? familyRecoveryState : SetupRecoveryState.Required
     );
   }
 
-  const requiredStepUpStatus = evaluateRequiredPairingStepUp(parsedInput);
+  return null;
+}
 
-  if (requiredStepUpStatus.kind === 'pending') {
+function pairingProjectionFromStepUpStatus(
+  context: SetupPairingContext,
+  requiredStepUpStatus: RequiredPairingStepUpStatus
+): SetupPairingProjection {
+  const { accountState, familyRecoveryState, inviteAccepted } = context;
+
+  switch (requiredStepUpStatus.kind) {
+    case 'pending':
+      return pairingProjection(SetupPairingState.Accepted, null, accountState, familyRecoveryState);
+    case 'rejected':
+      return pairingProjection(
+        requiredStepUpStatus.pairingState,
+        requiredStepUpStatus.failureReason,
+        accountStateForRejectedStepUp(accountState, requiredStepUpStatus.failureReason),
+        SetupRecoveryState.Required
+      );
+    default:
+      break;
+  }
+
+  if (acceptedInviteWithPendingTrustedDevice(context, requiredStepUpStatus)) {
     return pairingProjection(
       SetupPairingState.Accepted,
       null,
-      accountStateForPairing(parsedInput, authorityDecision),
+      accountStateForPendingTrustedInvite(familyRecoveryState),
       familyRecoveryState
     );
   }
 
-  if (requiredStepUpStatus.kind === 'rejected') {
-    return pairingProjection(
-      requiredStepUpStatus.pairingState,
-      requiredStepUpStatus.failureReason,
-      requiredStepUpStatus.failureReason === SetupPairingFailureReason.WrongAccount
-        ? SetupAccountReadinessState.WrongAccount
-        : accountStateForPairing(parsedInput, authorityDecision),
-      SetupRecoveryState.Required
-    );
-  }
-
-  if (
-    parsedInput.setupInvite.state === SetupInviteState.Accepted &&
-    parsedInput.householdAuthorityInput.deviceTrustState === DeviceTrustState.Pending &&
-    requiredStepUpStatus.kind !== 'satisfied'
-  ) {
-    return pairingProjection(
-      SetupPairingState.Accepted,
-      null,
-      familyRecoveryState === SetupRecoveryState.Normal || familyRecoveryState === SetupRecoveryState.Recovered
-        ? SetupAccountReadinessState.Ready
-        : SetupAccountReadinessState.RecoveryRequired,
-      familyRecoveryState
-    );
-  }
-
-  if (
-    familyRecoveryState === SetupRecoveryState.Recovered &&
-    parsedInput.setupInvite.state === SetupInviteState.Accepted
-  ) {
+  if (familyRecoveryState === SetupRecoveryState.Recovered && inviteAccepted) {
     return pairingProjection(
       SetupPairingState.Recovered,
       null,
@@ -252,16 +230,14 @@ export function deriveSetupPairingProjectionFromFamilyContext(
 
   if (familyRecoveryState !== SetupRecoveryState.Normal) {
     return pairingProjection(
-      parsedInput.setupInvite.state === SetupInviteState.Accepted
-        ? SetupPairingState.Accepted
-        : SetupPairingState.Displayed,
+      inviteAccepted ? SetupPairingState.Accepted : SetupPairingState.Displayed,
       null,
       SetupAccountReadinessState.RecoveryRequired,
       familyRecoveryState
     );
   }
 
-  if (parsedInput.setupInvite.state === SetupInviteState.Accepted) {
+  if (inviteAccepted) {
     return pairingProjection(
       SetupPairingState.Trusted,
       null,
@@ -278,6 +254,35 @@ export function deriveSetupPairingProjectionFromFamilyContext(
   );
 }
 
+export function deriveSetupPairingProjectionFromFamilyContext(
+  input: SetupFamilyReadinessInput
+): SetupPairingProjection {
+  const parsedInput = SetupFamilyReadinessInputSchema.parse(input);
+  const authorityDecision = authorizeHouseholdAction(parsedInput.householdAuthorityInput);
+  const pairingContext: SetupPairingContext = {
+    parsedInput,
+    authorityDecision,
+    accountState: accountStateForPairing(parsedInput, authorityDecision),
+    familyRecoveryState: setupRecoveryStateFromFamilyOperation(parsedInput.recoveryOperation),
+    childInstallState: resolvedChildInstallState(parsedInput),
+    childServiceState: resolvedChildServiceState(parsedInput),
+    inviteAccepted: parsedInput.setupInvite.state === SetupInviteState.Accepted,
+  };
+  const immediateFailureProjection = pairingProjectionForImmediateFailures(pairingContext);
+
+  if (immediateFailureProjection !== null) {
+    return immediateFailureProjection;
+  }
+
+  const readinessProjection = pairingProjectionForAuthorityAndReadiness(pairingContext);
+
+  if (readinessProjection !== null) {
+    return readinessProjection;
+  }
+
+  return pairingProjectionFromStepUpStatus(pairingContext, evaluateRequiredPairingStepUp(parsedInput));
+}
+
 export function deriveSetupRecoveryProjectionFromFamilyContext(
   input: SetupFamilyReadinessInput,
   pairing: SetupPairingProjection
@@ -285,47 +290,18 @@ export function deriveSetupRecoveryProjectionFromFamilyContext(
   const parsedInput = SetupFamilyReadinessInputSchema.parse(input);
   const parsedPairing = SetupPairingProjectionSchema.parse(pairing);
   const childServiceState = resolvedChildServiceState(parsedInput);
-
   const familyRecoveryState = setupRecoveryStateFromFamilyOperation(parsedInput.recoveryOperation);
-  const recoveryState =
-    parsedPairing.recoveryState === SetupRecoveryState.Recovered || familyRecoveryState === SetupRecoveryState.Recovered
-      ? SetupRecoveryState.Recovered
-      : parsedPairing.recoveryState === SetupRecoveryState.InProgress ||
-          familyRecoveryState === SetupRecoveryState.InProgress
-        ? SetupRecoveryState.InProgress
-        : parsedPairing.recoveryState === SetupRecoveryState.Required ||
-            familyRecoveryState === SetupRecoveryState.Required
-          ? SetupRecoveryState.Required
-          : SetupRecoveryState.Normal;
-
-  const custodyBlockedByRecovery =
-    parsedInput.recoveryOperation !== null &&
-    (recoveryDataCustodyHandoffState(parsedInput.recoveryOperation) !== RecoveryDataCustodyHandoffState.None ||
-      (recoveryRequiresAuditedSupport(parsedInput.recoveryOperation) &&
-        recoveryState !== SetupRecoveryState.Recovered));
-
-  const custodySyncPending =
-    parsedInput.custodySyncPending ||
-    childServiceState === SetupChildServiceState.Offline ||
-    parsedInput.networkReachabilityState === SetupNetworkReachabilityState.OfflineChild;
-
-  const dataCustodySyncState = custodyBlockedByRecovery
-    ? SetupDataCustodySyncState.Blocked
-    : recoveryState !== SetupRecoveryState.Normal && recoveryState !== SetupRecoveryState.Recovered
-      ? custodySyncPending
-        ? SetupDataCustodySyncState.SyncPending
-        : SetupDataCustodySyncState.Blocked
-      : custodySyncPending
-        ? SetupDataCustodySyncState.SyncPending
-        : SetupDataCustodySyncState.Synced;
+  const recoveryState = mergedRecoveryState(parsedPairing.recoveryState, familyRecoveryState);
+  const custodyBlockedByRecovery = recoveryBlocksCustodyHandoff(parsedInput.recoveryOperation, recoveryState);
+  const custodySyncPending = custodySyncIsPending(parsedInput, childServiceState);
+  const dataCustodySyncState = dataCustodySyncStateFromRecovery(
+    custodyBlockedByRecovery,
+    recoveryState,
+    custodySyncPending
+  );
 
   return SetupRecoveryProjectionSchema.parse({
-    accountState:
-      parsedPairing.accountState === SetupAccountReadinessState.WrongAccount
-        ? SetupAccountReadinessState.WrongAccount
-        : recoveryState === SetupRecoveryState.Normal || recoveryState === SetupRecoveryState.Recovered
-          ? parsedPairing.accountState
-          : SetupAccountReadinessState.RecoveryRequired,
+    accountState: recoveryProjectionAccountState(parsedPairing.accountState, recoveryState),
     recoveryState,
     dataCustodySyncState,
   });
@@ -390,10 +366,10 @@ export function createSetupRecoveryOperationFromFamilyRecovery(
 }
 
 function pairingProjection(
-  pairingState: Infer<typeof SetupPairingStateSchema>,
-  failureReason: Infer<typeof SetupPairingFailureReasonSchema> | null,
-  accountState: Infer<typeof SetupAccountReadinessStateSchema>,
-  recoveryState: Infer<typeof SetupRecoveryStateSchema>
+  pairingState: SetupPairingState,
+  failureReason: SetupPairingFailureReason | null,
+  accountState: SetupAccountReadinessState,
+  recoveryState: SetupRecoveryState
 ): SetupPairingProjection {
   return SetupPairingProjectionSchema.parse({
     pairingState,
@@ -403,18 +379,19 @@ function pairingProjection(
   });
 }
 
-function evaluateRequiredPairingStepUp(
-  input: SetupFamilyReadinessInput
-):
+function evaluateRequiredPairingStepUp(input: SetupFamilyReadinessInput):
   | { kind: 'not-required' }
   | { kind: 'satisfied' }
   | { kind: 'pending' }
   | {
       kind: 'rejected';
-      pairingState: Infer<typeof SetupPairingStateSchema>;
-      failureReason: Infer<typeof SetupPairingFailureReasonSchema>;
+      pairingState: SetupPairingState;
+      failureReason: SetupPairingFailureReason;
     } {
-  if (input.setupInvite.state !== SetupInviteState.Accepted || !requiresParentStepUp(input.householdAuthorityInput.action)) {
+  if (
+    input.setupInvite.state !== SetupInviteState.Accepted ||
+    !requiresParentStepUp(input.householdAuthorityInput.action)
+  ) {
     return { kind: 'not-required' };
   }
 
@@ -472,8 +449,8 @@ function stepUpStatusFromValidation(validation: ReturnType<typeof validateParent
   | { kind: 'pending' }
   | {
       kind: 'rejected';
-      pairingState: Infer<typeof SetupPairingStateSchema>;
-      failureReason: Infer<typeof SetupPairingFailureReasonSchema>;
+      pairingState: SetupPairingState;
+      failureReason: SetupPairingFailureReason;
     } {
   if (validation.valid) {
     return { kind: 'satisfied' };
@@ -501,12 +478,12 @@ function stepUpStatusFromValidation(validation: ReturnType<typeof validateParent
 }
 
 function rejectedStepUpStatus(
-  pairingState: Infer<typeof SetupPairingStateSchema>,
-  failureReason: Infer<typeof SetupPairingFailureReasonSchema>
+  pairingState: SetupPairingState,
+  failureReason: SetupPairingFailureReason
 ): {
   kind: 'rejected';
-  pairingState: Infer<typeof SetupPairingStateSchema>;
-  failureReason: Infer<typeof SetupPairingFailureReasonSchema>;
+  pairingState: SetupPairingState;
+  failureReason: SetupPairingFailureReason;
 } {
   return {
     kind: 'rejected',
@@ -516,8 +493,8 @@ function rejectedStepUpStatus(
 }
 
 function pairingStateForStepUpFailure(
-  failureReason: Infer<typeof SetupPairingFailureReasonSchema>
-): Infer<typeof SetupPairingStateSchema> {
+  failureReason: SetupPairingFailureReason
+): SetupPairingState {
   switch (failureReason) {
     case SetupPairingFailureReason.WrongHousehold:
       return SetupPairingState.WrongHousehold;
@@ -539,7 +516,7 @@ function pairingStateForStepUpFailure(
 function accountStateForPairing(
   input: SetupFamilyReadinessInput,
   authorityDecision: ReturnType<typeof authorizeHouseholdAction>
-): Infer<typeof SetupAccountReadinessStateSchema> {
+): SetupAccountReadinessState {
   if (targetAccountMismatch(input.setupInvite, input.parentAccount)) {
     return SetupAccountReadinessState.WrongAccount;
   }
@@ -555,8 +532,8 @@ function accountStateForPairing(
 
 function accountStateForRejectedAuthority(
   authorityInput: HouseholdAuthorityInput,
-  failureReason: Infer<typeof HouseholdAuthorizationFailureReasonSchema> | null
-): Infer<typeof SetupAccountReadinessStateSchema> {
+  failureReason: HouseholdAuthorizationFailureReason | null
+): SetupAccountReadinessState {
   HouseholdAuthorityInputSchema.parse(authorityInput);
 
   switch (failureReason) {
@@ -571,8 +548,8 @@ function accountStateForRejectedAuthority(
 }
 
 function pairingStateForRejectedAuthority(
-  failureReason: Infer<typeof HouseholdAuthorizationFailureReasonSchema> | null
-): Infer<typeof SetupPairingStateSchema> {
+  failureReason: HouseholdAuthorizationFailureReason | null
+): SetupPairingState {
   switch (failureReason) {
     case HouseholdAuthorizationFailureReason.ExternalHousehold:
       return SetupPairingState.WrongHousehold;
@@ -590,8 +567,8 @@ function pairingStateForRejectedAuthority(
 }
 
 function pairingFailureReasonForRejectedAuthority(
-  failureReason: Infer<typeof HouseholdAuthorizationFailureReasonSchema> | null
-): Infer<typeof SetupPairingFailureReasonSchema> | null {
+  failureReason: HouseholdAuthorizationFailureReason | null
+): SetupPairingFailureReason | null {
   switch (failureReason) {
     case HouseholdAuthorizationFailureReason.ExternalHousehold:
       return SetupPairingFailureReason.WrongHousehold;
@@ -614,7 +591,7 @@ function pairingFailureReasonForRejectedAuthority(
 
 function setupRecoveryStateFromFamilyOperation(
   recoveryOperation: FamilyRecoveryOperation | null
-): Infer<typeof SetupRecoveryStateSchema> {
+): SetupRecoveryState {
   if (recoveryOperation === null) {
     return SetupRecoveryState.Normal;
   }
@@ -627,6 +604,148 @@ function setupRecoveryStateFromFamilyOperation(
     return SetupRecoveryState.Required;
   }
 
+  const bundleRecoveryState = recoveryStateFromBundleState(recoveryOperation);
+
+  if (bundleRecoveryState !== null) {
+    return bundleRecoveryState;
+  }
+
+  return recoveryStateFromFamilyState(recoveryOperation.state);
+}
+
+function rejectedAuthorityRequiresRecoveryProjection(context: SetupPairingContext): boolean {
+  return (
+    context.authorityDecision.authorizationState === HouseholdAuthorizationState.Rejected &&
+    !(context.inviteAccepted && context.parsedInput.householdAuthorityInput.deviceTrustState === DeviceTrustState.Pending)
+  );
+}
+
+function inviteAcceptedWithPendingSetupDependencies(context: SetupPairingContext): boolean {
+  return (
+    context.inviteAccepted &&
+    (context.childInstallState !== SetupChildInstallState.Installed ||
+      context.childServiceState === SetupChildServiceState.NotStarted ||
+      context.parsedInput.permissionState !== SetupPermissionReadinessState.Granted)
+  );
+}
+
+function pairingChildIsOffline(context: SetupPairingContext): boolean {
+  return (
+    context.childServiceState === SetupChildServiceState.Offline ||
+    context.parsedInput.networkReachabilityState === SetupNetworkReachabilityState.OfflineChild
+  );
+}
+
+function accountStateForRejectedStepUp(
+  accountState: SetupAccountReadinessState,
+  failureReason: SetupPairingFailureReason
+): SetupAccountReadinessState {
+  return failureReason === SetupPairingFailureReason.WrongAccount
+    ? SetupAccountReadinessState.WrongAccount
+    : accountState;
+}
+
+function acceptedInviteWithPendingTrustedDevice(
+  context: SetupPairingContext,
+  requiredStepUpStatus: RequiredPairingStepUpStatus
+): boolean {
+  return (
+    context.inviteAccepted &&
+    context.parsedInput.householdAuthorityInput.deviceTrustState === DeviceTrustState.Pending &&
+    requiredStepUpStatus.kind !== 'satisfied'
+  );
+}
+
+function accountStateForPendingTrustedInvite(
+  familyRecoveryState: SetupRecoveryState
+): SetupAccountReadinessState {
+  return familyRecoveryState === SetupRecoveryState.Normal || familyRecoveryState === SetupRecoveryState.Recovered
+    ? SetupAccountReadinessState.Ready
+    : SetupAccountReadinessState.RecoveryRequired;
+}
+
+function mergedRecoveryState(
+  pairingRecoveryState: SetupRecoveryState,
+  familyRecoveryState: SetupRecoveryState
+): SetupRecoveryState {
+  if (
+    pairingRecoveryState === SetupRecoveryState.Recovered ||
+    familyRecoveryState === SetupRecoveryState.Recovered
+  ) {
+    return SetupRecoveryState.Recovered;
+  }
+
+  if (
+    pairingRecoveryState === SetupRecoveryState.InProgress ||
+    familyRecoveryState === SetupRecoveryState.InProgress
+  ) {
+    return SetupRecoveryState.InProgress;
+  }
+
+  if (
+    pairingRecoveryState === SetupRecoveryState.Required ||
+    familyRecoveryState === SetupRecoveryState.Required
+  ) {
+    return SetupRecoveryState.Required;
+  }
+
+  return SetupRecoveryState.Normal;
+}
+
+function recoveryBlocksCustodyHandoff(
+  recoveryOperation: FamilyRecoveryOperation | null,
+  recoveryState: SetupRecoveryState
+): boolean {
+  return (
+    recoveryOperation !== null &&
+    (recoveryDataCustodyHandoffState(recoveryOperation) !== RecoveryDataCustodyHandoffState.None ||
+      (recoveryRequiresAuditedSupport(recoveryOperation) && recoveryState !== SetupRecoveryState.Recovered))
+  );
+}
+
+function custodySyncIsPending(
+  input: SetupFamilyReadinessInput,
+  childServiceState: ReturnType<typeof resolvedChildServiceState>
+): boolean {
+  return (
+    input.custodySyncPending ||
+    childServiceState === SetupChildServiceState.Offline ||
+    input.networkReachabilityState === SetupNetworkReachabilityState.OfflineChild
+  );
+}
+
+function dataCustodySyncStateFromRecovery(
+  custodyBlockedByRecovery: boolean,
+  recoveryState: SetupRecoveryState,
+  custodySyncPending: boolean
+): SetupDataCustodySyncState {
+  if (custodyBlockedByRecovery) {
+    return SetupDataCustodySyncState.Blocked;
+  }
+
+  if (recoveryState !== SetupRecoveryState.Normal && recoveryState !== SetupRecoveryState.Recovered) {
+    return custodySyncPending ? SetupDataCustodySyncState.SyncPending : SetupDataCustodySyncState.Blocked;
+  }
+
+  return custodySyncPending ? SetupDataCustodySyncState.SyncPending : SetupDataCustodySyncState.Synced;
+}
+
+function recoveryProjectionAccountState(
+  accountState: SetupAccountReadinessState,
+  recoveryState: SetupRecoveryState
+): SetupAccountReadinessState {
+  if (accountState === SetupAccountReadinessState.WrongAccount) {
+    return SetupAccountReadinessState.WrongAccount;
+  }
+
+  return recoveryState === SetupRecoveryState.Normal || recoveryState === SetupRecoveryState.Recovered
+    ? accountState
+    : SetupAccountReadinessState.RecoveryRequired;
+}
+
+function recoveryStateFromBundleState(
+  recoveryOperation: FamilyRecoveryOperation
+): SetupRecoveryState | null {
   switch (recoveryOperation.bundleState) {
     case RecoveryBundleState.PreviewOnly:
     case RecoveryBundleState.ApplyPending:
@@ -636,15 +755,22 @@ function setupRecoveryStateFromFamilyOperation(
     case RecoveryBundleState.ManualRequired:
       return SetupRecoveryState.Required;
     case RecoveryBundleState.Applied:
-      return deviceTrustStateForRecoveryOperation(recoveryOperation) === DeviceTrustState.Pending &&
-        recoveryDataCustodyHandoffState(recoveryOperation) === RecoveryDataCustodyHandoffState.None
-        ? SetupRecoveryState.Recovered
-        : SetupRecoveryState.InProgress;
+      return appliedRecoveryStateFromBundle(recoveryOperation);
     default:
-      break;
+      return null;
   }
+}
 
-  switch (recoveryOperation.state) {
+function appliedRecoveryStateFromBundle(recoveryOperation: FamilyRecoveryOperation): SetupRecoveryState {
+  const pendingDeviceTrust = deviceTrustStateForRecoveryOperation(recoveryOperation) === DeviceTrustState.Pending;
+  const noCustodyHandoff =
+    recoveryDataCustodyHandoffState(recoveryOperation) === RecoveryDataCustodyHandoffState.None;
+
+  return pendingDeviceTrust && noCustodyHandoff ? SetupRecoveryState.Recovered : SetupRecoveryState.InProgress;
+}
+
+function recoveryStateFromFamilyState(recoveryState: FamilyRecoveryState): SetupRecoveryState {
+  switch (recoveryState) {
     case FamilyRecoveryState.PendingIdentityProof:
     case FamilyRecoveryState.OwnerApprovalRequired:
       return SetupRecoveryState.Required;

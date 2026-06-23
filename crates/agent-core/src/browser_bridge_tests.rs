@@ -1,16 +1,36 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEventKind, ActivityObserver, ActivitySubjectKind, BrowserActiveProofSource,
-    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserQueryVisibilityLabel, LogFieldValue,
+use std::fmt::Debug;
+
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
+};
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     browser_tab_observation_event, BrowserBridgeEventError, BrowserBridgeTargetObservation,
 };
 
+type TestResult = Result<(), String>;
+
+fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
+    match result {
+        Ok(_) => Err(format!("{context}: expected error")),
+        Err(error) => Ok(error),
+    }
+}
+
 #[test]
-fn browser_target_observation_maps_to_managed_url_activity_event() {
-    let event = mapped_event(browser_observation());
+fn browser_target_observation_maps_to_managed_url_activity_event() -> TestResult {
+    let event = mapped_event(browser_observation())?;
 
     assert_eq!(event.kind, ActivityEventKind::UrlObserved);
     assert_eq!(
@@ -60,11 +80,13 @@ fn browser_target_observation_maps_to_managed_url_activity_event() {
             constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()
         ))
     );
+
+    Ok(())
 }
 
 #[test]
-fn browser_target_observation_maps_stable_identity_and_custody_fields() {
-    let event = mapped_event(browser_observation());
+fn browser_target_observation_maps_stable_identity_and_custody_fields() -> TestResult {
+    let event = mapped_event(browser_observation())?;
 
     assert_eq!(
         event.fields.get(constants::field::BROWSER_EVIDENCE_ID),
@@ -128,13 +150,15 @@ fn browser_target_observation_maps_stable_identity_and_custody_fields() {
             constants::browser::CUSTODY_CHILD_DEVICE_LOCAL.to_string()
         ))
     );
+
+    Ok(())
 }
 
 #[test]
-fn browser_target_observation_strips_credentials_from_origin() {
+fn browser_target_observation_strips_credentials_from_origin() -> TestResult {
     let mut observation = browser_observation();
     observation.url = constants::activity_store::TEST_BROWSER_CREDENTIAL_URL.to_string();
-    let event = mapped_event(observation);
+    let event = mapped_event(observation)?;
 
     assert_eq!(
         event.fields.get(constants::field::URL),
@@ -154,13 +178,15 @@ fn browser_target_observation_strips_credentials_from_origin() {
             constants::activity_store::TEST_BROWSER_DOMAIN.to_string()
         ))
     );
+
+    Ok(())
 }
 
 #[test]
-fn browser_target_observation_derives_tab_id_from_target_id() {
+fn browser_target_observation_derives_tab_id_from_target_id() -> TestResult {
     let mut observation = browser_observation();
     observation.tab_id = None;
-    let event = mapped_event(observation);
+    let event = mapped_event(observation)?;
 
     assert_eq!(
         event.fields.get(constants::field::TAB_ID),
@@ -168,14 +194,16 @@ fn browser_target_observation_derives_tab_id_from_target_id() {
             constants::activity_store::TEST_BROWSER_TAB_ID_FROM_TARGET.to_string()
         ))
     );
+
+    Ok(())
 }
 
 #[test]
-fn browser_target_observation_normalizes_case_port_and_credentials() {
+fn browser_target_observation_normalizes_case_port_and_credentials() -> TestResult {
     let mut observation = browser_observation();
     observation.url = constants::activity_store::TEST_BROWSER_URL_WITH_CREDENTIALS.to_string();
     observation.tab_id = None;
-    let event = mapped_event(observation);
+    let event = mapped_event(observation)?;
 
     assert_eq!(
         event.fields.get(constants::field::URL),
@@ -195,10 +223,12 @@ fn browser_target_observation_normalizes_case_port_and_credentials() {
             constants::activity_store::TEST_BROWSER_DOMAIN.to_string()
         ))
     );
+
+    Ok(())
 }
 
 #[test]
-fn browser_target_observation_rejects_invalid_url_before_journal_write() {
+fn browser_target_observation_rejects_invalid_url_before_journal_write() -> TestResult {
     let mut observation = browser_observation();
     observation.browser_family = BrowserFamily::Chrome;
     observation.url = constants::activity_store::TEST_INVALID_BROWSER_URL.to_string();
@@ -206,43 +236,51 @@ fn browser_target_observation_rejects_invalid_url_before_journal_write() {
     observation.title = None;
     observation.capability_status = BrowserCapabilityStatus::AdapterError;
 
-    let error = browser_tab_observation_event(
-        observation,
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        0,
-    )
-    .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
+    let error = err(
+        browser_tab_observation_event(
+            observation,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            0,
+        ),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
 
     assert_eq!(error, BrowserBridgeEventError::InvalidUrl);
+
+    Ok(())
 }
 
 #[test]
-fn browser_target_observation_rejects_empty_target_id() {
+fn browser_target_observation_rejects_empty_target_id() -> TestResult {
     let mut observation = browser_observation();
     observation.target_id = constants::value::EMPTY.to_string();
 
-    let error = browser_tab_observation_event(
-        observation,
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        0,
-    )
-    .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
+    let error = err(
+        browser_tab_observation_event(
+            observation,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            0,
+        ),
+        constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL,
+    )?;
 
     assert_eq!(error, BrowserBridgeEventError::InvalidTargetId);
+
+    Ok(())
 }
 
-fn mapped_event(
-    observation: BrowserBridgeTargetObservation,
-) -> ocentra_parent_agent_protocol::ActivityEvent {
-    browser_tab_observation_event(
-        observation,
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        constants::activity_store::TEST_SECOND_OBSERVED_AT,
-        0,
+fn mapped_event(observation: BrowserBridgeTargetObservation) -> Result<ActivityEvent, String> {
+    ok(
+        browser_tab_observation_event(
+            observation,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            0,
+        ),
+        constants::error::BROWSER_BRIDGE_MAPS_TARGET,
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
 }
 
 fn browser_observation() -> BrowserBridgeTargetObservation {

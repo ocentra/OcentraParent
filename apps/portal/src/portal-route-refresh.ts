@@ -1,12 +1,9 @@
+import { isPortalNetworkEvidenceDrawerRoute } from '@ocentra-parent/portal-domain/routes';
 import {
   PortalConnectionState,
-  type PortalConnectionStateValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import {
-  isPortalNetworkEvidenceDrawerRoute,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/routes';
-
+  type PortalConnectionState as PortalConnectionStateValue,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 export type PortalRouteNetworkRefreshState = {
   readonly connectionState: PortalConnectionStateValue;
   readonly hasNetworkFlowReadModelEvent: boolean;

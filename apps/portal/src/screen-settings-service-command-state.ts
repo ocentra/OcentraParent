@@ -11,10 +11,12 @@ import {
   createScreenSettingsPortalRequestId,
   createScreenSettingsReplaceRequest,
   parseScreenSettingsUpdateEvent,
+} from '@ocentra-parent/agent-protocol-domain/screen-settings-adapter';
+import {
   ScreenSettingsUpdateKindValue,
   ScreenSettingsUpdateStatus,
   type ScreenSettingsUpdateResponse,
-} from '@ocentra-parent/agent-protocol-domain/screen-settings-adapter';
+} from '@ocentra-parent/schema-domain/agent-screen-settings';
 import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
 
 export type ScreenSettingsServiceRequestId = ReturnType<typeof createScreenSettingsPortalRequestId>;

@@ -6,11 +6,12 @@ use crate::android_physical_target::types::{
     NetworkAndroidPhysicalTargetObserved, NetworkAndroidPhysicalTargetState,
     NetworkAndroidPhysicalTargetUnsupportedClaims,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn android_physical_target_proves_matching_physical_device_identity_without_live_claims() {
     let proof = prove_network_android_physical_target(valid_input())
-        .expect("matching physical Android target should prove identity");
+        .expect_value("matching physical Android target should prove identity");
 
     assert_eq!(proof.proof_ref, "android-physical-target-proof-row40a");
     assert_eq!(
@@ -56,7 +57,7 @@ fn android_physical_target_stays_manual_required_without_connected_target_or_obs
         observed: None,
         ..valid_input()
     })
-    .expect("disconnected target should stay manual-required");
+    .expect_value("disconnected target should stay manual-required");
     assert_eq!(
         disconnected.state,
         NetworkAndroidPhysicalTargetState::ManualRequired
@@ -73,7 +74,7 @@ fn android_physical_target_stays_manual_required_without_connected_target_or_obs
             observed: None,
             ..valid_input()
         })
-        .expect("missing getprop observation should stay manual-required");
+        .expect_value("missing getprop observation should stay manual-required");
     assert_eq!(
         missing_observation.state,
         NetworkAndroidPhysicalTargetState::ManualRequired
@@ -93,7 +94,7 @@ fn android_physical_target_marks_adb_unavailable_without_device_support_claims()
         observed: None,
         ..valid_input()
     })
-    .expect("missing adb should stay reportable as unavailable");
+    .expect_value("missing adb should stay reportable as unavailable");
 
     assert_eq!(proof.state, NetworkAndroidPhysicalTargetState::Unavailable);
     assert_eq!(
@@ -115,7 +116,7 @@ fn android_physical_target_records_identity_mismatch_without_upgrading_readiness
         }),
         ..valid_input()
     })
-    .expect("mismatched target should produce mismatch proof");
+    .expect_value("mismatched target should produce mismatch proof");
 
     assert_eq!(proof.state, NetworkAndroidPhysicalTargetState::Mismatch);
     assert_eq!(

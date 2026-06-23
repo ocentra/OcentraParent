@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameChildUxCardSchema } from '../../src/app-game-child-facing-ux';
+import { AppGameChildUxCardSchema } from '@ocentra-parent/schema-domain/app-game-child-facing-ux';
 import {
   AppGameChildUxCapabilityState,
   AppGameChildUxClaimState,
@@ -9,16 +9,11 @@ import {
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
 } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
-import { buildAppGameChildUxHandoffReadModel } from '../../src/app-game-child-facing-ux-handoff';
-import { buildAppGameChildUxLocalHandoffArtifactReadModel } from '../../src/app-game-child-facing-ux-local-handoff';
-import {
-  buildAppGameChildUxLocalOutboxProviderPreflightReadModel,
-} from '../../src/app-game-child-facing-ux-local-outbox-provider-preflight';
+import { buildAppGameChildUxHandoffReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-handoff';
+import { buildAppGameChildUxLocalHandoffArtifactReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-handoff';
 import { buildAppGameChildUxLocalOutboxBridgeReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-bridge';
-import {
-  AppGameChildUxLocalOutboxSchedulerBridgeReadModel,
-  buildAppGameChildUxLocalOutboxSchedulerBridgeReadModel,
-} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-scheduler-bridge';
+import { buildAppGameChildUxLocalOutboxSchedulerBridgeReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-scheduler-bridge';
+import type { AppGameChildUxLocalOutboxSchedulerBridgeReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-scheduler-bridge';
 import {
   AppGameChildUxLocalOutboxProviderPreflightReadModelSchema,
   AppGameChildUxLocalOutboxProviderPreflightStatus,
@@ -29,6 +24,7 @@ import {
   ParentEvidenceReferenceKind,
   ParentPlatform,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { buildAppGameChildUxLocalOutboxProviderPreflightReadModel } from './app-game-child-facing-ux-local-outbox-centralized-schema-fixtures';
 
 const Timestamp = '2026-06-07T21:36:00Z';
 

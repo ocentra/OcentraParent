@@ -1,15 +1,18 @@
 use std::path::PathBuf;
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowReadModel, AppGameServiceReadModel, BrowserEvidenceReadModel,
-    ScreenEvidenceRecentSummary,
-};
+use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenEvidenceRecentSummary;
 
 use crate::{activity_store_path::activity_db_path, time::timestamp_now};
 
+type ActivitySurfaceDeviceRefText = String;
+
 pub(crate) struct ActivitySurfaceStoreSnapshot {
-    pub(crate) device_id: String,
+    pub(crate) device_id: ActivitySurfaceDeviceRefText,
     pub(crate) recent_returned: u64,
     pub(crate) last_event_id: Option<String>,
     pub(crate) last_observed_at: Option<String>,
@@ -75,7 +78,7 @@ pub(crate) async fn local_store_snapshot_from_path(
 #[cfg(test)]
 pub(crate) async fn load_recent_summary_from_path(
     path: PathBuf,
-) -> Option<ocentra_parent_agent_protocol::ActivityRecentSummary> {
+) -> Option<ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary> {
     with_store(path, |store| {
         store
             .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)

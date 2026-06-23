@@ -1781,10 +1781,6 @@
       "import": "./dist/child-runtime-gates.js",
       "types": "./dist/child-runtime-gates.d.ts"
     },
-    "./contracts": {
-      "import": "./dist/contracts.js",
-      "types": "./dist/contracts.d.ts"
-    },
     "./custody-boundary": {
       "import": "./dist/custody-boundary.js",
       "types": "./dist/custody-boundary.d.ts"

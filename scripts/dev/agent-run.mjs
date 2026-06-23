@@ -91,7 +91,7 @@ function runCommand(command, cwd) {
       resolve({
         stdout,
         stderr,
-        exitCode: signal == null ? code ?? 0 : 1,
+        exitCode: signal == null ? (code ?? 0) : 1,
         signal,
       });
     });
@@ -115,7 +115,10 @@ async function main() {
   }
 
   const startedAt = new Date();
-  const runId = `run-${startedAt.toISOString().replace(/[^0-9]/g, '').slice(0, 14)}-${randomUUID().slice(0, 8)}`;
+  const runId = `run-${startedAt
+    .toISOString()
+    .replace(/[^0-9]/g, '')
+    .slice(0, 14)}-${randomUUID().slice(0, 8)}`;
   const commandId = `cmd-${randomUUID().slice(0, 12)}`;
   const laneId = detectLaneId();
   const machine = detectMachineName();

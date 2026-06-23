@@ -73,10 +73,7 @@ import type {
 import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
-import { defaultChatBubbleConfig as defaultRulesBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
-import {
-  PortalLanPairingScan,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalLanPairingScan } from '@ocentra-parent/portal-domain/contracts';
 import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   type ParentAssistantPortalQuickActionId,
@@ -87,13 +84,9 @@ import {
   PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
 } from '@ocentra-parent/portal-domain/parent-portal-guide-controls';
 import { parentPortalManageLaneForRoute } from '@ocentra-parent/portal-domain/parent-portal-data';
-import { createPolicyWorkspacePreviewRows } from '@ocentra-parent/portal-domain/policy-preview-workspace';
 import { portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
-import {
-  AgentCommand,
-  type AgentCommandName,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentCommand, type AgentCommandName } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   BrowserPolicyDefaultAnswers,
@@ -731,33 +724,6 @@ function truncateTextForWidth(text: string, width: number, fontSize: number, fac
   if (text.length <= maxChars) return text;
   if (maxChars <= 3) return text.slice(0, maxChars);
   return `${text.slice(0, maxChars - 3).trimEnd()}...`;
-}
-
-function wrapSvgTextLines(text: string, width: number, fontSize: number, maxLines: number, factor = 0.56): string[] {
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [''];
-  const maxChars = Math.max(8, Math.floor(width / Math.max(1, fontSize * factor)));
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const next = current ? `${current} ${word}` : word;
-    if (next.length <= maxChars) {
-      current = next;
-      continue;
-    }
-    if (current) {
-      lines.push(current);
-    }
-    current = word;
-    if (lines.length === maxLines - 1) break;
-  }
-  if (current && lines.length < maxLines) {
-    lines.push(current);
-  }
-  if (lines.length > 0 && lines.join(' ').length < text.length) {
-    lines[lines.length - 1] = truncateTextForWidth(lines[lines.length - 1], width, fontSize, factor);
-  }
-  return lines.slice(0, maxLines);
 }
 
 function compactControlStatLabel(value: string): string {
@@ -2218,7 +2184,6 @@ function ParentPortalSectionFrame({
     footer: footerRect,
     headerH: resolvedHeaderH,
   } = parentPortalFrameRects(x, y, w, h, footerH, headerH, bodyInset);
-  const cut = Math.max(6, Math.min(cfg.chrome.panelCut, 12));
   const interactive = Boolean(onSelect);
   const active = selected || hovered;
   const headerInset = Math.max(48, Math.min(76, w * 0.045));
@@ -3903,10 +3868,7 @@ function readStoredManageTargetSelection(): ManageTargetSelection | null {
 function writeStoredManageTargetSelection(selection: ManageTargetSelection): void {
   if (typeof window === 'undefined') return;
   try {
-    window.sessionStorage.setItem(
-      PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY,
-      JSON.stringify(selection)
-    );
+    window.sessionStorage.setItem(PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY, JSON.stringify(selection));
   } catch {
     // Ignore storage write failures and keep the in-memory selection authoritative.
   }
@@ -5907,7 +5869,6 @@ function ParentPortalAppGameDashboardPanel({
   const compact = w < 860;
   const headerH = 72;
   const bodyY = y + headerH;
-  const bodyH = Math.max(1, h - headerH);
   const metricColumns = w > 1220 ? 5 : w > 900 ? 4 : 2;
   const metricRows = Math.ceil(Math.min(dashboard.metrics.length, compact ? 6 : 10) / metricColumns);
   const metricGap = 8;
@@ -9595,47 +9556,6 @@ function BrowserRulesGridGuide({
   );
 }
 
-const BROWSER_POLICY_SCHEDULE_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-const BROWSER_POLICY_SCHEDULE_HOURS = [
-  '00',
-  '01',
-  '02',
-  '03',
-  '04',
-  '05',
-  '06',
-  '07',
-  '08',
-  '09',
-  '10',
-  '11',
-  '12',
-  '13',
-  '14',
-  '15',
-  '16',
-  '17',
-  '18',
-  '19',
-  '20',
-  '21',
-  '22',
-  '23',
-] as const;
-const BROWSER_POLICY_SCHEDULE_LAYOUT = {
-  boardInset: 8,
-  boardPad: 8,
-  legendHeight: 32,
-  dayLabelWidth: 60,
-  minCellSize: 44,
-  maxFitCellSize: 72,
-  maxZoomedCellSize: 92,
-  scrollBarSize: 16,
-  zoomMin: 0.72,
-  zoomMax: 1.72,
-  zoomStep: 0.16,
-} as const;
-const BROWSER_POLICY_SCHEDULE_MODES = ['Default rules', 'Allow exception', 'Ask parent', 'Limit', 'Block'] as const;
 const BROWSER_POLICY_APPROVAL_ROWS = [
   ['Unknown site', 'Ask', 'Yes', 'Deny', 'Once', 'Full'],
   ['Blocked site', 'Ask', 'Yes', 'Wait', 'Session', 'Full'],
@@ -9731,14 +9651,6 @@ const POLICY_BUDGET_ROWS_BY_AREA = {
   ],
 } as const;
 const BROWSER_POLICY_BUDGET_COLUMNS = ['Budget', 'What counts', 'Cap', 'Schedule link', 'Override'] as const;
-const BROWSER_POLICY_AUDIT_ROWS = [
-  ['Effective policy', 'Family + override', 'Before apply', 'Pass / conflict'],
-  ['Rule vs schedule', 'Action windows', 'Before apply', 'No overlap'],
-  ['Budget proof', 'Cap + evidence path', 'Before apply', 'Timer ready'],
-  ['Approval expiry', 'Ask result fallback', 'On request', 'Typed outcome'],
-  ['Capability state', 'Adapter support', 'Before enforce', 'Ready / unavailable'],
-  ['Audit custody', 'Event refs only', 'After apply', 'Retained'],
-] as const;
 const BROWSER_POLICY_AUDIT_COLUMNS = ['Check', 'Verifies', 'When', 'Result'] as const;
 const BROWSER_POLICY_MATRIX_COLORS = {
   defaultRules: '#37d7ff',
@@ -9880,98 +9792,6 @@ function BrowserPolicyMatrixShell({
         </text>
       ) : null}
       {children}
-    </g>
-  );
-}
-
-function policyWorkspacePreviewBannerHeight(w: number, rowCount: number): number {
-  if (rowCount === 0) return 0;
-  const columns = w >= 920 ? 2 : 1;
-  const rows = Math.ceil(rowCount / columns);
-  const cardH = columns === 1 ? 76 : 82;
-  const cardGap = 10;
-  return rows * cardH + Math.max(0, rows - 1) * cardGap;
-}
-
-function PolicyWorkspacePreviewBanner({
-  x,
-  y,
-  w,
-  rows,
-  cfg,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  rows: readonly {
-    label: string;
-    value: string;
-    body: string;
-    tone: Tone;
-  }[];
-  cfg: ParentPortalSvgControls;
-}) {
-  const columns = w >= 920 ? 2 : 1;
-  const cardGap = 10;
-  const cardW = (w - cardGap * Math.max(0, columns - 1)) / Math.max(1, columns);
-  const cardH = columns === 1 ? 76 : 82;
-  return (
-    <g aria-label="Policy preview workspace banner">
-      {rows.map((row, index) => {
-        const column = index % columns;
-        const bannerRow = Math.floor(index / columns);
-        const cardX = x + column * (cardW + cardGap);
-        const cardY = y + bannerRow * (cardH + cardGap);
-        const rowColor = toneColor(row.tone, cfg);
-        const valueSize = fitSingleLineTextSize(row.value, cardW - 36, 11.4, 13.8, 0.56);
-        const bodyLines = wrapCardText(row.body, cardW - 24, 10.2, columns === 1 ? 2 : 3);
-        return (
-          <g key={`policy-preview-workspace-row:${row.label}:${index}`}>
-            <rect
-              x={cardX}
-              y={cardY}
-              width={cardW}
-              height={cardH}
-              rx={6}
-              fill="rgba(3, 19, 35, 0.76)"
-              stroke={rowColor}
-              strokeWidth={0.86}
-              opacity={0.98}
-            />
-            <path
-              d={`M ${cardX + 10} ${cardY + 8} H ${cardX + cardW - 10}`}
-              stroke={cfg.colors.bodyText}
-              strokeWidth={0.82}
-              strokeLinecap="round"
-              opacity={0.16}
-            />
-            <text x={cardX + 14} y={cardY + 18} fontSize={9.5} fontWeight={950} fill={rowColor}>
-              {truncateTextForWidth(row.label.toUpperCase(), cardW * 0.34, 9.5, 0.56)}
-            </text>
-            <text
-              x={cardX + 14}
-              y={cardY + 36}
-              fontSize={valueSize}
-              fontWeight={940}
-              fill={cfg.colors.bodyText}
-            >
-              {truncateTextForWidth(row.value, cardW - 28, valueSize, 0.56)}
-            </text>
-            {bodyLines.map((line, lineIndex) => (
-              <text
-                key={`policy-preview-workspace-row-body:${row.label}:${lineIndex}`}
-                x={cardX + 14}
-                y={cardY + 52 + lineIndex * 13}
-                fontSize={10.2}
-                fontWeight={720}
-                fill={cfg.colors.mutedText}
-              >
-                {line}
-              </text>
-            ))}
-          </g>
-        );
-      })}
     </g>
   );
 }
@@ -10142,532 +9962,6 @@ function BrowserPolicyBudgetMatrix({
         </g>
       </g>
     </BrowserPolicyMatrixShell>
-  );
-}
-
-function BrowserPolicyScheduleMatrix({
-  policyAreaLabel,
-  x,
-  y,
-  w,
-  h,
-  disabled,
-  cfg,
-}: {
-  policyAreaLabel: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  disabled?: boolean;
-  cfg: ParentPortalSvgControls;
-}) {
-  void policyAreaLabel;
-  const [scheduleScrollX, setScheduleScrollX] = useState(0);
-  const [scheduleScrollY, setScheduleScrollY] = useState(0);
-  const [scheduleZoom, setScheduleZoom] = useState(1);
-  const [schedulePanDrag, setSchedulePanDrag] = useState<{
-    readonly clientX: number;
-    readonly clientY: number;
-    readonly scrollX: number;
-    readonly scrollY: number;
-  } | null>(null);
-  const boardX = x + BROWSER_POLICY_SCHEDULE_LAYOUT.boardInset;
-  const boardY = y + 10;
-  const availableBoardW = Math.max(1, w - BROWSER_POLICY_SCHEDULE_LAYOUT.boardInset * 2);
-  const availableBoardH = Math.max(1, h - 20);
-  const boardPad = BROWSER_POLICY_SCHEDULE_LAYOUT.boardPad;
-  const legendH = BROWSER_POLICY_SCHEDULE_LAYOUT.legendHeight;
-  const labelW = BROWSER_POLICY_SCHEDULE_LAYOUT.dayLabelWidth;
-  const scrollBarSize = BROWSER_POLICY_SCHEDULE_LAYOUT.scrollBarSize;
-  const availableBodyW = Math.max(1, availableBoardW - labelW - scrollBarSize - boardPad * 2);
-  const availableBodyH = Math.max(1, availableBoardH - legendH - scrollBarSize - boardPad * 2);
-  const fitCellSize = clampValue(
-    Math.min(
-      availableBodyW / BROWSER_POLICY_SCHEDULE_HOURS.length,
-      availableBodyH / (BROWSER_POLICY_SCHEDULE_DAYS.length + 1)
-    ),
-    BROWSER_POLICY_SCHEDULE_LAYOUT.minCellSize,
-    BROWSER_POLICY_SCHEDULE_LAYOUT.maxFitCellSize
-  );
-  const cellSize = Math.round(
-    clampValue(
-      fitCellSize * scheduleZoom,
-      BROWSER_POLICY_SCHEDULE_LAYOUT.minCellSize,
-      BROWSER_POLICY_SCHEDULE_LAYOUT.maxZoomedCellSize
-    )
-  );
-  const hourContentW = BROWSER_POLICY_SCHEDULE_HOURS.length * cellSize;
-  const dayContentH = BROWSER_POLICY_SCHEDULE_DAYS.length * cellSize;
-  const maxBodyViewportW = Math.max(1, availableBoardW - labelW - scrollBarSize - boardPad * 2);
-  const maxBodyViewportH = Math.max(1, availableBoardH - legendH - cellSize - scrollBarSize - boardPad * 2);
-  const bodyViewportW = Math.min(hourContentW, maxBodyViewportW);
-  const bodyViewportH = Math.min(dayContentH, maxBodyViewportH);
-  const needsScheduleScrollX = hourContentW > bodyViewportW;
-  const needsScheduleScrollY = dayContentH > bodyViewportH;
-  const boardW = Math.min(
-    availableBoardW,
-    labelW + bodyViewportW + (needsScheduleScrollY ? scrollBarSize : 0) + boardPad * 2
-  );
-  const boardH = Math.min(
-    availableBoardH,
-    legendH + cellSize + bodyViewportH + (needsScheduleScrollX ? scrollBarSize : 0) + boardPad * 2
-  );
-  const labelX = boardX + boardPad;
-  const bodyX = labelX + labelW;
-  const headerY = boardY + boardPad + legendH;
-  const bodyY = headerY + cellSize;
-  const scrollTrackY = bodyY + bodyViewportH + 5;
-  const verticalTrackX = bodyX + bodyViewportW + 5;
-  const maxScheduleScrollX = Math.max(0, hourContentW - bodyViewportW);
-  const maxScheduleScrollY = Math.max(0, dayContentH - bodyViewportH);
-  const effectiveScheduleScrollX = clampValue(scheduleScrollX, 0, maxScheduleScrollX);
-  const effectiveScheduleScrollY = clampValue(scheduleScrollY, 0, maxScheduleScrollY);
-  const scrollStep = cellSize * 4;
-  const verticalScrollStep = cellSize * 3;
-  const zoomControlsW = 92;
-  const showZoomControls = boardW >= 520;
-  const legendWidth = boardW - boardPad * 2 - (showZoomControls ? zoomControlsW + 10 : 0);
-  const updateScheduleScrollX = (nextValue: number) => {
-    setScheduleScrollX(clampValue(nextValue, 0, maxScheduleScrollX));
-  };
-  const updateScheduleScrollY = (nextValue: number) => {
-    setScheduleScrollY(clampValue(nextValue, 0, maxScheduleScrollY));
-  };
-  const updateScheduleZoom = (nextValue: number) => {
-    setScheduleZoom(
-      clampValue(nextValue, BROWSER_POLICY_SCHEDULE_LAYOUT.zoomMin, BROWSER_POLICY_SCHEDULE_LAYOUT.zoomMax)
-    );
-  };
-  const scrollThumbW =
-    maxScheduleScrollX > 0 ? Math.max(32, (bodyViewportW / hourContentW) * bodyViewportW) : bodyViewportW;
-  const scrollThumbX =
-    maxScheduleScrollX > 0
-      ? bodyX + (effectiveScheduleScrollX / maxScheduleScrollX) * Math.max(1, bodyViewportW - scrollThumbW)
-      : bodyX;
-  const scrollThumbH =
-    maxScheduleScrollY > 0 ? Math.max(32, (bodyViewportH / dayContentH) * bodyViewportH) : bodyViewportH;
-  const scrollThumbY =
-    maxScheduleScrollY > 0
-      ? bodyY + (effectiveScheduleScrollY / maxScheduleScrollY) * Math.max(1, bodyViewportH - scrollThumbH)
-      : bodyY;
-  const modeColor = (mode: string) =>
-    mode === 'Default rules'
-      ? BROWSER_POLICY_MATRIX_COLORS.defaultRules
-      : mode === 'Allow exception'
-        ? BROWSER_POLICY_MATRIX_COLORS.allow
-        : mode === 'Limit'
-          ? BROWSER_POLICY_MATRIX_COLORS.limit
-          : mode === 'Ask parent'
-            ? BROWSER_POLICY_MATRIX_COLORS.ask
-            : mode === 'Block'
-              ? BROWSER_POLICY_MATRIX_COLORS.block
-              : cfg.colors.mutedText;
-  const modeForCell = (dayIndex: number, timeIndex: number) => {
-    void dayIndex;
-    void timeIndex;
-    return 'Default rules';
-  };
-
-  return (
-    <g
-      opacity={disabled ? 0.46 : 1}
-      onWheel={(event) => {
-        event.preventDefault();
-        if (event.ctrlKey) {
-          updateScheduleZoom(
-            scheduleZoom +
-              (event.deltaY > 0 ? -BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep : BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep)
-          );
-          return;
-        }
-        updateScheduleScrollX(effectiveScheduleScrollX + event.deltaX);
-        updateScheduleScrollY(effectiveScheduleScrollY + event.deltaY);
-      }}
-    >
-      <rect
-        x={boardX}
-        y={boardY}
-        width={boardW}
-        height={boardH}
-        rx={5}
-        fill={PARENT_PORTAL_GLASS.panelFill}
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.9}
-      />
-      <g transform={`translate(${boardX + boardPad}, ${boardY + 6})`}>
-        {BROWSER_POLICY_SCHEDULE_MODES.map((mode, index) => {
-          const color = modeColor(mode);
-          const slotW = Math.max(88, legendWidth / BROWSER_POLICY_SCHEDULE_MODES.length);
-          const square = 10;
-          const textMaxW = Math.max(46, slotW - square - 14);
-          const isDefaultMode = mode === 'Default rules';
-          return (
-            <g key={`browser-policy-schedule-mode:${mode}`} transform={`translate(${index * slotW}, 0)`}>
-              <rect
-                x={2}
-                y={6}
-                width={square}
-                height={square}
-                rx={2}
-                fill={isDefaultMode ? 'rgba(5, 20, 36, 0.62)' : colorAlpha(color, '58')}
-                stroke={isDefaultMode ? cfg.colors.panelStroke : color}
-                strokeWidth={0.85}
-              />
-              <text
-                x={square + 7}
-                y={14.5}
-                fontSize={fitSingleLineTextSize(mode, textMaxW, 7.2, 9.6, 0.55)}
-                fontWeight={840}
-                fill={cfg.colors.bodyText}
-              >
-                {truncateTextForWidth(mode, textMaxW, 9.6, 0.55)}
-              </text>
-            </g>
-          );
-        })}
-      </g>
-      {showZoomControls ? (
-        <g transform={`translate(${boardX + boardW - boardPad - zoomControlsW}, ${boardY + 5})`}>
-          {[
-            [
-              '-',
-              () => updateScheduleZoom(scheduleZoom - BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep),
-              'Zoom schedule out',
-            ],
-            [
-              'FIT',
-              () => {
-                updateScheduleZoom(1);
-                updateScheduleScrollX(0);
-                updateScheduleScrollY(0);
-              },
-              'Fit schedule grid',
-            ],
-            ['+', () => updateScheduleZoom(scheduleZoom + BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep), 'Zoom schedule in'],
-          ].map(([label, onClick, ariaLabel], index) => (
-            <g
-              key={`browser-policy-schedule-zoom:${label}`}
-              role="button"
-              aria-label={ariaLabel}
-              tabIndex={0}
-              onClick={(event) => {
-                event.stopPropagation();
-                onClick();
-              }}
-              onKeyDown={(event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                event.preventDefault();
-                event.stopPropagation();
-                onClick();
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              <rect
-                x={index * 30}
-                y={0}
-                width={index === 1 ? 32 : 24}
-                height={20}
-                rx={5}
-                fill="rgba(5, 21, 38, 0.76)"
-                stroke={cfg.colors.cyan}
-                strokeWidth={0.8}
-              />
-              <text
-                x={index * 30 + (index === 1 ? 16 : 12)}
-                y={13.5}
-                textAnchor="middle"
-                fontSize={index === 1 ? 8.4 : 12}
-                fontWeight={920}
-                fill={cfg.colors.bodyText}
-              >
-                {label}
-              </text>
-            </g>
-          ))}
-        </g>
-      ) : null}
-      <rect
-        x={bodyX}
-        y={headerY}
-        width={bodyViewportW}
-        height={cellSize}
-        fill="rgba(5, 22, 39, 0.72)"
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.7}
-      />
-      <rect
-        x={labelX}
-        y={bodyY}
-        width={labelW}
-        height={bodyViewportH}
-        fill="rgba(5, 22, 39, 0.72)"
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.7}
-      />
-      <rect
-        x={bodyX}
-        y={bodyY}
-        width={bodyViewportW}
-        height={bodyViewportH}
-        fill="rgba(2, 16, 30, 0.68)"
-        stroke={cfg.colors.cyan}
-        strokeWidth={0.75}
-      />
-      <svg x={bodyX} y={headerY} width={bodyViewportW} height={cellSize} overflow="hidden">
-        <g transform={`translate(${-effectiveScheduleScrollX}, 0)`}>
-          {BROWSER_POLICY_SCHEDULE_HOURS.map((hour, index) => (
-            <g key={`browser-policy-schedule-header-cell:${hour}`}>
-              <rect
-                x={index * cellSize + 1}
-                y={1}
-                width={cellSize - 2}
-                height={cellSize - 2}
-                rx={5}
-                fill="rgba(8, 26, 47, 0.68)"
-                stroke={cfg.colors.panelStroke}
-                strokeWidth={0.72}
-              />
-              <text
-                key={`browser-policy-schedule-time:${hour}`}
-                x={index * cellSize + cellSize / 2}
-                y={cellSize / 2 + 4}
-                textAnchor="middle"
-                fontSize={11.5}
-                fontWeight={860}
-                fill={cfg.colors.bodyText}
-              >
-                {hour}
-              </text>
-            </g>
-          ))}
-        </g>
-      </svg>
-      <svg x={labelX} y={bodyY} width={labelW} height={bodyViewportH} overflow="hidden">
-        <g transform={`translate(0, ${-effectiveScheduleScrollY})`}>
-          {BROWSER_POLICY_SCHEDULE_DAYS.map((day, dayIndex) => (
-            <g key={`browser-policy-schedule-day-label:${day}`}>
-              <rect
-                x={2}
-                y={dayIndex * cellSize + 1}
-                width={labelW - 4}
-                height={cellSize - 2}
-                rx={5}
-                fill="rgba(8, 26, 47, 0.62)"
-                stroke={cfg.colors.panelStroke}
-                strokeWidth={0.68}
-              />
-              <text
-                x={labelW / 2}
-                y={dayIndex * cellSize + cellSize / 2 + 4}
-                textAnchor="middle"
-                fontSize={12.2}
-                fontWeight={900}
-                fill={cfg.colors.mutedText}
-              >
-                {day}
-              </text>
-            </g>
-          ))}
-        </g>
-      </svg>
-      <svg x={bodyX} y={bodyY} width={bodyViewportW} height={bodyViewportH} overflow="hidden">
-        <g transform={`translate(${-effectiveScheduleScrollX}, ${-effectiveScheduleScrollY})`}>
-          {BROWSER_POLICY_SCHEDULE_DAYS.map((day, dayIndex) => (
-            <g key={`browser-policy-schedule-day:${day}`}>
-              {BROWSER_POLICY_SCHEDULE_HOURS.map((hour, timeIndex) => {
-                const mode = modeForCell(dayIndex, timeIndex);
-                const color = modeColor(mode);
-                const isDefaultMode = mode === 'Default rules';
-                return (
-                  <g key={`browser-policy-schedule-cell:${day}:${hour}`}>
-                    <rect
-                      x={timeIndex * cellSize + 1}
-                      y={dayIndex * cellSize + 1}
-                      width={cellSize - 2}
-                      height={cellSize - 2}
-                      rx={5}
-                      fill={
-                        isDefaultMode
-                          ? PARENT_PORTAL_GLASS.panelFillSoft
-                          : colorAlpha(color, mode === 'Block' ? '36' : '45')
-                      }
-                      stroke={isDefaultMode ? cfg.colors.panelStroke : color}
-                      strokeWidth={isDefaultMode ? 0.7 : 0.76}
-                    />
-                  </g>
-                );
-              })}
-            </g>
-          ))}
-        </g>
-      </svg>
-      <rect
-        x={bodyX}
-        y={bodyY}
-        width={bodyViewportW}
-        height={bodyViewportH}
-        fill="transparent"
-        onPointerDown={(event) => {
-          event.preventDefault();
-          event.currentTarget.setPointerCapture?.(event.pointerId);
-          setSchedulePanDrag({
-            clientX: event.clientX,
-            clientY: event.clientY,
-            scrollX: effectiveScheduleScrollX,
-            scrollY: effectiveScheduleScrollY,
-          });
-        }}
-        onPointerMove={(event) => {
-          if (!schedulePanDrag) return;
-          event.preventDefault();
-          updateScheduleScrollX(schedulePanDrag.scrollX - (event.clientX - schedulePanDrag.clientX));
-          updateScheduleScrollY(schedulePanDrag.scrollY - (event.clientY - schedulePanDrag.clientY));
-        }}
-        onPointerUp={(event) => {
-          event.currentTarget.releasePointerCapture?.(event.pointerId);
-          setSchedulePanDrag(null);
-        }}
-        onPointerLeave={() => setSchedulePanDrag(null)}
-        style={{ cursor: schedulePanDrag ? 'grabbing' : 'grab' }}
-      />
-      {maxScheduleScrollX > 0 ? (
-        <g transform={`translate(0, ${scrollTrackY})`}>
-          <rect
-            x={bodyX}
-            y={0}
-            width={bodyViewportW}
-            height={7}
-            rx={3.5}
-            fill="rgba(8, 24, 42, 0.7)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.7}
-          />
-          <rect
-            x={scrollThumbX}
-            y={1}
-            width={scrollThumbW}
-            height={5}
-            rx={2.5}
-            fill={colorAlpha(cfg.colors.cyan, '70')}
-            stroke={cfg.colors.cyan}
-            strokeWidth={0.6}
-          />
-          <g
-            role="button"
-            aria-label="Scroll schedule left"
-            onClick={() => updateScheduleScrollX(effectiveScheduleScrollX - scrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={boardX + 4}
-              y={-4}
-              width={22}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${boardX + 17} 0 L ${boardX + 11} 3.5 L ${boardX + 17} 7`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-          <g
-            role="button"
-            aria-label="Scroll schedule right"
-            onClick={() => updateScheduleScrollX(effectiveScheduleScrollX + scrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={boardX + boardW - 26}
-              y={-4}
-              width={22}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${boardX + boardW - 17} 0 L ${boardX + boardW - 11} 3.5 L ${boardX + boardW - 17} 7`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-        </g>
-      ) : null}
-      {maxScheduleScrollY > 0 ? (
-        <g>
-          <rect
-            x={verticalTrackX}
-            y={bodyY}
-            width={7}
-            height={bodyViewportH}
-            rx={3.5}
-            fill="rgba(8, 24, 42, 0.7)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.7}
-          />
-          <rect
-            x={verticalTrackX + 1}
-            y={scrollThumbY}
-            width={5}
-            height={scrollThumbH}
-            rx={2.5}
-            fill={colorAlpha(cfg.colors.cyan, '70')}
-            stroke={cfg.colors.cyan}
-            strokeWidth={0.6}
-          />
-          <g
-            role="button"
-            aria-label="Scroll schedule up"
-            onClick={() => updateScheduleScrollY(effectiveScheduleScrollY - verticalScrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={verticalTrackX - 6}
-              y={bodyY - 18}
-              width={15}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${verticalTrackX - 1.5} ${bodyY - 8} L ${verticalTrackX + 1.5} ${bodyY - 13} L ${verticalTrackX + 4.5} ${bodyY - 8}`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-          <g
-            role="button"
-            aria-label="Scroll schedule down"
-            onClick={() => updateScheduleScrollY(effectiveScheduleScrollY + verticalScrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={verticalTrackX - 6}
-              y={boardY + boardH - 18}
-              width={15}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${verticalTrackX - 1.5} ${boardY + boardH - 13} L ${verticalTrackX + 1.5} ${boardY + boardH - 8} L ${verticalTrackX + 4.5} ${boardY + boardH - 13}`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-        </g>
-      ) : null}
-    </g>
   );
 }
 
@@ -10876,674 +10170,6 @@ function BrowserPolicyAuditMatrix({
   );
 }
 
-type BrowserPolicyForestNodeId = 'g0' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8' | 'c9' | 'c10' | 'c11';
-
-type BrowserPolicyForestNode = {
-  readonly id: BrowserPolicyForestNodeId;
-  readonly title: string;
-  readonly subtitle: string;
-  readonly status: string;
-  readonly x: number;
-  readonly y: number;
-  readonly w: number;
-  readonly h: number;
-  readonly parentId?: BrowserPolicyForestNodeId;
-};
-
-const BROWSER_POLICY_FOREST_COPY = {
-  title: 'Browser Policy Forest',
-  rootTitle: 'G0 Master Gate',
-  rootSubtitle: 'Control, default action, enforcement',
-  disabledTitle: 'Browser control is off',
-  disabledBody: 'Policy cards stay quiet. Reports and history remain available for review.',
-  selected: 'Selected card',
-  guide: 'i',
-  details: 'Choices',
-} as const;
-
-const BROWSER_POLICY_FOREST_BASE_NODES = [
-  ['c1', 'C1 Browser Path', 'How should the child browse?'],
-  ['c2', 'C2 Coverage', 'Which browsers and platforms count?'],
-  ['c3', 'C3 Web Rules', 'Targets, actions, and conflicts'],
-  ['c10', 'C10 Privacy / Reports', 'Parent detail, retention, custody'],
-] as const;
-
-const BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT = {
-  minBodyHeight: 220,
-  bodyPadX: 14,
-  subtitleY: 24,
-  detailsY: 46,
-  controlStartY: 60,
-  controlGapY: 64,
-  staticStartY: 64,
-} as const;
-
-function BrowserPolicyDecisionForestPrototype({
-  x,
-  y,
-  w,
-  h,
-  disabled,
-  enforcementChoice,
-  onEnforcementChange,
-  onInfoClick,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  disabled?: boolean;
-  enforcementChoice: string;
-  onEnforcementChange: (value: string) => void;
-  onInfoClick?: () => void;
-}) {
-  const [controlEnabled, setControlEnabled] = useState(true);
-  const [defaultAction, setDefaultAction] = useState<'warn' | 'ask' | 'limit' | 'block'>('warn');
-  const [browserPath, setBrowserPath] = useState<'any' | 'prefer-managed' | 'managed-exact' | 'managed-all'>('any');
-  const [targets, setTargets] = useState<readonly string[]>(['domain', 'category']);
-  const [selectedNodeId, setSelectedNodeId] = useState<BrowserPolicyForestNodeId>('g0');
-  const localEnforcementChoice = enforcementChoice === 'enforce' ? 'enforce' : 'observe';
-  const rootStatus = controlEnabled
-    ? `${browserForestTitleize(defaultAction)} / ${browserForestTitleize(localEnforcementChoice)}`
-    : 'Off';
-  const detailW = Math.min(380, Math.max(310, w * 0.3));
-  const detailGap = 14;
-  const mapX = x + 8;
-  const mapY = y + 8;
-  const mapW = Math.max(1, w - detailW - detailGap - 18);
-  const panelX = mapX + mapW + detailGap;
-  const panelY = mapY;
-  const panelH = Math.max(1, h - 16);
-  const nodeH = 62;
-  const gap = 10;
-  const baseW = Math.max(118, (mapW - gap * 3) / 4);
-  const rootW = Math.min(340, Math.max(260, mapW * 0.36));
-  const rootX = mapX + mapW / 2 - rootW / 2;
-  const rootY = mapY + 18;
-  const row1Y = rootY + 108;
-  const row2Y = row1Y + 112;
-  const row3Y = row2Y + 96;
-  const baseNodes: BrowserPolicyForestNode[] = controlEnabled
-    ? BROWSER_POLICY_FOREST_BASE_NODES.map(([id, title, subtitle], index) => ({
-        id,
-        title,
-        subtitle,
-        status: browserForestNodeStatus(id, defaultAction, browserPath, targets),
-        x: mapX + index * (baseW + gap),
-        y: row1Y,
-        w: baseW,
-        h: nodeH,
-        parentId: 'g0',
-      }))
-    : [];
-  const dependentDefinitions = controlEnabled
-    ? [
-        ...(targets.includes('search') || targets.includes('video')
-          ? [['c4', 'C4 Search / Video', 'Safe search, channels, platforms', 'c3'] as const]
-          : []),
-        ...(targets.includes('downloads') ? [['c5', 'C5 Downloads', 'Risk, type, quarantine', 'c3'] as const] : []),
-        ...(defaultAction === 'limit' ? [['c6', 'C6 Time / Schedule', 'Budgets and end behavior', 'g0'] as const] : []),
-        ...(defaultAction === 'ask' ? [['c7', 'C7 Approval', 'Requests, timeout, scope', 'g0'] as const] : []),
-        ...(targets.includes('exact') ||
-        targets.includes('search') ||
-        targets.includes('video') ||
-        targets.includes('downloads')
-          ? [['c9', 'C9 Evidence / Proof', 'Fresh URL, source, weak proof', 'c3'] as const]
-          : []),
-        ...(browserPath === 'managed-exact' || browserPath === 'managed-all'
-          ? [
-              ['c8', 'C8 Bypass', 'Unmanaged and private browsers', 'c1'] as const,
-              ['c11', 'C11 Fallback', 'Missing capability behavior', 'c1'] as const,
-            ]
-          : []),
-      ]
-    : [];
-  const dependentW = Math.max(126, Math.min(184, (mapW - gap * 3) / 4));
-  const dependentNodes: BrowserPolicyForestNode[] = dependentDefinitions.map(
-    ([id, title, subtitle, parentId], index) => ({
-      id,
-      title,
-      subtitle,
-      status: browserForestNodeStatus(id, defaultAction, browserPath, targets),
-      x: mapX + (index % 4) * (dependentW + gap),
-      y: row2Y + Math.floor(index / 4) * (nodeH + gap),
-      w: dependentW,
-      h: nodeH,
-      parentId,
-    })
-  );
-  const rootNode: BrowserPolicyForestNode = {
-    id: 'g0',
-    title: BROWSER_POLICY_FOREST_COPY.rootTitle,
-    subtitle: BROWSER_POLICY_FOREST_COPY.rootSubtitle,
-    status: rootStatus,
-    x: rootX,
-    y: rootY,
-    w: rootW,
-    h: 72,
-  };
-  const nodes = [rootNode, ...baseNodes, ...dependentNodes];
-  const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? rootNode;
-  const clickable = !disabled;
-  const setTarget = (target: string) => {
-    setTargets((current) =>
-      current.includes(target) ? current.filter((value) => value !== target) : [...current, target]
-    );
-  };
-
-  return (
-    <g>
-      <rect x={x} y={y} width={w} height={h} rx={7} fill="rgba(1, 10, 20, 0.72)" stroke="#29e6ff" strokeWidth={0.8} />
-      <rect
-        x={mapX}
-        y={mapY}
-        width={mapW}
-        height={panelH}
-        rx={7}
-        fill="rgba(2, 20, 36, 0.48)"
-        stroke="#1fbdd7"
-        strokeWidth={0.7}
-        opacity={0.76}
-      />
-      <text x={mapX + 12} y={mapY + 22} fontSize={13} fontWeight={950} fill="#c8f4ff">
-        {BROWSER_POLICY_FOREST_COPY.title}
-      </text>
-      {onInfoClick ? (
-        <g role="button" tabIndex={0} onClick={onInfoClick} style={{ cursor: 'pointer' }}>
-          <circle
-            cx={mapX + mapW - 18}
-            cy={mapY + 18}
-            r={9}
-            fill="rgba(51, 211, 255, 0.16)"
-            stroke="#9bf3ff"
-            strokeWidth={1}
-          />
-          <text x={mapX + mapW - 18} y={mapY + 22} textAnchor="middle" fontSize={12} fontWeight={950} fill="#dffbff">
-            {BROWSER_POLICY_FOREST_COPY.guide}
-          </text>
-        </g>
-      ) : null}
-      {nodes
-        .filter((node) => node.parentId !== undefined)
-        .map((node) => {
-          const parent = nodes.find((candidate) => candidate.id === node.parentId);
-          if (parent === undefined) return null;
-          return (
-            <BrowserPolicyForestConnector
-              key={`${parent.id}-${node.id}`}
-              fromX={parent.x + parent.w / 2}
-              fromY={parent.y + parent.h}
-              toX={node.x + node.w / 2}
-              toY={node.y}
-            />
-          );
-        })}
-      {nodes.map((node) => (
-        <BrowserPolicyForestNodeCard
-          key={node.id}
-          node={node}
-          active={node.id === selectedNode.id}
-          disabled={!controlEnabled && node.id !== 'g0'}
-          onClick={() => {
-            if (!clickable) return;
-            setSelectedNodeId(node.id);
-          }}
-        />
-      ))}
-      {!controlEnabled ? (
-        <g>
-          <rect
-            x={mapX + 28}
-            y={row1Y + 18}
-            width={mapW - 56}
-            height={74}
-            rx={7}
-            fill="rgba(2, 8, 16, 0.66)"
-            stroke="#ffd36a"
-            strokeWidth={0.9}
-          />
-          <text x={mapX + mapW / 2} y={row1Y + 46} textAnchor="middle" fontSize={15} fontWeight={950} fill="#ffd36a">
-            {BROWSER_POLICY_FOREST_COPY.disabledTitle}
-          </text>
-          <text x={mapX + mapW / 2} y={row1Y + 70} textAnchor="middle" fontSize={12} fontWeight={760} fill="#b7dff1">
-            {BROWSER_POLICY_FOREST_COPY.disabledBody}
-          </text>
-        </g>
-      ) : null}
-      <BrowserPolicyForestDetailPanel
-        x={panelX}
-        y={panelY}
-        w={detailW}
-        h={panelH}
-        node={selectedNode}
-        controlEnabled={controlEnabled}
-        defaultAction={defaultAction}
-        enforcementChoice={localEnforcementChoice}
-        browserPath={browserPath}
-        targets={targets}
-        disabled={disabled}
-        onControlEnabledChange={setControlEnabled}
-        onDefaultActionChange={setDefaultAction}
-        onEnforcementChange={onEnforcementChange}
-        onBrowserPathChange={setBrowserPath}
-        onTargetToggle={setTarget}
-        onInfoClick={onInfoClick}
-      />
-    </g>
-  );
-}
-
-function BrowserPolicyForestConnector({
-  fromX,
-  fromY,
-  toX,
-  toY,
-}: {
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
-}) {
-  const midY = fromY + Math.max(12, (toY - fromY) * 0.45);
-  return (
-    <path
-      d={`M ${fromX} ${fromY} V ${midY} H ${toX} V ${toY}`}
-      fill="none"
-      stroke="#caa94d"
-      strokeWidth={1.1}
-      strokeLinecap="round"
-      opacity={0.86}
-      filter="url(#parentPortalGlow)"
-    />
-  );
-}
-
-function BrowserPolicyForestNodeCard({
-  node,
-  active,
-  disabled,
-  onClick,
-}: {
-  node: BrowserPolicyForestNode;
-  active: boolean;
-  disabled: boolean;
-  onClick: () => void;
-}) {
-  const stroke = active ? '#ffd36a' : disabled ? '#35616c' : '#29e6ff';
-  const fill = active
-    ? colorAlpha(cfg.colors.cyan, '2e')
-    : disabled
-      ? PARENT_PORTAL_GLASS.panelFillSoft
-      : PARENT_PORTAL_GLASS.panelFill;
-  const text = disabled ? '#6f91a0' : '#e7fbff';
-  const status = disabled ? 'Disabled' : node.status;
-  return (
-    <g
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      onClick={disabled ? undefined : onClick}
-      style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
-      opacity={disabled ? 0.72 : 1}
-    >
-      <rect
-        x={node.x}
-        y={node.y}
-        width={node.w}
-        height={node.h}
-        rx={8}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={active ? 1.25 : 0.82}
-        filter={active ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <path
-        d={`M ${node.x + 10} ${node.y + 12} H ${node.x + node.w - 10}`}
-        stroke="#86f6ff"
-        strokeWidth={0.8}
-        opacity={active ? 0.58 : 0.28}
-      />
-      <text x={node.x + 12} y={node.y + 25} fontSize={11.8} fontWeight={950} fill={text}>
-        {truncateTextForWidth(node.title, node.w - 24, 11.8, 0.56)}
-      </text>
-      <text x={node.x + 12} y={node.y + 43} fontSize={9.7} fontWeight={720} fill={disabled ? '#5f7f8c' : '#aee6f4'}>
-        {truncateTextForWidth(node.subtitle, node.w - 24, 9.7, 0.55)}
-      </text>
-      <text
-        x={node.x + 12}
-        y={node.y + node.h - 9}
-        fontSize={9.4}
-        fontWeight={900}
-        fill={active ? '#ffd36a' : '#70dfff'}
-      >
-        {truncateTextForWidth(status, node.w - 24, 9.4, 0.56)}
-      </text>
-    </g>
-  );
-}
-
-function BrowserPolicyForestDetailPanel({
-  x,
-  y,
-  w,
-  h,
-  node,
-  controlEnabled,
-  defaultAction,
-  enforcementChoice,
-  browserPath,
-  targets,
-  disabled,
-  onControlEnabledChange,
-  onDefaultActionChange,
-  onEnforcementChange,
-  onBrowserPathChange,
-  onTargetToggle,
-  onInfoClick,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  node: BrowserPolicyForestNode;
-  controlEnabled: boolean;
-  defaultAction: 'warn' | 'ask' | 'limit' | 'block';
-  enforcementChoice: string;
-  browserPath: 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all';
-  targets: readonly string[];
-  disabled?: boolean;
-  onControlEnabledChange: (enabled: boolean) => void;
-  onDefaultActionChange: (value: 'warn' | 'ask' | 'limit' | 'block') => void;
-  onEnforcementChange: (value: string) => void;
-  onBrowserPathChange: (value: 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all') => void;
-  onTargetToggle: (value: string) => void;
-  onInfoClick?: () => void;
-}) {
-  const panelPad = BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.bodyPadX;
-  const bodyHeight = Math.max(
-    BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.minBodyHeight,
-    h - defaultRulesBubbleConfig.header.height
-  );
-  return (
-    <RulesBubbleSvgFrame
-      x={x}
-      y={y}
-      width={w}
-      bodyHeight={bodyHeight}
-      variant="incoming"
-      headerLabel={node.title}
-      showInfo={onInfoClick !== undefined}
-      infoLabel={BROWSER_POLICY_FOREST_COPY.selected}
-      disabled={disabled}
-      onInfoClick={onInfoClick}
-    >
-      {(slot) => {
-        const contentX = slot.bodyContentX + panelPad;
-        const contentW = Math.max(1, slot.bodyContentW - panelPad * 2);
-        const contentTopY = slot.bodyContentY;
-        const startY = contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlStartY;
-        return (
-          <g>
-            <text
-              x={contentX}
-              y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.subtitleY}
-              fontSize={11}
-              fontWeight={760}
-              fill="#aee6f4"
-            >
-              {truncateTextForWidth(node.subtitle, contentW, 11, 0.55)}
-            </text>
-            <text
-              x={contentX}
-              y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.detailsY}
-              fontSize={10.2}
-              fontWeight={950}
-              fill="#70dfff"
-            >
-              {BROWSER_POLICY_FOREST_COPY.details}
-            </text>
-            {node.id === 'g0' ? (
-              <>
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY}
-                  w={contentW}
-                  label="Browser control"
-                  options={[
-                    ['off', 'Off'],
-                    ['on', 'On'],
-                  ]}
-                  selected={controlEnabled ? 'on' : 'off'}
-                  disabled={disabled}
-                  onSelect={(value) => onControlEnabledChange(value === 'on')}
-                />
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlGapY}
-                  w={contentW}
-                  label="Default action"
-                  options={[
-                    ['warn', 'Warn'],
-                    ['ask', 'Ask parent'],
-                    ['limit', 'Limit'],
-                    ['block', 'Block'],
-                  ]}
-                  selected={defaultAction}
-                  disabled={disabled || !controlEnabled}
-                  onSelect={(value) => onDefaultActionChange(value as 'warn' | 'ask' | 'limit' | 'block')}
-                />
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlGapY * 2}
-                  w={contentW}
-                  label="Enforcement"
-                  options={[
-                    ['observe', 'Observe / dry-run'],
-                    ['enforce', 'Enforce'],
-                  ]}
-                  selected={enforcementChoice}
-                  disabled={disabled || !controlEnabled}
-                  onSelect={onEnforcementChange}
-                />
-              </>
-            ) : node.id === 'c1' ? (
-              <BrowserPolicyForestChipRow
-                x={contentX}
-                y={startY}
-                w={contentW}
-                label="Browse path"
-                options={[
-                  ['any', 'Any browser'],
-                  ['prefer-managed', 'Prefer managed'],
-                  ['managed-exact', 'Managed for exact URL'],
-                  ['managed-all', 'Managed only'],
-                ]}
-                selected={browserPath}
-                disabled={disabled || !controlEnabled}
-                onSelect={(value) =>
-                  onBrowserPathChange(value as 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all')
-                }
-              />
-            ) : node.id === 'c3' ? (
-              <BrowserPolicyForestChipRow
-                x={contentX}
-                y={startY}
-                w={contentW}
-                label="Rule targets"
-                options={[
-                  ['domain', 'Domain/site'],
-                  ['category', 'Category'],
-                  ['exact', 'Exact URL'],
-                  ['search', 'Search'],
-                  ['video', 'Video/channel'],
-                  ['downloads', 'Downloads'],
-                ]}
-                selected={targets.join(',')}
-                multiSelected={targets}
-                disabled={disabled || !controlEnabled}
-                onSelect={onTargetToggle}
-              />
-            ) : (
-              <BrowserPolicyForestStaticChoices
-                x={contentX}
-                y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.staticStartY}
-                w={contentW}
-                nodeId={node.id}
-              />
-            )}
-          </g>
-        );
-      }}
-    </RulesBubbleSvgFrame>
-  );
-}
-
-function BrowserPolicyForestChipRow({
-  x,
-  y,
-  w,
-  label,
-  options,
-  selected,
-  multiSelected,
-  disabled,
-  onSelect,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  label: string;
-  options: readonly (readonly [string, string])[];
-  selected: string;
-  multiSelected?: readonly string[];
-  disabled?: boolean;
-  onSelect: (value: string) => void;
-}) {
-  const chipGap = 6;
-  const chipH = 30;
-  const chipW = Math.max(72, Math.min(146, (w - chipGap * 1) / 2));
-  return (
-    <g opacity={disabled ? 0.48 : 1}>
-      <text x={x} y={y} fontSize={10.3} fontWeight={950} fill="#9befff">
-        {label}
-      </text>
-      {options.map(([value, optionLabel], index) => {
-        const col = index % 2;
-        const row = Math.floor(index / 2);
-        const chipX = x + col * (chipW + chipGap);
-        const chipY = y + 10 + row * (chipH + chipGap);
-        const active = multiSelected === undefined ? selected === value : multiSelected.includes(value);
-        return (
-          <g
-            key={value}
-            role="button"
-            tabIndex={disabled ? -1 : 0}
-            onClick={disabled ? undefined : () => onSelect(value)}
-            style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
-          >
-            <rect
-              x={chipX}
-              y={chipY}
-              width={chipW}
-              height={chipH}
-              rx={6}
-              fill={active ? '#8fe7ff' : PARENT_PORTAL_GLASS.cardFill}
-              stroke={active ? '#f5fdff' : '#5c7b96'}
-              strokeWidth={active ? 1.2 : 0.78}
-              filter={active ? 'url(#parentPortalGlow)' : undefined}
-            />
-            <text
-              x={chipX + chipW / 2}
-              y={chipY + 19}
-              textAnchor="middle"
-              fontSize={10.4}
-              fontWeight={950}
-              fill={active ? '#06131e' : '#d8f7ff'}
-            >
-              {truncateTextForWidth(optionLabel, chipW - 12, 10.4, 0.56)}
-            </text>
-          </g>
-        );
-      })}
-    </g>
-  );
-}
-
-function BrowserPolicyForestStaticChoices({
-  x,
-  y,
-  w,
-  nodeId,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  nodeId: BrowserPolicyForestNodeId;
-}) {
-  const rows = browserForestStaticChoices(nodeId);
-  return (
-    <g>
-      {rows.map((row, index) => (
-        <g key={row}>
-          <rect
-            x={x}
-            y={y + index * 34}
-            width={w}
-            height={26}
-            rx={5}
-            fill="rgba(5, 23, 39, 0.62)"
-            stroke="#426f87"
-            strokeWidth={0.75}
-          />
-          <text x={x + 10} y={y + index * 34 + 17} fontSize={10.6} fontWeight={820} fill="#d8f7ff">
-            {truncateTextForWidth(row, w - 20, 10.6, 0.56)}
-          </text>
-        </g>
-      ))}
-    </g>
-  );
-}
-
-function browserForestNodeStatus(
-  id: BrowserPolicyForestNodeId,
-  defaultAction: string,
-  browserPath: string,
-  targets: readonly string[]
-) {
-  if (id === 'c1') return browserForestTitleize(browserPath);
-  if (id === 'c2') return 'Mainstream + risky';
-  if (id === 'c3') return `${targets.length} targets`;
-  if (id === 'c4') return 'Search/video active';
-  if (id === 'c5') return 'Download active';
-  if (id === 'c6') return 'Limit path';
-  if (id === 'c7') return 'Ask path';
-  if (id === 'c8') return 'Bypass visible';
-  if (id === 'c9') return 'Proof required';
-  if (id === 'c10') return 'Domain summary';
-  if (id === 'c11') return 'Fallback required';
-  return browserForestTitleize(defaultAction);
-}
-
-function browserForestStaticChoices(id: BrowserPolicyForestNodeId) {
-  if (id === 'c2') return ['Desktop mainstream', 'Alternate browsers', 'Mobile/browser-like', 'Risky or unknown'];
-  if (id === 'c4') return ['Safe search', 'Search terms', 'Video category', 'Channel / video URL'];
-  if (id === 'c5') return ['Observe downloads', 'Ask risky downloads', 'Block risky downloads', 'Quarantine/delete'];
-  if (id === 'c6') return ['Schedule', 'Budget type', 'When budget ends', 'What time counts'];
-  if (id === 'c7') return ['Ask triggers', 'If no answer', 'Approve scope', 'Override expiry'];
-  if (id === 'c8') return ['Bypass types', 'Bypass action', 'Escalation', 'Safe close'];
-  if (id === 'c9') return ['Proof source', 'Freshness', 'If proof missing', 'Never network-only exact URL'];
-  if (id === 'c10') return ['Parent report detail', 'Redaction', 'Retention', 'Audit / custody'];
-  if (id === 'c11') return ['Failure case', 'Fallback action', 'Manual unavailable', 'Rollback'];
-  return ['Choose a node to configure.'];
-}
-
-function browserForestTitleize(value: string) {
-  return value
-    .split(/[-\s]+/u)
-    .filter((part) => part.length > 0)
-    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
-    .join(' ');
-}
-
 function ManageWorkspacePanel({
   x,
   y,
@@ -11601,13 +10227,8 @@ function ManageWorkspacePanel({
   const activeTarget = targetOptions.find((option) => option.id === workspaceTarget) ?? targetOptions[0] ?? null;
   const workspaceTargetKey = activeTarget?.id ?? 'family';
   const targetColor = toneColor(activeTarget?.tone ?? activeTab?.tone ?? 'cyan', cfg);
-  const hasTargetSelector = targetOptions.length > 0;
   const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
   const policyAreaActive = kind === 'policy';
-  const policyPreviewRows = useMemo(
-    () => (kind === 'policy' ? createPolicyWorkspacePreviewRows(activityState?.policyPreviewReadModel ?? null) : []),
-    [activityState?.policyPreviewReadModel, kind]
-  );
   const policyRulesChoiceMode = policyAreaActive && activeTabKey === 'rules';
   const policyMatrixMode =
     policyAreaActive &&
@@ -11627,7 +10248,7 @@ function ManageWorkspacePanel({
   useEffect(() => {
     setPolicySecondaryChoice(policySecondaryOptions[0]?.value ?? '');
   }, [policySecondaryOptions]);
-  const targetSurfaceEnabled = hasTargetSelector;
+  const targetSurfaceEnabled = targetOptions.length > 0;
   const workspaceSlots = useMemo(
     () =>
       runtimeDeviceSlots.length > 0
@@ -11672,8 +10293,7 @@ function ManageWorkspacePanel({
     width: workspaceAvailableW,
     height: workspaceSelectorH,
   };
-  const workspaceSelectedValue =
-    workspaceTargetKey === 'perDevice' ? (workspaceSelectedDeviceValue ?? '') : '';
+  const workspaceSelectedValue = workspaceTargetKey === 'perDevice' ? (workspaceSelectedDeviceValue ?? '') : '';
   const workspaceSelectedSlot = workspaceSlots.find((slot) => slot.value === workspaceSelectedValue) ?? null;
   const workspaceSelectedLabel = workspaceSelectedSlot?.label ?? null;
   const tabColumns = compact ? Math.min(3, tabs.length) : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
@@ -11686,24 +10306,13 @@ function ManageWorkspacePanel({
   const tabsY = targetSurfaceEnabled ? workspaceDividerY + 16 : y;
   const bodyY = tabsY + tabAreaH - 1;
   const bodyH = Math.max(1, y + h - bodyY - 8);
-  const targetSelectorY = bodyY + (compact ? 46 : 48);
-  const targetSelectorH = compact ? 30 : 34;
-  const targetSelectorX = workspaceBodyX + (compact ? 22 : 96);
-  const targetSelectorMaxW = Math.max(1, workspaceBodyX + workspaceBodyW - targetSelectorX - 22);
-  const targetSelectorW = hasTargetSelector
-    ? Math.min(targetSelectorMaxW, targetOptions.length * (compact ? 142 : 178))
-    : 0;
-  const targetOptionW = targetSelectorW / Math.max(1, targetOptions.length);
   const summaryBaseY = targetSurfaceEnabled
     ? kind === 'policy'
       ? bodyY + (compact ? 92 : 88)
       : bodyY + 24
-    : hasTargetSelector
-      ? targetSelectorY + targetSelectorH + (compact ? 16 : 18)
-      : bodyY + 24;
+    : bodyY + 24;
   const summary = manageWorkspaceSummary(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
   const summaryLines = policyCustomSurfaceMode ? [] : wrapCardText(summary, workspaceBodyW - 42, 12.2, compact ? 2 : 1);
-  const hasInlineTargetSelector = hasTargetSelector && !targetSurfaceEnabled;
   const bodyHeaderH = targetSurfaceEnabled
     ? kind === 'policy'
       ? policyCustomSurfaceMode
@@ -11716,13 +10325,9 @@ function ManageWorkspacePanel({
       : compact
         ? 68
         : 58
-    : hasInlineTargetSelector
-      ? compact
-        ? 124
-        : 122
-      : compact
-        ? 76
-        : 64;
+    : compact
+      ? 76
+      : 64;
   const cards = manageWorkspaceCards(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
   const supportContactFormEnabled = kind === 'account' && activeTabKey === 'support';
   const policyRows =
@@ -11747,12 +10352,8 @@ function ManageWorkspacePanel({
     : workspaceBodyX + 22 + policyChoiceW + policyChoiceGap;
   const policySecondaryY = policyChoicesStacked ? policyChoiceBarY + 58 : policyChoiceBarY;
   const policyChoiceDisabled = workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot;
-  const policyBannerX = workspaceBodyX + 28;
-  const policyBannerW = workspaceBodyW - 56;
-  const policyPreviewBannerH =
-    policyAreaActive && policyPreviewRows.length > 0 ? policyWorkspacePreviewBannerHeight(policyBannerW, policyPreviewRows.length) : 0;
   const policyContentTop = bodyY + bodyHeaderH + 10;
-  const policySurfaceTop = policyContentTop + (policyPreviewBannerH > 0 ? policyPreviewBannerH + 10 : 0);
+  const policySurfaceTop = policyContentTop;
   const browserRulesChoiceTop = policySurfaceTop;
   const policyRowsTop = policySurfaceTop;
   const policyRowGap = 10;
@@ -12037,127 +10638,6 @@ function ManageWorkspacePanel({
           </foreignObject>
         </g>
       ) : null}
-      {hasInlineTargetSelector ? (
-        <g role="radiogroup" aria-label={`${manageWorkspaceTitle(kind)} target selector`}>
-          {!compact ? (
-            <text x={workspaceBodyX + 22} y={targetSelectorY + 22} fontSize={11.4} fontWeight={950} fill={activeColor}>
-              SCOPE
-            </text>
-          ) : null}
-          <rect
-            x={targetSelectorX - 3}
-            y={targetSelectorY - 3}
-            width={targetSelectorW + 6}
-            height={targetSelectorH + 6}
-            rx={9}
-            fill="rgba(2, 12, 22, 0.7)"
-            stroke={targetColor}
-            strokeWidth={0.9}
-            opacity={0.88}
-          />
-          <rect
-            x={targetSelectorX}
-            y={targetSelectorY}
-            width={targetSelectorW}
-            height={targetSelectorH}
-            rx={7}
-            fill="rgba(6, 24, 37, 0.68)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.72}
-            opacity={0.96}
-          />
-          {targetOptions.map((option, index) => {
-            const selected = option.id === workspaceTargetKey;
-            const optionColor = toneColor(option.tone, cfg);
-            const optionX = targetSelectorX + index * targetOptionW;
-            const labelSize = compact ? 10.8 : 12.3;
-            const detailSize = compact ? 7.8 : 8.9;
-            return (
-              <g
-                key={`manage-workspace-target:${kind}:${option.id}`}
-                className="parent-portal-svg-clickable"
-                role="radio"
-                tabIndex={0}
-                aria-label={`Use ${option.label}`}
-                aria-checked={selected}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setWorkspaceTarget(option.id);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key !== 'Enter' && event.key !== ' ') return;
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setWorkspaceTarget(option.id);
-                }}
-              >
-                <rect
-                  x={optionX}
-                  y={targetSelectorY - 2}
-                  width={targetOptionW}
-                  height={targetSelectorH + 4}
-                  fill="transparent"
-                />
-                {index > 0 ? (
-                  <path
-                    d={`M ${optionX} ${targetSelectorY + 5} V ${targetSelectorY + targetSelectorH - 5}`}
-                    stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.8}
-                    opacity={0.55}
-                  />
-                ) : null}
-                {selected ? (
-                  <>
-                    <rect
-                      x={optionX + 4}
-                      y={targetSelectorY + 4}
-                      width={targetOptionW - 8}
-                      height={targetSelectorH - 8}
-                      rx={5}
-                      fill={colorAlpha(optionColor, '44')}
-                      stroke={optionColor}
-                      strokeWidth={1.05}
-                      filter="url(#parentPortalGlow)"
-                    />
-                    <path
-                      d={`M ${optionX + 15} ${targetSelectorY + 9} H ${optionX + targetOptionW - 15}`}
-                      stroke={cfg.colors.bodyText}
-                      strokeWidth={0.9}
-                      strokeLinecap="round"
-                      opacity={0.24}
-                    />
-                  </>
-                ) : null}
-                <text
-                  x={optionX + targetOptionW / 2}
-                  y={targetSelectorY + (compact ? 16 : 17)}
-                  textAnchor="middle"
-                  fontSize={labelSize}
-                  fontWeight={950}
-                  fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
-                  pointerEvents="none"
-                >
-                  {truncateTextForWidth(option.label, targetOptionW - 16, labelSize, 0.58)}
-                </text>
-                {!compact ? (
-                  <text
-                    x={optionX + targetOptionW / 2}
-                    y={targetSelectorY + 28}
-                    textAnchor="middle"
-                    fontSize={detailSize}
-                    fontWeight={760}
-                    fill={selected ? optionColor : cfg.colors.mutedText}
-                    opacity={selected ? 0.9 : 0.58}
-                    pointerEvents="none"
-                  >
-                    {truncateTextForWidth(option.detail, targetOptionW - 18, detailSize, 0.54)}
-                  </text>
-                ) : null}
-              </g>
-            );
-          })}
-        </g>
-      ) : null}
       {summaryLines.map((line, index) => (
         <text
           key={`manage-workspace-summary:${kind}:${activeTabKey}:${workspaceTargetKey}:${index}`}
@@ -12170,15 +10650,6 @@ function ManageWorkspacePanel({
           {line}
         </text>
       ))}
-      {policyAreaActive && policyPreviewRows.length > 0 ? (
-        <PolicyWorkspacePreviewBanner
-          x={policyBannerX}
-          y={policyContentTop}
-          w={policyBannerW}
-          rows={policyPreviewRows}
-          cfg={cfg}
-        />
-      ) : null}
       {!policyCustomSurfaceMode ? (
         <path
           d={`M ${workspaceBodyX + 22} ${bodyY + bodyHeaderH} H ${workspaceBodyX + workspaceBodyW - 22}`}
@@ -12432,17 +10903,17 @@ function ManageTargetPanel({
           tabIndex={0}
           aria-label={`Use ${option.label} scope`}
           aria-pressed={targetSelection.scope === option.scope}
-            onClick={(event) => {
-              event.stopPropagation();
-              onTargetChange({
-                ...targetSelection,
-                scope: option.scope,
-                device:
-                  option.scope === 'perDevice'
-                    ? (deviceChoices.find((device) => device === targetSelection.device) ?? '')
-                    : targetSelection.device,
-              });
-            }}
+          onClick={(event) => {
+            event.stopPropagation();
+            onTargetChange({
+              ...targetSelection,
+              scope: option.scope,
+              device:
+                option.scope === 'perDevice'
+                  ? (deviceChoices.find((device) => device === targetSelection.device) ?? '')
+                  : targetSelection.device,
+            });
+          }}
           onKeyDown={(event) => {
             if (event.key !== 'Enter' && event.key !== ' ') return;
             event.preventDefault();
@@ -12856,7 +11327,8 @@ function ManageControlPanel({
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
   );
-  const reportSelectedValue = reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? '') : '';
+  const reportSelectedValue =
+    reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? '') : '';
   const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
   const activityReportFiles = activityUiIntent.reportFiles;
   const activityReportSelectedFile =
@@ -13046,7 +11518,11 @@ function ManageControlPanel({
                 onChange={(choice) => {
                   setLanPairingSelectedSlot(choice);
                   if (choice.status === 'unsupported') {
-                    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
+                    onTargetChange?.({
+                      ...targetSelection,
+                      scope: 'perDevice',
+                      device: selectedDeviceIdentity(choice),
+                    });
                     setLastAction(`${choice.label} cannot run the child agent`);
                     setSyncStatus('Unsupported LAN device');
                     return;
@@ -14225,8 +12701,8 @@ function ManageControlPanel({
                 <text x={x + 18} y={scheduleY} fontSize={10} fontWeight={950} fill={color}>
                   WHEN THIS APPLIES
                 </text>
-                {schedules.slice(0, compact ? 3 : 6).map((item, index) => {
-                  const chipW = compact ? (leftW - 48) / 3 : (leftW - 68) / 6;
+                {schedules.slice(0, 6).map((item, index) => {
+                  const chipW = (leftW - 68) / 6;
                   return (
                     <ManagePill
                       key={`${spec.title}:schedule:${item.label}`}
@@ -17550,9 +16026,7 @@ function MainBoard({
   mainY: number;
   mainH: number;
 }) {
-  const activeTabConfig = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const detail = detailForNav(activeNavLabel, tabDetails[activeTab]);
-  const rankingTitle = activeTab === 'overall' ? 'PARENT CONTROL SNAPSHOT' : activeTabConfig.title;
   const activeNavKey = assetKey(activeNavLabel);
   const guideOverviewMode = activeNavKey.includes('start-here');
   const guideEligible = activeNavGroupId === 'guide';
@@ -17767,7 +16241,8 @@ function MainBoard({
           : contextChanged
             ? defaultScope
             : current.scope;
-      const deviceChoicesAvailable = manageDeviceChoices(manageCurrentSpec.devices, manageRuntimeDeviceSlots).length > 0;
+      const deviceChoicesAvailable =
+        manageDeviceChoices(manageCurrentSpec.devices, manageRuntimeDeviceSlots).length > 0;
       const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current.device);
       const nextDevice =
         nextScope !== 'perDevice'
@@ -18796,7 +17271,7 @@ export function ParentPortalSvgSurface({
   const [assistantMode, setAssistantMode] = useState(assistantRouteActive);
   const [assistantActionsVisible, setAssistantActionsVisible] = useState(() => cfg.canvas.width >= 1000);
   const [selectedAssistantActionId, setSelectedAssistantActionId] = useState<AssistantQuickActionId | null>(null);
-  const [selectedAssistantChoice, setSelectedAssistantChoice] = useState<AssistantQuickChoice | null>(null);
+  const [, setSelectedAssistantChoice] = useState<AssistantQuickChoice | null>(null);
   const [assistantThreadSequence, setAssistantThreadSequence] = useState(0);
   const [assistantActionSequence, setAssistantActionSequence] = useState(0);
   const [assistantRouteTransition, setAssistantRouteTransition] = useState<'opening' | 'closing' | null>(null);
@@ -19179,7 +17654,7 @@ export function ParentPortalSvgSurface({
               height={82}
               rx={6}
               fill="rgba(3, 7, 18, 0.66)"
-              stroke={error ? cfg.colors.red : cfg.colors.cyan}
+              stroke={cfg.colors.red}
               strokeWidth={1.2}
             />
             <text

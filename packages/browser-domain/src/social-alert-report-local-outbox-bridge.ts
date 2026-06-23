@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxRecordSchema,
   type NotificationLocalOutboxRecord,
@@ -14,7 +9,11 @@ import {
   SocialAlertReportIntentStatus,
   type SocialAlertReportIntent,
 } from '@ocentra-parent/schema-domain/social-alert-report-intent';
-import { FamilyReferenceSchema, type FamilyReference, type ParentActionReference } from '@ocentra-parent/schema-domain/family-references';
+import {
+  FamilyReferenceSchema,
+  type FamilyReference,
+  type ParentActionReference,
+} from '@ocentra-parent/schema-domain/family-references';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -31,8 +30,12 @@ export const SocialAlertReportLocalOutboxBridgeStatus = {
 export const SocialAlertReportLocalOutboxBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(SocialAlertReportLocalOutboxBridgeStatus))
 );
-export const SocialAlertReportLocalOutboxBridgeIdSchema = brandedNonEmptyStringSchema('SocialAlertReportLocalOutboxBridgeId');
-export const SocialAlertReportLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema('SocialAlertReportLocalOutboxBridgeReference');
+export const SocialAlertReportLocalOutboxBridgeIdSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportLocalOutboxBridgeId'
+);
+export const SocialAlertReportLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportLocalOutboxBridgeReference'
+);
 
 const SocialAlertReportLocalOutboxBridgeRowBaseSchema = Schema.Struct({
   bridgeRecordId: SocialAlertReportLocalOutboxBridgeReferenceSchema,
@@ -256,4 +259,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

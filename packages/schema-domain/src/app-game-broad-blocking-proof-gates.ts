@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { appGameBroadBlockingGateIsHonest } from '@ocentra-parent/schema-domain/app-game-broad-blocking-proof-gate-rules';
 import {
   AppGamePlatformActionSchema,
@@ -11,12 +6,18 @@ import {
   AppGamePlatformSetupStateSchema,
 } from './app-game-control-platform-authority';
 import { EnforcementCapabilityStateSchema, EnforcementModeSchema } from '@ocentra-parent/schema-domain/enforcement';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPlatformSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameBroadBlockingGateIdSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateId');
 export const AppGameBroadBlockingGateMatrixIdSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateMatrixId');
 export const AppGameBroadBlockingGateReasonSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateReason');
-export const AppGameBroadBlockingGateProofArtifactRefSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateProofArtifactRef');
+export const AppGameBroadBlockingGateProofArtifactRefSchema = brandedNonEmptyStringSchema(
+  'AppGameBroadBlockingGateProofArtifactRef'
+);
 
 export const AppGameBroadBlockingGateOutcomeSchema = withParser(
   Schema.Literal('manual-required', 'unavailable', 'not-claimed', 'supported')
@@ -120,4 +121,3 @@ export type AppGameBroadBlockingGateMatrix = Infer<typeof AppGameBroadBlockingGa
 export const decodeAppGameBroadBlockingGate = (input: unknown) => AppGameBroadBlockingGateSchema.parse(input);
 export const decodeAppGameBroadBlockingGateMatrix = (input: unknown) =>
   AppGameBroadBlockingGateMatrixSchema.parse(input);
-

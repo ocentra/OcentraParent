@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePackageSourceCaptureStatusProofReadModel } from './app-install-purchase-package-source-capture-status-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const PackageSourceAdapterExecutionProofVersion = 'app-install-purchase-package-source-adapter-execution-proof';
@@ -64,11 +59,21 @@ const AppInstallPurchasePackageSourceAdapterNonClaimSchema = withParser(
   Schema.Literal(...PackageSourceAdapterExecutionNonClaims)
 );
 
-const PackageSourceAdapterExecutionRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceAdapterExecutionRowId');
-const PackageSourceAdapterExecutionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceAdapterExecutionRef');
-const PackageSourceAdapterExecutionAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceAdapterExecutionAuditRef');
-const PackageSourceAdapterExecutionReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceAdapterExecutionReportRef');
-const PackageSourceAdapterExecutionClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceAdapterExecutionClaimBoundary');
+const PackageSourceAdapterExecutionRowIdSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePackageSourceAdapterExecutionRowId'
+);
+const PackageSourceAdapterExecutionRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePackageSourceAdapterExecutionRef'
+);
+const PackageSourceAdapterExecutionAuditRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePackageSourceAdapterExecutionAuditRef'
+);
+const PackageSourceAdapterExecutionReportRefSchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePackageSourceAdapterExecutionReportRef'
+);
+const PackageSourceAdapterExecutionClaimBoundarySchema = brandedNonEmptyStringSchema(
+  'AppInstallPurchasePackageSourceAdapterExecutionClaimBoundary'
+);
 
 const PackageSourceAdapterExecutionRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchasePackageSourceAdapterExecutionProofSchemaVersionSchema,
@@ -364,4 +369,3 @@ function packageSourceAdapterExecutionBoundaryIsExplicit(
     boundary.includes('no Ocentra-hosted family data custody')
   );
 }
-

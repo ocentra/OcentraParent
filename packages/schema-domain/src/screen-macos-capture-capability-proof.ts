@@ -1,18 +1,11 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import { ActivityTimestampSchema } from './evidence-primitives';
 import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
 import { ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
 
 export const ScreenMacosCaptureCapabilitySchemaVersion = 1;
 
-const ScreenMacosCaptureDocRefSchema = withParser(
-  brandedNonEmptyStringSchema('ScreenMacosCaptureDocRef')
-);
+const ScreenMacosCaptureDocRefSchema = withParser(brandedNonEmptyStringSchema('ScreenMacosCaptureDocRef'));
 const ScreenMacosCaptureReasonSchema = withParser(ScreenEvidenceReasonSchema);
 const OptionalScreenMacosCaptureProofRefSchema = Schema.Union(
   ScreenOptionalVisibilityPlatformProofRefSchema,
@@ -248,4 +241,3 @@ export type ScreenMacosCaptureState = Infer<typeof ScreenMacosCaptureStateSchema
 export type ScreenMacosCaptureProofState = Infer<typeof ScreenMacosCaptureProofStateSchema>;
 export type ScreenMacosCaptureCapabilityRow = Infer<typeof ScreenMacosCaptureCapabilityRowSchema>;
 export type ScreenMacosCaptureCapabilityProof = Infer<typeof ScreenMacosCaptureCapabilityProofSchema>;
-

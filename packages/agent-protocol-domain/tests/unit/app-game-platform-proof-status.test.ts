@@ -1,11 +1,9 @@
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import type { AppGamePlatformProofStatusReadModel } from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import {
-  parseAgentAppGamePlatformProofStatusEvent,
-} from '../../src/app-game-platform-proof-status';
-import { AgentProtocolDefaults } from '../../src/defaults';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { parseAgentAppGamePlatformProofStatusEvent } from '../../src/app-game-platform-proof-status';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 const Source = {
   peerId: 'agent-service',
@@ -38,10 +36,7 @@ const PlatformProofStatusReadModel = {
       platformEnforcementClaimed: false,
       childDeliveryClaimed: false,
       proofRefs: ['windows-local-policy-evidence-proof-ref', 'app-game-platform-proof-status-ref'],
-      openGaps: [
-        'windows-broad-blocking-not-proved',
-        'cross-platform-child-delivery-not-proved',
-      ],
+      openGaps: ['windows-broad-blocking-not-proved', 'cross-platform-child-delivery-not-proved'],
     },
     {
       platform: 'android',

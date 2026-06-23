@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from './effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -12,8 +7,12 @@ import {
 import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from './family-references';
 const TrackingIosPrivacyDisclosureNonNegativeIntegerSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingIosPrivacyDisclosureProofIdSchema = brandedNonEmptyStringSchema('TrackingIosPrivacyDisclosureProofId');
-export const TrackingIosPrivacyDisclosureProofReferenceSchema = brandedNonEmptyStringSchema('TrackingIosPrivacyDisclosureProofReference');
+export const TrackingIosPrivacyDisclosureProofIdSchema = brandedNonEmptyStringSchema(
+  'TrackingIosPrivacyDisclosureProofId'
+);
+export const TrackingIosPrivacyDisclosureProofReferenceSchema = brandedNonEmptyStringSchema(
+  'TrackingIosPrivacyDisclosureProofReference'
+);
 
 export const TrackingIosPrivacyDisclosureReleaseGateSchema = withParser(
   Schema.Literal(
@@ -324,4 +323,3 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
-

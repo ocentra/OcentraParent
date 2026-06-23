@@ -5,13 +5,24 @@ use ocentra_parent_agent_core::browser_windows_inventory::windows_browser_invent
 use ocentra_parent_agent_core::browser_windows_package_inventory::windows_browser_package_observations;
 use ocentra_parent_agent_core::browser_windows_package_source::live_windows_browser_package_entries_from_roots;
 use ocentra_parent_agent_core::process_capture::ProcessObservation;
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, BrowserCapabilityStatus, BrowserChannel,
-    BrowserExactUrlCapability, BrowserFamily, BrowserInventoryInstallState, BrowserManagementTier,
-    BrowserSupportTier, BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
-    BrowserUnmanagedProcessKind, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser::{
+    BrowserCapabilityStatus, BrowserChannel, BrowserFamily,
 };
+use ocentra_parent_agent_protocol::browser_inventory::{
+    BrowserExactUrlCapability, BrowserInventoryInstallState, BrowserManagementTier,
+    BrowserSupportTier,
+};
+use ocentra_parent_agent_protocol::browser_managed::{
+    BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
+    BrowserUnmanagedProcessKind,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
     activity_api::browser_inventory_read_model_from_service_defaults,
@@ -228,8 +239,9 @@ fn browser_inventory_read_model_maps_windows_inventory_without_url_claims() {
 #[tokio::test]
 async fn browser_inventory_read_model_command_reports_replayable_service_event() {
     let event = handle_command_text_for_test(
-        &serde_json::to_string(&inventory_command())
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        &serde_json::to_string(&inventory_command()).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
         LanPairingRuntime::empty(),
         None,
     )
@@ -270,8 +282,8 @@ async fn browser_inventory_service_default_roots_feed_windows_inventory_without_
     std::env::remove_var(constants::env_var::LOCAL_APP_DATA);
 
     let read_model = browser_inventory_read_model_from_service_defaults(
-        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        Vec::new(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        &[],
     );
 
     restore_env_var(constants::env_var::PROGRAM_FILES, previous_program_files);
@@ -291,7 +303,7 @@ async fn browser_inventory_service_default_roots_feed_windows_inventory_without_
                 && row.install_state == BrowserInventoryInstallState::Installed
                 && row.process_id.is_none()
         })
-        .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+        .unwrap_or_else(|| panic!("{}", constants::error::BROWSER_BRIDGE_MAPS_TARGET));
 
     assert!(row.claim_boundary_is_honest());
     assert_eq!(row.management_tier, BrowserManagementTier::Managed);
@@ -305,7 +317,7 @@ async fn browser_inventory_service_default_roots_feed_windows_inventory_without_
 fn browser_inventory_service_sources_feed_packaged_browser_without_url_claims() {
     let root = temp_service_inventory_root();
     let package_root = root
-        .join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_PATH_WINDOWS_APPS)
+        .join(ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_PATH_WINDOWS_APPS)
         .join(constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME);
     write_manifest(
         &package_root,
@@ -313,7 +325,7 @@ fn browser_inventory_service_sources_feed_packaged_browser_without_url_claims() 
     );
     let packages = live_windows_browser_package_entries_from_roots(
         std::slice::from_ref(
-            &root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_PATH_WINDOWS_APPS),
+            &root.join(ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_PATH_WINDOWS_APPS),
         ),
         constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
     );
@@ -332,7 +344,7 @@ fn browser_inventory_service_sources_feed_packaged_browser_without_url_claims() 
                 && row.install_state == BrowserInventoryInstallState::Packaged
                 && row.executable_path_ref.is_none()
         })
-        .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+        .unwrap_or_else(|| panic!("{}", constants::error::BROWSER_BRIDGE_MAPS_TARGET));
 
     assert!(row.claim_boundary_is_honest());
     assert_eq!(row.management_tier, BrowserManagementTier::ManualRequired);
@@ -345,7 +357,8 @@ fn browser_inventory_service_sources_feed_packaged_browser_without_url_claims() 
 #[test]
 fn browser_inventory_package_observations_are_manual_required_without_url_claims() {
     let root = temp_service_inventory_root();
-    let windows_apps = root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_PATH_WINDOWS_APPS);
+    let windows_apps =
+        root.join(ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_PATH_WINDOWS_APPS);
     let package_root = windows_apps.join(constants::browser::DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME);
     write_manifest(
         &package_root,
@@ -425,27 +438,45 @@ fn temp_service_inventory_root() -> std::path::PathBuf {
 fn create_executable_fixture(path: &std::path::PathBuf) {
     std::fs::create_dir_all(
         path.parent()
-            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
+            .unwrap_or_else(|| panic!("{}", constants::error::BROWSER_BRIDGE_MAPS_TARGET)),
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    .unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET
+        )
+    });
+    std::fs::write(path, []).unwrap_or_else(|error| {
+        panic!(
+            "{}: {error:?}",
+            constants::error::BROWSER_BRIDGE_MAPS_TARGET
+        )
+    });
 }
 
 fn write_manifest(root: &Path, manifest: &str) {
     if let Some(parent) = root.parent() {
-        std::fs::create_dir_all(parent).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+        std::fs::create_dir_all(parent).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::ACTIVITY_CAPTURE_RECORDS)
+        });
     }
-    std::fs::create_dir_all(root).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    std::fs::create_dir_all(root).unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_CAPTURE_RECORDS)
+    });
     std::fs::write(
-        root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME),
+        root.join(
+            ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
+        ),
         manifest,
     )
-    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    .unwrap_or_else(|error| {
+        panic!("{}: {error:?}", constants::error::ACTIVITY_CAPTURE_RECORDS)
+    });
 }
 
-fn restore_env_var(name: &str, value: Option<std::ffi::OsString>) {
+fn restore_env_var(env_var_name: &str, value: Option<std::ffi::OsString>) {
     match value {
-        Some(previous) => std::env::set_var(name, previous),
-        None => std::env::remove_var(name),
+        Some(previous) => std::env::set_var(env_var_name, previous),
+        None => std::env::remove_var(env_var_name),
     }
 }
