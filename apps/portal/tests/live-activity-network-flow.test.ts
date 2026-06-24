@@ -8,7 +8,10 @@ import {
   AgentNetworkRuntimeEventSchemaVersion,
   AgentNetworkRuntimeEventType,
 } from '@ocentra-parent/schema-domain/network-runtime-events';
-import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
+import {
+  projectLanDiscoverySourceMatrixViewModel,
+  shouldRenderNetworkEvidenceDrawerRoute,
+} from '../src/NetworkEvidenceDrawerRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { NetworkEvidenceDrawerProof } from './network-evidence-drawer-proof-fixture';
 
@@ -220,6 +223,53 @@ function registerNetworkEvidenceDrawerTests(): void {
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.NetworkActivity)).toBe(true);
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Commands)).toBe(false);
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
+  });
+
+  it('projects LAN discovery source-matrix rows, claims, and restart-persisted weak identity truth', () => {
+    const projection = projectLanDiscoverySourceMatrixViewModel(lanSourceMatrixReadModel());
+
+    expect(projection).not.toBeNull();
+    expect(projection?.generatedAt).toBe('2026-06-23T00:00:00Z');
+    expect(projection?.rowSummary).toBe('2 workpacks | 3 sources');
+    expect(projection?.statusSummary).toBe('2 implemented | 1 partial | 0 manual required | 0 not implemented');
+    expect(projection?.currentSourceSummary).toBe(
+      'local-service | windows-neighbor-table | previous-scan-snapshot'
+    );
+    expect(projection?.persistedSourceSummary).toBe('previous-scan-snapshot (WP 15)');
+    expect(projection?.claimsProved).toBe('read-model-source-matrix | weak-sources-fenced');
+    expect(projection?.claimsNotProved).toBe('packet-mode-not-implemented | physical-proof-manual-required');
+    expect(projection?.implementedSourceRows).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'previous-scan-snapshot (WP 15)',
+          value: expect.stringContaining('restart-persisted'),
+        }),
+      ])
+    );
+    expect(projection?.weakSourceRows).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'previous-scan-snapshot (WP 15)',
+          value: expect.stringContaining('weak-identity'),
+        }),
+        expect.objectContaining({
+          label: 'previous-scan-snapshot (WP 15)',
+          value: expect.stringContaining('no-route-control'),
+        }),
+      ])
+    );
+  });
+
+  it('keeps LAN source-matrix projection absent when no add-device source matrix was reported', () => {
+    expect(
+      projectLanDiscoverySourceMatrixViewModel({
+        scanSummary: {
+          sourceLabels: [],
+        },
+        lanDiscoverySourceMatrix: null,
+      })
+    ).toBeNull();
+    expect(projectLanDiscoverySourceMatrixViewModel(null)).toBeNull();
   });
 }
 
@@ -646,4 +696,86 @@ function deletedNetworkFlowEvent() {
     },
     snapshot: null,
   });
+}
+
+function lanSourceMatrixReadModel() {
+  return {
+    scanSummary: {
+      sourceLabels: ['local-service', 'windows-neighbor-table', 'previous-scan-snapshot'],
+    },
+    lanDiscoverySourceMatrix: {
+      generatedAt: '2026-06-23T00:00:00Z',
+      workpackRows: [
+        {
+          workpackId: '04',
+          title: 'Passive neighbor discovery',
+          discoveryState: 'discovered',
+          proofState: 'ci-mechanical-proof',
+          runtimeOwner: 'rust-service-read-model',
+          status: 'implemented',
+          readModelVisible: true,
+          requiredArtifactSummary: null,
+        },
+        {
+          workpackId: '15',
+          title: 'Household device store',
+          discoveryState: 'pending',
+          proofState: 'ci-mechanical-proof',
+          runtimeOwner: 'rust-service-read-model',
+          status: 'partial',
+          readModelVisible: true,
+          requiredArtifactSummary: null,
+        },
+      ],
+      sourceRows: [
+        {
+          source: 'windows-neighbor-table',
+          workpackId: '04',
+          status: 'implemented',
+          authority: 'weak-identity',
+          runtimePath: 'rust-service-read-model',
+          uiSurface: 'devices-lan',
+          canConfirmChildAgent: false,
+          canAssignChildProfile: false,
+          canControlRoute: false,
+          requiresSelectedInterface: true,
+          persistsAcrossRestart: false,
+          evidenceLabel: 'Passive neighbor table row',
+          requiredArtifactSummary: null,
+        },
+        {
+          source: 'previous-scan-snapshot',
+          workpackId: '15',
+          status: 'implemented',
+          authority: 'weak-identity',
+          runtimePath: 'rust-service-read-model',
+          uiSurface: 'devices-lan',
+          canConfirmChildAgent: false,
+          canAssignChildProfile: false,
+          canControlRoute: false,
+          requiresSelectedInterface: false,
+          persistsAcrossRestart: true,
+          evidenceLabel: 'Previous scan continuity hint',
+          requiredArtifactSummary: null,
+        },
+        {
+          source: 'service-identity-probe',
+          workpackId: '11',
+          status: 'partial',
+          authority: 'presence-only',
+          runtimePath: 'rust-service-read-model',
+          uiSurface: 'devices-lan',
+          canConfirmChildAgent: false,
+          canAssignChildProfile: false,
+          canControlRoute: false,
+          requiresSelectedInterface: false,
+          persistsAcrossRestart: false,
+          evidenceLabel: 'Service identity probe presence only',
+          requiredArtifactSummary: null,
+        },
+      ],
+      claimsProved: ['read-model-source-matrix', 'weak-sources-fenced'],
+      claimsNotProved: ['packet-mode-not-implemented', 'physical-proof-manual-required'],
+    },
+  } as const;
 }

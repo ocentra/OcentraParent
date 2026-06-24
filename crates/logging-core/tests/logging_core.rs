@@ -143,7 +143,8 @@ fn artifact_writer_writes_text_and_hashes_content_impl() -> Result<(), Box<dyn E
     assert_eq!(artifact.line_count, 2);
     assert_eq!(artifact.sha256.len(), 64);
     let expected_path = path_string(
-        &root.join("parent-codex")
+        &root
+            .join("parent-codex")
             .join("artifacts")
             .join("run-1")
             .join("cmd-1")

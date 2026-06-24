@@ -11,7 +11,7 @@ use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use super::{
     journal::ActivityJournal,
-    journal_crypto::{JOURNAL_KEY_BYTES, JournalKey},
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
     journal_error::JournalError,
 };
 

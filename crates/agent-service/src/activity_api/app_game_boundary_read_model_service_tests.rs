@@ -44,18 +44,14 @@ async fn app_game_boundary_command_reports_service_backed_protocol_rows() {
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     store
         .ingest_events(&[evidence_claim_activity_event()])
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model =
         boundary_read_model_payload(&event.payload[constants::field::APP_GAME_BOUNDARY_READ_MODEL]);

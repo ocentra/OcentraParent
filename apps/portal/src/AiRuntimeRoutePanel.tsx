@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
@@ -47,10 +46,7 @@ export function AiRuntimeRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.LocalAiRuntimeStatusReported);
-              actions.sendCommand(AgentCommand.LocalAiRuntimeStatusGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetLocalAiRuntimeStatus)}
           </button>

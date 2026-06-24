@@ -4,17 +4,17 @@ use std::{
 };
 
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
-    SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_CUSTODY_TEMP_QUEUE, SCREEN_DELETION_REQUIRED, SCREEN_IMAGE_FORMAT_PNG,
-    SCREEN_QUEUE_STATUS_QUEUED, SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
-    ScreenAnalysisQueueJob,
+    ScreenAnalysisQueueJob, SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
+    SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CUSTODY_TEMP_QUEUE, SCREEN_DELETION_REQUIRED,
+    SCREEN_IMAGE_FORMAT_PNG, SCREEN_QUEUE_STATUS_QUEUED,
+    SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
 };
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use serde_json::Value;
 
-use crate::journal_crypto::{JOURNAL_KEY_BYTES, JournalKey};
+use crate::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use crate::screen_evidence_queue::ScreenEvidenceQueue;
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);

@@ -130,9 +130,8 @@ fn report_from_event(event: &AgentEventEnvelope) -> ActivityReportDocument {
         .get(constants::field::ACTIVITY_REPORT_DOCUMENT)
         .and_then(log_field_string)
         .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
-    serde_json::from_str(report_json).unwrap_or_else(|error| {
-        panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::from_str(report_json)
+        .unwrap_or_else(|error| panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn history_from_event(event: &AgentEventEnvelope) -> ActivityHistoricalReportList {
@@ -141,9 +140,8 @@ fn history_from_event(event: &AgentEventEnvelope) -> ActivityHistoricalReportLis
         .get(constants::field::ACTIVITY_REPORTS)
         .and_then(log_field_string)
         .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
-    serde_json::from_str(history_json).unwrap_or_else(|error| {
-        panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::from_str(history_json)
+        .unwrap_or_else(|error| panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn log_field_string(value: &LogFieldValue) -> Option<&str> {
@@ -168,8 +166,6 @@ fn temp_report_root() -> PathBuf {
 fn nanos_now() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap_or_else(|error| {
-            panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        })
+        .unwrap_or_else(|error| panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES))
         .as_nanos()
 }

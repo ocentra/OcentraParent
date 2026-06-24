@@ -24,9 +24,8 @@ use crate::{
 #[test]
 fn network_apple_network_extension_gate_status_payload_reports_entitlement_ready_without_execution_claims(
 ) {
-    let payload = network_apple_network_extension_gate_status_payload().unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let payload = network_apple_network_extension_gate_status_payload()
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let status: NetworkAppleNetworkExtensionGateStatus = status_value(
         &payload,
         constants::network_flow::FIELD_NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS,
@@ -37,9 +36,8 @@ fn network_apple_network_extension_gate_status_payload_reports_entitlement_ready
 
 #[tokio::test]
 async fn websocket_network_apple_network_extension_gate_status_command_reports_payload() {
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let status: NetworkAppleNetworkExtensionGateStatus = status_value(
         &event.payload,

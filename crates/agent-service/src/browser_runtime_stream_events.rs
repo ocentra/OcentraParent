@@ -219,18 +219,13 @@ fn insert_payload_flags(fields: &mut Map<String, Value>, payload: &BrowserRuntim
     insert_payload_field(fields, constants::field::OBSERVED_AT, &payload.observed_at);
 }
 
-fn insert_payload_field<T: Serialize>(
-    fields: &mut Map<String, Value>,
-    field_name: &str,
-    value: T,
-) {
+fn insert_payload_field<T: Serialize>(fields: &mut Map<String, Value>, field_name: &str, value: T) {
     fields.insert(field_name.to_string(), payload_json_value(value));
 }
 
 fn payload_json_value<T: Serialize>(value: T) -> Value {
-    serde_json::to_value(value).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::to_value(value)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn event_ref(correlation_id: &str, runtime_event_name: &str) -> String {

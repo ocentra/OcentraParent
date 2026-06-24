@@ -29,9 +29,8 @@ const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let result = request_payload(
         &event.payload[constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST],
@@ -111,26 +110,22 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         &event.payload[constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST],
     );
 
-    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let model = store
         .app_game_service_read_model(
             PERSISTED_SETUP_EVENT_COUNT,
             constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
         )
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-        });
-    let status = store.status().unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-    });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES));
+    let status = store
+        .status()
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES));
     let outbox_path = store_path.with_extension(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
     );
-    let outbox_jsonl = read_to_string(&outbox_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let outbox_jsonl = read_to_string(&outbox_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     cleanup_path(&store_path);
 
     assert_persisted_setup_result(&result);
@@ -736,10 +731,8 @@ fn assert_persisted_setup_outbox(
         .lines()
         .next()
         .unwrap_or_else(|| panic!("{}", constants::error::ACTIVITY_STORE_OPENS));
-    let outbox_record: serde_json::Value =
-        serde_json::from_str(first_line).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let outbox_record: serde_json::Value = serde_json::from_str(first_line)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     assert_eq!(
         outbox_record[constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID],
         result.durable_outbox_record_id

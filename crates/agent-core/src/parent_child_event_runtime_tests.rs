@@ -153,8 +153,8 @@ async fn child_agent_receive_publishes_local_events_and_parent_read_model() -> T
 }
 
 #[tokio::test]
-async fn browser_action_intent_handoff_uses_parent_child_event_sequence_without_execution()
--> TestResult {
+async fn browser_action_intent_handoff_uses_parent_child_event_sequence_without_execution(
+) -> TestResult {
     let report = ok(
         publish_parent_child_runtime_for_validated_intent(
             ParentChildRuntimeInput::browser_action_intent_handoff_fixture(),

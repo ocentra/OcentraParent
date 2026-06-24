@@ -1,6 +1,4 @@
 import type { ReactElement } from 'react';
-import type { AgentAppGamePolicyReadinessResult } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
@@ -15,6 +13,8 @@ import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
+type AppGamePolicyReadinessRouteReadModelResult = Parameters<typeof createAppGamePolicyReadinessPanelIntent>[0];
+
 export function shouldRenderAppGamePolicyReadinessRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);
 }
@@ -26,7 +26,7 @@ export function AppGamePolicyReadinessRoutePanel({
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AgentAppGamePolicyReadinessResult | null;
+  readonly readModelResult: AppGamePolicyReadinessRouteReadModelResult;
 }): ReactElement {
   const intent = createAppGamePolicyReadinessPanelIntent(readModelResult);
   return (
@@ -43,10 +43,7 @@ export function AppGamePolicyReadinessRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGamePolicyReadinessReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGamePolicyReadinessReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel)}
           </button>

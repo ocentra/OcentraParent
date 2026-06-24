@@ -11,8 +11,8 @@ use crate::browser_event_runtime::action_status::{
 use crate::browser_event_runtime::delivery::prove_browser_runtime_delivery_decision;
 use crate::browser_event_runtime::topology::browser_runtime_chain_topology_manifest;
 use crate::browser_event_runtime::{
-    BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimeReport,
-    publish_browser_runtime_chain_for_input,
+    publish_browser_runtime_chain_for_input, BrowserRuntimeEventPayload, BrowserRuntimeInput,
+    BrowserRuntimeReport,
 };
 use ocentra_eventing::{
     delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
@@ -164,8 +164,8 @@ async fn browser_runtime_action_intent_handoff_prepares_outbox_without_dispatch(
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_without_dispatch()
--> TestResult {
+async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_without_dispatch(
+) -> TestResult {
     let report = ok(
         request_browser_runtime_action_intent_handoff_for_input(
             BrowserRuntimeInput::dry_run_action_handoff_fixture(),
@@ -205,13 +205,11 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_
         handoff.handoff_ref.as_deref(),
         Some(constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF)
     );
-    assert!(
-        handoff
-            .source_event_ref
-            .as_deref()
-            .ok_or_else(|| "handoff source event ref missing".to_string())?
-            .ends_with(constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED)
-    );
+    assert!(handoff
+        .source_event_ref
+        .as_deref()
+        .ok_or_else(|| "handoff source event ref missing".to_string())?
+        .ends_with(constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED));
     assert_eq!(handoff.dispatch_attempt_count, 0);
     assert_eq!(handoff.adapter_execution_count, 0);
     assert_eq!(handoff.browser_mutation_count, 0);
@@ -223,8 +221,8 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_rows_empty()
--> TestResult {
+async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_rows_empty(
+) -> TestResult {
     let report = ok(
         request_browser_runtime_action_intent_handoff_for_input(
             BrowserRuntimeInput::manual_required_fixture(),
@@ -249,8 +247,8 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_row
 }
 
 #[tokio::test]
-async fn browser_runtime_action_intent_durable_handoff_preserves_refs_without_execution()
--> TestResult {
+async fn browser_runtime_action_intent_durable_handoff_preserves_refs_without_execution(
+) -> TestResult {
     let report = ok(
         prove_browser_runtime_action_intent_durable_handoff().await,
         "prove browser runtime durable handoff",

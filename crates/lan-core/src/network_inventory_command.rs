@@ -6,6 +6,8 @@ use std::{
 
 use ocentra_parent_agent_protocol::constants;
 
+use crate::mac_identity::normalize_scan_mac_address;
+
 pub(crate) fn command_json_records(program: &str, args: &[&str]) -> Vec<serde_json::Value> {
     command_stdout(program, args)
         .and_then(|output| {
@@ -82,20 +84,5 @@ fn clean_string(value: Option<String>) -> Option<String> {
 }
 
 pub(crate) fn normalize_mac_address(value: &str) -> Option<String> {
-    let normalized = value
-        .trim()
-        .replace(':', constants::lan_pairing::MAC_DASH)
-        .to_ascii_lowercase();
-    let compact: String = normalized
-        .chars()
-        .filter(|character| *character != '-')
-        .collect();
-    if compact.len() != 12
-        || compact == constants::lan_pairing::MAC_ZERO_COMPACT
-        || compact == constants::lan_pairing::MAC_BROADCAST_COMPACT
-        || compact.starts_with(constants::lan_pairing::MAC_IPV4_MULTICAST_PREFIX_COMPACT)
-    {
-        return None;
-    }
-    Some(normalized)
+    normalize_scan_mac_address(value)
 }

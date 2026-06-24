@@ -619,25 +619,22 @@ fn serialize_test_json<T>(value: &T) -> String
 where
     T: serde::Serialize + ?Sized,
 {
-    serde_json::to_string(value).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::to_string(value)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn serialize_test_value<T>(value: T) -> serde_json::Value
 where
     T: serde::Serialize,
 {
-    serde_json::to_value(value).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::to_value(value)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn parse_test_json<T>(text: &str) -> T
 where
     T: serde::de::DeserializeOwned,
 {
-    serde_json::from_str(text).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::from_str(text)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }

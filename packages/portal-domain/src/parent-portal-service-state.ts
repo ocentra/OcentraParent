@@ -32,6 +32,7 @@ export type ParentPortalServiceConnectionState = 'connected' | 'connecting' | 'd
 export type ParentPortalServiceStateInput = {
   readonly connectionState: ParentPortalServiceConnectionState;
   readonly events: readonly AgentEventEnvelope[];
+  readonly snapshotRows?: readonly ParentPortalRow[] | null;
 };
 
 export type ParentPortalServiceState = {
@@ -41,7 +42,10 @@ export type ParentPortalServiceState = {
 };
 
 export function resolveParentPortalServiceState(input: ParentPortalServiceStateInput): ParentPortalServiceState {
-  const parentPortalRows = parentPortalServiceRows(input);
+  const parentPortalRows =
+    input.snapshotRows !== undefined && input.snapshotRows !== null && input.snapshotRows.length > 0
+      ? [...input.snapshotRows]
+      : parentPortalServiceRows(input);
 
   return {
     content: SERVICE_BACKED_CONTENT,

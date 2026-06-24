@@ -1,6 +1,4 @@
 import type { ReactElement } from 'react';
-import type { AgentAppGameChildRuntimeTransportReceiptResult } from '@ocentra-parent/agent-protocol-domain/app-game-child-runtime-transport-receipt-event-parser';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
@@ -15,6 +13,19 @@ import {
   type AppGameChildRuntimeTransportReceiptPanelRow,
 } from '@ocentra-parent/portal-domain/app-game-child-runtime-transport-receipt-panel';
 
+type AppGameChildRuntimeTransportReceiptReadModel = Exclude<
+  Parameters<typeof createAppGameChildRuntimeTransportReceiptPanelIntent>[0],
+  null
+>;
+type AppGameChildRuntimeTransportReceiptRouteReadModelResult =
+  | {
+      readonly ok: true;
+      readonly value: AppGameChildRuntimeTransportReceiptReadModel;
+    }
+  | {
+      readonly ok: false;
+    };
+
 export function shouldRenderAppGameChildRuntimeTransportReceiptRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);
 }
@@ -26,7 +37,7 @@ export function AppGameChildRuntimeTransportReceiptRoutePanel({
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AgentAppGameChildRuntimeTransportReceiptResult | null;
+  readonly readModelResult: AppGameChildRuntimeTransportReceiptRouteReadModelResult | null;
 }): ReactElement {
   const readModel = readModelResult?.ok === true ? readModelResult.value : null;
   const intent = createAppGameChildRuntimeTransportReceiptPanelIntent(readModel);
@@ -44,10 +55,7 @@ export function AppGameChildRuntimeTransportReceiptRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGameChildRuntimeTransportReceiptReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
           </button>

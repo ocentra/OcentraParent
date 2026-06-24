@@ -97,9 +97,7 @@ fn app_game_policy_readiness_payload_reports_service_counts_with_source_dispatch
         constants::field::APP_GAME_POLICY_READINESS_READ_MODEL,
     );
     let decoded: AppGamePolicyReadinessReadModel = serde_json::from_str(read_model_json)
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(decoded.returned, 7);
     assert_eq!(

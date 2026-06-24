@@ -33,6 +33,44 @@ renders the updated add-device read model after refresh. This removes the
 portal-only optimistic identity state for this path, but does not complete full
 restart/recovery proof across every parent decision.
 
+Current A-lane proof also persists prior LAN scan rows in the agent-service
+sidecar JSON and reuses that history only as weak continuity truth. When a
+later neighbor row is missing hostname/label/platform, the Rust LAN runtime may
+hydrate those fields from the previous scan, but the add-device read model now
+surfaces that explicitly as `previous-scan-snapshot` source/evidence instead of
+silently upgrading it to confirmed truth. Paired/trusted child-device truth
+still suppresses redundant service probing and outranks historical hints. The
+current scan-smart slice also makes that stronger truth live in the neighbor
+normalization and active-refresh paths: MAC-matched trusted registry rows now
+hydrate hostname/platform/label before weak previous-scan history, and IP reuse
+with a mismatched MAC no longer suppresses bounded active refresh or
+service-identity probe checks. Stored child truth now suppresses an active
+refresh only when the current neighbor table still confirms the same MAC at
+that IP. Recent sidecar history for already observed child-app devices now
+feeds a short-lived probe suppression list as scan input only; it does not
+become current trusted state, paired state, or confirmed read-model truth by
+itself.
+
+That same sidecar now also records scan-plan metadata for audit and restart
+continuity: session id, refresh mode, selected interface, local IPv4/CIDR,
+default gateway, bounded target counts, timeout, paired-registry truth count,
+recent previous-scan child-truth reuse count, durable household-truth reuse
+count, and suppressed active-target list. Previous canonical household truth
+that is still provable as paired, child-agent-backed, revoked/ignored, or
+network-infrastructure state now feeds the Rust LAN active-refresh, passive
+identity-hint, and service-probe suppression paths directly, so repeated scans
+stop re-pinging and re-probing those devices while still reusing known
+label/hostname/platform truth when a matching neighbor reappears.
+
+Current A-lane proof now also persists canonical `knownHouseholdDevices` inside
+the trusted-registry JSON and merges fresh scan output back into that same
+store. The runtime keeps the same canonical device shape for storage and
+read-model truth, merges evidence timestamp history instead of replacing it,
+reuses that registry-backed known-device store for later scan suppression, and
+restores those known devices into the add-device read model as stale restart
+truth rather than silently forgetting them when a fresh scan has not yet
+re-observed them.
+
 ## Where We Want To Be
 
 The household device store is the canonical durable registry for known devices,
@@ -47,13 +85,14 @@ not own separate truth.
   last-seen. Manual name/device type persistence for LAN-discovered
   neighbors is proved; broader state coverage remains open.
 - [ ] Preserve parent decisions across rescan and restart. Portal refresh and
-  service readback are proved for rename/type; full restart coverage remains
-  open.
+  service readback are proved for rename/type, and previous-scan continuity is
+  now persisted/replayed as weak evidence; full restart coverage remains open.
 - [ ] Support migrations and safe fallback to unpaired state when registry proof
       is unavailable.
 - [ ] Keep routers and unsupported devices visible but non-enrollable.
 - [ ] Expose custody/source labels for local, LAN, cache, unavailable, and
-      manual-required states.
+      manual-required states. Previous-scan continuity is now explicit in the
+      LAN read model as a weak source label rather than hidden fallback state.
 
 ## Acceptance And Proof
 
@@ -68,6 +107,15 @@ Current proof:
 - `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md`
 - `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-identity-persisted.png`
 - `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-update-gated.png`
+- Focused Rust proof: `cargo test -p ocentra-lan-core network_inventory`
+- Focused Rust proof: `cargo test -p ocentra-parent-agent-core trusted_device_registry`
+- Focused Rust proof:
+  `cargo test -p ocentra-parent-agent-service lan_pairing_browser_runtime`
+- Focused Rust proof:
+  `cargo test -p ocentra-parent-agent-service physical_lan_scan`
+- Restart/runtime proof now explicitly covers stale read-model restoration from
+  `knownHouseholdDevices`, and scan-suppression proof now covers stored
+  child-agent truth in addition to paired and router truth.
 
 ## Parallel Ownership Notes
 

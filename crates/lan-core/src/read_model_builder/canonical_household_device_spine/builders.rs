@@ -18,16 +18,21 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCano
 
 pub(super) fn device_from_discovery(
     discovered: &LanBrowserAddDeviceDiscoveryDevice,
+    observed_at: &str,
 ) -> LanCanonicalHouseholdDevice {
     let device = &discovered.child_device;
     let classification = classification_for(device, false);
     let is_child_agent = classification == LanCanonicalHouseholdDeviceClassification::ChildAgent;
-    let source = source_for_discovery(&discovered.discovery_status);
+    let source = source_for_discovery(&discovered.discovery_status, &discovered.evidence_sources);
+    let route_state = route_state_for(is_child_agent, &discovered.discovery_status);
     let network_identity = network_identity_for(
         device,
         discovered.reachability.clone(),
         confidence_for_discovery(&discovered.discovery_status),
         &source,
+        &discovered.evidence_sources,
+        &discovered.hint_sources,
+        observed_at,
     );
     LanCanonicalHouseholdDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -38,14 +43,14 @@ pub(super) fn device_from_discovery(
         discovery_state: discovered.discovery_state.clone(),
         trust_state: LanPairingTrustState::Unpaired,
         route_id: route_id_for(is_child_agent, Some(discovered.route_id.clone())),
-        route_state: route_state_for(is_child_agent, &discovered.discovery_status),
+        route_state: route_state.clone(),
         network_mode: discovered.network_mode.clone(),
         source_labels: vec![source],
         child_agent_inventory: child_agent_inventory_for(
             is_child_agent,
             device,
             LanPairingTrustState::Unpaired,
-            route_state_for(is_child_agent, &discovered.discovery_status),
+            route_state,
         ),
         policy_target_surfaces: surfaces_for(is_child_agent),
         network_identity,
@@ -55,6 +60,7 @@ pub(super) fn device_from_discovery(
 
 pub(super) fn device_from_registry(
     entry: &LanTrustedDeviceRegistryEntry,
+    observed_at: &str,
 ) -> LanCanonicalHouseholdDevice {
     let device = &entry.child_device;
     let network_identity = network_identity_for(
@@ -62,6 +68,9 @@ pub(super) fn device_from_registry(
         LanPairingDeviceReachability::Stale,
         LanCanonicalHouseholdDeviceConfidence::ManualRequired,
         &LanCanonicalHouseholdDeviceSource::TrustedRegistry,
+        &[],
+        &[],
+        observed_at,
     );
     LanCanonicalHouseholdDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,

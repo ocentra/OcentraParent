@@ -1,13 +1,10 @@
 import React, { type ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   type PortalDetailValue,
   type TrackingStatusProofArtifact,
 } from '@ocentra-parent/schema-domain/portal-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
-import { defaultAgentTrackingRetentionSettingsWriteRequest } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
@@ -91,10 +88,7 @@ export function TrackingStatusRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityTrackingReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityTrackingReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetActivityTrackingReadModel)}
           </button>
@@ -586,14 +580,7 @@ function TrackingRetentionSettingsHostedUiProofCard({
         className={PortalDom.Classes.CommandResultTab}
         disabled={!commandEnabled}
         type={PortalDom.ButtonType.Button}
-        onClick={() => {
-          actions.selectCommandResult(AgentEvent.ActivityTrackingRetentionSettingsWriteReported);
-          actions.sendCommand(AgentCommand.ActivityTrackingRetentionSettingsWrite, {
-            [AgentProtocolDefaults.Field.ActivityTrackingRetentionSettingsWriteRequest]: JSON.stringify(
-              defaultAgentTrackingRetentionSettingsWriteRequest()
-            ),
-          });
-        }}
+        onClick={() => void actions.requestTrackingRetentionSettingsWrite?.()}
       >
         {resolvePortalDevText(PortalDevTextToken.TrackingRetentionSettingsWritePreflightButton)}
       </button>

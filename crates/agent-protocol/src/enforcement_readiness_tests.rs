@@ -84,7 +84,10 @@ fn unsupported_readiness_state_does_not_deserialize() {
 
     let parsed = serde_json::from_value::<EnforcementBroadAdapterReadinessEntry>(payload);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 fn readiness_entry(

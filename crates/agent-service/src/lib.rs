@@ -103,9 +103,6 @@ mod fields;
 mod host_identity_read_model;
 #[cfg(test)]
 mod host_identity_read_model_tests;
-mod lan_network_inventory;
-mod lan_network_inventory_command;
-mod lan_network_inventory_hardware;
 mod lan_pairing;
 mod lan_pairing_audit;
 mod lan_pairing_browser_add_device_scan;
@@ -117,6 +114,7 @@ mod lan_pairing_browser_runtime;
 #[cfg(test)]
 #[path = "../tests/unit/lan_pairing_browser_runtime.rs"]
 mod lan_pairing_browser_runtime_tests;
+#[cfg(test)]
 mod lan_pairing_household_device_spine;
 #[cfg(test)]
 #[path = "../tests/unit/lan_pairing_household_device_spine_test_fixtures.rs"]

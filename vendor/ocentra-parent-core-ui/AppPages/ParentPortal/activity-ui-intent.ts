@@ -295,9 +295,6 @@ function pendingServiceScan(
 function lanDeviceSlots(readModel: Record<string, unknown>): readonly DeviceSlot[] {
   const devices = new Map<string, DeviceSlot>();
   collectCanonicalLanDevices(readModel, devices);
-  if (devices.size > 0) {
-    return Array.from(devices.values()).map((slot, slotIndex) => ({ ...slot, slotIndex }));
-  }
   collectDiscoveredLanDevices(readModel, devices);
   collectTrustedLanDevices(readModel, devices);
   collectPairingRequestDevices(readModel, devices);
@@ -456,11 +453,12 @@ function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: M
     const hardwareProfile = recordValue(childDevice?.['hardwareProfile']);
     const routeId = stringValue(item?.['routeId']);
     const trustState = stringValue(item?.['trustState']);
+    const existingSlot = selectedLanDeviceSlot(devices, deviceId, routeId);
     const evidence = lanDeviceEvidence(readModel, deviceId, routeId);
     upsertLanDeviceSlot(devices, {
-      deviceId,
-      label: stringValue(childDevice?.['label']) || deviceId,
-      platform: normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
+      deviceId: existingSlot?.value || deviceId,
+      label: stringValue(childDevice?.['label']) || existingSlot?.label || deviceId,
+      platform: existingSlot?.device?.platform || normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
       ip: stringValue(childDevice?.['ipAddress']),
       mac: stringValue(childDevice?.['macAddress']),
       hostname: stringValue(childDevice?.['hostname']),
@@ -509,11 +507,12 @@ function collectSelectedLanDevice(readModel: Record<string, unknown>, devices: M
   const deviceId = stringValue(selected?.['selectedChildDeviceId']);
   if (!deviceId) return;
   const routeId = stringValue(selected?.['routeId']);
+  const existingSlot = selectedLanDeviceSlot(devices, deviceId, routeId);
   const evidence = lanDeviceEvidence(readModel, deviceId, routeId);
   upsertLanDeviceSlot(devices, {
-    deviceId,
-    label: devices.get(deviceId)?.label || activityDeviceShortLabel(deviceId, devices.size),
-    platform: devices.get(deviceId)?.device?.platform || 'unknown',
+    deviceId: existingSlot?.value || deviceId,
+    label: existingSlot?.label || activityDeviceShortLabel(deviceId, devices.size),
+    platform: existingSlot?.device?.platform || 'unknown',
     routeId,
     trustState: stringValue(selected?.['trustState']),
     readinessState:
@@ -526,6 +525,24 @@ function collectSelectedLanDevice(readModel: Record<string, unknown>, devices: M
         : stringValue(selected?.['reachability']) || stringValue(selected?.['trustState']) || 'unavailable'),
     preferState: true,
   });
+}
+
+function selectedLanDeviceSlot(
+  devices: Map<string, DeviceSlot>,
+  deviceId: string,
+  routeId: string
+): DeviceSlot | undefined {
+  const direct = devices.get(deviceId);
+  if (direct) {
+    return direct;
+  }
+  for (const slot of devices.values()) {
+    if (!slotHasAgentFacet(slot)) continue;
+    if (samePhysicalDeviceValue(slot.device?.routeId, routeId)) {
+      return slot;
+    }
+  }
+  return undefined;
 }
 
 type LanDeviceEvidenceInput = {
@@ -818,6 +835,7 @@ function upsertLanDeviceSlot(
   const slotValue = mergedLanDeviceSlotValue(existing, input);
   const incomingHasAgentFacet = hasAgentFacet(input);
   const existingHasAgentFacet = existing ? slotHasAgentFacet(existing) : false;
+  const preserveCanonicalIdentity = !!existing && hasCanonicalLanPhysicalSlotValue(existing.value);
   const portalEligible = (input.portalEligible ?? incomingHasAgentFacet) || existing?.device?.portalEligible === true;
   const householdName = input.householdName || existing?.device?.householdName;
   const detectedName = detectedLanDeviceName(input) || existing?.device?.detectedName;
@@ -825,10 +843,13 @@ function upsertLanDeviceSlot(
   if (existing && existing.value !== slotValue) {
     devices.delete(existing.value);
   }
-  const state =
-    input.preferState ||
-    !existing ||
-    activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
+  const preserveCanonicalState =
+    !!existing && hasCanonicalLanPhysicalSlotValue(existing.value) && !incomingHasAgentFacet && input.preferState !== true;
+  const state = preserveCanonicalState
+    ? stringValue(existing.badge) || input.state
+    : input.preferState ||
+        !existing ||
+        activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
       ? input.state
       : stringValue(existing.badge);
   const status = activityDeviceChoiceStatus(state);
@@ -848,12 +869,11 @@ function upsertLanDeviceSlot(
       name: slotLabel,
       ip: input.ip || existing?.device?.ip,
       mac: input.mac || existing?.device?.mac,
-      hostname:
-        existingHasAgentFacet && !incomingHasAgentFacet
-          ? existing?.device?.hostname || input.hostname
-          : input.hostname || existing?.device?.hostname,
+      hostname: preferredLanHostname(existing?.device?.hostname, input.hostname, existingHasAgentFacet, incomingHasAgentFacet),
       networkInterface: input.networkInterface || existing?.device?.networkInterface,
-      agentStatus: input.agentStatus || existing?.device?.agentStatus,
+      agentStatus: preserveCanonicalIdentity
+        ? nonEmptyString(existing?.device?.agentStatus) || nonEmptyString(input.agentStatus)
+        : nonEmptyString(input.agentStatus) || nonEmptyString(existing?.device?.agentStatus),
       manufacturer: input.manufacturer || existing?.device?.manufacturer,
       model: input.model || existing?.device?.model,
       cpuModel: input.cpuModel || existing?.device?.cpuModel,
@@ -932,8 +952,36 @@ function mergedLanDeviceSlotValue(
   input: { readonly deviceId: string } & LanAgentFacetInput
 ): string {
   if (!existing) return input.deviceId;
+  if (hasCanonicalLanPhysicalSlotValue(existing.value)) return existing.value;
   if (hasAgentFacet(input)) return input.deviceId;
   return existing.value;
+}
+
+function hasCanonicalLanPhysicalSlotValue(value: string | undefined): boolean {
+  return typeof value === 'string' && value.startsWith('lan-physical-');
+}
+
+function nonEmptyString(value: string | undefined): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function preferredLanHostname(
+  existingHostname: string | undefined,
+  incomingHostname: string | undefined,
+  existingHasAgentFacet: boolean,
+  incomingHasAgentFacet: boolean
+): string | undefined {
+  const incomingWeak =
+    incomingHostname === undefined ||
+    incomingHostname.length === 0 ||
+    incomingHostname.toLowerCase() === 'unknown-host';
+  if (existingHasAgentFacet && !incomingHasAgentFacet) {
+    return existingHostname || incomingHostname;
+  }
+  if (incomingWeak) {
+    return existingHostname || incomingHostname;
+  }
+  return incomingHostname || existingHostname;
 }
 
 function mergedLanDeviceLabel(

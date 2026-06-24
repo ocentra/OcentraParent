@@ -104,13 +104,12 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
     })?;
     let queue_lines = queue_record.lines().collect::<Vec<_>>();
     assert_eq!(queue_lines.len(), 1);
-    let queue_entry: serde_json::Value =
-        serde_json::from_str(queue_lines[0]).map_err(|error| {
-            IoError::other(format!(
-                "{}: {error:?}",
-                constants::error::AGENT_EVENT_SERIALIZES
-            ))
-        })?;
+    let queue_entry: serde_json::Value = serde_json::from_str(queue_lines[0]).map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::AGENT_EVENT_SERIALIZES
+        ))
+    })?;
     let ciphertext = queue_entry
         .get(constants::field::CIPHERTEXT)
         .and_then(serde_json::Value::as_str)
@@ -128,7 +127,10 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
             .and_then(serde_json::Value::as_str),
         Some(ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED)
     );
-    assert_ne!(ciphertext, constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER);
+    assert_ne!(
+        ciphertext,
+        constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER
+    );
 
     let store = ActivityStore::open(&config.store_path).map_err(|error| {
         IoError::other(format!(

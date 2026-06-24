@@ -19,7 +19,10 @@ const tauriDir = path.join(desktopDir, 'src-tauri');
 const baseConfigPath = path.join(tauriDir, 'tauri.conf.json');
 const generatedConfigDir = path.join(tauriDir, '.generated');
 const targetDir = path.join(tauriDir, 'target-parent-dev');
-const parentDesktopProcessName = process.platform === 'win32' ? 'Ocentra Parent.exe' : 'Ocentra Parent';
+const parentDesktopProcessNames =
+  process.platform === 'win32'
+    ? ['ocentra-parent-desktop.exe', 'Ocentra Parent.exe']
+    : ['ocentra-parent-desktop', 'Ocentra Parent'];
 
 function log(message) {
   console.log(`[dev:parent-desktop] ${message}`);
@@ -33,10 +36,16 @@ function formatDurationMs(ms) {
 
 async function killParentDesktopIfRunning() {
   try {
-    if (process.platform === 'win32') {
-      execSync(`taskkill /IM "${parentDesktopProcessName}" /F 2>nul`, { stdio: 'pipe' });
-    } else {
-      execSync(`pkill -x "${parentDesktopProcessName}" || true`, { stdio: 'pipe' });
+    for (const processName of parentDesktopProcessNames) {
+      try {
+        if (process.platform === 'win32') {
+          execSync(`taskkill /IM "${processName}" /F 2>nul`, { stdio: 'pipe' });
+        } else {
+          execSync(`pkill -x "${processName}" || true`, { stdio: 'pipe' });
+        }
+      } catch {
+        // This alias was not running; keep trying the other known desktop names.
+      }
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   } catch {

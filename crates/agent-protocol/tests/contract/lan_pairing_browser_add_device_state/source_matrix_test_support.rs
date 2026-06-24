@@ -57,6 +57,22 @@ pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
             [constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_CAN_CONFIRM],
         serde_json::json!(false)
     );
+    assert!(
+        value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE_ROWS]
+            .as_array()
+            .unwrap_or_else(|| unreachable!(
+                "{}",
+                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
+            ))
+            .iter()
+            .any(|row| {
+                row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE]
+                    == serde_json::json!("previous-scan-snapshot")
+                    && row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID]
+                        == serde_json::json!("15")
+                    && row["persistsAcrossRestart"] == serde_json::json!(true)
+            })
+    );
 }
 
 fn workpack_rows() -> Vec<LanPlanWorkpackStatusRow> {
@@ -164,6 +180,11 @@ fn source_rows() -> Vec<LanDiscoverySourceRow> {
             false,
             None,
         ),
+        implemented_source(
+            LanDiscoverySourceKind::PreviousScanSnapshot,
+            LanPlanWorkpackId::W15,
+            constants::lan_pairing::LAN_SCAN_SOURCE_PREVIOUS_SCAN_SNAPSHOT,
+        ),
         source(
             LanDiscoverySourceKind::MdnsDnsSdQuery,
             LanPlanWorkpackId::W08,
@@ -195,6 +216,29 @@ fn workpack(workpack_id: LanPlanWorkpackId, title: &str) -> LanPlanWorkpackStatu
         runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
         status: LanDiscoverySourceStatus::Partial,
         read_model_visible: true,
+        required_artifact_summary: None,
+    }
+}
+
+fn implemented_source(
+    source: LanDiscoverySourceKind,
+    workpack_id: LanPlanWorkpackId,
+    evidence_label: &str,
+) -> LanDiscoverySourceRow {
+    LanDiscoverySourceRow {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        source,
+        workpack_id,
+        status: LanDiscoverySourceStatus::Implemented,
+        authority: LanDiscoverySourceAuthority::WeakIdentity,
+        runtime_path: LanDiscoverySourceRuntimePath::RustServiceReadModel,
+        ui_surface: LanDiscoverySourceUiSurface::DevicesLan,
+        can_confirm_child_agent: false,
+        can_assign_child_profile: false,
+        can_control_route: false,
+        requires_selected_interface: false,
+        persists_across_restart: true,
+        evidence_label: evidence_label.to_string(),
         required_artifact_summary: None,
     }
 }

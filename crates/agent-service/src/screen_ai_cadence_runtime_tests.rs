@@ -67,9 +67,7 @@ fn screen_cadence_tick_respects_disabled_screen_analysis_setting() {
         ),
         1,
     )
-    .unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-    });
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
     assert_eq!(outcome, ScreenAiCadenceTickOutcome::Suppressed);
     assert!(!config.queue_dir.exists());
@@ -119,22 +117,17 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
         temporary_image_ttl_seconds: config.temporary_image_ttl_seconds,
     })
-    .unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-    });
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
     let queue_file = config
         .queue_dir
         .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
-    let queue_record = fs::read_to_string(queue_file).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let queue_record = fs::read_to_string(queue_file)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let queue_lines = queue_record.lines().collect::<Vec<_>>();
     assert_eq!(queue_lines.len(), 1);
-    let queue_entry: serde_json::Value =
-        serde_json::from_str(queue_lines[0]).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let queue_entry: serde_json::Value = serde_json::from_str(queue_lines[0])
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let ciphertext = queue_entry
         .get(constants::field::CIPHERTEXT)
         .and_then(serde_json::Value::as_str)
@@ -152,19 +145,19 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
             .and_then(serde_json::Value::as_str),
         Some(ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED)
     );
-    assert_ne!(ciphertext, constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER);
+    assert_ne!(
+        ciphertext,
+        constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER
+    );
 
-    let store = ActivityStore::open(&config.store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&config.store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES));
 
     assert_eq!(summary.returned, 1);
     assert_eq!(
@@ -186,9 +179,8 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
 fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
-    fs::create_dir_all(&queue_dir).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    fs::create_dir_all(&queue_dir)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     fs::write(
         queue_dir.join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME),
         SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE,
@@ -220,9 +212,7 @@ fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
         ),
         1,
     )
-    .unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-    });
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
     assert_eq!(
         outcome,

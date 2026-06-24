@@ -46,20 +46,20 @@
 | Workpack | Current state | Closability after Slice A | Evidence now | Remaining gate |
 | --- | --- | --- | --- | --- |
 | `01` | partial | locally closable next | `packages/lan-domain/src/lan-pairing.ts`; Slice A validation log | broader contract/read-model closure |
-| `02` | partial | locally closable next | service-backed LAN add-device read model in `packages/lan-domain` | fuller evidence/device-store closure |
-| `03` | partial | locally closable next | selected-interface modeling in current source matrix | full adapter/interface proof |
-| `04` | partial | locally closable next on Windows/Linux | Rust/service Windows neighbor-table path exists | Linux/mac normalization or explicit manual-required proof |
+| `02` | partial | locally closable next | service-backed LAN add-device read model exists and canonical known-device records now persist in trusted-registry JSON with merged evidence timing | fuller evidence/device-store closure |
+| `03` | partial | locally closable next | Rust local-identity selection now persists gateway/DNS/DHCP/broadcast/IPv6 interface-map fields into `LanDiscoveryScanPlan` and scan-history metadata under focused proof | manual override, ignored-interface reason codes, and per-evidence selected-interface proof |
+| `04` | partial | locally closable next on Windows/Linux | Windows and Linux Rust neighbor parsing now covers IPv6 representation plus malformed/incomplete/duplicate-row proof under `network_inventory` tests | timestamped normalized evidence shape, fixture corpus, and macOS/manual proof |
 | `05` | open | locally executable next | no implementation claimed | targeted ARP implementation and proof |
-| `06` | open | locally executable next | no implementation claimed | bounded sweep implementation and proof |
+| `06` | partial | locally closable next | bounded active IPv4 stimulation, durable active-refresh/service-probe suppression, and sidecar scan-plan metadata exist | packet IO abstraction and duplicate reply proof |
 | `07` | open | locally executable next | no implementation claimed | passive listener implementation and packet proof |
 | `08` | open/manual | locally executable next | no implementation claimed | mDNS/DNS-SD implementation and proof |
 | `09` | open/manual | locally executable next | no implementation claimed | SSDP/UPnP implementation and proof |
 | `10` | partial | locally closable next | weak-source fencing exists in current source matrix | real query adapters if full closure is desired |
 | `11` | open | locally executable next | no implementation claimed | bounded service probing implementation and proof |
-| `12` | partial | locally closable next | OUI/vendor is modeled as weak/manual-required only | real vendor/proof path if full closure is desired |
+| `12` | partial | locally closable next | Rust MAC parsing, local OUI/vendor evidence, randomized/private warning, and malformed/multicast rejection exist | richer classifier closure and broader proof regeneration |
 | `13` | partial | locally closable next | household-device spine/source merge exists | broader dedupe closure |
 | `14` | partial | locally closable next | explainable labels/status exist | fuller classifier closure |
-| `15` | partial | locally closable next, then physical/manual-bound | service-backed device-store/read-model paths exist | restart durability and real household proof |
+| `15` | partial | locally closable next, then physical/manual-bound | service-backed device-store/read-model paths exist; trusted-registry JSON now persists canonical known-device records, scan sidecar persists continuity and durable scan-suppression truth, stale restart read-model recovery is tested, and scan-plan metadata persists | broader restart durability and real household proof |
 | `16` | partial | locally closable next, then physical/manual-bound | read-model and diagnostics surface exists | replay/event proof and real artifact regeneration |
 | `17` | open | locally executable next | no implementation claimed | parent/child mDNS advertisements and packet proof |
 | `18` | partial/manual | physical/manual-bound for final closure | signed hello/heartbeat rows exist as contracts/read-model labels | real signed artifacts and real device proof |

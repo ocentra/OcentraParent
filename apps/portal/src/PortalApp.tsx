@@ -10,14 +10,8 @@ import {
   type ReactElement,
   type SetStateAction,
 } from 'react';
-import {
-  AgentCommand,
-  AgentEvent,
-  type AgentEventEnvelope,
-  type AgentEventName,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { type AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
+import { AgentEventIdSchema, type AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
+import { safeParseUnknown } from '@ocentra-parent/schema-domain/effect';
 import { PortalDom, PortalLanPairingScan, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
@@ -67,10 +61,10 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     () => frameLayoutVisibleForProtocolRoute(frameLayout, isDevProtocolRoute),
     [frameLayout, isDevProtocolRoute]
   );
-  const latestLanPairingScanEventId =
-    latestPortalEvent(props.state.events, AgentEvent.LanPairingBrowserDiscoveryReported)?.eventId ?? null;
+  const routeLiveActivity = props.state.routeSnapshot?.liveActivity ?? null;
+  const latestLanPairingScanEventId = decodeSnapshotEventId(routeLiveActivity?.lanPairingBrowserDiscoveryEvent?.eventId);
   const hasNetworkFlowReadModelEvent =
-    latestPortalEvent(props.state.events, AgentEvent.NetworkFlowReadModelReported) !== null;
+    routeLiveActivity?.networkFlowReadModel !== null && routeLiveActivity?.networkFlowReadModel !== undefined;
   const openAuthDialog = (): void => setAuthOpen(true);
   const closeAuthDialog = (): void => setAuthOpen(false);
   usePortalProductReady(isProductRoute, props.onProductSurfaceReady);
@@ -85,11 +79,11 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     actions: props.actions,
     autoLanScanRequestedForRouteRef,
     autoLanScanStartedAfterEventIdRef,
+    commandEnabled: props.state.commandEnabled,
     latestLanPairingScanEventId,
     route: props.route,
     setHeaderRouteTransitionActive,
     setLanPairingAutoScanSequence,
-    socket: props.state.socket,
   });
   usePortalDeviceScanCompletion({
     autoLanScanStartedAfterEventIdRef,
@@ -280,11 +274,11 @@ type PortalDeviceAutoScanHook = {
   readonly actions: PortalRenderActions;
   readonly autoLanScanRequestedForRouteRef: MutableRefObject<boolean>;
   readonly autoLanScanStartedAfterEventIdRef: MutableRefObject<AgentEventId | null>;
+  readonly commandEnabled: boolean;
   readonly latestLanPairingScanEventId: AgentEventId | null;
   readonly route: PortalRouteValue;
   readonly setHeaderRouteTransitionActive: Dispatch<SetStateAction<boolean>>;
   readonly setLanPairingAutoScanSequence: Dispatch<SetStateAction<number>>;
-  readonly socket: WebSocket | null;
 };
 
 type PortalDeviceScanCompletionHook = {
@@ -336,11 +330,11 @@ function usePortalDeviceAutoScan({
   actions,
   autoLanScanRequestedForRouteRef,
   autoLanScanStartedAfterEventIdRef,
+  commandEnabled,
   latestLanPairingScanEventId,
   route,
   setHeaderRouteTransitionActive,
   setLanPairingAutoScanSequence,
-  socket,
 }: PortalDeviceAutoScanHook): void {
   useEffect(() => {
     if (route !== PortalRoute.Devices) {
@@ -348,16 +342,14 @@ function usePortalDeviceAutoScan({
       autoLanScanStartedAfterEventIdRef.current = null;
       return undefined;
     }
-    if (autoLanScanRequestedForRouteRef.current || socket?.readyState !== WebSocket.OPEN) {
+    if (autoLanScanRequestedForRouteRef.current || !commandEnabled) {
       return undefined;
     }
     autoLanScanRequestedForRouteRef.current = true;
     autoLanScanStartedAfterEventIdRef.current = latestLanPairingScanEventId;
     setHeaderRouteTransitionActive(true);
     setLanPairingAutoScanSequence((sequence) => sequence + 1);
-    actions.sendCommand(AgentCommand.LanPairingBrowserDiscoveryScan, {
-      [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
-    });
+    void actions.requestLanPairingBrowserDiscoveryScan?.();
     const timeout = window.setTimeout(
       () => setHeaderRouteTransitionActive(false),
       PortalLanPairingScan.PendingIndicatorMs
@@ -367,11 +359,11 @@ function usePortalDeviceAutoScan({
     actions,
     autoLanScanRequestedForRouteRef,
     autoLanScanStartedAfterEventIdRef,
+    commandEnabled,
     latestLanPairingScanEventId,
     route,
     setHeaderRouteTransitionActive,
     setLanPairingAutoScanSequence,
-    socket,
   ]);
 }
 
@@ -411,26 +403,9 @@ function visibleContentTarget(content: PortalFrameContentTargetLayout): PortalFr
   return content.showContent ? content : { ...content, showContent: true };
 }
 
-function latestPortalEvent(
-  events: readonly AgentEventEnvelope[],
-  eventName: AgentEventName
-): AgentEventEnvelope | null {
-  let latest: AgentEventEnvelope | null = null;
-  let latestTime = Number.NEGATIVE_INFINITY;
-  let latestIndex = -1;
-  for (let index = 0; index < events.length; index += 1) {
-    const event = events[index];
-    if (event !== undefined && event.event === eventName) {
-      const sentAt = Date.parse(event.sentAt);
-      const eventTime = Number.isFinite(sentAt) ? sentAt : index;
-      if (eventTime > latestTime || (eventTime === latestTime && index > latestIndex)) {
-        latest = event;
-        latestTime = eventTime;
-        latestIndex = index;
-      }
-    }
-  }
-  return latest;
+function decodeSnapshotEventId(eventId: string | null | undefined): AgentEventId | null {
+  const parsed = safeParseUnknown(AgentEventIdSchema, eventId);
+  return parsed.success ? parsed.data : null;
 }
 
 function PageHeader({ route }: { readonly route: PortalRouteValue }): ReactElement {

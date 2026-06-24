@@ -86,10 +86,14 @@ fn compatibility_matrix_renders_deterministic_markdown() {
     let markdown = matrix.render_markdown();
 
     let lines = markdown.lines().collect::<Vec<_>>();
-    assert_eq!(lines.first().copied(), Some("# Eventing Compatibility Matrix"));
+    assert_eq!(
+        lines.first().copied(),
+        Some("# Eventing Compatibility Matrix")
+    );
     assert!(lines
         .iter()
-        .any(|line| *line == "| Semantic Id | Source Semantic | Rust Surface | Status | Proof | Note |"));
+        .any(|line| *line
+            == "| Semantic Id | Source Semantic | Rust Surface | Status | Proof | Note |"));
     assert!(lines.iter().any(|line| *line == "| class-backed-contracts | Class-backed contracts expose canonical static event types | Payload-derived DomainEvent::contract plus EventContractRegistry descriptors | intentional-deviation |"));
     assert!(lines.iter().any(|line| *line == "| payload-republish-override | Payload-carried republish or force override | Explicit idempotency rejection; constrained override remains unclaimed | intentional-deviation |"));
     assert!(lines.iter().any(|line| *line == "| broker-backed-delivery | Cross-process or broker-backed event delivery | Stored envelope transport boundary is not yet broker-backed | manual-required |"));

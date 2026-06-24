@@ -56,6 +56,44 @@ Files present for `B2`:
 
 `B2` proves LAN test-category truth only. It does not claim new LAN runtime behavior, new integration/e2e/security coverage, or closure of protocol, service, portal, or physical proof gaps.
 
+`16 Read Models And LAN Events` proof root:
+
+```text
+output/lan-plan-proof/16-read-models-and-lan-events/
+```
+
+Files present for the current Rust bridge slice:
+
+- `01-rust-lan-read-model-validation.log`
+- `02-rust-lan-read-model-note.md`
+- `03-product-route-overlay-removal-note.md`
+- `04-tauri-devices-auto-scan-proof.md`
+- `05-tauri-host-subscription-bridge.md`
+
+This proof root currently proves only the parent Rust bridge LAN-sample removal,
+inventory-backed read-model serialization path, and the typed Tauri
+host-subscription bridge that delivers deduplicated route snapshots into the
+product shell. It does not yet prove full `agent-service` parity,
+replay/event-stream behavior, portal/browser screenshots, dev-web parity,
+signed relay/cache rows, or physical household/manual network artifacts.
+
+`06 Bounded ARP Sweep` proof root:
+
+```text
+output/lan-plan-proof/06-bounded-arp-sweep/
+```
+
+Files present for the current smart-scan suppression safety fix:
+
+- `01-ip-reuse-suppression-fix.md`
+
+This proof root currently proves only that bounded active refresh no longer
+suppresses a reused IP on stale child truth alone and still suppresses the live
+gateway/default-route path. It does not yet prove packet-IO abstraction,
+duplicate-reply handling, service/runtime parity outside the focused
+`network_inventory` crate proof, or physical household/manual network
+artifacts.
+
 If a proof script emits `test-results/.../proof.json`, the workpack proof pack must reference that file and must not imply the artifact exists until it has been regenerated on this branch/worktree.
 
 ## Proof Paths Explicitly Not Claimed By Current Slices

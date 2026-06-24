@@ -1,6 +1,4 @@
 import type { ReactElement } from 'react';
-import type { AgentAppGamePlatformProofStatusResult } from '@ocentra-parent/agent-protocol-domain/app-game-platform-proof-status';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import type {
   AppGamePlatformProofStatusReadModel,
   AppGamePlatformProofStatusRow,
@@ -23,6 +21,14 @@ type PlatformProofStatusPanelReadModel = Exclude<
   Parameters<typeof createAppGamePlatformProofStatusPanelIntent>[0],
   null
 >;
+type AppGamePlatformProofStatusRouteReadModelResult =
+  | {
+      readonly ok: true;
+      readonly value: AppGamePlatformProofStatusReadModel;
+    }
+  | {
+      readonly ok: false;
+    };
 
 export function shouldRenderAppGamePlatformProofStatusRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);
@@ -35,7 +41,7 @@ export function AppGamePlatformProofStatusRoutePanel({
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AgentAppGamePlatformProofStatusResult | null;
+  readonly readModelResult: AppGamePlatformProofStatusRouteReadModelResult | null;
 }): ReactElement {
   const readModel =
     readModelResult !== null && readModelResult.ok
@@ -56,10 +62,7 @@ export function AppGamePlatformProofStatusRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGamePlatformProofStatusReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
           </button>

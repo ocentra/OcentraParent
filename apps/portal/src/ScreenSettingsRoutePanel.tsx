@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react';
-import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import {
   screenControlSettingsPortalProof,
@@ -25,11 +24,11 @@ export function shouldRenderScreenSettingsRoute(route: PortalRouteValue): boolea
 export function ScreenSettingsRoutePanel({
   actions,
   commandEnabled,
-  events,
+  serviceResponseSnapshot,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly events: readonly AgentEventEnvelope[];
+  readonly serviceResponseSnapshot: unknown | null;
 }): ReactElement {
   const proof = screenControlSettingsPortalProof();
   return (
@@ -45,7 +44,11 @@ export function ScreenSettingsRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <ScreenSettingsWritableControls actions={actions} commandEnabled={commandEnabled} events={events} />
+          <ScreenSettingsWritableControls
+            actions={actions}
+            commandEnabled={commandEnabled}
+            serviceResponseSnapshot={serviceResponseSnapshot}
+          />
           <ScreenOptionalVisibilityCapabilityStatusCard />
           {proof.metrics.map((metric) => (
             <ScreenSettingsMetricCard key={metric.label} metric={metric} />

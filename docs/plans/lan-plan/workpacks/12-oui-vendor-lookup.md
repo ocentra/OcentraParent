@@ -22,8 +22,11 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 ## Where We Are
 
 Current LAN rows may expose MAC/interface data where the host OS provides it,
-but production vendor and randomized-MAC confidence logic still needs a focused
-model and tests.
+and current A-lane proof now adds a shared Rust MAC-identity helper for
+normalized parsing, local OUI/vendor enrichment, locally administered MAC
+warnings, and multicast/malformed rejection. Vendor lookup remains deliberately
+weak/classification-only and uses a local curated catalog rather than claiming
+platform, owner, or child identity from MAC prefixes alone.
 
 ## Where We Want To Be
 
@@ -33,11 +36,11 @@ malformed MACs reduce confidence or reject identity use.
 
 ## Requirement Checklist
 
-- [ ] Add normalized MAC parsing and validation.
-- [ ] Add OUI/vendor lookup with unknown-prefix behavior.
-- [ ] Detect locally administered/randomized candidate MACs.
-- [ ] Reject multicast and malformed MACs as identity keys.
-- [ ] Keep vendor evidence separate from owner, OS, or child identity.
+- [x] Add normalized MAC parsing and validation.
+- [x] Add OUI/vendor lookup with unknown-prefix behavior.
+- [x] Detect locally administered/randomized candidate MACs.
+- [x] Reject multicast and malformed MACs as identity keys.
+- [x] Keep vendor evidence separate from owner, OS, or child identity.
 
 ## Acceptance And Proof
 
@@ -45,6 +48,13 @@ malformed MACs reduce confidence or reject identity use.
   malformed MAC, locally administered MAC, and multicast MAC.
 - Merge tests reduce confidence for randomized MAC evidence.
 - UI/read-model tests expose randomized/private MAC warning when relevant.
+
+Current proof:
+
+- Focused Rust proof: `cargo test -p ocentra-lan-core read_model`
+- Focused Rust proof: `cargo test -p ocentra-lan-core mac_identity`
+- Contract proof: `cargo test -p ocentra-parent-agent-protocol lan_pairing_browser_add_device_state`
+- Focused Rust proof: `cargo test -p ocentra-parent-agent-service lan_pairing_household_device_spine`
 
 ## Parallel Ownership Notes
 

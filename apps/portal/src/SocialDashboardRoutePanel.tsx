@@ -1,9 +1,4 @@
 import type { ReactElement } from 'react';
-import {
-  AgentCommand,
-  AgentEvent,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
@@ -15,7 +10,6 @@ import {
 import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import type { PortalRenderActions } from './portal-actions';
-import { parseAgentSocialDashboardReadModelEvent } from './social-read-model-events';
 
 export function shouldRenderSocialDashboardRoute(route: PortalRouteValue): boolean {
   return isPortalBrowserParentSurfaceRoute(route);
@@ -24,13 +18,12 @@ export function shouldRenderSocialDashboardRoute(route: PortalRouteValue): boole
 export function SocialDashboardRoutePanel({
   actions,
   commandEnabled,
-  events,
+  snapshot,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly events: readonly AgentEventEnvelope[];
+  readonly snapshot: unknown | null;
 }): ReactElement {
-  const snapshot = latestSocialDashboardSnapshot(events);
   const intent = createSocialDashboardPanelIntent(snapshot);
   return (
     <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
@@ -43,10 +36,7 @@ export function SocialDashboardRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.BrowserSocialDashboardReadModelReported);
-              actions.sendCommand(AgentCommand.BrowserSocialDashboardReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {intent.title}
           </button>
@@ -66,35 +56,6 @@ export function SocialDashboardRoutePanel({
       </div>
     </section>
   );
-}
-
-function latestSocialDashboardSnapshot(events: readonly AgentEventEnvelope[]): unknown {
-  const event = latestSocialDashboardEvent(events);
-  if (event === null) {
-    return null;
-  }
-  const parsed = parseAgentSocialDashboardReadModelEvent(event);
-  return parsed.ok ? parsed.value : null;
-}
-
-function latestSocialDashboardEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
-  let latest: AgentEventEnvelope | null = null;
-  let latestTime = Number.NEGATIVE_INFINITY;
-  let latestIndex = -1;
-  for (let index = 0; index < events.length; index += 1) {
-    const event = events[index];
-    if (event === undefined || event.event !== AgentEvent.BrowserSocialDashboardReadModelReported) {
-      continue;
-    }
-    const sentAt = Date.parse(event.sentAt);
-    const eventTime = Number.isFinite(sentAt) ? sentAt : index;
-    if (eventTime > latestTime || (eventTime === latestTime && index > latestIndex)) {
-      latest = event;
-      latestTime = eventTime;
-      latestIndex = index;
-    }
-  }
-  return latest;
 }
 
 function SocialDashboardSummaryCard({ intent }: { readonly intent: SocialDashboardPanelIntent }): ReactElement {

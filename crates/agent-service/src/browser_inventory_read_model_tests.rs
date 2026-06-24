@@ -469,9 +469,7 @@ fn write_manifest(root: &Path, manifest: &str) {
         ),
         manifest,
     )
-    .unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_CAPTURE_RECORDS)
-    });
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_CAPTURE_RECORDS));
 }
 
 fn restore_env_var(env_var_name: &str, value: Option<std::ffi::OsString>) {

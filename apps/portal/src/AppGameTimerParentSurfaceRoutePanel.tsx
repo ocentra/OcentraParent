@@ -1,6 +1,4 @@
 import type { ReactElement } from 'react';
-import type { AgentAppGameTimerParentSurfaceResult } from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
@@ -10,11 +8,14 @@ import {
   createAppGameTimerParentSurfacePanelIntent,
   type AppGameTimerParentSurfacePanelDetail,
   type AppGameTimerParentSurfacePanelIntent,
+  type AppGameTimerParentSurfacePreferenceSetupRequestAction,
   type AppGameTimerParentSurfacePanelRow,
 } from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
+
+type AppGameTimerParentSurfaceRouteReadModel = Parameters<typeof createAppGameTimerParentSurfacePanelIntent>[0];
 
 export function shouldRenderAppGameTimerParentSurfaceRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);
@@ -27,7 +28,7 @@ export function AppGameTimerParentSurfaceRoutePanel({
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AgentAppGameTimerParentSurfaceResult | null;
+  readonly readModelResult: AppGameTimerParentSurfaceRouteReadModel;
 }): ReactElement {
   const intent = createAppGameTimerParentSurfacePanelIntent(readModelResult);
   return (
@@ -44,10 +45,7 @@ export function AppGameTimerParentSurfaceRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGameTimerParentSurfaceReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGameTimerParentSurfaceReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameTimerParentSurfaceReadModel)}
           </button>
@@ -79,6 +77,16 @@ export function AppGameTimerParentSurfaceRoutePanel({
         </div>
       </div>
     </section>
+  );
+}
+
+export function sendAppGameTimerParentPreferenceSetupAction(
+  actions: PortalRenderActions,
+  action: AppGameTimerParentSurfacePreferenceSetupRequestAction,
+  requestedAt: string = new Date().toISOString()
+): void {
+  void actions.requestAppGameTimerParentPreferenceSetup?.(
+    createAppGameTimerParentPreferenceSetupRequestPayload(action, requestedAt)
   );
 }
 
@@ -148,11 +156,7 @@ function AppGameTimerParentSurfaceRowCard({
             if (action === null) {
               return;
             }
-            actions.selectCommandResult(action.resultEvent);
-            actions.sendCommand(
-              action.command,
-              createAppGameTimerParentPreferenceSetupRequestPayload(action, new Date().toISOString())
-            );
+            sendAppGameTimerParentPreferenceSetupAction(actions, action);
           }}
         >
           {row.preferenceSetupRequestAction.label}

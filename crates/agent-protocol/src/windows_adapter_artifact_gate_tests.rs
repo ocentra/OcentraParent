@@ -62,7 +62,10 @@ fn unsupported_windows_adapter_artifact_gate_decision_does_not_deserialize() {
 
     let parsed = serde_json::from_value::<WindowsAdapterArtifactGateEntry>(payload);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 #[test]

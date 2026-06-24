@@ -65,6 +65,33 @@ parent/child runtime distribution plans:
 - Frozen workpacks 21-25 are not part of current completion scope.
 ```
 
+## Agentless evidence-fusion adoption
+
+As of 2026-06-23, the plan absorbs the agentless LAN design note into the
+current authoritative `01-20` model instead of creating a parallel discovery
+plan.
+
+```text
+W03 owns the richer interface map: local IP, subnet, default gateway, DNS server, DHCP server, broadcast address, and IPv6 prefixes.
+W04 owns cross-platform neighbor normalization, including IPv6/NDP truth when exposed by the host.
+W07 owns passive collector expansion: ARP, DHCP, mDNS, SSDP, WS-Discovery, LLMNR, NetBIOS, and allowed SNMP response evidence.
+W09 owns bounded descriptor parsing from SSDP/UPnP metadata.
+W11 owns curated TCP/UDP service probing with sanitized HTTP/TLS/banner hints, bounded WSD/SNMP identity queries where allowed, optional OS-fingerprint proof gates, and strict no-crawl behavior.
+W12 owns OUI/vendor evidence plus randomized/private MAC suspicion.
+W14 owns weighted evidence-fusion classification, explicit reasons/confidence, and install-eligibility honesty.
+W15 owns persisted prior-scan continuity snapshots that can strengthen stale/offline and merge confidence without becoming permanent truth.
+```
+
+Hard rules adopted from that note:
+
+```text
+- agentless LAN discovery is evidence fusion, not platform certainty
+- MAC vendor alone cannot claim Windows, Android, iOS, or child ownership
+- open ports, banners, titles, redirects, or certificates cannot confirm child-agent identity
+- ICMP reachability is optional only; ARP/NDP, neighbor tables, advertisements, and bounded service evidence remain primary
+- visible classification and installability claims must carry reasons or stay unknown/manual-required
+```
+
 ## Current proof interpretation
 
 ```text
@@ -135,6 +162,8 @@ Expected evidence for `B2`:
 - `packages/parent-domain/src/lan-*` is not the authoritative owner for current completion claims.
 - The current LAN source-matrix/read-model model covers workpacks `01-20`, not `21-25`.
 - Portal LAN proof still depends on source/service-backed truth; portal does not own the LAN truth model.
+- Product route refresh now flows through typed Tauri host subscriptions that emit `ParentSubscriptionEvent` snapshots into the portal shell; product TSX still does not own a WebSocket transport or canonical backend event replay.
+- Stored child/known-device IPs no longer leave the bounded active-refresh target list on historical truth alone; current neighbor-state MAC confirmation or the live default-gateway path is now required before suppression.
 
 ## Open Execution Buckets
 
@@ -147,6 +176,13 @@ Expected evidence for `B2`:
 
 - real second-device household proof
 - router/firewall reachability proof
+- manual interface override and ignored-interface reason-code proof for the now-persisted gateway/DNS/DHCP/broadcast/IPv6 interface map
+- passive DHCP/WS-Discovery/SNMP evidence proof
+- broader live IPv6 neighbor discovery and ff02::1/NDP proof where platform/runtime boundaries allow it beyond the current parser-level Windows/Linux normalization tests
+- curated service-probe evidence proof for headers, redirects, titles, and TLS subject without crawling
+- bounded active WSD/SNMP identity-query proof and optional OS-fingerprint manual gate
+- weighted classification and installability proof for unknown/probable/not-installable states
+- prior-scan continuity snapshot proof for weak historical hints, restart behavior, and no-override safety
 - real signed child hello/heartbeat artifacts
 - replay/restart/event-stream proof completion
 - portal and downstream consumer proof artifacts

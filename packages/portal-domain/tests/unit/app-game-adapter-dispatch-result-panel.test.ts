@@ -222,8 +222,6 @@ describe('app-game adapter dispatch result panel', () => {
 
     expect(acceptedIntent.executeAction).toEqual({
       label: 'Execute scoped adapter dispatch',
-      command: AgentCommand.ActivityAppGameAdapterDispatchExecute,
-      resultEvent: AgentEvent.ActivityAppGameAdapterDispatchExecuted,
     });
     expect(blockedIntent.executeAction).toBeNull();
   });

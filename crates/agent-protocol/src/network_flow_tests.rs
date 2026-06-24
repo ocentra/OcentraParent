@@ -663,7 +663,10 @@ fn enforcement_command_contract_rejects_missing_policy_decision_ref() {
 
     let parsed = serde_json::from_value::<NetworkEnforcementCommandIssuedEvent>(command);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 #[test]

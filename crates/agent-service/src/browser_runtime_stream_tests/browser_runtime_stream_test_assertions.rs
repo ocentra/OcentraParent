@@ -152,7 +152,6 @@ fn serialize_test_json<T>(value: &T) -> String
 where
     T: serde::Serialize + ?Sized,
 {
-    serde_json::to_string(value).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::to_string(value)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }

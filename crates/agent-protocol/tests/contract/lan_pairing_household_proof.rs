@@ -49,9 +49,10 @@ fn v09_production_discovery_household_proof_read_model_serializes_honest_route_s
         "manual-required"
     );
     assert_eq!(reparsed.manual_household_proof_checklist.len(), 11);
-    assert!(
-        !json_surface_contains_marker(&serialized, constants::lan_pairing::RAW_MARKER_RAW_EVIDENCE)
-    );
+    assert!(!json_surface_contains_marker(
+        &serialized,
+        constants::lan_pairing::RAW_MARKER_RAW_EVIDENCE
+    ));
     assert!(!json_surface_contains_marker(
         &serialized,
         constants::lan_pairing::RAW_MARKER_RAW_TOKEN

@@ -1,5 +1,9 @@
 import type { AgentProtocolLogFields } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentLanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/agent-lan-add-device';
+import {
+  AgentLanDiscoverySourceMatrixSchema,
+  type AgentLanDiscoverySourceMatrix,
+} from '@ocentra-parent/schema-domain/lan-source-matrix';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import type { StackTrace } from '@ocentra-parent/schema-domain/logging-contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
@@ -80,6 +84,7 @@ export interface PortalLanAddDeviceReadModel {
   readonly trustedDeviceRegistry: readonly unknown[];
   readonly householdDeviceDecisions: readonly unknown[];
   readonly signedDiscoveryRelaySpine: PortalLanSignedDiscoveryRelaySpine | null;
+  readonly lanDiscoverySourceMatrix: AgentLanDiscoverySourceMatrix | null;
   readonly trustedDeviceIds: readonly string[];
   readonly revokedDeviceIds: readonly string[];
   readonly selectedDeviceReadiness: PortalLanSelectedDeviceReadiness;
@@ -102,6 +107,7 @@ type PortalLanAddDeviceRaw = Record<string, unknown> & {
   honestNonClaims?: unknown;
   householdDeviceDecisions?: unknown;
   localServiceDiscoveryState?: unknown;
+  lanDiscoverySourceMatrix?: unknown;
   observerAuthority?: unknown;
   pairingRequests?: unknown;
   physicalHouseholdLanState?: unknown;
@@ -123,6 +129,7 @@ type PortalLanAddDeviceCollections = {
   readonly trustedDeviceRegistry: readonly unknown[];
   readonly householdDeviceDecisions: readonly unknown[];
   readonly signedDiscoveryRelaySpine: PortalLanSignedDiscoveryRelaySpine | null;
+  readonly lanDiscoverySourceMatrix: AgentLanDiscoverySourceMatrix | null;
   readonly trustedDeviceIds: readonly string[];
   readonly revokedDeviceIds: readonly string[];
   readonly routeRequirementLabels: readonly string[];
@@ -138,6 +145,7 @@ type PortalLanAddDeviceCollectionsCandidate = {
   readonly trustedDeviceRegistry: readonly unknown[] | null;
   readonly householdDeviceDecisions: readonly unknown[] | null;
   readonly signedDiscoveryRelaySpine: PortalLanSignedDiscoveryRelaySpine | null;
+  readonly lanDiscoverySourceMatrix: AgentLanDiscoverySourceMatrix | null | undefined;
   readonly trustedDeviceIds: readonly string[] | null;
   readonly revokedDeviceIds: readonly string[] | null;
   readonly routeRequirementLabels: readonly string[] | null;
@@ -267,6 +275,7 @@ function normalizePortalLanAddDeviceCollections(raw: PortalLanAddDeviceRaw): Por
     trustedDeviceRegistry: normalizeUnknownArray(raw.trustedDeviceRegistry),
     householdDeviceDecisions: normalizeUnknownArray(raw.householdDeviceDecisions),
     signedDiscoveryRelaySpine: normalizePortalLanSignedDiscoveryRelaySpine(raw.signedDiscoveryRelaySpine),
+    lanDiscoverySourceMatrix: normalizePortalLanDiscoverySourceMatrix(raw.lanDiscoverySourceMatrix),
     trustedDeviceIds: normalizeStringArray(raw.trustedDeviceIds),
     revokedDeviceIds: normalizeStringArray(raw.revokedDeviceIds),
     routeRequirementLabels: normalizeStringArray(raw.routeRequirementLabels),
@@ -286,7 +295,9 @@ function normalizePortalLanAddDeviceCollections(raw: PortalLanAddDeviceRaw): Por
 function hasPortalLanAddDeviceCollections(
   collections: PortalLanAddDeviceCollectionsCandidate
 ): collections is PortalLanAddDeviceCollections {
-  return [
+  return (
+    collections.lanDiscoverySourceMatrix !== undefined &&
+    [
     collections.scanSummary,
     collections.selectedDeviceReadiness,
     collections.canonicalHouseholdDevices,
@@ -299,7 +310,8 @@ function hasPortalLanAddDeviceCollections(
     collections.routeRequirementLabels,
     collections.auditCheckLabels,
     collections.honestNonClaims,
-  ].every((value) => value !== null);
+    ].every((value) => value !== null)
+  );
 }
 
 function normalizePortalLanScanSummary(value: unknown): PortalLanScanSummary | null {
@@ -502,6 +514,17 @@ function normalizePortalLanSignedDiscoveryRelaySpine(value: unknown): PortalLanS
     routeSafetyRows,
     relayCacheRows,
   };
+}
+
+function normalizePortalLanDiscoverySourceMatrix(
+  value: unknown
+): AgentLanDiscoverySourceMatrix | null | undefined {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const parsed = AgentLanDiscoverySourceMatrixSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
 }
 
 function normalizePortalLanSignedProofRows(value: unknown): readonly PortalLanSignedProofRow[] | null {

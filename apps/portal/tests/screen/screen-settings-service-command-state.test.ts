@@ -12,7 +12,9 @@ import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-proto
 import {
   createScreenSettingsGetCommandDraft,
   createScreenSettingsReplaceCommandDraft,
+  decodeScreenSettingsServiceResponseSnapshot,
   latestScreenSettingsServiceResponse,
+  matchingScreenSettingsServiceResponse,
   screenSettingsBaseVersionForReplace,
   screenSettingsServiceStatusText,
 } from '../../src/screen-settings-service-command-state';
@@ -28,10 +30,10 @@ describe('screen settings service command state', () => {
       setting,
     });
 
-    expect(getDraft.command).toBe('agent.screen-settings.get');
+    expect(getDraft.action).toBe('screen-settings-get-requested');
     expect(getDraft.requestId).toBe('screen-settings-request-3');
     expect(getDraft.payload[AgentProtocolDefaults.Field.ScreenSettingsUpdateKind]).toBe('get');
-    expect(replaceDraft.command).toBe('agent.screen-settings.replace');
+    expect(replaceDraft.action).toBe('screen-settings-replace-requested');
     expect(replaceDraft.requestId).toBe('screen-settings-request-4');
     expect(JSON.parse(String(replaceDraft.payload[AgentProtocolDefaults.Field.ScreenSettingsRequest]))).toEqual({
       schemaVersion: 1,
@@ -72,6 +74,26 @@ describe('screen settings service command state', () => {
       })
     ).toBe(proof.serviceAcceptedStatus);
     expect(screenSettingsBaseVersionForReplace(response)).toBe(3);
+  });
+
+  it('decodes route snapshot responses and filters them by the pending request id', () => {
+    const proof = screenEvidenceSettingsWritableUiProof();
+    const setting = requireStrictSetting(proof);
+    const snapshotResponse = decodeScreenSettingsServiceResponseSnapshot({
+      schemaVersion: 1,
+      requestId: 'screen-settings-request-12',
+      kind: 'replace',
+      status: 'accepted',
+      setting,
+      auditEventId: 'screen-settings-audit-screen-settings-request-12',
+      rejectionReason: null,
+      message: 'Screen settings update accepted.',
+    });
+
+    expect(matchingScreenSettingsServiceResponse(snapshotResponse, 'screen-settings-request-12')).toEqual(
+      snapshotResponse
+    );
+    expect(matchingScreenSettingsServiceResponse(snapshotResponse, 'screen-settings-request-99')).toBeNull();
   });
 });
 

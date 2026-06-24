@@ -28,7 +28,7 @@ export function PortalDeveloperRoutePanel({
   readonly state: PortalRuntimeState;
 }): ReactElement {
   const hostRef = useRef<HTMLDivElement | null>(null);
-  const socketReadyState = state.socket?.readyState ?? null;
+  const commandEnabled = state.commandEnabled;
   const latestSelectedCommandResultEventId =
     latestCommandResult(state.events, state.selectedCommandResultEvent)?.eventId ?? null;
   const latestSnapshotEntryId = state.latestSnapshot?.entries[0]?.id ?? null;
@@ -53,7 +53,7 @@ export function PortalDeveloperRoutePanel({
       return () => clear(host);
     }
     return () => clear(host);
-  }, [actions, eventCount, latestSelectedCommandResultEventId, latestSnapshotEntryId, route, socketReadyState]);
+  }, [actions, commandEnabled, eventCount, latestSelectedCommandResultEventId, latestSnapshotEntryId, route]);
 
   return (
     <section aria-label="Developer tools" className={PortalDom.Classes.DeveloperRoutePanel}>

@@ -79,9 +79,7 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
             _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
         };
     let decoded: AppGameTimerParentSurfaceReadModel = serde_json::from_str(read_model_json)
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_parent_surface_counts_and_claim_boundaries(&decoded);
     assert_control_action_result_visibility(&decoded);

@@ -25,12 +25,11 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
     let paths = temp_paths(constants::enforcement::TEST_AUDIT_EVENT_ID);
     cleanup_paths(&paths);
     let event = build_enforcement_audit_report_with_paths(command(false), paths.clone()).await;
-    let store = ActivityStore::open(&paths.store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
-    let status = store.status().unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-    });
+    let store = ActivityStore::open(&paths.store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
+    let status = store
+        .status()
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES));
     let journal_event_ids = journal_event_ids(&paths);
     cleanup_paths(&paths);
 
@@ -100,12 +99,11 @@ async fn enforcement_execute_reports_final_adapter_result_after_before_action_jo
     let paths = temp_paths(constants::enforcement::TEST_RESULT_ID);
     cleanup_paths(&paths);
     let event = build_enforcement_audit_report_with_paths(command(false), paths.clone()).await;
-    let store = ActivityStore::open(&paths.store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
-    let summary = store.recent_summary(2).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-    });
+    let store = ActivityStore::open(&paths.store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
+    let summary = store
+        .recent_summary(2)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES));
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);

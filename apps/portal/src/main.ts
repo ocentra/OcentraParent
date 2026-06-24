@@ -1,20 +1,19 @@
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { decodeAgentWebSocketUrl } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
+import { DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
 import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
-import { PortalDom, PortalEnvironment, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalRoutes, portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
 import { writePortalDevLog } from './dev-logger';
+import { type ParentRouteContext, type ParentUiAction, type ParentUiActionResult } from './generated/parent-ui-bridge';
+import { createHostBridge } from './host-bridge';
 import { fadePortalBackgroundBootLayer, removePortalBackgroundBootLayer } from './portal-background-boot';
 import { PortalBackgroundDevTool } from './PortalBackgroundDevTool';
 import { PortalApp } from './PortalApp';
 import type { PortalRenderActions } from './portal-actions';
-import { createPortalRuntimeState } from './portal-state';
+import { applyParentRouteSnapshot, createPortalRuntimeState } from './portal-state';
 import { applyTheme, resolveTheme, selectTheme } from './portal-theme';
-import { connectWebSocket, sendCommand } from './transport';
 import './styles.css';
 import './portal-unified-chrome.css';
 import './styles/deck-frame-fit.css';
@@ -22,34 +21,183 @@ import './styles/control-card-frame.css';
 import './styles/frame-tuner.css';
 import './styles/parent-portal-route.css';
 
-const agentWsUrl = decodeAgentWebSocketUrl(
-  import.meta.env[PortalEnvironment.AgentWebSocketUrl] ?? AgentProtocolDefaults.WebSocketUrl
-);
 const app = requirePortalRoot();
 const root = createRoot(app);
-const state = createPortalRuntimeState(agentWsUrl);
+const bridge = createHostBridge();
+const state = createPortalRuntimeState();
 let revision = 0;
 let appLoadingHideRequested = false;
+let routeLoadSequence = 0;
+let routeSubscriptionToken = 0;
+let activeRouteUnsubscribe: (() => void) | null = null;
 const APP_LOADING_FADE_FALLBACK_MS = 920;
 
 installAppLoadingHider();
 
 writePortalDevLog(DevLogMessage.PortalStarted, {
-  [DevLogField.AgentWebSocketUrl]: agentWsUrl,
+  hostBridgeEndpoint: state.agentEndpoint,
 });
 
 const actions: PortalRenderActions = {
   reconnect() {
-    connectWebSocket(state, refresh);
+    void loadCurrentRoute();
   },
   selectCommandResult(resultEvent) {
     state.selectedCommandResultEvent = resultEvent;
     refresh();
   },
-  sendCommand(command, payload) {
-    sendCommand(state, refresh, command, payload);
+  async sendCommand(command, payload) {
+    return dispatchHostAction({
+      action: 'agent-command-requested',
+      route: getRoute(),
+      command,
+      payload,
+    });
+  },
+  async refreshRouteSnapshot() {
+    return dispatchHostAction({
+      action: 'refresh-route',
+      route: getRoute(),
+      payload: {},
+    });
+  },
+  async requestLanPairingBrowserDiscoveryScan() {
+    return dispatchHostAction({
+      action: 'lan-pairing-browser-discovery-scan-requested',
+      route: getRoute(),
+      payload: {},
+    });
+  },
+  async requestNetworkFlowReadModelRefresh() {
+    return dispatchHostAction({
+      action: 'network-flow-read-model-refresh-requested',
+      route: getRoute(),
+      payload: {},
+    });
+  },
+  async requestTrackingRetentionSettingsWrite() {
+    return dispatchHostAction({
+      action: 'tracking-retention-settings-write-requested',
+      route: getRoute(),
+      payload: {},
+    });
+  },
+  async requestScreenSettingsGet(payload) {
+    return dispatchHostAction({
+      action: 'screen-settings-get-requested',
+      route: getRoute(),
+      payload,
+    });
+  },
+  async requestScreenSettingsReplace(payload) {
+    return dispatchHostAction({
+      action: 'screen-settings-replace-requested',
+      route: getRoute(),
+      payload,
+    });
+  },
+  async requestAppGameAdapterDispatchExecute() {
+    return dispatchHostAction({
+      action: 'app-game-adapter-dispatch-execute-requested',
+      route: getRoute(),
+      payload: {},
+    });
+  },
+  async requestAppGameTimerParentPreferenceSetup(payload) {
+    return dispatchHostAction({
+      action: 'app-game-timer-parent-preference-setup-requested',
+      route: getRoute(),
+      payload,
+    });
   },
 };
+
+async function loadCurrentRoute(): Promise<void> {
+  const route = getRoute();
+  const sequence = routeLoadSequence + 1;
+  routeLoadSequence = sequence;
+  disposeRouteSubscription();
+  state.connectionState = 'connecting';
+  refresh();
+  try {
+    const snapshot = await bridge.loadRoute(route, currentRouteContext());
+    if (sequence !== routeLoadSequence) {
+      return;
+    }
+    applyParentRouteSnapshot(state, snapshot);
+    refresh();
+    await installRouteSubscription(route);
+  } catch (error) {
+    if (sequence !== routeLoadSequence) {
+      return;
+    }
+    state.connectionState = 'error';
+    state.commandEnabled = false;
+    state.lastHostMessage = error instanceof Error ? error.message : String(error);
+    refresh();
+  }
+}
+
+async function dispatchHostAction(action: ParentUiAction): Promise<ParentUiActionResult | null> {
+  try {
+    const result = await bridge.dispatch(action);
+    state.connectionState = result.connectionState;
+    state.commandEnabled = result.connectionState === 'connected';
+    state.lastHostMessage = result.message;
+    if (result.snapshot !== null) {
+      applyParentRouteSnapshot(state, result.snapshot);
+    }
+    refresh();
+    await restartRouteSubscription();
+    return result;
+  } catch (error) {
+    state.connectionState = 'error';
+    state.commandEnabled = false;
+    state.lastHostMessage = error instanceof Error ? error.message : String(error);
+    refresh();
+    return null;
+  }
+}
+
+async function restartRouteSubscription(): Promise<void> {
+  disposeRouteSubscription();
+  await installRouteSubscription(getRoute());
+}
+
+async function installRouteSubscription(route: PortalRouteValue): Promise<void> {
+  const token = routeSubscriptionToken + 1;
+  routeSubscriptionToken = token;
+  try {
+    const unsubscribe = await bridge.subscribe(route, currentRouteContext(), (event) => {
+      if (token !== routeSubscriptionToken || event.route !== getRoute()) {
+        return;
+      }
+      applyParentRouteSnapshot(state, event.snapshot);
+      refresh();
+    });
+    if (token !== routeSubscriptionToken || route !== getRoute()) {
+      unsubscribe();
+      return;
+    }
+    activeRouteUnsubscribe = unsubscribe;
+  } catch (error) {
+    if (token !== routeSubscriptionToken) {
+      return;
+    }
+    state.lastHostMessage = error instanceof Error ? error.message : String(error);
+    refresh();
+  }
+}
+
+function disposeRouteSubscription(): void {
+  routeSubscriptionToken += 1;
+  activeRouteUnsubscribe?.();
+  activeRouteUnsubscribe = null;
+}
+
+function currentRouteContext(): ParentRouteContext {
+  return {};
+}
 
 function refresh(): void {
   revision += 1;
@@ -158,5 +306,10 @@ function hideAppLoadingAfterPaint(): void {
 }
 
 refresh();
-connectWebSocket(state, refresh);
-window.addEventListener(PortalDom.Events.HashChange, refresh);
+void loadCurrentRoute();
+window.addEventListener(PortalDom.Events.HashChange, () => {
+  void loadCurrentRoute();
+});
+window.addEventListener('beforeunload', () => {
+  disposeRouteSubscription();
+});

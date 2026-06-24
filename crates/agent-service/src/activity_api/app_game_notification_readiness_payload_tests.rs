@@ -83,9 +83,7 @@ fn app_game_notification_readiness_payload_reports_service_intents_without_deliv
         constants::field::APP_GAME_NOTIFICATION_READINESS_READ_MODEL,
     );
     let decoded: AppGameNotificationReadinessReadModel = serde_json::from_str(read_model_json)
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(decoded.returned, 4);
     assert_eq!(

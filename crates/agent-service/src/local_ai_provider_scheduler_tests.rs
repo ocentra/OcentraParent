@@ -248,9 +248,8 @@ fn assert_completed_generation(
 fn join_generation_result(
     result: Result<LocalAiChatGenerationResult, tokio::task::JoinError>,
 ) -> LocalAiChatGenerationResult {
-    result.unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::LOCAL_AI_RUNTIME_SPAWNS)
-    })
+    result
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::LOCAL_AI_RUNTIME_SPAWNS))
 }
 
 async fn assert_observed_job_order(

@@ -26,6 +26,14 @@ evidence, router/infrastructure rows, scan summary counts, and canonical
 derived household rows. The broader production evidence record still needs a
 complete durable shape for all scanner and child-agent observations.
 
+Current A-lane proof now persists canonical household device records inside the
+Rust trusted-registry JSON under the same evidence-backed canonical device
+shape already used by the LAN read model, instead of inventing a second record
+format. Registry merges now preserve evidence `firstSeenAt`, update
+`lastSeenAt`, keep source/evidence history attached to the same canonical
+device, and allow later scans plus restart recovery to reuse that durable
+device-store truth before falling back to weaker scan-history reconstruction.
+
 ## Where We Want To Be
 
 Every visible device is backed by evidence. A device record preserves IPs,
@@ -50,6 +58,13 @@ confidence, and source history. IP address is never permanent identity.
 - Property tests prove adding evidence never drops source history.
 - Contract/read-model tests reject visible device rows with empty evidence
   summaries.
+
+Current proof:
+
+- `cargo test -p ocentra-parent-agent-core trusted_device_registry`
+- The trusted registry now persists `knownHouseholdDevices` using the canonical
+  household device shape, and focused Rust proof covers restart recovery plus
+  evidence timestamp merge behavior for repeated updates on the same device.
 
 ## Parallel Ownership Notes
 

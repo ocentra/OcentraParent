@@ -50,18 +50,14 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     store
         .ingest_events(&[evidence_claim_activity_event()])
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model = timer_parent_surface_payload(
         &event.payload[constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL],
@@ -123,14 +119,11 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
         &timer_state_path,
     );
 
-    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     store
         .ingest_events(&[evidence_claim_activity_event()])
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
     let enforcement_paths = enforcement_paths(&store_path, &timer_state_path);
     cleanup_path(&enforcement_paths.journal_path);
     cleanup_path(&enforcement_paths.key_path);
@@ -140,9 +133,8 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
     )
     .await;
 
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let read_model = timer_parent_surface_payload(
         &event.payload[constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL],

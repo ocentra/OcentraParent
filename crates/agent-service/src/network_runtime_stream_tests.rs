@@ -151,17 +151,13 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain() {
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     store
         .ingest_events(&[network_activity_event()])
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-        });
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let entries = stream_entries(&event.payload);
 
@@ -194,9 +190,8 @@ async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_de
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
-    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let network_event = network_activity_event();
     let deleted_event_id = network_event.event_id.clone();
     store
@@ -204,12 +199,9 @@ async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_de
             network_event,
             network_retention_deleted_event(&deleted_event_id),
         ])
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-        });
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let entries = stream_entries(&event.payload);
 

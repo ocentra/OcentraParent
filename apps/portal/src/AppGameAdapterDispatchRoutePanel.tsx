@@ -1,10 +1,4 @@
 import type { ReactElement } from 'react';
-import type { AgentAppGameAdapterDispatchPreflightResult } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
-import type {
-  AgentAppGameAdapterDispatchExecute,
-  AgentAppGameAdapterDispatchResult,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
@@ -26,6 +20,12 @@ import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
+type AppGameAdapterDispatchPreflightRouteReadModel = Parameters<
+  typeof createAppGameAdapterDispatchPreflightPanelIntent
+>[0];
+type AppGameAdapterDispatchResultRouteReadModel = Parameters<typeof createAppGameAdapterDispatchResultPanelIntent>[0];
+type AppGameAdapterDispatchExecuteRouteResult = Parameters<typeof createAppGameAdapterDispatchResultPanelIntent>[1];
+
 export function shouldRenderAppGameAdapterDispatchRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);
 }
@@ -39,9 +39,9 @@ export function AppGameAdapterDispatchRoutePanel({
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly executeResult: AgentAppGameAdapterDispatchExecute | null;
-  readonly preflightResult: AgentAppGameAdapterDispatchPreflightResult | null;
-  readonly resultReadModel: AgentAppGameAdapterDispatchResult | null;
+  readonly executeResult: AppGameAdapterDispatchExecuteRouteResult;
+  readonly preflightResult: AppGameAdapterDispatchPreflightRouteReadModel;
+  readonly resultReadModel: AppGameAdapterDispatchResultRouteReadModel;
 }): ReactElement {
   const preflightIntent = createAppGameAdapterDispatchPreflightPanelIntent(preflightResult);
   const resultIntent = createAppGameAdapterDispatchResultPanelIntent(resultReadModel, executeResult);
@@ -59,10 +59,7 @@ export function AppGameAdapterDispatchRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel)}
           </button>
@@ -70,10 +67,7 @@ export function AppGameAdapterDispatchRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchResultReadModel)}
           </button>
@@ -119,10 +113,9 @@ export function AppGameAdapterDispatchRoutePanel({
 
 export function sendAppGameAdapterDispatchExecuteAction(
   actions: PortalRenderActions,
-  action: AppGameAdapterDispatchResultPanelExecuteAction
+  _action: AppGameAdapterDispatchResultPanelExecuteAction
 ): void {
-  actions.selectCommandResult(action.resultEvent);
-  actions.sendCommand(action.command, {});
+  void actions.requestAppGameAdapterDispatchExecute?.();
 }
 
 function AppGameAdapterDispatchPreflightSummaryCard({

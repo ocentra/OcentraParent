@@ -26,7 +26,7 @@ export function renderDiagnosticsPanel(container: HTMLElement, state: PortalRunt
 
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
   const latestEvent = state.events[0] ?? null;
-  appendDetail(metadata, PortalDetails.AgentUrl, decodePortalDetailValue(state.agentWsUrl));
+  appendDetail(metadata, PortalDetails.AgentUrl, decodePortalDetailValue(state.agentEndpoint));
   appendDetail(metadata, PortalDetails.State, decodePortalDetailValue(state.connectionState));
   appendDetail(metadata, PortalDetails.Events, decodePortalDetailValue(String(state.events.length)));
   appendDetail(metadata, PortalDetails.LastEvent, detailFromValue(latestEvent?.event));

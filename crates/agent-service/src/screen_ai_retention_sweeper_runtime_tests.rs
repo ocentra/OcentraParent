@@ -40,12 +40,10 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
     let journal_path = root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX);
     let store_path = root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
     let key = JournalKey::from_bytes([4; JOURNAL_KEY_BYTES]);
-    fs::create_dir_all(&root).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
-    fs::write(&key_path, key.as_bytes()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    fs::create_dir_all(&root)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
+    fs::write(&key_path, key.as_bytes())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let queue = ScreenEvidenceQueue::open(&queue_dir, key)
         .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_OPENS));
     let expired_job = screen_queue_job_with_expiry(
@@ -90,16 +88,12 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
         .read_decrypted_entries(4)
         .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::JOURNAL_READS));
     let screen_summary = ActivityStore::open(&store_path)
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-        })
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS))
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let _ = remove_dir_all(&root);
 
     assert_sweep_outcome(outcome, &expired_job);

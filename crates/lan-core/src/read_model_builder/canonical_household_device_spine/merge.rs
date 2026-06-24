@@ -95,19 +95,27 @@ fn merge_network_identity(
     if existing.mac_address.is_none() {
         existing.mac_address = incoming.mac_address;
     }
+    if existing.mac_vendor.is_none() {
+        existing.mac_vendor = incoming.mac_vendor;
+    }
     merge_strings(&mut existing.ip_addresses, incoming.ip_addresses);
     merge_strings(
         &mut existing.network_interfaces,
         incoming.network_interfaces,
     );
     merge_evidence_records(&mut existing.evidence_records, incoming.evidence_records);
-    existing.confidence = merged_confidence(existing_sources, incoming_sources);
+    existing.confidence = merged_confidence(
+        existing_sources,
+        incoming_sources,
+        &existing.evidence_records,
+    );
     existing
 }
 
 fn merged_confidence(
     existing_sources: &[LanCanonicalHouseholdDeviceSource],
     incoming_sources: &[LanCanonicalHouseholdDeviceSource],
+    evidence_records: &[ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord],
 ) -> LanCanonicalHouseholdDeviceConfidence {
     let has_local = source_present(
         existing_sources,
@@ -123,12 +131,29 @@ fn merged_confidence(
         incoming_sources,
         &LanCanonicalHouseholdDeviceSource::NetworkNeighbor,
     );
+    let has_mac_identity_warning = evidence_records.iter().any(|record| {
+        record.evidence_kind
+            == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind::Vendor
+            && matches!(
+                record.confidence,
+                ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceConfidence::ManualRequired
+                    | ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceConfidence::Rejected
+            )
+    });
     if has_local && has_neighbor {
-        LanCanonicalHouseholdDeviceConfidence::MacIpMatch
+        if has_mac_identity_warning {
+            LanCanonicalHouseholdDeviceConfidence::AgentConfirmed
+        } else {
+            LanCanonicalHouseholdDeviceConfidence::MacIpMatch
+        }
     } else if has_local {
         LanCanonicalHouseholdDeviceConfidence::AgentConfirmed
     } else if has_neighbor {
-        LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor
+        if has_mac_identity_warning {
+            LanCanonicalHouseholdDeviceConfidence::ManualRequired
+        } else {
+            LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor
+        }
     } else {
         LanCanonicalHouseholdDeviceConfidence::ManualRequired
     }

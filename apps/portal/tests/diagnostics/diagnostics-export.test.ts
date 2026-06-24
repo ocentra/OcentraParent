@@ -1,21 +1,47 @@
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { ActivityEventKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import { PortalConnectionState } from '@ocentra-parent/schema-domain/portal-contracts';
-import { createPortalRuntimeState } from '../../src/portal-state';
+import { applyParentRouteSnapshot, createPortalRuntimeState } from '../../src/portal-state';
 import { buildDiagnosticsExport } from '../../src/diagnostics-export';
 
 describe('portal diagnostics export', () => {
   it('copies connection, health, event, and read-model summaries without raw service payload dumps', () => {
-    const state = createPortalRuntimeState(AgentProtocolDefaults.WebSocketUrl);
+    const state = createPortalRuntimeState();
+    applyParentRouteSnapshot(state, {
+      schemaVersion: 1,
+      route: 'devices',
+      generatedAt: '2026-05-20T20:44:58Z',
+      seasonLabel: 'LOCAL',
+      lastUpdated: '2026-05-20T20:44:58Z',
+      connectionState: 'connected',
+      commandEnabled: true,
+      agentEndpoint: 'host-bridge://tauri-parent',
+      dataSource: 'rust-read-model',
+      diagnosticPanelsEnabled: false,
+      parentPortalShellStatus: {
+        routeLabel: 'Devices',
+        parentAccessState: 'proof-missing',
+        globalConnectionState: 'manual-required',
+        routeCapabilityState: 'available',
+        dataSourceLabel: 'rust-read-model',
+        cards: [],
+      },
+      summary: {
+        title: 'Devices',
+        routeCapability: 'available',
+        parentAccess: 'proof-missing',
+        household: 'proof-missing',
+        childDevice: 'proof-missing',
+      },
+    });
     state.connectionState = PortalConnectionState.Connected;
     state.events.unshift(networkFlowEvent(), recentSummaryEvent(), healthEvent());
 
     const copied = JSON.parse(buildDiagnosticsExport(state));
 
     expect(copied.schemaVersion).toBe(1);
-    expect(copied.agent.agentUrl).toBe('ws://127.0.0.1:4477/api/dev/ws');
+    expect(copied.agent.agentUrl).toBe('host-bridge://tauri-parent');
     expect(copied.agent.connectionState).toBe('connected');
     expect(copied.health.online).toBe(true);
     expect(copied.health.transport).toBe('websocket');
@@ -27,6 +53,52 @@ describe('portal diagnostics export', () => {
     expect(copied.activity.networkLinuxNftablesLabStatus).toBeNull();
     expect(copied.activity.networkWindowsFirewallLabStatus).toBeNull();
     expect(copied.activity.networkWindowsWfpGateStatus).toBeNull();
+  });
+
+  it('uses route snapshot live activity when raw agent events are absent', () => {
+    const state = createPortalRuntimeState();
+    applyParentRouteSnapshot(state, {
+      schemaVersion: 1,
+      route: 'devices',
+      generatedAt: '2026-05-20T20:44:58Z',
+      seasonLabel: 'LOCAL',
+      lastUpdated: '2026-05-20T20:44:58Z',
+      connectionState: 'connected',
+      commandEnabled: true,
+      agentEndpoint: 'host-bridge://tauri-parent',
+      dataSource: 'rust-read-model',
+      diagnosticPanelsEnabled: false,
+      parentPortalShellStatus: {
+        routeLabel: 'Devices',
+        parentAccessState: 'proof-missing',
+        globalConnectionState: 'manual-required',
+        routeCapabilityState: 'available',
+        dataSourceLabel: 'rust-read-model',
+        cards: [],
+      },
+      liveActivity: {
+        recentSummary: {
+          returned: 1,
+          mostRecentSubjectName: 'Child Laptop',
+        },
+        networkFlowReadModel: {
+          returned: 1,
+          rows: [{ destinationDomain: 'example-network.test' }],
+        },
+      },
+      summary: {
+        title: 'Devices',
+        routeCapability: 'available',
+        parentAccess: 'proof-missing',
+        household: 'proof-missing',
+        childDevice: 'proof-missing',
+      },
+    });
+
+    const copied = JSON.parse(buildDiagnosticsExport(state));
+
+    expect(copied.activity.recentSummary.mostRecentSubjectName).toBe('Child Laptop');
+    expect(copied.activity.networkFlowReadModel.rows[0].destinationDomain).toBe('example-network.test');
   });
 });
 

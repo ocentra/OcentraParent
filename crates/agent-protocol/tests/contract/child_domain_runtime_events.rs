@@ -136,7 +136,10 @@ fn child_domain_event_type_deserialization_rejects_unknown_protocol_text() {
 
     let result = serde_json::from_value::<ChildDomainObservedEvent>(payload);
 
-    assert_eq!(result.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        result.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 #[test]

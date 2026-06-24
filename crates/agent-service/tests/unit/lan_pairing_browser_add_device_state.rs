@@ -1,4 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPairingDiscoverySource;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::transport::{
@@ -28,12 +29,18 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
 }
 
 fn assert_empty_runtime_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields) {
-    assert_eq!(
-        payload.get(constants::field::LAN_DISCOVERY_SOURCE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_DISCOVERY_SOURCE_LOCAL_SERVICE.to_string()
-        ))
-    );
+    let discovery_source = payload.get(constants::field::LAN_DISCOVERY_SOURCE);
+    assert!(matches!(
+        discovery_source,
+        Some(LogFieldValue::String(value))
+            if value.as_str()
+                == serialized_discovery_source(LanPairingDiscoverySource::LocalService).as_str()
+                || value.as_str()
+                    == serialized_discovery_source(
+                    LanPairingDiscoverySource::PhysicalHouseholdLan
+                )
+                .as_str()
+    ));
     let physical_lan_state = payload.get(constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE);
     assert!(matches!(
         physical_lan_state,
@@ -93,7 +100,11 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
             })
             .iter()
             .any(|source| {
-                source.as_str() == Some(constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE)
+                matches!(
+                    source.as_str(),
+                    Some(constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE)
+                        | Some(constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR)
+                )
             })
     );
     assert_empty_runtime_production_household_proof(read_model);
@@ -313,6 +324,13 @@ fn read_model_payload(payload: &ocentra_parent_agent_protocol::logging::LogField
         }),
         _ => serde_json::json!({}),
     }
+}
+
+fn serialized_discovery_source(source: LanPairingDiscoverySource) -> String {
+    serde_json::to_value(source)
+        .ok()
+        .and_then(|value| value.as_str().map(ToOwned::to_owned))
+        .unwrap_or_default()
 }
 
 fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentCommandEnvelope {

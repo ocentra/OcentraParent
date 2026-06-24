@@ -1,5 +1,4 @@
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
-import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import {
   screenEvidenceSettingsWritableUiProof,
@@ -13,7 +12,8 @@ import type { PortalRenderActions } from './portal-actions';
 import {
   createScreenSettingsGetCommandDraft,
   createScreenSettingsReplaceCommandDraft,
-  latestScreenSettingsServiceResponse,
+  decodeScreenSettingsServiceResponseSnapshot,
+  matchingScreenSettingsServiceResponse,
   screenSettingsBaseVersionForReplace,
   type ScreenSettingsServiceRequestId,
   screenSettingsServiceStatusText,
@@ -25,18 +25,21 @@ type ScreenSettingsWritableDetailValue = ReactNode;
 export function ScreenSettingsWritableControls({
   actions,
   commandEnabled,
-  events,
+  serviceResponseSnapshot,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly events: readonly AgentEventEnvelope[];
+  readonly serviceResponseSnapshot: unknown | null;
 }): ReactElement {
   const proof = useMemo(() => screenEvidenceSettingsWritableUiProof(), []);
   const [selectedIntentKey, setSelectedIntentKey] = useState(proof.defaultIntentKey);
   const [requestSequence, setRequestSequence] = useState(1);
   const [pendingRequestId, setPendingRequestId] = useState<ScreenSettingsServiceRequestId | null>(null);
   const selectedIntent = screenSettingsIntentByKey(proof.intents, selectedIntentKey);
-  const serviceResponse = latestScreenSettingsServiceResponse(events, pendingRequestId);
+  const serviceResponse = matchingScreenSettingsServiceResponse(
+    decodeScreenSettingsServiceResponseSnapshot(serviceResponseSnapshot),
+    pendingRequestId
+  );
   const serviceStatus = screenSettingsServiceStatusText({
     commandEnabled,
     pendingRequestId,
@@ -46,7 +49,11 @@ export function ScreenSettingsWritableControls({
   const submitDraft = (draft: ReturnType<typeof createScreenSettingsReplaceCommandDraft>): void => {
     setPendingRequestId(draft.requestId);
     setRequestSequence(requestSequence + 1);
-    actions.sendCommand(draft.command, draft.payload);
+    if (draft.action === 'screen-settings-get-requested') {
+      void actions.requestScreenSettingsGet?.(draft.payload);
+      return;
+    }
+    void actions.requestScreenSettingsReplace?.(draft.payload);
   };
   const sendReplace = (): void => {
     submitDraft(
@@ -59,9 +66,7 @@ export function ScreenSettingsWritableControls({
   };
   const sendRefresh = (): void => {
     const draft = createScreenSettingsGetCommandDraft(requestSequence);
-    setPendingRequestId(draft.requestId);
-    setRequestSequence(requestSequence + 1);
-    actions.sendCommand(draft.command, draft.payload);
+    submitDraft(draft);
   };
 
   return (

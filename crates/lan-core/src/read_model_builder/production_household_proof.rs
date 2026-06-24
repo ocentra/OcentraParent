@@ -1,7 +1,6 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
 use ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry;
 use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdProofState;
 use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdRuntimeOwner;
@@ -323,7 +322,9 @@ fn revocation_state(
     trusted_device_registry: &[LanTrustedDeviceRegistryEntry],
 ) -> LanPairingProductionDiscoveryState {
     if trusted_device_registry.iter().any(|entry| {
-        entry.revoked_at.is_some() || entry.trust_state == LanPairingTrustState::Revoked
+        entry.revoked_at.is_some()
+            || entry.trust_state
+                == ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState::Revoked
     }) {
         LanPairingProductionDiscoveryState::Revoked
     } else {

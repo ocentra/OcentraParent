@@ -58,7 +58,10 @@ fn screen_settings_request_rejects_unknown_fields() {
 
     let parsed = serde_json::from_value::<ScreenSettingsGetRequest>(invalid);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 #[test]

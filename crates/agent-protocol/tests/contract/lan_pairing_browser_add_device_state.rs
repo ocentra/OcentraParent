@@ -96,6 +96,8 @@ fn discovered_device_serializes_network_and_hardware_details() {
         address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
         discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
         discovery_state: LanPairingProductionDiscoveryState::Discovered,
+        evidence_sources: vec![LanDiscoveryEvidenceSource::LocalService],
+        hint_sources: Vec::new(),
     };
 
     let json = serde_json::to_value(&device)
@@ -155,7 +157,7 @@ fn canonical_network_identity() -> LanCanonicalHouseholdNetworkIdentity {
         hostname: Some("GAMEDEV".to_string()),
         ip_addresses: vec!["192.168.2.42".to_string()],
         mac_address: Some("54-27-1e-97-c3-31".to_string()),
-        mac_vendor: None,
+        mac_vendor: Some("AzureWave Technology Inc.".to_string()),
         network_interfaces: vec!["Ethernet 2".to_string()],
         reachability: LanPairingDeviceReachability::Online,
         confidence: LanCanonicalHouseholdDeviceConfidence::AgentConfirmed,
@@ -180,6 +182,13 @@ fn canonical_evidence_records() -> Vec<LanDiscoveryEvidenceRecord> {
             "54-27-1e-97-c3-31",
             "mac:54271e97c331",
             LanDiscoveryEvidenceConfidence::Confirmed,
+        ),
+        evidence_record(
+            LanDiscoveryEvidenceSource::LocalService,
+            LanDiscoveryEvidenceKind::Vendor,
+            "AzureWave Technology Inc.",
+            "vendor:azurewavetechnologyinc",
+            LanDiscoveryEvidenceConfidence::Strong,
         ),
         evidence_record(
             LanDiscoveryEvidenceSource::LocalService,

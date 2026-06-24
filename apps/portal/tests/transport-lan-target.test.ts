@@ -1,101 +1,88 @@
 import { expect, it } from 'vitest';
 import { AgentCommand } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { PortalCommandButtons, PortalOverviewCommands } from '@ocentra-parent/portal-domain/commands';
-import { isPortalDirectEnforcementActionCommand, resolvePortalCommandTarget } from '../src/transport';
+import { createHostBridge } from '../src/host-bridge';
 
-it('isPortalDirectEnforcementActionCommand: rejects portal-side enforcement action commands', () => {
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementExecute)).toBe(true);
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementTimerRecover)).toBe(true);
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementTimerExpire)).toBe(true);
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementOverrideCancel)).toBe(true);
+it('HostBridge dev adapter: loads honest empty route snapshots without a UI WebSocket transport', async () => {
+  const bridge = createHostBridge();
+
+  const snapshot = await bridge.loadRoute('devices');
+
+  expect(snapshot).toMatchObject({
+    schemaVersion: 1,
+    route: 'devices',
+    seasonLabel: 'LOCAL',
+    connectionState: 'disconnected',
+    commandEnabled: false,
+    agentEndpoint: 'host-bridge://dev-web',
+    dataSource: 'unavailable',
+    parentPortalShellStatus: {
+      parentAccessState: 'proof-missing',
+      routeCapabilityState: 'unavailable',
+      dataSourceLabel: 'unavailable',
+    },
+  });
+  expect(snapshot.liveActivity).toBeNull();
+  expect(snapshot.browserPanels).toBeNull();
 });
 
-it('isPortalDirectEnforcementActionCommand: allows portal read-model and proof commands', () => {
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementProductControlSpineGet)).toBe(false);
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementPolicyDispatchGet)).toBe(false);
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementBroadAdapterProofGet)).toBe(false);
-  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementSupportedAdapterRuntimeProofGet)).toBe(false);
+it('HostBridge dev adapter: only exposes diagnostics chrome for explicit dev routes', async () => {
+  const bridge = createHostBridge();
+
+  const diagnosticsSnapshot = await bridge.loadRoute('diagnostics');
+  const browserSnapshot = await bridge.loadRoute('browser');
+
+  expect(diagnosticsSnapshot.dataSource).toBe('dev-diagnostics');
+  expect(diagnosticsSnapshot.diagnosticPanelsEnabled).toBe(true);
+  expect(browserSnapshot.dataSource).toBe('unavailable');
+  expect(browserSnapshot.browserPanels).toBeNull();
 });
 
-it('portal command inventory: contains no direct enforcement action command', () => {
-  const commandInventory = [
-    ...PortalOverviewCommands.map((command) => command.command),
-    ...PortalCommandButtons.map((command) => command.command),
-  ];
+it('HostBridge dev adapter: refuses action dispatch on the presentation-only web bridge', async () => {
+  const bridge = createHostBridge();
 
-  expect(commandInventory.filter(isPortalDirectEnforcementActionCommand)).toStrictEqual([]);
+  const result = await bridge.dispatch({
+    action: 'agent-command-requested',
+    route: 'devices',
+    command: AgentCommand.LanPairingBrowserDiscoveryScan,
+    payload: {
+      [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+    },
+  });
+
+  expect(result).toMatchObject({
+    schemaVersion: 1,
+    accepted: false,
+    connectionState: 'disconnected',
+    snapshot: {
+      route: 'devices',
+      summary: {
+        childDevice: 'unavailable',
+      },
+    },
+  });
+  expect(result.message).toContain('presentation-only');
 });
 
-it('resolvePortalCommandTarget: routes LAN commands to the selected local-network child device', () => {
-  const target = resolvePortalCommandTarget(
-    AgentProtocolDefaults.Target.LocalhostWindowsAgent,
-    AgentCommand.LanPairingAddDeviceRequest,
+it('HostBridge dev adapter: emits route snapshots through the shared subscription contract', async () => {
+  const bridge = createHostBridge();
+  const events: unknown[] = [];
+
+  const unsubscribe = await bridge.subscribe('devices', {}, (event) => {
+    events.push(event);
+  });
+  await Promise.resolve();
+  unsubscribe();
+
+  expect(events).toMatchObject([
     {
-      [AgentProtocolDefaults.Field.LanChildDeviceId]: 'child-device-1',
-    }
-  );
-
-  expect(target).toMatchObject({
-    deviceId: 'child-device-1',
-    platform: 'windows',
-    route: 'local-network',
-  });
-});
-
-it('resolvePortalCommandTarget: keeps non-LAN commands on the existing target', () => {
-  expect(
-    resolvePortalCommandTarget(AgentProtocolDefaults.Target.LocalhostWindowsAgent, AgentCommand.HealthCheck, {})
-  ).toBe(AgentProtocolDefaults.Target.LocalhostWindowsAgent);
-});
-
-it('resolvePortalCommandTarget: keeps status refreshes on the service target until a child is selected', () => {
-  expect(
-    resolvePortalCommandTarget(AgentProtocolDefaults.Target.LocalhostWindowsAgent, AgentCommand.LanPairingStatusGet, {})
-  ).toStrictEqual(AgentProtocolDefaults.Target.LocalhostWindowsAgent);
-});
-
-it('resolvePortalCommandTarget: reads LAN status through the service route when the portal is on a LAN URL', () => {
-  expect(
-    resolvePortalCommandTarget(
-      AgentProtocolDefaults.Target.LocalNetworkWindowsAgent,
-      AgentCommand.LanPairingStatusGet,
-      {}
-    )
-  ).toMatchObject({
-    deviceId: 'local-dev-agent',
-    platform: 'windows',
-    route: 'localhost',
-  });
-});
-
-it('resolvePortalCommandTarget: sends browser discovery scans over the local-network route', () => {
-  const target = resolvePortalCommandTarget(
-    AgentProtocolDefaults.Target.LocalhostWindowsAgent,
-    AgentCommand.LanPairingBrowserDiscoveryScan,
-    {}
-  );
-
-  expect(target).toMatchObject({
-    deviceId: 'local-dev-agent',
-    platform: 'windows',
-    route: 'local-network',
-  });
-});
-
-it('resolvePortalCommandTarget: sends canonical household decisions over the local-network route', () => {
-  const target = resolvePortalCommandTarget(
-    AgentProtocolDefaults.Target.LocalhostWindowsAgent,
-    AgentCommand.LanPairingAddDeviceRequest,
-    {
-      [AgentProtocolDefaults.Field.LanCanonicalDeviceId]: 'lan-physical-mac-54271e97c331',
-      [AgentProtocolDefaults.Field.LanHouseholdActionKind]: 'rename',
-    }
-  );
-
-  expect(target).toMatchObject({
-    deviceId: 'local-dev-agent',
-    platform: 'windows',
-    route: 'local-network',
-  });
+      schemaVersion: 1,
+      route: 'devices',
+      snapshot: {
+        route: 'devices',
+        agentEndpoint: 'host-bridge://dev-web',
+        dataSource: 'unavailable',
+      },
+    },
+  ]);
 });

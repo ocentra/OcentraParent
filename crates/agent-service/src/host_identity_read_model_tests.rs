@@ -81,9 +81,8 @@ fn host_identity_read_model_keeps_unsupported_and_rollback_states_honest() {
 #[test]
 fn host_identity_read_model_serializes_for_runtime_preview_without_claiming_blocking() {
     let model = host_identity_read_model(policy::TEST_EVALUATED_AT);
-    let serialized = serde_json::to_value(model).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(model)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         serialized[field::READ_MODEL_ID],

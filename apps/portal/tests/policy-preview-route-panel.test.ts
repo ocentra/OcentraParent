@@ -202,6 +202,8 @@ function policyPreviewActions() {
   return {
     reconnect() {},
     selectCommandResult() {},
-    sendCommand() {},
+    async sendCommand() {
+      return null;
+    },
   };
 }

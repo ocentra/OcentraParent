@@ -68,7 +68,10 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
     assert_eq!(persisted, strict);
     assert!(fs::read_to_string(&path)
         .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::screen_settings::TEST_STORE_READABLE)
+            panic!(
+                "{}: {error:?}",
+                constants::screen_settings::TEST_STORE_READABLE
+            )
         })
         .contains(constants::screen_settings::AUDIT_PREFIX));
 }

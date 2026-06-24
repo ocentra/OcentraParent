@@ -84,7 +84,10 @@ fn host_identity_rejects_unknown_evidence_kind() {
 
     let parsed = serde_json::from_value::<HostIdentityReadModelEntry>(payload);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 fn read_model_entry(

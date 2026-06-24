@@ -367,9 +367,11 @@ fn expected_report_context_summary() -> String {
     summary.push('1');
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCES_LABEL);
     summary.push('1');
-    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL);
+    summary
+        .push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL);
     summary.push('1');
-    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCES_LABEL);
+    summary
+        .push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCES_LABEL);
     summary.push('1');
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL);
     summary.push_str(constants::activity_surface::SECTION_SUMMARY);
@@ -377,9 +379,13 @@ fn expected_report_context_summary() -> String {
     summary.push_str(constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID);
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCE_IDS_LABEL);
     summary.push_str(constants::activity_surface::FAMILY_SOURCE_STALE_ID);
-    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL);
+    summary.push_str(
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL,
+    );
     summary.push_str(constants::activity_surface::FAMILY_SOURCE_STALE_ID);
-    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL);
+    summary.push_str(
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL,
+    );
     summary.push_str(constants::activity_surface::FAMILY_SOURCE_ERROR_ID);
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_CUSTODY_LABEL);
     summary.push_str(constants::activity_surface::CUSTODY_PARENT_DEVICE_LOCAL_REPORT_JSON);

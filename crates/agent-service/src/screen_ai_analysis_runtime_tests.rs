@@ -62,9 +62,7 @@ async fn screen_analysis_cycle_respects_disabled_screen_analysis_setting() {
         ),
     )
     .await
-    .unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-    });
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
     assert_eq!(outcome, ScreenAiAnalysisCycleOutcome::Suppressed);
     assert_queue_contains(&config, &queue_job_id);
@@ -84,9 +82,7 @@ async fn screen_analysis_cycle_records_unavailable_result_and_removes_queue_entr
         ),
     )
     .await
-    .unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-    });
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
     assert_eq!(
         outcome,
@@ -120,9 +116,7 @@ async fn screen_analysis_cycle_publishes_row_ready_event_and_gates_missing_polic
         Some(&runtime),
     )
     .await
-    .unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-    });
+    .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
     assert_eq!(
         outcome,
@@ -210,9 +204,8 @@ fn assert_queue_drained(config: &ScreenAiAnalysisRuntimeConfig) {
     let queue_file = config
         .queue_dir
         .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
-    let queue_record = fs::read_to_string(queue_file).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let queue_record = fs::read_to_string(queue_file)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     assert!(queue_record.trim().is_empty());
 }
 
@@ -220,15 +213,12 @@ fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &
     let queue_file = config
         .queue_dir
         .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
-    let queue_record = fs::read_to_string(queue_file).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let queue_record = fs::read_to_string(queue_file)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let queue_lines = queue_record.lines().collect::<Vec<_>>();
     assert_eq!(queue_lines.len(), 1);
-    let queue_entry: serde_json::Value =
-        serde_json::from_str(queue_lines[0]).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let queue_entry: serde_json::Value = serde_json::from_str(queue_lines[0])
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         queue_entry
@@ -248,17 +238,14 @@ fn assert_only_service_metadata_summary(
     config: &ScreenAiAnalysisRuntimeConfig,
     queue_job_id: &str,
 ) {
-    let store = ActivityStore::open(&config.store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&config.store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES));
     let latest = &summary.results[0];
 
     assert_eq!(summary.returned, 1);
@@ -272,17 +259,14 @@ fn assert_only_service_metadata_summary(
 }
 
 fn assert_unavailable_analysis_summary(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &str) {
-    let store = ActivityStore::open(&config.store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&config.store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let summary = store
         .screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES));
     let latest = &summary.results[0];
 
     assert_eq!(summary.returned, 2);

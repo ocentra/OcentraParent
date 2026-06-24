@@ -1,5 +1,11 @@
 use std::{
+    collections::HashMap,
     net::{SocketAddr, TcpStream},
+    sync::{
+        atomic::{AtomicBool, AtomicU64, Ordering},
+        Arc, Mutex,
+    },
+    thread,
     time::Duration,
 };
 
@@ -8,9 +14,18 @@ use ocentra_parent_agent_protocol::{
     DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
     DeviceRuntimeSurface, LanPairingParentAuthority,
 };
+use ocentra_parent_runtime_core::parent_ui_bridge::{
+    dispatch_parent_ui_action, load_parent_route_snapshot, load_parent_subscription_event,
+};
+use ocentra_schema::parent_ui_bridge::{
+    ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
+    ParentUiAction, ParentUiActionResult,
+};
 use serde::Serialize;
+use tauri::{AppHandle, Emitter, State};
 
 const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
+const PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS: u64 = 1000;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -58,18 +73,155 @@ pub struct ParentDesktopPlatformProofState {
     artifact_proof_state: String,
 }
 
+#[derive(Clone, Default)]
+struct ParentRouteSubscriptionRegistry {
+    inner: Arc<ParentRouteSubscriptionRegistryInner>,
+}
+
+#[derive(Default)]
+struct ParentRouteSubscriptionRegistryInner {
+    next_id: AtomicU64,
+    subscriptions: Mutex<HashMap<String, Arc<AtomicBool>>>,
+}
+
+impl ParentRouteSubscriptionRegistry {
+    fn register(&self) -> (String, Arc<AtomicBool>) {
+        let subscription_id = self
+            .inner
+            .next_id
+            .fetch_add(1, Ordering::SeqCst)
+            .to_string();
+        let active = Arc::new(AtomicBool::new(true));
+        self.inner
+            .subscriptions
+            .lock()
+            .unwrap_or_else(|_| unreachable!("parent route subscriptions lock remains available"))
+            .insert(subscription_id.clone(), Arc::clone(&active));
+        (subscription_id, active)
+    }
+
+    fn unregister(&self, subscription_id: &str) -> bool {
+        self.inner
+            .subscriptions
+            .lock()
+            .unwrap_or_else(|_| unreachable!("parent route subscriptions lock remains available"))
+            .remove(subscription_id)
+            .map(|active| {
+                active.store(false, Ordering::SeqCst);
+                true
+            })
+            .unwrap_or(false)
+    }
+}
+
 #[tauri::command]
 fn parent_platform_proof_state() -> ParentDesktopPlatformProofState {
     parent_platform_proof_state_for_address(configured_agent_address())
 }
 
+#[tauri::command]
+fn parent_load_route(
+    route: ParentRouteId,
+    context: Option<ParentRouteContext>,
+) -> ParentRouteSnapshot {
+    load_parent_route_snapshot(route, context)
+}
+
+#[tauri::command]
+fn parent_dispatch(action: ParentUiAction) -> ParentUiActionResult {
+    dispatch_parent_ui_action(action)
+}
+
+#[tauri::command]
+fn parent_subscribe_route(
+    app: AppHandle,
+    registry: State<'_, ParentRouteSubscriptionRegistry>,
+    route: ParentRouteId,
+    context: Option<ParentRouteContext>,
+) -> Result<String, String> {
+    let registry = registry.inner().clone();
+    let (subscription_id, active) = registry.register();
+    spawn_parent_route_subscription(
+        app,
+        registry,
+        subscription_id.clone(),
+        route,
+        context,
+        active,
+    );
+    Ok(subscription_id)
+}
+
+#[tauri::command]
+fn parent_unsubscribe_route(
+    registry: State<'_, ParentRouteSubscriptionRegistry>,
+    subscription_id: String,
+) -> bool {
+    registry.unregister(subscription_id.as_str())
+}
+
 pub fn run() {
     let result = tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![parent_platform_proof_state])
+        .manage(ParentRouteSubscriptionRegistry::default())
+        .invoke_handler(tauri::generate_handler![
+            parent_platform_proof_state,
+            parent_load_route,
+            parent_dispatch,
+            parent_subscribe_route,
+            parent_unsubscribe_route
+        ])
         .run(tauri::generate_context!());
     if let Err(error) = result {
         panic!("{error}");
     }
+}
+
+fn spawn_parent_route_subscription(
+    app: AppHandle,
+    registry: ParentRouteSubscriptionRegistry,
+    subscription_id: String,
+    route: ParentRouteId,
+    context: Option<ParentRouteContext>,
+    active: Arc<AtomicBool>,
+) {
+    thread::spawn(move || {
+        let mut last_snapshot = Some(load_parent_route_snapshot(route.clone(), context.clone()));
+        while active.load(Ordering::SeqCst) {
+            thread::sleep(Duration::from_millis(
+                PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS,
+            ));
+            if !active.load(Ordering::SeqCst) {
+                break;
+            }
+            let event = load_parent_subscription_event(route.clone(), context.clone());
+            if last_snapshot.as_ref() == Some(&event.snapshot) {
+                continue;
+            }
+            if emit_parent_route_subscription_event(&app, &subscription_id, &event).is_err() {
+                break;
+            }
+            last_snapshot = Some(event.snapshot);
+        }
+        let _ = registry.unregister(subscription_id.as_str());
+    });
+}
+
+fn emit_parent_route_subscription_event(
+    app: &AppHandle,
+    subscription_id: &str,
+    event: &ParentSubscriptionEvent,
+) -> Result<(), String> {
+    app.emit(
+        parent_route_subscription_event_name(subscription_id).as_str(),
+        event.clone(),
+    )
+    .map_err(|error| {
+        format!("parent desktop route subscription emit failed for {subscription_id}: {error}")
+    })
+}
+
+fn parent_route_subscription_event_name(subscription_id: &str) -> String {
+    format!("parent-route-subscription-{subscription_id}")
 }
 
 fn configured_agent_address() -> String {
@@ -112,8 +264,8 @@ fn parent_platform_proof_state_for_address(
         hmr_backend_state: constants::value::PARENT_DESKTOP_HMR_BACKEND_NOT_USED.to_string(),
         process_ownership_state: constants::value::PARENT_DESKTOP_PROCESS_OWNER_SHELL_ONLY
             .to_string(),
-        controller_route_state:
-            constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER.to_string(),
+        controller_route_state: constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER
+            .to_string(),
         observer_read_only_state: constants::value::PARENT_DESKTOP_OBSERVER_READ_ONLY.to_string(),
         source_custody_state: constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK
             .to_string(),
@@ -143,8 +295,8 @@ fn parent_platform_proof_state_for_address(
         signing_state: constants::value::PARENT_DESKTOP_SIGNING_MANUAL_REQUIRED.to_string(),
         notarization_state: constants::value::PARENT_DESKTOP_NOTARIZATION_MANUAL_REQUIRED
             .to_string(),
-        store_distribution_state: constants::value::PARENT_DESKTOP_STORE_DISTRIBUTION_MANUAL_REQUIRED
-            .to_string(),
+        store_distribution_state:
+            constants::value::PARENT_DESKTOP_STORE_DISTRIBUTION_MANUAL_REQUIRED.to_string(),
         support_diagnostics_state: constants::value::PARENT_DESKTOP_SUPPORT_DIAGNOSTICS_REDACTED
             .to_string(),
         support_redaction_state: constants::value::PARENT_DESKTOP_SUPPORT_OUTPUT_ALLOWED_FIELDS
@@ -378,6 +530,25 @@ mod tests {
         assert_eq!(
             state.activity_adapter_state,
             constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
+        );
+    }
+
+    #[test]
+    fn parent_route_subscription_registry_unregisters_active_subscriptions() {
+        let registry = ParentRouteSubscriptionRegistry::default();
+        let (subscription_id, active) = registry.register();
+
+        assert!(active.load(Ordering::SeqCst));
+        assert!(registry.unregister(subscription_id.as_str()));
+        assert!(!active.load(Ordering::SeqCst));
+        assert!(!registry.unregister(subscription_id.as_str()));
+    }
+
+    #[test]
+    fn parent_route_subscription_event_name_uses_stable_prefix() {
+        assert_eq!(
+            parent_route_subscription_event_name("42"),
+            "parent-route-subscription-42"
         );
     }
 }

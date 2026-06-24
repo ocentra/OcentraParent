@@ -8,7 +8,7 @@ import {
   AgentBrowserRuntimeQueryVisibility,
 } from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
 import { AgentNetworkRuntimeEventType } from '@ocentra-parent/schema-domain/network-runtime-events';
-import { resolveLiveActivityState } from '../src/live-activity-state';
+import { resolveLiveActivityState, resolveSnapshotLiveActivityState } from '../src/live-activity-state';
 import {
   FlowObserved,
   activityReportEvent,
@@ -92,6 +92,86 @@ describe('portal live activity state', () => {
     expect(state.browserEvidenceReadModel?.rows.at(0)?.url).toBe('https://latest.example/learn');
     expect(state.activityReportEvent?.eventId).toBe('evt-report-latest');
     expect(state.activityReport?.ok ? state.activityReport.value.reportId : null).toBe('activity-report-latest');
+  });
+
+  it('overlays Rust-owned route snapshot activity values without requiring raw agent events', () => {
+    const state = resolveSnapshotLiveActivityState({
+      recentSummary: {
+        returned: 1,
+        mostRecentSubjectName: 'Child Laptop',
+      },
+      browserManagedEvent: {
+        event: AgentEvent.BrowserManagedStatusReported,
+        eventId: 'evt-rust-browser-managed',
+        sentAt: '2026-06-23T00:00:00Z',
+        severity: 'info',
+        payload: {
+          reason: 'Managed browser session is ready.',
+        },
+      },
+      browserManagedStatus: {
+        managedState: 'managed',
+        capabilityStatus: 'available',
+      },
+      localAiRuntimeStatusEvent: {
+        event: AgentEvent.LocalAiRuntimeStatusReported,
+        eventId: 'evt-rust-local-ai',
+        sentAt: '2026-06-23T00:00:00Z',
+        severity: 'info',
+        payload: {
+          reason: 'Local AI runtime is ready.',
+        },
+      },
+      networkFlowEvent: {
+        eventId: 'evt-rust-network-flow',
+        sentAt: '2026-06-23T00:00:00Z',
+        severity: 'info',
+        payload: {},
+      },
+      networkFlowReadModel: {
+        returned: 1,
+        rows: [{ destinationDomain: 'example-network.test' }],
+      },
+      policyPreviewEvent: null,
+      policyPreviewReadModel: {
+        previewId: 'policy-preview-1',
+        targetValue: 'child-device-1',
+      },
+      activityTrackingReadModelEvent: {
+        eventId: 'evt-rust-tracking',
+        sentAt: '2026-06-23T00:00:00Z',
+        severity: 'info',
+        payload: null,
+      },
+      activityTrackingReadModel: {
+        ok: true,
+        value: {
+          rows: [{ deviceId: 'child-device-1' }],
+        },
+      },
+    });
+
+    expect(state.recentSummary?.mostRecentSubjectName).toBe('Child Laptop');
+    expect(state.browserManagedEvent?.event).toBe(AgentEvent.BrowserManagedStatusReported);
+    expect(state.browserManagedStatus?.managedState).toBe('managed');
+    expect(state.localAiRuntimeStatusEvent?.event).toBe(AgentEvent.LocalAiRuntimeStatusReported);
+    expect(state.networkFlowEvent?.eventId).toBe('evt-rust-network-flow');
+    expect(state.networkFlowReadModel?.rows.at(0)?.destinationDomain).toBe('example-network.test');
+    expect(state.policyPreviewEvent).toBeNull();
+    expect(state.policyPreviewReadModel?.previewId).toBe('policy-preview-1');
+    expect(state.activityTrackingReadModelEvent?.eventId).toBe('evt-rust-tracking');
+    expect(state.activityTrackingReadModel?.ok ? state.activityTrackingReadModel.value.rows[0]?.deviceId : null).toBe(
+      'child-device-1'
+    );
+  });
+
+  it('keeps the product snapshot path empty when Rust has not supplied route activity yet', () => {
+    const state = resolveSnapshotLiveActivityState(null);
+
+    expect(state.recentSummary).toBeNull();
+    expect(state.networkFlowEvent).toBeNull();
+    expect(state.browserManagedStatus).toBeNull();
+    expect(state.localAiRuntimeStatusEvent).toBeNull();
   });
 });
 

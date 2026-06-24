@@ -3,36 +3,41 @@ import {
   type AgentEventEnvelope,
   type AgentEventName,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { type AgentMessageTarget, type AgentWebSocketUrl } from '@ocentra-parent/schema-domain/event-primitives';
 import type { AgentLogSnapshot } from '@ocentra-parent/schema-domain/logging-contracts';
 import {
   PortalConnectionState,
   type PortalConnectionState as PortalConnectionStateValue,
 } from '@ocentra-parent/schema-domain/portal-contracts';
+import type { ParentRouteSnapshot } from './generated/parent-ui-bridge';
 
 export interface PortalRuntimeState {
-  readonly agentWsUrl: AgentWebSocketUrl;
-  readonly target: AgentMessageTarget;
-  socket: WebSocket | null;
+  agentEndpoint: string;
   connectionState: PortalConnectionStateValue;
+  commandEnabled: boolean;
   selectedCommandResultEvent: AgentEventName;
   latestSnapshot: AgentLogSnapshot | null;
+  routeSnapshot: ParentRouteSnapshot | null;
+  lastHostMessage: string | null;
   readonly events: AgentEventEnvelope[];
 }
 
-export function createPortalRuntimeState(agentWsUrl: AgentWebSocketUrl): PortalRuntimeState {
+export function createPortalRuntimeState(): PortalRuntimeState {
   return {
-    agentWsUrl,
-    target: resolveAgentTarget(),
-    socket: null,
+    agentEndpoint: 'host-bridge://pending',
     connectionState: PortalConnectionState.Disconnected,
+    commandEnabled: false,
     selectedCommandResultEvent: AgentEvent.LogSnapshotReported,
     latestSnapshot: null,
+    routeSnapshot: null,
+    lastHostMessage: null,
     events: [],
   };
 }
 
-function resolveAgentTarget(): AgentMessageTarget {
-  return AgentProtocolDefaults.Target.LocalhostWindowsAgent;
+export function applyParentRouteSnapshot(state: PortalRuntimeState, snapshot: ParentRouteSnapshot): void {
+  state.routeSnapshot = snapshot;
+  state.agentEndpoint = snapshot.agentEndpoint;
+  state.connectionState = snapshot.connectionState;
+  state.commandEnabled = snapshot.commandEnabled;
+  state.lastHostMessage = snapshot.summary.routeCapability;
 }

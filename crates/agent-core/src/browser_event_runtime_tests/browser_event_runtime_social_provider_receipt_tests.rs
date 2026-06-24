@@ -1,17 +1,17 @@
-use super::{TestResult, ok, some};
-use crate::browser_event_runtime::BrowserRuntimeInput;
+use super::{ok, some, TestResult};
 use crate::browser_event_runtime::social_provider_receipt::{
     browser_runtime_social_provider_receipt_status_topology_manifest,
     request_browser_runtime_social_provider_receipt_status_for_input,
 };
 use crate::browser_event_runtime::social_provider_receipt_durable::prove_browser_runtime_social_provider_receipt_durable;
 use crate::browser_event_runtime::social_provider_receipt_durable_types::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
+use crate::browser_event_runtime::BrowserRuntimeInput;
 use ocentra_eventing::topology::EventTopologyStatus;
 use ocentra_parent_agent_protocol::constants;
 
 #[tokio::test]
-async fn browser_runtime_social_provider_receipt_event_subscriber_returns_manual_required_boundary()
--> TestResult {
+async fn browser_runtime_social_provider_receipt_event_subscriber_returns_manual_required_boundary(
+) -> TestResult {
     let report = ok(
         request_browser_runtime_social_provider_receipt_status_for_input(
             BrowserRuntimeInput::dry_run_action_handoff_fixture(),
@@ -70,8 +70,8 @@ async fn browser_runtime_social_provider_receipt_event_subscriber_returns_manual
 }
 
 #[tokio::test]
-async fn browser_runtime_social_provider_receipt_event_subscriber_keeps_manual_rows_manual_required()
--> TestResult {
+async fn browser_runtime_social_provider_receipt_event_subscriber_keeps_manual_rows_manual_required(
+) -> TestResult {
     let report = ok(
         request_browser_runtime_social_provider_receipt_status_for_input(
             BrowserRuntimeInput::manual_required_fixture(),
@@ -144,8 +144,8 @@ fn browser_runtime_social_provider_receipt_topology_covers_named_event_and_subsc
 }
 
 #[tokio::test]
-async fn browser_runtime_social_provider_receipt_durable_preserves_refs_without_execution()
--> TestResult {
+async fn browser_runtime_social_provider_receipt_durable_preserves_refs_without_execution(
+) -> TestResult {
     let report = ok(
         prove_browser_runtime_social_provider_receipt_durable().await,
         "prove browser runtime social provider receipt durable",

@@ -71,7 +71,10 @@ fn unsupported_windows_adapter_outcome_does_not_deserialize() {
 
     let parsed = serde_json::from_value::<WindowsAdapterCapabilityProofEntry>(payload);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 fn app_entry() -> WindowsAdapterCapabilityProofEntry {

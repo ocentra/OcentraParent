@@ -44,6 +44,16 @@ npm run test --workspace @ocentra-parent/portal -- lan
 npm run lint:architecture -- --files packages/lan-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
 ```
 
+Manual/operator cross-checks when the selected proof scope explicitly requires
+them:
+
+```bash
+nmap -sn -PR <subnet>
+nmap -sS -sV -O --osscan-limit --top-ports 100 <subnet>
+avahi-browse -art
+dns-sd -B _services._dns-sd._udp local
+```
+
 The cross-surface `cargo` and portal commands above are not evidence that `packages/lan-domain` currently has populated non-unit LAN test categories.
 
 Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
@@ -66,9 +76,11 @@ contract/schema E2E: canonical LAN shape -> parser/contract tests -> no packet/r
 evidence/device-record E2E: LAN source row -> evidence/device record -> weak/strong/manual classification.
 interface/neighbor E2E: platform interface/neighbor source -> normalized LAN evidence -> platform-specific proof state.
 active/passive discovery E2E: ARP/sweep/listener packet source -> bounded parser/runtime proof -> stale/offline/manual states.
-service-probe/vendor E2E: weak source hint -> vendor/service classification -> no trust/assignment claim.
+passive collector E2E: ARP/DHCP/mDNS/SSDP/WS-Discovery/LLMNR/NetBIOS/SNMP response -> bounded evidence row -> no identity escalation without corroboration.
+service-probe/vendor E2E: curated safe-port probe -> sanitized banner/title/header/redirect/certificate evidence -> no trust/assignment claim and no full-scan/page-crawl behavior.
+classifier/installability E2E: weighted evidence set -> explicit classification reasons + installability state -> unknown/manual-required when evidence is weak or contradictory.
 merge/classification E2E: multiple sources -> dedupe/confidence/explanation -> no child identity claim without signed/trusted proof.
-household-store E2E: canonical device state -> assignment/revocation/read-model persistence -> wrong-household/device negatives.
+household-store E2E: canonical device state -> assignment/revocation/read-model persistence -> prior-scan continuity snapshot -> wrong-household/device negatives.
 read-model/event E2E: service-backed state -> read-model/event stream -> replay/duplicate/stale handling -> portal projection boundary.
 advertisement E2E: parent/child advertisement -> source proof -> no signed child-agent claim unless signed hello/heartbeat proof exists.
 signed hello/heartbeat E2E: signed artifact -> family/route binding -> expiry/replay/revocation rejection -> physical/manual state.
@@ -88,6 +100,7 @@ Product/runtime-safe logging:
 ```text
 redact private addresses when not needed, raw packet payloads unless selected proof requires fixtures, child private activity, credentials, pairing secrets, signed private material, and support-private diagnostics
 log workpack, source kind, platform, device ref, household ref, route id, evidence ref, discovery state, trust state, reachability state, signed hello state, heartbeat state, event-stream state, portal projection state, physical topology state, manual-required note, and no-claim boundary when safe
+log interface, default gateway, DNS server, DHCP server, subnet, broadcast address, IPv6 prefix, classification confidence, and install-eligibility state when those fields are part of the selected proof
 separate schema, packet, service, portal, eventing, trust, remote, package, and physical/manual proof states
 never treat unit logs, source-matrix logs, portal logs, or schema logs as proof of another owner without a selected proof root
 ```
@@ -110,6 +123,11 @@ stale state visible
 offline state visible
 wrong household/device state visible
 manual-required state visible
+ICMP-only reachability not used as device truth
+MAC vendor alone not used as platform claim
+open port/banner/title/certificate not used as child confirmation
+installability not claimed without an allowed path or explicit manual-required state
+previous-scan JSON not used as permanent identity override
 single-machine proof not used for multi-device claim
 unit tests not used as integration/e2e/security coverage
 source matrix not used as physical discovery proof

@@ -627,9 +627,8 @@ fn action_result_activity_event(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
 ) -> ActivityEvent {
     let row = action_result_row(command, result);
-    let row_json = serde_json::to_string(&row).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let row_json = serde_json::to_string(&row)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let AppGameControlActionResult {
         result_id,
         result_status,

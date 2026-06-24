@@ -98,7 +98,10 @@ fn child_command_contract_rejects_missing_child_command_ref() {
 
     let parsed = serde_json::from_value::<ChildCommandReceivedEvent>(event);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 fn serialized_field<T>(value: &T, field: &str, nested: &str) -> serde_json::Value

@@ -492,9 +492,7 @@ fn stale_revision_id() -> String {
 fn temp_policy_store_path(store_path_suffix: &str) -> PathBuf {
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
         .as_nanos();
     let mut path = std::env::temp_dir();
     let mut file_name = constants::browser_policy::TEST_STORE_FILE_PREFIX.to_string();
@@ -512,16 +510,14 @@ fn serialize_test_json<T>(value: &T) -> String
 where
     T: serde::Serialize + ?Sized,
 {
-    serde_json::to_string(value).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::to_string(value)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn parse_test_json<T>(text: &str) -> T
 where
     T: serde::de::DeserializeOwned,
 {
-    serde_json::from_str(text).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::from_str(text)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }

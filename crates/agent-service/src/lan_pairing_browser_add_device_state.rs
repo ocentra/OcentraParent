@@ -1,3 +1,10 @@
+use ocentra_lan_core::network_inventory::{
+    discovery_evidence_sources_for_network_device, local_agent_device_ref,
+    LanNetworkInventoryDevice,
+};
+use ocentra_lan_core::read_model_builder::{
+    build_lan_add_device_read_model, LanAddDeviceReadModelInput,
+};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
@@ -9,6 +16,8 @@ use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthor
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDevicePairingRequest;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPairingDiscoverySource;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanSelectedDeviceReadiness;
@@ -16,21 +25,12 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 mod physical_lan_scan;
-mod production_household_proof;
-mod signed_discovery_relay_spine;
-mod source_matrix;
+mod scan_history;
 
-use crate::lan_network_inventory;
-use crate::lan_pairing_browser_add_device_scan::{
-    push_if_absent, same_physical_network_device, scan_summary,
-};
-use crate::lan_pairing_household_device_spine;
+use crate::lan_pairing_browser_add_device_scan::{push_if_absent, same_physical_network_device};
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 use self::physical_lan_scan::network_devices_for_command;
-use self::production_household_proof::production_household_proof_summary;
-use self::signed_discovery_relay_spine::signed_discovery_relay_spine_summary;
-use self::source_matrix::lan_discovery_source_matrix;
 
 pub(crate) fn browser_add_device_pairs(
     runtime: &LanPairingRuntime,
@@ -46,25 +46,23 @@ pub(crate) fn browser_add_device_pairs(
         ),
         (
             constants::field::LAN_ADD_DEVICE_STATE,
-            LogFieldValue::String(discovery_state.to_string()),
+            LogFieldValue::String(serialized_enum_label(&model.add_device_state)),
         ),
         (
             constants::field::LAN_DISCOVERY_SOURCE,
-            LogFieldValue::String(constants::value::LAN_DISCOVERY_SOURCE_LOCAL_SERVICE.to_string()),
+            LogFieldValue::String(serialized_enum_label(&model.discovery_source)),
         ),
         (
             constants::field::LAN_LOCAL_SERVICE_DISCOVERY_STATE,
-            LogFieldValue::String(discovery_state.to_string()),
+            LogFieldValue::String(serialized_enum_label(&model.local_service_discovery_state)),
         ),
         (
             constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE,
-            LogFieldValue::String(
-                constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED.to_string(),
-            ),
+            LogFieldValue::String(serialized_enum_label(&model.physical_household_lan_state)),
         ),
         (
             constants::field::LAN_CLOUD_RELAY_STATE,
-            LogFieldValue::String(constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE.to_string()),
+            LogFieldValue::String(serialized_enum_label(&model.cloud_relay_state)),
         ),
         (
             constants::field::LAN_SELECTED_DEVICE_READY,
@@ -114,7 +112,7 @@ fn browser_add_device_read_model(
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
     let household_device_decisions = household_device_decisions(runtime);
-    let network_devices = network_devices_for_command(command);
+    let network_devices = network_devices_for_command(runtime, command);
     let has_network_devices = !network_devices.is_empty();
     let discovery_source = if has_network_devices {
         LanPairingDiscoverySource::PhysicalHouseholdLan
@@ -129,60 +127,33 @@ fn browser_add_device_read_model(
         &network_devices,
     );
     let physical_household_lan_state = physical_household_lan_state(has_network_devices);
-    let canonical_household_devices =
-        lan_pairing_household_device_spine::canonical_household_devices(
-            &discovered_devices,
-            &trusted_device_registry,
-            &household_device_decisions,
-        );
-    let scan_summary = scan_summary(&discovered_devices);
     let selected_device_readiness = selected_device_readiness(selected);
-    let production_household_proof = production_household_proof_summary(
-        &generated_at,
-        physical_household_lan_state.clone(),
-        &scan_summary,
-        &trusted_device_registry,
-        &household_device_decisions,
-        &selected_device_readiness,
-    );
-    let signed_discovery_relay_spine = signed_discovery_relay_spine_summary(
-        &generated_at,
-        physical_household_lan_state.clone(),
-        &scan_summary,
-        &trusted_device_registry,
-        &household_device_decisions,
-        &selected_device_readiness,
-    );
-    let lan_discovery_source_matrix = lan_discovery_source_matrix(&generated_at, &scan_summary);
-    LanBrowserAddDeviceReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+
+    let mut model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
         generated_at: generated_at.clone(),
         discovery_source,
         add_device_state: discovery_state_for(discovery_state),
         local_service_discovery_state: discovery_state_for(discovery_state),
         physical_household_lan_state,
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
-        scan_summary,
         discovered_devices,
-        canonical_household_devices,
         pairing_requests: pairing_requests(runtime, &generated_at),
         trusted_device_registry,
         household_device_decisions,
-        production_household_proof: Some(production_household_proof),
-        signed_discovery_relay_spine: Some(signed_discovery_relay_spine),
-        lan_discovery_source_matrix: Some(lan_discovery_source_matrix),
         trusted_device_ids: runtime.trusted_device_ids(),
         revoked_device_ids: runtime.revoked_device_ids(),
         selected_device_readiness,
         controller_authority: LanPairingParentAuthority::ActiveController,
         observer_authority: LanPairingParentAuthority::Observer,
-        route_requirement_labels: constants::lan_pairing::ROUTE_REQUIREMENTS
-            .iter()
-            .map(|requirement| (*requirement).to_string())
-            .collect(),
-        audit_check_labels: audit_check_labels(),
-        honest_non_claims: honest_non_claims(),
-    }
+    });
+    let current_canonical_household_devices = model.canonical_household_devices.clone();
+    persist_known_household_devices(runtime, &current_canonical_household_devices);
+    model.canonical_household_devices = merged_known_household_devices_for_read_model(
+        runtime,
+        &current_canonical_household_devices,
+        &generated_at,
+    );
+    model
 }
 
 fn physical_household_lan_state(has_network_devices: bool) -> LanPairingProductionDiscoveryState {
@@ -198,7 +169,7 @@ fn discovered_devices(
     command: &AgentCommandEnvelope,
     discovery_state: &str,
     generated_at: &str,
-    network_devices: &[lan_network_inventory::LanNetworkInventoryDevice],
+    network_devices: &[LanNetworkInventoryDevice],
 ) -> Vec<LanBrowserAddDeviceDiscoveryDevice> {
     let mut devices = registry_discovered_devices(runtime, command, discovery_state, generated_at);
     let local_agent = local_agent_discovery_device(command, discovery_state, generated_at);
@@ -245,6 +216,8 @@ fn registry_discovered_devices(
                     address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
                     discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
                     discovery_state: discovery_state_for(discovery_state),
+                    evidence_sources: vec![LanDiscoveryEvidenceSource::LocalService],
+                    hint_sources: Vec::new(),
                 })
                 .collect()
         })
@@ -259,7 +232,7 @@ fn local_agent_discovery_device(
     LanBrowserAddDeviceDiscoveryDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         discovered_at: generated_at.to_string(),
-        child_device: lan_network_inventory::local_agent_device_ref(
+        child_device: local_agent_device_ref(
             command.target.device_id.clone(),
             command.target.platform.clone(),
         ),
@@ -270,13 +243,15 @@ fn local_agent_discovery_device(
         address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
         discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
         discovery_state: discovery_state_for(discovery_state),
+        evidence_sources: vec![LanDiscoveryEvidenceSource::LocalService],
+        hint_sources: Vec::new(),
     }
 }
 
 fn network_neighbor_discovery_device(
     command: &AgentCommandEnvelope,
     generated_at: &str,
-    network_device: &lan_network_inventory::LanNetworkInventoryDevice,
+    network_device: &LanNetworkInventoryDevice,
 ) -> LanBrowserAddDeviceDiscoveryDevice {
     LanBrowserAddDeviceDiscoveryDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -289,11 +264,23 @@ fn network_neighbor_discovery_device(
         address_ref: constants::lan_pairing::ADDRESS_REF_NETWORK_NEIGHBOR.to_string(),
         discovery_status: LanPairingDiscoveryRuntimeStatus::NetworkNeighbor,
         discovery_state: LanPairingProductionDiscoveryState::Discovered,
+        evidence_sources: discovery_evidence_sources_for_network_device(network_device),
+        hint_sources: network_neighbor_hint_sources(network_device),
+    }
+}
+
+fn network_neighbor_hint_sources(
+    network_device: &LanNetworkInventoryDevice,
+) -> Vec<LanDiscoveryEvidenceSource> {
+    if network_device.used_previous_scan_hint {
+        vec![LanDiscoveryEvidenceSource::PreviousScanSnapshot]
+    } else {
+        Vec::new()
     }
 }
 
 fn network_neighbor_child_device(
-    network_device: &lan_network_inventory::LanNetworkInventoryDevice,
+    network_device: &LanNetworkInventoryDevice,
 ) -> LanPairingDeviceRef {
     let mut child_device = LanPairingDeviceRef::new(
         network_device.device_id.clone(),
@@ -311,7 +298,7 @@ fn network_neighbor_child_device(
     child_device
 }
 
-fn trusted_device_registry(
+pub(super) fn trusted_device_registry(
     runtime: &LanPairingRuntime,
 ) -> Vec<ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry> {
     runtime
@@ -321,12 +308,50 @@ fn trusted_device_registry(
         .unwrap_or_default()
 }
 
-fn household_device_decisions(runtime: &LanPairingRuntime) -> Vec<LanHouseholdDeviceDecision> {
+pub(super) fn household_device_decisions(
+    runtime: &LanPairingRuntime,
+) -> Vec<LanHouseholdDeviceDecision> {
     runtime
         .registry
         .lock()
         .map(|registry| registry.household_device_decisions().to_vec())
         .unwrap_or_default()
+}
+
+pub(super) fn known_household_devices(
+    runtime: &LanPairingRuntime,
+) -> Vec<LanCanonicalHouseholdDevice> {
+    runtime
+        .registry
+        .lock()
+        .map(|registry| registry.known_household_devices().to_vec())
+        .unwrap_or_default()
+}
+
+fn persist_known_household_devices(
+    runtime: &LanPairingRuntime,
+    devices: &[LanCanonicalHouseholdDevice],
+) {
+    let Ok(mut registry) = runtime.registry.lock() else {
+        return;
+    };
+    if registry.merge_known_household_devices(devices.to_vec()) {
+        let _ = runtime.persist_registry(&registry);
+    }
+}
+
+fn merged_known_household_devices_for_read_model(
+    runtime: &LanPairingRuntime,
+    current_devices: &[LanCanonicalHouseholdDevice],
+    observed_at: &str,
+) -> Vec<LanCanonicalHouseholdDevice> {
+    runtime
+        .registry
+        .lock()
+        .map(|registry| {
+            registry.known_household_devices_for_read_model(current_devices, observed_at)
+        })
+        .unwrap_or_else(|_| current_devices.to_vec())
 }
 
 fn pairing_requests(
@@ -452,29 +477,9 @@ fn expired_pairing_count(model: &LanBrowserAddDeviceReadModel) -> usize {
         .count()
 }
 
-fn audit_check_labels() -> Vec<String> {
-    [
-        constants::value::LAN_REASON_ANONYMOUS,
-        constants::value::LAN_REASON_WRONG_ORIGIN,
-        constants::value::LAN_REASON_WRONG_DEVICE,
-        constants::value::LAN_REASON_REPLAYED,
-        constants::value::LAN_REASON_STALE,
-        constants::value::LAN_REASON_REVOKED,
-        constants::value::LAN_REASON_OFFLINE,
-        constants::value::LAN_REASON_EXPIRED,
-    ]
-    .iter()
-    .map(|label| (*label).to_string())
-    .collect()
-}
-
-fn honest_non_claims() -> Vec<String> {
-    [
-        constants::value::LAN_NON_CLAIM_PHYSICAL_HOUSEHOLD_MANUAL_REQUIRED,
-        constants::value::LAN_NON_CLAIM_CLOUD_RELAY_NOT_IMPLEMENTED,
-        constants::value::LAN_NON_CLAIM_REMOTE_DESKTOP_NOT_IMPLEMENTED,
-    ]
-    .iter()
-    .map(|claim| (*claim).to_string())
-    .collect()
+fn serialized_enum_label<T: serde::Serialize>(value: &T) -> String {
+    serde_json::to_value(value)
+        .ok()
+        .and_then(|json| json.as_str().map(ToOwned::to_owned))
+        .unwrap_or_default()
 }

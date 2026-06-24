@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  AgentCommand,
   AgentEvent,
   AgentEventEnvelopeSchema,
   type AgentEventEnvelope,
@@ -18,8 +17,11 @@ import {
   createAppGameTimerParentSurfacePanelIntent,
 } from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
 import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
-import { isCommandResultEvent } from '@ocentra-parent/portal-domain/command-results';
-import { shouldRenderAppGameTimerParentSurfaceRoute } from '../src/AppGameTimerParentSurfaceRoutePanel';
+import type { PortalRenderActions } from '../src/portal-actions';
+import {
+  sendAppGameTimerParentPreferenceSetupAction,
+  shouldRenderAppGameTimerParentSurfaceRoute,
+} from '../src/AppGameTimerParentSurfaceRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 const AppGameSchemaVersion = 1;
@@ -195,6 +197,7 @@ describe('app-game timer parent-surface portal route panel', () => {
     expectActiveStateVisibility
   );
   it('shows replayed control action-result visibility without adapter claims', expectControlActionResultVisibility);
+  it('dispatches parent preference setup through the typed Rust-owned bridge action', expectParentPreferenceSetupBridgeAction);
   it(
     'shows accepted parent preference setup child-runtime handoff result without delivery claims',
     expectParentPreferenceSetupCommandResultVisibility
@@ -287,6 +290,41 @@ function expectControlActionResultVisibility() {
     value:
       'Control action-result rows are visible from app/game SQLite replay; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
   });
+}
+
+function expectParentPreferenceSetupBridgeAction() {
+  const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(ActionResultReadModel))]);
+  const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
+  const row = intent.parentPreferenceSetupRows[0];
+  if (row?.preferenceSetupRequestAction === null || row?.preferenceSetupRequestAction === undefined) {
+    throw new Error('parent preference setup action missing');
+  }
+
+  const payloads: Array<ReturnType<typeof createAppGameTimerParentPreferenceSetupRequestPayload>> = [];
+  const actions: PortalRenderActions = {
+    reconnect() {},
+    selectCommandResult() {},
+    async sendCommand() {
+      return null;
+    },
+    async requestAppGameTimerParentPreferenceSetup(payload) {
+      payloads.push(payload);
+      return null;
+    },
+  };
+
+  sendAppGameTimerParentPreferenceSetupAction(
+    actions,
+    row.preferenceSetupRequestAction,
+    '2026-06-08T00:55:00.000Z'
+  );
+
+  expect(payloads).toEqual([
+    createAppGameTimerParentPreferenceSetupRequestPayload(
+      row.preferenceSetupRequestAction,
+      '2026-06-08T00:55:00.000Z'
+    ),
+  ]);
 }
 
 function expectParentPreferenceSetupCommandResultVisibility() {
@@ -664,8 +702,6 @@ function expectParentPreferenceSetupRows(
   expect(rowPairs(row)).toContainEqual(['Platform state', 'Not claimed']);
   expect(row.preferenceSetupRequestAction).toMatchObject({
     label: 'Request parent setup',
-    command: AgentCommand.ActivityAppGameTimerParentPreferenceSetupRequest,
-    resultEvent: AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested,
     parentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
     parentPreferenceSetupReferenceId: 'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
     requestReferenceIds: [
@@ -674,7 +710,6 @@ function expectParentPreferenceSetupRows(
       'child-status-limit-reached',
     ],
   });
-  expect(isCommandResultEvent(AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested)).toBe(true);
   const action = row.preferenceSetupRequestAction;
   expect(action).not.toBeNull();
   if (action === null || action === undefined) {

@@ -601,7 +601,9 @@ pub fn decide_child_entitlement_snapshot(
             BillingManualReviewRequirement::NotRequired,
         ),
         BillingSubscriptionStatus::Unknown | BillingSubscriptionStatus::Unavailable => {
-            unreachable!("child entitlement acceptance requires a resolved billing subscription status")
+            unreachable!(
+                "child entitlement acceptance requires a resolved billing subscription status"
+            )
         }
     };
 

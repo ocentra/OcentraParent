@@ -101,9 +101,8 @@ async fn activity_tab_read_models_map_service_backed_ready_and_unavailable_state
     let store_path = temp_store_path();
     cleanup_store(&store_path);
     write_process_event(&store_path);
-    let store = ActivityStore::open(&store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(&store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     let browser_event = browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -135,9 +134,7 @@ async fn activity_tab_read_models_map_service_backed_ready_and_unavailable_state
     });
     store
         .ingest_events(&[browser_event])
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 
     let recent = load_recent_summary_from_path(store_path.clone()).await;
     let browser = load_browser_model_from_path(store_path.clone()).await;
@@ -242,14 +239,11 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
 }
 
 fn write_process_event(store_path: &PathBuf) {
-    let store = ActivityStore::open(store_path).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS)
-    });
+    let store = ActivityStore::open(store_path)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
     store
         .ingest_events(&[process_event()])
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS)
-        });
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::ACTIVITY_STORE_INGESTS));
 }
 
 fn process_event() -> ActivityEvent {
@@ -372,9 +366,7 @@ fn temp_path_suffix() -> String {
     suffix.push(constants::delimiter::HYPHEN);
     let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
         .as_nanos();
     suffix.push_str(&nanos.to_string());
     suffix.push(constants::delimiter::HYPHEN);
@@ -399,7 +391,6 @@ fn write_invalid_report_file(report_dir: &Path) {
     let mut path = report_dir.to_path_buf();
     path.push(constants::activity_surface::REPORT_ID_FALLBACK);
     path.set_extension(constants::activity_surface::REPORT_FILE_EXTENSION);
-    write(path, constants::activity_surface::SUMMARY_STORE_UNAVAILABLE).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    write(path, constants::activity_surface::SUMMARY_STORE_UNAVAILABLE)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
 }

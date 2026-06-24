@@ -124,9 +124,8 @@ pub(crate) async fn build_policy_request_assistant_preview_confirm_report(
     let (request, parse_state) = parse_policy_request_assistant_preview_confirm_request(&command);
     let result =
         execute_policy_request_assistant_preview_confirm(&command, &request, parse_state).await;
-    let result_text = serde_json::to_string(&result).unwrap_or_else(|error| {
-        panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let result_text = serde_json::to_string(&result)
+        .unwrap_or_else(|error| panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES));
 
     build_event(
         constants::event_id::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REPORTED,

@@ -289,9 +289,7 @@ fn readiness_entry(
         .entries
         .iter()
         .find(|entry| entry.capability == capability)
-        .unwrap_or_else(|| {
-            panic!("{}", enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER)
-        })
+        .unwrap_or_else(|| panic!("{}", enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER))
 }
 
 fn host_identity_entries(

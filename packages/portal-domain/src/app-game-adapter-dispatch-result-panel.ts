@@ -1,10 +1,4 @@
 import {
-  AgentCommand,
-  AgentEvent,
-  type AgentCommandName,
-  type AgentEventName,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
   type AgentAppGameAdapterDispatchExecute,
   type AgentAppGameAdapterDispatchResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
@@ -75,8 +69,6 @@ export type AppGameAdapterDispatchResultPanelRow = {
 
 export type AppGameAdapterDispatchResultPanelExecuteAction = {
   readonly label: DisplayText;
-  readonly command: AgentCommandName;
-  readonly resultEvent: AgentEventName;
 };
 
 export type AppGameAdapterDispatchResultPanelIntent = {
@@ -156,8 +148,6 @@ function dispatchExecuteAction(
   }
   return {
     label: decodeDisplayText('Execute scoped adapter dispatch'),
-    command: AgentCommand.ActivityAppGameAdapterDispatchExecute,
-    resultEvent: AgentEvent.ActivityAppGameAdapterDispatchExecuted,
   };
 }
 

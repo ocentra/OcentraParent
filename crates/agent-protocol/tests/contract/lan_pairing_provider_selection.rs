@@ -53,7 +53,10 @@ fn provider_selection_read_model_serializes_honest_manual_and_cloud_states() {
         json["candidates"][1]["routingState"],
         constants::value::LAN_AI_PROVIDER_ROUTING_UNSUPPORTED_CAPABILITY
     );
-    assert_eq!(json["physicalHouseholdProviderProofState"], "manual-required");
+    assert_eq!(
+        json["physicalHouseholdProviderProofState"],
+        "manual-required"
+    );
     assert_eq!(json["cloudRelayImplementationState"], "not-implemented");
     assert_eq!(json["candidates"][2]["lifecycleState"], "not-implemented");
 }

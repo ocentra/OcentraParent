@@ -16,9 +16,13 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCano
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdRouteState;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdSurface;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanChildAgentInventoryPacket;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource;
+
+use crate::mac_identity::{assess_mac_address, LanMacIdentityAssessment};
+use crate::network_inventory::is_confirmed_agent_status;
 
 pub(super) fn canonical_device_id(device: &LanPairingDeviceRef) -> String {
-    if let Some(mac) = device.mac_address.as_ref() {
+    if let Some(mac) = preferred_mac_identity(device).as_deref() {
         let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
         id.push_str(&compact_identifier(mac));
         return id;
@@ -35,7 +39,10 @@ pub(super) fn classification_for(
     if device.platform == constants::lan_pairing::PLATFORM_ROUTER {
         return LanCanonicalHouseholdDeviceClassification::NetworkInfrastructure;
     }
-    if trusted || device.agent_status.is_some() || device.hardware_profile.is_some() {
+    if trusted
+        || is_confirmed_agent_status(device.agent_status.as_deref())
+        || device.hardware_profile.is_some()
+    {
         return LanCanonicalHouseholdDeviceClassification::ChildAgent;
     }
     if device.platform == constants::lan_pairing::PLATFORM_UNKNOWN {
@@ -53,18 +60,35 @@ pub(super) fn network_identity_for(
     reachability: LanPairingDeviceReachability,
     confidence: LanCanonicalHouseholdDeviceConfidence,
     source: &LanCanonicalHouseholdDeviceSource,
+    evidence_sources: &[LanDiscoveryEvidenceSource],
+    hint_sources: &[LanDiscoveryEvidenceSource],
+    observed_at: &str,
 ) -> LanCanonicalHouseholdNetworkIdentity {
+    let mac_assessment = assess_mac_address(device.mac_address.as_deref());
+    let effective_confidence = confidence_for_mac_identity(confidence, mac_assessment.as_ref());
     LanCanonicalHouseholdNetworkIdentity {
         hostname: known_hostname(device),
         ip_addresses: device.ip_address.clone().into_iter().collect(),
-        mac_address: device.mac_address.clone(),
-        mac_vendor: None,
+        mac_address: mac_assessment
+            .as_ref()
+            .and_then(LanMacIdentityAssessment::normalized_owned),
+        mac_vendor: mac_assessment
+            .as_ref()
+            .and_then(LanMacIdentityAssessment::vendor_name)
+            .map(str::to_string),
         network_interfaces: device.network_interface.clone().into_iter().collect(),
-        stale_at: stale_at_for(&reachability),
-        offline_at: offline_at_for(&reachability),
+        stale_at: stale_at_for(&reachability, observed_at),
+        offline_at: offline_at_for(&reachability, observed_at),
         reachability,
-        confidence,
-        evidence_records: evidence_records_for(device, source),
+        confidence: effective_confidence,
+        evidence_records: evidence_records_for(
+            device,
+            source,
+            evidence_sources,
+            hint_sources,
+            observed_at,
+            mac_assessment.as_ref(),
+        ),
     }
 }
 
@@ -86,7 +110,20 @@ pub(super) fn confidence_for_discovery(
 
 pub(super) fn source_for_discovery(
     status: &LanPairingDiscoveryRuntimeStatus,
+    evidence_sources: &[LanDiscoveryEvidenceSource],
 ) -> LanCanonicalHouseholdDeviceSource {
+    if evidence_sources
+        .iter()
+        .any(|source| *source == LanDiscoveryEvidenceSource::LocalService)
+    {
+        return LanCanonicalHouseholdDeviceSource::LocalService;
+    }
+    if evidence_sources
+        .iter()
+        .any(is_network_neighbor_evidence_source)
+    {
+        return LanCanonicalHouseholdDeviceSource::NetworkNeighbor;
+    }
     match status {
         LanPairingDiscoveryRuntimeStatus::WebsocketDirect => {
             LanCanonicalHouseholdDeviceSource::LocalService
@@ -98,6 +135,16 @@ pub(super) fn source_for_discovery(
             LanCanonicalHouseholdDeviceSource::TrustedRegistry
         }
     }
+}
+
+fn is_network_neighbor_evidence_source(source: &LanDiscoveryEvidenceSource) -> bool {
+    matches!(
+        source,
+        LanDiscoveryEvidenceSource::WindowsNeighborTable
+            | LanDiscoveryEvidenceSource::LinuxProcNetArp
+            | LanDiscoveryEvidenceSource::LinuxIpNeigh
+            | LanDiscoveryEvidenceSource::MacosArp
+    )
 }
 
 pub(super) fn role_badges_for(
@@ -149,7 +196,10 @@ pub(super) fn child_agent_inventory_for(
     trust_state: LanPairingTrustState,
     route_state: LanCanonicalHouseholdRouteState,
 ) -> Option<LanChildAgentInventoryPacket> {
-    if !is_child_agent || (device.agent_status.is_none() && device.hardware_profile.is_none()) {
+    if !is_child_agent
+        || (!is_confirmed_agent_status(device.agent_status.as_deref())
+            && device.hardware_profile.is_none())
+    {
         return None;
     }
     let hardware = device.hardware_profile.clone().unwrap_or_default();
@@ -207,11 +257,16 @@ pub(super) fn state_from_trust(
 pub(super) fn option_overlaps(first: Option<&String>, second: Option<&String>) -> bool {
     first
         .zip(second)
-        .map(|(left, right)| left.eq_ignore_ascii_case(right))
+        .and_then(|(left, right)| {
+            let left = assess_mac_address(Some(left.as_str()))?;
+            let right = assess_mac_address(Some(right.as_str()))?;
+            (left.identity_key_allowed() && right.identity_key_allowed()).then_some((left, right))
+        })
+        .map(|(left, right)| left.normalized() == right.normalized())
         .unwrap_or(false)
 }
 
-fn compact_identifier(value: &str) -> String {
+pub(super) fn compact_identifier(value: &str) -> String {
     value
         .chars()
         .filter(|character| character.is_ascii_alphanumeric())
@@ -219,7 +274,7 @@ fn compact_identifier(value: &str) -> String {
         .collect()
 }
 
-fn known_hostname(device: &LanPairingDeviceRef) -> Option<String> {
+pub(super) fn known_hostname(device: &LanPairingDeviceRef) -> Option<String> {
     device
         .hostname
         .as_ref()
@@ -227,17 +282,20 @@ fn known_hostname(device: &LanPairingDeviceRef) -> Option<String> {
         .cloned()
 }
 
-fn stale_at_for(reachability: &LanPairingDeviceReachability) -> Option<String> {
+fn stale_at_for(reachability: &LanPairingDeviceReachability, observed_at: &str) -> Option<String> {
     if *reachability == LanPairingDeviceReachability::Stale {
-        Some(crate::time::timestamp_now())
+        Some(observed_at.to_string())
     } else {
         None
     }
 }
 
-fn offline_at_for(reachability: &LanPairingDeviceReachability) -> Option<String> {
+fn offline_at_for(
+    reachability: &LanPairingDeviceReachability,
+    observed_at: &str,
+) -> Option<String> {
     if *reachability == LanPairingDeviceReachability::Offline {
-        Some(crate::time::timestamp_now())
+        Some(observed_at.to_string())
     } else {
         None
     }
@@ -249,4 +307,30 @@ fn child_agent_capabilities() -> Vec<String> {
         constants::lan_pairing::CHILD_AGENT_CAPABILITY_DEVICE_INVENTORY.to_string(),
         constants::lan_pairing::CHILD_AGENT_CAPABILITY_PAIRING_ROUTE.to_string(),
     ]
+}
+
+fn preferred_mac_identity(device: &LanPairingDeviceRef) -> Option<String> {
+    let assessment = assess_mac_address(device.mac_address.as_deref())?;
+    assessment
+        .identity_key_allowed()
+        .then_some(assessment.normalized_owned())
+        .flatten()
+}
+
+fn confidence_for_mac_identity(
+    confidence: LanCanonicalHouseholdDeviceConfidence,
+    mac_assessment: Option<&LanMacIdentityAssessment>,
+) -> LanCanonicalHouseholdDeviceConfidence {
+    if matches!(
+        confidence,
+        LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor
+    ) && mac_assessment.is_some_and(|assessment| {
+        !assessment.identity_key_allowed()
+            || assessment.disposition()
+                == crate::mac_identity::LanMacIdentityDisposition::LocallyAdministered
+    }) {
+        LanCanonicalHouseholdDeviceConfidence::ManualRequired
+    } else {
+        confidence
+    }
 }

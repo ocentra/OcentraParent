@@ -30,6 +30,7 @@ members = [
   "crates/screen-ai-core",
   "crates/screen-core",
   "crates/screen-live-view-core",
+  "crates/schema",
   "crates/storage-custody-core",
   "crates/tracking-core"
 ]

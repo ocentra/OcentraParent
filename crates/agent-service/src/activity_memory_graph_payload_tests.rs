@@ -29,10 +29,8 @@ fn activity_memory_graph_payload_contains_contract_digest_json() {
             _ => None,
         })
         .unwrap_or_else(|| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES));
-    let digest: ActivityMemoryGraphReadModel =
-        serde_json::from_str(digest_json).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let digest: ActivityMemoryGraphReadModel = serde_json::from_str(digest_json)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         payload.get(constants::field::RETURNED),

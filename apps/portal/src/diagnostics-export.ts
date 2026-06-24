@@ -11,14 +11,14 @@ import { resolveLiveActivityState } from './live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
 
 export function buildDiagnosticsExport(state: PortalRuntimeState): PortalClipboardText {
-  const liveActivity = resolveLiveActivityState(state.events);
+  const liveActivity = resolveLiveActivityState(state.events, state.routeSnapshot?.liveActivity ?? null);
   const healthEvent = latestEvent(state.events, AgentEvent.HealthReported);
   const report = {
     [PortalDiagnostics.Field.SchemaVersion]: PortalDiagnostics.SchemaVersion,
     [PortalDiagnostics.Field.Agent]: {
-      [PortalDiagnostics.Field.AgentUrl]: state.agentWsUrl,
+      [PortalDiagnostics.Field.AgentUrl]: state.agentEndpoint,
       [PortalDiagnostics.Field.ConnectionState]: state.connectionState,
-      [PortalDiagnostics.Field.Target]: state.target,
+      [PortalDiagnostics.Field.Target]: state.routeSnapshot?.dataSource ?? 'unavailable',
     },
     [PortalDiagnostics.Field.Health]: healthSummary(healthEvent),
     [PortalDiagnostics.Field.Activity]: {

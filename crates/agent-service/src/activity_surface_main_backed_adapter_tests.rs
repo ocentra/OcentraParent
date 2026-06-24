@@ -48,7 +48,10 @@ async fn activity_surface_dispatcher_returns_typed_report_events() {
             report.source_states[1].reachability_state,
             ActivityReportSourceReachabilityState::Unreachable
         );
-        assert_eq!(report.source_states[1].state, ActivityReadModelState::Unavailable);
+        assert_eq!(
+            report.source_states[1].state,
+            ActivityReadModelState::Unavailable
+        );
         assert_eq!(
             report.source_states[1].reason.as_deref(),
             Some(constants::activity_surface::SUMMARY_FAMILY_FANOUT_UNAVAILABLE)
@@ -105,9 +108,8 @@ async fn send_activity_surface_command(
     command: AgentCommandName,
     payload: LogFields,
 ) -> AgentEventEnvelope {
-    let body = serde_json::to_string(&command_envelope(command, payload)).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope(command, payload))
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await
 }
 
@@ -174,9 +176,7 @@ fn assert_typed_surface_state(event: &AgentEventEnvelope) {
 fn decoded_surface_state(event: &AgentEventEnvelope) -> ActivityReadModelState {
     let state = string_payload_field(event, constants::field::ACTIVITY_SURFACE_STATE);
     serde_json::from_value::<ActivityReadModelState>(Value::String(state.to_owned()))
-        .unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn report_document_from_event(event: &AgentEventEnvelope) -> ActivityReportDocument {
@@ -190,7 +190,10 @@ fn report_document_from_event(event: &AgentEventEnvelope) -> ActivityReportDocum
 fn assert_local_source_state(report: &ActivityReportDocument) {
     let source = &report.source_states[0];
 
-    assert_eq!(source.device_id, constants::activity_surface::DEFAULT_DEVICE_ID);
+    assert_eq!(
+        source.device_id,
+        constants::activity_surface::DEFAULT_DEVICE_ID
+    );
     assert_eq!(
         source.source_label,
         ActivityReportSourceLabel::ActivityQueryStoreSummary

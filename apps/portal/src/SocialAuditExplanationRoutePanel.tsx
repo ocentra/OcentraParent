@@ -1,13 +1,5 @@
 import type { ReactElement } from 'react';
-import {
-  AgentCommand,
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/schema-domain/social-audit-explanation-read-model';
 import { PortalDom, PortalEnvironment } from '@ocentra-parent/portal-domain/contracts';
 import {
   createSocialAuditExplanationPanelIntent,
@@ -25,15 +17,13 @@ export function shouldRenderSocialAuditExplanationRoute(route: PortalRouteValue)
 export function SocialAuditExplanationRoutePanel({
   actions,
   commandEnabled,
-  events,
+  snapshot,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly events: readonly AgentEventEnvelope[];
+  readonly snapshot: unknown | null;
 }): ReactElement {
-  const intent = createSocialAuditExplanationPanelIntent(
-    latestSocialAuditExplanationSnapshot(events) ?? socialAuditExplanationProofInput()
-  );
+  const intent = createSocialAuditExplanationPanelIntent(snapshot ?? socialAuditExplanationProofInput());
   return (
     <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -45,10 +35,7 @@ export function SocialAuditExplanationRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.BrowserSocialAuditExplanationReadModelReported);
-              actions.sendCommand(AgentCommand.BrowserSocialAuditExplanationReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
             {intent.title}
           </button>
@@ -68,45 +55,6 @@ export function SocialAuditExplanationRoutePanel({
       </div>
     </section>
   );
-}
-
-function latestSocialAuditExplanationSnapshot(events: readonly AgentEventEnvelope[]): unknown {
-  const event = latestSocialAuditExplanationEvent(events);
-  if (event === null) {
-    return null;
-  }
-  const raw = event.payload[AgentProtocolDefaults.Field.BrowserSocialAuditExplanationReadModel];
-  if (!isAgentProtocolLogText(raw)) {
-    return null;
-  }
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-  const parsed = SocialAuditExplanationSnapshotSchema.safeParse(decoded);
-  return parsed.success ? parsed.data : null;
-}
-
-function latestSocialAuditExplanationEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
-  let latest: AgentEventEnvelope | null = null;
-  let latestTime = Number.NEGATIVE_INFINITY;
-  let latestIndex = -1;
-  for (let index = 0; index < events.length; index += 1) {
-    const event = events[index];
-    if (event === undefined || event.event !== AgentEvent.BrowserSocialAuditExplanationReadModelReported) {
-      continue;
-    }
-    const sentAt = Date.parse(event.sentAt);
-    const eventTime = Number.isFinite(sentAt) ? sentAt : index;
-    if (eventTime > latestTime || (eventTime === latestTime && index > latestIndex)) {
-      latest = event;
-      latestTime = eventTime;
-      latestIndex = index;
-    }
-  }
-  return latest;
 }
 
 function SocialAuditExplanationSummaryCard({

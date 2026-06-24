@@ -137,7 +137,10 @@ fn assert_product_path_report_refs(
         product_path.risk_budget_refs,
         vec![constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()]
     );
-    assert_eq!(&product_path.policy_decision_refs, &vec![policy_decision_ref]);
+    assert_eq!(
+        &product_path.policy_decision_refs,
+        &vec![policy_decision_ref]
+    );
     assert_eq!(&product_path.action_result_refs, &vec![action_result_ref]);
     assert_eq!(&product_path.retention_refs, &vec![retention_ref]);
     assert_eq!(&product_path.deletion_refs, &vec![deletion_ref]);

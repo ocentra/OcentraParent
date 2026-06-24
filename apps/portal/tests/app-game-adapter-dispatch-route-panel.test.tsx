@@ -2,12 +2,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { AppGameSchemaVersion } from '@ocentra-parent/schema-domain/app-game-primitives';
 import {
-  AgentCommand,
-  AgentEvent,
-  type AgentCommandName,
-  type AgentEventName,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
   AgentAppGameAdapterDispatchAdapterExecutionDecision,
   AgentAppGameAdapterDispatchAdapterExecutionState,
   AgentAppGameAdapterDispatchCommandResultDecision,
@@ -113,15 +107,16 @@ describe('app-game adapter dispatch route panel', () => {
       ok: true,
       value: AcceptedReadModel,
     });
-    const sentCommands: AgentCommandName[] = [];
-    const selectedEvents: AgentEventName[] = [];
+    let requested = 0;
     const actions: PortalRenderActions = {
       reconnect() {},
-      selectCommandResult(resultEvent) {
-        selectedEvents.push(resultEvent);
+      selectCommandResult() {},
+      async sendCommand() {
+        return null;
       },
-      sendCommand(command) {
-        sentCommands.push(command);
+      async requestAppGameAdapterDispatchExecute() {
+        requested += 1;
+        return null;
       },
     };
 
@@ -131,8 +126,7 @@ describe('app-game adapter dispatch route panel', () => {
     }
     sendAppGameAdapterDispatchExecuteAction(actions, resultIntent.executeAction);
 
-    expect(selectedEvents).toEqual([AgentEvent.ActivityAppGameAdapterDispatchExecuted]);
-    expect(sentCommands).toEqual([AgentCommand.ActivityAppGameAdapterDispatchExecute]);
+    expect(requested).toBe(1);
   });
 
   it('renders refresh controls and the scoped execute control without broad/platform claim upgrades', () => {
@@ -141,7 +135,9 @@ describe('app-game adapter dispatch route panel', () => {
         actions={{
           reconnect() {},
           selectCommandResult() {},
-          sendCommand() {},
+          async sendCommand() {
+            return null;
+          },
         }}
         commandEnabled={true}
         executeResult={null}

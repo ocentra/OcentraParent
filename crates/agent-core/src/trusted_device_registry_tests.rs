@@ -5,6 +5,13 @@ use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingAuthenticationState, LanPairingDeviceReachability, LanPairingRejectionReason,
     LanPairingTrustState,
 };
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
+    LanCanonicalHouseholdDeviceConfidence, LanCanonicalHouseholdDeviceSource,
+    LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdRouteState,
+    LanCanonicalHouseholdSurface, LanDiscoveryEvidenceConfidence, LanDiscoveryEvidenceKind,
+    LanDiscoveryEvidenceRecord,
+};
 
 use crate::trusted_device_registry_test_fixtures::{
     agent_event_option, agent_event_result, child_device, household_decision, intent,
@@ -418,4 +425,107 @@ fn trusted_device_registry_persists_household_device_decisions_for_restart_recov
             .as_deref(),
         Some(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP)
     );
+}
+
+#[test]
+fn trusted_device_registry_persists_known_household_devices_for_restart_recovery() {
+    let path = temp_registry_path();
+    let _ = remove_file(&path);
+    let mut registry = TrustedDeviceRegistry::empty();
+    assert!(
+        registry.merge_known_household_devices(vec![known_household_device(
+            constants::lan_pairing::OBSERVED_AT,
+            constants::lan_pairing::OBSERVED_AT,
+        )])
+    );
+    agent_event_result(registry.save_json(&path));
+
+    let loaded = TrustedDeviceRegistry::load_json(&path);
+    let _ = remove_file(&path);
+
+    assert_eq!(loaded.known_household_devices().len(), 1);
+    assert_eq!(
+        loaded.known_household_devices()[0]
+            .network_identity
+            .mac_address
+            .as_deref(),
+        Some(constants::lan_pairing::TEST_LAN_MAC)
+    );
+    assert_eq!(
+        loaded.known_household_devices()[0]
+            .network_identity
+            .evidence_records[0]
+            .first_seen_at,
+        constants::lan_pairing::OBSERVED_AT
+    );
+}
+
+#[test]
+fn known_household_device_merge_preserves_first_seen_and_updates_last_seen() {
+    let mut registry = TrustedDeviceRegistry::empty();
+    assert!(
+        registry.merge_known_household_devices(vec![known_household_device(
+            "2026-06-01T00:00:00Z",
+            "2026-06-01T00:00:00Z",
+        )])
+    );
+    assert!(
+        registry.merge_known_household_devices(vec![known_household_device(
+            "2026-06-02T00:00:00Z",
+            "2026-06-03T00:00:00Z",
+        )])
+    );
+
+    let device = &registry.known_household_devices()[0];
+    let evidence = &device.network_identity.evidence_records[0];
+    assert_eq!(evidence.first_seen_at, "2026-06-01T00:00:00Z");
+    assert_eq!(evidence.last_seen_at, "2026-06-03T00:00:00Z");
+}
+
+fn known_household_device(first_seen_at: &str, last_seen_at: &str) -> LanCanonicalHouseholdDevice {
+    LanCanonicalHouseholdDevice {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        canonical_device_id: "lan-physical-mac-001122334455".to_string(),
+        display_name: "Family Tablet".to_string(),
+        classification: LanCanonicalHouseholdDeviceClassification::UnknownLanDevice,
+        role_badges: Vec::new(),
+        enrollable: false,
+        discovery_state: ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState::Discovered,
+        trust_state: LanPairingTrustState::Unpaired,
+        route_id: None,
+        route_state: LanCanonicalHouseholdRouteState::ManualRequired,
+        network_mode: ocentra_parent_agent_protocol::lan_pairing::LanPairingNetworkMode::LocalNetwork,
+        source_labels: vec![LanCanonicalHouseholdDeviceSource::NetworkNeighbor],
+        network_identity: LanCanonicalHouseholdNetworkIdentity {
+            hostname: Some("family-tablet".to_string()),
+            ip_addresses: vec![constants::lan_pairing::TEST_LAN_IP.to_string()],
+            mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
+            mac_vendor: Some("Example Vendor".to_string()),
+            network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
+            reachability: LanPairingDeviceReachability::Online,
+            confidence: LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor,
+            stale_at: None,
+            offline_at: None,
+            evidence_records: vec![LanDiscoveryEvidenceRecord {
+                schema_version: constants::lan_pairing::SCHEMA_VERSION,
+                evidence_id: "evidence-1".to_string(),
+                source: ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource::WindowsNeighborTable,
+                evidence_kind: LanDiscoveryEvidenceKind::MacAddress,
+                device_id: "lan-physical-mac-001122334455".to_string(),
+                value: constants::lan_pairing::TEST_LAN_MAC.to_string(),
+                normalized_value: constants::lan_pairing::TEST_LAN_MAC.to_string(),
+                first_seen_at: first_seen_at.to_string(),
+                last_seen_at: last_seen_at.to_string(),
+                expires_at: None,
+                confidence: LanDiscoveryEvidenceConfidence::Confirmed,
+                merge_key: "mac:001122334455".to_string(),
+                note: None,
+            }],
+        },
+        child_agent_inventory: None,
+        policy_target_surfaces: vec![
+            LanCanonicalHouseholdSurface::Devices,
+            LanCanonicalHouseholdSurface::Network,
+        ],
+    }
 }

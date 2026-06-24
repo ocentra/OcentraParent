@@ -35,7 +35,9 @@ fn contract_registry_generates_markdown_in_event_type_order() {
     assert!(lines
         .iter()
         .any(|line| line.starts_with("| eventing.test.other | 1 |")));
-    assert!(lines.iter().any(|line| *line == "| eventing.test.observed | 1 | TestEvent |"));
+    assert!(lines
+        .iter()
+        .any(|line| *line == "| eventing.test.observed | 1 | TestEvent |"));
 
     let observed_index = markdown
         .find(TEST_EVENT_TYPE)

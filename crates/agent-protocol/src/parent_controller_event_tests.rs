@@ -128,7 +128,10 @@ fn parent_action_contract_rejects_missing_parent_intent_ref() {
 
     let parsed = serde_json::from_value::<ParentActionReceivedEvent>(event);
 
-    assert_eq!(parsed.unwrap_err().classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        parsed.unwrap_err().classify(),
+        serde_json::error::Category::Data
+    );
 }
 
 fn assert_namespace(events: &[&str], namespace: &str) {

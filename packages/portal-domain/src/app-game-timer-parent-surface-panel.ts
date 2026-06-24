@@ -1,10 +1,7 @@
 import {
-  AgentCommand,
   AgentEvent,
   isAgentProtocolLogText,
-  type AgentCommandName,
   type AgentEventEnvelope,
-  type AgentEventName,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
@@ -188,8 +185,6 @@ export type AppGameTimerParentSurfacePanelDetail = {
 
 export type AppGameTimerParentSurfacePreferenceSetupRequestAction = {
   readonly label: DisplayText;
-  readonly command: AgentCommandName;
-  readonly resultEvent: AgentEventName;
   readonly parentSurfaceIntentReferenceId: string;
   readonly parentPreferenceSetupReferenceId: string;
   readonly requestReferenceIds: readonly string[];
@@ -761,8 +756,6 @@ function parentPreferenceSetupRequestAction(
   }
   return {
     label: TimerParentSurfaceActions.RequestParentPreferenceSetup,
-    command: AgentCommand.ActivityAppGameTimerParentPreferenceSetupRequest,
-    resultEvent: AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested,
     parentSurfaceIntentReferenceId: record.sourceParentSurfaceIntentReferenceId,
     parentPreferenceSetupReferenceId: record.parentPreferenceSetupReferenceId,
     requestReferenceIds: record.parentPreferenceSetupRequestReferenceIds,

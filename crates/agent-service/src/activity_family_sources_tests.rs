@@ -189,9 +189,8 @@ async fn activity_family_report_without_query_store_keeps_family_fanout_unavaila
 }
 
 fn command_with_sources(sources: &[ActivityReportSourceState]) -> AgentCommandEnvelope {
-    let encoded_sources = serde_json::to_string(sources).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let encoded_sources = serde_json::to_string(sources)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     command(fields_from_pairs(vec![(
         constants::field::ACTIVITY_FAMILY_SOURCES,
         LogFieldValue::String(encoded_sources),

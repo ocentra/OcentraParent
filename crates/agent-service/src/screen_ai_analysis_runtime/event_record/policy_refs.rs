@@ -221,11 +221,11 @@ mod tests {
         fields: &'a [(&'static str, LogFieldValue)],
         field_name: &str,
     ) -> Option<&'a str> {
-        fields
-            .iter()
-            .find_map(|(field_key, value)| match (*field_key == field_name, value) {
+        fields.iter().find_map(
+            |(field_key, value)| match (*field_key == field_name, value) {
                 (true, LogFieldValue::String(value)) => Some(value.as_str()),
                 _ => None,
-            })
+            },
+        )
     }
 }

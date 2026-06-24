@@ -23,9 +23,8 @@ use crate::{
 
 #[test]
 fn network_live_capture_status_payload_reports_row13_and_row03a_readiness_without_live_claims() {
-    let payload = network_live_capture_status_payload().unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let payload = network_live_capture_status_payload()
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let status: NetworkLiveCaptureStatus = status_value(
         &payload,
         constants::network_flow::FIELD_NETWORK_LIVE_CAPTURE_STATUS,
@@ -36,9 +35,8 @@ fn network_live_capture_status_payload_reports_row13_and_row03a_readiness_withou
 
 #[tokio::test]
 async fn websocket_network_live_capture_status_command_reports_payload() {
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let status: NetworkLiveCaptureStatus = status_value(
         &event.payload,

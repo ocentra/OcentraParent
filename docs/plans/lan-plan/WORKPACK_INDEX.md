@@ -21,21 +21,21 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | ID | State | Next class | Current truth |
 | --- | --- | --- | --- |
 | `01` | partial | local proof | Contract/export surface exists in `packages/lan-domain`; Slice A repaired the LAN export surface and proof-schema contract path. |
-| `02` | partial | local proof | Service-backed add-device read model and evidence rows exist; canonical all-source evidence store remains open. |
-| `03` | partial | local proof | Selected-interface requirements are modeled; full adapter/interface proof remains open. |
-| `04` | partial | local proof plus platform proof | Windows neighbor-table path exists; Linux/mac normalization is still open or manual-required. |
+| `02` | partial | local proof | Service-backed add-device read model and evidence rows exist; canonical household device records now persist in trusted-registry JSON with merged evidence timing, while fuller all-source evidence closure remains open. |
+| `03` | partial | local proof | Shared Rust local-identity selection now captures gateway, DNS, DHCP, broadcast, and IPv6-prefix fields and persists them into scan-plan metadata; manual override plus ignored-interface reason-code proof remain open. |
+| `04` | partial | local proof plus platform proof | Windows and Linux neighbor normalization now include IPv6 row representation plus malformed/duplicate parser proof; timestamped evidence shape, broader fixture corpus, and macOS/manual live proof remain open. |
 | `05` | open | local implementation | Targeted ARP refresh is not implemented. |
-| `06` | open | local implementation | Bounded ARP sweep is not implemented. |
-| `07` | open | local implementation | Passive packet listeners are not implemented. |
+| `06` | partial | local proof | Bounded active IPv4 host stimulation exists with gateway/router suppression, current-MAC-confirmed durable active-refresh suppression for stored child truth, durable service-probe suppression truth reuse, and persisted scan-plan metadata; packet IO abstraction and duplicate reply proof remain open. |
+| `07` | open | local implementation | Passive collectors for ARP, DHCP, mDNS, SSDP, WS-Discovery, LLMNR, NetBIOS, and allowed SNMP responses are not implemented. |
 | `08` | open/manual | local implementation plus packet proof | mDNS and DNS-SD implementation/proof is still open. |
-| `09` | open/manual | local implementation plus packet proof | SSDP and UPnP implementation/proof is still open. |
+| `09` | open/manual | local implementation plus packet proof | SSDP, UPnP, and bounded descriptor parsing proof is still open. |
 | `10` | partial | local proof | NetBIOS, LLMNR, and reverse DNS are represented as weak evidence only. |
-| `11` | open | local implementation | Light service probing is not implemented. |
-| `12` | partial | local proof | OUI/vendor data is represented as weak/manual-required only. |
+| `11` | open | local implementation | Light service probing is defined as curated weak evidence only; safe-port probing, sanitized HTTP/TLS hints, and no-crawl proof remain open. |
+| `12` | partial | local proof | Rust MAC parsing, local OUI/vendor evidence, randomized/private warning, and multicast/malformed rejection now exist; richer classifier closure remains open. |
 | `13` | partial | local proof | Household device spine/source merge exists; broader dedupe closure remains open. |
-| `14` | partial | local proof | Explainable labels, authority, and status exist; full classifier closure remains open. |
-| `15` | partial | local proof then physical/manual proof | Durable household device store/read-model work exists; restart and physical proof remain open. |
-| `16` | partial | local proof then physical/manual proof | LAN read-model and diagnostics work exists; replay/event proof remains open. |
+| `14` | partial | local proof | Explainable labels, authority, and status exist; weighted evidence-fusion classification and install-eligibility honesty remain open. |
+| `15` | partial | local proof then physical/manual proof | Durable household device store/read-model work exists; trusted-registry JSON now persists canonical known-household records, prior-scan continuity and durable scan-suppression truth reuse are wired, active refresh now refuses stale IP-only suppression for reused addresses, stale restart read-model recovery is tested, and scan-plan sidecar metadata persists, while broader restart and physical/manual proof remain open. |
+| `16` | partial | local proof then physical/manual proof | LAN read-model and diagnostics work exists; parent desktop now emits typed host-subscription route snapshots into the portal shell without a product UI WebSocket, while canonical replay/event proof remains open. |
 | `17` | open | local implementation plus packet proof | Parent/child mDNS advertisements are not implemented. |
 | `18` | partial/manual | physical/manual proof bound | Signed hello/heartbeat contract rows exist; real signed artifacts are missing. |
 | `19` | partial | local proof then physical/manual proof | Assignment/revoke/audit surfaces exist; restart and negative-route proof remain open. |

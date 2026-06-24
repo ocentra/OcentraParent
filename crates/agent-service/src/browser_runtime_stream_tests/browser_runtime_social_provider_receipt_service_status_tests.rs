@@ -246,7 +246,9 @@ fn assert_social_provider_durable_refs(report: &BrowserRuntimeServiceStreamRepor
 }
 
 fn json_array_value(values: &[&str]) -> LogFieldValue {
-    LogFieldValue::String(serde_json::to_string(values).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    }))
+    LogFieldValue::String(
+        serde_json::to_string(values).unwrap_or_else(|error| {
+            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        }),
+    )
 }

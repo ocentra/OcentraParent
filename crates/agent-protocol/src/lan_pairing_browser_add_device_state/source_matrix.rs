@@ -73,6 +73,7 @@ pub enum LanDiscoverySourceKind {
     LlmnrNameQuery,
     ReverseDnsQuery,
     ServiceIdentityProbe,
+    PreviousScanSnapshot,
     OuiVendorLookup,
     MergeDeduplication,
     ExplainableClassification,

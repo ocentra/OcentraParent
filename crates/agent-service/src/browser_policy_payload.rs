@@ -43,9 +43,8 @@ fn serialize_protocol_json<T>(value: &T) -> String
 where
     T: Serialize + ?Sized,
 {
-    serde_json::to_string(value).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::to_string(value)
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
 }
 
 fn rejection_reason_protocol_str(reason: BrowserPolicyRejectionReason) -> &'static str {

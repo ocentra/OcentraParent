@@ -1,5 +1,4 @@
 import { useEffect, type MutableRefObject } from 'react';
-import { AgentCommand } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { type PortalConnectionState as PortalConnectionStateValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { isPortalNetworkEvidenceDrawerRoute } from '@ocentra-parent/portal-domain/routes';
 import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
@@ -37,6 +36,6 @@ export function usePortalNetworkActivityRefresh({
       return;
     }
     networkActivityRefreshRequestedForRouteRef.current = true;
-    actions.sendCommand(AgentCommand.NetworkFlowReadModelGet, {});
+    void actions.requestNetworkFlowReadModelRefresh?.();
   }, [actions, connectionState, hasNetworkFlowReadModelEvent, networkActivityRefreshRequestedForRouteRef, route]);
 }

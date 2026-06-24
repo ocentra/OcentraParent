@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoverySta
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
 use ocentra_parent_agent_protocol::lan_pairing::LanTrustedDeviceRegistryEntry;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceActionKind;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
 
@@ -138,6 +139,15 @@ fn discovery_device(
     child_device: LanPairingDeviceRef,
     discovery_status: LanPairingDiscoveryRuntimeStatus,
 ) -> LanBrowserAddDeviceDiscoveryDevice {
+    let evidence_sources = match discovery_status {
+        LanPairingDiscoveryRuntimeStatus::WebsocketDirect => {
+            vec![LanDiscoveryEvidenceSource::LocalService]
+        }
+        LanPairingDiscoveryRuntimeStatus::NetworkNeighbor => {
+            vec![LanDiscoveryEvidenceSource::WindowsNeighborTable]
+        }
+        LanPairingDiscoveryRuntimeStatus::PlannedUnsupported => Vec::new(),
+    };
     LanBrowserAddDeviceDiscoveryDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         discovered_at: constants::lan_pairing::OBSERVED_AT.to_string(),
@@ -149,6 +159,8 @@ fn discovery_device(
         address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
         discovery_status,
         discovery_state: LanPairingProductionDiscoveryState::Discovered,
+        evidence_sources,
+        hint_sources: Vec::new(),
     }
 }
 

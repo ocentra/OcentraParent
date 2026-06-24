@@ -70,12 +70,18 @@ fn app_game_adapter_dispatch_result_serializes_parent_safe_command_result_rows()
         serialized["readModelId"],
         APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID
     );
-    assert_eq!(serialized["sourceReadModelIds"][1], "agent.enforcement.execute");
+    assert_eq!(
+        serialized["sourceReadModelIds"][1],
+        "agent.enforcement.execute"
+    );
     assert_eq!(
         serialized["rows"][0]["dispatchExecutionAuditId"],
         APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID
     );
-    assert_eq!(serialized["rows"][0]["adapterDispatchExecutedClaimed"], false);
+    assert_eq!(
+        serialized["rows"][0]["adapterDispatchExecutedClaimed"],
+        false
+    );
 }
 
 fn scoped_command_result_row() -> AppGameAdapterDispatchResultRow {

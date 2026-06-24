@@ -36,6 +36,10 @@ pub struct LanBrowserAddDeviceDiscoveryDevice {
     pub address_ref: String,
     pub discovery_status: LanPairingDiscoveryRuntimeStatus,
     pub discovery_state: LanPairingProductionDiscoveryState,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub evidence_sources: Vec<LanDiscoveryEvidenceSource>,
+    #[serde(default)]
+    pub hint_sources: Vec<LanDiscoveryEvidenceSource>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -119,7 +123,12 @@ pub enum LanCanonicalHouseholdDeviceConfidence {
 #[serde(rename_all = "kebab-case")]
 pub enum LanDiscoveryEvidenceSource {
     LocalService,
+    ServiceIdentityProbe,
     WindowsNeighborTable,
+    LinuxProcNetArp,
+    LinuxIpNeigh,
+    MacosArp,
+    PreviousScanSnapshot,
     DnsCache,
     Netbios,
     TrustedRegistry,
@@ -138,6 +147,7 @@ pub enum LanDiscoveryEvidenceKind {
     Vendor,
     RouterClassification,
     ChildAgentPresence,
+    HistoricalIdentityHint,
     TrustedRegistry,
     ParentDecision,
     Route,

@@ -244,6 +244,20 @@ function parentPortalRuntimeCanonicalSpineTests(): void {
       },
     });
   });
+
+  it('keeps discovered LAN neighbors visible when the canonical spine only covers the child-agent device', () => {
+    const baseModel = canonicalRuntimeLanAddDeviceReadModel();
+    const slots = createParentPortalLanPairingUiSlots([], {
+      ...baseModel,
+      canonicalHouseholdDevices: [localAgentCanonicalHouseholdDevice()],
+    });
+
+    expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
+      ['lan-physical-mac-b42e993e72b9', 'GAMEDEV', 'connected', 'online'],
+      ['lan-device-54271e97c331', 'LAN 192.168.2.42', 'available', 'discovered'],
+      ['lan-device-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
+    ]);
+  });
 }
 
 function parentPortalRuntimeCanonicalVisibilityTests(): void {

@@ -23,9 +23,8 @@ use crate::{
 
 #[test]
 fn network_windows_firewall_lab_status_payload_reports_bounded_lab_execution_only() {
-    let payload = network_windows_firewall_lab_status_payload().unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let payload = network_windows_firewall_lab_status_payload()
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let status: NetworkWindowsFirewallLabStatus = status_value(
         &payload,
         constants::network_flow::FIELD_NETWORK_WINDOWS_FIREWALL_LAB_STATUS,
@@ -36,9 +35,8 @@ fn network_windows_firewall_lab_status_payload_reports_bounded_lab_execution_onl
 
 #[tokio::test]
 async fn websocket_network_windows_firewall_lab_status_command_reports_payload() {
-    let body = serde_json::to_string(&command_envelope()).unwrap_or_else(|error| {
-        panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let body = serde_json::to_string(&command_envelope())
+        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
     let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
     let status: NetworkWindowsFirewallLabStatus = status_value(
         &event.payload,
