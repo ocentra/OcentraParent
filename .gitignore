@@ -25,6 +25,8 @@ output/
 test-results/
 playwright-report/
 .hub/
+.enforce/
+ocentra-enforcer/
 
 # Native platform build outputs
 platforms/android/**/.gradle/

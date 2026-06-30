@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "profileName": "ocentra-parent",
+  "languages": ["rust", "typescript", "python", "common"],
+  "failOn": ["error"],
+  "ignoreDirs": [
+    ".git",
+    ".hub",
+    ".turbo",
+    ".enforce",
+    "target",
+    "node_modules",
+    ".next",
+    "dist",
+    "build",
+    "coverage",
+    "output"
+  ],
+  "ignoreFileGlobs": ["ocentra-enforcer/**"],
+  "rules": {
+    "DOC-1.1": {
+      "severity": "warning"
+    }
+  },
+  "tools": {},
+  "harness": {
+    "storageDir": ".enforce",
+    "store": "ndjson-duckdb",
+    "maxArtifactBytes": 8000,
+    "maxRuns": 50,
+    "maxRunsPerTool": 20,
+    "maxFailedRuns": 20,
+    "pruneAfterDays": 14
+  }
+}
