@@ -1,8 +1,7 @@
 use serde_json::json;
 
 use crate::constants::household_mesh as mesh;
-
-use super::{
+use ocentra_parent_agent_protocol::household_mesh::{
     HouseholdMeshAuthenticationState, HouseholdMeshBridgeState, HouseholdMeshLocalRepublish,
     HouseholdMeshPolicyAuthority, HouseholdMeshTransportEnvelope,
 };

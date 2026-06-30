@@ -6,11 +6,11 @@ use tokio::sync::Mutex;
 use super::{
     fixtures::{metadata, metadata_with_event_id, subscriber_for_event, TEST_TARGET},
     request_response_support::{
-        test_request, test_result_event, InvalidContractRequestEvent, TestRequestEvent,
-        TestResponse, REQUEST_EVENT_TYPE, REQUEST_ID, RESULT_EVENT_TYPE,
+        test_request, test_request_with_id, test_result_event, InvalidContractRequestEvent,
+        TestRequestEvent, TestResponse, REQUEST_EVENT_TYPE, REQUEST_ID, RESULT_EVENT_TYPE,
     },
 };
-use crate::{EventingError, RequestCompletionOutcome, RequestId, RequestOptions, RequestRegistry};
+use crate::{EventPublisher, EventingError, RequestCompletionOutcome, RequestId, RequestOptions};
 
 const REQUEST_TERMINAL_RETENTION_PROBE_COUNT: usize = 4097;
 
@@ -42,44 +42,89 @@ async fn publish_request_resolves_associated_response_type() {
     assert_eq!(report.publish_report.handled_count, 1);
 }
 
-#[test]
-fn request_terminal_retention_uses_completion_order_not_request_id_sort_order() {
-    let registry = RequestRegistry::default();
+#[tokio::test]
+async fn request_terminal_retention_uses_completion_order_not_request_id_sort_order() {
+    let bus = crate::EventBus::new();
+    let captured_publisher = Arc::new(Mutex::new(None::<EventPublisher>));
+    let captured_publisher_clone = Arc::clone(&captured_publisher);
+    bus.subscribe::<TestRequestEvent, _, _>(
+        subscriber_for_event(
+            "request-retention-subscriber",
+            TEST_TARGET,
+            REQUEST_EVENT_TYPE,
+        ),
+        move |context| {
+            let captured_publisher = Arc::clone(&captured_publisher_clone);
+            async move {
+                *captured_publisher.lock().await = Some(context.publisher().clone());
+                context.complete_request(TestResponse::approved()).await?;
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("request retention subscriber registers");
+
     let oldest = RequestId::parse("request-z-oldest").expect_value("oldest request id parses");
-    registry
-        .register(oldest.clone())
-        .expect_value("oldest request registers");
-    registry
-        .complete(oldest.clone(), TestResponse::approved())
-        .expect_value("oldest request completes");
+    publish_retention_probe_request(
+        &bus,
+        "request-z-oldest",
+        "request-z-oldest",
+        "request-retention-event-oldest",
+    )
+    .await;
 
     let first_new = RequestId::parse("request-a-0000").expect_value("first new request id parses");
     for index in 0..(REQUEST_TERMINAL_RETENTION_PROBE_COUNT - 1) {
-        let request_id =
-            RequestId::parse(format!("request-a-{index:04}")).expect_value("new request id parses");
-        registry
-            .register(request_id.clone())
-            .expect_value("new request registers");
-        registry
-            .complete(request_id, TestResponse::approved())
-            .expect_value("new request completes");
+        let request_id = format!("request-a-{index:04}");
+        let event_id = format!("request-retention-event-{index:04}");
+        publish_retention_probe_request(&bus, &request_id, &request_id, &event_id).await;
     }
 
+    let publisher = captured_publisher
+        .lock()
+        .await
+        .clone()
+        .expect_value("request publisher captured");
     assert_eq!(
-        registry
-            .complete(oldest, TestResponse::approved())
+        publisher
+            .complete_request::<TestRequestEvent>(oldest, TestResponse::approved())
+            .await
             .expect_value("evicted oldest reports late")
             .outcome,
         RequestCompletionOutcome::Late
     );
     assert_eq!(
-        registry
-            .complete(first_new, TestResponse::approved())
+        publisher
+            .complete_request::<TestRequestEvent>(first_new, TestResponse::approved())
+            .await
             .expect_value("newer low-sorted request remains retained")
             .outcome,
         RequestCompletionOutcome::Duplicate
     );
-    assert_eq!(registry.metrics().completed_request_count, 4096);
+    assert_eq!(
+        bus.metrics_snapshot()
+            .await
+            .requests
+            .completed_request_count,
+        4096
+    );
+}
+
+async fn publish_retention_probe_request(
+    bus: &crate::EventBus,
+    label: &str,
+    request_id: &str,
+    event_id: &str,
+) {
+    bus.publish_request(
+        test_request_with_id(label, request_id),
+        metadata_with_event_id(TEST_TARGET, event_id),
+        RequestOptions::with_timeout(Duration::from_millis(50))
+            .expect_value("request options valid"),
+    )
+    .await
+    .expect_value("request retention probe resolves");
 }
 
 #[tokio::test]

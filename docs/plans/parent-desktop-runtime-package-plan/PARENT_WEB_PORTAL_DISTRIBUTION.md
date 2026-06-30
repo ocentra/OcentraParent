@@ -19,10 +19,16 @@ The parent web portal is a distribution target, not just a page. It must prove:
 
 The hosted portal route is parent-client only and does not claim child-agent execution or setup completion.
 
+Rust-first ownership note:
+
+- Rust owns contracts and runtime truth where parent-client distribution state crosses runtime boundaries.
+- TypeScript in `apps/portal` stays presentation-only for the hosted parent web portal surface; it must not become the source of setup, child-runtime, or production-readiness truth.
+
 ## Boundary
 
 - Owns the hosted parent portal surface.
 - Does not own child runtime distribution, pairing protocol internals, or setup journey logic.
+- Does not own desktop/mobile package readiness, route-bridge runtime authority, or production publishing truth.
 
 ## Validation anchors
 

@@ -1,16 +1,16 @@
 # @ocentra-parent/logging-domain
 
-Structured operational logging and redaction contracts.
+Parent-local logging helpers, redaction-safe proof coverage, and bridge/query adapters over Rust-owned logging contracts.
 
-## Owns
+## Role
 
-- Log event schemas.
-- Redaction-safe operational fields.
-- Shared logging contracts used by TypeScript and Rust-facing protocol paths.
-- Local development observability contracts and bridge/query helpers for parent-local workflows.
+- Consume Rust-owned logging contracts.
+- Provide local development observability helpers and bridge/query adapters.
+- Keep TypeScript limited to thin edge validation, local fixtures, and redaction-safe wrappers.
 
 ## Must Not Own
 
+- Canonical logging contract authority.
 - Raw child evidence.
 - Parent report content.
 - Sensitive screenshots, browser history, or message content.
@@ -44,11 +44,12 @@ These artifacts are workspace-owned local evidence. They are not uploaded to Oce
 
 ### Product / Runtime Safe Logging
 
-The existing proof/read-model exports remain the product-safe contract surface:
+The existing proof/read-model exports remain the product-safe consumption surface:
 
 - redaction-safe
 - explicit custody boundaries
 - no raw child activity by default
+- Rust remains the contract authority
 
 ### Cloudflare Infra Logging
 

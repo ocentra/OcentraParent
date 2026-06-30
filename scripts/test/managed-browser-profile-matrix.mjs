@@ -208,7 +208,7 @@ async function observeChromiumProfile(browser, profileRun) {
       clients.push(client);
       client.onEvent((event) => {
         const url = eventUrlFromChromiumEvent(event);
-        if (url !== null) {
+        if (url !== undefined) {
           visitedUrlJournal.push({
             source: 'cdp-event',
             method: event.method,
@@ -231,7 +231,7 @@ async function observeChromiumProfile(browser, profileRun) {
     }
 
     const targetToActivate = firstMatchingClient(initialPageTargets, clients) ?? clients.at(-1) ?? null;
-    if (targetToActivate !== null) {
+    if (targetToActivate !== undefined) {
       await targetToActivate.client.command('Page.bringToFront', {});
       await delay(750);
       activeTargetId = targetToActivate.target.targetId;
@@ -388,7 +388,7 @@ async function observeFirefoxProfile(browser, profileRun) {
     }
 
     activeContext = contexts.at(-1) ?? null;
-    if (activeContext !== null) {
+    if (activeContext !== undefined) {
       await bidi.command('browsingContext.activate', { context: activeContext }).catch((error) => {
         navigationErrors.push({
           context: activeContext,
@@ -530,12 +530,12 @@ function siteEvidenceForUrl(requestedUrl, pageTargets, visitedUrlJournal) {
     requestedUrl,
     requestedHost: requested.hostname,
     captured:
-      (target !== undefined && target !== null && capturedUrl(target.url)) ||
-      (journalEntry !== null && capturedUrl(journalEntry.url)),
+      (target !== undefined && target !== undefined && capturedUrl(target.url)) ||
+      (journalEntry !== undefined && capturedUrl(journalEntry.url)),
     matchedRequestedHost: matchedTarget !== undefined || matchedJournalEntry !== undefined,
     observedUrl: target?.url ?? journalEntry?.url ?? null,
     observedTitle: target?.title ?? null,
-    journaled: journalEntry !== null,
+    journaled: journalEntry !== undefined,
   };
 }
 
@@ -729,7 +729,7 @@ function pairTargetsWithClients(targets, clients) {
       target,
       client: clients.find((candidate) => candidate.url === target.webSocketDebuggerUrl) ?? null,
     }))
-    .filter((pair) => pair.client !== null);
+    .filter((pair) => pair.client !== undefined);
 }
 
 function flattenContexts(contexts) {
@@ -832,7 +832,7 @@ async function installedUnsupportedBrowsers() {
   for (const candidate of candidates) {
     if (candidate.appxPackageNamePattern !== undefined) {
       const packageInfo = await findWindowsAppPackage(candidate.appxPackageNamePattern);
-      if (packageInfo !== null) {
+      if (packageInfo !== undefined) {
         installed.push({
           browser: {
             id: candidate.id,
@@ -1085,7 +1085,7 @@ function parsePackageInfo(output) {
   }
   try {
     const parsed = JSON.parse(trimmed);
-    return typeof parsed === 'object' && parsed !== null ? parsed : null;
+    return typeof parsed === 'object' && parsed !== undefined ? parsed : null;
   } catch {
     return null;
   }

@@ -4,12 +4,12 @@ use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 
 use crate::{
+    app::websocket::handle_command_text_for_test,
     lan_pairing_test_assertions::{assert_rejection, assert_rejection_with_audit},
     lan_pairing_test_commands::{
         command_for_target, health_command, intent_payload, intent_payload_for_kind,
         local_network_target, paired_runtime, serialize_command,
     },
-    websocket::handle_command_text_for_test,
 };
 
 #[tokio::test]
@@ -175,7 +175,7 @@ async fn lan_pairing_controller_lease_takeover_is_rejected_while_active_controll
 }
 
 async fn rejected_controller_lease_control(
-    runtime: crate::lan_pairing::LanPairingRuntime,
+    runtime: crate::app::lan_pairing::LanPairingRuntime,
     payload: LogFields,
 ) -> AgentEventEnvelope {
     handle_command_text_for_test(
@@ -187,7 +187,7 @@ async fn rejected_controller_lease_control(
 }
 
 async fn lease_lifecycle_command(
-    runtime: crate::lan_pairing::LanPairingRuntime,
+    runtime: crate::app::lan_pairing::LanPairingRuntime,
     command_name: ocentra_parent_agent_protocol::transport::AgentCommandName,
     message_id: &str,
     intent_kind: &str,

@@ -4,17 +4,20 @@ import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
-  PortalRouteGroup,
-  PortalSidebarRouteDescriptors,
-  type PortalRouteDescriptor,
-} from '@ocentra-parent/portal-domain/routes';
-import {
-  PortalConnectionState,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+  ParentBridgeConnectionState,
+  ParentSidebarRouteGroups,
+  parentRouteHashPath,
+  type ParentRouteGroupId,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
-import { routeDescriptor } from './portal-route-descriptor';
+import {
+  ParentPortalRouteDescriptors,
+  parentRouteGroupLabel,
+  routeDescriptor,
+  type PortalRouteDescriptor,
+} from './portal-route-descriptor';
 import { frameContentStyle, frameHostClassName } from './portal-frame-layout-style';
 import { frameContentTarget } from './portal-frame-layout-state';
 import type { PortalFrameLayout } from './portal-frame-layout-types';
@@ -28,7 +31,7 @@ export function PortalSidebar({
 }: {
   readonly actions: PortalRenderActions;
   readonly frameLayout: PortalFrameLayout;
-  readonly route: PortalRouteValue;
+  readonly route: ParentRouteId;
   readonly state: PortalRuntimeState;
 }): ReactElement {
   const activeGroup = routeDescriptor(route).group;
@@ -44,9 +47,9 @@ export function PortalSidebar({
         <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.TargetSideTop} controls={frameLayout.sideTop} />
         <PortalFrameBoundsOverlay content={sideTopContent} />
         <nav className={PortalDom.Classes.Routes} role={PortalDom.Attributes.TabList}>
-          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Monitor} />
-          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Guide} />
-          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Operate} />
+          {ParentSidebarRouteGroups.map((group) => (
+            <RouteGroup activeGroup={activeGroup} activeRoute={route} group={group} key={group} />
+          ))}
         </nav>
       </section>
       <section
@@ -67,14 +70,15 @@ function RouteGroup({
   activeRoute,
   group,
 }: {
-  readonly activeGroup: PortalDisplayText;
-  readonly activeRoute: PortalRouteValue;
-  readonly group: PortalDisplayText;
+  readonly activeGroup: ParentRouteGroupId;
+  readonly activeRoute: ParentRouteId;
+  readonly group: ParentRouteGroupId;
 }): ReactElement {
+  const label = parentRouteGroupLabel(group);
   return (
     <details className={PortalDom.Classes.RouteGroup} open={group === activeGroup}>
-      <summary className={PortalDom.Classes.RouteGroupLabel}>{group}</summary>
-      {PortalSidebarRouteDescriptors.filter((candidate) => candidate.group === group).map((descriptor) => (
+      <summary className={PortalDom.Classes.RouteGroupLabel}>{label}</summary>
+      {ParentPortalRouteDescriptors.filter((candidate) => candidate.group === group).map((descriptor) => (
         <RouteLink activeRoute={activeRoute} descriptor={descriptor} key={descriptor.route} />
       ))}
     </details>
@@ -85,7 +89,7 @@ function RouteLink({
   activeRoute,
   descriptor,
 }: {
-  readonly activeRoute: PortalRouteValue;
+  readonly activeRoute: ParentRouteId;
   readonly descriptor: PortalRouteDescriptor;
 }): ReactElement {
   const isActive = descriptor.route === activeRoute;
@@ -95,7 +99,7 @@ function RouteLink({
       aria-selected={isActive ? PortalDom.Attributes.True : PortalDom.Attributes.False}
       className={PortalDom.Classes.RouteLink}
       data-ocentra-parent-route-id={descriptor.route}
-      href={`${PortalDom.HashPrefix}${descriptor.route}`}
+      href={parentRouteHashPath(descriptor.route)}
       role={PortalDom.Attributes.Tab}
     >
       <span aria-hidden={true} className={PortalDom.Classes.RouteLinkFrame} />
@@ -139,7 +143,7 @@ function SidebarStatus({
 }
 
 function connectionStatus(state: PortalRuntimeState): PortalDisplayText {
-  if (state.connectionState === PortalConnectionState.Connected) {
+  if (state.connectionState === ParentBridgeConnectionState.Connected) {
     return resolvePortalDevText(PortalDevTextToken.Connected);
   }
   return resolvePortalDevText(PortalDevTextToken.Unavailable);

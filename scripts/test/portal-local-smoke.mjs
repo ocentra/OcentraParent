@@ -353,10 +353,10 @@ function assertDiscoveredLanDevices(readModel, jsonValue) {
   }
 
   const router = readModel.discoveredDevices.find((device) => device.childDevice.platform === 'router');
-  if (router !== undefined && router.childDevice.agentStatus !== null) {
+  if (router !== undefined && router.childDevice.agentStatus !== undefined) {
     throw new Error(`LAN router row incorrectly claimed an agent: ${jsonValue}`);
   }
-  if (router !== undefined && router.childDevice.hardwareProfile !== null) {
+  if (router !== undefined && router.childDevice.hardwareProfile !== undefined) {
     throw new Error(`LAN router row incorrectly exposed agent inventory: ${jsonValue}`);
   }
 }

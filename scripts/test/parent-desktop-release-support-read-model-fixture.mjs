@@ -66,21 +66,38 @@ function packageRuntimeEvidence(ciArtifactProof) {
 
 function updateStates() {
   return [
-    updateState('scaffold', 'scaffold', 'signature-required', 'rollback-unavailable'),
-    updateState('unsigned-preview', 'unsigned-preview', 'signature-required', 'rollback-unavailable'),
-    updateState('signature-required', 'signature-required', 'signature-required', 'rollback-unavailable'),
-    updateState('production', 'production-promotion-required', 'signature-required', 'rollback-unavailable'),
+    updateState('scaffold', 'unavailable', 'scaffold', 'unavailable', 'unavailable', 'signature-required', 'rollback-unavailable', 'unavailable', 'recorded', 'recorded'),
+    updateState('unsigned-preview', 'available', 'unsigned-preview', 'verified', 'manual-required', 'signature-required', 'rollback-unavailable', 'unavailable', 'recorded', 'recorded'),
+    updateState('signature-required', 'manual-required', 'signature-required', 'verified', 'manual-required', 'signature-required', 'manual-required', 'manual-required', 'manual-required', 'manual-required'),
+    updateState('production', 'manual-required', 'production-promotion-required', 'manual-required', 'manual-required', 'signature-required', 'manual-required', 'manual-required', 'manual-required', 'manual-required'),
   ];
 }
 
-function updateState(channel, packageState, signingState, rollbackState) {
+function updateState(
+  channel,
+  updateAvailabilityState,
+  packageState,
+  checksumState,
+  signatureState,
+  signingState,
+  rollbackState,
+  rollbackAvailabilityState,
+  teardownEvidenceState,
+  revertEvidenceState
+) {
   return {
     channel,
+    updateAvailabilityState,
     packageState,
+    checksumState,
+    signatureState,
     signingState,
     rollbackState,
+    rollbackAvailabilityState,
+    teardownEvidenceState,
+    revertEvidenceState,
     productionPromotionState: 'production-promotion-required',
-    proofRequirement: `${channel} update state must not imply signed production rollback`,
+    proofRequirement: `${channel} update and rollback states must keep checksum signature and teardown or revert evidence explicit without implying production release`,
   };
 }
 
@@ -206,6 +223,7 @@ function updaterRollbackRunbookProof() {
       requiredSections: [
         'rollback-triage',
         'rollback-failure-status',
+        'teardown-revert-evidence',
         'diagnostics-redaction',
         'manual-platform-proof',
         'support-escalation-boundary',
@@ -232,13 +250,25 @@ function updaterRollbackRunbookProof() {
 function updaterRollbackRows() {
   return ['scaffold', 'unsigned-preview', 'signature-required', 'production'].map((channel) => ({
     channel,
-    rollbackState: 'rollback-unavailable',
+    updateAvailabilityState:
+      channel === 'unsigned-preview' ? 'available' : channel === 'scaffold' ? 'unavailable' : 'manual-required',
+    checksumState:
+      channel === 'unsigned-preview' || channel === 'signature-required' ? 'verified' : channel === 'scaffold' ? 'unavailable' : 'manual-required',
+    signatureState: channel === 'scaffold' ? 'unavailable' : 'manual-required',
+    rollbackState:
+      channel === 'scaffold' || channel === 'unsigned-preview' ? 'rollback-unavailable' : 'manual-required',
+    rollbackAvailabilityState:
+      channel === 'scaffold' || channel === 'unsigned-preview' ? 'unavailable' : 'manual-required',
+    teardownEvidenceState:
+      channel === 'scaffold' || channel === 'unsigned-preview' ? 'recorded' : 'manual-required',
+    revertEvidenceState:
+      channel === 'scaffold' || channel === 'unsigned-preview' ? 'recorded' : 'manual-required',
     failureStatusState: 'manual-required',
     manualRequiredState: 'manual-required',
     proofRequirement:
       channel === 'production'
-        ? 'production channel requires signed production update channel and manual proof before rollback execution'
-        : `${channel} channel requires manual proof before rollback execution or failure status claim`,
+        ? 'production channel requires signed production update channel and manual proof before rollback execution teardown or revert evidence'
+        : `${channel} channel requires teardown or revert evidence and manual proof before rollback execution or failure status claim`,
   }));
 }
 

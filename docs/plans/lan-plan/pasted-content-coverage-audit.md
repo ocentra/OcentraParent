@@ -23,7 +23,7 @@ copied as unmanaged notes.
 
 | Source Content                 | Source Theme                                                                                                                        | Covered By                                                                                                                                                                                                                | Coverage Notes                                                                                                                                                                 |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Pasted LAN 20-step plan        | LAN discovery, household inventory, canonical device records, signed child-agent confirmation, parent assignment, and rollout proof | [README](README.md), [20-step plan](v0-9-lan-discovery-20-step-plan.md), [implementation checklist](implementation-checklist.md), [workpacks](workpacks/), [current snapshot](current-lan-snapshot.md)                    | Covered. The original roughly 20-step idea is normalized to the current 20 workpacks and tracked as source-matrix rows.                                                        |
+| Pasted LAN 20-step plan        | LAN discovery, household inventory, canonical device records, signed child-agent confirmation, parent assignment, and rollout proof | [README](README.md), [20-step plan](v0-9-lan-discovery-20-step-plan.md), [implementation checklist](implementation-checklist.md), [workpacks](workpacks/), [current snapshot](current-lan-snapshot.md)                    | Covered. The original roughly 20-step idea is normalized to 20 base workpacks plus active follow-on rows `21-25`, with the current authoritative model tracked as `01-25`.     |
 | Pasted LAN testing blueprint   | Fixture layout, property tests, parser tests, service integration, Playwright proof, manual proof, performance, and rollout gates   | [test blueprint](v0-9-lan-discovery-test-blueprint.md), [implementation checklist](implementation-checklist.md), [workpack 20](workpacks/20-proof-gates-fixtures-rollout.md), [current snapshot](current-lan-snapshot.md) | Covered. The implementation checklist now requires proof packs, command logs, raw evidence JSON, UI screenshots, security-negative proof, and manual physical LAN proof.       |
 | Pasted LAN UI/UX requirements  | Parent-visible LAN device states, evidence-first cards, activity/network diagnostics, target binding, and setup/pairing UX          | [UI/UX guide](ui-ux-requirements-guide.md), [implementation checklist](implementation-checklist.md), [current snapshot](current-lan-snapshot.md), [source index](source-index.md)                                         | Covered. UI guidance is treated as requirement/acceptance input, not as a claim that every screen is already implemented.                                                      |
 | User-provided live screenshots | Current Devices/LAN, Activity, Activity/Network, and Network policy surfaces                                                        | [current snapshot](current-lan-snapshot.md), [implementation checklist](implementation-checklist.md), proof screenshots under `output/playwright/lan-source-matrix-plan-completion/`                                      | Covered. Screenshots anchor where we are today and identify Activity/Network as the primary parent-visible diagnostic surface for LAN evidence and policy target verification. |
@@ -31,11 +31,13 @@ copied as unmanaged notes.
 
 ## Coverage Checklist
 
-- [ ] The 20-step plan is represented as 20 workpack files.
-- [ ] The implementation checklist tracks all 20 workpacks in one table.
-- [ ] The source matrix carries all 20 workpack ids through
-      parent-domain, agent-protocol-domain, Rust protocol, Rust service state,
-      and portal diagnostics.
+- [ ] The original 20-step plan is represented as 20 base workpack files plus
+      active follow-on workpacks `21-25`.
+- [ ] The implementation checklist tracks all 25 authoritative workpack rows in
+      one table.
+- [ ] The source matrix carries all 25 workpack ids through the Rust-owned
+      source-matrix contract, Rust protocol/service/runtime state, and portal
+      diagnostics.
 - [ ] The current snapshot records where we are, where we want to be, current
       proof, current UI screenshots, and current gaps.
 - [ ] The source index names owning feature docs, expectation docs, adjacent
@@ -95,17 +97,17 @@ copied as unmanaged notes.
 
 ## Current Proof Coverage
 
-The source-matrix proof currently shows:
+The current generated source-matrix proof currently shows:
 
-- 2 implemented workpacks;
-- 10 partial workpacks;
-- 5 manual-required workpacks;
-- 3 not-implemented workpacks;
-- 9 implemented source rows;
-- 5 partial source rows;
-- 10 manual-required source rows;
-- 7 not-implemented source rows;
-- 21 weak sources that cannot confirm a child agent or assign a child profile.
+- 13 implemented workpacks;
+- 11 partial workpacks;
+- 1 manual-required workpack;
+- 14 implemented source rows;
+- 15 partial source rows;
+- 2 manual-required source rows;
+- 4 not-implemented source rows;
+- weak discovery, name-only, and presence-only sources remain fenced from child
+  confirmation and profile assignment.
 
 That is useful progress, but it is not the full LAN plan complete.
 
@@ -125,7 +127,8 @@ remaining LAN work.
 
 ## Consolidation Decisions
 
-- The LAN base split remains 20 workpacks.
+- The LAN base split remains 20 workpacks, with follow-on workpacks `21-25`
+  active in the current authoritative `01-25` execution model.
 - Source rows and workpack rows are the canonical progress ledger for LAN
   implementation status.
 - UI/UX pasted guidance stays in the LAN UI/UX guide and checklist gates rather

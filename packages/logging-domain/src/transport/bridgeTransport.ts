@@ -1,6 +1,10 @@
 import { BridgeEntryArraySchema, type BridgeEntry } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
 import { RunType } from '@ocentra-parent/schema-domain/test-log/types';
 import { createParentLogConfig } from '../core/logConfig';
+import {
+  buildGeneratedRunStartedPayload,
+  normalizeGeneratedBridgeEndpoint,
+} from '../generated/parent-log-runtime';
 
 export interface BridgeRunInfo {
   readonly runId: string;
@@ -34,7 +38,7 @@ export async function sendToBridge(
 
   BridgeEntryArraySchema.parse(entries);
 
-  const normalized = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
   if (options.skipHealthCheck !== true) {
     const healthResponse = await fetch(`${normalized}/__health__`, { method: 'GET' });
     if (!healthResponse.ok) {
@@ -56,7 +60,7 @@ export async function sendToBridge(
 }
 
 export async function fetchRunInfoFromBridge(endpoint: string): Promise<BridgeRunInfo | null> {
-  const normalized = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
   const response = await fetch(`${normalized}/__run_info__`, { method: 'GET' });
   if (!response.ok) {
     return null;
@@ -85,27 +89,20 @@ export async function fetchRunInfoFromBridge(endpoint: string): Promise<BridgeRu
 }
 
 export async function notifyBridgeRunStarted(endpoint: string, payload: BridgeRunStartedPayload): Promise<boolean> {
-  const normalized = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
   const response = await fetch(`${normalized}/__run_started__`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      runId: payload.runId,
-      runType: payload.runType ?? RunType.Single,
-      suiteType: payload.suiteType ?? null,
-      scope: payload.scope ?? null,
-      filePath: payload.filePath ?? null,
-      wipeAll: payload.wipeAll ?? false,
-    }),
+    body: JSON.stringify(buildGeneratedRunStartedPayload({ ...payload, runType: payload.runType ?? RunType.Single })),
   });
 
   return response.ok;
 }
 
 export async function flushBridgeRun(endpoint: string, runId: string): Promise<boolean> {
-  const normalized = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
   const response = await fetch(`${normalized}/__flush__`, {
     method: 'POST',
     headers: {

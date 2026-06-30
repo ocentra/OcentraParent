@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const portalShellReadyTimeoutMs = 90_000;
 
-test('start route renders the first-run setup proof surface with explicit blockers and no overclaimed ready state', async ({
+test('start route renders an honest setup boundary panel without invented readiness flow', async ({
   page,
 }) => {
   await page.goto('/#/start');
@@ -11,39 +11,22 @@ test('start route renders the first-run setup proof surface with explicit blocke
     timeout: portalShellReadyTimeoutMs,
   });
 
-  const setupRegion = page.getByLabel('First-run family setup');
+  const setupRegion = page.getByLabel('Setup-first-run boundary status');
   await expect(setupRegion).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'State machine summary' })).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'Invite, role, and support visibility' })).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'Trust and session distinction' })).toBeVisible();
-  await expect(setupRegion.getByText('welcome -> welcome-screen | readiness-report-absent')).toBeVisible();
-  await expect(setupRegion.getByText('data-custody-status-screen')).toBeVisible();
-  await expect(
-    setupRegion.getByText('manual-required -> manual-required-screen | recovery-required | blocked')
-  ).toBeVisible();
-  await expect(setupRegion.getByText('setup-blocked -> setup-blocked-screen | setup-complete withheld')).toBeVisible();
-  await expect(setupRegion.getByText('setup-complete -> setup-complete-screen | ready')).toBeVisible();
-  await expect(
-    setupRegion.getByText('pending invite -> co-parent role stays distinct from parent-owner and child-device trust')
-  ).toBeVisible();
-  await expect(
-    setupRegion.getByText('pending invite -> observer stays read-only and cannot inherit owner controls')
-  ).toBeVisible();
-  await expect(
-    setupRegion.getByText('support-admin remains a separate audited support state | never parent-owner')
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Pairing:action-required:accepted | Pairing:complete:trusted')).toBeVisible();
-  await expect(
-    setupRegion.getByText('Account:action-required:recovery-required | manual-required-screen')
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Child service:action-required:revoked')).toBeVisible();
-  await expect(setupRegion.getByText('Parent app:action-required:stale')).toBeVisible();
-  await expect(setupRegion.getByText('Network reachability:action-required:direct-entry-required')).toBeVisible();
-  await expect(setupRegion.getByText('physical-household-lan')).toBeVisible();
-  await expect(setupRegion.getByText('parent-owned-storage')).toBeVisible();
-  await expect(setupRegion.getByText('account-identity-family-plan')).toBeVisible();
-  await expect(setupRegion.getByText('parent-desktop-runtime-package-plan')).toBeVisible();
-  await expect(
-    setupRegion.getByText('setup-complete requires overall readiness = ready after data-custody')
-  ).toBeVisible();
+  await expect(setupRegion.getByRole('heading', { name: 'Current boundary status' })).toBeVisible();
+  await expect(setupRegion.getByRole('heading', { name: 'What is real now' })).toBeVisible();
+  await expect(setupRegion.getByRole('heading', { name: 'What is missing' })).toBeVisible();
+  await expect(setupRegion.getByRole('heading', { name: 'Where it belongs' })).toBeVisible();
+  await expect(setupRegion.getByText('The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot.')).toBeVisible();
+  await expect(setupRegion.getByText('unavailable', { exact: true })).toBeVisible();
+  await expect(setupRegion.getByText('Start route is visible in the portal shell')).toBeVisible();
+  await expect(setupRegion.getByText('Host bridge snapshot reaches TS presentation')).toBeVisible();
+  await expect(setupRegion.getByText('Route-contract projection only')).toBeVisible();
+  await expect(setupRegion.getByText('Account/provider state')).toBeVisible();
+  await expect(setupRegion.getByText('Pairing/trust state')).toBeVisible();
+  await expect(setupRegion.getByText('Data-custody/readiness state')).toBeVisible();
+  await expect(setupRegion.getByText('withheld until a live Rust snapshot exists')).toBeVisible();
+  await expect(setupRegion.getByText('parent runtime + setup read model')).toBeVisible();
+  await expect(setupRegion.getByText('presentation only')).toBeVisible();
+  await expect(setupRegion.getByText('claim only what the live Rust snapshot can prove')).toBeVisible();
 });

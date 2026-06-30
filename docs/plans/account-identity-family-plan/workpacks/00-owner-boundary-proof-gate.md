@@ -19,10 +19,12 @@ This file applies to every account-identity-family workpack. It exists because o
 ## Owner path
 
 ```text
-schema-domain:
+crates/schema or the owning Rust crate:
   canonical shared account/family/session/device-authority shapes that cross package, crate, app, or plan boundaries.
+schema-domain:
+  temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 family-domain:
-  TypeScript helper/projection consumer over canonical schema-domain contracts.
+  TypeScript helper/projection consumer over Rust-owned/generated contracts.
 family-identity-core:
   Rust parity/runtime authority semantics when the selected workpack names Rust proof.
 setup-domain/provisioning-core:
@@ -38,7 +40,7 @@ Cloudflare runtime/schema:
 Allowed direct imports:
 
 ```text
-canonical schema-domain shapes, brands, parsers, and literals
+Rust-owned canonical shapes, generated DTOs, temporary edge decoders, brands, parsers, and literals
 neutral protocol/event/evidence/logging/capability primitives
 approved public family-domain helper exports
 approved Rust parity crates when selected
@@ -50,7 +52,7 @@ Forbidden direct imports:
 ```text
 sibling feature runtime behavior
 private files from setup/payment/policy/data-custody/device-trust/LAN/remote/portal plans
-peer feature contracts that should live in schema-domain or a neutral boundary
+peer feature contracts that should live in crates/schema or another neutral Rust-owned boundary
 account/family authority moved into IdP, setup, payment, policy, remote, LAN, device-trust, or data-custody code
 ```
 
@@ -79,7 +81,7 @@ Historical `Fill before DONE` entries are evidence records, not current branch t
 Stop and write a blocker instead of coding when:
 
 ```text
-selected workpack would move canonical shared shape out of schema-domain
+selected workpack would move canonical shared shape out of crates/schema or the owning Rust crate
 runtime auth/session implementation starts before provider/custody boundary is accepted
 UI claims trusted household/device readiness from login alone
 session/auth proof omits replay/revocation/freshness negatives

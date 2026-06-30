@@ -170,11 +170,6 @@ impl ScreenAiRetentionSweeperClock {
             timestamp: timestamp_now(),
         }
     }
-
-    #[cfg(test)]
-    pub(crate) fn from_timestamp(timestamp: String) -> Self {
-        Self { timestamp }
-    }
 }
 
 fn load_existing_screen_key(path: &Path) -> Result<Option<JournalKey>, ActivityCaptureError> {

@@ -20,14 +20,14 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| open | [WP01 Custody Source Of Truth](workpacks/01-custody-source-of-truth.md) | 0/12 | `DATA_CLASSIFICATION.md`, `DECISIONS.md` | `output/data-custody-storage-plan-proof/01-custody-source-of-truth/` |
-| open | [WP02 Encryption Key Custody](workpacks/02-encryption-key-custody.md) | 0/12 | `KEY_CUSTODY_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/data-custody-storage-plan-proof/02-encryption-key-custody/` |
-| open | [WP03 Parent Owned Cloud Sync](workpacks/03-parent-owned-cloud-sync.md) | 0/13 | `PARENT_STORAGE_PROVIDER_MATRIX.md`, `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md` | `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/` |
-| open | [WP04 Retention Delete Tombstone](workpacks/04-retention-delete-tombstone.md) | 0/13 | `DECISIONS.md`, `EVENT_MODEL.md` | `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/` |
-| open | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 0/12 | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/` |
-| open | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 0/13 | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/06-report-query-custody/` |
-| open | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 0/12 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/` |
-| open | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 0/14 | prior proof roots | `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/` |
+| done | [WP01 Custody Source Of Truth](workpacks/01-custody-source-of-truth.md) | 12/12 | `DATA_CLASSIFICATION.md`, `DECISIONS.md` | `output/data-custody-storage-plan-proof/01-custody-source-of-truth/` |
+| done | [WP02 Encryption Key Custody](workpacks/02-encryption-key-custody.md) | 12/12 | `KEY_CUSTODY_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/data-custody-storage-plan-proof/02-encryption-key-custody/` |
+| done | [WP03 Parent Owned Cloud Sync](workpacks/03-parent-owned-cloud-sync.md) | 13/13 | `PARENT_STORAGE_PROVIDER_MATRIX.md`, `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md` | `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/` |
+| done | [WP04 Retention Delete Tombstone](workpacks/04-retention-delete-tombstone.md) | 13/13 | `DECISIONS.md`, `EVENT_MODEL.md` | `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/` |
+| done | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/` |
+| done | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/06-report-query-custody/` |
+| done | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/` |
+| blocked / proof-present | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 0/14 | prior proof roots | `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/` |
 | source | [Migrated Data And AI UI Plan](workpacks/data and AI Ui plan.md) | 0/0 | source evidence only | n/a |
 
 ## Default execution order

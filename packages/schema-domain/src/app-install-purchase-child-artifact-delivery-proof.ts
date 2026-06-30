@@ -2,9 +2,17 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseRuntimeProofReadModel } from './app-install-purchase-runtime-proof';
 import { AppInstallPurchasePlatformArtifactProofReadModel } from './app-install-purchase-platform-artifact-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseChildDeliveryBoundaryRowGenerated,
+  buildAppInstallPurchaseChildPackageArtifactRowGenerated,
+  childArtifactDeliveryProofIsHonestGenerated,
+  childDeliveryBoundaryRowIsHonestGenerated,
+  childPackageArtifactRowIsHonestGenerated,
+  summarizeAppInstallPurchaseChildArtifactDeliveryProofGenerated,
+} from './generated/app-install-purchase-delivery-runtime-helpers';
 const ChildArtifactSchemaVersion = 'app-install-purchase-child-artifact-delivery-proof';
-const SourcePlatformArtifactProofVersion = 'app-install-purchase-platform-artifact-proof';
-const SourceRuntimeProofVersion = 'app-install-purchase-runtime-proof';
+const SourcePlatformArtifactProofVersion = AppInstallPurchasePlatformArtifactProofReadModel.schemaVersion;
+const SourceRuntimeProofVersion = AppInstallPurchaseRuntimeProofReadModel.schemaVersion;
 const ChildArtifactTimestamp = '2026-06-04T12:20:00.000Z';
 const ChildArtifactClaimBoundary =
   'child artifact delivery boundary proof only; no store integration no provider API no platform adapter no child-device runtime capture no child-device delivery no runtime report delivery no real install or purchase interception no child activity data not generic app blocking';
@@ -33,6 +41,17 @@ const ChildArtifactNonClaims = [
   'no-real-install-or-purchase-interception',
   'no-child-activity-data',
   'not-generic-app-blocking',
+] as const;
+const ChildArtifactBoundaryFragments = [
+  'no store integration',
+  'no provider API',
+  'no platform adapter',
+  'no child-device runtime capture',
+  'no child-device delivery',
+  'no runtime report delivery',
+  'no real install or purchase interception',
+  'no child activity data',
+  'not generic app blocking',
 ] as const;
 
 export const AppInstallPurchaseChildArtifactDeliveryProofSchemaVersionSchema = withParser(
@@ -183,128 +202,52 @@ export const AppInstallPurchaseChildArtifactDeliveryProofReadModel =
 export function summarizeAppInstallPurchaseChildArtifactDeliveryProof(
   proof: AppInstallPurchaseChildArtifactDeliveryProof
 ) {
-  return {
-    childArtifactRows: proof.childPackageArtifacts.length,
-    childDeliveryRows: proof.childDeliveryBoundaries.length,
-    attachedChildArtifactRefs: proof.childPackageArtifacts.filter(
-      (row) => row.childArtifactSourceState === 'child-package-artifact-ref-attached'
-    ).length,
-    unavailableChildArtifactRows: proof.childPackageArtifacts.filter(
-      (row) => row.childArtifactSourceState === 'platform-unavailable'
-    ).length,
-    notDeliveredRows: proof.childDeliveryBoundaries.filter((row) => row.childDeliveryClaim === 'not-delivered').length,
-  } as const;
+  return summarizeAppInstallPurchaseChildArtifactDeliveryProofGenerated(proof);
 }
 
 function childPackageArtifactRow(
   row: (typeof AppInstallPurchasePlatformArtifactProofReadModel.platformStoreArtifacts)[number]
 ) {
-  return {
-    schemaVersion: ChildArtifactSchemaVersion,
-    childArtifactRowId: `child-package-artifact-${row.platform}-${row.storeSurface}`,
-    platform: row.platform,
-    storeSurface: row.storeSurface,
-    platformArtifactRowId: row.artifactRowId,
-    packageSourceArtifactRowId: row.packageSourceArtifactRowId,
-    platformArtifactRef: row.artifactRef,
-    childPackageArtifactRef: `child-package-source-${row.platform}-${row.storeSurface}-artifact-ref`,
-    packageSourceArtifactState: row.sourcePackageArtifactState,
-    childArtifactSourceState:
-      row.sourcePackageArtifactState === 'platform-unavailable'
-        ? 'platform-unavailable'
-        : 'child-package-artifact-ref-attached',
-    childArtifactCaptureClaim: 'not-runtime-captured',
-    deliveryState: row.sourcePackageArtifactState === 'platform-unavailable' ? 'unavailable' : 'manual-required',
-    childDeliveryClaim: 'not-delivered',
-    providerApiClaim: row.providerApiClaim,
-    platformAdapterClaim: row.platformAdapterClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    interceptionClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    reportRefs: row.reportRefs,
-    requiredProofRefs: row.requiredProofRefs,
-    claimBoundary: ChildArtifactClaimBoundary,
-    attachedAt: ChildArtifactTimestamp,
-  } as const;
+  return buildAppInstallPurchaseChildPackageArtifactRowGenerated(
+    row,
+    ChildArtifactSchemaVersion,
+    ChildArtifactClaimBoundary,
+    ChildArtifactTimestamp
+  );
 }
 
 function childDeliveryBoundaryRow(
   row: (typeof AppInstallPurchaseRuntimeProofReadModel.childDeliveryBoundaries)[number]
 ) {
-  return {
-    schemaVersion: ChildArtifactSchemaVersion,
-    deliveryRowId: `child-delivery-boundary-${row.childVisibleStatus}`,
-    sourceChildStateId: row.childStateId,
-    requestId: row.requestId,
-    platform: row.platform,
-    childVisibleStatus: row.childVisibleStatus,
-    deliveryState: row.deliveryState,
-    childArtifactRef: `child-delivery-${row.childVisibleStatus}-artifact-ref`,
-    childDeliveryClaim: row.runtimeDeliveryClaim,
-    providerApiClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    appBlockingClaim: 'not-claimed',
-    auditEventRefs: row.auditEventRefs,
-    reportRefs: row.reportRefs,
-    claimBoundary: ChildArtifactClaimBoundary,
-    attachedAt: ChildArtifactTimestamp,
-  } as const;
+  return buildAppInstallPurchaseChildDeliveryBoundaryRowGenerated(
+    row,
+    ChildArtifactSchemaVersion,
+    ChildArtifactClaimBoundary,
+    ChildArtifactTimestamp
+  );
 }
 
 function childPackageArtifactRowIsHonest(row: ChildPackageArtifactRowCandidate): boolean {
-  return (
-    childArtifactSourceStateMatchesPackageState(row) &&
-    row.childArtifactCaptureClaim === 'not-runtime-captured' &&
-    row.childDeliveryClaim === 'not-delivered' &&
-    claimsStayUnimplemented(row) &&
-    row.reportRefs.length > 0 &&
-    row.requiredProofRefs.length > 0 &&
-    childArtifactBoundaryIsExplicit(row.claimBoundary)
-  );
+  return childPackageArtifactRowIsHonestGenerated(row, ChildArtifactBoundaryFragments);
 }
 
 function childDeliveryBoundaryRowIsHonest(row: ChildDeliveryBoundaryRowCandidate): boolean {
-  return (
-    row.deliveryState === 'manual-required' &&
-    row.childDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.providerApiClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.auditEventRefs.length > 0 &&
-    row.reportRefs.length > 0 &&
-    childArtifactBoundaryIsExplicit(row.claimBoundary)
-  );
+  return childDeliveryBoundaryRowIsHonestGenerated(row, ChildArtifactBoundaryFragments);
 }
 
 function childArtifactDeliveryProofIsHonest(proof: AppInstallPurchaseChildArtifactDeliveryProof): boolean {
   return (
-    proof.sourcePlatformArtifactProofVersion === SourcePlatformArtifactProofVersion &&
-    proof.sourceRuntimeProofVersion === SourceRuntimeProofVersion &&
+    childArtifactDeliveryProofIsHonestGenerated(
+      proof,
+      SourcePlatformArtifactProofVersion,
+      SourceRuntimeProofVersion,
+      RequiredPlatformSources,
+      RequiredChildStatuses,
+      ChildArtifactNonClaims
+    ) &&
     childPackageArtifactRowsAreComplete(proof.childPackageArtifacts) &&
     childDeliveryBoundaryRowsAreComplete(proof.childDeliveryBoundaries) &&
-    nonClaimsAreComplete(proof.nonClaims) &&
     proof.knownGaps.length > 0
-  );
-}
-
-function childArtifactSourceStateMatchesPackageState(row: ChildPackageArtifactRowCandidate): boolean {
-  if (row.packageSourceArtifactState === 'platform-unavailable') {
-    return row.childArtifactSourceState === 'platform-unavailable' && row.deliveryState === 'unavailable';
-  }
-  return (
-    row.childArtifactSourceState === 'child-package-artifact-ref-attached' && row.deliveryState === 'manual-required'
-  );
-}
-
-function claimsStayUnimplemented(row: ChildPackageArtifactRowCandidate): boolean {
-  return (
-    row.providerApiClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data'
   );
 }
 
@@ -324,24 +267,5 @@ function childDeliveryBoundaryRowsAreComplete(rows: readonly ChildDeliveryBounda
     rows.length === RequiredChildStatuses.length &&
     RequiredChildStatuses.every((status) => statuses.has(status)) &&
     rows.every((row) => childDeliveryBoundaryRowIsHonest(row))
-  );
-}
-
-function nonClaimsAreComplete(nonClaims: readonly (typeof ChildArtifactNonClaims)[number][]): boolean {
-  const claimSet = new Set(nonClaims);
-  return ChildArtifactNonClaims.every((claim) => claimSet.has(claim));
-}
-
-function childArtifactBoundaryIsExplicit(boundary: typeof ChildArtifactClaimBoundarySchema.Type): boolean {
-  return (
-    boundary.includes('no store integration') &&
-    boundary.includes('no provider API') &&
-    boundary.includes('no platform adapter') &&
-    boundary.includes('no child-device runtime capture') &&
-    boundary.includes('no child-device delivery') &&
-    boundary.includes('no runtime report delivery') &&
-    boundary.includes('no real install or purchase interception') &&
-    boundary.includes('no child activity data') &&
-    boundary.includes('not generic app blocking')
   );
 }

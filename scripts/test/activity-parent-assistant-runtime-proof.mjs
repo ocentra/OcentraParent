@@ -273,7 +273,7 @@ function assertReportDocument(event) {
   if (report.frequency !== 'daily') {
     throw new Error(`Activity report frequency was not daily: ${JSON.stringify(report)}`);
   }
-  if (report.savedMetadata?.savedState !== 'draft' || report.savedMetadata.savedAt !== null) {
+  if (report.savedMetadata?.savedState !== 'draft' || report.savedMetadata.savedAt !== undefined) {
     throw new Error(`Activity report generation did not return an unsaved draft: ${JSON.stringify(report)}`);
   }
   assertSavedMetadataLabels(report);
@@ -301,7 +301,7 @@ function assertReportHistory(event) {
   if (history.state !== 'ready') {
     throw new Error(`Activity report history did not become ready after save: ${JSON.stringify(history)}`);
   }
-  if (history.storageState !== 'saved' || history.storageReason !== null) {
+  if (history.storageState !== 'saved' || history.storageReason !== undefined) {
     throw new Error(`Activity report history did not expose reachable storage state: ${JSON.stringify(history)}`);
   }
   if (!Array.isArray(history.reports) || history.reports.length < 1) {
@@ -339,7 +339,7 @@ function assertParentAssistantUnavailable(event) {
   if (payload[AgentProtocolDefaults.Field.ParentAssistantAnswerState] !== 'unavailable') {
     throw new Error(`Parent Assistant answer state was not unavailable: ${JSON.stringify(payload)}`);
   }
-  if (payload[AgentProtocolDefaults.Field.ParentAssistantAnswerText] !== null) {
+  if (payload[AgentProtocolDefaults.Field.ParentAssistantAnswerText] !== undefined) {
     throw new Error(`Parent Assistant produced answer text while unavailable: ${JSON.stringify(payload)}`);
   }
   if (payload[AgentProtocolDefaults.Field.ParentAssistantCitationCount] < 1) {

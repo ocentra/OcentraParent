@@ -1,14 +1,22 @@
 ---
 description: Vite dev portal rules for local visibility and protocol testing.
-globs: apps/portal/**/*.{ts,tsx,css,html}, packages/portal-domain/**/*.ts, packages/text-domain/**/*.ts
+globs: apps/portal/**/*.{ts,tsx,css,html}, packages/portal-domain/**/*.ts
 alwaysApply: false
 ---
 
 # Ocentra Parent Portal Rules
 
-The current portal is a dev visibility surface. It should prove the service is alive and the protocol works.
+The portal is a dev visibility and HMR surface. Product parent UI runs through
+packaged Tauri desktop plus Android/iOS shells, and talks to Rust through
+HostBridge.
 
-The portal is a Vite web app, not Rust UI. The Rust agent remains headless.
+Rust owns product runtime behavior, contracts, actions, route snapshots, read
+models, and policy decisions. Portal TypeScript is presentation only: TSX, CSS,
+assets, generated bridge DTO/type imports, thin HostBridge/DevWebHostBridge
+adapters, and minimal local visual state.
+
+WebSocket may remain a dev transport or Rust runtime/LAN concern. Do not make
+WebSocket the product `TSX UI <-> parent Rust` path.
 
 ## Scope
 
@@ -17,32 +25,41 @@ Allowed now:
 - route shells
 - command buttons
 - health/status panels
-- WebSocket connection state
+- HostBridge or dev-transport connection state
 - real local agent events
-- diagnostics that help develop the Rust service
+- diagnostics that help develop the Rust parent/runtime path
 
-Not allowed during scaffold-only work:
+Not allowed:
 
-- polished product portal
+- web-first product architecture
 - marketing pages
 - fake dashboards
 - fake child activity
 - product promises that the service cannot prove
+- TS-owned product contracts, route snapshots, policy logic, or fallback
+  behavior
 
 ## UI Data Rules
 
 - Do not render made-up device activity.
 - Do not invent parent/child records.
-- Text comes from `@ocentra-parent/text-domain`.
-- Routes, DOM ids, and command descriptors come from `@ocentra-parent/portal-domain`.
-- The portal calls the real local service or clearly shows disconnected state.
+- Text may come from pure presentation helpers only when it does not encode
+  product state or policy.
+- Routes, DOM ids, and command descriptors may come from transitional TS helper
+  packages only when they are presentation-only. Product route snapshots and
+  action/result shapes come from Rust-owned generated bridge DTOs.
+- The portal calls HostBridge, DevWebHostBridge, or the real local dev service
+  and clearly shows disconnected/unavailable state.
 - The portal uses fixed port `4478`; LAN mode binds that port to the network through `npm run dev:lan`.
 - Do not use `5173` or the Ocentra Games asset-editor port `5174`.
-- When pointed at a LAN WebSocket URL, commands should use the `local-network` target route.
+- When pointed at a LAN WebSocket URL in dev mode, commands should use the
+  `local-network` target route. LAN product runtime ownership remains Rust-side
+  and out of this portal rule.
 
 ## Interaction Rules
 
-- Buttons should trigger real protocol commands.
-- Status panels should display real parsed events.
+- Buttons should dispatch real Rust-owned/generated actions or explicit dev
+  transport commands.
+- Status panels should display real Rust-owned snapshots/events.
 - Error states should show typed failure information, not generic success.
 - Browser smoke tests should use the real portal and service.

@@ -24,7 +24,7 @@ This folder is the single working plan location for location evidence, geofence 
 
 ```text
 tracking-plan: tracking semantics, local proof routing, read-model requirements, and no-claim boundaries.
-schema-domain: canonical cross-boundary tracking schemas and shared event/protocol/read-model/proof shapes.
+crates/schema: canonical cross-boundary tracking schemas and shared event/protocol/read-model/proof shapes.
 tracking-domain: helper/projection/proof adapter package; public exports are helpers, not automatic schema authority.
 tracking-core: Rust runtime/evaluator/projection helper crate; mirrors canonical contracts for runtime use.
 ocentra-eventing/eventing-plan: generic event envelope, idempotency, journal/replay, dead-letter, and topology mechanics.
@@ -57,7 +57,7 @@ policy, notification, custody, AI, portal, platform, network/browser/app/LAN pla
 ## Centralized schema status
 
 ```text
-Cross-boundary tracking schemas must live in schema-domain or an approved neutral protocol/event/evidence boundary.
+Cross-boundary tracking schemas must live in crates/schema or an approved neutral Rust protocol/event/evidence boundary.
 tracking-domain may expose helpers/proof adapters but must not silently become canonical schema owner.
 tracking-core Rust types must cite the canonical schema/protocol/event contract they mirror when they escape the crate.
 ```

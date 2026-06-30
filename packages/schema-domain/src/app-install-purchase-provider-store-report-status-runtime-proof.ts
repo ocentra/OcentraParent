@@ -135,7 +135,7 @@ export const AppInstallPurchaseProviderStoreReportStatusRuntimeProofSchema = wit
 );
 
 export const AppInstallPurchaseProviderStoreReportStatusRuntimeKnownGaps = [
-  'Provider/store report status runtime rows are parent-domain proof rows only; no provider/store execution or portal report UI is implemented.',
+  'Provider/store report status runtime rows are rust-parent-runtime proof rows only; no provider/store execution or portal report UI is implemented.',
   'External runtime report delivery, platform adapters, child-device delivery, app blocking, child activity data, and Ocentra-hosted family custody remain unimplemented.',
 ] as const;
 

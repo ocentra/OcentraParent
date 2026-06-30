@@ -22,18 +22,7 @@ pub async fn prove_network_runtime_remote_delivery_fixture_transport() -> Result
     prove_network_runtime_remote_delivery_fixture_transport_from_outbox(outbox_handoff)
 }
 
-#[cfg(test)]
-pub(crate) fn prove_network_runtime_remote_delivery_fixture_transport_from_outbox(
-    outbox_handoff: NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
-) -> Result<
-    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-    NetworkRuntimeRemoteDeliveryFixtureTransportError,
-> {
-    build_fixture_transport_report(outbox_handoff)
-}
-
-#[cfg(not(test))]
-fn prove_network_runtime_remote_delivery_fixture_transport_from_outbox(
+pub fn prove_network_runtime_remote_delivery_fixture_transport_from_outbox(
     outbox_handoff: NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,

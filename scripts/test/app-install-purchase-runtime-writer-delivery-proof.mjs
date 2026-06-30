@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-runtime-writer-delivery-proof.test.ts',
     ])
@@ -66,11 +66,11 @@ async function main() {
       sourceParentActionRuntimeHandoffContract:
         'packages/schema-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
       sourceStoreStatusHandoffContract: 'packages/schema-domain/src/app-install-purchase-store-status-handoff-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-runtime-writer-delivery-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/app-install-purchase-runtime-writer-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
-      packageReadme: 'packages/app-game-domain/package.json',
+      packageReadme: 'packages/schema-domain/package.json',
       output: relative(repoRoot, proofPath),
     },
     runtimeWriterDeliverySummary: summary,
@@ -111,7 +111,7 @@ async function loadRuntimeWriterDeliveryProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-runtime-writer-delivery-proof.js'
   );

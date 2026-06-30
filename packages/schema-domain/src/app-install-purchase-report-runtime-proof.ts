@@ -7,6 +7,12 @@ import {
 } from '@ocentra-parent/schema-domain/stateless-report-compiler-status';
 import { RequiredStatelessReportCompilerStatuses } from '@ocentra-parent/schema-domain/stateless-report-compiler-status-values';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseReportRuntimeSurfaceRowGenerated,
+  reportRuntimeProofIsHonestGenerated,
+  reportRuntimeSurfaceRowIsHonestGenerated,
+  summarizeAppInstallPurchaseReportRuntimeProofGenerated,
+} from './generated/app-install-purchase-report-status-helpers';
 const ReportRuntimeSchemaVersion = 'app-install-purchase-report-runtime-proof';
 const SourceChildArtifactProofVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const SourcePlatformArtifactProofVersion = 'app-install-purchase-platform-artifact-proof';
@@ -131,7 +137,7 @@ export const AppInstallPurchaseReportRuntimeProofSchema = withParser(
 
 export const AppInstallPurchaseReportRuntimeKnownGaps = [
   'Report runtime rows link app-install report surfaces to stateless report compiler status/result refs only; no portal report UI or report writer is implemented.',
-  'The compiler proof remains parent-domain status proof only and does not perform provider reads, upload/download, cloud worker execution, or custody of family data.',
+  'The compiler proof remains rust-parent-runtime status proof only and does not perform provider reads, upload/download, cloud worker execution, or custody of family data.',
   'Child-device package capture, child delivery, platform adapters, store/provider APIs, real interception, and app blocking remain unimplemented.',
 ] as const;
 
@@ -148,162 +154,50 @@ export const AppInstallPurchaseReportRuntimeProofReadModel = AppInstallPurchaseR
 });
 
 export function summarizeAppInstallPurchaseReportRuntimeProof(proof: AppInstallPurchaseReportRuntimeProof) {
-  return {
-    reportRuntimeRows: proof.reportRuntimeRows.length,
-    compilerLinkedRows: proof.reportRuntimeRows.filter(
-      (row: AppInstallPurchaseReportRuntimeProof['reportRuntimeRows'][number]) =>
-        row.reportRuntimeStatusClaim === 'compiler-status-linked'
-    ).length,
-    outputReportRefs: proof.reportRuntimeRows.filter(
-      (row: AppInstallPurchaseReportRuntimeProof['reportRuntimeRows'][number]) => row.outputReportRef.length > 0
-    ).length,
-    portalDeliveredRows: proof.reportRuntimeRows.filter(
-      (row: AppInstallPurchaseReportRuntimeProof['reportRuntimeRows'][number]) =>
-        row.runtimeReportDeliveryClaim !== 'not-portal-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseReportRuntimeProofGenerated(proof);
 }
 
 function reportRuntimeSurfaceRow(
   row: (typeof AppInstallPurchasePlatformArtifactProofReadModel.reportRuntimeEvidence)[number]
 ) {
-  const successfulResult = successfulCompilerResult();
-  return {
-    schemaVersion: ReportRuntimeSchemaVersion,
-    reportRuntimeRowId: `app-install-report-runtime-${row.reportSurface}`,
-    reportSurface: row.reportSurface,
-    sourceReportRef: row.reportRefs[0],
-    sourceReportCompilerSchemaVersion: StatelessReportCompilerContractProofReadModel.schemaVersion,
-    compilerRequestId: StatelessReportCompilerContractProofReadModel.request.requestId,
-    compilerStatusRefs: StatelessReportCompilerContractProofReadModel.statuses.map((status) => status.statusRef),
-    compilerStatuses: StatelessReportCompilerContractProofReadModel.statuses.map((status) => status.status),
-    compilerResultRefs: StatelessReportCompilerContractProofReadModel.results.map((result) => result.resultRef),
-    compilerFinalResultStatuses: StatelessReportCompilerContractProofReadModel.results.map((result) => result.status),
-    outputReportRef: successfulResult.outputReportRef,
-    childArtifactRefs: AppInstallPurchaseChildArtifactDeliveryProofReadModel.childDeliveryBoundaries.map(
-      (deliveryRow) => deliveryRow.childArtifactRef
-    ),
-    parentAuthorized: StatelessReportCompilerContractProofReadModel.request.parentAuthorized,
-    rawChildEvidenceRequested: StatelessReportCompilerContractProofReadModel.request.rawChildEvidenceRequested,
-    rawEvidenceExcludedFromOutput: successfulResult.redaction.rawEvidenceExcludedFromOutput,
-    childDetailMinimized: successfulResult.redaction.childDetailMinimized,
-    tempDeletionConfirmed: successfulResult.tempArtifacts.deletionConfirmed,
-    localEvidenceMutated: successfulResult.localEvidenceMutated,
-    ocentraHostedReportRetained: successfulResult.ocentraHostedReportRetained,
-    reportRuntimeStatusClaim: 'compiler-status-linked',
-    runtimeReportDeliveryClaim: 'not-portal-delivered',
-    portalUiClaim: 'not-claimed',
-    providerApiClaim: row.providerApiClaim,
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: row.platformAdapterClaim,
-    childDeliveryClaim: 'not-delivered',
-    childDataCustody: 'no-child-activity-data',
-    appBlockingClaim: 'not-claimed',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: ReportRuntimeClaimBoundary,
-    linkedAt: ReportRuntimeTimestamp,
-  } as const;
-}
-
-function successfulCompilerResult() {
-  const result = StatelessReportCompilerContractProofReadModel.results.find((row) => row.status === 'succeeded');
-  if (result === undefined || result.outputReportRef === null) {
-    throw new Error('missing succeeded stateless report compiler output ref');
-  }
-  return result;
+  return buildAppInstallPurchaseReportRuntimeSurfaceRowGenerated(
+    row,
+    StatelessReportCompilerContractProofReadModel,
+    AppInstallPurchaseChildArtifactDeliveryProofReadModel.childDeliveryBoundaries.map((deliveryRow) => deliveryRow.childArtifactRef),
+    row.auditEventRefs,
+    ReportRuntimeClaimBoundary,
+    ReportRuntimeTimestamp
+  );
 }
 
 function reportRuntimeSurfaceRowIsHonest(row: ReportRuntimeSurfaceRowCandidate): boolean {
-  return (
-    reportRuntimeClaimsStayUnimplemented(row) &&
-    reportRuntimeCompilerEvidenceIsComplete(row) &&
-    reportRuntimeCustodyIsSafe(row) &&
-    reportRuntimeBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function reportRuntimeClaimsStayUnimplemented(row: ReportRuntimeSurfaceRowCandidate): boolean {
-  return (
-    row.reportRuntimeStatusClaim === 'compiler-status-linked' &&
-    row.runtimeReportDeliveryClaim === 'not-portal-delivered' &&
-    row.portalUiClaim === 'not-claimed' &&
-    row.providerApiClaim === 'not-claimed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeliveryClaim === 'not-delivered' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
-  );
-}
-
-function reportRuntimeCompilerEvidenceIsComplete(row: ReportRuntimeSurfaceRowCandidate): boolean {
-  return (
-    row.compilerStatusRefs.length === row.compilerStatuses.length &&
-    row.compilerResultRefs.length === row.compilerFinalResultStatuses.length &&
-    row.childArtifactRefs.length > 0 &&
-    compilerStatusesAreComplete(row.compilerStatuses) &&
-    finalCompilerStatusesAreComplete(row.compilerFinalResultStatuses)
-  );
-}
-
-function reportRuntimeCustodyIsSafe(row: ReportRuntimeSurfaceRowCandidate): boolean {
-  return (
-    row.parentAuthorized &&
-    !row.rawChildEvidenceRequested &&
-    row.rawEvidenceExcludedFromOutput &&
-    row.childDetailMinimized &&
-    row.tempDeletionConfirmed &&
-    !row.localEvidenceMutated &&
-    !row.ocentraHostedReportRetained
+  return reportRuntimeSurfaceRowIsHonestGenerated(
+    row,
+    RequiredStatelessReportCompilerStatuses,
+    RequiredFinalCompilerStatuses,
+    [
+      'no portal report UI',
+      'no runtime report delivery',
+      'no store integration',
+      'no provider API',
+      'no platform adapter',
+      'no child-device delivery',
+      'no child activity data',
+      'no app blocking',
+      'no Ocentra-hosted family data custody',
+    ]
   );
 }
 
 function reportRuntimeProofIsHonest(proof: AppInstallPurchaseReportRuntimeProof): boolean {
   return (
-    proof.sourceChildArtifactProofVersion === SourceChildArtifactProofVersion &&
-    proof.sourcePlatformArtifactProofVersion === SourcePlatformArtifactProofVersion &&
-    proof.sourceReportCompilerSchemaVersion === StatelessReportCompilerContractProofReadModel.schemaVersion &&
-    reportRuntimeRowsAreComplete(proof.reportRuntimeRows) &&
-    nonClaimsAreComplete(proof.nonClaims) &&
-    proof.knownGaps.length > 0
-  );
-}
-
-function reportRuntimeRowsAreComplete(rows: readonly ReportRuntimeSurfaceRowCandidate[]): boolean {
-  const surfaces = new Set(rows.map((row) => row.reportSurface));
-  return (
-    rows.length === RequiredReportSurfaces.length &&
-    RequiredReportSurfaces.every((surface) => surfaces.has(surface)) &&
-    rows.every((row) => reportRuntimeSurfaceRowIsHonest(row))
-  );
-}
-
-function compilerStatusesAreComplete(statuses: readonly (typeof RequiredStatelessReportCompilerStatuses)[number][]) {
-  const statusSet = new Set(statuses);
-  return RequiredStatelessReportCompilerStatuses.every((status) => statusSet.has(status));
-}
-
-function finalCompilerStatusesAreComplete(statuses: readonly (typeof RequiredFinalCompilerStatuses)[number][]) {
-  const statusSet = new Set(statuses);
-  return RequiredFinalCompilerStatuses.every((status) => statusSet.has(status));
-}
-
-function nonClaimsAreComplete(nonClaims: readonly (typeof ReportRuntimeNonClaims)[number][]): boolean {
-  const claimSet = new Set(nonClaims);
-  return ReportRuntimeNonClaims.every((claim) => claimSet.has(claim));
-}
-
-function reportRuntimeBoundaryIsExplicit(boundary: typeof ReportRuntimeClaimBoundarySchema.Type): boolean {
-  return (
-    boundary.includes('no portal report UI') &&
-    boundary.includes('no runtime report delivery') &&
-    boundary.includes('no store integration') &&
-    boundary.includes('no provider API') &&
-    boundary.includes('no platform adapter') &&
-    boundary.includes('no child-device delivery') &&
-    boundary.includes('no child activity data') &&
-    boundary.includes('no app blocking') &&
-    boundary.includes('no Ocentra-hosted family data custody')
+    reportRuntimeProofIsHonestGenerated(
+      proof,
+      SourceChildArtifactProofVersion,
+      SourcePlatformArtifactProofVersion,
+      StatelessReportCompilerContractProofReadModel.schemaVersion,
+      RequiredReportSurfaces,
+      ReportRuntimeNonClaims
+    ) && proof.reportRuntimeRows.every(reportRuntimeSurfaceRowIsHonest)
   );
 }

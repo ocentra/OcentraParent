@@ -153,6 +153,10 @@ impl ActivityStore {
         replace_parent_rule_contexts(&self.connection, contexts)
     }
 
+    pub fn connection_for_test(&self) -> &Connection {
+        &self.connection
+    }
+
     fn status_with_counts(
         &self,
         events_ingested: u64,

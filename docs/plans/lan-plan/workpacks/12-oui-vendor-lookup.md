@@ -55,6 +55,7 @@ Current proof:
 - Focused Rust proof: `cargo test -p ocentra-lan-core mac_identity`
 - Contract proof: `cargo test -p ocentra-parent-agent-protocol lan_pairing_browser_add_device_state`
 - Focused Rust proof: `cargo test -p ocentra-parent-agent-service lan_pairing_household_device_spine`
+- Proof note: `output/lan-plan-proof/12-oui-vendor-lookup/01-local-validation.md`
 
 ## Parallel Ownership Notes
 

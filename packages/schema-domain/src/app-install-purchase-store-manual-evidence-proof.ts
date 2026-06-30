@@ -1,6 +1,12 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseStoreManualEvidenceRowGenerated,
+  storeManualEvidenceProofIsHonestGenerated,
+  storeManualEvidenceRowIsHonestGenerated,
+  summarizeAppInstallPurchaseStoreManualEvidenceGenerated,
+} from './generated/app-install-purchase-platform-provider-helpers';
 
 const ProofVersion = 'app-install-purchase-store-manual-evidence-proof';
 const SourceProofVersion = 'app-install-purchase-platform-proof-readiness';
@@ -136,99 +142,33 @@ export const AppInstallPurchaseStoreManualEvidenceProofReadModel =
   });
 
 export function summarizeAppInstallPurchaseStoreManualEvidence(proof: AppInstallPurchaseStoreManualEvidenceProof) {
-  return {
-    storeRows: proof.storeManualEvidenceRows.length,
-    manualEvidenceRequiredRows: proof.storeManualEvidenceRows.filter(
-      (row) => row.storeManualEvidenceState === 'manual-evidence-required'
-    ).length,
-    policyReviewRequiredRows: proof.storeManualEvidenceRows.filter(
-      (row) => row.storeManualEvidenceState === 'store-policy-review-required'
-    ).length,
-    unavailableRows: proof.storeManualEvidenceRows.filter((row) => row.storeManualEvidenceState === 'store-unavailable')
-      .length,
-    providerExecutedRows: proof.storeManualEvidenceRows.filter(
-      (row) => row.providerApiExecutionClaim !== 'not-executed'
-    ).length,
-    storeIntegratedRows: proof.storeManualEvidenceRows.filter((row) => row.storeIntegrationClaim !== 'not-claimed')
-      .length,
-  } as const;
+  return summarizeAppInstallPurchaseStoreManualEvidenceGenerated(proof);
 }
 
 function storeManualEvidenceRow(
   sourceRow: (typeof AppInstallPurchasePlatformProofReadinessProofReadModel.platformProofReadinessRows)[number]
 ) {
-  return {
-    schemaVersion: ProofVersion,
-    platform: sourceRow.platform,
-    storeSurface: storeSurfaceForPlatform(sourceRow.platform),
-    sourcePlatformProofReadinessProofVersion: SourceProofVersion,
-    sourcePlatformProofReadinessState: sourceRow.platformProofReadinessState,
-    sourceManualEvidenceRefs: sourceRow.requiredManualEvidenceRefs,
-    storeManualEvidenceState: storeManualEvidenceState(sourceRow.platformProofReadinessState),
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    childDeviceDeliveryClaim: 'not-delivered',
-    runtimeWriterDeliveryClaim: 'not-delivered',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: Boundary,
-    checkedAt: CheckedAt,
-  } as const;
-}
-
-function storeSurfaceForPlatform(platform: (typeof Platforms)[number]): (typeof StoreSurfaces)[number] {
-  const surfaces = {
-    windows: 'microsoft-store',
-    macos: 'mac-app-store',
-    linux: 'linux-package-manager',
-    android: 'google-play',
-    ios: 'apple-app-store',
-  } as const;
-  return surfaces[platform];
-}
-
-function storeManualEvidenceState(
-  sourceState: (typeof AppInstallPurchasePlatformProofReadinessProofReadModel.platformProofReadinessRows)[number]['platformProofReadinessState']
-): (typeof StoreManualEvidenceStates)[number] {
-  if (sourceState === 'unavailable') {
-    return 'store-unavailable';
-  }
-  if (sourceState === 'policy-blocked') {
-    return 'store-policy-review-required';
-  }
-  return 'manual-evidence-required';
-}
-
-function rowIsHonest(row: RowCandidate): boolean {
-  return (
-    row.sourcePlatformProofReadinessProofVersion === SourceProofVersion &&
-    row.sourceManualEvidenceRefs.length > 0 &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed' &&
-    BoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
+  return buildAppInstallPurchaseStoreManualEvidenceRowGenerated(
+    sourceRow,
+    SourceProofVersion,
+    Boundary,
+    CheckedAt
   );
 }
 
+function rowIsHonest(row: RowCandidate): boolean {
+  return storeManualEvidenceRowIsHonestGenerated(row, SourceProofVersion, BoundaryFragments);
+}
+
 function proofIsHonest(proof: AppInstallPurchaseStoreManualEvidenceProof): boolean {
-  const platforms = new Set(proof.storeManualEvidenceRows.map((row) => row.platform));
-  const surfaces = new Set(proof.storeManualEvidenceRows.map((row) => row.storeSurface));
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourcePlatformProofReadinessProofVersion === SourceProofVersion &&
-    proof.storeManualEvidenceRows.length === Platforms.length &&
-    Platforms.every((platform) => platforms.has(platform)) &&
-    StoreSurfaces.every((surface) => surfaces.has(surface)) &&
-    NonClaims.every((claim) => nonClaims.has(claim)) &&
+    storeManualEvidenceProofIsHonestGenerated(
+      proof,
+      SourceProofVersion,
+      Platforms,
+      StoreSurfaces,
+      NonClaims
+    ) &&
     proof.storeManualEvidenceRows.every(rowIsHonest) &&
     proof.knownGaps.length > 0
   );

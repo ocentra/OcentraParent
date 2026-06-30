@@ -1,6 +1,10 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from './effect';
+import {
+  generatedScreenAiStricterParentRuleInputIsReady,
+  generatedScreenAiStricterParentRuleProofIsHonest,
+  selectGeneratedStricterPolicyAction,
+} from './generated/policy-control-helpers';
 import { PolicyActionSchema, PolicyDecisionSchema, PolicyRuleSchema } from './policy-contracts';
-import { comparePolicyActionStrictness, selectStricterPolicyAction } from './policy';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 const ScreenAiStricterParentRuleProofIdSchema = brandedNonEmptyStringSchema('ScreenAiStricterParentRuleProofId');
 
@@ -67,7 +71,7 @@ export type ScreenAiStricterParentRuleProof = Infer<typeof ScreenAiStricterParen
 
 export function buildScreenAiStricterParentRuleProof(input: unknown): ScreenAiStricterParentRuleProof {
   const parsed = ScreenAiStricterParentRuleInputSchema.parse(input);
-  const finalAction = selectStricterPolicyAction(parsed.stricterParentRule.action, parsed.sourceDecision.action);
+  const finalAction = selectGeneratedStricterPolicyAction(parsed.stricterParentRule.action, parsed.sourceDecision.action);
   return ScreenAiStricterParentRuleProofSchema.parse({
     schemaVersion: parsed.schemaVersion,
     proofId: parsed.proofId,
@@ -92,26 +96,12 @@ export function buildScreenAiStricterParentRuleProof(input: unknown): ScreenAiSt
 }
 
 function screenAiStricterParentRuleInputIsReady(input: ScreenAiStricterParentRuleInputCandidate): boolean {
-  return (
-    input.sourceDecision.dryRun &&
-    input.sourceDecision.enforcementHandoffState !== 'handed-off' &&
-    input.sourceDecision.localAiResultId !== null &&
-    input.stricterParentRule.enabled &&
-    comparePolicyActionStrictness(input.stricterParentRule.action, input.sourceDecision.action) > 0 &&
-    input.expectedFinalAction ===
-      selectStricterPolicyAction(input.stricterParentRule.action, input.sourceDecision.action)
-  );
+  return generatedScreenAiStricterParentRuleInputIsReady(input);
 }
 
 function screenAiStricterParentRuleProofIsHonest(proof: ScreenAiStricterParentRuleProofCandidate): boolean {
-  return (
-    proof.finalAction === proof.stricterParentRule.action &&
-    proof.finalDecision.action === proof.stricterParentRule.action &&
-    proof.finalDecision.localAiResultId === proof.sourceDecision.localAiResultId &&
-    proof.finalDecision.evidenceReferences.length === proof.sourceDecision.evidenceReferences.length &&
-    proof.finalDecision.ruleIds.includes(proof.stricterParentRule.ruleId) &&
-    proof.finalDecision.dryRun &&
-    proof.finalDecision.enforcementHandoffState !== 'handed-off' &&
-    Object.values(proof.claimBoundaries).every((claim) => claim === false)
-  );
+  return generatedScreenAiStricterParentRuleProofIsHonest({
+    ...proof,
+    stricterParentRuleAction: proof.stricterParentRule.action,
+  });
 }

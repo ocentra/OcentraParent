@@ -60,6 +60,8 @@ Every WP08 or WP10 proof artifact must record:
 - the exact test files in scope;
 - the assertion IDs executed from `REQUIRED_TEST_ASSERTION_MATRIX.md`;
 - the exact command used, or the exact blocker when no command could run;
+- for WP08, the runner manifest and any same-directory test files excluded as
+  `unexpectedFilesByFamily`;
 - at least one negative case covered by that proof slice;
 - a rollback or teardown note when the slice mutates runtime state;
 - a no-claim boundary stating what remains unproven.
@@ -85,7 +87,7 @@ Every WP08 or WP10 proof artifact must record:
 | WP05 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:security`; `npm run lint:architecture -- --files infra/cloudflare/src/auth` | `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/` |
 | WP06 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:property`; `npm run lint:architecture -- --files infra/cloudflare` | `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/` |
 | WP07 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration` | `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` |
-| WP08 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:e2e`; `npm --prefix infra/cloudflare run test:contract`; `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run lint` | `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/` |
+| WP08 | `node --import tsx infra/cloudflare/scripts/test-runner.ts --list`; `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:e2e`; `npm --prefix infra/cloudflare run test:contract`; `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run lint` | `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/` |
 | WP09 | `npm --prefix infra/cloudflare run test:e2e` | `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/` |
 | WP10 | `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run test:integration` | `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/` |
 | WP11 | `npm --prefix infra/cloudflare run deploy:dev`; `npm --prefix infra/cloudflare run deploy`; post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke in the promoted environment | `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/` |

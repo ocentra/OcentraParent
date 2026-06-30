@@ -21,11 +21,11 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 
 ## Where We Are
 
-Current V0.9 proof exposes typed scan summary, add-device route state, selected device readiness, portal target filtering, and a development UI that can show a LAN device grid, Activity tabs, and Network evidence summary fields. Production discovery needs a replayable LAN event stream plus read models that all portal surfaces can consume.
+Current V0.9 proof exposes typed scan summary, add-device route state, selected-device readiness, portal target filtering, persisted scan-history continuity, discovery and pairing history snapshots, typed host-subscription route snapshots, and browser proof for the service-backed Devices, Activity or Network, and policy-target LAN surfaces. Production discovery now also has a focused backend LAN runtime event-chain stream through `agent-service`; richer network-flow evidence breadth, browser-side replay consumption of that new stream, and physical/manual proof remain open.
 
-Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds a typed protocol/service proof layer for signed discovery rows, rejected discovery states, route custody safety, relay/cache unavailable states, and manual-required physical proof labels. That is proof that the read-model data spine exists for this slice. The portal now consumes that spine for selected LAN detail rows and Activity/Network diagnostics. That is not proof that the full replayable event stream or visual/browser proof is complete.
+Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds a typed protocol/service proof layer for signed discovery rows, rejected discovery states, route custody safety, relay/cache unavailable states, and manual-required physical proof labels. That is proof that the read-model data spine exists for this slice. The portal now consumes that spine for selected LAN detail rows and Activity/Network diagnostics, and the current browser-proof artifact shows those Rust-backed surfaces on the real portal routes. The 2026-06-28 W16 packet adds service-backed LAN runtime event-chain transport; it is not proof of browser-side stream replay, broader network-flow evidence breadth, or physical household proof.
 
-### 2026-06-23 Rust bridge slice
+### 2026-06-23 bridge root plus 2026-06-28 integration reruns
 
 - The parent Rust bridge no longer injects the hardcoded `Child Laptop` LAN sample for `devices`.
 - `crates/lan-core` now builds an inventory-backed `LanBrowserAddDeviceReadModel` from the real Windows neighbor-table path with honest empty/manual-required states when no real LAN evidence exists.
@@ -33,21 +33,22 @@ Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds a typed protocol/servi
 - `crates/parent-runtime-core` now serializes that Rust read model into the product host bridge snapshot used by Tauri.
 - Passive Devices-route load now requests the browser-discovery scan snapshot with an allowed origin, so the real Tauri route enters `SCANNING` and then renders discovered LAN devices from runtime state.
 - `crates/parent-runtime-core` now builds a typed `ParentSubscriptionEvent`, and `apps/parent-desktop/src-tauri` now exposes `parent_subscribe_route` / `parent_unsubscribe_route` so the product shell can receive host-owned route updates without a UI WebSocket.
-- `apps/portal/src/host-bridge.ts` and `apps/portal/src/main.ts` now wire that Tauri event path into the live route shell, recycle subscriptions on route changes and product actions, and keep the dev-web adapter on the same typed subscription contract without pretending it is product-parity transport.
+- `apps/portal/src/host-bridge.ts` and `apps/portal/src/main.ts` now wire that Tauri event path into the live route shell, recycle subscriptions on route changes and product actions, apply subscribed `ParentSubscriptionEvent.events` into the real portal event buffer before the latest route snapshot, reject stale subscribed event batches or route snapshots once a newer Rust-backed view is already buffered, and keep the dev-web adapter on the same generated snapshot shape without pretending it is product-parity transport.
 - The LAN discovery source matrix now admits `previous-scan-snapshot` as an implemented W15 source when restart-persisted scan history informs current hostname/label/platform continuity, instead of hiding that influence outside the typed read model.
-- `packages/schema-domain/src/lan-source-matrix.ts` now treats `previous-scan-snapshot` as a canonical weak LAN source instead of leaving the Rust read model ahead of the TypeScript contract catalog.
-- `packages/portal-domain/src/live-activity-lan-add-device.ts` now exposes `lanDiscoverySourceMatrix` on the typed portal add-device read model, and `apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx` now projects the Activity/Network matrix from that typed field instead of walking raw records inside the app.
-- `apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx` now renders the LAN discovery source matrix inside the real Activity/Network drawer, including matrix generation time, visible workpack rows, implemented source proof, and weak-source fence rows such as `previous-scan-snapshot`.
+- The Rust-owned LAN read model and parent host snapshot now carry `previous-scan-snapshot` as a canonical weak LAN source, so the UI is no longer waiting on a parallel TypeScript contract catalog to expose that state.
+- Portal projection now reads `lanDiscoverySourceMatrix` from the Rust-backed route snapshot instead of reconstructing LAN truth inside the app.
+- `apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx` now renders the LAN discovery source matrix inside the real Activity/Network drawer from that Rust-backed snapshot, including matrix generation time, visible workpack rows, implemented source proof, and weak-source fence rows such as `previous-scan-snapshot`.
 - `apps/portal/src/ParentPortalRoute.tsx` now keeps product routes on the real `ParentPortalSvgSurface` instead of mounting the parallel React proof/diagnostic overlays on top of Browser-, Screen-, and app-game-related routes.
 - `crates/parent-runtime-core` now returns empty `browserPanels` and empty screen-settings host responses on the product bridge until those routes have runtime-backed data instead of sample snapshots.
-- This slice does not yet prove full `agent-service`/`lan-core` parity, canonical replayable LAN events, dev-web parity, signed relay/cache rows, portal screenshot proof, or physical multi-device household proof. The current product subscription path is still polling-backed route-snapshot delivery owned by Tauri, not final backend event-stream replay.
+- This slice does not yet prove full `agent-service`/`lan-core` parity, browser-side replay consumption of the new backend stream, dev-web parity, signed-child/manual household proof, or physical multi-device household proof. The current product subscription path remains polling-backed route-snapshot delivery owned by Tauri; the backend LAN runtime event-chain stream is a separate service command/report path.
 
 ## Ownership boundary
 
 ```text
-schema-domain owns canonical LAN read-model/event shapes.
-agent-protocol and agent-service own protocol/service-backed read-model proof when selected.
-portal-domain/apps/portal own projection only.
+crates/schema owns canonical LAN read-model/event/bridge shapes.
+crates/agent-protocol and crates/agent-service own protocol/service-backed read-model proof when selected.
+crates/parent-runtime-core owns parent host snapshots and subscription events.
+portal-domain/apps/portal own pure projection only.
 eventing-plan owns local event bus semantics only.
 lan-plan owns the LAN read-model/event proof boundary and no-claim routing.
 ```
@@ -77,27 +78,29 @@ A field existing in a read model is not proof of replayable event stream behavio
 
 ## Requirement Checklist
 
-- [ ] Baseline read-model snapshots expose LAN pairing status, scan summary, add-device route state, selected-device readiness, portal target filtering, and signed-discovery relay/cache proof states.
-- [ ] Current branch labels relay/cache unavailable, physical household proof manual-required, and unsupported/non-controllable infrastructure states through typed service/domain state instead of prose-only docs.
-- [ ] Portal LAN selected-device details and Activity/Network diagnostics now consume the signed discovery relay spine, route custody, relay/cache, parent-decision, audit, route-requirement, and manual-proof read-model fields without inventing portal-only LAN state.
-- [x] The add-device read model now carries a `lanDiscoverySourceMatrix` snapshot that maps all 20 LAN plan workpacks and concrete discovery sources into typed implemented, partial, manual-required, and not-implemented statuses.
+- [x] Baseline read-model snapshots expose LAN pairing status, scan summary, add-device route state, selected-device readiness, portal target filtering, and signed-discovery relay/cache proof states.
+- [x] Current branch labels relay/cache unavailable, physical household proof manual-required, and unsupported/non-controllable infrastructure states through typed service/domain state instead of prose-only docs.
+- [x] Portal LAN selected-device details and Activity/Network diagnostics now consume the signed discovery relay spine, route custody, relay/cache, parent-decision, audit, route-requirement, and manual-proof read-model fields without inventing portal-only LAN state.
+- [x] The add-device read model now carries a `lanDiscoverySourceMatrix` snapshot that maps all 25 LAN plan workpacks and concrete discovery sources into typed implemented, partial, manual-required, and not-implemented statuses.
 - [x] Activity/Network diagnostics render source-matrix rows for LAN workpacks, implemented source proof, weak-source fencing, and matrix generation time from the service-backed read model.
-- [ ] Event types include interface changed, scan started, scan finished, evidence found, device found, device updated, online, offline, agent discovered, agent confirmed, and unknown detected.
-- [ ] Events include event id, timestamp, session/scan id where relevant, and affected device id for device events.
-- [ ] Read models are derived from canonical registry/evidence state.
-- [ ] Portal can replay snapshot plus events without duplicate cards.
-- [ ] Empty, unavailable, degraded, stale, offline, agent-offline, and manual-required states are explicit.
-- [ ] Activity / Network diagnostics now show scan/evidence first-seen and last-seen timing, evidence expiry, signed adapter proof state, and policy-target history.
-- [ ] Visual snapshot proof exists for the current service-backed Devices/LAN, Activity/Network diagnostics, and Network policy target surfaces under `output/playwright/lan-source-matrix-plan-completion/`.
-- [ ] Replayable scan sessions, full pairing/heartbeat event history, richer network-flow evidence remain open.
+- [x] Event types include interface changed, scan started, scan finished, evidence found, device found, device updated, online, offline, agent discovered, agent confirmed, and unknown detected.
+- [x] Events include event id, timestamp, session/scan id where relevant, and affected device id for device events.
+- [x] Read models are derived from canonical registry/evidence state.
+- [x] Portal can replay snapshot plus events without duplicate cards.
+- [x] Older subscribed route snapshots and event batches do not regress a newer Rust-backed portal view.
+- [x] Empty, unavailable, degraded, stale, offline, agent-offline, and manual-required states are explicit.
+- [x] Activity / Network diagnostics now show scan/evidence first-seen and last-seen timing, evidence expiry, signed adapter proof state, and policy-target history.
+- [x] Visual snapshot proof exists for the current service-backed Devices/LAN, Activity/Network diagnostics, and Network policy target surfaces under `output/playwright/lan-source-matrix-plan-completion/`.
+- [x] Replayable backend LAN event-stream transport beyond the current polling-backed subscription bridge exists as a scoped `agent-service` WebSocket command/report backed by Rust discovery-event history rows.
+- [ ] Richer network-flow evidence breadth, browser-side replay consumption of the new backend stream, and physical/manual artifacts remain open.
 
 ## Acceptance And Proof
 
-- Contract tests protect the LAN event stream shape.
-- Service tests cover event ordering and duplicate event id rejection.
-- `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the source-matrix read-model field is preserved across TypeScript contracts, Rust protocol, Rust service state, and portal render data.
-- Playwright contract-fixture UI tests cover empty dashboard, progressive scan, evidence panel, assignment, confirmed badge, offline state, and malicious hostname rendering. Later real-backend tests cover service-backed routes.
-- Visual snapshot proof covers Devices/LAN, Activity/Network, and relevant policy target routes so manual review can catch product gaps beyond tests.
+- Contract tests keep the LAN event row shape explicit across Rust-owned bridge surfaces.
+- Focused Rust tests plus portal replay/consumer tests cover canonical event ordering, canonical-registry or evidence-derived history rows, explicit history-state serialization, host-bridge duplicate event-id suppression for subscribed LAN route events, signed-discovery relay/cache/manual-proof projection, evidence-window and policy-target diagnostics, portal buffering of repeated route-event batches without duplicate cards, rejection of stale subscribed route snapshots or event batches that would regress a newer Rust-backed route view, and the service-backed backend LAN runtime event-chain stream.
+- `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the source-matrix read-model field is preserved across Rust contracts, Rust protocol, Rust service state, the Rust-owned parent host bridge, and portal render data.
+- Playwright proof now covers the service-backed Devices route, Activity or Network evidence drawer, and policy-target LAN binding from the real Rust snapshot path. Replayable event-stream browser behavior remains a later proof obligation.
+- Visual snapshot proof covers Devices/LAN, Activity/Network, and relevant policy-target routes so manual review can catch product gaps beyond the focused tests.
 
 ### Current slice evidence
 
@@ -106,22 +109,38 @@ A field existing in a read model is not proof of replayable event stream behavio
 - `output/lan-plan-proof/16-read-models-and-lan-events/03-product-route-overlay-removal-note.md`
 - `output/lan-plan-proof/16-read-models-and-lan-events/04-tauri-devices-auto-scan-proof.md`
 - `output/lan-plan-proof/16-read-models-and-lan-events/05-tauri-host-subscription-bridge.md`
+- `output/lan-plan-proof/16-read-models-and-lan-events/09-subscription-event-route-events.md`
+- `output/lan-plan-proof/16-read-models-and-lan-events/10-history-runtime-ui-reruns.md`
+- `output/lan-plan-proof/16-read-models-and-lan-events/11-backend-lan-runtime-stream.md`
+- `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`
+- `output/playwright/lan-source-matrix-plan-completion/browser-proof.json`
 
-These artifacts prove only the 2026-06-23 parent Rust bridge slice:
+These artifacts currently prove the Rust-owned snapshot and history slice through the 2026-06-28 reruns:
 
 - `crates/lan-core` inventory-backed LAN read-model generation compiles and unit-tests cleanly.
+- `crates/lan-core/tests/unit/read_model.rs` derives discovery-event history rows from canonical registry/evidence state, carries explicit event ids and timestamps, and orders rows by occurrence time before linking the replay chain.
 - `crates/parent-runtime-core` serializes that read model into the host bridge snapshot without the old hardcoded LAN sample and forwards Devices-route agent commands into `agent-service`.
 - `apps/parent-desktop/src-tauri` still compiles against the updated bridge path.
 - `apps/parent-desktop/src-tauri` now emits typed `ParentSubscriptionEvent` updates for subscribed routes, and the portal shell consumes them through Tauri events instead of a UI WebSocket transport.
+- `ParentSubscriptionEvent` now carries the same typed `ParentRouteEventSnapshot` list that the action-result path already exposed, so subscribed product routes can consume Rust-owned event ids, correlation ids, timestamps, and peer metadata without inventing portal-side event identity.
+- `apps/portal/src/main.ts` now applies those subscribed `ParentSubscriptionEvent.events` through the same portal event-buffer path used by command responses, so subscribed LAN route updates do not silently drop Rust-owned event history while refreshing the latest snapshot.
+- `ParentSubscriptionEvent` now dedupes duplicate subscribed route events by `eventId` at the Rust host bridge, keeping the latest payload-bearing occurrence so snapshot-plus-event replay does not double-emit the same LAN route event identity from one subscription poll.
+- `apps/portal/tests/portal/portal-state-target.test.ts` now proves that replaying the same host-bridge event batch twice preserves the newest-first buffer and avoids duplicate portal cards.
+- `apps/portal/tests/portal/portal-state-target.test.ts` now also proves that a stale subscribed batch cannot overwrite a newer Rust-backed `/devices` route snapshot or prepend older LAN event history back to the top of the portal buffer.
+- `ParentSubscriptionEvent` keeps the LAN diagnostics and discovery-history surface intact, preserves explicit `empty`, `manual-required`, `unavailable`, and `degraded` history labels, and projects stale selected-device metadata as `stale` from Rust-owned route metadata.
+- Focused 2026-06-28 reruns now also prove persisted scan-history sidecars, signed-child passive beacon history rows, Rust contract preservation of `lanAddDeviceReadModel`, Devices-route passive load and signed-child observe forwarding, and portal LAN snapshot consumption in the Network evidence drawer and activity intent surfaces.
+- Focused 2026-06-28 W16 reruns now prove the protocol/service-backed backend LAN runtime event-chain stream command and report shape: `agent.lan.runtime.event-chain.stream.get` reads the Rust LAN discovery-event history and returns `agent.lan.runtime.event-chain.stream.reported` with replayable `eventType`, `eventRef`, and row payload entries.
+- `crates/agent-service/tests/unit/lan_pairing_browser_add_device_state.rs` and `apps/portal/tests/unit/activity-ui-intent.test.ts` now prove the Rust-owned add-device snapshot and portal consumers preserve selected-device readiness, relay/cache unavailable state, manual-proof state, route custody, parent decision, router/infrastructure visibility, and unsupported non-child boundaries without UI-side invention.
 - Product Browser and Settings routes no longer mount the parallel React overlay shell when served from the local portal bundle.
 - The real Tauri Devices route now auto-enters `SCANNING` and renders the discovered LAN inventory without a manual scan click after route entry.
+- The current visual proof root under `output/playwright/lan-source-matrix-plan-completion/` captures the live Devices LAN surface, Activity/Network evidence diagnostics, and policy-target binding from the real Rust snapshot path.
 
 These artifacts do not prove:
 
 - full `agent-service` and `lan-core` parity
-- replayable LAN event stream behavior beyond polling-backed route snapshot updates
+- browser-side replay consumption of the new backend LAN runtime event-chain stream
+- broader network-flow evidence breadth
 - dev-web adapter parity
-- portal screenshot/manual review proof
 - physical two-device/router/firewall proof
 
 ## Required proof fields

@@ -26,9 +26,11 @@ service-to-UI path; other lanes are coordination boundaries only.
 Ocentra Parent has a service-backed development portal and a V0.9 LAN read-model
 foundation, not a finished consumer LAN setup flow.
 
-Today the portal connects to the Rust agent over WebSocket, requests LAN pairing
-status on startup, and can send a LAN browser-discovery scan command from the
-Devices / LAN Pairing surface. The service-backed overview rows show Local
+Today the product portal loads LAN pairing state through the host bridge,
+requests LAN pairing status on startup, and can send a LAN browser-discovery
+scan command from the Devices / LAN Pairing surface. Product updates flow back
+through the host bridge / Tauri event path rather than a UI-owned WebSocket.
+The service-backed overview rows show Local
 agent, LAN discovery, and Device pairing trends from LAN pairing status,
 browser-discovery, and add-device events.
 

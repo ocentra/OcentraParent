@@ -8,13 +8,13 @@ use ocentra_parent_agent_protocol::constants;
 use crate::browser_windows_inventory::windows_browser_executable_identity;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) struct BrowserWindowsRegistryInstallEntry<'a> {
+pub struct BrowserWindowsRegistryInstallEntry<'a> {
     pub display_icon: Option<&'a str>,
     pub install_location: Option<&'a Path>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) struct BrowserWindowsInventoryPathSources<'a> {
+pub struct BrowserWindowsInventoryPathSources<'a> {
     pub roots: &'a [PathBuf],
     pub registry_entries: &'a [BrowserWindowsRegistryInstallEntry<'a>],
     pub shortcut_targets: &'a [&'a str],
@@ -28,7 +28,7 @@ pub fn windows_browser_inventory_candidate_paths(roots: &[PathBuf]) -> Vec<PathB
     })
 }
 
-pub(crate) fn windows_browser_inventory_candidate_paths_from_sources(
+pub fn windows_browser_inventory_candidate_paths_from_sources(
     sources: BrowserWindowsInventoryPathSources<'_>,
 ) -> Vec<PathBuf> {
     let mut paths = Vec::new();

@@ -27,6 +27,11 @@ Before claiming validation, use `docs/agent/TEST_PROOF_DECISION_MATRIX.md` to
 select the required contract, schema, protocol, auth, persistence, security,
 performance, AI, observability, or platform proof rows for the touched source.
 
+When the assignment concerns Rust-first parent architecture, read
+`docs/agent/RUST_FIRST_PARENT_ARCHITECTURE.md` before using older plan wording.
+That document is the current authority when stale docs still describe older
+schema-domain or web/WebSocket ownership wording.
+
 ## Universal logging/proof-chain gate
 
 For every new or edited runtime, service, domain behavior, app command path,
@@ -42,30 +47,36 @@ This is universal, not Cloudflare-only. Pure schemas, constants, brands, generat
 
 - Shared API paths, route ids, event names, log shapes, policy ids, and device
   identifiers do not belong directly in app or crate code.
-- Shared TypeScript contracts, branded values, parser entrypoints, and
-  cross-package schema shapes live only under `@ocentra-parent/schema-domain`,
-  organized by domain folder.
-- Domain packages may consume central schemas and add domain-local mapping,
-  projection, helper, or adapter logic, but they must not become peer-owned
-  schema authorities or exported schema owners for cross-package shapes.
-- If two TypeScript packages or one TypeScript package and one Rust boundary
-  need the same schema, promote it into `@ocentra-parent/schema-domain` before
-  reuse. There are no package-local exceptions for shared schema authority.
-- Rust-facing protocol shapes go under `crates/agent-protocol` only after the
-  TypeScript contract is explicit in `@ocentra-parent/schema-domain`,
-  test-backed, and mirrored with exact encoded-shape parity.
-- Matching TypeScript and Rust contracts must preserve the same encoded field
-  names, discriminants, nullability, and version semantics. Drift coverage is
-  required through fixtures, generated schema comparison, or equivalent parity
-  tests.
-- Use Effect Schema for TypeScript runtime validation. Do not add Zod.
-- Do not create manual branded-string aliases. Use Effect Schema brands and
-  decode helpers.
+- Canonical cross-boundary contracts, DTOs, route snapshots, actions, read
+  models, and product schema truth live in `crates/schema` or the owning Rust
+  domain/runtime crate. `apps/portal/generated/parent-ui-bridge.ts` is checked-
+  in generated output from Rust-owned bridge schema, not TS authority.
+- `@ocentra-parent/schema-domain`, `@ocentra-parent/agent-protocol-domain`, and
+  feature TS domain packages are migration surfaces. They may keep temporary
+  edge decoders, generated validation adapters, or pure presentation helpers;
+  they must not become new product contract or behavior owners.
+- If two TypeScript packages, or one TypeScript package and one Rust boundary,
+  need the same product shape, add or move the canonical shape to
+  `crates/schema` or the owning Rust crate first. TypeScript consumes generated
+  DTOs or temporary edge decoders from that source.
+- `crates/agent-protocol` remains a Rust protocol surface for parent/child or
+  service wire concerns, but it is not a reason to invent TS-owned product
+  contracts.
+- Generated TypeScript and any temporary TS edge decoder must preserve the Rust
+  encoded field names, discriminants, nullability, enum values, and version
+  semantics. Drift coverage is required through Rust serialization tests,
+  generated artifact checks, fixtures, or equivalent parity tests.
+- Use Effect Schema only at untrusted TypeScript edges or generated validation
+  edges. Do not add Zod.
+- Do not create new hand-written product brands or DTO authorities in
+  TypeScript.
 - Runtime source must not contain inline string literals for text, ids, routes,
   fields, commands, or events; canonical contract owners own those.
-- App/runtime TypeScript source must not annotate values as raw `string`; use a
-  branded domain type or keep external input as `unknown` until parsed.
-- Rust runtime strings live in `crates/agent-protocol` constants.
+- App/runtime TypeScript source must not annotate product values as raw
+  `string`; use generated DTO types or keep external input as `unknown` until
+  parsed at an edge.
+- Rust runtime strings live in `crates/schema`, the owning Rust domain crate, or
+  Rust protocol constants for transport-only boundaries.
 - Do not use mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, or
   equivalent test doubles.
 - Cross-responsibility behavior must be command/event/request/read-model driven.
@@ -77,11 +88,14 @@ This is universal, not Cloudflare-only. Pure schemas, constants, brands, generat
 
 | Package                                 | Owns                                                             |
 | --------------------------------------- | ---------------------------------------------------------------- |
-| `@ocentra-parent/schema-domain`         | Shared Effect Schema wrappers, brand/decode helpers, and every canonical TypeScript runtime contract organized by domain folder. |
-| `@ocentra-parent/endpoint-domain`       | Endpoint-specific constant catalogs and helpers that consume canonical contracts. |
-| `@ocentra-parent/agent-protocol-domain` | Protocol adapters and transport-facing mapping built from canonical contracts. |
-| `@ocentra-parent/text-domain`           | Display text tokens and text-catalog helpers.                    |
-| `@ocentra-parent/portal-domain`         | Portal routes, DOM constants, and dev command button contracts.  |
-| `@ocentra-parent/parent-domain`         | Parent/family/device business logic, projections, and helpers that consume canonical contracts. |
-| `@ocentra-parent/activity-domain`       | Activity-specific projections, mapping helpers, and package-local logic that consume canonical contracts. |
-| `@ocentra-parent/logging-domain`        | Logging catalogs, redaction helpers, and proof-chain composition built on canonical contracts. |
+| `crates/schema`                         | Canonical cross-boundary Rust DTOs, route snapshots, action/result shapes, generated TypeScript bridge artifacts, and encoded-shape tests. |
+| `crates/parent-runtime-core`            | Parent app facade: accepts UI actions, dispatches Rust commands/events, and builds route snapshots. |
+| Rust domain/runtime crates              | Product logic, projections, read models, security decisions, policy decisions, and runtime state for their domain. |
+| `crates/ocentra-eventing`               | Rust event backbone and internal business-event decoupling.      |
+| `apps/parent-desktop/src-tauri`         | Product Tauri command/event host into Rust.                      |
+| `apps/portal` / future `apps/parent-ui` | Presentation only: TSX, CSS, assets, generated bridge DTO imports, host/dev adapters, and visual state. |
+| `@ocentra-parent/schema-domain`         | Transitional TS edge decoders or generated validation adapters only; no new product authority. |
+| `@ocentra-parent/agent-protocol-domain` | Transitional dev/protocol adapters only until Rust/generated consumers replace them. |
+| `@ocentra-parent/portal-domain`         | Pure presentation helpers only; no product contracts, route snapshots, or business logic. |
+| `@ocentra-parent/text-domain`           | Pure presentation text only, if it does not encode product state or policy. |
+| `@ocentra-parent/logging-domain`        | Narrow dev/proof/UI-edge helpers only; Rust owns product proof logs. |

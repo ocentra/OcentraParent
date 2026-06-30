@@ -1,6 +1,7 @@
 use super::TestResult;
 use std::collections::BTreeSet;
 
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::PolicyDeliveryId;
 use ocentra_policy_control_core::policy_event::{
     apply_policy_event_replay, policy_event_contract_registry, policy_event_family_namespace,

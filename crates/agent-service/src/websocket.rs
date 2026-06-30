@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
 };
+use std::path::Path;
 
 mod command_classifiers;
 mod policy_request_confirm;
@@ -63,6 +64,7 @@ use crate::{
     lan_pairing::{
         build_lan_pairing_status_report, route_lan_command, LanCommandDecision, LanPairingRuntime,
     },
+    lan_runtime_stream_api::build_lan_runtime_event_chain_stream_report,
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
     network_android_vpn_service_gate_status_bridge::build_network_android_vpn_service_gate_status_report,
@@ -80,59 +82,66 @@ use crate::{
     snapshot::build_dev_log_snapshot,
 };
 
-#[cfg(test)]
-mod test_helpers;
-#[cfg(test)]
+const BROWSER_POLICY_TEST_STORE_PREFIX: &str = "browser-policy";
+const SCREEN_SETTINGS_TEST_STORE_PREFIX: &str = "screen-settings";
+const TEST_RUNTIME_STORE_FILE_PREFIX: &str = "ocentra-parent-agent-service-";
+const TEST_RUNTIME_STORE_FILE_EXTENSION: &str = ".json";
+
 pub(crate) async fn handle_command_text_for_test(
     text: &str,
     lan_pairing: LanPairingRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    Box::pin(test_helpers::handle_command_text_for_test(
+    Box::pin(handle_command_text(
         text,
         lan_pairing,
+        BrowserPolicyRuntime::for_store_path(temp_runtime_store_path(
+            BROWSER_POLICY_TEST_STORE_PREFIX,
+        )),
+        ScreenSettingsRuntime::for_store_path(temp_runtime_store_path(
+            SCREEN_SETTINGS_TEST_STORE_PREFIX,
+        )),
         origin,
     ))
     .await
 }
 
-#[cfg(test)]
 pub(crate) async fn handle_command_text_with_browser_policy_for_test(
     text: &str,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    Box::pin(
-        test_helpers::handle_command_text_with_browser_policy_for_test(
-            text,
-            lan_pairing,
-            browser_policy,
-            origin,
-        ),
-    )
+    Box::pin(handle_command_text(
+        text,
+        lan_pairing,
+        browser_policy,
+        ScreenSettingsRuntime::for_store_path(temp_runtime_store_path(
+            SCREEN_SETTINGS_TEST_STORE_PREFIX,
+        )),
+        origin,
+    ))
     .await
 }
 
-#[cfg(test)]
-pub(crate) async fn handle_command_text_with_screen_settings_for_test(
+pub async fn dispatch_local_command_text(text: &str) -> AgentEventEnvelope {
+    handle_command_text_for_test(text, LanPairingRuntime::empty(), None).await
+}
+
+pub async fn dispatch_local_command_text_with_browser_policy_store(
     text: &str,
-    lan_pairing: LanPairingRuntime,
-    screen_settings: ScreenSettingsRuntime,
-    origin: Option<String>,
+    store_path: &Path,
 ) -> AgentEventEnvelope {
-    Box::pin(
-        test_helpers::handle_command_text_with_screen_settings_for_test(
-            text,
-            lan_pairing,
-            screen_settings,
-            origin,
-        ),
+    handle_command_text_with_browser_policy_for_test(
+        text,
+        LanPairingRuntime::empty(),
+        BrowserPolicyRuntime::for_store_path(store_path),
+        None,
     )
     .await
 }
 
-pub async fn handle_socket(
+pub(crate) async fn handle_socket(
     mut socket: WebSocket,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
@@ -194,6 +203,10 @@ async fn handle_command_text(
     screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
+    if text.len() > constants::lan_pairing::LAN_WEBSOCKET_COMMAND_MAX_BYTES {
+        return oversized_command_text_rejected();
+    }
+
     match serde_json::from_str::<AgentCommandEnvelope>(text) {
         Ok(command) => {
             Box::pin(handle_command(
@@ -218,6 +231,39 @@ async fn handle_command_text(
             None,
         ),
     }
+}
+
+fn oversized_command_text_rejected() -> AgentEventEnvelope {
+    build_event(
+        constants::event_id::COMMAND_REJECTED,
+        constants::event_id::UNKNOWN_COMMAND,
+        portal_peer(),
+        AgentEventName::AgentCommandRejected,
+        LogLevel::Warn,
+        fields_from_pairs(vec![
+            (
+                constants::field::LAN_CONTROL_STATE,
+                LogFieldValue::String(constants::value::LAN_CONTROL_REJECTED.to_string()),
+            ),
+            (
+                constants::field::LAN_AUDIT_EVENT_TYPE,
+                LogFieldValue::String(constants::value::LAN_AUDIT_CONTROL_REJECTED.to_string()),
+            ),
+            (
+                constants::field::LAN_REJECTION_REASON,
+                LogFieldValue::String(constants::value::LAN_REASON_PAYLOAD_TOO_LARGE.to_string()),
+            ),
+            (
+                constants::field::LAN_AUTHENTICATION_STATE,
+                LogFieldValue::String(constants::value::LAN_AUTH_UNAUTHENTICATED.to_string()),
+            ),
+            (
+                constants::field::REASON,
+                LogFieldValue::String(constants::value::LAN_REASON_PAYLOAD_TOO_LARGE.to_string()),
+            ),
+        ]),
+        None,
+    )
 }
 
 async fn handle_command(
@@ -318,9 +364,12 @@ async fn build_command_event(
         | AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet => {
             build_enforcement_command_report(command).await
         }
-        command_name if is_lan_runtime_command(&command_name) => {
-            build_lan_pairing_status_report(&lan_pairing, command)
-        }
+        command_name if is_lan_runtime_command(&command_name) => match command_name {
+            AgentCommandName::AgentLanRuntimeEventChainStreamGet => {
+                build_lan_runtime_event_chain_stream_report(&lan_pairing, command).await
+            }
+            _ => build_lan_pairing_status_report(&lan_pairing, command),
+        },
         _ => build_log_snapshot_report(command),
     }
 }
@@ -604,4 +653,20 @@ fn build_watcher_status_report(command: AgentCommandEnvelope) -> AgentEventEnvel
 async fn send_event(socket: &mut WebSocket, event: AgentEventEnvelope) -> Result<(), axum::Error> {
     let text = serde_json::to_string(&event).map_err(axum::Error::new)?;
     socket.send(Message::Text(text.into())).await
+}
+
+fn temp_runtime_store_path(prefix: &str) -> std::path::PathBuf {
+    use std::sync::atomic::{AtomicU64, Ordering};
+
+    static TEST_RUNTIME_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+    let sequence = TEST_RUNTIME_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let mut file_name = String::from(TEST_RUNTIME_STORE_FILE_PREFIX);
+    file_name.push_str(prefix);
+    file_name.push('-');
+    file_name.push_str(&std::process::id().to_string());
+    file_name.push('-');
+    file_name.push_str(&sequence.to_string());
+    file_name.push_str(TEST_RUNTIME_STORE_FILE_EXTENSION);
+    std::env::temp_dir().join(file_name)
 }

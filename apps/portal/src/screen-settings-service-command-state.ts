@@ -1,9 +1,5 @@
 import { type ScreenAnalysisParentSetting } from '@ocentra-parent/schema-domain/screen-evidence-settings';
 import {
-  AgentEvent,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import {
   ScreenSettingsGetRequestSchema,
   ScreenSettingsReplaceRequestSchema,
   ScreenSettingsSchemaVersion,
@@ -16,26 +12,28 @@ import {
   type ScreenSettingsUpdateRequest,
   type ScreenSettingsUpdateResponse,
 } from '@ocentra-parent/schema-domain/agent-screen-settings';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
-import type { ParentUiAction } from './generated/parent-ui-bridge';
+import { ParentUiActionKind, type ParentUiActionPayload } from '../generated/parent-ui-bridge';
 
 export type ScreenSettingsServiceRequestId = ReturnType<typeof createScreenSettingsPortalRequestId>;
 export type ScreenSettingsServiceBridgeAction =
-  | 'screen-settings-get-requested'
-  | 'screen-settings-replace-requested';
+  | typeof ParentUiActionKind.ScreenSettingsGetRequested
+  | typeof ParentUiActionKind.ScreenSettingsReplaceRequested;
 
 export type ScreenSettingsServiceCommandDraft = {
   readonly action: ScreenSettingsServiceBridgeAction;
-  readonly payload: ParentUiAction['payload'];
+  readonly payload: ParentUiActionPayload;
   readonly requestId: ScreenSettingsServiceRequestId;
 };
 
+export type ScreenSettingsServiceResponse = ScreenSettingsUpdateResponse | null;
 const SCREEN_SETTINGS_REQUEST_ID_PREFIX = 'screen-settings-request-';
 
 export function createScreenSettingsGetCommandDraft(sequence: number): ScreenSettingsServiceCommandDraft {
   const requestId = createScreenSettingsPortalRequestId(sequence);
   return {
-    action: 'screen-settings-get-requested',
+    action: ParentUiActionKind.ScreenSettingsGetRequested,
     payload: createScreenSettingsCommandPayload(createScreenSettingsGetRequest(requestId)),
     requestId,
   };
@@ -48,7 +46,7 @@ export function createScreenSettingsReplaceCommandDraft(input: {
 }): ScreenSettingsServiceCommandDraft {
   const requestId = createScreenSettingsPortalRequestId(input.sequence);
   return {
-    action: 'screen-settings-replace-requested',
+    action: ParentUiActionKind.ScreenSettingsReplaceRequested,
     payload: createScreenSettingsCommandPayload(
       createScreenSettingsReplaceRequest({
         requestId,
@@ -60,31 +58,15 @@ export function createScreenSettingsReplaceCommandDraft(input: {
   };
 }
 
-export function latestScreenSettingsServiceResponse(
-  events: readonly AgentEventEnvelope[],
-  requestId: ScreenSettingsServiceRequestId | null
-): ScreenSettingsUpdateResponse | null {
-  for (const event of events) {
-    const response = parseScreenSettingsUpdateEvent(event);
-    if (response === null) {
-      continue;
-    }
-    if (requestId === null || response.requestId === requestId) {
-      return response;
-    }
-  }
-  return null;
-}
-
-export function decodeScreenSettingsServiceResponseSnapshot(snapshot: unknown): ScreenSettingsUpdateResponse | null {
+export function decodeScreenSettingsServiceResponseSnapshot(snapshot: unknown): ScreenSettingsServiceResponse {
   const parsed = ScreenSettingsUpdateResponseSchema.safeParse(snapshot);
   return parsed.success ? parsed.data : null;
 }
 
 export function matchingScreenSettingsServiceResponse(
-  response: ScreenSettingsUpdateResponse | null,
+  response: ScreenSettingsServiceResponse,
   requestId: ScreenSettingsServiceRequestId | null
-): ScreenSettingsUpdateResponse | null {
+): ScreenSettingsServiceResponse {
   if (response === null) {
     return null;
   }
@@ -126,7 +108,7 @@ export function screenSettingsServiceStatusText(input: {
   return input.proof.serviceNoResponseStatus;
 }
 
-function createScreenSettingsPortalRequestId(sequence: number): string {
+function createScreenSettingsPortalRequestId(sequence: number) {
   return `${SCREEN_SETTINGS_REQUEST_ID_PREFIX}${sequence}`;
 }
 
@@ -152,42 +134,13 @@ function createScreenSettingsReplaceRequest(input: {
   });
 }
 
-function createScreenSettingsCommandPayload(request: ScreenSettingsUpdateRequest): ParentUiAction['payload'] {
+function createScreenSettingsCommandPayload(request: ScreenSettingsUpdateRequest): ParentUiActionPayload {
   const parsed = ScreenSettingsUpdateRequestSchema.safeParse(request);
   if (!parsed.success || parsed.data === undefined) {
     throw new Error('invalid screen settings request');
   }
   return {
-    screenSettingsRequest: JSON.stringify(parsed.data),
-    screenSettingsUpdateKind: parsed.data.kind,
+    [AgentProtocolDefaults.Field.ScreenSettingsRequest]: JSON.stringify(parsed.data),
+    [AgentProtocolDefaults.Field.ScreenSettingsUpdateKind]: parsed.data.kind,
   };
-}
-
-function parseScreenSettingsUpdateEvent(event: AgentEventEnvelope): ScreenSettingsUpdateResponse | null {
-  if (
-    event.event !== AgentEvent.ScreenSettingsReported &&
-    event.event !== AgentEvent.ScreenSettingsReplaceAccepted &&
-    event.event !== AgentEvent.ScreenSettingsReplaceRejected
-  ) {
-    return null;
-  }
-
-  const raw = event.payload['screenSettingsResponse'];
-  if (typeof raw !== 'string') {
-    return null;
-  }
-
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-
-  const parsed = ScreenSettingsUpdateResponseSchema.safeParse(decoded);
-  if (!parsed.success || parsed.data === undefined) {
-    return null;
-  }
-
-  return parsed.data;
 }

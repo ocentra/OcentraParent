@@ -33,7 +33,7 @@ This plan owns the policy control plane: source truth, decision/precedence seman
 Module roles:
 
 ```text
-schema-domain: canonical shared policy shapes when contracts cross package, app, crate, or plan boundaries.
+crates/schema: canonical shared policy shapes when contracts cross package, app, crate, or plan boundaries.
 policy-domain: legacy/package anchor or TypeScript proof-consumer surface unless explicit public exports exist.
 policy-control-core: Rust source, authority, compiler, conflict, delivery, event, preview, request, and source helper crate.
 agent-protocol and agent-protocol-domain: delivery/read-model/audit/assistant seams only when selected.
@@ -49,7 +49,7 @@ domain plans: app/game, browser, network, tracking, screen, and AI runtime effec
 Direct imports are allowed only for explicit public helper surfaces:
 
 ```text
-schema-domain canonical policy contracts and shared shapes
+crates/schema canonical policy contracts and shared shapes
 policy-control-core public Rust helpers when the selected workpack owns Rust control proof
 policy-domain public exports when they actually exist and are selected
 agent-protocol/agent-protocol-domain public delivery/read-model/audit/assistant contracts when selected

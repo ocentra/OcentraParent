@@ -6,6 +6,12 @@
 //! for evaluation requests. Broader payment and policy ownership stay outside
 //! this crate.
 
+use crate::entitlement_snapshot::EntitlementSnapshotContext;
+use crate::entitlement_snapshot_values::{
+    EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState,
+    EntitlementPackageBuildState, EntitlementSnapshotBindingState,
+    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
+};
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
@@ -89,60 +95,6 @@ pub enum EntitlementManualReviewState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum EntitlementSnapshotSignatureState {
-    #[serde(rename = "trusted")]
-    Trusted,
-    #[serde(rename = "missing")]
-    Missing,
-    #[serde(rename = "invalid")]
-    Invalid,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum EntitlementSnapshotFreshnessState {
-    #[serde(rename = "fresh")]
-    Fresh,
-    #[serde(rename = "stale")]
-    Stale,
-    #[serde(rename = "expired")]
-    Expired,
-    #[serde(rename = "revoked")]
-    Revoked,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum EntitlementSnapshotBindingState {
-    #[serde(rename = "matched")]
-    Matched,
-    #[serde(rename = "mismatched")]
-    Mismatched,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum EntitlementDeviceTrustRequirementState {
-    #[serde(rename = "required")]
-    Required,
-    #[serde(rename = "not-required")]
-    NotRequired,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum EntitlementDeviceTrustState {
-    #[serde(rename = "present")]
-    Present,
-    #[serde(rename = "missing")]
-    Missing,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum EntitlementPackageBuildState {
-    #[serde(rename = "valid")]
-    Valid,
-    #[serde(rename = "invalid")]
-    Invalid,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EntitlementCapabilityRejectionReason {
     #[serde(rename = "missing-signature")]
     MissingSignature,
@@ -170,17 +122,6 @@ pub enum EntitlementCapabilityRejectionReason {
     ParentPortalOnlyScope,
     #[serde(rename = "inactive-subscription")]
     InactiveSubscription,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub struct EntitlementSnapshotContext {
-    pub signature_state: EntitlementSnapshotSignatureState,
-    pub freshness_state: EntitlementSnapshotFreshnessState,
-    pub household_binding_state: EntitlementSnapshotBindingState,
-    pub device_binding_state: EntitlementSnapshotBindingState,
-    pub device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
-    pub device_trust_state: EntitlementDeviceTrustState,
-    pub package_build_state: EntitlementPackageBuildState,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

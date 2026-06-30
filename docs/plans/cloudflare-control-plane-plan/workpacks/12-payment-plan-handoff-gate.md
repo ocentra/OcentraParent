@@ -57,38 +57,72 @@ no_claim
 
 These are field requirements for proof routing, not implementation code prescriptions.
 
-## Acceptance
+## Status
 
-- Payment knows whether the module exists.
-- Payment knows whether auth boundary exists or is blocked.
-- Payment knows whether local dev/test runner exists or is blocked.
-- Payment knows whether no-provider-secrets and portal-to-worker boundaries are explicit.
-- Payment knows which proof roots are accepted and which roots are missing or carried as blockers.
-- Payment knows which assumptions it may consume and which assumptions it must not make.
-- Payment knows whether account/session, trusted-device, provider-webhook, deployment, storage/queue, and data-custody dependencies are ready, blocked, or manual-required.
+- `blocked / proof-present`
+- Proof root: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`
 
-## Proof IDs
+## Execution truth
 
-- `cloudflare-control.payment-plan-handoff`
+- The handoff artifact now records the current accepted Cloudflare proof roots relevant to payment assumptions from WP01 through WP11.
+- No Cloudflare proof roots remain missing in the current handoff inventory.
+- Payment remains blocked because the accepted roots still carry external billing-boundary blockers, WP02 lint debt, manual-required authority and deployment states, and no downstream payment acknowledgment is owned or recorded here.
 
-## Validation
+## Accepted proof roots
 
-- Aggregate accepted WP03-WP11 proof roots and record downstream payment assumptions plus blockers.
-- Record exact command output or blocker rows under the WP12 proof root.
-- Keep payment runtime work blocked if any required upstream root is missing without an accepted carried-blocker decision.
+- `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`
+- `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
+- `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
+- `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/`
+- `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
+- `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
+- `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
+- `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
+- `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
+- `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/`
+- `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
 
-## Negative cases
+## Exact blocker set
+
+- Missing proof roots:
+  - none under the current Cloudflare proof inventory
+- Accepted-root carried blockers:
+  - broader Cloudflare runtime and validation reruns remain blocked on:
+    - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+  - broader Cloudflare module, local-dev, and deploy dry-run surfaces also remain blocked on:
+    - `packages/billing-domain/src/billing-referral-boundary.js`
+    - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
+    - `packages/billing-domain/src/billing-account-runtime-boundary.js`
+    - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+  - WP02 also carries module-lint debt from:
+    - `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
+- Dependency and readiness states:
+  - account/session authority: `manual-required / blocked`
+  - trusted-parent-device authority: `manual-required / blocked`
+  - provider webhook readiness: `blocked / proof-present`
+  - storage and queue operations readiness: `blocked / proof-present`
+  - portal smoke: `blocked / proof-present`
+  - deployment promotion: `blocked / proof-present`
+  - downstream payment acknowledgment: `blocked / not-recorded`
+
+## Validations run
+
+- Powershell proof-root gate check for WP01 through WP11
+- `git diff --check -- output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/00-scope-summary.md output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/01-negative-case-proof.md output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/02-rollback-or-teardown-proof.md output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/16-validation-commands.log output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md docs/plans/cloudflare-control-plane-plan/NEXT_ACTIONS.md docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md`
+- `npm run lint:architecture -- --files docs/plans/cloudflare-control-plane-plan output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate`
+
+## No-claim boundary
+
+- This workpack does not unblock `payment-subscription-plan`.
+- This workpack does not prove Cloudflare runtime readiness.
+- This workpack does not convert blocked-state WP01 through WP11 proof into payment readiness.
+- This workpack does not close account authority, trusted-device authority, deployment readiness, or data-custody ownership.
+
+## Failure conditions
 
 - Reject unblocking payment from docs alone when core Cloudflare blockers remain.
 - Reject unblocking payment from source presence or route manifest presence alone.
 - Reject unblocking payment from local dev proof as production deploy proof.
 - Reject unblocking payment from auth adapter proof as production account/trusted-device authority proof.
 - Reject unblocking payment from billing handler presence as payment semantics readiness.
-
-## Failure conditions
-
-- Do not mark payment unblocked without explicit handoff proof.
-- Do not mark payment unblocked without naming accepted proof roots and carried blockers.
-- Do not mark payment unblocked without downstream payment-plan acknowledgment.
-- Do not collapse account, trusted-device, provider, deployment, or data-custody blockers into Cloudflare readiness.
 - Do not store the handoff proof inside this plan folder; use the output proof root.

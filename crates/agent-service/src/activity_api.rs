@@ -38,89 +38,29 @@ use ocentra_parent_agent_protocol::transport::{
 pub(crate) mod activity_memory_graph_report;
 pub(crate) mod app_game_adapter_dispatch_execute_payload;
 pub(crate) mod app_game_adapter_dispatch_preflight_payload;
-#[cfg(test)]
-mod app_game_adapter_dispatch_preflight_payload_tests;
-#[cfg(test)]
-mod app_game_adapter_dispatch_preflight_service_tests;
 pub(crate) mod app_game_adapter_dispatch_result_payload;
-#[cfg(test)]
-mod app_game_adapter_dispatch_result_payload_tests;
-#[cfg(test)]
-mod app_game_adapter_dispatch_result_service_tests;
 pub(crate) mod app_game_adapter_execution_readiness_payload;
-#[cfg(test)]
-mod app_game_adapter_execution_readiness_payload_tests;
-#[cfg(test)]
-mod app_game_adapter_execution_readiness_service_tests;
 mod app_game_adapter_host_capabilities;
 mod app_game_boundary_read_model_payload;
-#[cfg(test)]
-mod app_game_boundary_read_model_payload_tests;
-#[cfg(test)]
-mod app_game_boundary_read_model_service_tests;
 pub(crate) mod app_game_child_runtime_transport_receipt_payload;
-#[cfg(test)]
-mod app_game_child_runtime_transport_receipt_payload_tests;
-#[cfg(test)]
-mod app_game_child_runtime_transport_receipt_service_tests;
 mod app_game_notification_readiness_payload;
-#[cfg(test)]
-mod app_game_notification_readiness_payload_tests;
-#[cfg(test)]
-mod app_game_notification_readiness_service_tests;
 pub(crate) mod app_game_platform_proof_status_payload;
-#[cfg(test)]
-mod app_game_platform_proof_status_payload_tests;
-#[cfg(test)]
-mod app_game_platform_proof_status_service_tests;
 mod app_game_policy_readiness_payload;
-#[cfg(test)]
-mod app_game_policy_readiness_payload_tests;
-#[cfg(test)]
-mod app_game_policy_readiness_service_tests;
 mod app_game_policy_readiness_sources;
 pub(crate) mod app_game_timer_parent_preference_setup_request;
 mod app_game_timer_parent_preference_setup_request_outbox;
 mod app_game_timer_parent_preference_setup_request_persistence;
 mod app_game_timer_parent_preference_setup_request_status;
-#[cfg(test)]
-mod app_game_timer_parent_preference_setup_request_tests;
 mod app_game_timer_parent_surface_action_results;
 pub(crate) mod app_game_timer_parent_surface_payload;
-#[cfg(test)]
-mod app_game_timer_parent_surface_payload_tests;
-#[cfg(test)]
-mod app_game_timer_parent_surface_service_tests;
 mod browser_intervention_payload;
 pub(crate) mod browser_intervention_report;
 pub(crate) mod social_alert_report_parent_surface_read_model_payload;
-#[cfg(test)]
-mod social_alert_report_parent_surface_read_model_payload_tests;
 pub(crate) mod social_alert_report_read_model_payload;
-#[cfg(test)]
-mod social_alert_report_read_model_payload_tests;
-#[cfg(test)]
-mod social_alert_report_read_model_service_tests;
 pub(crate) mod social_audit_explanation_read_model_payload;
-#[cfg(test)]
-mod social_audit_explanation_read_model_payload_tests;
-#[cfg(test)]
-mod social_audit_explanation_read_model_service_tests;
 pub(crate) mod social_dashboard_read_model_payload;
-#[cfg(test)]
-mod social_dashboard_read_model_payload_tests;
-#[cfg(test)]
-mod social_dashboard_read_model_service_tests;
 pub(crate) mod social_parent_notification_delivery_read_model_payload;
-#[cfg(test)]
-mod social_parent_notification_delivery_read_model_payload_tests;
-#[cfg(test)]
-mod social_parent_notification_delivery_read_model_service_tests;
 pub(crate) mod social_source_custody_mutation_payload;
-#[cfg(test)]
-mod social_source_custody_mutation_payload_tests;
-#[cfg(test)]
-mod social_source_custody_mutation_service_tests;
 
 use self::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,

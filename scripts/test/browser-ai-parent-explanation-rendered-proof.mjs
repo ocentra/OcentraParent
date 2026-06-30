@@ -61,18 +61,6 @@ try {
   await mkdir(proofResultDir, { recursive: true });
   await runNpm(['run', 'build:contracts']);
   const proofBundle = await buildProofBundle();
-  await runNpmWorkspace('@ocentra-parent/browser-domain', [
-    'run',
-    'test',
-    '--',
-    'tests/unit/browser-ai-parent-explanation.test.ts',
-  ]);
-  await runNpmWorkspace('@ocentra-parent/text-domain', [
-    'run',
-    'test',
-    '--',
-    'tests/unit/browser-parent-explanation.test.ts',
-  ]);
   await runNpmWorkspace('@ocentra-parent/portal-domain', ['run', 'type-check']);
   await runNpmWorkspace('@ocentra-parent/portal', ['run', 'type-check']);
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);

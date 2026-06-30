@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::{
     apple_network_extension_gate::{
         plan_network_apple_network_extension_gate, NetworkAppleNetworkExtensionCapabilityState,
@@ -186,7 +187,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
         requested_action: NetworkEvidencePolicyAction::Block,
         adapter_capability_proof_ref: None,
     })
-    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    .expect_value(constants::event_id::NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS_REPORTED)
 }
 
 fn protocol_platform(

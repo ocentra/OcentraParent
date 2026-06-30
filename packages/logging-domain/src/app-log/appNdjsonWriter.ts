@@ -3,6 +3,7 @@ import path from 'node:path';
 import { AppLogEntrySchema, type AppLogEntry } from '@ocentra-parent/schema-domain/app-log/types';
 import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 import { getAppLogScopeDir, getAppSessionFilePath } from '../test-log/ndjsonPaths';
+import { selectGeneratedPruneCandidates } from '../generated/local-test-log';
 
 export function appendAppLogEntries(
   scope: TestLogScope,
@@ -54,9 +55,9 @@ export function pruneAppLogSessions(scope: TestLogScope, keepNewest: number, roo
     }))
     .sort((left, right) => right.modifiedMs - left.modifiedMs);
 
-  const filesToDelete = files.slice(Math.max(keepNewest, 0));
+  const filesToDelete = selectGeneratedPruneCandidates(files, keepNewest);
   for (const file of filesToDelete) {
-    fs.rmSync(file.filePath, { force: true });
+    fs.rmSync(file, { force: true });
   }
 
   return filesToDelete.length;

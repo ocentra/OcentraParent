@@ -1,9 +1,25 @@
 #![forbid(unsafe_code)]
 
-#[cfg(test)]
-mod performance_budget;
-#[cfg(test)]
-mod runtime_decision;
+pub mod browser_android_owned_shell_runtime;
+pub mod browser_android_owned_shell_url_custody;
+pub mod browser_game_hidden_analysis_loader;
+pub mod browser_game_policy_candidate_compiler;
+pub mod browser_game_url_shape_evaluator;
+pub mod browser_hidden_analysis_loader;
+pub mod browser_policy_questionnaire_forest;
+pub mod browser_url_intelligence;
+pub mod performance_budget;
+pub mod runtime_decision;
+pub mod social_alert_report_local_outbox_bridge;
+pub mod social_alert_report_preference_preflight;
+pub mod social_alert_report_preference_status_handoff;
+pub mod social_alert_report_provider_dispatch_execution;
+pub mod social_alert_report_scheduler_bridge;
+pub mod social_applied_schedule_time_budget_proof;
+pub mod social_managed_browser_policy_execution;
+pub mod social_policy_candidate_compiler;
+pub mod social_video_ai_signal_aggregate;
+pub mod social_video_source_privacy;
 
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,

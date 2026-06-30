@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_core::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
 use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
@@ -40,7 +41,7 @@ pub(crate) fn v08_enforcement_policy_dispatch_read_model(
     };
 
     validate_enforcement_policy_dispatch_read_model(&read_model)
-        .unwrap_or_else(|_| panic!("{}", dispatch::READ_MODEL_ID));
+        .expect_value(dispatch::READ_MODEL_ID);
     read_model
 }
 

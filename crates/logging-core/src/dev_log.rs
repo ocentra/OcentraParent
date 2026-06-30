@@ -18,6 +18,7 @@ use crate::{
     },
     source::LogSource,
 };
+use ocentra_schema::logging_contracts::{LogEntryId, LogLaneId, LogRunId};
 
 pub const DEV_LOG_STREAM: &str = "dev-log";
 
@@ -81,8 +82,8 @@ impl DevLogger {
             source: self.source.clone(),
             message: message.to_owned(),
             fields,
-            run_id: self.run_id.clone(),
-            lane_id: self.lane_id.clone(),
+            run_id: self.run_id.clone().and_then(LogRunId::parse),
+            lane_id: self.lane_id.clone().and_then(LogLaneId::parse),
             command_id: None,
             correlation_id: None,
             file: None,
@@ -121,17 +122,27 @@ fn ensure_directory(directory: PathBuf) -> io::Result<PathBuf> {
     Ok(directory)
 }
 
-fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> String {
+fn log_entry_id_or_unreachable(value: Option<LogEntryId>, context: &str) -> LogEntryId {
+    match value {
+        Some(value) => value,
+        None => unreachable!("{context}"),
+    }
+}
+
+fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> LogEntryId {
     let digest = Sha256::digest(
         format!("{}:{}:{message}", source.compat_file_prefix(), timestamp).as_bytes(),
     );
-    format!(
-        "parent-log-{}-{}",
-        timestamp
-            .chars()
-            .filter(char::is_ascii_alphanumeric)
-            .collect::<String>(),
-        &format!("{digest:x}")[..8]
+    log_entry_id_or_unreachable(
+        LogEntryId::parse(format!(
+            "parent-log-{}-{}",
+            timestamp
+                .chars()
+                .filter(char::is_ascii_alphanumeric)
+                .collect::<String>(),
+            &format!("{digest:x}")[..8]
+        )),
+        "generated log id is always valid",
     )
 }
 

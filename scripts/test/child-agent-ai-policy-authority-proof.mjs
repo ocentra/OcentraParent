@@ -108,7 +108,7 @@ const positiveChecks = {
   childPolicySchemaParsed: childPolicyDecision.localAiResultId === childAcceptedResult.resultId,
   providerEventsWorkerOnly: eventChain.every((item) => validateAuthorityEvent(item).ok),
   meshProofRejectsProviderAuthority: JSON.stringify(meshProof ?? {}).includes('provider-authority'),
-  eventRuntimeProofPresent: eventProof !== null,
+  eventRuntimeProofPresent: eventProof !== undefined,
 };
 
 if (Object.values(positiveChecks).some((value) => value !== true)) {
@@ -122,8 +122,8 @@ const summary = {
   proof: 'child-agent-ai-policy-authority',
   generatedAt: checkedAt,
   sourceProofs: {
-    householdMesh: { path: relativePath(meshProofPath), present: meshProof !== null },
-    eventDrivenRuntime: { path: relativePath(eventProofPath), present: eventProof !== null },
+    householdMesh: { path: relativePath(meshProofPath), present: meshProof !== undefined },
+    eventDrivenRuntime: { path: relativePath(eventProofPath), present: eventProof !== undefined },
   },
   acceptedResult: {
     resultId: childAcceptedResult.resultId,

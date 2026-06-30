@@ -1,5 +1,5 @@
 import type { ParentPortalIconName, ParentPortalTabId, ParentPortalTone } from './parent-portal-data';
-import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalRoute } from './portal-contract-adapter';
 import {
   portalRouteHashPath,
   portalRouteHashPathWithQuery,

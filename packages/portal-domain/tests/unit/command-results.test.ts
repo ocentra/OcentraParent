@@ -6,7 +6,9 @@ import { PortalCommandResultEvents, isCommandResultEvent, latestCommandResult } 
 describe('portal command result contract', () => {
   it('recognizes portal-selectable command result events from the canonical list', () => {
     expect(PortalCommandResultEvents).toContain(AgentEvent.ActivityTrackingReadModelReported);
+    expect(PortalCommandResultEvents).toContain(AgentEvent.LanPairingStatusReported);
     expect(isCommandResultEvent(AgentEvent.ActivityTrackingReadModelReported)).toBe(true);
+    expect(isCommandResultEvent(AgentEvent.LanPairingStatusReported)).toBe(true);
     expect(isCommandResultEvent(AgentEvent.LanPairingBrowserDiscoveryReported)).toBe(false);
   });
 

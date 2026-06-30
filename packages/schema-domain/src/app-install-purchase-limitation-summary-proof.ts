@@ -2,9 +2,17 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseProviderStoreReportStatusProofReadModel } from './app-install-purchase-provider-store-report-status-proof';
 import { AppInstallPurchaseReportStatusReadModelHandoffProofReadModel } from './app-install-purchase-report-status-read-model-handoff-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseLimitationSummaryRowGenerated,
+  limitationSummaryProofIsHonestGenerated,
+  limitationSummaryRowIsHonestGenerated,
+  providerStateMapsToSummaryGenerated,
+  reportStateMapsToSummaryGenerated,
+  summarizeAppInstallPurchaseLimitationSummaryProofGenerated,
+} from './generated/app-install-purchase-report-status-helpers';
 const LimitationSummaryProofVersion = 'app-install-purchase-limitation-summary-proof';
-const SourceProviderStoreReportStatusProofVersion = 'app-install-purchase-provider-store-report-status-proof';
-const SourceReportStatusReadModelProofVersion = 'app-install-purchase-report-status-read-model-handoff-proof';
+const SourceProviderStoreReportStatusProofVersion = AppInstallPurchaseProviderStoreReportStatusProofReadModel.schemaVersion;
+const SourceReportStatusReadModelProofVersion = AppInstallPurchaseReportStatusReadModelHandoffProofReadModel.schemaVersion;
 const LimitationSummaryTimestamp = '2026-06-06T03:32:00.000Z';
 const LimitationSummaryBoundary =
   'limitation summary proof only; parent-visible ready manual-required and unavailable buckets link provider store report status rows to report status read-model rows no portal approval UI no portal report UI no external runtime report delivery no provider API execution no store integration no billing provider contact no platform adapter implementation no child-device delivery no app blocking no child activity data no Ocentra-hosted family data custody';
@@ -122,7 +130,7 @@ export const AppInstallPurchaseLimitationSummaryProofSchema = withParser(
 );
 
 export const AppInstallPurchaseLimitationSummaryKnownGaps = [
-  'Limitation summary rows are parent-domain proof rows only; no portal approval UI or report UI is implemented.',
+  'Limitation summary rows are rust-parent-runtime proof rows only; no portal approval UI or report UI is implemented.',
   'Provider/store execution, billing/provider contact, platform adapters, external runtime report delivery, child-device delivery, app blocking, child activity data, and hosted family data custody remain unimplemented.',
   'The unavailable bucket reflects provider/store source limitations only; parent-visible report rows stay ready or manual-required until real portal/platform runtime exists.',
 ] as const;
@@ -138,128 +146,44 @@ export const AppInstallPurchaseLimitationSummaryProofReadModel = AppInstallPurch
 });
 
 export function summarizeAppInstallPurchaseLimitationSummaryProof(proof: AppInstallPurchaseLimitationSummaryProof) {
-  return {
-    limitationSummaryRows: proof.limitationSummaryRows.length,
-    readyRows: proof.limitationSummaryRows.filter((row) => row.limitationSummaryState === 'ready').length,
-    manualRequiredRows: proof.limitationSummaryRows.filter((row) => row.limitationSummaryState === 'manual-required')
-      .length,
-    unavailableRows: proof.limitationSummaryRows.filter((row) => row.limitationSummaryState === 'unavailable').length,
-    sourceProviderStoreRows: proof.limitationSummaryRows.flatMap((row) => row.sourceProviderStoreReportStatusRowIds)
-      .length,
-    sourceReportStatusRows: proof.limitationSummaryRows.flatMap((row) => row.sourceReportStatusReadModelRowIds).length,
-    providerExecutedRows: proof.limitationSummaryRows.filter((row) => row.providerApiExecutionClaim !== 'not-executed')
-      .length,
-    externallyDeliveredRows: proof.limitationSummaryRows.filter(
-      (row) => row.runtimeReportDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseLimitationSummaryProofGenerated(proof);
 }
 
 function limitationSummaryRow(state: (typeof LimitationSummaryStates)[number]) {
   const providerRows = AppInstallPurchaseProviderStoreReportStatusProofReadModel.providerStoreReportStatusRows.filter(
-    (row) => providerStateMapsToSummary(row.providerStoreReportStatusState) === state
+    (row) => providerStateMapsToSummaryGenerated(row.providerStoreReportStatusState) === state
   );
   const reportRows = AppInstallPurchaseReportStatusReadModelHandoffProofReadModel.reportStatusReadModelRows.filter(
-    (row) => reportStateMapsToSummary(row.parentVisibleReportStatusState) === state
+    (row) => reportStateMapsToSummaryGenerated(row.parentVisibleReportStatusState) === state
   );
-  return {
-    schemaVersion: LimitationSummaryProofVersion,
-    limitationSummaryRowId: `app-install-limitation-summary-${state}`,
-    limitationSummaryState: state,
-    sourceProviderStoreReportStatusProofVersion: SourceProviderStoreReportStatusProofVersion,
-    sourceProviderStoreReportStatusRowIds: providerRows.map((row) => row.providerStoreReportStatusRowId),
-    sourceProviderStoreReportStatusStates: providerRows.map((row) => row.providerStoreReportStatusState),
-    sourceReportStatusReadModelProofVersion: SourceReportStatusReadModelProofVersion,
-    sourceReportStatusReadModelRowIds: reportRows.map((row) => row.reportStatusReadModelRowId),
-    sourceReportStatusReadModelStates: reportRows.map((row) => row.parentVisibleReportStatusState),
-    sourceAuditEventRefs: uniqueRefs([
-      ...providerRows.flatMap((row) => row.sourceAuditEventRefs),
-      ...reportRows.flatMap((row) => row.reportAuditEventRefs),
-    ]),
-    parentVisibleSummaryRef: `parent-visible-app-install-limitation-summary-${state}`,
-    portalApprovalUiClaim: 'not-implemented',
-    portalReportUiClaim: 'not-implemented',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    billingProviderContactClaim: 'not-executed',
-    platformAdapterClaim: 'not-implemented',
-    childDeviceDeliveryClaim: 'not-delivered',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: LimitationSummaryBoundary,
-    summarizedAt: LimitationSummaryTimestamp,
-  } as const;
-}
-
-function providerStateMapsToSummary(state: string): (typeof LimitationSummaryStates)[number] {
-  if (state === 'provider-store-report-status-ready') {
-    return 'ready';
-  }
-  if (state === 'unavailable') {
-    return 'unavailable';
-  }
-  return 'manual-required';
-}
-
-function reportStateMapsToSummary(state: string): (typeof LimitationSummaryStates)[number] {
-  return state === 'parent-report-status-ready' ? 'ready' : 'manual-required';
-}
-
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
+  return buildAppInstallPurchaseLimitationSummaryRowGenerated(
+    state,
+    providerRows,
+    reportRows,
+    SourceProviderStoreReportStatusProofVersion,
+    SourceReportStatusReadModelProofVersion,
+    LimitationSummaryBoundary,
+    LimitationSummaryTimestamp
+  );
 }
 
 function limitationSummaryRowIsHonest(row: LimitationSummaryRowCandidate): boolean {
-  return (
-    limitationSummaryRowHasExpectedRefs(row) &&
-    limitationSummaryClaimsStayUnimplemented(row) &&
-    LimitationSummaryBoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
-  );
-}
-
-function limitationSummaryRowHasExpectedRefs(row: LimitationSummaryRowCandidate): boolean {
-  return (
-    row.sourceProviderStoreReportStatusProofVersion === SourceProviderStoreReportStatusProofVersion &&
-    row.sourceReportStatusReadModelProofVersion === SourceReportStatusReadModelProofVersion &&
-    row.parentVisibleSummaryRef.length > 0 &&
-    row.sourceAuditEventRefs.length > 0 &&
-    row.sourceProviderStoreReportStatusStates.every(
-      (state) => providerStateMapsToSummary(state) === row.limitationSummaryState
-    ) &&
-    row.sourceReportStatusReadModelStates.every(
-      (state) => reportStateMapsToSummary(state) === row.limitationSummaryState
-    )
-  );
-}
-
-function limitationSummaryClaimsStayUnimplemented(row: LimitationSummaryRowCandidate): boolean {
-  return (
-    row.portalApprovalUiClaim === 'not-implemented' &&
-    row.portalReportUiClaim === 'not-implemented' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.billingProviderContactClaim === 'not-executed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return limitationSummaryRowIsHonestGenerated(
+    row,
+    SourceProviderStoreReportStatusProofVersion,
+    SourceReportStatusReadModelProofVersion,
+    LimitationSummaryBoundaryFragments
   );
 }
 
 function limitationSummaryProofIsHonest(proof: AppInstallPurchaseLimitationSummaryProof): boolean {
-  const states = new Set(proof.limitationSummaryRows.map((row) => row.limitationSummaryState));
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourceProviderStoreReportStatusProofVersion === SourceProviderStoreReportStatusProofVersion &&
-    proof.sourceReportStatusReadModelProofVersion === SourceReportStatusReadModelProofVersion &&
-    proof.limitationSummaryRows.length === LimitationSummaryStates.length &&
-    LimitationSummaryStates.every((state) => states.has(state)) &&
-    LimitationSummaryNonClaims.every((claim) => nonClaims.has(claim)) &&
-    proof.limitationSummaryRows.every(limitationSummaryRowIsHonest) &&
-    proof.knownGaps.length > 0
+    limitationSummaryProofIsHonestGenerated(
+      proof,
+      SourceProviderStoreReportStatusProofVersion,
+      SourceReportStatusReadModelProofVersion,
+      LimitationSummaryStates,
+      LimitationSummaryNonClaims
+    ) && proof.limitationSummaryRows.every(limitationSummaryRowIsHonest)
   );
 }

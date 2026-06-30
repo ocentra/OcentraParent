@@ -14,7 +14,7 @@ export const AppGameAndroidUsageEventsCapabilityStateSchema = withParser(
 );
 
 export const AppGameAndroidUsageEventsReplayConsumerStateSchema = withParser(
-  Schema.Literal('parent-domain-boundary-only')
+  Schema.Literal('rust-parent-runtime-boundary-only')
 );
 
 export const AppGameAndroidUsageEventsCapabilityCommandSchema = withParser(
@@ -99,7 +99,7 @@ export function createAppGameAndroidUsageEventsCapabilityReadModel(input: {
     usageEventsBridgeState: 'package-local-scaffold',
     permissionState: 'settings-grant-required',
     eventCollectionState: 'runtime-grant-not-proved',
-    replayConsumerState: 'parent-domain-boundary-only',
+    replayConsumerState: 'rust-parent-runtime-boundary-only',
     commands: [
       AppGameAndroidUsageEventsCommandName.CapabilityGet,
       AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet,
@@ -159,7 +159,7 @@ function androidUsageEventsCapabilityStateIsHonest(readModel: AppGameAndroidUsag
     readModel.usageEventsBridgeState === 'package-local-scaffold' &&
     readModel.permissionState === 'settings-grant-required' &&
     readModel.eventCollectionState === 'runtime-grant-not-proved' &&
-    readModel.replayConsumerState === 'parent-domain-boundary-only'
+    readModel.replayConsumerState === 'rust-parent-runtime-boundary-only'
   );
 }
 

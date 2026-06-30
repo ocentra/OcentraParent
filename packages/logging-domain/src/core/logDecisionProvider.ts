@@ -1,11 +1,14 @@
-import type { LogLevel as LogLevelValue } from '@ocentra-parent/schema-domain/logging-contracts';
+import type { GeneratedLogLevel as LogLevelValue } from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import {
   createParentLogConfig,
   isDevOrTestEnvironment,
-  isLevelAtOrAbove,
-  normalizeDebugPath,
   type ParentLogConfig,
 } from './logConfig';
+import {
+  matchesGeneratedDebugSelection,
+  shouldGeneratedLogToConsole,
+  shouldGeneratedStoreLog,
+} from '../generated/parent-log-runtime';
 
 export interface ParentLogDecisionContext {
   readonly filePath?: string | null;
@@ -21,54 +24,20 @@ export interface LogDecisionProvider {
   getConfig(): ParentLogConfig;
 }
 
-function normalizeSource(source: string | null): string | null {
-  if (source == null || source.trim().length === 0) {
-    return null;
-  }
-  return source.trim().toLowerCase();
-}
-
-function matchesConfiguredDebugSource(config: ParentLogConfig, normalizedSource: string): boolean {
-  return config.debugSources.includes(normalizedSource);
-}
-
-function matchesRequestedDebugSource(normalizedSource: string, context?: ParentLogDecisionContext): boolean {
-  return context?.requestDebugSources?.some((entry) => entry.trim().toLowerCase() === normalizedSource) === true;
-}
-
-function matchesDebugFile(config: ParentLogConfig, filePath?: string | null): boolean {
-  if (filePath == null || filePath.trim().length === 0) {
-    return false;
-  }
-  const normalizedFile = normalizeDebugPath(filePath);
-  return config.debugFiles.some((entry) => normalizedFile.includes(entry));
-}
-
-function matchesDebugRun(config: ParentLogConfig, runId?: string | null): boolean {
-  if (runId == null || runId.trim().length === 0) {
-    return false;
-  }
-  return config.debugRuns.includes(runId.trim());
-}
-
 function matchesDebugSelection(
   config: ParentLogConfig,
   source: string | null,
   context?: ParentLogDecisionContext
 ): boolean {
-  const normalizedSource = normalizeSource(source);
-  if (
-    normalizedSource != null &&
-    (matchesConfiguredDebugSource(config, normalizedSource) || matchesRequestedDebugSource(normalizedSource, context))
-  ) {
-    return true;
-  }
-
-  if (matchesDebugFile(config, context?.filePath)) {
-    return true;
-  }
-
-  return matchesDebugRun(config, context?.runId);
+  return matchesGeneratedDebugSelection(
+    config.debugSources,
+    config.debugFiles,
+    config.debugRuns,
+    source,
+    context?.filePath,
+    context?.runId,
+    context?.requestDebugSources
+  );
 }
 
 export class ParentLogDecisionProvider implements LogDecisionProvider {
@@ -79,39 +48,27 @@ export class ParentLogDecisionProvider implements LogDecisionProvider {
   }
 
   shouldLogToConsole(source: string | null, level: LogLevelValue, context?: ParentLogDecisionContext): boolean {
-    if (!this.config.consoleEnabled) {
-      return false;
-    }
-
-    if (level === 'error' || level === 'warn') {
-      return true;
-    }
-
-    if (!this.config.enabled) {
-      return false;
-    }
-
-    if (matchesDebugSelection(this.config, source, context)) {
-      return true;
-    }
-
-    return isDevOrTestEnvironment(this.config) && isLevelAtOrAbove(level, this.config.minLevel);
+    return shouldGeneratedLogToConsole(
+      this.config.enabled,
+      this.config.consoleEnabled,
+      this.config.nodeEnv,
+      this.config.testMode,
+      level,
+      this.config.minLevel,
+      matchesDebugSelection(this.config, source, context)
+    );
   }
 
   shouldStoreLog(source: string | null, level: LogLevelValue, context?: ParentLogDecisionContext): boolean {
-    if (level === 'error' || level === 'warn') {
-      return true;
-    }
-
-    if (!this.config.storeEnabled || !this.config.enabled) {
-      return false;
-    }
-
-    if (matchesDebugSelection(this.config, source, context)) {
-      return true;
-    }
-
-    return isDevOrTestEnvironment(this.config) && isLevelAtOrAbove(level, this.config.minLevel);
+    return shouldGeneratedStoreLog(
+      this.config.enabled,
+      this.config.storeEnabled,
+      this.config.nodeEnv,
+      this.config.testMode,
+      level,
+      this.config.minLevel,
+      matchesDebugSelection(this.config, source, context)
+    );
   }
 
   isDevOrTestEnvironment(): boolean {

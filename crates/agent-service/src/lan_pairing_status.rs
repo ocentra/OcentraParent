@@ -1,4 +1,6 @@
+use ocentra_lan_core::lan_mdns_advertiser::current_platform_support;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementConfirmationState;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingChallengeRequest;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
@@ -19,7 +21,8 @@ use crate::{
     time::timestamp_now,
 };
 
-mod selection;
+#[path = "lan_pairing_status/selection.rs"]
+pub(crate) mod selection;
 
 #[derive(Clone, Debug)]
 struct LanPairingStatus {
@@ -240,7 +243,54 @@ fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogF
         ),
     ];
     pairs.extend(lan_ai_provider_support_pairs());
+    pairs.extend(mdns_advertisement_support_pairs(runtime));
+    pairs.extend(signed_child_agent_support_pairs(runtime));
     pairs
+}
+
+fn mdns_advertisement_support_pairs(
+    runtime: &LanPairingRuntime,
+) -> Vec<(&'static str, LogFieldValue)> {
+    let lifecycle = LanPairingRuntime::mdns_advertisement_lifecycle(
+        runtime.signed_child_agent_family_hash.is_some(),
+        false,
+        current_platform_support(),
+    );
+    vec![
+        (
+            constants::field::LAN_MDNS_ADVERTISEMENT_LIFECYCLE,
+            LogFieldValue::String(lifecycle.lifecycle_action.as_str().to_string()),
+        ),
+        (
+            constants::field::LAN_MDNS_ADVERTISEMENT_SUPPORT,
+            LogFieldValue::String(lifecycle.platform_support.as_str().to_string()),
+        ),
+        (
+            constants::field::LAN_MDNS_ADVERTISEMENT_CONFIRMATION,
+            LogFieldValue::String(
+                LanMdnsAdvertisementConfirmationState::HintOnly
+                    .as_str()
+                    .to_string(),
+            ),
+        ),
+    ]
+}
+
+fn signed_child_agent_support_pairs(
+    runtime: &LanPairingRuntime,
+) -> Vec<(&'static str, LogFieldValue)> {
+    vec![
+        (
+            constants::field::LAN_SIGNED_CHILD_AGENT_STATUS,
+            LogFieldValue::String(
+                constants::lan_pairing::PRODUCTION_PROOF_STATE_MANUAL_REQUIRED.to_string(),
+            ),
+        ),
+        (
+            constants::field::LAN_SIGNED_CHILD_AGENT_REPLAY_OBSERVED_COUNT,
+            LogFieldValue::Number(runtime.signed_child_agent_replay_observation_count() as f64),
+        ),
+    ]
 }
 
 fn lan_ai_provider_support_pairs() -> Vec<(&'static str, LogFieldValue)> {
@@ -262,6 +312,10 @@ fn lan_ai_provider_support_pairs() -> Vec<(&'static str, LogFieldValue)> {
             ),
         ),
     ]
+}
+
+pub(crate) fn discovery_state_for_runtime(runtime: &LanPairingRuntime) -> &'static str {
+    discovery_state(&pairing_status(runtime))
 }
 
 fn discovery_state(status: &LanPairingStatus) -> &'static str {

@@ -7,6 +7,7 @@ Purpose: define the units the billing system sells and the entitlement math the 
 - 1 parent portal.
 - 1 child device.
 - Trial/free starter service.
+- Extra parent access is not counted as a child-device seat; it remains a separate manual-required add-on state until a later workpack proves otherwise.
 
 ## Referral
 
@@ -32,6 +33,8 @@ effectiveChildDeviceLimit =
   - revokedCreditAdjustments
 ```
 
+The effective limit is derived from the app-owned entitlement ledger. Hosted checkout redirects, provider UI success states, and portal return states must not be treated as entitlement truth on their own.
+
 ## Units
 
 | Unit | Meaning | Source | Revocable |
@@ -50,3 +53,4 @@ effectiveChildDeviceLimit =
 - If the household exceeds entitlement, enter over-limit grace instead of deleting data or uninstalling child service.
 - Over-limit grace must not silently disable safety-critical local protection.
 - The system must block adding new child devices while showing upgrade, invite-more, or remove-device options.
+- Pricing references must reject game-economy tokens, currencies, or marketplace semantics; household billing is not a coin, gem, loot, crate, or battle-pass system.

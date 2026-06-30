@@ -48,12 +48,13 @@ required tests, fixtures, proof gates, and quality bars.
 ## 20-Step Plan
 
 1. Establish the LAN discovery contract boundary.
-   Define the canonical LAN contracts at the shared boundary: discovery source,
-   evidence, interface map, device record, merge score, classification,
-   install-eligibility state, child-agent hello, heartbeat, assignment, ignore,
-   rename, route state, and proof summary. Keep external input as unknown until
-   parsed at the boundary, and keep UI rendering downstream of typed service
-   snapshots rather than owning LAN truth.
+   Define the canonical LAN contracts at the shared Rust boundary: discovery
+   source, evidence, interface map, device record, merge score,
+   classification, install-eligibility state, child-agent hello, heartbeat,
+   assignment, ignore, rename, route state, and proof summary. Keep external
+   input as unknown until parsed at the boundary, and keep UI rendering
+   downstream of typed Rust-backed service snapshots rather than owning LAN
+   truth.
 
 2. Define the durable evidence model.
    Represent every observation as evidence with source, timestamp, confidence,
@@ -210,20 +211,24 @@ required tests, fixtures, proof gates, and quality bars.
     safe unpaired state.
 
 20. Add proof gates and rollout validation.
-   Validate TypeScript contracts, Rust protocol parity, local service behavior,
-   merge scoring, storage restart behavior, anonymous/wrong-origin/wrong-device
-   rejection, revocation, child hello/heartbeat, randomized/private MAC
-   handling, service-probe sanitization, no-crawl/no-full-scan behavior,
-   no-platform-from-vendor rules, installability-state honesty, and portal
-   read-model consumption. Record manual-required states for physical household
-   LAN, mobile child-agent behavior, OS permissions, packet-mode adapters, and
-   any platform claim that CI cannot prove.
+   Validate Rust-owned contracts, Rust protocol parity, local service
+   behavior, merge scoring, storage restart behavior,
+   anonymous/wrong-origin/wrong-device rejection, revocation, child
+   hello/heartbeat, randomized/private MAC handling, service-probe
+   sanitization, no-crawl/no-full-scan behavior, no-platform-from-vendor
+   rules, installability-state honesty, and portal read-model consumption.
+   Tests must live in real organized test folders or crates, not inline
+   source-owned tests, placeholder directories, or fake/mock readiness
+   coverage. Record manual-required states for physical household LAN, mobile
+   child-agent behavior, OS permissions, packet-mode adapters, and any
+   platform claim that CI cannot prove.
 
 ## Implementation Order
 
 The first concrete implementation slice should be:
 
-1. Contracts and tests for evidence, source, device record, and merge result.
+1. Rust-owned contracts and real tests for evidence, source, device record,
+   and merge result.
 2. Interface detector and neighbor table reader.
 3. Vendor lookup and merge/scoring engine.
 4. Durable store and event/read-model stream.
@@ -237,7 +242,8 @@ The first concrete implementation slice should be:
 - The required test and proof blueprint in
   [V0.9 LAN Discovery Test Blueprint](v0-9-lan-discovery-test-blueprint.md)
   must be followed for every implementation slice.
-- Contract tests for valid and invalid LAN discovery payloads.
+- Contract tests for valid and invalid LAN discovery payloads in real organized
+  test folders or crates.
 - Rust protocol parity tests before Rust service accepts or emits payloads.
 - Service tests for neighbor ingestion, merge behavior, restart persistence,
   anonymous rejection, wrong-origin rejection, wrong-device rejection, signed

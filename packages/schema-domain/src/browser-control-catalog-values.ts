@@ -1,182 +1,108 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  GeneratedBrowserControlApprovalRequiredForValues,
+  GeneratedBrowserControlApprovalUnansweredDefaultValues,
+  GeneratedBrowserControlAuditRequiredFieldValues,
+  GeneratedBrowserControlBrowserGameApprovalModeValues,
+  GeneratedBrowserControlBrowserGamePolicyModeValues,
+  GeneratedBrowserControlBudgetCountingModeValues,
+  GeneratedBrowserControlCustodyAllowedUseValues,
+  GeneratedBrowserControlDownloadBlockedTypeValues,
+  GeneratedBrowserControlEvidenceNeverCollectValues,
+  GeneratedBrowserControlEvidenceUrlScopeValues,
+  GeneratedBrowserControlManagedBrowserBridgeRequirementValues,
+  GeneratedBrowserControlManagedBrowserFamilyValues,
+  GeneratedBrowserControlManagedBrowserIntegrationMechanismValues,
+  GeneratedBrowserControlManagedBrowserLaunchModeValues,
+  GeneratedBrowserControlManagedBrowserProfileModeValues,
+  GeneratedBrowserControlManagedPolicyWriterControlValues,
+  GeneratedBrowserControlManagedPolicyWriterFallbackValues,
+  GeneratedBrowserControlReportVisibleFieldValues,
+  GeneratedBrowserControlRetentionExactUrlValues,
+  GeneratedBrowserControlRuleActionValues,
+  GeneratedBrowserControlUnmanagedBrowserClassificationTargetValues,
+} from './generated/browser-policy-control-catalog-contracts';
 
 export const BrowserControlManagedBrowserFamilySchema = withParser(
-  Schema.Literal(
-    'edge-stable',
-    'edge-beta',
-    'edge-dev',
-    'chrome-stable',
-    'chrome-beta',
-    'chrome-dev',
-    'chrome-for-testing',
-    'brave',
-    'firefox',
-    'safari-webkit',
-    'owned-webview'
-  )
+  Schema.Literal(...GeneratedBrowserControlManagedBrowserFamilyValues)
 );
 
 export const BrowserControlManagedBrowserLaunchModeSchema = withParser(
-  Schema.Literal('manual', 'ocentra-launcher', 'default-browser-route', 'managed-shell', 'admin-provisioned')
+  Schema.Literal(...GeneratedBrowserControlManagedBrowserLaunchModeValues)
 );
 
 export const BrowserControlManagedBrowserProfileModeSchema = withParser(
-  Schema.Literal('persistent-managed-profile', 'clear-on-schedule', 'clear-on-session-end', 'ephemeral')
+  Schema.Literal(...GeneratedBrowserControlManagedBrowserProfileModeValues)
 );
 
 export const BrowserControlManagedBrowserBridgeRequirementSchema = withParser(
-  Schema.Literal(
-    'owned-profile',
-    'loopback-only',
-    'random-port',
-    'reject-default-profile',
-    'reject-unmanaged-profile',
-    'redacted-refs',
-    'close-on-session-end',
-    'degrade-safely'
-  )
+  Schema.Literal(...GeneratedBrowserControlManagedBrowserBridgeRequirementValues)
 );
 
 export const BrowserControlManagedBrowserIntegrationMechanismSchema = withParser(
-  Schema.Literal('chromium-cdp', 'webdriver-bidi', 'managed-extension-native-host', 'browser-policy', 'owned-webview')
+  Schema.Literal(...GeneratedBrowserControlManagedBrowserIntegrationMechanismValues)
 );
 
 export const BrowserControlManagedPolicyWriterControlSchema = withParser(
-  Schema.Literal(
-    'disable-incognito',
-    'disable-guest-browsing',
-    'disable-profile-adding',
-    'limit-history-deletion',
-    'force-safe-search',
-    'force-restricted-mode',
-    'url-allow-list',
-    'url-block-list'
-  )
+  Schema.Literal(...GeneratedBrowserControlManagedPolicyWriterControlValues)
 );
 
 export const BrowserControlManagedPolicyWriterFallbackSchema = withParser(
-  Schema.Literal('observe-only', 'manual-required', 'degraded', 'unsupported', 'not-claimed')
+  Schema.Literal(...GeneratedBrowserControlManagedPolicyWriterFallbackValues)
 );
 
 export const BrowserControlUnmanagedBrowserClassificationTargetSchema = withParser(
-  Schema.Literal(
-    'known-browser',
-    'portable-browser',
-    'renamed-browser',
-    'browser-like-process',
-    'embedded-webview',
-    'private-or-tor',
-    'unknown'
-  )
+  Schema.Literal(...GeneratedBrowserControlUnmanagedBrowserClassificationTargetValues)
 );
 
 export const BrowserControlEvidenceUrlScopeSchema = withParser(
-  Schema.Literal('none', 'domain-only', 'domain-origin-title', 'full-url-without-query', 'full-url-with-query')
+  Schema.Literal(...GeneratedBrowserControlEvidenceUrlScopeValues)
 );
 
 export const BrowserControlEvidenceNeverCollectSchema = withParser(
-  Schema.Literal(
-    'page-body',
-    'chat-content',
-    'screenshots',
-    'keystrokes',
-    'form-values',
-    'secrets',
-    'decrypted-https-payload',
-    'raw-protocol-dumps'
-  )
+  Schema.Literal(...GeneratedBrowserControlEvidenceNeverCollectValues)
 );
 
-export const BrowserControlRuleActionSchema = withParser(
-  Schema.Literal(
-    'allow',
-    'monitor',
-    'warn',
-    'ask',
-    'limit',
-    'block',
-    'redirect',
-    'close-tab',
-    'close-browser',
-    'terminate-process',
-    'relaunch-managed'
-  )
-);
+export const BrowserControlRuleActionSchema = withParser(Schema.Literal(...GeneratedBrowserControlRuleActionValues));
 
 export const BrowserControlBrowserGamePolicyModeSchema = withParser(
-  Schema.Literal('allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required')
+  Schema.Literal(...GeneratedBrowserControlBrowserGamePolicyModeValues)
 );
 
 export const BrowserControlBrowserGameApprovalModeSchema = withParser(
-  Schema.Literal('allow', 'parent-review', 'block', 'manual-required')
+  Schema.Literal(...GeneratedBrowserControlBrowserGameApprovalModeValues)
 );
 
 export const BrowserControlBudgetCountingModeSchema = withParser(
-  Schema.Literal(
-    'foreground-browser-time',
-    'managed-active-tab-time',
-    'managed-session-time',
-    'all-browser-process-time',
-    'unmanaged-as-unknown-web-time'
-  )
+  Schema.Literal(...GeneratedBrowserControlBudgetCountingModeValues)
 );
 
 export const BrowserControlDownloadBlockedTypeSchema = withParser(
-  Schema.Literal('executable', 'script', 'archive', 'media', 'unknown', 'large-file', 'browser-danger')
+  Schema.Literal(...GeneratedBrowserControlDownloadBlockedTypeValues)
 );
 
 export const BrowserControlApprovalRequiredForSchema = withParser(
-  Schema.Literal(
-    'blocked-site',
-    'new-domain',
-    'unknown-category',
-    'unmanaged-browser',
-    'download',
-    'time-extension',
-    'managed-setup',
-    'new-browser-install'
-  )
+  Schema.Literal(...GeneratedBrowserControlApprovalRequiredForValues)
 );
 
 export const BrowserControlApprovalUnansweredDefaultSchema = withParser(
-  Schema.Literal('deny', 'allow-temporarily', 'continue-observe-only', 'keep-waiting')
+  Schema.Literal(...GeneratedBrowserControlApprovalUnansweredDefaultValues)
 );
 
 export const BrowserControlReportVisibleFieldSchema = withParser(
-  Schema.Literal(
-    'managed-status',
-    'recent-url',
-    'recent-domain-title',
-    'unmanaged-use',
-    'policy-decisions',
-    'block-results',
-    'time-budget',
-    'download-events',
-    'source-capability'
-  )
+  Schema.Literal(...GeneratedBrowserControlReportVisibleFieldValues)
 );
 
 export const BrowserControlRetentionExactUrlSchema = withParser(
-  Schema.Literal('fresh-only', '24-hours', '7-days', '30-days', 'until-reset', 'delete-expired')
+  Schema.Literal(...GeneratedBrowserControlRetentionExactUrlValues)
 );
 
 export const BrowserControlCustodyAllowedUseSchema = withParser(
-  Schema.Literal('child-local', 'lan-live', 'parent-cache', 'parent-export', 'parent-report', 'unavailable')
+  Schema.Literal(...GeneratedBrowserControlCustodyAllowedUseValues)
 );
 
 export const BrowserControlAuditRequiredFieldSchema = withParser(
-  Schema.Literal(
-    'policy-decision',
-    'evidence-ref',
-    'ai-ref',
-    'adapter-result',
-    'timer-state',
-    'parent-override',
-    'rollback',
-    'policy-version',
-    'capability-state',
-    'custody-label'
-  )
+  Schema.Literal(...GeneratedBrowserControlAuditRequiredFieldValues)
 );
 
 export type BrowserControlManagedBrowserFamily = Infer<typeof BrowserControlManagedBrowserFamilySchema>;

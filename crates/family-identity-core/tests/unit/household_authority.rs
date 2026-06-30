@@ -3,9 +3,11 @@ use ocentra_family_identity_core::family_identity::{
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
 };
 use ocentra_family_identity_core::household_authority::{
-    authorize_household_action, AuditRequirementState, ElevatedConfirmationState,
-    HouseholdAuthorityAction, HouseholdAuthorityInput, HouseholdAuthorizationFailureReason,
-    HouseholdAuthorizationState, ParentControllerLeaseState,
+    authorize_household_action, requires_parent_step_up, validate_parent_step_up_assertion,
+    AuditRequirementState, ElevatedConfirmationState, HouseholdAuthorityAction,
+    HouseholdAuthorityInput, HouseholdAuthorizationFailureReason, HouseholdAuthorizationState,
+    ParentControllerLeaseState, ParentStepUpAssertionSnapshot, ParentStepUpValidationDecision,
+    ParentStepUpValidationFailureReason, ParentStepUpValidationInput,
 };
 
 fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityInput {
@@ -23,6 +25,9 @@ fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityI
         action,
     }
 }
+
+const PARENT_ACTION_DEVICE_ID: &str = "device-parent-1";
+const TARGET_CHILD_PROFILE_ID: &str = "child-1";
 
 #[test]
 fn parent_can_manage_billing_for_member_household() {
@@ -365,5 +370,105 @@ fn external_household_membership_drift_and_wrong_device_scope_are_denied() {
     assert_eq!(
         wrong_scope.failure_reason,
         Some(HouseholdAuthorizationFailureReason::WrongDeviceScope)
+    );
+}
+
+#[test]
+fn parent_step_up_required_actions_are_explicit() {
+    assert!(requires_parent_step_up(
+        HouseholdAuthorityAction::PairChildDevice
+    ));
+    assert!(requires_parent_step_up(
+        HouseholdAuthorityAction::ChangePolicy
+    ));
+    assert!(!requires_parent_step_up(
+        HouseholdAuthorityAction::ViewChildStatus
+    ));
+}
+
+#[test]
+fn validates_parent_step_up_assertions_as_action_device_and_target_bound() {
+    let decision = validate_parent_step_up_assertion(ParentStepUpValidationInput {
+        assertion: Some(ParentStepUpAssertionSnapshot {
+            family_id: "family-main".to_owned(),
+            parent_account_id: "parent-account-1".to_owned(),
+            action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+            action_device_child_profile_id: None,
+            target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+            action: HouseholdAuthorityAction::PairChildDevice,
+            nonce: "step-up-nonce-1".to_owned(),
+            expires_at: "2026-06-13T16:01:00.000Z".to_owned(),
+        }),
+        family_id: "family-main".to_owned(),
+        parent_account_id: "parent-account-1".to_owned(),
+        action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+        action_device_child_profile_id: None,
+        target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+        action: HouseholdAuthorityAction::PairChildDevice,
+        observed_at: "2026-06-13T15:58:00.000Z".to_owned(),
+        expected_nonce: Some("step-up-nonce-1".to_owned()),
+    });
+
+    assert_eq!(
+        decision,
+        ParentStepUpValidationDecision {
+            valid: true,
+            failure_reason: None,
+        }
+    );
+}
+
+#[test]
+fn rejects_expired_or_replayed_parent_step_up_assertions() {
+    let expired = validate_parent_step_up_assertion(ParentStepUpValidationInput {
+        assertion: Some(ParentStepUpAssertionSnapshot {
+            family_id: "family-main".to_owned(),
+            parent_account_id: "parent-account-1".to_owned(),
+            action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+            action_device_child_profile_id: None,
+            target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+            action: HouseholdAuthorityAction::PairChildDevice,
+            nonce: "step-up-nonce-1".to_owned(),
+            expires_at: "2026-06-13T16:01:00.000Z".to_owned(),
+        }),
+        family_id: "family-main".to_owned(),
+        parent_account_id: "parent-account-1".to_owned(),
+        action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+        action_device_child_profile_id: None,
+        target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+        action: HouseholdAuthorityAction::PairChildDevice,
+        observed_at: "2026-06-13T16:02:00.000Z".to_owned(),
+        expected_nonce: Some("step-up-nonce-1".to_owned()),
+    });
+
+    assert_eq!(
+        expired.failure_reason,
+        Some(ParentStepUpValidationFailureReason::Expired)
+    );
+
+    let replayed = validate_parent_step_up_assertion(ParentStepUpValidationInput {
+        assertion: Some(ParentStepUpAssertionSnapshot {
+            family_id: "family-main".to_owned(),
+            parent_account_id: "parent-account-1".to_owned(),
+            action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+            action_device_child_profile_id: None,
+            target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+            action: HouseholdAuthorityAction::PairChildDevice,
+            nonce: "step-up-nonce-1".to_owned(),
+            expires_at: "2026-06-13T16:01:00.000Z".to_owned(),
+        }),
+        family_id: "family-main".to_owned(),
+        parent_account_id: "parent-account-1".to_owned(),
+        action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+        action_device_child_profile_id: None,
+        target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+        action: HouseholdAuthorityAction::PairChildDevice,
+        observed_at: "2026-06-13T15:58:00.000Z".to_owned(),
+        expected_nonce: Some("different-nonce".to_owned()),
+    });
+
+    assert_eq!(
+        replayed.failure_reason,
+        Some(ParentStepUpValidationFailureReason::ReplayRejected)
     );
 }

@@ -57,7 +57,10 @@ use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_G
 use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_MANUAL_REQUIRED_GAP;
 use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_NATIVE_APP_GAP;
 
-use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use crate::{
+    event_builder::build_event, fields::fields_from_pairs, json_contract::serialize_json_string,
+    time::timestamp_now,
+};
 
 type FieldPair = (&'static str, LogFieldValue);
 
@@ -123,10 +126,7 @@ fn read_model_pairs(read_model: &SocialAuditExplanationSnapshot) -> Vec<FieldPai
         ),
         (
             constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL,
-            LogFieldValue::String(match serde_json::to_string(read_model) {
-                Ok(serialized) => serialized,
-                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
-            }),
+            LogFieldValue::String(serialize_json_string(read_model)),
         ),
     ]
 }

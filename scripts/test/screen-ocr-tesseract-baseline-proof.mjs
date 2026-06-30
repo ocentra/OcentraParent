@@ -47,16 +47,16 @@ const failureModesRecorded =
   failureModes.every(
     (mode) =>
       mode.commandStatus === 0 &&
-      mode.cpuTimeMs !== null &&
+      mode.cpuTimeMs !== undefined &&
       Number.isFinite(mode.cpuTimeMs) &&
-      mode.peakWorkingSetBytes !== null &&
+      mode.peakWorkingSetBytes !== undefined &&
       mode.peakWorkingSetBytes > 0
   );
 const cpuMemoryRuntimeMeasured =
   extraction.status === 0 &&
-  extraction.cpuTimeMs !== null &&
+  extraction.cpuTimeMs !== undefined &&
   Number.isFinite(extraction.cpuTimeMs) &&
-  extraction.peakWorkingSetBytes !== null &&
+  extraction.peakWorkingSetBytes !== undefined &&
   extraction.peakWorkingSetBytes > 0;
 const paddleOcrEvaluation = readOptionalJson(paddleOcrEvaluationPath);
 const paddleOcrComparison = buildPaddleOcrComparison(paddleOcrEvaluation, expectedTerms);
@@ -148,7 +148,7 @@ const summary = {
     packageId: 'tesseract-ocr.tesseract',
     packageVersionObserved: '5.5.0.20241111',
     installedPathObserved: process.platform === 'win32' ? 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe' : null,
-    pathRefreshRequired: process.platform === 'win32' && whereTesseract.status !== 0 && tesseractCommand !== null,
+    pathRefreshRequired: process.platform === 'win32' && whereTesseract.status !== 0 && tesseractCommand !== undefined,
   },
   openMeasurements: {
     cpuMemoryRuntimeMeasured,
@@ -210,7 +210,7 @@ function buildPaddleOcrComparison(evaluation, expectedTerms) {
   const legacyMatchedTerms = Array.isArray(legacyAttempt?.matchedTerms) ? legacyAttempt.matchedTerms : [];
   return {
     evaluationPath: relativePath(paddleOcrEvaluationPath),
-    evaluationPresent: evaluation !== null,
+    evaluationPresent: evaluation !== undefined,
     sameSourceImage: evaluation?.sourceEvidence?.sourceImagePath === sourceImagePath,
     expectedTerms,
     tesseractMatchedTerms: matchedTerms,
@@ -339,10 +339,10 @@ function runMeasuredProcess(command, args) {
     let latestCpuTimeMs = null;
     const timer = setInterval(() => {
       const sample = sampleWindowsProcess(child.pid);
-      if (sample.workingSetBytes !== null) {
+      if (sample.workingSetBytes !== undefined) {
         peakWorkingSetBytes = Math.max(peakWorkingSetBytes ?? 0, sample.workingSetBytes);
       }
-      if (sample.cpuTimeMs !== null) {
+      if (sample.cpuTimeMs !== undefined) {
         latestCpuTimeMs = sample.cpuTimeMs;
       }
     }, 25);
@@ -355,10 +355,10 @@ function runMeasuredProcess(command, args) {
     child.on('close', (status) => {
       clearInterval(timer);
       const sample = sampleWindowsProcess(child.pid);
-      if (sample.workingSetBytes !== null) {
+      if (sample.workingSetBytes !== undefined) {
         peakWorkingSetBytes = Math.max(peakWorkingSetBytes ?? 0, sample.workingSetBytes);
       }
-      if (sample.cpuTimeMs !== null) {
+      if (sample.cpuTimeMs !== undefined) {
         latestCpuTimeMs = sample.cpuTimeMs;
       }
       resolve({

@@ -124,7 +124,7 @@ async function main() {
           (row.notificationDeliveryReadinessState === 'parent-report-status-ready') ===
             row.parentLocalDeliveryResultRecorded &&
           (row.notificationDeliveryReadinessState === 'parent-report-status-ready') ===
-            (row.parentLocalDeliveryResultRef !== null)
+            (row.parentLocalDeliveryResultRef !== undefined)
       ),
     },
     {

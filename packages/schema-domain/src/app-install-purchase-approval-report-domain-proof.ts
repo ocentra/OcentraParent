@@ -2,9 +2,15 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseParentReviewActionProofReadModel } from './app-install-purchase-parent-review-action-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  approvalReportDomainProofIsHonestGenerated,
+  approvalReportDomainRowIsHonestGenerated,
+  buildAppInstallPurchaseApprovalReportDomainRowGenerated,
+  summarizeAppInstallPurchaseApprovalReportDomainProofGenerated,
+} from './generated/app-install-purchase-report-status-helpers';
 const ApprovalReportDomainProofVersion = 'app-install-purchase-approval-report-domain-proof';
-const SourceParentReviewActionProofVersion = 'app-install-purchase-parent-review-action-proof';
-const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';
+const SourceParentReviewActionProofVersion = AppInstallPurchaseParentReviewActionProofReadModel.schemaVersion;
+const SourceReportRuntimeProofVersion = AppInstallPurchaseReportRuntimeProofReadModel.schemaVersion;
 const ApprovalReportDomainTimestamp = '2026-06-05T22:24:00.000Z';
 const ApprovalReportDomainClaimBoundary =
   'approval report domain proof only; no portal approval UI no portal report UI no runtime report delivery no provider API execution no store integration no platform adapter no child-device delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
@@ -125,7 +131,7 @@ export const AppInstallPurchaseApprovalReportDomainProofSchema = withParser(
 );
 
 export const AppInstallPurchaseApprovalReportDomainKnownGaps = [
-  'Approval/report domain rows are parent-domain read-model proof only; no portal approval UI or portal report UI is implemented.',
+  'Approval/report domain rows are rust-parent-runtime read-model proof only; no portal approval UI or portal report UI is implemented.',
   'Report runtime refs are compiler-status proof rows only and do not deliver reports to a runtime or child device.',
   'Provider/store execution, platform adapters, real install or purchase interception, app blocking, child delivery, child activity custody, and hosted family data custody remain unimplemented.',
 ] as const;
@@ -145,131 +151,38 @@ export const AppInstallPurchaseApprovalReportDomainProofReadModel =
 export function summarizeAppInstallPurchaseApprovalReportDomainProof(
   proof: AppInstallPurchaseApprovalReportDomainProof
 ) {
-  return {
-    approvalReportDomainRows: proof.approvalReportDomainRows.length,
-    readyRows: proof.approvalReportDomainRows.filter((row) => row.approvalReportDomainState === 'approval-report-ready')
-      .length,
-    manualReviewRows: proof.approvalReportDomainRows.filter(
-      (row) => row.approvalReportDomainState === 'approval-report-manual-review'
-    ).length,
-    unavailableRows: proof.approvalReportDomainRows.filter(
-      (row) => row.approvalReportDomainState === 'approval-report-unavailable'
-    ).length,
-    reportLinkedRows: proof.approvalReportDomainRows.filter((row) => row.reportRuntimeLinked).length,
-    portalApprovalUiRows: proof.approvalReportDomainRows.filter(
-      (row) => row.portalApprovalUiClaim !== 'not-implemented'
-    ).length,
-    portalReportUiRows: proof.approvalReportDomainRows.filter((row) => row.portalReportUiClaim !== 'not-implemented')
-      .length,
-  } as const;
+  return summarizeAppInstallPurchaseApprovalReportDomainProofGenerated(proof);
 }
 
 function approvalReportDomainRow(
   row: (typeof AppInstallPurchaseParentReviewActionProofReadModel.parentReviewActionRows)[number]
 ) {
-  const reportRows = AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows;
-  return {
-    schemaVersion: ApprovalReportDomainProofVersion,
-    approvalReportDomainRowId: `approval-report-domain-${row.sourceDecisionAction}`,
-    sourceParentReviewActionProofVersion: SourceParentReviewActionProofVersion,
-    sourceParentReviewActionRowId: row.parentReviewActionRowId,
-    sourceDecisionAction: row.sourceDecisionAction,
-    sourceParentReviewActionState: row.parentReviewActionState,
-    sourceReportRuntimeProofVersion: SourceReportRuntimeProofVersion,
-    sourceReportRuntimeRefs: reportRows.map((reportRow: (typeof reportRows)[number]) => reportRow.reportRuntimeRowId),
-    sourceReportSurfaces: reportRows.map((reportRow: (typeof reportRows)[number]) => reportRow.reportSurface),
-    sourceAuditEventRefs: row.auditEventRefs,
-    approvalReportDomainState: approvalReportDomainState(row),
-    parentActionRecorded: row.parentActionRecorded,
-    reportRuntimeLinked: reportRows.length === 4,
-    domainReadModelClaim: 'domain-read-model-only',
-    portalApprovalUiClaim: 'not-implemented',
-    portalReportUiClaim: 'not-implemented',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    childDeviceDeliveryClaim: 'not-delivered',
-    interceptionClaim: 'not-claimed',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: ApprovalReportDomainClaimBoundary,
-    linkedAt: ApprovalReportDomainTimestamp,
-  } as const;
-}
-
-function approvalReportDomainState(
-  row: (typeof AppInstallPurchaseParentReviewActionProofReadModel.parentReviewActionRows)[number]
-) {
-  if (row.parentActionRuntimeClaim === 'manual-review-state-only') {
-    return 'approval-report-manual-review';
-  }
-  return row.sourceReportRuntimeRefs.length > 0 ? 'approval-report-ready' : 'approval-report-unavailable';
+  return buildAppInstallPurchaseApprovalReportDomainRowGenerated(
+    row,
+    AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows,
+    SourceParentReviewActionProofVersion,
+    SourceReportRuntimeProofVersion,
+    ApprovalReportDomainClaimBoundary,
+    ApprovalReportDomainTimestamp
+  );
 }
 
 function approvalReportDomainRowIsHonest(row: ApprovalReportDomainRowCandidate): boolean {
-  return (
-    approvalReportDomainStateMatchesAction(row) &&
-    approvalReportDomainRefsAreComplete(row) &&
-    approvalReportDomainClaimsStayUnimplemented(row) &&
-    approvalReportDomainBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function approvalReportDomainStateMatchesAction(row: ApprovalReportDomainRowCandidate): boolean {
-  if (row.sourceDecisionAction === 'review-needed') {
-    return !row.parentActionRecorded && row.approvalReportDomainState === 'approval-report-manual-review';
-  }
-  return row.parentActionRecorded && row.approvalReportDomainState === 'approval-report-ready';
-}
-
-function approvalReportDomainRefsAreComplete(row: ApprovalReportDomainRowCandidate): boolean {
-  return (
-    row.sourceParentReviewActionRowId.length > 0 &&
-    row.sourceReportRuntimeRefs.length === AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows.length &&
-    row.sourceReportSurfaces.length === AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows.length &&
-    row.sourceAuditEventRefs.length > 0 &&
-    row.reportRuntimeLinked
-  );
-}
-
-function approvalReportDomainClaimsStayUnimplemented(row: ApprovalReportDomainRowCandidate): boolean {
-  return (
-    row.domainReadModelClaim === 'domain-read-model-only' &&
-    row.portalApprovalUiClaim === 'not-implemented' &&
-    row.portalReportUiClaim === 'not-implemented' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return approvalReportDomainRowIsHonestGenerated(
+    row,
+    AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows.length,
+    ApprovalReportBoundaryFragments
   );
 }
 
 function approvalReportDomainProofIsHonest(proof: AppInstallPurchaseApprovalReportDomainProof): boolean {
-  const states = new Set(proof.approvalReportDomainRows.map((row) => row.approvalReportDomainState));
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourceParentReviewActionProofVersion === SourceParentReviewActionProofVersion &&
-    proof.sourceReportRuntimeProofVersion === SourceReportRuntimeProofVersion &&
-    proof.approvalReportDomainRows.length ===
-      AppInstallPurchaseParentReviewActionProofReadModel.parentReviewActionRows.length &&
-    states.has('approval-report-ready') &&
-    states.has('approval-report-manual-review') &&
-    !states.has('approval-report-unavailable') &&
-    RequiredApprovalReportNonClaims.every((claim) => nonClaims.has(claim)) &&
-    proof.approvalReportDomainRows.every(approvalReportDomainRowIsHonest) &&
-    proof.knownGaps.length > 0
+    approvalReportDomainProofIsHonestGenerated(
+      proof,
+      SourceParentReviewActionProofVersion,
+      SourceReportRuntimeProofVersion,
+      AppInstallPurchaseParentReviewActionProofReadModel.parentReviewActionRows.length,
+      RequiredApprovalReportNonClaims
+    ) && proof.approvalReportDomainRows.every(approvalReportDomainRowIsHonest)
   );
-}
-
-function approvalReportDomainBoundaryIsExplicit(
-  boundary: typeof ApprovalReportDomainClaimBoundarySchema.Type
-): boolean {
-  return ApprovalReportBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }

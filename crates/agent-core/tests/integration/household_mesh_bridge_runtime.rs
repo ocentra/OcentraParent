@@ -1,10 +1,10 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::household_mesh::{
-    HouseholdMeshAuthenticationState, HouseholdMeshBridgePhase,
-    HouseholdMeshBridgeRejectionReason, HouseholdMeshBridgeValidationState,
+    HouseholdMeshAuthenticationState, HouseholdMeshBridgePhase, HouseholdMeshBridgeRejectionReason,
+    HouseholdMeshBridgeValidationState,
 };
 
-use crate::household_mesh_bridge_runtime::{
+use ocentra_parent_agent_core::household_mesh_bridge_runtime::{
     publish_household_mesh_bridge_chain_for_input, validate_household_mesh_bridge_export,
     validate_household_mesh_bridge_import, HouseholdMeshBridgeEventPayload,
     HouseholdMeshBridgeExportCandidate, HouseholdMeshBridgeInboundEnvelope,
@@ -14,7 +14,8 @@ use crate::household_mesh_bridge_runtime::{
 type TestResult = Result<(), String>;
 
 #[tokio::test]
-async fn household_mesh_bridge_exports_selected_events_and_republishes_validated_imports() -> TestResult {
+async fn household_mesh_bridge_exports_selected_events_and_republishes_validated_imports(
+) -> TestResult {
     let report = ok(
         publish_household_mesh_bridge_chain_for_input(HouseholdMeshBridgeInput::proof_fixture())
             .await,
@@ -270,9 +271,7 @@ fn payload_for_phase(
     phase: HouseholdMeshBridgePhase,
 ) -> Result<&HouseholdMeshBridgeEventPayload, String> {
     some(
-        payloads
-        .iter()
-        .find(|payload| payload.phase == phase),
+        payloads.iter().find(|payload| payload.phase == phase),
         constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES,
     )
 }

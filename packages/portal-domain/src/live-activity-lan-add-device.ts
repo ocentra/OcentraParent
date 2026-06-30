@@ -1,13 +1,29 @@
 import type { AgentProtocolLogFields } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentLanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/agent-lan-add-device';
+import {
+  AgentLanBrowserAddDeviceReadModelSchema,
+  AgentLanDiscoveryEvidenceRecordSchema,
+  AgentLanHouseholdDeviceDecisionSchema,
+  AgentLanProductionHouseholdProofSummarySchema,
+  AgentLanTrustedDeviceRegistryEntrySchema,
+  type AgentLanHouseholdDeviceDecision,
+  type AgentLanProductionHouseholdProofSummary,
+  type AgentLanTrustedDeviceRegistryEntry,
+} from '@ocentra-parent/schema-domain/agent-lan-add-device';
 import {
   AgentLanDiscoverySourceMatrixSchema,
   type AgentLanDiscoverySourceMatrix,
 } from '@ocentra-parent/schema-domain/lan-source-matrix';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import type { StackTrace } from '@ocentra-parent/schema-domain/logging-contracts';
+import type { GeneratedStackTrace as StackTrace } from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
+import {
+  projectPortalLanDiagnosticsViewModel as projectPortalLanDiagnosticsViewModelFromReadModel,
+  type PortalLanDiagnosticsReadModel,
+  type PortalLanDiagnosticsRow as PortalLanDiagnosticsRowSource,
+  type PortalLanDiagnosticsViewModel as PortalLanDiagnosticsViewModelSource,
+  type PortalLanDiscoveryEvidenceRecordProjection,
+} from './live-activity-lan-diagnostics';
 
 interface PortalLanScanSummary {
   readonly schemaVersion: number;
@@ -31,10 +47,31 @@ interface PortalLanSelectedDeviceReadiness {
   readonly offlineAt: string | null;
 }
 
+interface PortalLanDiscoveryEventHistoryRow {
+  readonly schemaVersion: number;
+  readonly eventId: string;
+  readonly eventKind: string;
+  readonly occurredAt: string;
+  readonly previousEventId: string | null;
+  readonly scanSessionId: string | null;
+  readonly affectedDeviceId: string | null;
+  readonly evidenceId: string | null;
+  readonly summary: string;
+}
+
+interface PortalLanDiscoveryEventHistory {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly state: string;
+  readonly latestEventId: string | null;
+  readonly latestObservedAt: string | null;
+  readonly rows: readonly PortalLanDiscoveryEventHistoryRow[];
+}
+
 interface PortalLanCanonicalNetworkIdentity {
   readonly ipAddresses: readonly string[];
   readonly reachability: string;
-  readonly evidenceRecords?: readonly unknown[];
+  readonly evidenceRecords?: readonly PortalLanDiscoveryEvidenceRecordProjection[];
   readonly [key: string]: unknown;
 }
 
@@ -43,24 +80,34 @@ interface PortalLanCanonicalHouseholdDevice {
   readonly roleBadges: readonly string[];
   readonly sourceLabels: readonly string[];
   readonly networkIdentity: PortalLanCanonicalNetworkIdentity;
+  readonly policyTargetSurfaces?: readonly string[];
   readonly [key: string]: unknown;
 }
 
 interface PortalLanSignedProofRow {
   readonly check: string;
   readonly proofState: string;
+  readonly responseState?: string | null;
+  readonly evidenceLabel?: string | null;
   readonly [key: string]: unknown;
 }
 
 interface PortalLanRouteSafetyRow {
   readonly check: string;
   readonly custodyLabel: string;
+  readonly proofState?: string | null;
+  readonly responseState?: string | null;
+  readonly routeId?: string | null;
+  readonly evidenceLabel?: string | null;
   readonly [key: string]: unknown;
 }
 
 interface PortalLanRelayCacheRow {
   readonly check: string;
   readonly decisionState: string;
+  readonly custodyLabel?: string | null;
+  readonly proofState?: string | null;
+  readonly evidenceLabel?: string | null;
   readonly [key: string]: unknown;
 }
 
@@ -79,10 +126,12 @@ export interface PortalLanAddDeviceReadModel {
   readonly cloudRelayState: string;
   readonly scanSummary: PortalLanScanSummary;
   readonly discoveredDevices: readonly unknown[];
+  readonly discoveryEventHistory: PortalLanDiscoveryEventHistory;
   readonly canonicalHouseholdDevices: readonly PortalLanCanonicalHouseholdDevice[];
   readonly pairingRequests: readonly unknown[];
-  readonly trustedDeviceRegistry: readonly unknown[];
-  readonly householdDeviceDecisions: readonly unknown[];
+  readonly trustedDeviceRegistry: readonly AgentLanTrustedDeviceRegistryEntry[];
+  readonly householdDeviceDecisions: readonly AgentLanHouseholdDeviceDecision[];
+  readonly productionHouseholdProof: AgentLanProductionHouseholdProofSummary | null;
   readonly signedDiscoveryRelaySpine: PortalLanSignedDiscoveryRelaySpine | null;
   readonly lanDiscoverySourceMatrix: AgentLanDiscoverySourceMatrix | null;
   readonly trustedDeviceIds: readonly string[];
@@ -103,6 +152,7 @@ type PortalLanAddDeviceRaw = Record<string, unknown> & {
   cloudRelayState?: unknown;
   controllerAuthority?: unknown;
   discoveredDevices?: unknown;
+  discoveryEventHistory?: unknown;
   discoverySource?: unknown;
   honestNonClaims?: unknown;
   householdDeviceDecisions?: unknown;
@@ -111,6 +161,7 @@ type PortalLanAddDeviceRaw = Record<string, unknown> & {
   observerAuthority?: unknown;
   pairingRequests?: unknown;
   physicalHouseholdLanState?: unknown;
+  productionHouseholdProof?: unknown;
   revokedDeviceIds?: unknown;
   routeRequirementLabels?: unknown;
   scanSummary?: unknown;
@@ -125,9 +176,11 @@ type PortalLanAddDeviceCollections = {
   readonly selectedDeviceReadiness: PortalLanSelectedDeviceReadiness;
   readonly canonicalHouseholdDevices: readonly PortalLanCanonicalHouseholdDevice[];
   readonly discoveredDevices: readonly unknown[];
+  readonly discoveryEventHistory: PortalLanDiscoveryEventHistory;
   readonly pairingRequests: readonly unknown[];
-  readonly trustedDeviceRegistry: readonly unknown[];
-  readonly householdDeviceDecisions: readonly unknown[];
+  readonly trustedDeviceRegistry: readonly AgentLanTrustedDeviceRegistryEntry[];
+  readonly householdDeviceDecisions: readonly AgentLanHouseholdDeviceDecision[];
+  readonly productionHouseholdProof: AgentLanProductionHouseholdProofSummary | null;
   readonly signedDiscoveryRelaySpine: PortalLanSignedDiscoveryRelaySpine | null;
   readonly lanDiscoverySourceMatrix: AgentLanDiscoverySourceMatrix | null;
   readonly trustedDeviceIds: readonly string[];
@@ -141,9 +194,11 @@ type PortalLanAddDeviceCollectionsCandidate = {
   readonly selectedDeviceReadiness: PortalLanSelectedDeviceReadiness | null;
   readonly canonicalHouseholdDevices: readonly PortalLanCanonicalHouseholdDevice[] | null;
   readonly discoveredDevices: readonly unknown[] | null;
+  readonly discoveryEventHistory: PortalLanDiscoveryEventHistory | null;
   readonly pairingRequests: readonly unknown[] | null;
-  readonly trustedDeviceRegistry: readonly unknown[] | null;
-  readonly householdDeviceDecisions: readonly unknown[] | null;
+  readonly trustedDeviceRegistry: readonly AgentLanTrustedDeviceRegistryEntry[] | null;
+  readonly householdDeviceDecisions: readonly AgentLanHouseholdDeviceDecision[] | null;
+  readonly productionHouseholdProof: AgentLanProductionHouseholdProofSummary | null | undefined;
   readonly signedDiscoveryRelaySpine: PortalLanSignedDiscoveryRelaySpine | null;
   readonly lanDiscoverySourceMatrix: AgentLanDiscoverySourceMatrix | null | undefined;
   readonly trustedDeviceIds: readonly string[] | null;
@@ -152,6 +207,30 @@ type PortalLanAddDeviceCollectionsCandidate = {
   readonly auditCheckLabels: readonly string[] | null;
   readonly honestNonClaims: readonly string[] | null;
 };
+
+type SafeParseSuccess<T> = {
+  readonly success: true;
+  readonly data: T;
+};
+
+type SafeParseFailure = {
+  readonly success: false;
+};
+
+type SafeParseSchema<T> = {
+  safeParse(value: unknown): SafeParseSuccess<T> | SafeParseFailure;
+};
+
+export type PortalLanDiagnosticsRow = PortalLanDiagnosticsRowSource;
+export type PortalLanDiagnosticsViewModel = PortalLanDiagnosticsViewModelSource;
+
+const PortalLanDiscoveryEventHistoryRowStringFields = ['eventId', 'eventKind', 'occurredAt', 'summary'] as const;
+const PortalLanDiscoveryEventHistoryRowNullableStringFields = [
+  'previousEventId',
+  'scanSessionId',
+  'affectedDeviceId',
+  'evidenceId',
+] as const;
 
 type PortalLanAddDeviceScalarFields = {
   readonly addDeviceState: string;
@@ -179,7 +258,7 @@ export function parsePortalLanAddDeviceReadModel(payload: AgentProtocolLogFields
   const parsed = AgentLanBrowserAddDeviceReadModelSchema.safeParse(readModel);
 
   if (parsed.success) {
-    return parsed.data;
+    return parsed.data as unknown as PortalLanAddDeviceReadModel;
   }
 
   const normalizedReadModel = normalizePortalLanAddDeviceReadModel(readModel);
@@ -271,9 +350,14 @@ function normalizePortalLanAddDeviceCollections(raw: PortalLanAddDeviceRaw): Por
     selectedDeviceReadiness: normalizePortalLanSelectedDeviceReadiness(raw.selectedDeviceReadiness),
     canonicalHouseholdDevices: normalizePortalLanCanonicalHouseholdDevices(raw.canonicalHouseholdDevices),
     discoveredDevices: normalizeUnknownArray(raw.discoveredDevices),
+    discoveryEventHistory:
+      raw.discoveryEventHistory === undefined
+        ? createEmptyPortalLanDiscoveryEventHistory()
+        : normalizePortalLanDiscoveryEventHistory(raw.discoveryEventHistory),
     pairingRequests: normalizeUnknownArray(raw.pairingRequests),
-    trustedDeviceRegistry: normalizeUnknownArray(raw.trustedDeviceRegistry),
-    householdDeviceDecisions: normalizeUnknownArray(raw.householdDeviceDecisions),
+    trustedDeviceRegistry: normalizePortalLanTrustedDeviceRegistry(raw.trustedDeviceRegistry),
+    householdDeviceDecisions: normalizePortalLanHouseholdDeviceDecisions(raw.householdDeviceDecisions),
+    productionHouseholdProof: normalizePortalLanProductionHouseholdProof(raw.productionHouseholdProof),
     signedDiscoveryRelaySpine: normalizePortalLanSignedDiscoveryRelaySpine(raw.signedDiscoveryRelaySpine),
     lanDiscoverySourceMatrix: normalizePortalLanDiscoverySourceMatrix(raw.lanDiscoverySourceMatrix),
     trustedDeviceIds: normalizeStringArray(raw.trustedDeviceIds),
@@ -292,26 +376,131 @@ function normalizePortalLanAddDeviceCollections(raw: PortalLanAddDeviceRaw): Por
   };
 }
 
+function createEmptyPortalLanDiscoveryEventHistory(): PortalLanDiscoveryEventHistory {
+  return {
+    schemaVersion: 1,
+    generatedAt: '',
+    state: 'unknown',
+    latestEventId: null,
+    latestObservedAt: null,
+    rows: [],
+  };
+}
+
 function hasPortalLanAddDeviceCollections(
   collections: PortalLanAddDeviceCollectionsCandidate
 ): collections is PortalLanAddDeviceCollections {
   return (
     collections.lanDiscoverySourceMatrix !== undefined &&
     [
-    collections.scanSummary,
-    collections.selectedDeviceReadiness,
-    collections.canonicalHouseholdDevices,
-    collections.discoveredDevices,
-    collections.pairingRequests,
-    collections.trustedDeviceRegistry,
-    collections.householdDeviceDecisions,
-    collections.trustedDeviceIds,
-    collections.revokedDeviceIds,
-    collections.routeRequirementLabels,
-    collections.auditCheckLabels,
-    collections.honestNonClaims,
+      collections.scanSummary,
+      collections.selectedDeviceReadiness,
+      collections.canonicalHouseholdDevices,
+      collections.discoveredDevices,
+      collections.discoveryEventHistory,
+      collections.pairingRequests,
+      collections.trustedDeviceRegistry,
+      collections.householdDeviceDecisions,
+      collections.trustedDeviceIds,
+      collections.revokedDeviceIds,
+      collections.routeRequirementLabels,
+      collections.auditCheckLabels,
+      collections.honestNonClaims,
     ].every((value) => value !== null)
   );
+}
+
+function normalizePortalLanDiscoveryEventHistory(value: unknown): PortalLanDiscoveryEventHistory | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const raw = value as Record<string, unknown> & {
+    schemaVersion?: unknown;
+    generatedAt?: unknown;
+    state?: unknown;
+    latestEventId?: unknown;
+    latestObservedAt?: unknown;
+    rows?: unknown;
+  };
+  const rows = normalizePortalLanDiscoveryEventHistoryRows(raw.rows);
+  if (
+    !isNumber(raw.schemaVersion) ||
+    !isString(raw.generatedAt) ||
+    !isString(raw.state) ||
+    !isNullableString(raw.latestEventId) ||
+    !isNullableString(raw.latestObservedAt) ||
+    rows === null
+  ) {
+    return null;
+  }
+  return {
+    schemaVersion: raw.schemaVersion,
+    generatedAt: raw.generatedAt,
+    state: raw.state,
+    latestEventId: raw.latestEventId ?? null,
+    latestObservedAt: raw.latestObservedAt ?? null,
+    rows,
+  };
+}
+
+function normalizePortalLanDiscoveryEventHistoryRows(
+  value: unknown
+): readonly PortalLanDiscoveryEventHistoryRow[] | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+  const rows = value.map(normalizePortalLanDiscoveryEventHistoryRow).filter(notNull);
+  return rows.length === value.length ? rows : null;
+}
+
+function normalizePortalLanDiscoveryEventHistoryRow(value: unknown): PortalLanDiscoveryEventHistoryRow | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const raw = value as Record<string, unknown> & {
+    schemaVersion?: unknown;
+    eventId?: unknown;
+    eventKind?: unknown;
+    occurredAt?: unknown;
+    previousEventId?: unknown;
+    scanSessionId?: unknown;
+    affectedDeviceId?: unknown;
+    evidenceId?: unknown;
+    summary?: unknown;
+  };
+  const schemaVersion = raw['schemaVersion'];
+  if (
+    !isNumber(schemaVersion) ||
+    !recordHasStringFields(raw, PortalLanDiscoveryEventHistoryRowStringFields) ||
+    !recordHasNullableStringFields(raw, PortalLanDiscoveryEventHistoryRowNullableStringFields)
+  ) {
+    return null;
+  }
+  return {
+    schemaVersion,
+    eventId: raw['eventId'],
+    eventKind: raw['eventKind'],
+    occurredAt: raw['occurredAt'],
+    previousEventId: raw['previousEventId'] ?? null,
+    scanSessionId: raw['scanSessionId'] ?? null,
+    affectedDeviceId: raw['affectedDeviceId'] ?? null,
+    evidenceId: raw['evidenceId'] ?? null,
+    summary: raw['summary'],
+  };
+}
+
+function recordHasStringFields<const TField extends string>(
+  raw: Record<string, unknown>,
+  fields: readonly TField[]
+): raw is Record<TField, string> & Record<string, unknown> {
+  return fields.every((field) => isString(raw[field]));
+}
+
+function recordHasNullableStringFields<const TField extends string>(
+  raw: Record<string, unknown>,
+  fields: readonly TField[]
+): raw is Record<TField, string | null | undefined> & Record<string, unknown> {
+  return fields.every((field) => isNullableString(raw[field]));
 }
 
 function normalizePortalLanScanSummary(value: unknown): PortalLanScanSummary | null {
@@ -438,25 +627,44 @@ function normalizePortalLanCanonicalHouseholdDevice(value: unknown): PortalLanCa
   const raw = value as Record<string, unknown> & {
     displayName?: unknown;
     networkIdentity?: unknown;
+    policyTargetSurfaces?: unknown;
     roleBadges?: unknown;
     sourceLabels?: unknown;
   };
 
   const roleBadges = normalizeStringArray(raw.roleBadges);
   const sourceLabels = normalizeStringArray(raw.sourceLabels);
+  const policyTargetSurfaces =
+    raw.policyTargetSurfaces === undefined ? undefined : normalizeStringArray(raw.policyTargetSurfaces);
   const networkIdentity = normalizePortalLanCanonicalNetworkIdentity(raw.networkIdentity);
   const { displayName } = raw;
 
-  if (!isString(displayName) || roleBadges === null || sourceLabels === null || networkIdentity === null) {
+  if (
+    !isString(displayName) ||
+    roleBadges === null ||
+    sourceLabels === null ||
+    networkIdentity === null ||
+    policyTargetSurfaces === null
+  ) {
     return null;
   }
 
+  const {
+    displayName: _ignoredDisplayName,
+    networkIdentity: _ignoredNetworkIdentity,
+    policyTargetSurfaces: _ignoredPolicyTargetSurfaces,
+    roleBadges: _ignoredRoleBadges,
+    sourceLabels: _ignoredSourceLabels,
+    ...rawWithoutNormalizedFields
+  } = raw;
+
   return {
-    ...raw,
+    ...rawWithoutNormalizedFields,
     displayName,
     roleBadges,
     sourceLabels,
     networkIdentity,
+    ...(policyTargetSurfaces === undefined ? {} : { policyTargetSurfaces }),
   };
 }
 
@@ -472,7 +680,10 @@ function normalizePortalLanCanonicalNetworkIdentity(value: unknown): PortalLanCa
   };
 
   const ipAddresses = normalizeStringArray(raw.ipAddresses);
-  const evidenceRecords = raw.evidenceRecords === undefined ? undefined : normalizeUnknownArray(raw.evidenceRecords);
+  const evidenceRecords =
+    raw.evidenceRecords === undefined
+      ? undefined
+      : normalizeSchemaArray(raw.evidenceRecords, AgentLanDiscoveryEvidenceRecordSchema);
   const { reachability } = raw;
   if (ipAddresses === null || !isString(reachability) || evidenceRecords === null) {
     return null;
@@ -525,6 +736,24 @@ function normalizePortalLanDiscoverySourceMatrix(
 
   const parsed = AgentLanDiscoverySourceMatrixSchema.safeParse(value);
   return parsed.success ? parsed.data : undefined;
+}
+
+function normalizePortalLanTrustedDeviceRegistry(
+  value: unknown
+): readonly AgentLanTrustedDeviceRegistryEntry[] | null {
+  return normalizeSchemaArray(value, AgentLanTrustedDeviceRegistryEntrySchema);
+}
+
+function normalizePortalLanHouseholdDeviceDecisions(
+  value: unknown
+): readonly AgentLanHouseholdDeviceDecision[] | null {
+  return normalizeSchemaArray(value, AgentLanHouseholdDeviceDecisionSchema);
+}
+
+function normalizePortalLanProductionHouseholdProof(
+  value: unknown
+): AgentLanProductionHouseholdProofSummary | null | undefined {
+  return normalizeOptionalSchema(value, AgentLanProductionHouseholdProofSummarySchema);
 }
 
 function normalizePortalLanSignedProofRows(value: unknown): readonly PortalLanSignedProofRow[] | null {
@@ -615,6 +844,30 @@ function normalizePortalLanRelayCacheRow(value: unknown): PortalLanRelayCacheRow
     check,
     decisionState,
   };
+}
+
+export function projectPortalLanDiagnosticsViewModel(
+  readModel: PortalLanDiagnosticsReadModel | null
+): PortalLanDiagnosticsViewModel | null {
+  return projectPortalLanDiagnosticsViewModelFromReadModel(readModel);
+}
+
+function normalizeSchemaArray<T>(value: unknown, schema: SafeParseSchema<T>): readonly T[] | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+  const parsedValues = value.map((entry) => schema.safeParse(entry));
+  return parsedValues.every((result) => result.success)
+    ? parsedValues.map((result) => result.data)
+    : null;
+}
+
+function normalizeOptionalSchema<T>(value: unknown, schema: SafeParseSchema<T>): T | null | undefined {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  const parsed = schema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
 }
 
 function normalizeUnknownArray(value: unknown): readonly unknown[] | null {

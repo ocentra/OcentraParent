@@ -31,16 +31,6 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build:contracts']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/lan-domain',
-      '--',
-      'lan-pairing-provider-selection-proof',
-    ])
-  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'lan_pairing_provider_selection']);
   await runCommand('cargo', [
     'test',

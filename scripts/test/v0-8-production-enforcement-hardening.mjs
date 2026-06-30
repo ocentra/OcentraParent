@@ -113,7 +113,7 @@ function spawnOwnedChildProcess() {
 }
 
 function waitForChildExit(child) {
-  if (child.exitCode !== null || child.signalCode !== null) {
+  if (child.exitCode !== undefined || child.signalCode !== undefined) {
     return Promise.resolve();
   }
   return new Promise((resolve, reject) => {

@@ -19,6 +19,9 @@ ocentra-schema = { path = "../../../crates/schema" }
 serde = { version = "1.0.228", features = ["derive"] }
 tauri = { version = "2", features = [] }
 
+[dev-dependencies]
+serde_json = "1.0.145"
+
 [lints.rust]
 unsafe_code = "forbid"
 

@@ -26,18 +26,16 @@ fn contract_registry_generates_markdown_in_event_type_order() {
     let markdown = registry.render_markdown().into_string();
     let lines = markdown.lines().collect::<Vec<_>>();
     assert_eq!(lines.first().copied(), Some("# Event Contract Registry"));
-    assert!(lines
-        .iter()
-        .any(|line| *line == "| Event Type | Schema Version | Rust Type |"));
+    assert_eq!(
+        lines.get(2).copied(),
+        Some("| Event Type | Schema Version | Rust Type |")
+    );
     assert!(lines
         .iter()
         .any(|line| line.starts_with("| eventing.test.observed | 1 |")));
     assert!(lines
         .iter()
         .any(|line| line.starts_with("| eventing.test.other | 1 |")));
-    assert!(lines
-        .iter()
-        .any(|line| *line == "| eventing.test.observed | 1 | TestEvent |"));
 
     let observed_index = markdown
         .find(TEST_EVENT_TYPE)

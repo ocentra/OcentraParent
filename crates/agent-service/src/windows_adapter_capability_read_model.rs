@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
 use ocentra_parent_agent_protocol::constants::{
     enforcement, host_identity, windows_adapter_capability as windows_adapter,
@@ -289,7 +290,7 @@ fn readiness_entry(
         .entries
         .iter()
         .find(|entry| entry.capability == capability)
-        .unwrap_or_else(|| panic!("{}", enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER))
+        .expect_value(windows_adapter::READ_MODEL_ID_V0_8)
 }
 
 fn host_identity_entries(
@@ -304,7 +305,7 @@ fn host_identity_entries(
                 .iter()
                 .find(|entry| entry.evidence_kind == *evidence_kind)
                 .map(|entry| entry.read_model_entry_id.clone())
-                .unwrap_or_else(|| panic!("{}", host_identity::READ_MODEL_ID_V0_8))
+                .expect_value(windows_adapter::READ_MODEL_ID_V0_8)
         })
         .collect()
 }

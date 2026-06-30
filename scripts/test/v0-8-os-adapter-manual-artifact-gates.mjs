@@ -14,16 +14,6 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-os-adapter-manual-artifact-gates',
-    ])
-  );
 
   const { V08OsAdapterManualArtifactGateReadModel } =
     await import('@ocentra-parent/schema-domain/v0-8-os-adapter-manual-artifact-gates');
@@ -42,7 +32,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-os-adapter-manual-artifact-gates.test.ts',
       proofHarness: 'scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/v0-8-os-adapter-manual-artifact-gates-2026-05-30.md',

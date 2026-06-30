@@ -125,7 +125,7 @@ console.log(`managed=${managedRows.length} unmanaged=${unmanagedRows.length} nat
 function managedFeedRouteRows(proof) {
   assertLiveCaptureProof(proof, 'social-feed-route-classification-live-proof');
   return proof.captures
-    .filter((capture) => capture.contractClassificationCreated && capture.classificationSummary !== null)
+    .filter((capture) => capture.contractClassificationCreated && capture.classificationSummary !== undefined)
     .map((capture) => {
       const summary = capture.classificationSummary;
       return managedRouteRow({
@@ -142,7 +142,7 @@ function managedFeedRouteRows(proof) {
 function managedAccountRouteRows(proof) {
   assertLiveCaptureProof(proof, 'social-account-creation-live-proof');
   return proof.captures
-    .filter((capture) => capture.contractPlanCreated && capture.planSummary !== null)
+    .filter((capture) => capture.contractPlanCreated && capture.planSummary !== undefined)
     .map((capture) => {
       const summary = capture.planSummary;
       return managedRouteRow({
@@ -165,7 +165,7 @@ function unmanagedBypassRows(proof) {
     throw new Error('Expected SOCIAL-15 proof to request real public social surfaces');
   }
   return proof.captures
-    .filter((capture) => capture.processObserved && capture.evidence !== null)
+    .filter((capture) => capture.processObserved && capture.evidence !== undefined)
     .slice(0, 2)
     .map((capture) => ({
       ...baseRouteRow(),

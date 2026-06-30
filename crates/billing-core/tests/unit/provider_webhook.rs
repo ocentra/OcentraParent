@@ -4,10 +4,13 @@ use ocentra_billing_core::billing_subscription::{
     BillingAccountMatchState, BillingAggregateId, BillingCollectionRecoveryState,
     BillingDisputeLifecycleState, BillingEntitlementScope, BillingEntitlementTransitionState,
     BillingEntitlementUpdateRequirement, BillingEntitlementWriteState,
-    BillingManualReviewRequirement, BillingProviderDuplicateState,
+    BillingManualReviewRequirement, BillingProviderChannel, BillingProviderDeadLetterState,
     BillingProviderEventDecisionState, BillingProviderEventId, BillingProviderEventKind,
-    BillingProviderSignatureState, BillingProviderWebhookEvent,
-    BillingProviderWebhookReceivedEvent, BillingRefundLifecycleState, BillingSubscriptionStatus,
+    BillingProviderIdempotencyState, BillingProviderMode, BillingProviderOrderingState,
+    BillingProviderPayloadParseState, BillingProviderReconciliationState,
+    BillingProviderReplayState, BillingProviderRetryState, BillingProviderSignatureState,
+    BillingProviderWebhookEvent, BillingProviderWebhookReceivedEvent, BillingRefundLifecycleState,
+    BillingSubscriptionStatus, BillingTestLiveBoundaryState,
 };
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::expect_value::ExpectValue;
@@ -19,7 +22,7 @@ fn provider_event() -> BillingProviderWebhookEvent {
         BillingCollectionRecoveryState::Active,
         BillingRefundLifecycleState::None,
         BillingDisputeLifecycleState::None,
-        BillingProviderDuplicateState::Fresh,
+        BillingProviderIdempotencyState::Fresh,
     )
 }
 
@@ -29,15 +32,21 @@ fn provider_event_with(
     collection_recovery_state: BillingCollectionRecoveryState,
     refund_state: BillingRefundLifecycleState,
     dispute_state: BillingDisputeLifecycleState,
-    duplicate_state: BillingProviderDuplicateState,
+    idempotency_state: BillingProviderIdempotencyState,
 ) -> BillingProviderWebhookEvent {
     BillingProviderWebhookEvent {
         event_id: BillingProviderEventId::parse(event_id)
             .expect_value("provider event ids are non-empty at the boundary"),
+        provider: BillingProviderChannel::Stripe,
+        mode: BillingProviderMode::Live,
         event_kind: BillingProviderEventKind::SubscriptionUpdated,
         signature_state: BillingProviderSignatureState::Verified,
-        duplicate_state,
+        payload_parse_state: BillingProviderPayloadParseState::Parsed,
+        idempotency_state,
+        replay_state: BillingProviderReplayState::Fresh,
+        ordering_state: BillingProviderOrderingState::InOrder,
         account_match_state: BillingAccountMatchState::Matched,
+        test_live_boundary_state: BillingTestLiveBoundaryState::Isolated,
         subscription_status,
         collection_recovery_state,
         refund_state,
@@ -66,7 +75,7 @@ fn accepts_verified_fresh_account_matched_provider_event() {
 #[test]
 fn rejects_duplicate_provider_event_without_entitlement_update() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
-        duplicate_state: BillingProviderDuplicateState::Duplicate,
+        idempotency_state: BillingProviderIdempotencyState::Duplicate,
         ..provider_event()
     });
 
@@ -81,6 +90,10 @@ fn rejects_duplicate_provider_event_without_entitlement_update() {
     assert_eq!(
         decision.manual_review_requirement,
         BillingManualReviewRequirement::Required
+    );
+    assert_eq!(
+        decision.dead_letter_state,
+        BillingProviderDeadLetterState::NotRequired
     );
 }
 
@@ -102,6 +115,10 @@ fn rejects_missing_signature_provider_event_without_entitlement_update() {
     assert_eq!(
         decision.manual_review_requirement,
         BillingManualReviewRequirement::Required
+    );
+    assert_eq!(
+        decision.dead_letter_state,
+        BillingProviderDeadLetterState::ManualRequired
     );
 }
 
@@ -189,6 +206,10 @@ fn refund_event_is_safe_but_does_not_auto_update_entitlement() {
         decision.manual_review_requirement,
         BillingManualReviewRequirement::Required
     );
+    assert_eq!(
+        decision.reconciliation_state,
+        BillingProviderReconciliationState::QueueRequired
+    );
 }
 
 #[test]
@@ -239,6 +260,87 @@ fn verified_unknown_subscription_status_blocks_entitlement_write_pending_manual_
 #[test]
 fn provider_event_id_rejects_empty_boundary_text() {
     assert!(BillingProviderEventId::parse("").is_none());
+}
+
+#[test]
+fn verified_provider_channels_remain_accepted_across_stripe_razorpay_and_paypal() {
+    let providers = [
+        BillingProviderChannel::Stripe,
+        BillingProviderChannel::Razorpay,
+        BillingProviderChannel::PayPal,
+    ];
+
+    for provider in providers {
+        let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+            provider,
+            ..provider_event()
+        });
+
+        assert_eq!(
+            decision.decision_state,
+            BillingProviderEventDecisionState::Accepted
+        );
+        assert_eq!(decision.provider, provider);
+        assert_eq!(
+            decision.payload_parse_state,
+            BillingProviderPayloadParseState::Parsed
+        );
+    }
+}
+
+#[test]
+fn malformed_provider_payload_is_dead_lettered_before_any_entitlement_write() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        payload_parse_state: BillingProviderPayloadParseState::Malformed,
+        ..provider_event()
+    });
+    let transition = project_billing_entitlement_transition(
+        decision.clone(),
+        BillingEntitlementScope::Household,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Rejected
+    );
+    assert_eq!(
+        decision.dead_letter_state,
+        BillingProviderDeadLetterState::ManualRequired
+    );
+    assert_eq!(
+        decision.entitlement_update_requirement,
+        BillingEntitlementUpdateRequirement::NotRequired
+    );
+    assert_eq!(
+        transition.transition_state,
+        BillingEntitlementTransitionState::NoWrite
+    );
+    assert_eq!(
+        transition.write_state,
+        BillingEntitlementWriteState::DoNotWrite
+    );
+}
+
+#[test]
+fn mixed_test_live_boundary_is_rejected_before_any_ledger_write() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        mode: BillingProviderMode::Test,
+        test_live_boundary_state: BillingTestLiveBoundaryState::MixedBlocked,
+        ..provider_event()
+    });
+
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Rejected
+    );
+    assert_eq!(
+        decision.test_live_boundary_state,
+        BillingTestLiveBoundaryState::MixedBlocked
+    );
+    assert_eq!(
+        decision.dead_letter_state,
+        BillingProviderDeadLetterState::ManualRequired
+    );
 }
 
 #[test]
@@ -364,7 +466,7 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
             BillingCollectionRecoveryState::Active,
             BillingRefundLifecycleState::None,
             BillingDisputeLifecycleState::None,
-            BillingProviderDuplicateState::Fresh,
+            BillingProviderIdempotencyState::Fresh,
         ),
     };
     let replayed_received = BillingProviderWebhookReceivedEvent {
@@ -375,7 +477,7 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
             BillingCollectionRecoveryState::Active,
             BillingRefundLifecycleState::None,
             BillingDisputeLifecycleState::None,
-            BillingProviderDuplicateState::Duplicate,
+            BillingProviderIdempotencyState::Duplicate,
         ),
     };
 
@@ -435,6 +537,10 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
         BillingProviderEventDecisionState::Rejected
     );
     assert_eq!(
+        replayed_decision.decision.reconciliation_state,
+        BillingProviderReconciliationState::NotRequired
+    );
+    assert_eq!(
         replayed_decision.decision.manual_review_requirement,
         BillingManualReviewRequirement::Required
     );
@@ -445,5 +551,65 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
     assert_eq!(
         replayed_transition.transition.write_state,
         BillingEntitlementWriteState::DoNotWrite
+    );
+}
+
+#[test]
+fn out_of_order_provider_event_requires_reconciliation_and_blocks_double_grant() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        ordering_state: BillingProviderOrderingState::OutOfOrder,
+        ..provider_event()
+    });
+    let transition = project_billing_entitlement_transition(
+        decision.clone(),
+        BillingEntitlementScope::Household,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Rejected
+    );
+    assert_eq!(
+        decision.reconciliation_state,
+        BillingProviderReconciliationState::QueueRequired
+    );
+    assert_eq!(
+        transition.transition_state,
+        BillingEntitlementTransitionState::NoWrite
+    );
+    assert_eq!(
+        transition.write_state,
+        BillingEntitlementWriteState::DoNotWrite
+    );
+}
+
+#[test]
+fn payment_failure_queues_retry_follow_up_without_skipping_projection() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        event_kind: BillingProviderEventKind::PaymentIntentFailed,
+        subscription_status: BillingSubscriptionStatus::PastDue,
+        collection_recovery_state: BillingCollectionRecoveryState::PastDue,
+        ..provider_event()
+    });
+    let transition = project_billing_entitlement_transition(
+        decision.clone(),
+        BillingEntitlementScope::Household,
+    );
+
+    assert_eq!(
+        decision.retry_state,
+        BillingProviderRetryState::QueueRequired
+    );
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Accepted
+    );
+    assert_eq!(
+        transition.transition_state,
+        BillingEntitlementTransitionState::LimitAccess
+    );
+    assert_eq!(
+        transition.write_state,
+        BillingEntitlementWriteState::WriteRequired
     );
 }

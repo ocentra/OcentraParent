@@ -2,6 +2,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalAiModelCacheStatus;
 use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalProviderAdapterProbe;
+use ocentra_parent_agent_protocol::local_ai_runtime_provider_proof::LocalAiRuntimeProviderProofReadModel;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 
@@ -11,10 +12,15 @@ pub fn local_ai_runtime_status_payload(
     status: &LocalModelRuntimeStatus,
     probe: &LocalProviderAdapterProbe,
     cache: &LocalAiModelCacheStatus,
+    provider_proof: &LocalAiRuntimeProviderProofReadModel,
 ) -> LogFields {
     let mut pairs = runtime_status_fields(status);
     pairs.extend(adapter_probe_fields(probe));
     pairs.extend(model_cache_status_fields(cache));
+    pairs.push((
+        constants::field::LOCAL_AI_RUNTIME_PROVIDER_PROOF_READ_MODEL,
+        LogFieldValue::String(serde_json::to_string(provider_proof).unwrap_or_default()),
+    ));
     fields_from_pairs(pairs)
 }
 

@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsRejectionReason;
 use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateResponse;
 
-use crate::fields::fields_from_pairs;
+use crate::{fields::fields_from_pairs, json_contract::serialize_json_string};
 
 pub(crate) fn screen_settings_response_payload(
     response: &ScreenSettingsUpdateResponse,
@@ -12,10 +12,7 @@ pub(crate) fn screen_settings_response_payload(
     let mut fields = fields_from_pairs(vec![
         (
             constants::field::SCREEN_SETTINGS_RESPONSE,
-            LogFieldValue::String(
-                serde_json::to_string(response)
-                    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
-            ),
+            LogFieldValue::String(serialize_json_string(response)),
         ),
         (
             constants::field::SCREEN_SETTINGS_UPDATE_KIND,

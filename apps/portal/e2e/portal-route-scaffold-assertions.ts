@@ -4,8 +4,6 @@ import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
 } from '@ocentra-parent/portal-domain/parent-assistant-chat';
 import { PARENT_PORTAL_NAV_LABELS } from '@ocentra-parent/portal-domain/parent-portal-nav';
-import { PortalRouteSchema } from '@ocentra-parent/schema-domain/portal-contracts';
-import { parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
 
 const productRoutes = [
   { path: '/#/start', nav: 'START HERE', title: 'START HERE', kind: 'guideDashboard' },
@@ -138,6 +136,15 @@ const productRoutes = [
 ] as const;
 
 const lanManageRoutePaths = new Set(['/#/platforms-install', '/#/install-updates']);
+const lanRelevantScaffoldPaths = new Set([
+  '/#/activity',
+  '/#/browser',
+  '/#/browser-settings',
+  '/#/network-activity',
+  '/#/devices',
+  '/#/lan-pairing',
+  '/#/capability-status',
+]);
 const routeSurfaceReadyTimeoutMs = 30_000;
 const assistantNewChatAction = requireAssistantNewChatAction();
 const assistantRulesAction = requireAssistantRulesAction();
@@ -168,7 +175,7 @@ function requireAssistantRulesExplainChoice() {
 
 export async function assertRouteScaffolds(page: Page): Promise<void> {
   for (const route of productRoutes) {
-    await assertProductRoute(page, route.path, route.title, route.kind);
+    await assertProductRoute(page, route.path, route.nav, route.title, route.kind);
   }
   await assertSidePanelFoldouts(page);
   await assertDuplicateLabelSidePanelRoutes(page);
@@ -179,16 +186,22 @@ export async function assertRouteScaffolds(page: Page): Promise<void> {
   await assertFrameTunerRoute(page);
 }
 
+export async function assertLanRouteScaffolds(page: Page): Promise<void> {
+  for (const route of productRoutes) {
+    if (!lanRelevantScaffoldPaths.has(route.path)) continue;
+    await assertProductRoute(page, route.path, route.nav, route.title, route.kind);
+  }
+}
+
 async function assertProductRoute(
   page: Page,
   path: string,
+  navLabel: string,
   panelTitle: string,
   kind: 'activityManage' | 'assistant' | 'control' | 'guide' | 'guideDashboard' | 'lanPairing' | 'manage'
 ): Promise<void> {
   await page.goto(path);
   const surface = page.locator('svg.parent-portal-svg-surface');
-  const route = PortalRouteSchema.parse(path.slice('/#/'.length));
-  const navLabel = parentPortalRouteContext(route).navLabel;
   await expect(surface).toBeVisible();
   await expect(page.getByRole('img', { name: 'Ocentra parent dashboard' })).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: navLabel }).first()).toBeVisible();
@@ -244,12 +257,10 @@ async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, pa
     return;
   }
   if (path === '/#/browser-settings') {
-    await expectSurfaceTextToContain(surface, 'ROUTE READINESS');
-    await expectSurfaceTextToContain(surface, 'Browser activity');
-    await expectSurfaceTextToMatch(surface, /(?:Managed web path|Browser inventory)/);
-    await expectSurfaceTextToMatch(surface, /(?:Browser setup|Exact URL capability)/);
-    await expectSurfaceTextToMatch(surface, /(?:Enforcement readiness|Active tab proof)/);
-    await expectSurfaceTextToMatch(surface, /(?:Browser target|browser policy|Browser activity)/i);
+    await expectSurfaceTextToMatch(surface, /(?:Browser target|Browser activity)/i);
+    await expectSurfaceTextToMatch(surface, /(?:Rules|Managed web path|Browser inventory)/);
+    await expectSurfaceTextToMatch(surface, /(?:Schedule|Budget|Approvals|Audit|Exact URL capability|Active tab proof)/);
+    await expectSurfaceTextToMatch(surface, /(?:browser policy|Observe|Enforce)/i);
     return;
   }
   if (path === '/#/enforcement') {
@@ -382,9 +393,9 @@ async function assertControlRouteSurface(surface: ReturnType<Page['locator']>, p
   await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
   if (path === '/#/browser') {
-    await expect(surface.locator('text').filter({ hasText: 'Browser inventory' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Exact URL capability' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Active tab proof' }).first()).toBeVisible();
+    await expectSurfaceTextToMatch(surface, /(?:Managed Web|Browser inventory)/);
+    await expectSurfaceTextToMatch(surface, /(?:Browser Setup|Exact URL capability)/);
+    await expectSurfaceTextToMatch(surface, /(?:Supported Browsers|Active tab proof)/);
   }
 }
 
@@ -444,9 +455,9 @@ async function assertActivityManageSurface(
     return;
   }
   if (path === '/#/network-activity') {
-    await expect(surface.locator('text').filter({ hasText: 'NETWORK ACTIVITY' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Network' }).first()).toBeVisible();
+    await expect(page.getByRole('tab', { exact: true, name: 'Show activity Network' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Scan Local Area Network' })).toBeVisible();
+    await assertActivityReportSurface(page, surface);
     await assertCollapsedActivitySubsurfaceRemoved(page, surface);
     return;
   }

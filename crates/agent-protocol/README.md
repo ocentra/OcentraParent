@@ -1,12 +1,12 @@
 # ocentra-parent-agent-protocol
 
-Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
+Rust protocol owner crate for data that crosses the TypeScript/Rust boundary.
 
 ## Owns
 
 - Serde structs and enums for Rust-crossing command/event payloads.
 - Protocol constants used by Rust service/core code.
-- Exact field names and enum values mirrored from TypeScript contracts.
+- Exact field names and enum values that TS adapters consume but do not own.
 - Screen evidence provider constants for `localOcr`/WinRT OCR service proof and
   Activity Screen read-model fields for model id, prompt/template version, and
   raw-image retention state.

@@ -22,7 +22,10 @@ import {
   BrowserGamePolicyScheduleRefsSchema,
   BrowserGamePolicyTargetKindSchema,
 } from './browser-game-policy-compiler-values';
-import type { BrowserGamePolicyReasonCodeSchema } from './browser-game-policy-compiler-values';
+import {
+  browserGamePolicyCompilerInputIsConsistentGenerated,
+  browserGamePolicyDecisionCandidateIsConsistentGenerated,
+} from './generated/browser-policy-control-catalog-helpers';
 
 const BrowserGamePolicyCompilerInputBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
@@ -109,102 +112,11 @@ export type BrowserGamePolicyCompilerInput = Infer<typeof BrowserGamePolicyCompi
 export type BrowserGamePolicyDecisionCandidate = Infer<typeof BrowserGamePolicyDecisionCandidateSchema>;
 
 function browserGamePolicyCompilerInputIsConsistent(value: Infer<typeof BrowserGamePolicyCompilerInputBaseSchema>) {
-  if (browserGamePolicyCompilerInputClaimsAuthority(value)) {
-    return false;
-  }
-  if (value.compilerMode === 'contract-only') {
-    return value.analysisRefs.length > 0 && value.parentRuleRefs.length > 0 && value.targetKind !== 'manual-required';
-  }
-  return value.analysisRefs.length === 0 || value.targetKind === 'manual-required';
+  return browserGamePolicyCompilerInputIsConsistentGenerated(value);
 }
 
 function browserGamePolicyDecisionCandidateIsConsistent(
   value: Infer<typeof BrowserGamePolicyDecisionCandidateBaseSchema>
 ) {
-  if (browserGamePolicyDecisionCandidateClaimsAuthority(value)) {
-    return false;
-  }
-  return BrowserGamePolicyActionValidators[value.actionCandidate](value);
+  return browserGamePolicyDecisionCandidateIsConsistentGenerated(value);
 }
-
-type BrowserGamePolicyDecisionCandidateInput = Infer<typeof BrowserGamePolicyDecisionCandidateBaseSchema>;
-type BrowserGamePolicyActionValidator = (value: BrowserGamePolicyDecisionCandidateInput) => boolean;
-
-const BrowserGamePolicyActionValidators = {
-  'unknown-candidate': unknownBrowserGamePolicyActionIsConsistent,
-  'manual-review-candidate': manualReviewBrowserGamePolicyActionIsConsistent,
-  'parent-review-candidate': askParentBrowserGamePolicyActionIsConsistent,
-  'allow-candidate': allowBrowserGamePolicyActionIsConsistent,
-  'time-limit-candidate': timeLimitBrowserGamePolicyActionIsConsistent,
-  'warn-candidate': contractOnlyBrowserGamePolicyActionIsConsistent,
-  'block-candidate': contractOnlyBrowserGamePolicyActionIsConsistent,
-} satisfies Record<BrowserGamePolicyDecisionCandidateInput['actionCandidate'], BrowserGamePolicyActionValidator>;
-
-function unknownBrowserGamePolicyActionIsConsistent(value: BrowserGamePolicyDecisionCandidateInput): boolean {
-  return value.fallbackUsed && reasonCodesIncludeUnknownFallback(value.reasonCodes);
-}
-
-function manualReviewBrowserGamePolicyActionIsConsistent(value: BrowserGamePolicyDecisionCandidateInput): boolean {
-  return value.fallbackUsed && value.reasonCodes.includes('manual-required');
-}
-
-function askParentBrowserGamePolicyActionIsConsistent(value: BrowserGamePolicyDecisionCandidateInput): boolean {
-  return value.parentApprovalRequired && value.reasonCodes.includes('parent-rule-match');
-}
-
-function allowBrowserGamePolicyActionIsConsistent(value: BrowserGamePolicyDecisionCandidateInput): boolean {
-  return BrowserGamePolicyAllowReasons.some((reasonCode) => value.reasonCodes.includes(reasonCode));
-}
-
-function timeLimitBrowserGamePolicyActionIsConsistent(value: BrowserGamePolicyDecisionCandidateInput): boolean {
-  return value.reasonCodes.includes('schedule-context') && value.reasonCodes.includes('parent-rule-match');
-}
-
-function contractOnlyBrowserGamePolicyActionIsConsistent(value: BrowserGamePolicyDecisionCandidateInput): boolean {
-  return value.compilerMode === 'contract-only' && value.analysisRefs.length > 0;
-}
-
-function browserGamePolicyCompilerInputClaimsAuthority(value: Infer<typeof BrowserGamePolicyCompilerInputBaseSchema>) {
-  return (
-    value.rawGamePayloadIncluded ||
-    value.rawModelTextIncluded ||
-    value.activityDomainObjectIncluded ||
-    value.finalDecisionClaimedByInput ||
-    value.runtimeGateClaimedByInput ||
-    value.uiClaimedByInput ||
-    value.enforcementClaimedByInput ||
-    value.nativeGameControlClaimed ||
-    value.cloudFrameAnalysisClaimed
-  );
-}
-
-function browserGamePolicyDecisionCandidateClaimsAuthority(
-  value: Infer<typeof BrowserGamePolicyDecisionCandidateBaseSchema>
-) {
-  return (
-    value.finalPolicyDecisionClaimed ||
-    value.runtimeGateExecutedClaimed ||
-    value.uiRenderedClaimed ||
-    value.enforcementClaimed ||
-    value.nativeGameControlClaimed ||
-    value.cloudFrameAnalysisClaimed ||
-    value.rawGamePayloadStored ||
-    value.rawModelTextUsed
-  );
-}
-
-function reasonCodesIncludeUnknownFallback(value: ReadonlyArray<Infer<typeof BrowserGamePolicyReasonCodeSchema>>) {
-  return BrowserGamePolicyUnknownFallbackReasons.some((reasonCode) => value.includes(reasonCode));
-}
-
-const BrowserGamePolicyAllowReasons = [
-  'educational-benefit-present',
-  'parent-rule-match',
-] as const satisfies ReadonlyArray<Infer<typeof BrowserGamePolicyReasonCodeSchema>>;
-
-const BrowserGamePolicyUnknownFallbackReasons = [
-  'missing-game-evidence',
-  'degraded-analysis',
-  'low-confidence',
-  'unknown-evidence',
-] as const satisfies ReadonlyArray<Infer<typeof BrowserGamePolicyReasonCodeSchema>>;

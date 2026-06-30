@@ -13,6 +13,7 @@ test('parent desktop package proof separates built portal shell from Rust servic
   const tauriConfig = readRepoFile('apps/parent-desktop/src-tauri/tauri.conf.json');
   const tauriLib = readRepoFile('apps/parent-desktop/src-tauri/src/lib.rs');
   const packageJson = readRepoFile('apps/parent-desktop/package.json');
+  const devDesktopScript = readRepoFile('scripts/dev/dev-parent-desktop.mjs');
   const protocolValues = readRepoFile('crates/agent-protocol/src/constants/value.rs');
   const windowsServiceConfig = readRepoFile('scripts/release/windows/OcentraParentAgentService.xml');
   const windowsInstaller = readRepoFile('scripts/release/windows/OcentraParentAgent.wxs');
@@ -20,11 +21,16 @@ test('parent desktop package proof separates built portal shell from Rust servic
 
   assert.match(tauriConfig, /"frontendDist": "\.\.\/\.\.\/portal\/dist"/u);
   assert.match(tauriConfig, /"devUrl": "http:\/\/127\.0\.0\.1:4478"/u);
-  assert.match(tauriConfig, /ws:\/\/127\.0\.0\.1:4477/u);
+  assert.match(tauriConfig, /ws:\/\/127\.0\.0\.1:4478/u);
+  assert.doesNotMatch(tauriConfig, /ws:\/\/127\.0\.0\.1:4477/u);
   assert.match(
     packageJson,
     /"portal:build": "npm --prefix \.\.\/\.\. run build:contracts && npm --prefix \.\.\/\.\. run build --workspace @ocentra-parent\/portal"/u
   );
+  assert.match(devDesktopScript, /Desktop product host bridge uses Tauri invoke\/listen; local dev bridge stays web-only\./u);
+  assert.match(devDesktopScript, /ParentDevEnv\.AgentAddress/u);
+  assert.match(devDesktopScript, /ParentDevEnv\.PortalAgentWebSocketUrl/u);
+  assert.ok(devDesktopScript.includes("cargo', ['tauri', 'dev', '-c', generatedConfigPath]"));
 
   assert.match(tauriLib, /service_health_endpoint/u);
   assert.match(tauriLib, /runtime_readiness_state/u);
@@ -56,7 +62,7 @@ test('parent desktop package proof separates built portal shell from Rust servic
   assert.match(tauriLib, /platform_matrix_state/u);
   assert.match(tauriLib, /release_branch_state/u);
   assert.match(tauriLib, /artifact_proof_state/u);
-  assert.match(tauriLib, /TcpListener::bind/u);
+  assert.match(tauriLib, /TcpStream::connect_timeout/u);
   assert.match(tauriLib, /PARENT_DESKTOP_RUNTIME_READY/u);
   assert.match(tauriLib, /PARENT_DESKTOP_RUNTIME_DEGRADED/u);
   assert.doesNotMatch(tauriLib, /VITE_|devUrl|portal:dev|vite_backend_state/u);

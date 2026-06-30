@@ -20,16 +20,6 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/billing-domain',
-      '--',
-      'tests/unit/billing-entitlement.test.ts',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
       '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/billing-parent-visible-summary.test.ts',
@@ -49,7 +39,7 @@ async function main() {
     evidence: {
       contract: 'packages/schema-domain/src/billing-entitlement.ts',
       proofModel: 'packages/schema-domain/src/billing-entitlement-proof.ts',
-      contractTest: 'packages/billing-domain/tests/unit/billing-entitlement.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/billing-parent-visible-summary.test.ts',
       parentVisibleSummaryTest: 'packages/schema-domain/tests/unit/billing-parent-visible-summary.test.ts',
       packageExport,
       documentation,

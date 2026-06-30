@@ -7,8 +7,8 @@ import {
   type AppLogStats,
 } from '@ocentra-parent/schema-domain/app-log/types';
 import { appendAppLogEntries, listAppLogSessionFiles, pruneAppLogSessions, readAppLogEntries } from './appNdjsonWriter';
-import { LogLevel } from '@ocentra-parent/schema-domain/logging-contracts';
 import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
+import { matchesGeneratedAppLogQuery } from '../generated/local-test-log';
 
 export interface CreateAppLogStorageOptions {
   readonly scope: TestLogScope;
@@ -67,22 +67,6 @@ function normalizeEntry(scope: TestLogScope, sessionId: string, entry: AppLogEnt
   };
 }
 
-function matchesQuery(entry: AppLogEntry, query?: AppLogQuery): boolean {
-  if (query?.level != null && entry.level !== query.level) {
-    return false;
-  }
-
-  if (query?.search != null && query.search.trim().length > 0) {
-    const search = query.search.toLowerCase();
-    const haystack = `${entry.message} ${entry.context ?? ''} ${entry.data ?? ''}`.toLowerCase();
-    if (!haystack.includes(search)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 export function createAppLogStorage(options: CreateAppLogStorageOptions): AppLogStorage {
   const scope = options.scope;
   const rootDir = options.rootDir;
@@ -119,7 +103,7 @@ export function createAppLogStorage(options: CreateAppLogStorageOptions): AppLog
     },
     async queryLogs(query) {
       const entries = await loadEntries();
-      const filtered = entries.filter((entry) => matchesQuery(entry, query));
+      const filtered = entries.filter((entry) => matchesGeneratedAppLogQuery(entry, query));
       return query?.limit == null ? filtered : filtered.slice(0, query.limit);
     },
     async getStats() {
@@ -146,7 +130,3 @@ export function createAppLogStorage(options: CreateAppLogStorageOptions): AppLog
     },
   };
 }
-
-export const AppLogDefaults = {
-  Level: LogLevel.Info,
-} as const;

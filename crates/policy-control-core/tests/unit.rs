@@ -39,6 +39,9 @@ mod policy_control;
 #[path = "unit/policy_authority.rs"]
 mod policy_authority;
 
+#[path = "unit/policy_contract_helpers.rs"]
+mod policy_contract_helpers;
+
 #[path = "unit/policy_conflict.rs"]
 mod policy_conflict;
 

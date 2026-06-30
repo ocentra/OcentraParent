@@ -1,17 +1,25 @@
-import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { PARENT_PORTAL_CONTENT, type ParentPortalContent, type ParentPortalRow } from './parent-portal-data';
+import {
+  generatedResolveParentPortalServiceReachability,
+  type GeneratedParentPortalServiceConnectionState,
+  type GeneratedParentPortalServiceDegradationReasonCode,
+  type GeneratedParentPortalServiceReachability,
+} from './generated/portal-route-state';
 import PARENT_PORTAL_SERVICE_STATE from './parent-portal-service-state-constants';
-import { parentPortalServiceRows } from './parent-portal-service-state-rows';
+import type { PortalRouteEventRecord } from './portal-contract-adapter';
 
 export { PARENT_PORTAL_SERVICE_STATE };
+
+type ParentPortalServiceReachability = GeneratedParentPortalServiceReachability;
 
 export const SERVICE_BACKED_CONTENT: ParentPortalContent = {
   ...PARENT_PORTAL_CONTENT,
   uiCopy: {
     ...PARENT_PORTAL_CONTENT.uiCopy,
     detailSnapshotLines: [
-      'Visible rows use real service events first, then honest manual-required or unavailable gaps.',
-      'State labels stay explicit: paired, pending, observer-only, controller, degraded, or backend-not-connected.',
+      'Visible rows come from Rust-owned route snapshots through the parent bridge.',
+      'When snapshot rows are absent, the UI leaves the surface unclaimed instead of rebuilding state in TypeScript.',
+      'Reachability and degradation stay explicit instead of being inferred from the route surface.',
     ],
   },
   modes: {
@@ -27,29 +35,51 @@ export const SERVICE_BACKED_CONTENT: ParentPortalContent = {
   },
 };
 
-export type ParentPortalServiceConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error';
+export type ParentPortalServiceConnectionState = GeneratedParentPortalServiceConnectionState;
 
 export type ParentPortalServiceStateInput = {
   readonly connectionState: ParentPortalServiceConnectionState;
-  readonly events: readonly AgentEventEnvelope[];
+  readonly events: readonly PortalRouteEventRecord[];
   readonly snapshotRows?: readonly ParentPortalRow[] | null;
 };
 
 export type ParentPortalServiceState = {
+  readonly connectionState: ParentPortalServiceConnectionState;
   readonly content: ParentPortalContent;
   readonly parentPortalRows: ParentPortalRow[];
+  readonly serviceReachability: ParentPortalServiceReachability;
+  readonly serviceDegradationReason: string | null;
   readonly userEntry: ParentPortalRow | null;
 };
 
 export function resolveParentPortalServiceState(input: ParentPortalServiceStateInput): ParentPortalServiceState {
-  const parentPortalRows =
-    input.snapshotRows !== undefined && input.snapshotRows !== null && input.snapshotRows.length > 0
-      ? [...input.snapshotRows]
-      : parentPortalServiceRows(input);
+  const parentPortalRows = input.snapshotRows === null || input.snapshotRows === undefined ? [] : [...input.snapshotRows];
+  const { serviceReachability, serviceDegradationReasonCode } = generatedResolveParentPortalServiceReachability(
+    input.connectionState,
+    parentPortalRows.length > 0
+  );
 
   return {
+    connectionState: input.connectionState,
     content: SERVICE_BACKED_CONTENT,
     parentPortalRows,
+    serviceReachability,
+    serviceDegradationReason: serviceDegradationReasonCode === null ? null : serviceDegradationReasonText(serviceDegradationReasonCode),
     userEntry: parentPortalRows[0] ?? null,
   };
+}
+
+function serviceDegradationReasonText(
+  reasonCode: GeneratedParentPortalServiceDegradationReasonCode
+): string {
+  switch (reasonCode) {
+    case 'missing-snapshot-rows':
+      return 'Connected to the local service, but no Rust-owned route rows were supplied.';
+    case 'connecting':
+      return 'The local service bridge is still connecting.';
+    case 'stale-snapshot-rows':
+      return 'Stale route rows remain visible while the service is not connected.';
+    case 'service-unavailable':
+      return 'The local service bridge is unavailable.';
+  }
 }

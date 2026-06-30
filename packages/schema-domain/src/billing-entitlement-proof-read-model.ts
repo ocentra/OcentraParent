@@ -60,6 +60,10 @@ export const BillingEntitlementContractProofReadModel = BillingEntitlementContra
     planId: 'family-plus-monthly',
     displayTextToken: 'billing.plan.familyPlusMonthly',
     activeState: 'active',
+    parentPortalAccess: {
+      includedParentPortalCount: 1,
+      extraParentSlotState: 'manual-required',
+    },
     deviceLimit: 5,
     featureEntitlements: [
       featureEntitlement('multi-device-sync', true, true, false),

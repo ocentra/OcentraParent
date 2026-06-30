@@ -20,6 +20,20 @@ documentation boundaries canonical enough that tracking, LAN, network,
 app/game, browser, AI, screen, social, and production-support work can scale
 without duplicate truth.
 
+## Current Authority
+
+This cleanup plan predates the Rust-first parent architecture decision. Use
+`docs/agent/RUST_FIRST_PARENT_ARCHITECTURE.md` as the current authority when
+this file or older plan docs say TypeScript, `schema-domain`,
+`agent-protocol-domain`, WebSocket, or Vite owns product truth.
+
+Interpret old TypeScript cleanup language as migration/debt inventory only.
+Current target ownership is Rust-first: `crates/schema` and the owning Rust
+domain/runtime crates own contracts, route snapshots, actions, read models,
+projections, and business logic. TypeScript may keep presentation helpers,
+generated bridge DTO consumers, thin host/dev adapters, and temporary edge
+decoders until Rust replacements are live and consumed.
+
 ## Trigger
 
 Run this cleanup after the current PR merge wave is stable enough that lanes are
@@ -68,7 +82,7 @@ now classify each duplicate-looking shape as one of:
 
 | Classification     | Meaning                                     | Action                                                                   |
 | ------------------ | ------------------------------------------- | ------------------------------------------------------------------------ |
-| canonical contract | the single source of product/protocol truth | move or keep it in `@ocentra-parent/schema-domain` for TS or the owning Rust crate boundary for Rust |
+| canonical contract | the single source of product/protocol truth | move it to `crates/schema` or the owning Rust domain/runtime crate; keep TS mirrors only as generated output, temporary edge decoders, or migration debt |
 | read-model mirror  | UI-facing projection of canonical data      | name it as a projection and test it against canonical contracts          |
 | runtime adapter    | platform/service implementation detail      | move reusable logic into `agent-core`, keep transport in `agent-service` |
 | proof fixture      | generated or static evidence input          | keep under proof scripts/output, but parse with canonical contracts      |
@@ -78,39 +92,39 @@ now classify each duplicate-looking shape as one of:
 
 | Layer                                   | Owns                                                                                                    | Must Not Own                                             |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `@ocentra-parent/schema-domain`         | all canonical TypeScript runtime schemas/contracts, Effect Schema helpers, brand/decode helpers, and shared contract parsers organized by domain folder | runtime behavior, portal DOM, raw OS adapter code        |
-| `@ocentra-parent/activity-domain`       | activity-specific mapping, projection, aggregation, and package-local helpers built on canonical contracts | shared cross-package schema authority, parent policy, Rust transport |
-| `@ocentra-parent/parent-domain`         | parent-authored policy logic, family/device business helpers, notification/action semantics, product proof rows | shared cross-package schema authority, transport, portal DOM |
-| `@ocentra-parent/agent-protocol-domain` | protocol adapters, transport mapping, and package-local helpers built on canonical contracts            | shared cross-package schema authority, UI projections    |
-| `@ocentra-parent/portal-domain`         | route ids, panel ids, DOM constants, dev command descriptors                                            | product contracts, protocol envelopes, runtime strings   |
-| `crates/agent-protocol`                 | Rust wire constants, serde protocol structs, and TS-mirror parity fixtures for shared Rust-facing contracts | service storage/runtime behavior                         |
+| `crates/schema`                         | canonical cross-boundary Rust DTOs, route snapshots, action/result shapes, generated TypeScript bridge artifacts, and encoded-shape tests | domain behavior that belongs in a narrower Rust crate    |
+| Rust domain/runtime crates              | product logic, projections, read models, policy decisions, state machines, and domain-local schemas     | duplicate cross-boundary DTO truth                       |
+| `crates/parent-runtime-core`            | parent app facade, UI action dispatch into Rust, and route snapshot assembly                            | TS presentation rendering                                |
+| `crates/agent-protocol`                 | Rust parent/child or service wire constants and structs where transport-specific                        | TS-first contract authority                              |
 | `crates/agent-core`                     | reusable domain/runtime logic, evaluators, compilers, read-model transformations                        | WebSocket transport, HTTP handlers, portal UI            |
 | `crates/agent-service`                  | transport boundary, ActivityStore integration, service dispatch, platform adapter wiring                | duplicate protocol constants or domain rules             |
-| `apps/portal`                           | UI consumption, rendering, local route state, screenshots                                               | canonical product/protocol truth                         |
+| `apps/portal`                           | TSX/CSS/assets, generated bridge DTO consumption, thin host/dev adapters, local visual state            | canonical product/protocol truth                         |
+| `@ocentra-parent/schema-domain`         | temporary edge decoders or generated validation adapters during migration                               | product schema authority or business logic               |
+| `@ocentra-parent/activity-domain`       | transitional presentation/projection helpers only where not product truth                               | shared schema authority, runtime behavior, Rust transport |
+| `@ocentra-parent/parent-domain`         | transitional helpers until Rust replacement owns parent/family/device behavior                          | product policy authority or route snapshots              |
+| `@ocentra-parent/agent-protocol-domain` | transitional dev/protocol adapters until Rust/generated bridge replaces consumers                       | shared schema authority or product protocol truth        |
+| `@ocentra-parent/portal-domain`         | pure presentation helpers, DOM ids, and dev descriptors only                                            | product contracts, protocol envelopes, runtime strings   |
 | `scripts/test`                          | proof runners and generated artifacts                                                                   | new product truth not backed by contracts                |
 
 ## Canonicalization Rules
 
-1. Every shared TypeScript runtime schema, branded value parser, and exported
-   contract lives in `@ocentra-parent/schema-domain`. If two TypeScript
-   packages, or one TypeScript package and one Rust boundary, agree on a shape,
-   centralize the TypeScript contract there before reuse.
+1. Every shared product schema, route snapshot, action/result shape, read-model
+   DTO, branded value, and exported contract starts in `crates/schema` or the
+   owning Rust domain/runtime crate.
 2. Event ids, route ids, command names, policy ids, status names, schema
    fields, proof row kinds, and protocol shapes cannot live as app-local
-   strings or peer-owned schema lookalikes.
-3. TypeScript runtime validation uses Effect Schema brands and decode helpers
-   from `@ocentra-parent/schema-domain`. No raw `string` annotations for domain
-   values where a branded type exists.
-4. Domain packages may own projections, aggregations, adapters, and helpers,
-   but shared TypeScript contract schemas must not be copied, exported, or
-   re-owned there.
-5. Rust-facing protocol shapes live in `crates/agent-protocol` and are mirrored
-   from explicit TypeScript contracts in `@ocentra-parent/schema-domain`, not
-   invented in service code.
-6. Matching TypeScript and Rust contracts must preserve identical encoded field
-   names, discriminants, nullability, and version semantics. Drift coverage is
-   required through fixtures, generated schema comparison, or equivalent parity
-   tests.
+   strings or peer-owned TS schema lookalikes.
+3. TypeScript runtime validation is allowed only at untrusted TS edges or
+   generated validation edges. It must not become business truth.
+4. TypeScript domain packages may keep temporary edge decoders, presentation
+   helpers, or adapters during migration, but shared product schemas must not be
+   copied, exported, or re-owned there.
+5. Rust-facing protocol shapes live in `crates/schema`, the owning Rust domain
+   crate, or `crates/agent-protocol` for transport-specific wire concerns.
+6. Generated TypeScript and any temporary TS mirror must preserve Rust encoded
+   field names, discriminants, nullability, enum values, and version semantics.
+   Drift coverage is required through Rust serialization, generated artifact,
+   fixture, or equivalent parity tests.
 7. Reusable Rust logic goes into `agent-core`. Service code only owns the
    transport/service boundary.
 8. Portal and child app surfaces consume canonical contracts. They do not
@@ -147,14 +161,17 @@ Tracking cleanup order:
    - consumers that must be updated;
    - validation command that proves the move;
    - docs/checklists that must change.
-3. Pick canonical TypeScript schema folders inside `@ocentra-parent/schema-domain`:
-   - activity, tracking, location, and geofence contracts under activity folders;
-   - parent policy/action/proof-readiness contracts under parent folders;
-   - command/event envelope contracts under agent-protocol folders;
-   - route/panel/portal-facing contract schemas under portal folders;
-   - display text token schemas under text folders.
-   Domain packages then consume those canonical contracts for their own
-   projections, helpers, and package-local logic.
+3. Pick Rust canonical owners first:
+   - cross-boundary DTOs, route snapshots, actions, and read models in
+     `crates/schema`;
+   - tracking, location, geofence, expected-place, and nearby-place behavior in
+     the owning Rust tracking/runtime crate;
+   - parent policy/action/proof-readiness behavior in the owning Rust
+     policy/parent runtime crate;
+   - command/event envelope transport shapes in the Rust protocol/runtime
+     boundary when they are not schema-wide DTOs.
+   TypeScript packages then consume generated DTOs, temporary edge decoders, or
+   pure presentation helpers without becoming canonical owners.
 4. Move reusable Rust logic:
    - tracking read-model transformations, policy evaluation helpers, and
      domain/runtime logic to `crates/agent-core`;

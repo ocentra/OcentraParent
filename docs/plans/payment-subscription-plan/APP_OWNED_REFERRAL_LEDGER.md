@@ -2,6 +2,8 @@
 
 Purpose: define the canonical referral history owned by the app.
 
+Current Rust owner: referral-credit totals that affect entitlement delivery must be consumed by the Rust-owned entitlement snapshot derivation, not recreated in TypeScript.
+
 ## Ledger entries
 
 | Entry | Meaning | Required fields |
@@ -11,6 +13,7 @@ Purpose: define the canonical referral history owned by the app.
 | `ReferralQualification` | The referred household satisfied the qualification rules. | `referralId`, `qualifiedAt`, `qualificationReason` |
 | `ReferralCredit` | Child-device credit was granted. | `referralId`, `creditUnits`, `grantedAt`, `expiresAt` |
 | `ReferralCreditLedgerEntry` | A credit change or adjustment was recorded. | `referralId`, `deltaUnits`, `reason`, `actorRef`, `createdAt` |
+| `ReferralCreditProjection` | Current qualified referral-credit total consumed by entitlement delivery. | `referrerAccountId`, `activeReferralCredits`, `revokedReferralCredits`, `updatedAt` |
 | `ReferralAbuseSignal` | A fraud or abuse signal was detected. | `referralId`, `signalType`, `detailsRef`, `createdAt` |
 
 ## Rules
@@ -19,6 +22,7 @@ Purpose: define the canonical referral history owned by the app.
 - Referral credits are non-cash and non-transferable.
 - Qualification and revocation decisions must be explainable from the ledger alone.
 - Anti-abuse flags belong in the ledger, not just the UI.
+- Referral credit loss must recalculate the effective child-device limit before the next signed entitlement snapshot is issued.
 
 ## Failure conditions
 

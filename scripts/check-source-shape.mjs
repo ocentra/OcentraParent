@@ -42,12 +42,23 @@ const policies = [
 ];
 
 const schemaDomainTypeScriptRoot = 'packages/schema-domain/src/';
+const schemaDomainGeneratedTypeScriptRoot = 'packages/schema-domain/src/generated/';
 const schemaDomainCatalogDataPattern = /^packages\/schema-domain\/src\/.*catalog-data(?:-[a-z0-9-]+)?\.ts$/u;
+const schemaGeneratedBridgePattern = /^crates\/schema\/src\/(?:.*_ts|parent_ui_bridge)\.rs$/u;
+const trackingGeneratedBridgePattern = /^crates\/tracking-core\/src\/generated_bridge\.rs$/u;
 const agentProtocolRustRoot = 'crates/agent-protocol/';
 const agentProtocolRustTestPattern =
   /^crates\/agent-protocol\/(?:src\/(?:.*_tests|tests)\.rs|tests\/contract\/.*\.rs)$/u;
 const crateRustTestPattern = /^crates\/.*(?:_tests?\.rs|tests\/.*\.rs)$/u;
 const sourceShapePolicyOverrides = new Map([
+  [
+    'apps/portal/generated/parent-ui-bridge.ts',
+    {
+      // Rust-generated bridge contracts are checked in and intentionally export a larger constant/type surface.
+      maxExports: 180,
+      maxLines: 1500,
+    },
+  ],
   [
     'apps/portal/e2e/tracking-hosted-ui-proof.spec.ts',
     {
@@ -310,6 +321,16 @@ function policyFor(relativePath) {
       maxLines: 1500,
     };
 
+    if (normalized.startsWith(schemaDomainGeneratedTypeScriptRoot)) {
+      return {
+        ...schemaDomainPolicy,
+        // Generated schema-domain helpers and proofs mirror contract breadth rather than owner-maintained source shape.
+        maxExports: 220,
+        maxLines: 3000,
+        maxFunctionLines: 180,
+      };
+    }
+
     if (schemaDomainCatalogDataPattern.test(normalized)) {
       return {
         ...schemaDomainPolicy,
@@ -322,6 +343,17 @@ function policyFor(relativePath) {
   }
 
   if (!normalized.startsWith(agentProtocolRustRoot)) {
+    if (schemaGeneratedBridgePattern.test(normalized) || trackingGeneratedBridgePattern.test(normalized)) {
+      return {
+        ...basePolicy,
+        // Rust-generated bridge outputs intentionally fan out a large mirrored surface; split the generator, not the checked-in mirror.
+        maxFunctions: 120,
+        maxLines: 3000,
+        maxTypes: 120,
+        maxFunctionLines: 800,
+      };
+    }
+
     if (crateRustTestPattern.test(normalized)) {
       return {
         ...basePolicy,
@@ -351,6 +383,10 @@ function policyFor(relativePath) {
   }
 
   return agentProtocolPolicy;
+}
+
+export function resolveSourceShapePolicy(relativePath) {
+  return policyFor(relativePath);
 }
 
 const sourceShapeRoots = [...new Set(policies.flatMap((policy) => policy.roots))];

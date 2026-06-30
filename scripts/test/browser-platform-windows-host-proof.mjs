@@ -56,8 +56,8 @@ mkdirSync(proofRoot, { recursive: true });
 const pathVisibility = knownBrowserTargets.map((target) => queryTarget(target));
 const urlAssociations = ['http', 'https'].map(queryUrlAssociation);
 const executableVisible = pathVisibility.some((entry) => entry.executableVisible || entry.appPathRegistryVisible);
-const defaultUrlHandlerVisible = urlAssociations.some((entry) => entry.progIdRef !== null);
-const knownDefaultBrowserHandlerVisible = urlAssociations.some((entry) => entry.knownBrowserFamily !== null);
+const defaultUrlHandlerVisible = urlAssociations.some((entry) => entry.progIdRef !== undefined);
+const knownDefaultBrowserHandlerVisible = urlAssociations.some((entry) => entry.knownBrowserFamily !== undefined);
 const negativeChecks = [
   { claim: 'windows-managed-launch', rejected: true },
   { claim: 'windows-managed-exact-url', rejected: true },
@@ -131,7 +131,7 @@ function queryTarget(target) {
     executablePathRefs: visibleCandidatePaths.map((candidatePath) =>
       redactedRef('windows-browser-path', candidatePath)
     ),
-    appPathRegistryVisible: appPathValue !== null,
+    appPathRegistryVisible: appPathValue !== undefined,
     appPathRegistryRef: appPathValue === null ? null : redactedRef('windows-app-path-registry', appPathValue),
     rawPathPersisted: false,
     rawRegistryValuePersisted: false,
@@ -152,7 +152,7 @@ function queryUrlAssociation(scheme) {
     userChoiceKeyRef: redactedRef('windows-url-association-key', key),
     progIdRef: progId === null ? null : redactedRef('windows-url-association-progid', progId),
     knownBrowserFamily,
-    defaultHandlerAssociationVisible: progId !== null,
+    defaultHandlerAssociationVisible: progId !== undefined,
     rawRegistryValuePersisted: false,
     exactUrlProofClaimed: false,
     knownActiveTabProofClaimed: false,

@@ -1,4 +1,4 @@
-import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalRoute } from './portal-contract-adapter';
 import { portalRouteHashPath } from './routes';
 import type { ParentPortalGuideTopic } from './parent-portal-guide-types';
 import { PARENT_PORTAL_NAV_LABELS } from './parent-portal-nav';

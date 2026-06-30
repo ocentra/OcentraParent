@@ -10,7 +10,7 @@ use super::app_game_session_time::{add_millis, timestamp_ms};
 
 const SESSION_STALE_TIMEOUT_MS: u64 = 60_000;
 
-pub(super) fn session_summaries_from_rows(
+pub fn session_summaries_from_rows(
     rows: Vec<AppGameStoreRow>,
     limit: u64,
 ) -> Vec<AppGameSessionSummary> {

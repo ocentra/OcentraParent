@@ -20,15 +20,15 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/production-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/production-release-public-status-proof.test.ts',
+      'tests/proof/production-release-public-status-proof.test.ts',
     ])
   );
 
@@ -43,7 +43,7 @@ async function main() {
     commands,
     evidence: {
       contract: 'packages/schema-domain/src/production-release-public-status-proof.ts',
-      contractTest: 'packages/production-domain/tests/unit/production-release-public-status-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/proof/production-release-public-status-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),

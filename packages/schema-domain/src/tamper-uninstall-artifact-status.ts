@@ -29,6 +29,25 @@ export const TamperUninstallArtifactStatusRequirementSchema = tamperUninstallArt
 export const TamperUninstallArtifactStatusBoundarySchema = tamperUninstallArtifactText(
   'TamperUninstallArtifactStatusBoundary'
 );
+export const TamperUninstallRemovalFlowReferenceSchema = tamperUninstallArtifactText(
+  'TamperUninstallRemovalFlowReference'
+);
+export const TamperUninstallChildSelfAuthorizationStateSchema = withParser(
+  Schema.Literal('child-self-authorize-forbidden')
+);
+export const TamperUninstallParentAuthorizationStateSchema = withParser(
+  Schema.Literal('required-where-platform-allows')
+);
+export const TamperUninstallRevokedTrustStateSchema = withParser(
+  Schema.Literal('inactive-until-parent-reauthorizes')
+);
+export const TamperUninstallRevocationAuditStateSchema = withParser(Schema.Literal('audit-trail-required'));
+export const TamperUninstallTeardownStateSchema = withParser(
+  Schema.Literal('authority-ends-cleanly-when-removal-is-proved')
+);
+export const TamperUninstallResidualStateVisibilitySchema = withParser(
+  Schema.Literal('reported-until-cleanup-proof')
+);
 
 export const TamperUninstallArtifactSurfaceSchema = withParser(
   Schema.Literal(
@@ -90,6 +109,31 @@ const TamperUninstallArtifactStatusEntryBaseSchema = Schema.Struct({
 });
 
 type TamperUninstallArtifactStatusEntryCandidate = Infer<typeof TamperUninstallArtifactStatusEntryBaseSchema>;
+const TamperUninstallRemovalFlowSummaryBaseSchema = Schema.Struct({
+  childSelfAuthorizationState: TamperUninstallChildSelfAuthorizationStateSchema,
+  parentAuthorizationState: TamperUninstallParentAuthorizationStateSchema,
+  revokedTrustState: TamperUninstallRevokedTrustStateSchema,
+  revocationAuditState: TamperUninstallRevocationAuditStateSchema,
+  teardownState: TamperUninstallTeardownStateSchema,
+  residualStateVisibility: TamperUninstallResidualStateVisibilitySchema,
+  parentAuthorizationRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  revocationAuditRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  teardownProofRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  cleanupProofRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  boundary: TamperUninstallArtifactStatusBoundarySchema,
+});
+
+type TamperUninstallRemovalFlowSummaryCandidate = Infer<typeof TamperUninstallRemovalFlowSummaryBaseSchema>;
+
+export const TamperUninstallRemovalFlowSummarySchema = withParser(
+  TamperUninstallRemovalFlowSummaryBaseSchema.pipe(
+    Schema.filter(
+      (summary) =>
+        tamperUninstallRemovalFlowSummaryIsHonest(summary) ||
+        'Expected child uninstall removal flow summary to forbid child self-authorization, require parent authorization where supported, keep revoked trust inactive, require an auditable removal trail, and preserve cleanup/teardown proof boundaries'
+    )
+  )
+);
 
 export const TamperUninstallArtifactStatusEntrySchema = withParser(
   TamperUninstallArtifactStatusEntryBaseSchema.pipe(
@@ -107,6 +151,7 @@ export const TamperUninstallArtifactStatusReadModelSchema = withParser(
     readModelId: TamperUninstallArtifactStatusReadModelIdSchema,
     generatedAt: ParentTimestampSchema,
     sourceReadModelIds: Schema.Array(TamperUninstallArtifactStatusReferenceSchema),
+    removalFlow: TamperUninstallRemovalFlowSummarySchema,
     entries: Schema.Array(TamperUninstallArtifactStatusEntrySchema),
   }).pipe(
     Schema.filter(
@@ -123,6 +168,9 @@ export const TamperUninstallArtifactStatusReadModelSchema = withParser(
     )
   )
 );
+
+const ExpectedRemovalFlowBoundary =
+  'Child trust removal cannot self-authorize; parent authorization is required where the platform allows uninstall control, revoked trust becomes inactive until parent reauthorization, audit trail and cleanup proof stay attached, and residual state remains visible until teardown proof completes.';
 
 function tamperUninstallArtifactStatusEntryIsHonest(entry: TamperUninstallArtifactStatusEntryCandidate): boolean {
   return (
@@ -147,6 +195,22 @@ function tamperUninstallArtifactStatusHasClaimUpgrade(entry: TamperUninstallArti
   ]);
 }
 
+function tamperUninstallRemovalFlowSummaryIsHonest(summary: TamperUninstallRemovalFlowSummaryCandidate): boolean {
+  return (
+    summary.childSelfAuthorizationState === 'child-self-authorize-forbidden' &&
+    summary.parentAuthorizationState === 'required-where-platform-allows' &&
+    summary.revokedTrustState === 'inactive-until-parent-reauthorizes' &&
+    summary.revocationAuditState === 'audit-trail-required' &&
+    summary.teardownState === 'authority-ends-cleanly-when-removal-is-proved' &&
+    summary.residualStateVisibility === 'reported-until-cleanup-proof' &&
+    summary.parentAuthorizationRefs.length > 0 &&
+    summary.revocationAuditRefs.length > 0 &&
+    summary.teardownProofRefs.length > 0 &&
+    summary.cleanupProofRefs.length > 0 &&
+    summary.boundary === ExpectedRemovalFlowBoundary
+  );
+}
+
 function tamperUninstallArtifactStatusMatchesState(entry: TamperUninstallArtifactStatusEntryCandidate): boolean {
   if (entry.surface === 'admin-removal-flow') {
     return (
@@ -166,6 +230,7 @@ export type TamperUninstallArtifactSurface = Infer<typeof TamperUninstallArtifac
 export type TamperUninstallArtifactState = Infer<typeof TamperUninstallArtifactStateSchema>;
 export type TamperUninstallParentVisibleStatus = Infer<typeof TamperUninstallParentVisibleStatusSchema>;
 export type TamperUninstallArtifactCustody = Infer<typeof TamperUninstallArtifactCustodySchema>;
+export type TamperUninstallRemovalFlowSummary = Infer<typeof TamperUninstallRemovalFlowSummarySchema>;
 export type TamperUninstallArtifactStatusEntry = Infer<typeof TamperUninstallArtifactStatusEntrySchema>;
 export type TamperUninstallArtifactStatusReadModel = Infer<typeof TamperUninstallArtifactStatusReadModelSchema>;
 

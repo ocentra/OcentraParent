@@ -24,25 +24,36 @@ Freeze the shared guard chain for env validation, CORS, request-size limits, kil
 - Scheduled reconciliation hook shape is explicit.
 - Logging is redacted by default.
 
-## Proof IDs
+## Status
 
-- `cloudflare-control.worker-entrypoint`
-- `cloudflare-control.env-validation`
-- `cloudflare-control.cors-fail-fast`
-- `cloudflare-control.request-size-limit`
-- `cloudflare-control.kill-switch`
+- `blocked / proof-present`
+- Proof root: `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
 
-## Validation
+## Execution truth
 
-- Scoped validation: `npm --prefix infra/cloudflare run test:unit`
-- Scoped validation: `npm --prefix infra/cloudflare run test:integration`
-- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/index.ts`
+- The shared worker entrypoint still owns env validation, CORS fail-fast, request-size limits, kill switch behavior, safe errors, and scheduled hook shape.
+- Unit suites that do not require `src/index.ts` boot passed.
+- Unit and integration suites that require the real worker entrypoint remain blocked before route execution because `src/index.ts` cannot import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
+- The scheduled hook shape is explicit in source but not runtime-proven.
 
-## Negative cases
+## Exact blocker set
 
-- Reject dispatch before guard checks.
-- Reject error bodies that imply raw secret or stack leakage.
+- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+
+## Validations run
+
+- `cmd /c npm --prefix infra/cloudflare run test:unit`
+- `cmd /c npm --prefix infra/cloudflare run test:integration`
+- `npm run lint:architecture -- --files infra/cloudflare/src/index.ts`
+
+## No-claim boundary
+
+- This workpack does not prove a green worker boot.
+- This workpack does not prove live runtime guard success through dispatch.
+- This workpack does not prove deployment, portal smoke, or payment readiness.
 
 ## Failure conditions
 
+- Reject dispatch before guard checks.
+- Reject error bodies that imply raw secret or stack leakage.
 - Do not treat a fail-safe stub as a proven runtime implementation.

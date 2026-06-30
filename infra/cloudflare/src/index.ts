@@ -44,6 +44,7 @@ import {
   verifyStripeWebhookSignature,
   type VerifiedIdentity,
 } from './auth/verifier.js';
+import { validateAuthBoundaryRoute } from './auth/model.js';
 import {
   getMissingBindings,
   isRouteKillSwitchEnabled,
@@ -1906,6 +1907,17 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   if (!route) {
     return json(404, {
       error: 'route-not-found',
+    });
+  }
+
+  const boundaryViolation = validateAuthBoundaryRoute(route);
+  if (boundaryViolation) {
+    return json(500, {
+      error: 'route-auth-boundary-invalid',
+      routeKey: `${route.method} ${route.path}`,
+      authState: route.authState,
+      auditRule: route.auditRule,
+      reason: boundaryViolation,
     });
   }
 

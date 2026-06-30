@@ -16,13 +16,13 @@ use crate::{
     time::timestamp_now,
 };
 
+#[path = "activity_capture/app_game.rs"]
 mod app_game;
+#[path = "activity_capture/capture_events.rs"]
 pub(crate) mod capture_events;
+#[path = "activity_capture/errors.rs"]
 mod errors;
 pub(crate) type ActivityCaptureError = errors::ActivityCaptureError;
-
-#[cfg(test)]
-pub(crate) mod freshness;
 
 pub fn spawn_startup_activity_capture() {
     if !startup_activity_capture_enabled() {

@@ -34,7 +34,7 @@ Choose the smallest local route for this plan.
 ## Boundary split
 
 ```text
-schema-domain owns canonical shared TypeScript network shapes.
+crates/schema or the owning Rust crate owns canonical shared network shapes and generated DTOs. `packages/schema-domain` is temporary generated-validation or edge-decoder surface only where migration is still incomplete.
 network-domain is package metadata/proof-consumer unless a selected public export exists.
 ocentra-network-evidence owns Rust network evidence/proof helper logic.
 agent-protocol, agent-core, and agent-service own protocol/runtime/service proof only when selected.

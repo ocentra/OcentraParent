@@ -45,6 +45,7 @@ import {
   ActivitySurfaceAdapterOperationManifest,
   type ActivitySurfaceAdapterOperation,
 } from '@ocentra-parent/schema-domain/agent-activity-surface-adapter-manifest';
+import { parseJsonPayloadField } from './protocol-event-payload.js';
 
 export type ActivitySurfaceReportFrequency = 'daily' | 'weekly' | 'monthly';
 export const ActivitySurfaceReadModelKindName = {
@@ -309,24 +310,12 @@ function parsePayloadJson<TValue>(
   schema: ActivitySurfaceSchemaParser<TValue>,
   stateFromValue: (value: TValue, event: AgentEventEnvelope) => ActivitySurfaceAdapterState = payloadState
 ): ActivitySurfaceAdapterResult<TValue> {
-  const raw = event.payload[field];
-  if (typeof raw !== 'string') {
-    return adapterFailure('missing-json-field');
+  const parsed = parseJsonPayloadField(event.payload, field, schema);
+  if (!parsed.ok) {
+    return adapterFailure(parsed.reason);
   }
 
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(raw);
-  } catch {
-    return adapterFailure('invalid-json');
-  }
-
-  const parsed = schema.safeParse(decoded);
-  if (!parsed.success || parsed.data === undefined) {
-    return adapterFailure('invalid-payload');
-  }
-
-  const value = parsed.data;
+  const value = parsed.value;
   return {
     ok: true,
     state: stateFromValue(value, event),

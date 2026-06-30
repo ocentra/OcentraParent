@@ -19,29 +19,32 @@
 output/lan-plan-proof/<workpack-file-stem>/
 ```
 
-## Current LAN-domain test truth
+## Current LAN test truth
 
-- As of 2026-06-17, `packages/lan-domain/tests/unit` is the only populated LAN test category on this branch/worktree.
-- Empty or placeholder directories under `packages/lan-domain/tests/**` do not count as integration, contract, e2e, property, security, observability, release, or load coverage.
-- Future category claims should be made only when real test files exist under a matching major top-level category.
+- As of 2026-06-17, `packages/lan-domain/tests/unit` was the only populated TS-side LAN test category on this branch/worktree. That is historical migration residue only, and it must not be reactivated as current LAN ownership.
+- All current product logic, contracts, runtime truth, read models, and proof truth are Rust-owned. TS tests only prove presentation/UI behavior or generated edge consumption.
+- Empty or placeholder directories under any LAN test surface, including historical `packages/lan-domain/tests/**`, do not count as integration, contract, e2e, property, security, observability, release, or load coverage.
+- LAN closure requires real organized test files under the owning Rust crate `tests/` surfaces.
+- UI presentation tests may supplement selected presentation slices only; they never replace Rust-owned LAN proof.
+- Inline source-owned tests do not count as plan closure. Follow-on cleanup should move LAN logic coverage into organized crate test groups.
 
-## Focused B2 command
+## Historical B2 residue
 
-```bash
-cd packages/lan-domain && cmd /c npx vitest run tests/unit
-```
+The old TS-side B2 residue stays documented as historical proof context only.
+Do not use legacy `packages/lan-domain` test commands as current LAN validation
+or as a fallback execution path.
 
 ## Common commands
 
 Use the subset relevant to the selected workpack:
 
 ```bash
-npm run build --workspace @ocentra-parent/lan-domain
-npm run test --workspace @ocentra-parent/lan-domain
+cargo test -p ocentra-lan-core lan
 cargo test -p ocentra-parent-agent-protocol lan
 cargo test -p ocentra-parent-agent-service lan
 npm run test --workspace @ocentra-parent/portal -- lan
-npm run lint:architecture -- --files packages/lan-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
+npm run lint:architecture -- --files crates/lan-core crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
+cargo lint-architecture crates/lan-core crates/agent-protocol crates/agent-service
 ```
 
 Manual/operator cross-checks when the selected proof scope explicitly requires
@@ -54,16 +57,21 @@ avahi-browse -art
 dns-sd -B _services._dns-sd._udp local
 ```
 
-The cross-surface `cargo` and portal commands above are not evidence that `packages/lan-domain` currently has populated non-unit LAN test categories.
+If a selected workpack explicitly audits historical TS migration residue, keep
+that audit fenced and do not treat it as active LAN ownership, completion
+proof, or a default validation surface.
 
 Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
 
 ## Command ownership notes
 
-- `schema-domain` owns canonical LAN contract/read-model/proof shapes when shapes cross package/crate/app/plan boundaries.
-- `packages/lan-domain` owns current package-level metadata and packet-local proof-consumer surface; it is not a full runtime/packet implementation owner for every LAN claim.
+- The Rust schema crate owns canonical LAN contract/read-model/proof shapes when shapes cross crate/app/plan boundaries.
+- Rust-owned crates also own LAN product logic, runtime truth, read models, and proof truth.
+- Historical `packages/lan-domain` residue may still exist on disk as migration
+  scaffolding or proof-consumer helpers when explicitly selected. It does not
+  own current LAN business logic, read models, runtime truth, or proof truth.
 - `crates/agent-protocol` and `crates/agent-service` prove protocol/service/read-model behavior only when selected.
-- `apps/portal` and portal-domain prove projection/UI only when selected; portal rendering is not LAN truth proof.
+- `apps/portal` or another presentation surface may prove UI rendering only when selected; that rendering remains supporting evidence and is not LAN truth proof.
 - `eventing-plan` proves local event bus semantics only; eventing proof is not LAN transport or topology proof.
 - Account, device-trust, remote, setup, package distribution, Cloudflare, policy, enforcement, and child runtime scopes run only when the selected workpack names the handoff.
 
@@ -133,5 +141,5 @@ unit tests not used as integration/e2e/security coverage
 source matrix not used as physical discovery proof
 portal projection not used as LAN truth proof
 B1/B2 proof not used as signed hello/heartbeat/service/physical/relay proof
-frozen workpacks not used as current completion scope
+active workpacks 21-25 require their own current completion proof and test truth
 ```

@@ -47,7 +47,7 @@ export const NotificationLocalOutboxForbiddenDetailFragments = [
 ] as const;
 
 export const NotificationLocalOutboxKnownGaps = [
-  'No push, email, SMS, WhatsApp, or in-app provider adapter is implemented by this parent-domain proof.',
+  'No push, email, SMS, WhatsApp, or in-app provider adapter is implemented by this rust-parent-runtime proof.',
   'No provider delivery execution, webhook receipt ingestion, credentials, cloud routing, or parent notification UI is claimed.',
   'No raw child evidence, raw URLs, titles, message text, screenshots, reports, provider tokens, or private paths are stored in the local outbox artifact.',
   'Quiet-hours scheduling, retry execution, dead-letter review, and receipt/manual-required handling remain adapter/runtime work.',
@@ -495,10 +495,10 @@ export const NotificationLocalOutboxSchedulerProofNow = '2026-06-04T02:28:51.667
 export const NotificationLocalOutboxSchedulerArtifactRef = 'parent-owned-local-notification-outbox-scheduler-jsonl-ref';
 
 export const NotificationLocalOutboxSchedulerKnownGaps = [
-  'No push, email, SMS, WhatsApp, or in-app provider adapter is implemented by this parent-domain scheduler proof.',
+  'No push, email, SMS, WhatsApp, or in-app provider adapter is implemented by this rust-parent-runtime scheduler proof.',
   'No provider delivery execution, webhook receipt ingestion, provider credentials, cloud routing, or parent notification UI is claimed.',
   'No raw child evidence, raw URLs, titles, message text, screenshots, reports, provider tokens, or private paths are stored in the scheduler artifact.',
-  'Scheduler decisions are deterministic parent-domain proof rows; no production timer loop, durable outbox database, provider retry worker, or receipt webhook is implemented.',
+  'Scheduler decisions are deterministic rust-parent-runtime proof rows; no production timer loop, durable outbox database, provider retry worker, or receipt webhook is implemented.',
   'Parent-visible history, preferences, escalation controls, retention controls, and physical provider smoke proof remain future work.',
 ] as const;
 

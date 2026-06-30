@@ -13,7 +13,9 @@ import {
   RequiredAppGameSourceGatedPolicyPreviewTimerStatusNonClaims,
   appGameSourceGatedPolicyPreviewTimerStatusCountsMatch,
   appGameSourceGatedPolicyPreviewTimerStatusHasNoRuntimeClaims,
-  appGameSourceGatedPolicyPreviewTimerStatusMatchesHandoff,
+  appGameSourceGatedPolicyPreviewTimerStatusRequiredProofRefs,
+  appGameSourceGatedPolicyPreviewTimerStatusStateForHandoff,
+  countAppGameSourceGatedPolicyPreviewTimerStatusRows,
 } from './app-game-source-gated-policy-preview-timer-status-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
@@ -153,15 +155,7 @@ export function buildAppGameSourceGatedPolicyPreviewTimerStatus(
     rows,
     nativeAppRowCount: timerHandoff.nativeAppRowCount,
     nativeGameRowCount: timerHandoff.nativeGameRowCount,
-    timerRuntimeProofRequiredCount: rows.filter(
-      (row) => row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.TimerRuntimeProofRequired
-    ).length,
-    sourceFreshnessProofRequiredCount: rows.filter(
-      (row) => row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.SourceFreshnessProofRequired
-    ).length,
-    compilerDecisionProofRequiredCount: rows.filter(
-      (row) => row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.CompilerDecisionProofRequired
-    ).length,
+    ...countAppGameSourceGatedPolicyPreviewTimerStatusRows(rows),
     timerStatusNonClaims: RequiredAppGameSourceGatedPolicyPreviewTimerStatusNonClaims,
     ...AppGameSourceGatedPolicyPreviewTimerStatusNoClaimFlags,
   });
@@ -171,7 +165,9 @@ function buildTimerStatusRow(
   options: AppGameSourceGatedPolicyPreviewTimerStatusOptions,
   handoffRow: AppGameSourceGatedPolicyPreviewTimerHandoffRow
 ): AppGameSourceGatedPolicyPreviewTimerStatusRow {
-  const timerStatusState = timerStatusStateForHandoff(handoffRow);
+  const timerStatusState = appGameSourceGatedPolicyPreviewTimerStatusStateForHandoff(
+    handoffRow.timerHandoffState
+  );
 
   return AppGameSourceGatedPolicyPreviewTimerStatusRowSchema.parse({
     schemaVersion: options.schemaVersion,
@@ -185,36 +181,11 @@ function buildTimerStatusRow(
       timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.SourceFreshnessProofRequired,
     compilerDecisionProofRequired:
       timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusState.CompilerDecisionProofRequired,
-    requiredProofRefs: requiredProofRefsForStatus(options, timerStatusState),
+    requiredProofRefs: appGameSourceGatedPolicyPreviewTimerStatusRequiredProofRefs(options, timerStatusState),
     sourceEvidenceRefs: handoffRow.sourceEvidenceRefs,
     ...AppGameSourceGatedPolicyPreviewTimerStatusNoClaimFlags,
     generatedAt: options.generatedAt,
   });
-}
-
-function timerStatusStateForHandoff(handoffRow: AppGameSourceGatedPolicyPreviewTimerHandoffRow) {
-  for (const state of Object.values(AppGameSourceGatedPolicyPreviewTimerStatusState)) {
-    if (appGameSourceGatedPolicyPreviewTimerStatusMatchesHandoff(handoffRow.timerHandoffState, state)) {
-      return state;
-    }
-  }
-  return AppGameSourceGatedPolicyPreviewTimerStatusState.CompilerDecisionProofRequired;
-}
-
-function requiredProofRefsForStatus(
-  options: AppGameSourceGatedPolicyPreviewTimerStatusOptions,
-  timerStatusState: string
-) {
-  switch (timerStatusState) {
-    case AppGameSourceGatedPolicyPreviewTimerStatusState.TimerRuntimeProofRequired:
-      return [options.timerRuntimeProofRef];
-    case AppGameSourceGatedPolicyPreviewTimerStatusState.SourceFreshnessProofRequired:
-      return [options.sourceFreshnessProofRef];
-    case AppGameSourceGatedPolicyPreviewTimerStatusState.CompilerDecisionProofRequired:
-      return [options.compilerDecisionProofRef];
-    default:
-      return [options.compilerDecisionProofRef];
-  }
 }
 
 export const decodeAppGameSourceGatedPolicyPreviewTimerStatus = Schema.decodeUnknownSync(

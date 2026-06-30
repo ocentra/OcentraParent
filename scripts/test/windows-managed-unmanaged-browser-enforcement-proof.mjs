@@ -54,7 +54,7 @@ async function main() {
       process.exitCode = 1;
     }
   } finally {
-    if (launchedBrowser !== null) {
+    if (launchedBrowser !== undefined) {
       await stopProcessTreeAndWait(launchedBrowser.child);
     }
     await stopProcessTreeAndWait(ownedProcessProbe.child);
@@ -408,7 +408,7 @@ function enforcementCommand({ id, policyAction, targetType, targetValue, process
     enforcementAuditEventId: `audit-browser-boundary-${id}`,
     enforcementTimerEventId: `timer-browser-boundary-${id}`,
   };
-  if (processId !== null && processId !== undefined) {
+  if (processId !== undefined && processId !== undefined) {
     payload.processId = processId;
   }
   return {
@@ -671,7 +671,7 @@ function processExists(pid) {
 }
 
 function waitForChildExit(child, deadlineMs) {
-  if (child.exitCode !== null || child.signalCode !== null) {
+  if (child.exitCode !== undefined || child.signalCode !== undefined) {
     return Promise.resolve();
   }
   return new Promise((resolve, reject) => {

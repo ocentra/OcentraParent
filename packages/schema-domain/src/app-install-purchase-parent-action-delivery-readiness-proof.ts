@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel } from './app-install-purchase-child-device-delivery-runtime-writer-proof';
 import { AppInstallPurchaseParentActionRuntimeHandoffProofReadModel } from './app-install-purchase-parent-action-runtime-handoff-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseParentActionDeliveryReadinessRowGenerated,
+  parentActionDeliveryReadinessProofIsHonestGenerated,
+  parentActionDeliveryReadinessRowIsHonestGenerated,
+  summarizeAppInstallPurchaseParentActionDeliveryReadinessProofGenerated,
+} from './generated/app-install-purchase-delivery-runtime-helpers';
 const ParentActionDeliveryReadinessProofVersion = 'app-install-purchase-parent-action-delivery-readiness-proof';
 const SourceParentActionRuntimeHandoffProofVersion = 'app-install-purchase-parent-action-runtime-handoff-proof';
 const SourceChildDeviceDeliveryRuntimeWriterProofVersion =
@@ -174,58 +180,20 @@ export const AppInstallPurchaseParentActionDeliveryReadinessProofReadModel =
 export function summarizeAppInstallPurchaseParentActionDeliveryReadinessProof(
   proof: AppInstallPurchaseParentActionDeliveryReadinessProof
 ) {
-  return {
-    parentActionDeliveryReadinessRows: proof.parentActionDeliveryReadinessRows.length,
-    parentActionDeliveryReadyRows: proof.parentActionDeliveryReadinessRows.filter(
-      (row) => row.parentActionDeliveryReadinessState === 'parent-action-delivery-ready'
-    ).length,
-    manualReviewRequiredRows: proof.parentActionDeliveryReadinessRows.filter(
-      (row) => row.parentActionDeliveryReadinessState === 'manual-review-required'
-    ).length,
-    childEnvelopeLinkedRows: proof.parentActionDeliveryReadinessRows.filter(childEnvelopeCoverageIsComplete).length,
-    parentActionDeliveredRows: proof.parentActionDeliveryReadinessRows.filter(
-      (row) => row.parentActionRuntimeDeliveryClaim !== 'not-delivered'
-    ).length,
-    runtimeWriterExecutedRows: proof.parentActionDeliveryReadinessRows.filter(
-      (row) => row.runtimeWriterExecutionClaim !== 'not-executed'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseParentActionDeliveryReadinessProofGenerated(proof);
 }
 
 function parentActionDeliveryReadinessRow(
   row: (typeof AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.runtimeHandoffRows)[number]
 ) {
-  const childEnvelopeRow = childDeliveryRowForAction(row.sourceDecisionAction);
-  const manual = row.sourceDecisionAction === 'review-needed';
-  return {
-    schemaVersion: ParentActionDeliveryReadinessProofVersion,
-    parentActionDeliveryReadinessRowId: `parent-action-delivery-readiness-${row.sourceDecisionAction}`,
-    sourceParentActionRuntimeHandoffProofVersion: SourceParentActionRuntimeHandoffProofVersion,
-    sourceParentActionRuntimeHandoffRowId: row.runtimeHandoffRowId,
-    sourceDecisionAction: row.sourceDecisionAction,
-    sourceRuntimeHandoffStatus: row.runtimeHandoffStatus,
-    sourceChildDeviceDeliveryRuntimeWriterProofVersion: SourceChildDeviceDeliveryRuntimeWriterProofVersion,
-    sourceChildDeviceDeliveryRuntimeWriterRowId: childEnvelopeRow.childDeviceDeliveryRuntimeWriterRowId,
-    sourceChildDeliveryEnvelopeState: childEnvelopeRow.childDeliveryEnvelopeState,
-    parentActionDeliveryReadinessState: manual ? 'manual-review-required' : 'parent-action-delivery-ready',
-    parentActionAuditEventRefs: row.auditEventRefs,
-    childDeliveryTargetRefs: childEnvelopeRow.childDeliveryTargetRefs,
-    reportRuntimeRefs: uniqueRefs([...row.reportRuntimeRefs, ...childEnvelopeRow.reportRuntimeRefs]),
-    parentActionRuntimeDeliveryClaim: row.parentActionRuntimeDeliveryClaim,
-    runtimeWriterExecutionClaim: childEnvelopeRow.runtimeWriterExecutionClaim,
-    runtimeWriterDeliveryClaim: childEnvelopeRow.runtimeWriterDeliveryClaim,
-    providerApiExecutionClaim: row.providerApiExecutionClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    platformAdapterClaim: childEnvelopeRow.platformAdapterClaim,
-    childDeviceDeliveryClaim: childEnvelopeRow.childDeviceDeliveryClaim,
-    runtimeReportDeliveryClaim: childEnvelopeRow.runtimeReportDeliveryClaim,
-    interceptionClaim: row.interceptionClaim,
-    appBlockingClaim: row.appBlockingClaim,
-    childDataCustody: row.childDataCustody,
-    ocentraHostedFamilyDataCustodyClaim: row.ocentraHostedFamilyDataCustodyClaim,
-    claimBoundary: ParentActionDeliveryReadinessClaimBoundary,
-    linkedAt: ParentActionDeliveryReadinessTimestamp,
-  } as const;
+  return buildAppInstallPurchaseParentActionDeliveryReadinessRowGenerated(
+    row,
+    childDeliveryRowForAction(row.sourceDecisionAction),
+    SourceParentActionRuntimeHandoffProofVersion,
+    SourceChildDeviceDeliveryRuntimeWriterProofVersion,
+    ParentActionDeliveryReadinessClaimBoundary,
+    ParentActionDeliveryReadinessTimestamp
+  );
 }
 
 function childDeliveryRowForAction(action: (typeof RequiredDecisionActions)[number]) {
@@ -234,97 +202,29 @@ function childDeliveryRowForAction(action: (typeof RequiredDecisionActions)[numb
   )!;
 }
 
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
-}
-
 function parentActionDeliveryReadinessRowIsHonest(row: ParentActionDeliveryReadinessRowCandidate): boolean {
-  return (
-    parentActionDeliveryReadinessMatchesSourceState(row) &&
-    childEnvelopeCoverageIsComplete(row) &&
-    parentActionDeliveryReadinessRefsAreComplete(row) &&
-    parentActionDeliveryReadinessClaimsStayUnimplemented(row) &&
-    parentActionDeliveryReadinessBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function parentActionDeliveryReadinessMatchesSourceState(row: ParentActionDeliveryReadinessRowCandidate): boolean {
-  if (row.sourceDecisionAction === 'review-needed') {
-    return (
-      row.sourceRuntimeHandoffStatus === 'manual-review-required' &&
-      row.sourceChildDeliveryEnvelopeState === 'manual-review-required' &&
-      row.parentActionDeliveryReadinessState === 'manual-review-required'
-    );
-  }
-  return (
-    row.sourceRuntimeHandoffStatus === 'queued-for-runtime-writer' &&
-    row.sourceChildDeliveryEnvelopeState === 'child-delivery-envelope-ready' &&
-    row.parentActionDeliveryReadinessState === 'parent-action-delivery-ready'
-  );
-}
-
-function childEnvelopeCoverageIsComplete(row: ParentActionDeliveryReadinessRowCandidate): boolean {
-  return (
-    row.sourceChildDeviceDeliveryRuntimeWriterProofVersion === SourceChildDeviceDeliveryRuntimeWriterProofVersion &&
-    row.sourceChildDeviceDeliveryRuntimeWriterRowId.length > 0 &&
-    row.childDeliveryTargetRefs.length > 0
-  );
-}
-
-function parentActionDeliveryReadinessRefsAreComplete(row: ParentActionDeliveryReadinessRowCandidate): boolean {
-  return (
-    row.sourceParentActionRuntimeHandoffProofVersion === SourceParentActionRuntimeHandoffProofVersion &&
-    row.sourceParentActionRuntimeHandoffRowId.length > 0 &&
-    row.parentActionAuditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function parentActionDeliveryReadinessClaimsStayUnimplemented(row: ParentActionDeliveryReadinessRowCandidate): boolean {
-  return (
-    row.parentActionRuntimeDeliveryClaim === 'not-delivered' &&
-    row.runtimeWriterExecutionClaim === 'not-executed' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return parentActionDeliveryReadinessRowIsHonestGenerated(
+    row,
+    SourceChildDeviceDeliveryRuntimeWriterProofVersion,
+    ParentActionDeliveryReadinessBoundaryFragments
   );
 }
 
 function parentActionDeliveryReadinessProofIsHonest(
   proof: AppInstallPurchaseParentActionDeliveryReadinessProof
 ): boolean {
-  const actions = new Set(proof.parentActionDeliveryReadinessRows.map((row) => row.sourceDecisionAction));
-  const sourceStatuses = new Set(proof.parentActionDeliveryReadinessRows.map((row) => row.sourceRuntimeHandoffStatus));
-  const readinessStates = new Set(
-    proof.parentActionDeliveryReadinessRows.map((row) => row.parentActionDeliveryReadinessState)
-  );
-  const childEnvelopeStates = new Set(
-    proof.parentActionDeliveryReadinessRows.map((row) => row.sourceChildDeliveryEnvelopeState)
-  );
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourceParentActionRuntimeHandoffProofVersion === SourceParentActionRuntimeHandoffProofVersion &&
-    proof.sourceChildDeviceDeliveryRuntimeWriterProofVersion === SourceChildDeviceDeliveryRuntimeWriterProofVersion &&
-    proof.parentActionDeliveryReadinessRows.length === RequiredDecisionActions.length &&
-    RequiredDecisionActions.every((action) => actions.has(action)) &&
-    RequiredRuntimeHandoffStatuses.every((status) => sourceStatuses.has(status)) &&
-    ParentActionDeliveryReadinessStates.every((state) => readinessStates.has(state)) &&
-    RequiredChildDeliveryEnvelopeStates.every((state) => childEnvelopeStates.has(state)) &&
-    ParentActionDeliveryReadinessNonClaims.every((claim) => nonClaims.has(claim)) &&
+    parentActionDeliveryReadinessProofIsHonestGenerated(
+      proof,
+      SourceParentActionRuntimeHandoffProofVersion,
+      SourceChildDeviceDeliveryRuntimeWriterProofVersion,
+      RequiredDecisionActions,
+      RequiredRuntimeHandoffStatuses,
+      ParentActionDeliveryReadinessStates,
+      RequiredChildDeliveryEnvelopeStates,
+      ParentActionDeliveryReadinessNonClaims
+    ) &&
     proof.parentActionDeliveryReadinessRows.every((row) => parentActionDeliveryReadinessRowIsHonest(row)) &&
     proof.knownGaps.length > 0
   );
-}
-
-function parentActionDeliveryReadinessBoundaryIsExplicit(
-  boundary: typeof ParentActionDeliveryReadinessClaimBoundarySchema.Type
-) {
-  return ParentActionDeliveryReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }

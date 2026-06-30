@@ -2,13 +2,27 @@ import {
   AppInstallPurchaseApprovalContractProofSchema,
   type AppInstallPurchaseApprovalPlatformSupportRow,
 } from './app-install-purchase-approval';
+import {
+  AppInstallPurchaseApprovalContractRuntime,
+  GeneratedAppInstallPurchaseApprovalNonClaims,
+  type GeneratedParentPlatform,
+} from './generated/app-install-purchase-approval-contracts';
 import { AppInstallPurchaseApprovalPackageSourceArtifactRowSchema } from './app-install-purchase-approval-package-sources';
 import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from './app-install-purchase-approval-platform-sources';
 import {
   appInstallPurchaseApprovalAuditReportIntegration,
   appInstallPurchaseApprovalChildFacingStates,
-  AppInstallPurchaseApprovalReportRefs,
 } from './app-install-purchase-approval-proof-states';
+import {
+  buildAppInstallPurchaseApprovalAuditEventGenerated,
+  buildAppInstallPurchaseApprovalDecisionGenerated,
+  buildAppInstallPurchaseApprovalPackageSourceArtifactRowGenerated,
+  buildAppInstallPurchaseApprovalPlatformSourceMetadataRowGenerated,
+  buildAppInstallPurchaseApprovalPlatformSupportRowGenerated,
+  buildAppInstallPurchaseApprovalRequestGenerated,
+  buildAppInstallPurchaseApprovalStoreMetadataGenerated,
+  summarizeAppInstallPurchaseApprovalSupportStatesGenerated,
+} from './generated/app-install-purchase-proof-helpers';
 
 const Timestamp = '2026-06-03T07:10:00.000Z';
 const ExpiryTimestamp = '2026-06-10T07:10:00.000Z';
@@ -28,28 +42,9 @@ const ParentAction = {
 } as const;
 const RequestAuditEvent = auditEvent('audit-request-recorded-1', 'request-recorded');
 const DecisionAuditEvent = auditEvent('audit-parent-decision-recorded-1', 'parent-decision-recorded');
-const PlatformSourceMetadataFields = [
-  'store-listing-id',
-  'app-title',
-  'publisher-name',
-  'category',
-  'age-rating',
-  'price-display',
-  'subscription-period',
-  'source-url',
-] as const;
-const PlatformSourceRequestKinds = ['install', 'purchase', 'subscription'] as const;
-const PackageSourceFields = [
-  'package-identifier',
-  'installer-source',
-  'publisher-or-developer',
-  'version-or-build',
-  'signature-or-receipt',
-  'source-captured-at',
-] as const;
 
 export const AppInstallPurchaseApprovalContractProofReadModel = AppInstallPurchaseApprovalContractProofSchema.parse({
-  schemaVersion: 'app-install-purchase-approval-contract-proof',
+  schemaVersion: AppInstallPurchaseApprovalContractRuntime.SchemaVersion,
   installRequest: request('install-request-proof-1', 'install', 'android'),
   purchaseRequest: {
     ...request('purchase-request-proof-1', 'purchase', 'android'),
@@ -237,15 +232,7 @@ export const AppInstallPurchaseApprovalContractProofReadModel = AppInstallPurcha
     requestAuditEvent: RequestAuditEvent,
     decisionAuditEvent: DecisionAuditEvent,
   }),
-  nonClaims: [
-    'no-store-integration',
-    'no-billing-entitlement-logic',
-    'no-portal-ui',
-    'no-platform-adapter',
-    'no-store-policy-bypass',
-    'no-real-install-or-purchase-interception',
-    'not-generic-app-blocking',
-  ],
+  nonClaims: [...GeneratedAppInstallPurchaseApprovalNonClaims],
   storeIntegrationClaim: 'not-claimed',
   billingEntitlementClaim: 'not-claimed',
   portalUiClaim: 'not-implemented',
@@ -272,80 +259,30 @@ export const AppInstallPurchaseApprovalProofKnownGaps = [
 export function summarizeAppInstallPurchaseApprovalSupportStates(
   rows: ReadonlyArray<AppInstallPurchaseApprovalPlatformSupportRow>
 ): Record<'supported' | 'manual-required' | 'unavailable', number> {
-  const counts: Record<'supported' | 'manual-required' | 'unavailable', number> = {
-    supported: 0,
-    'manual-required': 0,
-    unavailable: 0,
-  };
-  for (const row of rows) {
-    for (const state of [
-      row.contractRequestState,
-      row.storeMetadataState,
-      row.installInterceptionState,
-      row.purchaseInterceptionState,
-      row.subscriptionInterceptionState,
-      row.childPendingState,
-      row.approvalDeliveryState,
-    ]) {
-      counts[state] += 1;
-    }
-  }
-  return counts;
+  return summarizeAppInstallPurchaseApprovalSupportStatesGenerated(rows);
 }
 
 function request(
   requestId: 'install-request-proof-1' | 'purchase-request-proof-1' | 'subscription-request-proof-1',
   requestKind: 'install' | 'purchase' | 'subscription',
-  platform: 'android'
+  platform: Extract<GeneratedParentPlatform, 'android'>
 ) {
-  return {
-    schemaVersion: 'app-install-purchase-approval-contract-proof',
+  return buildAppInstallPurchaseApprovalRequestGenerated(
     requestId,
     requestKind,
-    family: {
-      familyId: 'family-install-purchase-proof-1',
-    },
-    child: {
-      childProfileId: 'child-install-purchase-proof-1',
-      displayName: 'Avery',
-    },
-    device: {
-      deviceId: `${platform}-child-device-1`,
-      childProfileId: 'child-install-purchase-proof-1',
-      label: `${platform} child device`,
-      platform,
-    },
     platform,
-    storeMetadata: storeMetadata('parent-manual-entry', 'fresh'),
-    approvalState: {
-      state: 'pending-parent-review',
-      expiryState: 'not-expiring',
-      expiresAt: null,
-      reviewReason: null,
-    },
-    requestedAt: Timestamp,
-    evidenceReferences: [EvidenceReference],
-    auditEventRefs: [RequestAuditEvent],
-  } as const;
+    Timestamp,
+    ExpiryTimestamp,
+    EvidenceReference,
+    RequestAuditEvent
+  );
 }
 
 function storeMetadata(
   storeSurface: 'parent-manual-entry' | 'google-play' | 'apple-app-store',
   freshness: 'fresh' | 'stale' | 'manual-required'
 ) {
-  return {
-    storeSurface,
-    sourceState: freshness === 'manual-required' ? 'manual-required' : 'supported',
-    freshness,
-    listingId: freshness === 'manual-required' ? null : `${storeSurface}-listing-minecraft`,
-    appTitle: freshness === 'manual-required' ? null : 'Minecraft',
-    publisherName: freshness === 'manual-required' ? null : 'Mojang Studios',
-    category: freshness === 'manual-required' ? null : 'Games',
-    ageRating: freshness === 'manual-required' ? null : 'Everyone 10 plus',
-    refreshedAt: freshness === 'manual-required' ? null : Timestamp,
-    staleAt: freshness === 'manual-required' ? null : ExpiryTimestamp,
-    proofRequirement: `${storeSurface} metadata remains contract proof until platform source artifacts exist`,
-  } as const;
+  return buildAppInstallPurchaseApprovalStoreMetadataGenerated(storeSurface, freshness, Timestamp, ExpiryTimestamp);
 }
 
 function decision(
@@ -356,51 +293,30 @@ function decision(
   reviewReason: 'age rating changed' | null,
   parentAction: typeof ParentAction | null
 ) {
-  return {
-    schemaVersion: 'app-install-purchase-approval-contract-proof',
-    decisionId: `decision-${decisionAction}`,
-    requestId: decisionAction === 'approve' ? 'install-request-proof-1' : 'purchase-request-proof-1',
-    requestKind: decisionAction === 'approve' ? 'install' : 'purchase',
+  return buildAppInstallPurchaseApprovalDecisionGenerated(
     decisionAction,
-    resultingState: {
-      state,
-      expiryState,
-      expiresAt,
-      reviewReason,
-    },
+    state,
+    expiryState,
+    expiresAt,
+    reviewReason,
     parentAction,
-    decidedAt: Timestamp,
-    auditEventRefs: [DecisionAuditEvent],
-  } as const;
+    Timestamp,
+    DecisionAuditEvent
+  );
 }
 
 function platformRow(
-  platform: 'windows' | 'macos' | 'linux' | 'android' | 'ios',
+  platform: GeneratedParentPlatform,
   storeSurface: 'microsoft-store' | 'mac-app-store' | 'linux-package-manager' | 'google-play' | 'apple-app-store',
   storeMetadataState: 'manual-required' | 'unavailable',
   platformState: 'manual-required' | 'unavailable'
 ) {
-  return {
+  return buildAppInstallPurchaseApprovalPlatformSupportRowGenerated(
     platform,
     storeSurface,
-    contractRequestState: 'supported',
     storeMetadataState,
-    installInterceptionState: platformState,
-    purchaseInterceptionState: platformState,
-    subscriptionInterceptionState: platformState,
-    childPendingState: platformState,
-    approvalDeliveryState: platformState,
-    manualRequirement:
-      platformState === 'manual-required'
-        ? 'real store or OS approval API proof with user-visible parent workflow'
-        : null,
-    unavailableReason:
-      platformState === 'unavailable'
-        ? 'no approved platform store interception path is claimed by this contract proof'
-        : null,
-    proofRequirement: 'contract proof only; platform adapter proof must be added before product support claims',
-    claimBoundary: 'contract proof only; no platform adapter no store integration no runtime blocking',
-  } as const;
+    platformState
+  );
 }
 
 function platformSourceMetadataRow(
@@ -410,7 +326,7 @@ function platformSourceMetadataRow(
     | 'platform-source-linux-package-manager'
     | 'platform-source-android-google-play'
     | 'platform-source-ios-apple-app-store',
-  platform: 'windows' | 'macos' | 'linux' | 'android' | 'ios',
+  platform: GeneratedParentPlatform,
   storeSurface: 'microsoft-store' | 'mac-app-store' | 'linux-package-manager' | 'google-play' | 'apple-app-store',
   sourceAuthority:
     | 'microsoft-store-listing'
@@ -419,31 +335,22 @@ function platformSourceMetadataRow(
     | 'google-play-listing'
     | 'apple-app-store-listing',
   metadataState: 'manual-required' | 'unavailable',
-  sourceEvidenceState: 'requires-approved-api-proof' | 'requires-store-artifact-proof' | 'platform-unavailable',
+  sourceEvidenceState: 'requires-store-artifact-proof' | 'requires-approved-api-proof' | 'platform-unavailable',
   requiredArtifacts: readonly [string, string, string],
   limitationReason: string
 ) {
   return AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema.parse({
-    schemaVersion: 'app-install-purchase-approval-contract-proof',
-    sourceRowId,
-    platform,
-    storeSurface,
-    sourceAuthority,
-    metadataState,
-    sourceEvidenceState,
-    fieldsAvailableFromContract: [],
-    fieldsRequiringPlatformProof: PlatformSourceMetadataFields,
-    requestKindCoverage: PlatformSourceRequestKinds,
-    requiredArtifacts,
-    limitationReason,
-    limitationReportRef: AppInstallPurchaseApprovalReportRefs.PlatformLimitation,
-    parentManualFallback: 'contract-only-parent-review',
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    interceptionClaim: 'not-claimed',
-    claimBoundary:
-      'contract proof only; no store integration no platform adapter no real install or purchase interception',
-    lastCheckedAt: Timestamp,
+    ...buildAppInstallPurchaseApprovalPlatformSourceMetadataRowGenerated(
+      sourceRowId,
+      platform,
+      storeSurface,
+      sourceAuthority,
+      metadataState,
+      sourceEvidenceState,
+      requiredArtifacts,
+      limitationReason,
+      Timestamp
+    ),
   });
 }
 
@@ -454,7 +361,7 @@ function packageSourceArtifactRow(
     | 'package-source-linux-package-manager'
     | 'package-source-android-google-play'
     | 'package-source-ios-apple-app-store',
-  platform: 'windows' | 'macos' | 'linux' | 'android' | 'ios',
+  platform: GeneratedParentPlatform,
   storeSurface: 'microsoft-store' | 'mac-app-store' | 'linux-package-manager' | 'google-play' | 'apple-app-store',
   platformSourceRowId:
     | 'platform-source-windows-microsoft-store'
@@ -468,36 +375,24 @@ function packageSourceArtifactRow(
     | 'linux-package-manager-record'
     | 'android-package-source-record'
     | 'ios-app-source-record',
-  artifactStatus: 'manual-required' | 'device-proof-required' | 'unavailable',
+  artifactStatus: 'manual-required' | 'unavailable' | 'device-proof-required',
   approvalPathState: 'manual-required' | 'unavailable',
   requiredArtifacts: readonly [string, string, string],
   limitationReason: string
 ) {
   return AppInstallPurchaseApprovalPackageSourceArtifactRowSchema.parse({
-    schemaVersion: 'app-install-purchase-approval-contract-proof',
-    artifactRowId,
-    platform,
-    storeSurface,
-    platformSourceRowId,
-    packageSourceKind,
-    artifactStatus,
-    approvalPathState,
-    packageSourceFieldsRequired: PackageSourceFields,
-    packageSourceFieldsAttached: [],
-    requestKindCoverage: PlatformSourceRequestKinds,
-    requiredArtifacts,
-    artifactEvidenceClaim: 'not-attached',
-    artifactEvidencePath: null,
-    artifactCapturedAt: null,
-    limitationReason,
-    limitationReportRef: AppInstallPurchaseApprovalReportRefs.PlatformLimitation,
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    interceptionClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    claimBoundary:
-      'contract proof only; no store integration no platform adapter no real install or purchase interception no child activity data',
-    lastCheckedAt: Timestamp,
+    ...buildAppInstallPurchaseApprovalPackageSourceArtifactRowGenerated(
+      artifactRowId,
+      platform,
+      storeSurface,
+      platformSourceRowId,
+      packageSourceKind,
+      artifactStatus,
+      approvalPathState,
+      requiredArtifacts,
+      limitationReason,
+      Timestamp
+    ),
   });
 }
 
@@ -505,10 +400,5 @@ function auditEvent(
   auditEventId: 'audit-request-recorded-1' | 'audit-parent-decision-recorded-1',
   eventKind: 'request-recorded' | 'parent-decision-recorded'
 ) {
-  return {
-    auditEventId,
-    eventKind,
-    recordedAt: Timestamp,
-    evidenceReferences: [EvidenceReference],
-  } as const;
+  return buildAppInstallPurchaseApprovalAuditEventGenerated(auditEventId, eventKind, Timestamp, EvidenceReference);
 }

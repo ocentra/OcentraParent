@@ -1,90 +1,61 @@
-import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from './effect';
-import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
+/* thin adapter over Rust-generated child iOS entitlement capability contracts */
+
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import { ParentTimestampSchema } from './family-reference-primitives';
+import {
+  ChildIosEntitlementCapabilityContractRuntime,
+  GeneratedChildIosEntitlementBridgeStates,
+  GeneratedChildIosEntitlementCapabilityReadModel,
+  GeneratedChildIosEntitlementDeclarationStates,
+  GeneratedChildIosEntitlementPackagePhases,
+  GeneratedChildIosEntitlementParentCapabilities,
+  GeneratedChildIosEntitlementParentCapabilityStatuses,
+  GeneratedChildIosEntitlementProofStates,
+  GeneratedChildIosEntitlementProtocolCommands,
+  GeneratedChildIosEntitlementProtocolEvents,
+  GeneratedChildIosEntitlementRuntimeOwners,
+  GeneratedChildIosEntitlementSurfaceNames,
+  type GeneratedChildIosEntitlementCapabilityReadModelShape,
+  type GeneratedChildIosEntitlementPackagePhase,
+  type GeneratedChildIosEntitlementProtocolCommand,
+  type GeneratedChildIosEntitlementProtocolEvent,
+  type GeneratedChildIosEntitlementSurfaceName,
+} from './generated/child-ios-entitlement-capability-proof-contracts';
 
 export const ChildIosEntitlementCapabilityProofSchemaVersionSchema = withParser(
-  Schema.Literal('child-ios-entitlement-capability-proof')
+  Schema.Literal(ChildIosEntitlementCapabilityContractRuntime.SchemaVersion)
 );
 export const ChildIosEntitlementSurfaceNameSchema = withParser(
-  Schema.Literal(
-    'simulator-app-target',
-    'bundle-identifier',
-    'status-surface',
-    'family-controls-entitlement',
-    'device-activity-framework',
-    'screen-time-api',
-    'network-extension',
-    'notifications-permission',
-    'background-execution',
-    'signing-entitlements',
-    'testflight-distribution',
-    'physical-device-proof',
-    'app-store-distribution'
-  )
+  Schema.Literal(...GeneratedChildIosEntitlementSurfaceNames)
 );
 export const ChildIosEntitlementProofStateSchema = withParser(
-  Schema.Literal(
-    'ci-mechanical-proof',
-    'simulator-scaffold',
-    'manual-required',
-    'entitlement-required',
-    'signing-required',
-    'device-proof-required',
-    'not-declared',
-    'not-implemented',
-    'planned'
-  )
+  Schema.Literal(...GeneratedChildIosEntitlementProofStates)
 );
 export const ChildIosEntitlementRuntimeOwnerSchema = withParser(
-  Schema.Literal(
-    'ios-xcode-project',
-    'ios-info-plist',
-    'ios-swift-scaffold',
-    'ios-simulator-build-script',
-    'apple-entitlement',
-    'apple-device-framework',
-    'apple-network-extension',
-    'apple-notification-permission',
-    'apple-background-mode',
-    'apple-signing',
-    'apple-testflight',
-    'apple-device-proof',
-    'app-store-connect'
-  )
+  Schema.Literal(...GeneratedChildIosEntitlementRuntimeOwners)
 );
 export const ChildIosEntitlementDeclarationStateSchema = withParser(
-  Schema.Literal('declared-in-project', 'declared-in-plist', 'scaffold-status-label', 'not-declared', 'not-applicable')
+  Schema.Literal(...GeneratedChildIosEntitlementDeclarationStates)
 );
 export const ChildIosEntitlementPackagePhaseSchema = withParser(
-  Schema.Literal(
-    'xcode-project-target',
-    'bundle-identifier',
-    'simulator-build-script',
-    'status-view',
-    'info-plist',
-    'simulator-build',
-    'device-install',
-    'testflight-install',
-    'signing-profile',
-    'entitlement-review'
-  )
+  Schema.Literal(...GeneratedChildIosEntitlementPackagePhases)
 );
 export const ChildIosEntitlementProtocolCommandSchema = withParser(
-  Schema.Literal(
-    'child.ios.entitlement.capability.snapshot.get',
-    'child.ios.entitlement.package.proof.get',
-    'child.ios.entitlement.manual-proof.get'
-  )
+  Schema.Literal(...GeneratedChildIosEntitlementProtocolCommands)
 );
 export const ChildIosEntitlementProtocolEventSchema = withParser(
-  Schema.Literal(
-    'child.ios.entitlement.capability.snapshot.reported',
-    'child.ios.entitlement.package.proof.reported',
-    'child.ios.entitlement.manual-proof.reported'
-  )
+  Schema.Literal(...GeneratedChildIosEntitlementProtocolEvents)
 );
-export const ChildIosEntitlementBridgeStateSchema = withParser(Schema.Literal('simulator-scaffold', 'not-implemented'));
+export const ChildIosEntitlementBridgeStateSchema = withParser(
+  Schema.Literal(...GeneratedChildIosEntitlementBridgeStates)
+);
 
+const ChildIosEntitlementParentCapabilitySchema = withParser(
+  Schema.Literal(...GeneratedChildIosEntitlementParentCapabilities)
+);
+const ChildIosEntitlementParentCapabilityStatusSchema = withParser(
+  Schema.Literal(...GeneratedChildIosEntitlementParentCapabilityStatuses)
+);
 const ChildIosEntitlementBundleIdSchema = brandedNonEmptyStringSchema('ChildIosEntitlementBundleId');
 const ChildIosEntitlementClassNameSchema = brandedNonEmptyStringSchema('ChildIosEntitlementClassName');
 const ChildIosEntitlementRequirementSchema = brandedNonEmptyStringSchema('ChildIosEntitlementRequirement');
@@ -93,8 +64,8 @@ const ChildIosEntitlementBoundarySchema = brandedNonEmptyStringSchema('ChildIosE
 export const ChildIosEntitlementSurfaceProofSchema = withParser(
   Schema.Struct({
     surface: ChildIosEntitlementSurfaceNameSchema,
-    parentCapability: ParentControlCapabilityNameSchema,
-    parentCapabilityStatus: ParentControlCapabilityStatusSchema,
+    parentCapability: ChildIosEntitlementParentCapabilitySchema,
+    parentCapabilityStatus: ChildIosEntitlementParentCapabilityStatusSchema,
     declarationState: ChildIosEntitlementDeclarationStateSchema,
     proofState: ChildIosEntitlementProofStateSchema,
     runtimeOwner: ChildIosEntitlementRuntimeOwnerSchema,
@@ -130,15 +101,20 @@ export const ChildIosEntitlementProtocolBridgeProofSchema = withParser(
 export const ChildIosEntitlementClaimBoundariesSchema = withParser(
   Schema.Struct({
     simulatorPackage: ChildIosEntitlementBoundarySchema,
+    launchAvailability: ChildIosEntitlementBoundarySchema,
     familyControls: ChildIosEntitlementBoundarySchema,
     deviceActivity: ChildIosEntitlementBoundarySchema,
     screenTime: ChildIosEntitlementBoundarySchema,
     networkExtension: ChildIosEntitlementBoundarySchema,
     notifications: ChildIosEntitlementBoundarySchema,
     backgroundExecution: ChildIosEntitlementBoundarySchema,
+    recoveryBehavior: ChildIosEntitlementBoundarySchema,
+    provisioningProfile: ChildIosEntitlementBoundarySchema,
+    supervision: ChildIosEntitlementBoundarySchema,
     signingEntitlements: ChildIosEntitlementBoundarySchema,
     testflight: ChildIosEntitlementBoundarySchema,
     deviceProof: ChildIosEntitlementBoundarySchema,
+    capabilityOnlyState: ChildIosEntitlementBoundarySchema,
     externalTransport: ChildIosEntitlementBoundarySchema,
   })
 );
@@ -156,246 +132,25 @@ const ChildIosEntitlementReadModelBaseSchema = Schema.Struct({
 
 type ChildIosEntitlementReadModelCandidate = Infer<typeof ChildIosEntitlementReadModelBaseSchema>;
 
+const ExpectedProof = GeneratedChildIosEntitlementCapabilityReadModel;
+const RequiredSurfaces = ExpectedProof.surfaceProofs.map((proof) => proof.surface) as ReadonlyArray<GeneratedChildIosEntitlementSurfaceName>;
+const RequiredLifecyclePhases = ExpectedProof.packageLifecycleProofs.map((proof) => proof.phase) as ReadonlyArray<GeneratedChildIosEntitlementPackagePhase>;
+const RequiredCommands = [...ExpectedProof.protocolBridgeProof.commands] as ReadonlyArray<GeneratedChildIosEntitlementProtocolCommand>;
+const RequiredEvents = [...ExpectedProof.protocolBridgeProof.events] as ReadonlyArray<GeneratedChildIosEntitlementProtocolEvent>;
+const ExpectedSurfaceProofs = new Map(ExpectedProof.surfaceProofs.map((proof) => [proof.surface, proof] as const));
+const ExpectedLifecycleProofs = new Map(
+  ExpectedProof.packageLifecycleProofs.map((proof) => [proof.phase, proof] as const)
+);
+
 export const ChildIosEntitlementCapabilityReadModelSchema = withParser(
   ChildIosEntitlementReadModelBaseSchema.pipe(
     Schema.filter(
       (readModel) =>
         childIosEntitlementCapabilityReadModelIsHonest(readModel) ||
-        'Expected Child iOS entitlement/package proof to keep simulator app target, bundle id, status surface, and simulator build script as scaffold/CI proof while Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, and device behavior remain manual-required, entitlement-required, signing-required, device-proof-required, planned, or not implemented without Apple artifacts'
+        'Expected Child iOS entitlement/package proof to stay aligned to the Rust-owned capability contract and keep manual-required, entitlement-required, signing-required, device-proof-required, planned, and not-implemented boundaries explicit until Apple artifacts change them'
     )
   )
 );
-
-const RequiredSurfaces = [
-  'simulator-app-target',
-  'bundle-identifier',
-  'status-surface',
-  'family-controls-entitlement',
-  'device-activity-framework',
-  'screen-time-api',
-  'network-extension',
-  'notifications-permission',
-  'background-execution',
-  'signing-entitlements',
-  'testflight-distribution',
-  'physical-device-proof',
-  'app-store-distribution',
-] as const satisfies ReadonlyArray<ChildIosEntitlementSurfaceName>;
-
-const RequiredLifecyclePhases = [
-  'xcode-project-target',
-  'bundle-identifier',
-  'simulator-build-script',
-  'status-view',
-  'info-plist',
-  'simulator-build',
-  'device-install',
-  'testflight-install',
-  'signing-profile',
-  'entitlement-review',
-] as const satisfies ReadonlyArray<ChildIosEntitlementPackagePhase>;
-
-const RequiredCommands = [
-  'child.ios.entitlement.capability.snapshot.get',
-  'child.ios.entitlement.package.proof.get',
-  'child.ios.entitlement.manual-proof.get',
-] as const satisfies ReadonlyArray<ChildIosEntitlementProtocolCommand>;
-
-const RequiredEvents = [
-  'child.ios.entitlement.capability.snapshot.reported',
-  'child.ios.entitlement.package.proof.reported',
-  'child.ios.entitlement.manual-proof.reported',
-] as const satisfies ReadonlyArray<ChildIosEntitlementProtocolEvent>;
-
-const SurfaceExpectations = {
-  'simulator-app-target': {
-    parentCapability: 'package-lifecycle',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'declared-in-project',
-    proofState: 'ci-mechanical-proof',
-    runtimeOwner: 'ios-xcode-project',
-  },
-  'bundle-identifier': {
-    parentCapability: 'package-lifecycle',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'declared-in-project',
-    proofState: 'ci-mechanical-proof',
-    runtimeOwner: 'ios-xcode-project',
-  },
-  'status-surface': {
-    parentCapability: 'typed-protocol-bridge',
-    parentCapabilityStatus: 'scaffold',
-    declarationState: 'scaffold-status-label',
-    proofState: 'simulator-scaffold',
-    runtimeOwner: 'ios-swift-scaffold',
-  },
-  'family-controls-entitlement': {
-    parentCapability: 'family-controls-entitlement',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-declared',
-    proofState: 'entitlement-required',
-    runtimeOwner: 'apple-entitlement',
-  },
-  'device-activity-framework': {
-    parentCapability: 'device-activity',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-declared',
-    proofState: 'entitlement-required',
-    runtimeOwner: 'apple-device-framework',
-  },
-  'screen-time-api': {
-    parentCapability: 'screen-time-api',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-declared',
-    proofState: 'entitlement-required',
-    runtimeOwner: 'apple-device-framework',
-  },
-  'network-extension': {
-    parentCapability: 'network-extension',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-declared',
-    proofState: 'entitlement-required',
-    runtimeOwner: 'apple-network-extension',
-  },
-  'notifications-permission': {
-    parentCapability: 'notifications',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-declared',
-    proofState: 'manual-required',
-    runtimeOwner: 'apple-notification-permission',
-  },
-  'background-execution': {
-    parentCapability: 'background-execution',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-declared',
-    proofState: 'manual-required',
-    runtimeOwner: 'apple-background-mode',
-  },
-  'signing-entitlements': {
-    parentCapability: 'signing-entitlements',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-applicable',
-    proofState: 'signing-required',
-    runtimeOwner: 'apple-signing',
-  },
-  'testflight-distribution': {
-    parentCapability: 'testflight-distribution',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-applicable',
-    proofState: 'device-proof-required',
-    runtimeOwner: 'apple-testflight',
-  },
-  'physical-device-proof': {
-    parentCapability: 'package-lifecycle',
-    parentCapabilityStatus: 'manual-required',
-    declarationState: 'not-applicable',
-    proofState: 'device-proof-required',
-    runtimeOwner: 'apple-device-proof',
-  },
-  'app-store-distribution': {
-    parentCapability: 'store-distribution',
-    parentCapabilityStatus: 'planned',
-    declarationState: 'not-applicable',
-    proofState: 'planned',
-    runtimeOwner: 'app-store-connect',
-  },
-} as const satisfies Record<
-  ChildIosEntitlementSurfaceName,
-  Pick<
-    ChildIosEntitlementSurfaceProof,
-    'parentCapability' | 'parentCapabilityStatus' | 'declarationState' | 'proofState' | 'runtimeOwner'
-  >
->;
-
-function childIosEntitlementCapabilityReadModelIsHonest(readModel: ChildIosEntitlementReadModelCandidate): boolean {
-  return (
-    readModel.bundleId === 'ca.ocentra.parent.agent' &&
-    readModel.statusSurfaceClass === 'AgentStatusViewController' &&
-    entitlementProtocolBridgeProofIsHonest(readModel.protocolBridgeProof) &&
-    entitlementSurfaceProofsAreHonest(readModel.surfaceProofs) &&
-    entitlementPackageLifecycleProofsAreHonest(readModel.packageLifecycleProofs)
-  );
-}
-
-function entitlementProtocolBridgeProofIsHonest(proof: ChildIosEntitlementProtocolBridgeProof): boolean {
-  return (
-    proof.bundleId === 'ca.ocentra.parent.agent' &&
-    proof.statusSurfaceClass === 'AgentStatusViewController' &&
-    proof.bridgeState === 'simulator-scaffold' &&
-    proof.externalTransportState === 'not-implemented' &&
-    proof.runtimeOwner === 'ios-swift-scaffold' &&
-    requiredValuesArePresent(proof.commands, RequiredCommands) &&
-    requiredValuesArePresent(proof.events, RequiredEvents)
-  );
-}
-
-function entitlementSurfaceProofsAreHonest(proofs: ReadonlyArray<ChildIosEntitlementSurfaceProof>): boolean {
-  const bySurface = new Map(proofs.map((entry) => [entry.surface, entry] as const));
-  return (
-    bySurface.size === proofs.length &&
-    RequiredSurfaces.every((surface) => entitlementSurfaceProofIsHonest(bySurface.get(surface), surface))
-  );
-}
-
-function entitlementSurfaceProofIsHonest(
-  proof: ChildIosEntitlementSurfaceProof | undefined,
-  surface: ChildIosEntitlementSurfaceName
-): boolean {
-  const expected = SurfaceExpectations[surface];
-  return Boolean(
-    proof &&
-    proof.surface === surface &&
-    proof.parentCapability === expected.parentCapability &&
-    proof.parentCapabilityStatus === expected.parentCapabilityStatus &&
-    proof.declarationState === expected.declarationState &&
-    proof.proofState === expected.proofState &&
-    proof.runtimeOwner === expected.runtimeOwner
-  );
-}
-
-function entitlementPackageLifecycleProofsAreHonest(
-  proofs: ReadonlyArray<ChildIosEntitlementPackageLifecycleProof>
-): boolean {
-  const byPhase = new Map(proofs.map((entry) => [entry.phase, entry] as const));
-  return (
-    byPhase.size === proofs.length &&
-    RequiredLifecyclePhases.every((phase) => entitlementPackageLifecyclePhaseIsHonest(byPhase.get(phase), phase))
-  );
-}
-
-function entitlementPackageLifecyclePhaseIsHonest(
-  proof: ChildIosEntitlementPackageLifecycleProof | undefined,
-  phase: ChildIosEntitlementPackagePhase
-): boolean {
-  if (!proof || proof.phase !== phase) {
-    return false;
-  }
-
-  if (
-    phase === 'xcode-project-target' ||
-    phase === 'bundle-identifier' ||
-    phase === 'simulator-build-script' ||
-    phase === 'status-view' ||
-    phase === 'info-plist'
-  ) {
-    return proof.proofState === 'ci-mechanical-proof' || proof.proofState === 'simulator-scaffold';
-  }
-
-  return (
-    proof.proofState === 'manual-required' ||
-    proof.proofState === 'signing-required' ||
-    proof.proofState === 'device-proof-required' ||
-    proof.proofState === 'entitlement-required'
-  );
-}
-
-function requiredValuesArePresent<Value extends string>(
-  values: ReadonlyArray<Value>,
-  required: ReadonlyArray<Value>
-): boolean {
-  const valueSet = new Set(values);
-  return valueSet.size === values.length && required.every((value) => valueSet.has(value));
-}
 
 export type ChildIosEntitlementSurfaceName = Infer<typeof ChildIosEntitlementSurfaceNameSchema>;
 export type ChildIosEntitlementProofState = Infer<typeof ChildIosEntitlementProofStateSchema>;
@@ -409,4 +164,97 @@ export type ChildIosEntitlementSurfaceProof = Infer<typeof ChildIosEntitlementSu
 export type ChildIosEntitlementPackageLifecycleProof = Infer<typeof ChildIosEntitlementPackageLifecycleProofSchema>;
 export type ChildIosEntitlementProtocolBridgeProof = Infer<typeof ChildIosEntitlementProtocolBridgeProofSchema>;
 export type ChildIosEntitlementClaimBoundaries = Infer<typeof ChildIosEntitlementClaimBoundariesSchema>;
-export type ChildIosEntitlementCapabilityReadModel = Infer<typeof ChildIosEntitlementCapabilityReadModelSchema>;
+export type ChildIosEntitlementCapabilityReadModel = Infer<
+  typeof ChildIosEntitlementCapabilityReadModelSchema
+> &
+  GeneratedChildIosEntitlementCapabilityReadModelShape;
+
+export const ChildIosEntitlementCapabilityReadModelProof =
+  ChildIosEntitlementCapabilityReadModelSchema.parse(GeneratedChildIosEntitlementCapabilityReadModel);
+
+function childIosEntitlementCapabilityReadModelIsHonest(readModel: ChildIosEntitlementReadModelCandidate): boolean {
+  return (
+    protocolBridgeProofIsHonest(readModel.protocolBridgeProof) &&
+    surfaceProofsAreHonest(readModel.surfaceProofs) &&
+    packageLifecycleProofsAreHonest(readModel.packageLifecycleProofs) &&
+    claimBoundariesAreHonest(readModel.claimBoundaries)
+  );
+}
+
+function protocolBridgeProofIsHonest(proof: ChildIosEntitlementProtocolBridgeProof): boolean {
+  return (
+    proof.bundleId === ExpectedProof.protocolBridgeProof.bundleId &&
+    proof.statusSurfaceClass === ExpectedProof.protocolBridgeProof.statusSurfaceClass &&
+    proof.bridgeState === ExpectedProof.protocolBridgeProof.bridgeState &&
+    proof.externalTransportState === ExpectedProof.protocolBridgeProof.externalTransportState &&
+    proof.runtimeOwner === ExpectedProof.protocolBridgeProof.runtimeOwner &&
+    proof.proofRequirement === ExpectedProof.protocolBridgeProof.proofRequirement &&
+    proof.claimBoundary === ExpectedProof.protocolBridgeProof.claimBoundary &&
+    hasExactStringMembership(proof.commands, RequiredCommands) &&
+    hasExactStringMembership(proof.events, RequiredEvents)
+  );
+}
+
+function surfaceProofsAreHonest(proofs: ReadonlyArray<ChildIosEntitlementSurfaceProof>): boolean {
+  const bySurface = new Map(proofs.map((proof) => [proof.surface, proof] as const));
+  return (
+    bySurface.size === RequiredSurfaces.length &&
+    RequiredSurfaces.every((surface) => surfaceProofIsHonest(bySurface.get(surface), surface))
+  );
+}
+
+function surfaceProofIsHonest(
+  proof: ChildIosEntitlementSurfaceProof | undefined,
+  surface: GeneratedChildIosEntitlementSurfaceName
+): boolean {
+  const expected = ExpectedSurfaceProofs.get(surface);
+  return Boolean(
+    proof &&
+      expected &&
+      proof.parentCapability === expected.parentCapability &&
+      proof.parentCapabilityStatus === expected.parentCapabilityStatus &&
+      proof.declarationState === expected.declarationState &&
+      proof.proofState === expected.proofState &&
+      proof.runtimeOwner === expected.runtimeOwner &&
+      proof.proofRequirement.length > 0 &&
+      proof.claimBoundary.length > 0
+  );
+}
+
+function packageLifecycleProofsAreHonest(
+  proofs: ReadonlyArray<ChildIosEntitlementPackageLifecycleProof>
+): boolean {
+  const byPhase = new Map(proofs.map((proof) => [proof.phase, proof] as const));
+  return (
+    byPhase.size === RequiredLifecyclePhases.length &&
+    RequiredLifecyclePhases.every((phase) => packageLifecycleProofIsHonest(byPhase.get(phase), phase))
+  );
+}
+
+function packageLifecycleProofIsHonest(
+  proof: ChildIosEntitlementPackageLifecycleProof | undefined,
+  phase: GeneratedChildIosEntitlementPackagePhase
+): boolean {
+  const expected = ExpectedLifecycleProofs.get(phase);
+  return Boolean(
+    proof &&
+      expected &&
+      proof.proofState === expected.proofState &&
+      proof.runtimeOwner === expected.runtimeOwner &&
+      proof.proofRequirement.length > 0 &&
+      proof.claimBoundary.length > 0
+  );
+}
+
+function claimBoundariesAreHonest(boundaries: ChildIosEntitlementClaimBoundaries): boolean {
+  return Object.entries(ExpectedProof.claimBoundaries).every(
+    ([key, value]) => boundaries[key as keyof ChildIosEntitlementClaimBoundaries] === value
+  );
+}
+
+function hasExactStringMembership(
+  values: ReadonlyArray<string>,
+  expected: ReadonlyArray<string>
+): boolean {
+  return values.length === expected.length && expected.every((value) => values.includes(value));
+}

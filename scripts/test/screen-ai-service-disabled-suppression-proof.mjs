@@ -253,7 +253,7 @@ async function waitForQueueRecordCount(count) {
   const startedAt = Date.now();
   while (Date.now() - startedAt < 30000) {
     const records = existsSync(queuePath) ? tryReadQueueRecords() : null;
-    if (records !== null && records.length >= count) {
+    if (records !== undefined && records.length >= count) {
       return;
     }
     await delay(250);

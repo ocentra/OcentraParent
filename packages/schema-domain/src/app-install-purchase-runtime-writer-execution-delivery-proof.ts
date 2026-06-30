@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseParentActionDeliveryReadinessProofReadModel } from './app-install-purchase-parent-action-delivery-readiness-proof';
 import { AppInstallPurchaseRuntimeWriterDeliveryProofReadModel } from './app-install-purchase-runtime-writer-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseRuntimeWriterExecutionDeliveryRowGenerated,
+  runtimeWriterExecutionDeliveryProofIsHonestGenerated,
+  runtimeWriterExecutionDeliveryRowIsHonestGenerated,
+  summarizeAppInstallPurchaseRuntimeWriterExecutionDeliveryProofGenerated,
+} from './generated/app-install-purchase-delivery-runtime-helpers';
 const RuntimeWriterExecutionDeliveryProofVersion = 'app-install-purchase-runtime-writer-execution-delivery-proof';
 const SourceRuntimeWriterDeliveryProofVersion = 'app-install-purchase-runtime-writer-delivery-proof';
 const SourceParentActionDeliveryReadinessProofVersion = 'app-install-purchase-parent-action-delivery-readiness-proof';
@@ -160,62 +166,20 @@ export const AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel =
 export function summarizeAppInstallPurchaseRuntimeWriterExecutionDeliveryProof(
   proof: AppInstallPurchaseRuntimeWriterExecutionDeliveryProof
 ) {
-  return {
-    runtimeWriterExecutionDeliveryRows: proof.runtimeWriterExecutionDeliveryRows.length,
-    parentOwnedEnvelopeRows: proof.runtimeWriterExecutionDeliveryRows.filter(
-      (row) => row.runtimeWriterEnvelopeState === 'parent-owned-envelope-written'
-    ).length,
-    deliveryResultReceiptRows: proof.runtimeWriterExecutionDeliveryRows.filter(
-      (row) => row.runtimeWriterExecutionDeliveryState === 'delivery-result-recorded'
-    ).length,
-    manualRequiredRows: proof.runtimeWriterExecutionDeliveryRows.filter(
-      (row) => row.runtimeWriterExecutionDeliveryState === 'manual-required'
-    ).length,
-    providerExecutedRows: proof.runtimeWriterExecutionDeliveryRows.filter(
-      (row) => row.providerApiExecutionClaim !== 'not-executed'
-    ).length,
-    childDeliveredRows: proof.runtimeWriterExecutionDeliveryRows.filter(
-      (row) => row.childDeviceDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseRuntimeWriterExecutionDeliveryProofGenerated(proof);
 }
 
 function runtimeWriterExecutionDeliveryRow(
   row: (typeof AppInstallPurchaseRuntimeWriterDeliveryProofReadModel.runtimeWriterDeliveryRows)[number]
 ) {
-  const readinessRow = parentActionDeliveryReadinessRowFor(row.sourceDecisionAction);
-  const manual = row.sourceDecisionAction === 'review-needed';
-  const actionReceiptClaim = manual ? 'manual-required' : 'parent-owned-delivery-result-recorded';
-  return {
-    schemaVersion: RuntimeWriterExecutionDeliveryProofVersion,
-    runtimeWriterExecutionDeliveryRowId: `runtime-writer-execution-delivery-${row.sourceDecisionAction}`,
-    sourceRuntimeWriterDeliveryProofVersion: SourceRuntimeWriterDeliveryProofVersion,
-    sourceRuntimeWriterDeliveryRowId: row.runtimeWriterDeliveryRowId,
-    sourceParentActionDeliveryReadinessProofVersion: SourceParentActionDeliveryReadinessProofVersion,
-    sourceParentActionDeliveryReadinessRowId: readinessRow.parentActionDeliveryReadinessRowId,
-    sourceDecisionAction: row.sourceDecisionAction,
-    runtimeWriterEnvelopeState: manual ? 'manual-required' : 'parent-owned-envelope-written',
-    runtimeWriterEnvelopeRef: `parent-owned-runtime-writer-envelope-${row.sourceDecisionAction}`,
-    runtimeWriterExecutionDeliveryState: manual ? 'manual-required' : 'delivery-result-recorded',
-    deliveryResultReceiptRef: `parent-owned-runtime-writer-receipt-${row.sourceDecisionAction}`,
-    deliveryResultAuditEventRefs: row.auditEventRefs,
-    parentActionAuditEventRefs: readinessRow.parentActionAuditEventRefs,
-    reportRuntimeRefs: uniqueRefs([...row.reportRuntimeRefs, ...readinessRow.reportRuntimeRefs]),
-    runtimeWriterExecutionClaim: actionReceiptClaim,
-    runtimeWriterDeliveryClaim: actionReceiptClaim,
-    parentActionRuntimeDeliveryClaim: actionReceiptClaim,
-    providerApiExecutionClaim: row.providerApiExecutionClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    platformInterceptionClaim: row.interceptionClaim,
-    platformAdapterClaim: row.platformAdapterClaim,
-    childDeviceDeliveryClaim: row.childDeliveryClaim,
-    runtimeReportDeliveryClaim: row.runtimeReportDeliveryClaim,
-    appBlockingClaim: row.appBlockingClaim,
-    childDataCustody: row.childDataCustody,
-    ocentraHostedFamilyDataCustodyClaim: row.ocentraHostedFamilyDataCustodyClaim,
-    claimBoundary: RuntimeWriterExecutionDeliveryBoundary,
-    recordedAt: RuntimeWriterExecutionDeliveryTimestamp,
-  } as const;
+  return buildAppInstallPurchaseRuntimeWriterExecutionDeliveryRowGenerated(
+    row,
+    parentActionDeliveryReadinessRowFor(row.sourceDecisionAction),
+    SourceRuntimeWriterDeliveryProofVersion,
+    SourceParentActionDeliveryReadinessProofVersion,
+    RuntimeWriterExecutionDeliveryBoundary,
+    RuntimeWriterExecutionDeliveryTimestamp
+  );
 }
 
 function parentActionDeliveryReadinessRowFor(action: (typeof RuntimeWriterExecutionDeliveryActions)[number]) {
@@ -224,90 +188,29 @@ function parentActionDeliveryReadinessRowFor(action: (typeof RuntimeWriterExecut
   )!;
 }
 
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
-}
-
 function runtimeWriterExecutionDeliveryRowIsHonest(row: RuntimeWriterExecutionDeliveryRowCandidate): boolean {
-  return (
-    runtimeWriterExecutionDeliveryMatchesAction(row) &&
-    runtimeWriterExecutionDeliveryRefsAreComplete(row) &&
-    runtimeWriterExecutionDeliveryClaimsStayBounded(row) &&
-    runtimeWriterExecutionDeliveryBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function runtimeWriterExecutionDeliveryMatchesAction(row: RuntimeWriterExecutionDeliveryRowCandidate): boolean {
-  if (row.sourceDecisionAction === 'review-needed') {
-    return (
-      row.runtimeWriterEnvelopeState === 'manual-required' &&
-      row.runtimeWriterExecutionDeliveryState === 'manual-required' &&
-      row.runtimeWriterExecutionClaim === 'manual-required' &&
-      row.runtimeWriterDeliveryClaim === 'manual-required' &&
-      row.parentActionRuntimeDeliveryClaim === 'manual-required'
-    );
-  }
-  return (
-    row.runtimeWriterEnvelopeState === 'parent-owned-envelope-written' &&
-    row.runtimeWriterExecutionDeliveryState === 'delivery-result-recorded' &&
-    row.runtimeWriterExecutionClaim === 'parent-owned-delivery-result-recorded' &&
-    row.runtimeWriterDeliveryClaim === 'parent-owned-delivery-result-recorded' &&
-    row.parentActionRuntimeDeliveryClaim === 'parent-owned-delivery-result-recorded'
-  );
-}
-
-function runtimeWriterExecutionDeliveryRefsAreComplete(row: RuntimeWriterExecutionDeliveryRowCandidate): boolean {
-  return (
-    row.sourceRuntimeWriterDeliveryProofVersion === SourceRuntimeWriterDeliveryProofVersion &&
-    row.sourceRuntimeWriterDeliveryRowId.length > 0 &&
-    row.sourceParentActionDeliveryReadinessProofVersion === SourceParentActionDeliveryReadinessProofVersion &&
-    row.sourceParentActionDeliveryReadinessRowId.length > 0 &&
-    row.runtimeWriterEnvelopeRef.length > 0 &&
-    row.deliveryResultReceiptRef.length > 0 &&
-    row.deliveryResultAuditEventRefs.length > 0 &&
-    row.parentActionAuditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function runtimeWriterExecutionDeliveryClaimsStayBounded(row: RuntimeWriterExecutionDeliveryRowCandidate): boolean {
-  return (
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformInterceptionClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return runtimeWriterExecutionDeliveryRowIsHonestGenerated(
+    row,
+    SourceRuntimeWriterDeliveryProofVersion,
+    SourceParentActionDeliveryReadinessProofVersion,
+    RuntimeWriterExecutionDeliveryBoundaryFragments
   );
 }
 
 function runtimeWriterExecutionDeliveryProofIsHonest(
   proof: AppInstallPurchaseRuntimeWriterExecutionDeliveryProof
 ): boolean {
-  const actions = new Set(proof.runtimeWriterExecutionDeliveryRows.map((row) => row.sourceDecisionAction));
-  const envelopeStates = new Set(proof.runtimeWriterExecutionDeliveryRows.map((row) => row.runtimeWriterEnvelopeState));
-  const deliveryStates = new Set(
-    proof.runtimeWriterExecutionDeliveryRows.map((row) => row.runtimeWriterExecutionDeliveryState)
-  );
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourceRuntimeWriterDeliveryProofVersion === SourceRuntimeWriterDeliveryProofVersion &&
-    proof.sourceParentActionDeliveryReadinessProofVersion === SourceParentActionDeliveryReadinessProofVersion &&
-    proof.runtimeWriterExecutionDeliveryRows.length === RuntimeWriterExecutionDeliveryActions.length &&
-    RuntimeWriterExecutionDeliveryActions.every((action) => actions.has(action)) &&
-    RuntimeWriterEnvelopeStates.every((state) => envelopeStates.has(state)) &&
-    RuntimeWriterExecutionDeliveryStates.every((state) => deliveryStates.has(state)) &&
-    RuntimeWriterExecutionDeliveryNonClaims.every((claim) => nonClaims.has(claim)) &&
+    runtimeWriterExecutionDeliveryProofIsHonestGenerated(
+      proof,
+      SourceRuntimeWriterDeliveryProofVersion,
+      SourceParentActionDeliveryReadinessProofVersion,
+      RuntimeWriterExecutionDeliveryActions,
+      RuntimeWriterEnvelopeStates,
+      RuntimeWriterExecutionDeliveryStates,
+      RuntimeWriterExecutionDeliveryNonClaims
+    ) &&
     proof.runtimeWriterExecutionDeliveryRows.every(runtimeWriterExecutionDeliveryRowIsHonest) &&
     proof.knownGaps.length > 0
   );
-}
-
-function runtimeWriterExecutionDeliveryBoundaryIsExplicit(
-  boundary: typeof RuntimeWriterExecutionDeliveryBoundarySchema.Type
-): boolean {
-  return RuntimeWriterExecutionDeliveryBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }

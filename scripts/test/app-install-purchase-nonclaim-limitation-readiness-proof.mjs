@@ -17,13 +17,12 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
     ])
@@ -60,14 +59,14 @@ async function main() {
     gitStatusShort: 'validated-by-explicit-handoff-status-check',
     baseMainState: 'after-pr487-platform-adapter-evidence-gap-proof-merged',
     commands,
-    packageExportState: 'not-claimed-new-public-export-deferred',
+    packageExportState: 'canonical-schema-domain-public-subpath-export-confirmed',
     productDocsState: 'no-product-doc-update-needed-current-docs-already-own-required-limitation-and-nonclaim-language',
     checklistState: 'not-touched-current-codex-b-docs-product-capability-checklist-lock',
     evidence: {
       sourcePlatformAdapterEvidenceGapContract:
         'packages/schema-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
       sourcePlatformAdapterEvidenceGapTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
@@ -105,13 +104,7 @@ async function main() {
 }
 
 async function loadPlatformAdapterEvidenceGapModule() {
-  const modulePath = join(
-    repoRoot,
-    'packages',
-    'app-game-domain',
-    'dist',
-    'app-install-purchase-platform-adapter-evidence-gap-proof.js'
-  );
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-install-purchase-platform-adapter-evidence-gap-proof.js');
   return import(pathToFileURL(modulePath).href);
 }
 
@@ -131,7 +124,7 @@ function assertDocumentationKeepsClaimsManual({ expectationDoc, featureDoc, plat
       doc: 'docs/features/app-install-purchase-approval.md',
       label: 'next-proof-real-evidence-gates',
       needle:
-        'The next proof should add real portal approval/report UI, external runtime writer delivery to a device, real child delivery, real provider/store API execution with credentials/evidence, or actual platform adapters before upgrading manual-required source rows',
+        'The next proof should add real portal approval/report UI, real external runtime writer transport and delivery to a device beyond blocker refs, real child delivery, real provider/store API execution with credentials/evidence, or actual platform adapters before upgrading manual-required source rows',
       text: featureDoc,
     },
     {

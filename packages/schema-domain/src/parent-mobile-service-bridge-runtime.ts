@@ -104,7 +104,7 @@ export const ParentMobileServiceBridgeAssistantJobStateSchema = withParser(
 );
 export const ParentMobileServiceBridgeProofSourceSchema = withParser(
   Schema.Literal(
-    'parent-mobile-shell-runtime-proof',
+    'parent-mobile-package-source-artifact-proof',
     'v0-9-production-lan-mobile-controller-proof',
     'v0-9-mobile-controller-observer-runtime-proof'
   )
@@ -401,7 +401,7 @@ function parentMobileServiceBridgeRuntimeIsHonest(
 function proofHarnessIsComplete(proofHarness: ParentMobileServiceBridgeProofHarness): boolean {
   const sources = new Set(proofHarness.sourceProofs.map((proof) => proof.source));
   return (
-    sources.has('parent-mobile-shell-runtime-proof') &&
+    sources.has('parent-mobile-package-source-artifact-proof') &&
     sources.has('v0-9-production-lan-mobile-controller-proof') &&
     sources.has('v0-9-mobile-controller-observer-runtime-proof') &&
     proofHarness.outputProofPath.includes('parent-mobile-service-bridge-proof/proof.json') &&

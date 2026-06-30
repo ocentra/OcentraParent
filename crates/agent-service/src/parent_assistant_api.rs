@@ -42,7 +42,9 @@ use crate::{
     time::timestamp_now,
 };
 
+#[path = "parent_assistant_api/api_boundary.rs"]
 pub(crate) mod api_boundary;
+#[path = "parent_assistant_api/thread_store.rs"]
 pub(crate) mod thread_store;
 
 pub fn build_parent_assistant_scaffold_event(command: AgentCommandEnvelope) -> AgentEventEnvelope {

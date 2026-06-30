@@ -40,7 +40,7 @@ async function main() {
     'utf8'
   );
   const policyReadinessPanel = await readFile(
-    join(repoRoot, 'packages', 'portal-domain', 'src', 'app-game-policy-readiness-panel.ts'),
+    join(repoRoot, 'apps', 'portal', 'src', 'AppGamePolicyReadinessRoutePanel.tsx'),
     'utf8'
   );
   const portalReadme = await readFile(join(repoRoot, 'apps', 'portal', 'README.md'), 'utf8');
@@ -94,13 +94,13 @@ async function main() {
   );
   assertIncludes(
     policyReadinessPanel,
-    'detail(PortalDetails.Capability, readableValue(readModel.capabilityStatus))',
-    'policy readiness panel renders capability status'
+    '<AppGamePolicyReadinessDetails details={panel.summaryDetails} />',
+    'policy readiness route panel renders Rust-owned summary details'
   );
   assertIncludes(
     policyReadinessPanel,
-    'detail(PortalDetails.AdapterDispatch, Readable.NotClaimed)',
-    'policy readiness panel renders adapter dispatch as not claimed'
+    'Approval workflow, category routing, and adapter dispatch remain unclaimed.',
+    'policy readiness route panel keeps adapter dispatch unclaimed'
   );
   assertIncludes(
     portalReadme,
@@ -133,7 +133,7 @@ async function main() {
       policyReadinessTest:
         'apps/portal/tests/app-game-policy-readiness-panel.test.ts proves not-claimed app/game policy readiness capability and adapter dispatch states render in summary details.',
       policyReadinessPanel:
-        'apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx renders capability status, manual review, and adapter dispatch details from the service-backed read model.',
+        'apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx renders Rust-owned summary details and keeps adapter dispatch unclaimed.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,

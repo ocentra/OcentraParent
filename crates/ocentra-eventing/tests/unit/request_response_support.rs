@@ -104,7 +104,9 @@ impl TestResponse {
 impl EventResponseContract for TestResponse {
     fn validate(&self) -> Result<(), EventingError> {
         if self.decision.trim().is_empty() {
-            return Err(EventingError::empty_value("test_response_decision"));
+            return Err(EventingError::EmptyValue {
+                field: "test_response_decision",
+            });
         }
         Ok(())
     }
@@ -133,9 +135,13 @@ impl DomainEvent for TestResultEvent {
 }
 
 pub(super) fn test_request(label: &str) -> TestRequestEvent {
+    test_request_with_id(label, REQUEST_ID)
+}
+
+pub(super) fn test_request_with_id(label: &str, request_id: &str) -> TestRequestEvent {
     TestRequestEvent {
         label: label.to_string(),
-        request_id: RequestId::parse(REQUEST_ID).expect_value("request id parses"),
+        request_id: RequestId::parse(request_id).expect_value("request id parses"),
     }
 }
 

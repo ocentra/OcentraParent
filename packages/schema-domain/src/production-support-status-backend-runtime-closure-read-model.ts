@@ -49,7 +49,7 @@ export const ProductionSupportStatusBackendRuntimeClosureKnownGaps = [
   'Runtime closure proves the existing status backend runtime, queue/audit, payload custody, and redaction manifest contracts can be composed; it does not implement real status backend execution.',
   'Durable queue storage, retry worker execution, audit persistence, dead-letter payload custody, status backend payload custody, and redaction manifest execution remain manual-required until a real backend worker and durable store exist.',
   'Public runtime execution, provider execution, support upload execution, account lookup, billing provider contact, legal disclosure execution, remote support sessions, production SLA, provider-secret custody, and child activity custody remain unclaimed.',
-  'Package exports, parent-domain README guidance, and product checklist proof text are updated in this branch; remaining gaps are limited to the explicit runtime, storage, provider, legal, SLA, and child-custody non-claims above.',
+  'Package exports, rust-parent-runtime README guidance, and product checklist proof text are updated in this branch; remaining gaps are limited to the explicit runtime, storage, provider, legal, SLA, and child-custody non-claims above.',
 ] as const;
 
 function runtimeClosureReadiness(

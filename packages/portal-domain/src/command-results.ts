@@ -1,8 +1,5 @@
-import {
-  AgentEvent,
-  type AgentEventEnvelope,
-  type AgentEventName,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventName } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import type { PortalRouteEventRecord } from './portal-contract-adapter';
 
 export const PortalCommandResultEvents = [
   AgentEvent.HealthReported,
@@ -28,6 +25,7 @@ export const PortalCommandResultEvents = [
   AgentEvent.BrowserInterventionReadModelReported,
   AgentEvent.BrowserRuntimeEventChainStreamReported,
   AgentEvent.NetworkFlowReadModelReported,
+  AgentEvent.LanPairingStatusReported,
   AgentEvent.NetworkRuntimeEventChainStreamReported,
   AgentEvent.NetworkRemoteDeliveryStatusReported,
   AgentEvent.NetworkLiveCaptureStatusReported,
@@ -44,9 +42,9 @@ export const PortalCommandResultEvents = [
 const CommandResultEvents = new Set<AgentEventName>(PortalCommandResultEvents);
 
 export function latestCommandResult(
-  events: readonly AgentEventEnvelope[],
+  events: readonly PortalRouteEventRecord[],
   eventName: AgentEventName
-): AgentEventEnvelope | null {
+): PortalRouteEventRecord | null {
   return events.find((event) => event.event === eventName) ?? null;
 }
 

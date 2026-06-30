@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-approval-report-domain-proof.test.ts',
     ])
@@ -51,17 +51,17 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-approval-report-domain-proof',
     commands,
-    packageExportState: 'public app-game-domain subpath export retired; proof imports the built dist module directly.',
+    packageExportState: 'canonical-schema-domain-public-subpath-export-confirmed; proof imports the built dist module directly.',
     checklistState: 'validated-product-capability-checklist-row',
     evidence: {
       approvalReportDomainContract: 'packages/schema-domain/src/app-install-purchase-approval-report-domain-proof.ts',
       sourceParentReviewActionContract: 'packages/schema-domain/src/app-install-purchase-parent-review-action-proof.ts',
       sourceReportRuntimeContract: 'packages/schema-domain/src/app-install-purchase-report-runtime-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approval-report-domain-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/app-install-purchase-approval-report-domain-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       packageExport:
-        'packages/app-game-domain/package.json no longer publishes this proof as a public subpath export; the script imports the built dist module directly.',
+        '@ocentra-parent/schema-domain/app-install-purchase-approval-report-domain-proof',
       checklistRow:
         'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes approval/report domain proof.',
       output: relative(repoRoot, proofPath),
@@ -101,7 +101,7 @@ async function loadApprovalReportDomainProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-approval-report-domain-proof.js'
   );

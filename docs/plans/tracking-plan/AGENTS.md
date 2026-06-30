@@ -32,20 +32,32 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 This plan owns tracking evidence, tracking runtime contracts, location/geofence/expected-place/nearby-place semantics, tracking read models, tracking proof roots, and tracking no-claim boundaries. It does not own generic schema authority, generic event-bus mechanics, generic journal/replay mechanics, custody policy, account or household authority, policy authority, notification provider runtime, AI provider runtime, OS/platform behavior, broad portal shell completion, or real-device proof outside selected workpacks.
 
+Current Rust-first authority comes from
+`../../agent/RUST_FIRST_PARENT_ARCHITECTURE.md`. Older tracking docs that name
+`schema-domain`, `tracking-domain`, `agent-protocol-domain`, WebSocket, or Vite
+as product authority are migration/debt inventory, not current architecture
+truth.
+
 Canonical schema rule:
 
 ```text
-schema-domain is the canonical owner for cross-boundary tracking schemas.
-tracking-domain may hold helper/projection/proof adapters and focused tests.
-tracking-core may mirror or parse canonical contracts for Rust runtime use.
-tracking-domain and tracking-core must not invent divergent canonical schemas.
+crates/schema owns cross-boundary tracking DTOs, route snapshots, actions,
+results, generated bridge artifacts, and encoded-shape drift proof.
+The owning Rust tracking/runtime crates own tracking behavior, projections, read
+models, state machines, and policy/activity handoff logic.
+tracking-domain, schema-domain, and agent-protocol-domain are transitional TS
+edge/helper surfaces only until Rust/generated consumers replace them.
+TypeScript must not invent divergent canonical tracking schemas.
 ```
 
-A shape must be promoted to `schema-domain` or an approved neutral protocol/event/evidence boundary when it crosses package, crate, plan, protocol, event, portal DTO, runtime command, policy input, notification input, custody/export, read-model, or proof-metadata boundaries.
+A product shape must be promoted to `crates/schema` or the owning Rust
+domain/runtime crate when it crosses package, crate, plan, protocol, event,
+portal DTO, runtime command, policy input, notification input, custody/export,
+read-model, or proof-metadata boundaries.
 
 Tracking-local schemas are allowed only when private, implementation-local, and not used as public contracts.
 
-Required centralized schema families:
+Required Rust-owned schema/domain families:
 
 ```text
 location evidence

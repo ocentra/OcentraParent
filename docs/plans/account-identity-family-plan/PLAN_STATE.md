@@ -48,11 +48,14 @@ Auth.js or another app-owned auth layer may be used only as an adapter/session l
 ## Module ownership and linkage
 
 ```text
+crates/schema or the owning Rust crate:
+  Canonical shared account/family/session/device-authority schemas, brands, parsers, route/action/read-model DTOs, literals, and encoded-shape parity when shapes cross package, crate, app, or plan boundaries.
+
 schema-domain:
-  Canonical shared account/family/session/device-authority schemas, brands, parsers, literals, and encoded-shape parity when shapes cross package, crate, app, or plan boundaries.
+  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 
 family-domain:
-  TypeScript helper/projection package for account/family authority. It consumes canonical schema-domain contracts and exposes approved helper surfaces; it must not become a sibling-feature runtime dependency.
+  TypeScript helper/projection package for account/family authority. It consumes Rust-owned/generated contracts and exposes approved helper surfaces; it must not become a sibling-feature runtime dependency.
 
 family-identity-core:
   Rust parity/runtime authority boundary for account, household, role, child profile, device, session, invite/recovery, and audit semantics.
@@ -151,5 +154,5 @@ WP06 is last because it consumes proof from every earlier workpack.
 - Do not use Firebase custom claims for household membership/product data.
 - Do not put child activity evidence into account/identity state.
 - Do not mark rows checked without exact proof artifact names and command logs.
-- Do not move canonical shared account/family shapes out of `schema-domain` into sibling feature owners.
+- Do not move canonical shared account/family shapes out of `crates/schema` or the owning Rust crate into sibling feature owners.
 - Do not claim E2E readiness from a local workpack proof root; use the E2E tiers in `TEST_PROOF_EXPECTATIONS.md`.

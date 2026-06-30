@@ -13,20 +13,14 @@
     "test:e2e": "node ../../scripts/test/portal-playwright-runner.mjs"
   },
   "dependencies": {
-    "@ocentra-parent/activity-domain": "file:../../packages/activity-domain",
-    "@ocentra-parent/agent-protocol-domain": "file:../../packages/agent-protocol-domain",
-    "@ocentra-parent/app-game-domain": "file:../../packages/app-game-domain",
-    "@ocentra-parent/browser-domain": "file:../../packages/browser-domain",
-    "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
-    "@ocentra-parent/network-domain": "file:../../packages/network-domain",
     "@ocentra-parent/portal-domain": "file:../../packages/portal-domain",
     "@ocentra-parent/schema-domain": "file:../../packages/schema-domain",
-    "@ocentra-parent/screen-domain": "file:../../packages/screen-domain",
     "@tauri-apps/api": "^2.11.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
   "devDependencies": {
+    "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",

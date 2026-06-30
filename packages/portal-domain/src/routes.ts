@@ -8,7 +8,8 @@ import {
   PortalRouteSchema as SharedPortalRouteSchema,
   type PortalDevToolUrl,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+} from './portal-contract-adapter';
+import { generatedPortalRouteFromHashPath } from './generated/portal-route-state';
 
 export type PortalRouteHashPath = `${typeof PortalRouteHashPrefix}${PortalRouteValue}`;
 export type PortalRouteHashQueryPath =
@@ -23,8 +24,7 @@ export function portalRouteHashPathWithQuery(route: PortalRouteValue, query: str
 }
 
 export function portalRouteFromHashPath(routeHash: string): PortalRouteValue | null {
-  const normalizedHash = routeHash.replace(/^#\/?/u, '');
-  const route = normalizedHash.split(PortalRouteHashQuerySeparator)[0] ?? '';
+  const route = generatedPortalRouteFromHashPath(routeHash);
   const parsedRoute = SharedPortalRouteSchema.safeParse(route);
   if (!parsedRoute.success) {
     return null;
@@ -77,6 +77,7 @@ export const PortalRoutes = [
   PortalRoute.Diagnostics,
   PortalRoute.ProofPanels,
   PortalRoute.SettingsRules,
+  PortalRoute.AppLayout,
   PortalRoute.FrameTuner,
   PortalRoute.Commands,
   PortalRoute.Events,
@@ -459,6 +460,12 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Operate
   ),
   routeDescriptor(
+    PortalRoute.AppLayout,
+    PortalDevTextToken.FrameTuner,
+    PortalDevTextToken.FrameTunerDescription,
+    PortalRouteGroup.DevTools
+  ),
+  routeDescriptor(
     PortalRoute.FrameTuner,
     PortalDevTextToken.FrameTuner,
     PortalDevTextToken.FrameTunerDescription,
@@ -485,7 +492,7 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
 ] as const;
 
 export const PortalSidebarRouteDescriptors: readonly PortalRouteDescriptor[] = PortalRouteDescriptors.filter(
-  (descriptor) => descriptor.route !== PortalRoute.FrameTuner
+  (descriptor) => descriptor.route !== PortalRoute.AppLayout && descriptor.route !== PortalRoute.FrameTuner
 );
 
 function routeDescriptor(

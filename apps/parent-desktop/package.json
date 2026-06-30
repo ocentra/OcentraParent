@@ -7,13 +7,14 @@
     "portal:dev": "npm run dev --workspace @ocentra-parent/portal",
     "portal:build": "npm --prefix ../.. run build:contracts && npm --prefix ../.. run build --workspace @ocentra-parent/portal",
     "tauri:check": "cargo check --manifest-path src-tauri/Cargo.toml",
+    "tauri:test": "cargo test --manifest-path src-tauri/Cargo.toml",
     "tauri:dev": "npm --prefix ../.. run dev:desktop",
     "tauri:dev:raw": "tauri dev",
     "tauri:build": "tauri build",
     "build": "npm run portal:build && npm run tauri:check",
     "type-check": "npm run tauri:check",
     "lint": "npm run tauri:check",
-    "test": "npm run tauri:check"
+    "test": "npm run tauri:test"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.0"

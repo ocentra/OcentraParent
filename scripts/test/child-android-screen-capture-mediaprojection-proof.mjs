@@ -128,7 +128,7 @@ function startEmulator() {
 function waitForDevice() {
   for (let attempt = 0; attempt < 150; attempt += 1) {
     const device = firstOnlineDevice();
-    if (device !== null) {
+    if (device !== undefined) {
       return device;
     }
     sleep(2000);
@@ -170,7 +170,7 @@ function firstOnlineDevice() {
     .map((line) => line.trim())
     .filter((line) => line.endsWith('\tdevice'))
     .map((line) => line.split(/\s+/)[0]);
-  if (requestedSerial !== null) {
+  if (requestedSerial !== undefined) {
     if (!online.includes(requestedSerial)) {
       throw new Error(
         `Requested Android serial ${requestedSerial} is not online; online devices are ${JSON.stringify(online)}.`
@@ -191,7 +191,7 @@ function approveConsentDialog() {
       writeFileSync(join(outputDir, `consent-ui-${String(attempt).padStart(2, '0')}-entire-screen.xml`), dump);
     }
     const button = findClickableByText(dump, /(Start now|Start|Allow|OK|Record|Share)/i);
-    if (button !== null) {
+    if (button !== undefined) {
       adb(['shell', 'input', 'tap', String(button.x), String(button.y)]);
       return {
         approved: true,
@@ -248,7 +248,7 @@ function approveAppSelectorIfShown() {
       findClickableByText(dump, /Ocentra Parent Agent/i) ??
       findClickableByContentDescription(dump, /Ocentra Parent Agent/i) ??
       findClickableByPackageOrRecentTask(dump);
-    if (target !== null) {
+    if (target !== undefined) {
       adb(['shell', 'input', 'tap', String(target.x), String(target.y)]);
       return {
         approved: true,
@@ -293,7 +293,7 @@ function findClickableByPackageOrRecentTask(xml) {
     },
     true
   );
-  if (recentTask !== null) {
+  if (recentTask !== undefined) {
     return recentTask;
   }
   return null;
@@ -303,7 +303,7 @@ function findNode(xml, accepts, requireClickable) {
   const nodePattern = /<node\b[^>]*>/g;
   let match;
   let fallback = null;
-  while ((match = nodePattern.exec(xml)) !== null) {
+  while ((match = nodePattern.exec(xml)) !== undefined) {
     const node = match[0];
     const text = attr(node, 'text') ?? attr(node, 'content-desc') ?? '';
     const bounds = attr(node, 'bounds');

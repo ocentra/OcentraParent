@@ -61,9 +61,11 @@ pub mod env_var {
         "OCENTRA_PARENT_LOCAL_AI_LLAMA_CPP_RELEASE_TAG";
     pub const LOCAL_AI_RUNTIME_CACHE_DIR: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_CACHE_DIR";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
+    pub const DEV_NETWORK_MODE: &str = "OCENTRA_PARENT_DEV_NETWORK";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
     pub const HOME: &str = "HOME";
     pub const HOSTNAME: &str = "HOSTNAME";
+    pub const PARENT_DEV_BRIDGE_PORT: &str = "OCENTRA_PARENT_PARENT_BRIDGE_PORT";
     pub const USERPROFILE: &str = "USERPROFILE";
 }
 
@@ -658,6 +660,8 @@ pub mod error {
         "non-loopback bind requires OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED=true";
     pub const LOCALHOST_BIND_SUCCEEDS: &str = "agent service localhost bind succeeds";
     pub const AGENT_SERVICE_RUNS: &str = "agent service runs";
+    pub const PARENT_DEV_BRIDGE_BINDS: &str = "parent dev bridge localhost bind succeeds";
+    pub const PARENT_DEV_BRIDGE_RUNS: &str = "parent dev bridge runs";
     pub const DEV_LOG_SERIALIZES: &str = "dev log serializes";
     pub const AGENT_EVENT_SERIALIZES: &str = "agent event serializes";
     pub const JOURNAL_APPENDS: &str = "activity journal appends";

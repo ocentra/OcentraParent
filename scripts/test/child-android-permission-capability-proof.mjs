@@ -21,11 +21,11 @@ async function main() {
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/child-runtime-domain',
+    '@ocentra-parent/schema-domain',
     '--',
     'vitest',
     'run',
-    'tests/unit/child-android-permission-capability-proof.test.ts',
+    'tests/proof/child-android-permission-capability-proof.test.ts',
   ]);
   await runNpm(['run', 'release:package:android']);
 
@@ -46,7 +46,7 @@ async function main() {
       sourceProof,
       packageArtifacts,
       contract: 'packages/schema-domain/src/child-android-permission-capability-proof.ts',
-      contractTest: 'packages/child-runtime-domain/tests/unit/child-android-permission-capability-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/proof/child-android-permission-capability-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-permission-capability-proof-2026-05-31.md',
       output: relativePath(proofPath),

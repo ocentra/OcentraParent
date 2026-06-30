@@ -1,7 +1,8 @@
 use super::values::{
-    canonical_device_id, child_agent_inventory_for, classification_for, confidence_for_discovery,
-    display_name_for, network_identity_for, role_badges_for, route_id_for, route_state_for,
-    source_for_discovery, state_from_trust, surfaces_for,
+    canonical_device_id, child_agent_inventory_for, classification_for_discovery,
+    confidence_for_discovery, display_name_for, network_identity_for, role_badges_for,
+    route_id_for, route_state_for, source_for_discovery, state_from_trust, surfaces_for,
+    NetworkIdentityInput,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
@@ -21,19 +22,25 @@ pub(super) fn device_from_discovery(
     observed_at: &str,
 ) -> LanCanonicalHouseholdDevice {
     let device = &discovered.child_device;
-    let classification = classification_for(device, false);
+    let classification = classification_for_discovery(
+        device,
+        &discovered.evidence_sources,
+        &discovered.service_identity_probe_evidence,
+    );
     let is_child_agent = classification == LanCanonicalHouseholdDeviceClassification::ChildAgent;
     let source = source_for_discovery(&discovered.discovery_status, &discovered.evidence_sources);
     let route_state = route_state_for(is_child_agent, &discovered.discovery_status);
-    let network_identity = network_identity_for(
+    let network_identity = network_identity_for(NetworkIdentityInput {
         device,
-        discovered.reachability.clone(),
-        confidence_for_discovery(&discovered.discovery_status),
-        &source,
-        &discovered.evidence_sources,
-        &discovered.hint_sources,
+        pairing_id: discovered.pairing_id.as_deref(),
+        reachability: discovered.reachability.clone(),
+        confidence: confidence_for_discovery(&discovered.discovery_status),
+        source: &source,
+        evidence_sources: &discovered.evidence_sources,
+        hint_sources: &discovered.hint_sources,
+        service_identity_probe_evidence: &discovered.service_identity_probe_evidence,
         observed_at,
-    );
+    });
     LanCanonicalHouseholdDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         canonical_device_id: canonical_device_id(device),
@@ -63,15 +70,17 @@ pub(super) fn device_from_registry(
     observed_at: &str,
 ) -> LanCanonicalHouseholdDevice {
     let device = &entry.child_device;
-    let network_identity = network_identity_for(
+    let network_identity = network_identity_for(NetworkIdentityInput {
         device,
-        LanPairingDeviceReachability::Stale,
-        LanCanonicalHouseholdDeviceConfidence::ManualRequired,
-        &LanCanonicalHouseholdDeviceSource::TrustedRegistry,
-        &[],
-        &[],
+        pairing_id: Some(entry.pairing_id.as_str()),
+        reachability: LanPairingDeviceReachability::Stale,
+        confidence: LanCanonicalHouseholdDeviceConfidence::ManualRequired,
+        source: &LanCanonicalHouseholdDeviceSource::TrustedRegistry,
+        evidence_sources: &[],
+        hint_sources: &[],
+        service_identity_probe_evidence: &[],
         observed_at,
-    );
+    });
     LanCanonicalHouseholdDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         canonical_device_id: canonical_device_id(device),
@@ -87,7 +96,7 @@ pub(super) fn device_from_registry(
         source_labels: vec![LanCanonicalHouseholdDeviceSource::TrustedRegistry],
         network_identity,
         child_agent_inventory: child_agent_inventory_for(
-            false,
+            true,
             device,
             entry.trust_state.clone(),
             LanCanonicalHouseholdRouteState::LocalNetwork,

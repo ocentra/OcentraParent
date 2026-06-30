@@ -46,20 +46,19 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         ChildRuntimePublishState::Publish
     );
     assert_eq!(
-        flow_report
-            .change_approved_event
-            .as_ref()
-            .expect("approved flow should emit a change-approved event")
-            .previous_event_ref,
-        flow_report.policy_decision_event.decision_event_ref
+        option_or_unreachable(
+            flow_report.change_approved_event.as_ref(),
+            "approved flow should emit a change-approved event",
+        )
+        .previous_event_ref,
+        flow_report.policy_decision_event.policy_decision_ref
     );
-    assert_eq!(
-        flow_report
-            .change_approved_event
-            .as_ref()
-            .expect("approved flow should emit a change-approved event")
-            .child_runtime_publish_required,
-        true
+    assert!(
+        option_or_unreachable(
+            flow_report.change_approved_event.as_ref(),
+            "approved flow should emit a change-approved event",
+        )
+        .child_runtime_publish_required
     );
     assert!(flow_report.change_rejected_event.is_none());
     assert_eq!(
@@ -75,13 +74,13 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         TrackingConfigUpdateResponseState::Applied
     );
     assert_eq!(
-        flow_report
-            .child_runtime_flow
-            .as_ref()
-            .expect("approved flow should emit a child runtime flow")
-            .parent_request_report
-            .response
-            .response_state,
+        option_or_unreachable(
+            flow_report.child_runtime_flow.as_ref(),
+            "approved flow should emit a child runtime flow",
+        )
+        .parent_request_report
+        .response
+        .response_state,
         TrackingConfigUpdateResponseState::Applied
     );
 }

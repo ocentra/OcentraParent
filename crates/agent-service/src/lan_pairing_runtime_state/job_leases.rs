@@ -55,28 +55,6 @@ impl LanPairingRuntime {
                 })
         })
     }
-
-    #[cfg(test)]
-    pub fn seed_lan_ai_job_lease_for_test(
-        &self,
-        job_id: &str,
-        lease_state: &'static str,
-        attempt_count: u64,
-        expires_at: &str,
-    ) {
-        if let Ok(mut leases) = self.lan_ai_job_leases.lock() {
-            leases.retain(|lease| lease.job_id != job_id);
-            leases.push(LanAiJobLeaseState {
-                job_id: job_id.to_string(),
-                claim_id: lan_ai_claim_id(job_id),
-                lease_id: lan_ai_lease_id(job_id),
-                lease_state,
-                attempt_count,
-                expires_at: expires_at.to_string(),
-                dead_letter_reason: None,
-            });
-        }
-    }
 }
 
 fn transition_existing_lease(lease: &mut LanAiJobLeaseState, now: &str) -> LanAiJobLeaseTransition {

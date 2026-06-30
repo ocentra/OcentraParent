@@ -1,53 +1,41 @@
 import type { ReactElement } from 'react';
-import type {
-  AppGamePlatformProofStatusReadModel,
-  AppGamePlatformProofStatusRow,
-} from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
-import type { PortalRenderActions } from './portal-actions';
 import {
-  createAppGamePlatformProofStatusPanelIntent,
-  type AppGamePlatformProofStatusPanelDetail,
-  type AppGamePlatformProofStatusPanelIntent,
-  type AppGamePlatformProofStatusPanelRow,
-} from '@ocentra-parent/portal-domain/app-game-platform-proof-status-panel';
+  isParentAppGameParentSurfaceRoute,
+  type ParentAppGamePanelDetailSnapshot,
+  type ParentAppGamePanelRowSnapshot,
+  type ParentAppGamePanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
+import type { PortalRenderActions } from './portal-actions';
 
-type PlatformProofStatusPanelReadModel = Exclude<
-  Parameters<typeof createAppGamePlatformProofStatusPanelIntent>[0],
-  null
->;
-type AppGamePlatformProofStatusRouteReadModelResult =
-  | {
-      readonly ok: true;
-      readonly value: AppGamePlatformProofStatusReadModel;
-    }
-  | {
-      readonly ok: false;
-    };
+const EmptyPlatformProofStatusPanel: ParentAppGamePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'App/game platform proof status',
+  body: 'Rust has not reported an app/game platform proof-status panel yet.',
+  loadState: 'unavailable',
+  summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Platform proof status has not been reported yet.' }],
+  rows: [],
+  emptyMessage: 'No app/game platform proof-status panel has been reported yet.',
+  productClaim: 'Broad blocking, platform enforcement, and child delivery remain unclaimed.',
+};
 
-export function shouldRenderAppGamePlatformProofStatusRoute(route: PortalRouteValue): boolean {
-  return isPortalAppGameParentSurfaceRoute(route);
+export function shouldRenderAppGamePlatformProofStatusRoute(route: ParentRouteId): boolean {
+  return isParentAppGameParentSurfaceRoute(route);
 }
 
 export function AppGamePlatformProofStatusRoutePanel({
   actions,
   commandEnabled,
-  readModelResult,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AppGamePlatformProofStatusRouteReadModelResult | null;
+  readonly panel: ParentAppGamePanelSnapshot | null;
 }): ReactElement {
-  const readModel =
-    readModelResult !== null && readModelResult.ok
-      ? normalizeAppGamePlatformProofStatusReadModel(readModelResult.value)
-      : null;
-  const intent = createAppGamePlatformProofStatusPanelIntent(readModel);
+  const resolvedPanel = panel ?? EmptyPlatformProofStatusPanel;
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
@@ -55,9 +43,9 @@ export function AppGamePlatformProofStatusRoutePanel({
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
@@ -72,11 +60,11 @@ export function AppGamePlatformProofStatusRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGamePlatformProofStatusSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <AppGamePlatformProofStatusEmptyCard intent={intent} />
+          <AppGamePlatformProofStatusSummaryCard panel={resolvedPanel} />
+          {resolvedPanel.rows.length === 0 ? (
+            <AppGamePlatformProofStatusEmptyCard panel={resolvedPanel} />
           ) : (
-            intent.rows.map((row, index) => (
+            resolvedPanel.rows.map((row, index) => (
               <AppGamePlatformProofStatusRowCard key={`${String(row.title)}:${index}`} row={row} />
             ))
           )}
@@ -87,9 +75,9 @@ export function AppGamePlatformProofStatusRoutePanel({
 }
 
 function AppGamePlatformProofStatusSummaryCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGamePlatformProofStatusPanelIntent;
+  readonly panel: ParentAppGamePanelSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
@@ -97,40 +85,25 @@ function AppGamePlatformProofStatusSummaryCard({
   return (
     <article className={className}>
       <h2>{PortalDetails.PlatformState}</h2>
-      <AppGamePlatformProofStatusDetails details={intent.summaryDetails} />
+      <AppGamePlatformProofStatusDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function AppGamePlatformProofStatusEmptyCard({
-  intent,
-}: {
-  readonly intent: AppGamePlatformProofStatusPanelIntent;
-}): ReactElement {
+function AppGamePlatformProofStatusEmptyCard({ panel }: { readonly panel: ParentAppGamePanelSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
-      <h2>{intent.loadState}</h2>
-      <p>{intent.emptyMessage}</p>
-      <AppGamePlatformProofStatusDetails
-        details={[
-          {
-            label: PortalDetails.ProductClaim,
-            value: intent.productClaim,
-          },
-        ]}
-      />
+      <h2>{panel.loadState}</h2>
+      <p>{panel.emptyMessage}</p>
+      <AppGamePlatformProofStatusDetails details={[{ label: PortalDetails.ProductClaim, value: panel.productClaim }]} />
     </article>
   );
 }
 
-function AppGamePlatformProofStatusRowCard({
-  row,
-}: {
-  readonly row: AppGamePlatformProofStatusPanelRow;
-}): ReactElement {
+function AppGamePlatformProofStatusRowCard({ row }: { readonly row: ParentAppGamePanelRowSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
@@ -145,7 +118,7 @@ function AppGamePlatformProofStatusRowCard({
 function AppGamePlatformProofStatusDetails({
   details,
 }: {
-  readonly details: readonly AppGamePlatformProofStatusPanelDetail[];
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
@@ -164,8 +137,8 @@ function AppGamePlatformProofStatusDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>
@@ -173,53 +146,4 @@ function AppGamePlatformProofStatusDetail({
       <dd>{value}</dd>
     </div>
   );
-}
-
-export function normalizeAppGamePlatformProofStatusReadModel(
-  readModel: AppGamePlatformProofStatusReadModel
-): PlatformProofStatusPanelReadModel {
-  const rows = readModel.rows.map(normalizeAppGamePlatformProofStatusRow);
-  return {
-    generatedAt: readModel.generatedAt,
-    returned: readModel.platformProofObservedCount,
-    hostVisibleCount: rows.filter((row) => row.hostCapabilityState === 'available').length,
-    hostNotDetectedCount: rows.filter((row) => row.hostCapabilityState === 'not-detected').length,
-    localRuntimeNotApplicableCount: rows.filter((row) => row.hostCapabilityState === 'not-applicable').length,
-    enforcementReadyCount: readModel.enforcementReadyCount,
-    openGapCount: readModel.openGapCount,
-    rows,
-  };
-}
-
-function normalizeAppGamePlatformProofStatusRow(
-  row: AppGamePlatformProofStatusRow
-): PlatformProofStatusPanelReadModel['rows'][number] {
-  return {
-    platform: row.platform,
-    proofState: row.proofState,
-    authorityState: row.authorityState,
-    hostCapabilityState: deriveHostCapabilityState(row),
-    hostCapabilityEvidenceRefs: row.packageVisibilityCount > 0 || row.runtimeVisibilityCount > 0 ? row.proofRefs : [],
-    hostCapabilityProbeRefs: [],
-    adapterDispatchClaimed: row.adapterDispatchClaimed,
-    broadInstalledAppBlockingClaimed: row.broadBlockingClaimed,
-    platformEnforcementClaimed: row.platformEnforcementClaimed,
-    providerDeliveryClaimed: false,
-    childDeliveryClaimed: row.childDeliveryClaimed,
-    privateDiagnosticsClaimed: row.auditProofAttached,
-    proofRefs: row.proofRefs,
-    openGaps: row.openGaps,
-  };
-}
-
-function deriveHostCapabilityState(
-  row: AppGamePlatformProofStatusRow
-): 'available' | 'not-detected' | 'not-applicable' {
-  if (row.proofState === 'apple-ci-artifacts-required') {
-    return 'not-applicable';
-  }
-  if (row.packageVisibilityCount > 0 || row.runtimeVisibilityCount > 0) {
-    return 'available';
-  }
-  return 'not-detected';
 }

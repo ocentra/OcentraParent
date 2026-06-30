@@ -52,12 +52,13 @@ time budget/session/child UX contracts
 Android/platform proof contract rows
 
 Owners:
-packages/schema-domain first when shapes cross package/crate/app/plan boundaries
+crates/schema or the owning Rust crate first when shapes cross package/crate/app/plan boundaries
+packages/schema-domain only as temporary generated-validation or edge-decoder surface
 packages/app-game-domain only as helper/projection/focused validation surface
 crates/agent-protocol only when Rust/wire parity is selected
 
 Rule:
-Do not re-create canonical shared shapes in sibling feature domains. Direct imports from policy/enforcement/notification/portal are not the way to share contracts; move shared shapes to schema-domain or another neutral shared boundary.
+Do not re-create canonical shared shapes in sibling feature domains. Direct imports from policy/enforcement/notification/portal are not the way to share contracts; move shared shapes to `crates/schema` or another neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete.
 ```
 
 ## Adapter and source-observation family
@@ -98,7 +99,7 @@ source-gated service readiness/read API rows
 Owners:
 crates/app-game-core for app/game runtime event production when selected
 agent-service for service/read API projection when selected
-schema-domain/agent-protocol for shared row and wire shapes
+crates/schema and agent-protocol for shared row and wire shapes; schema-domain only as temporary generated-validation or edge-decoder surface
 
 Rule:
 Staged journal/read-model proof is not live source subscription proof. Service rows must carry evidence refs and source/freshness status instead of raw private source state.
@@ -117,7 +118,7 @@ browser/game/cloud-game bridge rows when assigned to this plan
 Owners:
 app-game owns source evidence and digest inputs
 aI-plan owns model/provider/classifier runtime behavior
-schema-domain owns shared digest/result shapes
+crates/schema or the owning Rust crate owns shared digest/result shapes; schema-domain is transitional validation only
 policy/enforcement consume only validated results through handoff
 
 Rule:
@@ -140,7 +141,7 @@ audit rollback rows
 Owners:
 policy-control-plan/policy-domain for policy compiler/evaluator semantics
 app-game-plan for app/game source evidence and readiness facts
-schema-domain for shared policy-readiness/app-game handoff shapes
+crates/schema or the owning Rust crate for shared policy-readiness/app-game handoff shapes; schema-domain only as transitional validation if still needed
 
 Rule:
 Policy consumes app/game source readiness and session evidence. Policy dry-run proof is not enforcement proof. Stale, missing, unavailable, permission-limited, manual-required, and not-claimed source rows must block preview/compile claims.
@@ -221,7 +222,7 @@ parent-surface notification rows
 Owners:
 notification-domain/notification plan for notification semantics
 app-game-plan for app/game trigger/source status
-schema-domain for shared handoff shapes
+crates/schema or the owning Rust crate for shared handoff shapes; schema-domain only as transitional validation if still needed
 
 Rule:
 Notification delivery is a handoff. It does not prove app/game source readiness, policy readiness, enforcement execution, or parent UI readiness unless those proof roots are also present.
@@ -240,7 +241,7 @@ platform authority matrix
 Owners:
 app-game-plan for app/game-specific platform evidence expectations
 platform-specific runtime/adapter plan or crate when named
-schema-domain for shared platform proof shapes
+crates/schema or the owning Rust crate for shared platform proof shapes; schema-domain only as transitional validation if still needed
 
 Rule:
 Platform preflight is not platform parity. Real platform readiness needs device/OS/version, permission state, adapter output, cleanup/rollback, negative cases, and manual-required notes where capability is absent.

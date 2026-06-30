@@ -14,16 +14,6 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'enforcement-os-adapter-product-proof',
-    ])
-  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_os_adapter_product_proof']);
   await runCommand('cargo', [
     'test',
@@ -53,7 +43,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/enforcement-os-adapter-product-proof.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/enforcement-os-adapter-product-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_os_adapter_product_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_os_adapter_product_proof_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/enforcement_os_adapter_product_proof_read_model.rs',

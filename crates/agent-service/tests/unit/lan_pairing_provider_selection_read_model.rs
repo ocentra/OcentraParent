@@ -17,7 +17,7 @@ use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSe
 use ocentra_parent_agent_protocol::lan_pairing_provider_selection::LanProviderSelectionProofState;
 
 use crate::{
-    lan_pairing::LanPairingRuntime,
+    app::lan_pairing::LanPairingRuntime,
     lan_pairing_provider_selection_read_model::provider_selection_read_model,
     lan_pairing_test_commands::paired_runtime,
 };

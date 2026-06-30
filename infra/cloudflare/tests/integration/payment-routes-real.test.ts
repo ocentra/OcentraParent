@@ -3,10 +3,13 @@ import { describe, it } from 'node:test';
 import {
   BillingReferralInviteResultSchema,
   BillingReferralSummarySchema,
+  type BillingReferralSummary,
 } from '../../../../packages/billing-domain/src/billing-referral-boundary.js';
 import {
   BillingSupportAdminAccountsResponseSchema,
+  type BillingSupportAdminAccountsResponse,
   BillingSupportAdminAuditEventsResponseSchema,
+  type BillingSupportAdminAuditEventsResponse,
   BillingSupportAdminDisputesResponseSchema,
   BillingSupportAdminInvoicesResponseSchema,
   BillingSupportAdminReferralsResponseSchema,
@@ -597,8 +600,10 @@ describe('real payment worker routes', () => {
     );
     assert.equal(referralSummary.pendingInvites, 3);
     assert.equal(
-      referralSummary.invites.filter((inviteSummary) => inviteSummary.invitedIdentifier === 'dedupe-family@example.com')
-        .length,
+      referralSummary.invites.filter(
+        (inviteSummary: BillingReferralSummary['invites'][number]) =>
+          inviteSummary.invitedIdentifier === 'dedupe-family@example.com'
+      ).length,
       1
     );
   });
@@ -780,7 +785,8 @@ describe('real payment worker routes', () => {
       await readJson<unknown>(reconciliationAudit.response)
     );
     const reconciliationEvents = reconciliationAuditBody.results.filter(
-      (event) => event.eventId === 'billing-reconciliation:reconciliation-queued'
+      (event: BillingSupportAdminAuditEventsResponse['results'][number]) =>
+        event.eventId === 'billing-reconciliation:reconciliation-queued'
     );
     assert.equal(reconciliationAudit.response.status, 200);
     assert.equal(reconciliationEvents.length, 1);
@@ -907,7 +913,12 @@ describe('real payment worker routes', () => {
     const accountsBody = BillingSupportAdminAccountsResponseSchema.parse(await readJson<unknown>(accounts.response));
     assert.equal(accounts.response.status, 200);
     assert.equal(accountsBody.actorRole, 'support');
-    assert.equal(accountsBody.manualActionsPending, accountsBody.results.filter((row) => row.manualRequired).length);
+    assert.equal(
+      accountsBody.manualActionsPending,
+      accountsBody.results.filter(
+        (row: BillingSupportAdminAccountsResponse['results'][number]) => row.manualRequired
+      ).length
+    );
 
     const manualInvoice = await executeRequest({
       path: '/auth/billing/manual-invoice',

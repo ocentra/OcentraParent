@@ -13,11 +13,11 @@ use crate::activity_capture::ActivityCaptureError;
 use super::ScreenAiAnalysisCycleClock;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct QueuedScreenImage {
-    pub(super) queue_job_id: String,
-    pub(super) custody_state: String,
-    pub(super) image_digest: String,
-    pub(super) image_bytes: Vec<u8>,
+pub(crate) struct QueuedScreenImage {
+    pub(crate) queue_job_id: String,
+    pub(crate) custody_state: String,
+    pub(crate) image_digest: String,
+    pub(crate) image_bytes: Vec<u8>,
 }
 
 pub(super) fn first_queued_screen_image(

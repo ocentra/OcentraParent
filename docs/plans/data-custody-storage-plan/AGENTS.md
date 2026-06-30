@@ -33,11 +33,11 @@ This plan owns custody policy, custody proof, retention/export/sync/restore rule
 Module roles:
 
 ```text
-schema-domain: canonical shared custody, parent-owned sync/export, bundle, restore, report/query, assistant-citation, provider-state, retention, tombstone, and parent-storage-setting shapes when those shapes cross package, crate, app, or plan boundaries.
+crates/schema: canonical shared custody, parent-owned sync/export, bundle, restore, report/query, assistant-citation, provider-state, retention, tombstone, and parent-storage-setting shapes when those shapes cross package, crate, app, or plan boundaries.
 storage-custody-core: Rust generic custody/delete/export decision logic and custody action-plan events.
 ocentra-evidence: evidence references, evidence identity, and evidence custody ref semantics.
 ocentra-eventing: event journal/replay/idempotency spine. This plan consumes eventing contracts; it does not re-own the bus implementation.
-production-domain: legacy package identity unless a selected public export is named. Current parent-owned sync/export contract proof is routed through schema-domain.
+production-domain: legacy package identity unless a selected public export is named. Current parent-owned sync/export contract proof is routed through the Rust owner and generated TS edge surfaces.
 portal-domain and apps/portal: parent-visible custody projection, settings, preview, confirmation, and status UI only.
 account-identity-family-plan: actor, household, role, guardian/admin/support authority.
 device-trust-bootstrap-plan: device trust material and trusted-device key state.
@@ -47,7 +47,7 @@ cloudflare-control-plane-plan, payment-subscription-plan, setup-install-provisio
 Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
 
 ```text
-canonical schema-domain custody/export/sync/restore/report/query/assistant-citation shapes
+canonical crates/schema custody/export/sync/restore/report/query/assistant-citation shapes
 storage-custody-core public custody decision/event helpers when Rust custody proof is selected
 ocentra-evidence public evidence reference types
 ocentra-eventing public event/journal/idempotency primitives when event proof is selected
@@ -70,7 +70,7 @@ parent storage settings UI upgraded into applied custody state without confirmat
 automatic Ocentra-hosted fallback storage implied without explicit product decision and proof
 ```
 
-If custody work needs eventing, account, device trust, portal, Cloudflare, payment, setup, remote, LAN, notification, report, or AI behavior, it must use typed evidence refs, commands, events, requests, read models, artifact manifests, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
+If custody work needs eventing, account, device trust, portal, Cloudflare, payment, setup, remote, LAN, notification, report, or AI behavior, it must use typed evidence refs, commands, events, requests, read models, artifact manifests, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `crates/schema` or another neutral Rust shared boundary. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
 
 ## Local Decision Tree
 

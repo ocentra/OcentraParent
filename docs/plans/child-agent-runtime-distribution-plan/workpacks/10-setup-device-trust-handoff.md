@@ -25,7 +25,7 @@ Purpose: define the setup-device-trust request/response contract that hands off 
 setup-install-provisioning-plan owns setup journey and UI flow.
 device-trust-bootstrap-plan owns trusted-device bootstrap, sealed/local trust material, pairing/bootstrap artifacts, and trust revocation semantics.
 child-agent-runtime-distribution-plan owns the typed handoff consumed by child package/install distribution proof.
-schema-domain owns shared setup-trust-handoff shapes when the shape crosses package, crate, app, or plan boundaries.
+crates/schema or the owning Rust crate owns shared setup-trust-handoff shapes when the shape crosses package, crate, app, or plan boundaries. `schema-domain` is temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 parent-client-runtime-distribution-plan owns parent client artifact state and must not close this handoff.
 ```
 
@@ -62,6 +62,15 @@ These are field requirements for proof routing, not an implementation code presc
 - package artifact proof is not setup or trust proof
 - the handoff proof points to the external artifact path
 - route sync with setup-install-provisioning-plan and device-trust-bootstrap-plan is named when those plans are touched
+
+## Execution truth
+
+- `crates/schema/src/setup_device_trust_handoff.rs` now owns the canonical request, response, and proof DTO shape for this cross-plan handoff.
+- The Rust-owned handoff proof names `handoff_id`, `household_ref`, `child_profile_ref`, `target_device_ref`, `setup_session_ref`, `trust_bootstrap_ref`, `child_package_target_ref`, `platform`, `artifact_requirement`, `install_precondition_state`, `manual_required_state`, `expiry_or_replay_guard_ref`, `handoff_status`, and `no_claim`.
+- The proof carries `artifact_requirement.external_artifact_path` as an external artifact pointer into the Windows package proof root and keeps that pointer separate from package/install/runtime readiness claims.
+- The proof names route sync with `setup-install-provisioning-plan` and `device-trust-bootstrap-plan` through explicit route-sync rows rather than absorbing those plans' ownership.
+- No `schema-domain` edge was added in this workpack because no live TypeScript consumer currently needs this handoff shape; Rust/shared ownership stays canonical and TypeScript remains optional/thin only if a consumer appears later.
+- This workpack closes only the typed handoff contract slice. It does not claim setup journey completion, package readiness, install success, service health, respawn, uninstall/revocation parity, or parent-client parity.
 
 ## Required proof files
 

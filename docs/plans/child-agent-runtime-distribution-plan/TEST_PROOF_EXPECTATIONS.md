@@ -57,8 +57,9 @@ Run through `npm run agent:run --` when collecting proof if the logging/evidence
 
 ## Command ownership notes
 
-- `packages/schema-domain` owns canonical child package/runtime/platform capability/device-owner/managed-profile/supervision/setup-trust-handoff shapes when contracts cross package/crate/app/plan boundaries.
-- `packages/child-runtime-domain` is package-boundary metadata/helper scope only; shared child runtime contracts live in schema-domain.
+- `crates/schema` or another neutral Rust-owned crate owns canonical child package/runtime/platform capability/device-owner/managed-profile/supervision/setup-trust-handoff shapes when contracts cross package/crate/app/plan boundaries.
+- `packages/schema-domain` is temporary generated-validation or edge-decoder scope only where TypeScript still consumes Rust-owned contracts during migration.
+- `packages/child-runtime-domain` is package-boundary metadata/helper scope only; shared child runtime contracts live in Rust-owned schema surfaces.
 - `scripts/release/*` prove artifact build/checksum/signing-package outputs only for the selected platform.
 - `scripts/test/child-*` proof scripts prove the exact named proof mode only. Debug APK, simulator, manifest, scaffold, and package-local bridge proof must not be upgraded into real-device, store, device-owner, managed-profile, supervision, runtime transport, or enforcement proof.
 - `crates/agent-service` and `crates/agent-protocol` are service/protocol proof only when the selected workpack names runtime or wire behavior.
@@ -113,7 +114,7 @@ WP02 Windows service package, install/service lifecycle, signing state, and rest
 WP03 macOS service package, launchd/notarization state, and lifecycle limits
 WP04 Linux package, service-manager state, signing/repo state, and lifecycle limits
 WP05 Android package, permission/platform status, device-owner/managed-profile gaps, and debug/store split
-WP06 iOS capability package, provisioning/supervision state, background-service limits, and manual-required gaps
+WP06 iOS capability package, provisioning/supervision state, launch-availability truth, recovery non-claim, and manual-required gaps
 WP07 managed service restart/supervision state
 WP08 parent-approved removal, revocation, cleanup, and residual-state proof
 WP09 signing/store/platform/device-owner matrix

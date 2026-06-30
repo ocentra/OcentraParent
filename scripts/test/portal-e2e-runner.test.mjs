@@ -13,14 +13,20 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   const portalManifest = JSON.parse(readFileSync('apps/portal/package.json', 'utf8'));
   const configSource = readFileSync('apps/portal/playwright.config.ts', 'utf8');
   const runnerSource = readFileSync('scripts/test/portal-playwright-runner.mjs', 'utf8');
+  const processSource = readFileSync('scripts/test/agent-service-process.mjs', 'utf8');
 
   assert.equal(portalManifest.scripts['test:e2e'], 'node ../../scripts/test/portal-playwright-runner.mjs');
   assert.equal(configSource.includes('webServer'), false);
   assert.equal(configSource.includes('OCENTRA_PARENT_PORTAL_PORT'), true);
   assert.equal(runnerSource.includes('stopProcessTree'), true);
+  assert.equal(runnerSource.includes('ensureParentDevBridgeBinaryUnlocked'), true);
+  assert.equal(runnerSource.includes('signal !== null'), true);
   assert.equal(runnerSource.includes('SIGKILL'), true);
   assert.equal(runnerSource.includes('resolveParentDevPort'), true);
   assert.equal(runnerSource.includes('assertAgentNetworkActivityReadModel'), true);
+  assert.equal(processSource.includes('child.exitCode !== null || child.signalCode !== null'), true);
+  assert.equal(processSource.includes("taskkill', ['/IM', imageName, '/T', '/F']"), true);
+  assert.equal(processSource.includes('ocentra-parent-dev-bridge.exe'), true);
 });
 
 test('portal local smoke waits for process shutdown before temp cleanup', () => {
@@ -88,7 +94,7 @@ test('portal network activity service preflight uses shared protocol command and
 
 test('network drawer proof ids stay single-sourced across scripts and portal tests', () => {
   const e2eSource = readFileSync('apps/portal/e2e/network-evidence-drawer-proof.spec.ts', 'utf8');
-  const unitSource = readFileSync('apps/portal/tests/live-activity-network-flow.test.ts', 'utf8');
+  const unitSource = readFileSync('apps/portal/tests/live-activity/live-activity-network-flow.test.ts', 'utf8');
   const seedSource = readFileSync('scripts/test/portal-network-activity-seed.mjs', 'utf8');
   const proofSource = readFileSync('scripts/test/network-parent-ui-evidence-drawer-proof.mjs', 'utf8');
 

@@ -1,43 +1,55 @@
 import type { ReactElement } from 'react';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { PortalDom, PortalEnvironment } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
-  createSocialAuditExplanationPanelIntent,
-  type SocialAuditExplanationPanelDetail,
-  type SocialAuditExplanationPanelIntent,
-  type SocialAuditExplanationPanelRow,
-} from '@ocentra-parent/portal-domain/social-audit-explanation-panel';
-import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
+  isParentBrowserParentSurfaceRoute,
+  type ParentBrowserPanelDetailSnapshot,
+  type ParentBrowserPanelRowSnapshot,
+  type ParentBrowserPanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
 
-export function shouldRenderSocialAuditExplanationRoute(route: PortalRouteValue): boolean {
-  return isPortalBrowserParentSurfaceRoute(route);
+export function shouldRenderSocialAuditExplanationRoute(route: ParentRouteId): boolean {
+  return isParentBrowserParentSurfaceRoute(route);
 }
 
 export function SocialAuditExplanationRoutePanel({
   actions,
   commandEnabled,
-  snapshot,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly snapshot: unknown | null;
+  readonly panel: ParentBrowserPanelSnapshot | null;
 }): ReactElement {
-  const intent = createSocialAuditExplanationPanelIntent(snapshot ?? socialAuditExplanationProofInput());
+  if (panel === null) {
+    return (
+      <section aria-label="Social explanations unavailable" className={PortalDom.Classes.TrackingStatusOverlay}>
+        <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+          <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+            <p className={PortalDom.Classes.ProductEyebrow}>Browser route</p>
+            <h2>Social explanations unavailable</h2>
+            <p>Parent Rust snapshot unavailable for the social explanation route.</p>
+          </header>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
+    <section aria-label={panel.title} className={PortalDom.Classes.TrackingStatusOverlay}>
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{panel.eyebrow}</p>
+          <h2>{panel.title}</h2>
+          <p>{panel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
             onClick={() => void actions.refreshRouteSnapshot?.()}
           >
-            {intent.title}
+            {panel.title}
           </button>
         </header>
         <div
@@ -45,11 +57,11 @@ export function SocialAuditExplanationRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <SocialAuditExplanationSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <SocialAuditExplanationEmptyCard intent={intent} />
+          <SocialAuditExplanationSummaryCard panel={panel} />
+          {panel.rows.length === 0 ? (
+            <SocialAuditExplanationEmptyCard panel={panel} />
           ) : (
-            intent.rows.map((row) => <SocialAuditExplanationRowCard key={row.key} row={row} />)
+            panel.rows.map((row) => <SocialAuditExplanationRowCard key={row.key} row={row} />)
           )}
         </div>
       </div>
@@ -58,32 +70,36 @@ export function SocialAuditExplanationRoutePanel({
 }
 
 function SocialAuditExplanationSummaryCard({
-  intent,
+  panel,
 }: {
-  readonly intent: SocialAuditExplanationPanelIntent;
+  readonly panel: ParentBrowserPanelSnapshot;
 }): ReactElement {
   return (
     <article className={cardClassName()}>
-      <h2>{intent.summary}</h2>
-      <SocialAuditExplanationDetails details={intent.metrics} />
+      <h2>{panel.summary}</h2>
+      <SocialAuditExplanationDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
 function SocialAuditExplanationEmptyCard({
-  intent,
+  panel,
 }: {
-  readonly intent: SocialAuditExplanationPanelIntent;
+  readonly panel: ParentBrowserPanelSnapshot;
 }): ReactElement {
   return (
     <article className={cardClassName()}>
-      <h2>{intent.emptyMessage}</h2>
-      <SocialAuditExplanationDetails details={intent.metrics} />
+      <h2>{panel.emptyMessage}</h2>
+      <SocialAuditExplanationDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function SocialAuditExplanationRowCard({ row }: { readonly row: SocialAuditExplanationPanelRow }): ReactElement {
+function SocialAuditExplanationRowCard({
+  row,
+}: {
+  readonly row: ParentBrowserPanelRowSnapshot;
+}): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{row.title}</h2>
@@ -95,30 +111,18 @@ function SocialAuditExplanationRowCard({ row }: { readonly row: SocialAuditExpla
 function SocialAuditExplanationDetails({
   details,
 }: {
-  readonly details: readonly SocialAuditExplanationPanelDetail[];
+  readonly details: readonly ParentBrowserPanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <div key={`${detail.label}:${detail.value}`}>
+      {details.map((detail, index) => (
+        <div key={`${detail.label}:${index}`}>
           <dt>{detail.label}</dt>
           <dd>{detail.value}</dd>
         </div>
       ))}
     </dl>
   );
-}
-
-function socialAuditExplanationProofInput(): unknown {
-  const proofValue = import.meta.env[PortalEnvironment.SocialAuditExplanationProofBundle];
-  if (typeof proofValue !== 'string' || proofValue.trim().length === 0) {
-    return null;
-  }
-  try {
-    return JSON.parse(proofValue) as unknown;
-  } catch {
-    return null;
-  }
 }
 
 function cardClassName(): string {

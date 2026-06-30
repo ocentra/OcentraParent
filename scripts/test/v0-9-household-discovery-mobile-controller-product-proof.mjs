@@ -253,12 +253,12 @@ async function parseAggregateReadModel(readModel) {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'rust-parent-runtime',
     'dist',
     'v0-9-household-discovery-mobile-controller-product-proof.js'
   );
   const module = await import(`file:///${modulePath.replaceAll('\\', '/')}`);
-  proofLabels.push('parent-domain.v0.9-household-discovery-mobile-controller-product-proof-parse');
+  proofLabels.push('rust-parent-runtime.v0.9-household-discovery-mobile-controller-product-proof-parse');
   return module.V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema.parse(readModel);
 }
 

@@ -133,7 +133,7 @@ const summary = {
   generatedAt: new Date().toISOString(),
   manifest: {
     path: relativePath(manifestPath),
-    present: manifest !== null,
+    present: manifest !== undefined,
     entryCount: manifestEntries.length,
     templatePath: relativePath(manifestTemplatePath),
     runbookPath: relativePath(runbookPath),

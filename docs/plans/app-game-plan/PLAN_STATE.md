@@ -23,11 +23,14 @@ This folder is the shared native app and native game control plan. It exists bec
 ## Current ownership interpretation
 
 ```text
-schema-domain:
+crates/schema or the owning Rust crate:
   Canonical shared app/game contracts when app/game shapes cross package, crate, app, or plan boundaries.
 
+schema-domain:
+  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+
 app-game-domain:
-  TypeScript helper/projection and focused validation surface. It consumes canonical schema-domain contracts and must not become a broad aggregator for policy, enforcement, notification, portal, or production runtime behavior.
+  TypeScript helper/projection and focused validation surface. It consumes Rust-owned/generated contracts and must not become a broad aggregator for policy, enforcement, notification, portal, or production runtime behavior.
 
 app-game-core:
   Child-local Rust app/game observation, sessionization, evidence-event, AI-request, policy-request, and source-readiness runtime boundary.
@@ -51,7 +54,7 @@ Notification, child-runtime, LAN, remote, account, data-custody, and setup plans
 ## Current coupling risks
 
 ```text
-- `app-game-domain` currently depends on several sibling domains. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through schema-domain.
+- `app-game-domain` currently depends on several sibling domains. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through `crates/schema` or another neutral Rust-owned boundary.
 - Generated handoff workpacks are not implementation scope by themselves. A selected workpack must identify the owner path and proof family before source edits.
 - Portal rows, policy preview rows, notification rows, and child UX rows do not prove live app/game source readiness unless service/protocol/runtime proof exists.
 - AI classifier digest rows prove only digest/result handoff unless they include stored app/game evidence refs and validated AI output. They do not prove AI runtime or OS scanning.

@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-platform-limitation-action-proof.test.ts',
     ])
@@ -82,7 +82,7 @@ async function main() {
         'packages/schema-domain/src/app-install-purchase-provider-store-report-status-proof.ts',
       sourceReportStatusReadModelContract:
         'packages/schema-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-limitation-action-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/app-install-purchase-platform-limitation-action-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md updated for platform limitation action proof.',
       expectationDoc:
         'docs/expectations/app-install-purchase-approval.md updated for platform limitation action proof.',
@@ -127,7 +127,7 @@ async function loadPlatformLimitationActionProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-platform-limitation-action-proof.js'
   );

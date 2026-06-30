@@ -28,9 +28,15 @@ browser add-device read model instead of collapsing to a fake Windows-only
 origin. Windows now explicitly collects both IPv4 and IPv6 neighbor rows from
 the local neighbor table, the shared Rust parser accepts IPv6 rows on both
 Windows and Linux, and duplicate/malformed neighbor-row behavior has focused
-unit proof. macOS parsing is still open, and all platform outputs still need a
-broader normalized fixture corpus plus timestamped neighbor evidence if the
-plan wants per-row freshness beyond current reachability state.
+unit proof. macOS `arp -a` parsing is now covered through the shared Rust path,
+all three platform-normalization paths have broader normal/empty/incomplete/
+malformed/duplicate fixture proof where applicable, and normalized neighbor
+evidence now carries a per-row observation timestamp through the downstream
+discovered-device/read-model seam.
+
+As of `2026-06-28`, this workpack is locally code-complete in the owned Rust
+surface. The honest non-claim is live macOS/manual platform proof, not a
+remaining local neighbor-ingestion implementation gap.
 
 ### Current implemented subset
 
@@ -44,6 +50,11 @@ plan wants per-row freshness beyond current reachability state.
   rows, malformed/all-zero MAC rejection, and duplicate-row merge behavior
   that preserves source truth while preferring a private IPv4 identity when
   both IPv6 and IPv4 rows describe the same MAC.
+- Linux neighbor merge now preserves the earliest normalized `observed_at`
+  timestamp when multiple neighbor rows collapse into one MAC-backed device.
+- macOS `arp -a` parsing now flows through the normalized neighbor-observation
+  path with fixture proof for normal, empty, incomplete, malformed, and
+  duplicate rows.
 - Passive neighbor collection still runs so the read model can report current
   reachability, but routers and already-paired/trusted devices skip the heavier
   service-identity probe path.
@@ -52,13 +63,15 @@ plan wants per-row freshness beyond current reachability state.
   canonical identity truth.
 - Canonical LAN evidence records and scan summaries now surface the real
   neighbor source rather than branding every passive record as Windows.
+- Discovered-device projection now preserves a normalized neighbor row's
+  `observed_at` value instead of always rewriting it to the scan generation
+  time.
 
 Validated in this packet:
 
-- `cargo test -p ocentra-lan-core network_inventory`
-- `cargo test -p ocentra-parent-agent-protocol lan_pairing_browser_add_device_state`
-- `cargo test -p ocentra-parent-agent-service lan_pairing_browser_add_device_state`
-- `cargo lint-architecture crates/agent-protocol/src/constants/lan_pairing.rs crates/lan-core/src/network_inventory.rs`
+- `cargo test -p ocentra-lan-core network_inventory -- --nocapture`
+- `cargo test -p ocentra-parent-agent-service lan_pairing_browser_add_device_state -- --nocapture`
+- `cargo lint-architecture crates/lan-core/src/network_inventory.rs crates/lan-core/src/network_inventory/windows_neighbors.rs crates/lan-core/src/network_inventory/linux_neighbors.rs crates/lan-core/src/network_inventory/macos_neighbors.rs`
 - Proof note: `output/lan-plan-proof/04-neighbor-table-ingestion/00-neighbor-normalization-proof.md`
 
 ## Where We Want To Be
@@ -69,21 +82,24 @@ can begin with `arp -a` before native adapters are added.
 
 ## Requirement Checklist
 
-- [ ] Normalize IP, MAC, interface, neighbor state, timestamp, and source.
+- [x] Normalize IP, MAC, interface, neighbor state, timestamp, and source.
 - [x] Skip incomplete, malformed, multicast, or all-zero MAC entries.
-- [ ] Preserve duplicate rows as evidence candidates until merge rules decide.
+- [x] Preserve duplicate rows as evidence candidates until merge rules decide.
 - [x] Keep IPv4 and IPv6 support represented even when IPv4 lands first.
-- [ ] Add fixture files for normal, empty, malformed, incomplete, and duplicate
+- [x] Add fixture files for normal, empty, malformed, incomplete, and duplicate
       neighbor outputs.
 
 ## Acceptance And Proof
 
-- Parser tests now cover Windows neighbor data, Linux `ip neigh`, IPv6 neighbor
-  rows, malformed/all-zero MAC rejection, incomplete rows, and duplicate-row
-  merge behavior. `/proc/net/arp` fixture files, macOS `arp -a`, and broader
-  empty-table fixture coverage remain open.
-- Service-backed LAN tests now prove the normalized neighbor path still feeds
-  the browser add-device read model instead of breaking downstream state.
+- Parser tests now cover Windows neighbor data, Linux `/proc/net/arp`, Linux
+  `ip neigh`, and macOS `arp -a`, including IPv6 neighbor rows,
+  malformed/all-zero MAC rejection, incomplete rows, duplicate-row merge
+  behavior, and normalized `observed_at` timestamps.
+- Service-backed LAN/read-model tests now prove the normalized neighbor path
+  still feeds the browser add-device state and preserves neighbor-derived
+  discovery timestamps instead of breaking downstream state.
+- Local WP04 closure does not depend on a remaining Rust code patch in this
+  surface; the remaining non-claim is manual/live platform proof only.
 
 ## Parallel Ownership Notes
 

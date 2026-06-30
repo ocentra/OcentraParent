@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-provider-store-report-status-proof.test.ts',
     ])
@@ -76,7 +76,7 @@ async function main() {
       sourceApprovalReportDomainContract:
         'packages/schema-domain/src/app-install-purchase-approval-report-domain-proof.ts',
       contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-report-status-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-provider-store-report-status-proof.test.ts',
       featureDocDeferred:
         'docs/features/app-install-purchase-approval.md already records provider/store report status proof coverage.',
       expectationDocDeferred:
@@ -84,8 +84,8 @@ async function main() {
       checklistRowDeferred:
         'docs/product-capability-checklist.md Install/purchase approval row update sequenced behind current E-C checklist lock.',
       packageExportDeferred:
-        'packages/app-game-domain/package.json does not currently publish this proof as a public subpath export.',
-      readmeDeferred: 'packages/app-game-domain/package.json is the current package surface for this proof.',
+        'packages/schema-domain/package.json is the current generated/thin package surface for this proof.',
+      readmeDeferred: 'packages/schema-domain/package.json is the current package surface for this proof.',
       output: relative(repoRoot, proofPath),
     },
     providerStoreReportStatusSummary: summary,
@@ -124,7 +124,7 @@ async function loadProviderStoreReportStatusProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-provider-store-report-status-proof.js'
   );

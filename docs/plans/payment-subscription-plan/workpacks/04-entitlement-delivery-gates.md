@@ -4,10 +4,13 @@
 
 Define the ledger-to-device gate that turns billing and referral truth into signed entitlement snapshots and device-bound access checks.
 
+Status: `done / proof-present`
+
 ## Ownership boundary
 
 ```text
 payment-subscription-plan owns billing/referral/entitlement ledger semantics and signed entitlement snapshot model.
+`crates/entitlement-core` owns the Rust runtime derivation contract and snapshot-to-gate bridge implemented for this packet.
 device-trust-bootstrap-plan owns device enrollment, local sealed trust, and trusted-device binding.
 account-identity-family-plan owns account/household/role authority.
 policy-control-plane-plan consumes proven entitlement state but does not define payment authority.
@@ -16,9 +19,15 @@ provider state is input only and is never the root of entitlement.
 
 ## First-touch surface
 
-- `packages/billing-domain/src/billing-entitlement-runtime-proof.ts`
-- `crates/entitlement-core/tests/unit/capability_gate.rs`
+- `crates/entitlement-core/src/entitlement_access.rs`
+- `crates/entitlement-core/tests/unit/signed_snapshot_delivery.rs`
+- Supporting rejection coverage: `crates/entitlement-core/tests/unit/capability_gate.rs`, `crates/entitlement-core/tests/unit/capability_access.rs`
 - Handoff: device-trust-bootstrap-plan owns device enrollment and binding; this slice only consumes the signed trust result.
+
+Route drift resolved during execution:
+
+- The older first-touch path `packages/billing-domain/src/billing-entitlement-runtime-proof.ts` does not exist in the live tree.
+- WP04 closure is therefore Rust-first on `crates/entitlement-core`, with TypeScript left as proof-consumer surface only.
 
 ## Read inputs
 
@@ -37,6 +46,10 @@ provider state is input only and is never the root of entitlement.
 - [APP_OWNED_ENTITLEMENT_LEDGER.md](../APP_OWNED_ENTITLEMENT_LEDGER.md)
 - [SIGNED_ENTITLEMENT_SNAPSHOT_MODEL.md](../SIGNED_ENTITLEMENT_SNAPSHOT_MODEL.md)
 - `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md`
 
 ## Acceptance
 
@@ -80,9 +93,21 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Validation
 
-- Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
-- Required proof families: `payment-entitlement.billing-ledger-source`, `payment-entitlement.referral-ledger-source`, `payment-entitlement.entitlement-ledger-source`, `payment-entitlement.signed-snapshot-issued`, `payment-entitlement.snapshot-signature-invalid-rejected`, `payment-entitlement.local-device-trust-required`, `payment-entitlement.wrong-household-rejected`, `payment-entitlement.wrong-device-rejected`, `payment-entitlement.offline-stale-degraded`, `payment-entitlement.grace-period`, `payment-entitlement.cancel-revokes-paid-feature`, `payment-entitlement.referral-loss-revokes-earned-feature`, `payment-entitlement.safety-feature-not-silently-disabled`
-- Proof bundle: `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md`
+Focused validation used for this packet:
+
+- `cargo test -p ocentra-entitlement-core --test unit`
+- `cargo lint-architecture crates/entitlement-core/src/entitlement_access.rs crates/entitlement-core/tests/unit.rs crates/entitlement-core/tests/unit/capability_gate.rs crates/entitlement-core/tests/unit/capability_access.rs crates/entitlement-core/tests/unit/signed_snapshot_delivery.rs`
+- `cmd /c npm exec -- prettier --check docs/plans/payment-subscription-plan/APP_OWNED_BILLING_LEDGER.md docs/plans/payment-subscription-plan/APP_OWNED_REFERRAL_LEDGER.md docs/plans/payment-subscription-plan/APP_OWNED_ENTITLEMENT_LEDGER.md docs/plans/payment-subscription-plan/SIGNED_ENTITLEMENT_SNAPSHOT_MODEL.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/00-scope-summary.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/05-no-claim-boundary.md`
+
+Proof bundle:
+
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/00-scope-summary.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/05-no-claim-boundary.md`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/16-validation-commands.log`
 
 ## Negative cases
 

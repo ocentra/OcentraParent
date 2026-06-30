@@ -21,9 +21,9 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 
 ## Where We Are
 
-Production household discovery still lacks a bounded active IPv4 sweep. Current
-proof must not be stretched into a claim that Ocentra can discover a whole home
-LAN until this exists and is validated.
+Current proof must not be stretched into a claim that Ocentra can discover a
+whole home LAN beyond the bounded active IPv4 sweep and passive follow-on path
+already validated here.
 
 Current A-lane proof now adds bounded active IPv4 host stimulation before the
 passive neighbor-table read used by browser discovery and add-device scans. The
@@ -51,11 +51,11 @@ configured cap.
 
 ## Requirement Checklist
 
-- [ ] Introduce a packet IO abstraction so CI does not depend on real packet
+- [x] Introduce a packet IO abstraction so CI does not depend on real packet
       drivers.
 - [x] Exclude network and broadcast addresses.
 - [x] Bound response windows, repeat count, burst size, and max hosts.
-- [ ] Deduplicate repeated ARP replies without losing evidence.
+- [x] Deduplicate repeated ARP replies without losing evidence.
 - [x] Record sweep session id, selected interface, response window, and skipped
       host counts.
 
@@ -87,6 +87,9 @@ Current proof:
   ignored/revoked, and router truth reconstructed from the persisted registry
   plus previous canonical household state, while passive neighbor inventory
   still runs.
+- Focused packet-IO proof now covers controlled probe execution, duplicate-reply
+  collapse, no-attempt handling, and exhausted-observation-budget behavior
+  without requiring packet drivers in CI.
 - Focused proof note:
   `output/lan-plan-proof/06-bounded-arp-sweep/01-ip-reuse-suppression-fix.md`
 

@@ -8,18 +8,18 @@ const execFileAsync = promisify(execFile);
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const proofPath = resolve(repoRoot, 'test-results', 'app-install-purchase-platform-proof-readiness', 'proof.json');
 
-await run('npm', ['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
+await run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 await run('npm', [
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/app-game-domain',
+  '@ocentra-parent/schema-domain',
   '--',
   'tests/unit/app-install-purchase-platform-proof-readiness.test.ts',
 ]);
 
 const moduleUrl = pathToFileURL(
-  resolve(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-install-purchase-platform-proof-readiness.js')
+  resolve(repoRoot, 'packages', 'schema-domain', 'dist', 'app-install-purchase-platform-proof-readiness.js')
 ).href;
 const { AppInstallPurchasePlatformProofReadinessProofReadModel, summarizeAppInstallPurchasePlatformProofReadiness } =
   await import(moduleUrl);
@@ -53,7 +53,7 @@ const proof = {
   },
   evidence: {
     source: 'packages/schema-domain/src/app-install-purchase-platform-proof-readiness.ts',
-    tests: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-proof-readiness.test.ts',
+    tests: 'packages/schema-domain/tests/unit/app-install-purchase-platform-proof-readiness.test.ts',
     output: 'test-results/app-install-purchase-platform-proof-readiness/proof.json',
   },
 };

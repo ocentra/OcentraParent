@@ -14,16 +14,6 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-broad-os-adapter-runtime-proof',
-    ])
-  );
   await runCommand('node', ['scripts/test/v0-8-broad-os-adapter-proof.mjs']);
   await runCommand('node', ['scripts/test/v0-8-browser-domain-adapter-proof.mjs']);
   await runCommand('node', ['scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs']);
@@ -56,7 +46,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-broad-os-adapter-runtime-proof.test.ts',
       proofHarness: 'scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs',
       sourceBroadProof: 'test-results/v0-8-broad-os-adapter-proof/proof.json',
       sourceBrowserDomainProof: 'test-results/v0-8-browser-domain-adapter-proof/proof.json',

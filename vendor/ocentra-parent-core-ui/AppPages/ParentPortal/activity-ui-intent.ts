@@ -210,7 +210,8 @@ function matchingCanonicalDeviceSlot(devices: Map<string, DeviceSlot>, slot: Dev
     if (samePhysicalDeviceValue(slot.device?.mac, existing.device?.mac)) return existing;
     if (
       (slotHasAgentFacet(slot) || slotHasAgentFacet(existing)) &&
-      samePhysicalDeviceValue(slot.device?.ip, existing.device?.ip)
+      samePhysicalDeviceValue(slot.device?.ip, existing.device?.ip) &&
+      !conflictingPhysicalMac(slot.device?.mac, existing.device?.mac)
     ) {
       return existing;
     }
@@ -630,8 +631,8 @@ function lanDeviceEvidence(
     parentDecision: lanHouseholdDecisionLabel(decision),
     householdName: stringValue(decision?.['displayName']),
     parentDeviceKind: normalizedLanDeviceKindValue(stringValue(decision?.['deviceKind'])),
-    auditLabel: firstString(readModel['auditCheckLabels']),
-    requirementLabel: firstString(readModel['routeRequirementLabels']),
+    auditLabel: lanEvidenceSummary(readModel['auditCheckLabels']),
+    requirementLabel: lanEvidenceSummary(readModel['routeRequirementLabels']),
     evidenceLabel:
       stringValue(routeSafetyRow?.['evidenceLabel']) ||
       stringValue(signedProofRow?.['evidenceLabel']) ||
@@ -936,7 +937,9 @@ function matchingPhysicalDeviceSlot(
   for (const slot of devices.values()) {
     if (samePhysicalDeviceValue(input.mac, slot.device?.mac)) return slot;
     if (!hasAgentFacet(input) && !slotHasAgentFacet(slot)) continue;
-    if (samePhysicalDeviceValue(input.ip, slot.device?.ip)) return slot;
+    if (samePhysicalDeviceValue(input.ip, slot.device?.ip) && !conflictingPhysicalMac(input.mac, slot.device?.mac)) {
+      return slot;
+    }
   }
   return undefined;
 }
@@ -945,6 +948,12 @@ function samePhysicalDeviceValue(left: string | undefined, right: string | undef
   const normalizedLeft = left?.trim().toLowerCase();
   const normalizedRight = right?.trim().toLowerCase();
   return !!normalizedLeft && normalizedLeft === normalizedRight;
+}
+
+function conflictingPhysicalMac(left: string | undefined, right: string | undefined): boolean {
+  const normalizedLeft = left?.trim().toLowerCase();
+  const normalizedRight = right?.trim().toLowerCase();
+  return !!normalizedLeft && !!normalizedRight && normalizedLeft !== normalizedRight;
 }
 
 function mergedLanDeviceSlotValue(

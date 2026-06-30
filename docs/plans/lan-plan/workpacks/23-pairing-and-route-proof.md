@@ -1,95 +1,156 @@
-# 03 Pairing And Route Proof
+# 23 Pairing And Route Proof
 
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `lan-plan`
-> Doc: `03 Pairing And Route Proof`
-> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
-> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
-> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Doc: `23 Pairing And Route Proof`
+> Kind: assigned active workpack; read only when this exact workpack is selected.
+> Read when: Only when this exact workpack is explicitly selected from `WORKPACK_INDEX.md`.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack's own proof rows and tests support the claim.
+> Proves: only this workpack's current route-proof boundary and progress explicitly recorded here.
+> Does not prove: current completion of sibling workpacks or broad LAN readiness.
+> Proof rule: Rewrite or discard any stale historical assumptions before using this file for execution claims.
 
 <!-- /agent-capsule -->
 
-Sources: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md),
-[LAN pairing expectations](../../expectations/lan-pairing.md).
-Assumes WP01 contracts and WP02 SQLite tables exist.
+Sources: [folder README](../README.md), [feature doc](../../../features/family-setup-device-roles.md),
+[LAN pairing expectations](../../../expectations/lan-pairing.md).
+Assumes the earlier Rust-owned contract and state workpacks exist before this
+proof slice claims parity.
+
+## Active scope status
+
+This workpack is part of the authoritative `01-25` LAN execution model. It is
+active and still open.
+
+Historical TS-first household notes, portal-owned recovery assumptions, and
+exact implementation file recipes from older copies of this draft are stale.
+Current direction for this workpack is:
+
+- Rust owns pairing, route-custody, recovery, revocation, audit, stale/offline,
+  and rejection logic.
+- Rust-owned shared schema/protocol boundaries own public command, event,
+  rejection, and read-model shapes.
+- Rust-owned runtime/read-model proof remains authoritative.
+- TS may render Rust-backed state and dispatch typed bridge commands only. TS
+  does not own route semantics, recovery state, audit truth, or proof closure.
 
 ## Where We Are
 
-The V0.9 LAN spine now wires `crates/agent-service` to a service-backed read
-model that consumes LAN slot/parser fixture states for signed discovery, route
-custody, relay/cache unavailable, manual-proof, and parent-decision fields
-(feature doc checklist row `[ ]`). Live B-lane browser proof exists at:
-`output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`.
+The current LAN spine already exposes Rust-owned selected-route, stale/offline,
+revoked, signed-discovery, and audit-oriented state across the LAN read model.
 
-What is **not** proved yet:
+Current verified local proof on 2026-06-28:
 
-- Revocation and recovery flow. Typed `DeviceRevocationState` exists in read model but **parent recovery UX** — the flow that lets a parent re-pair after losing a controller device — has no portal flow, no service command, and no audit event.
-- Stale/offline detection triggers a read-model label but no typed `RecoveryState` (from WP01) is written to SQLite and returned in the household read model.
-- Wrong-device command rejection is implemented in the LAN spine (existing lan-plan work) but the household layer (WP02 new tables) has not integrated the same origin-check path.
-- `SetupAuditEvent` (WP01) is not persisted or returned. The existing LAN audit rows live in the lan-plan proof but are not aggregated into household-level audit history.
+- `cargo test -p ocentra-parent-agent-service lan_pairing -- --nocapture` is
+  green for the current Rust-owned pairing/runtime surface, including
+  selected-route restart recovery, revoke-before-control, stale/offline status,
+  replay or expiry rejection, wrong-origin or wrong-device rejection, selected
+  route command dispatch, and audit continuity.
+- `cargo test -p ocentra-parent-runtime-core
+  lan_agent_command_requested_for_devices_route_forwards_signed_child_observe_payload_and_replay_fields -- --nocapture`,
+  `cargo test -p ocentra-parent-runtime-core
+  lan_scan_action_returns_bounded_error_when_response_times_out -- --nocapture`,
+  and `cargo test -p ocentra-parent-runtime-core
+  product_bridge_actions_return_route_snapshots_without_invented_overlay_data -- --nocapture`
+  are green, so the parent runtime and `/devices` route consume Rust-backed
+  route/rejection truth without UI-side invention.
+- `cargo lint-architecture crates/agent-service/tests/unit/lan_pairing.rs
+  crates/agent-service/tests/unit/lan_pairing_household_device_spine.rs
+  crates/parent-runtime-core/tests/unit/parent_ui_bridge/snapshot_and_dispatch_tests.rs`
+  is green for the touched route-proof test surfaces.
+
+The remaining open work is no longer basic TS wiring. The remaining open proof
+is:
+
+- real two-device route/revoke/re-pair proof across a live household LAN
+- router/firewall/manual topology proof where the real network path matters
+- any broader replay/restart/event-stream artifact set beyond the currently
+  green Rust service/runtime tests
 
 ## Where We Want To Be
 
-Prove that the household pairing and route layer enforces:
+This workpack should eventually prove that the Rust-owned LAN pairing/runtime
+path:
 
-1. Revocation: once revoked, the device rejects all commands until a fresh pairing is issued.
-2. Recovery: parent can initiate a typed `StartRecovery` command that invalidates the old pairing, creates a new `RecoveryState` record, and waits for fresh pairing proof.
-3. Stale/offline: the household read model labels a device as stale after a configurable TTL and does not claim it is reachable.
-4. Wrong-device rejection: commands addressed to device A that arrive at device B's service endpoint are rejected with `WrongDevice` and an audit event.
-5. Audit: every pairing, revocation, recovery, and wrong-device event produces a `SetupAuditEvent` record in the SQLite `setup_audit_events` table.
+1. applies revocation before any later control or recovery intent;
+2. keeps stale/offline/recovery-required state visible without false reachability
+   claims;
+3. rejects wrong-origin, wrong-route, wrong-device, replayed, expired, and
+   anonymous control paths with typed reasons;
+4. preserves audit rows that identify actor, target, route, reason, and
+   outcome; and
+5. carries manual-required boundaries honestly when CI cannot prove the real
+   network topology.
+
+## Ownership boundary
+
+- Rust shared schema/protocol crates own public pairing, route, rejection,
+  recovery, and audit shapes.
+- Rust service/runtime/read-model crates own lease checks, recovery transitions,
+  stale/offline TTL evaluation, rejection handling, persistence, and proof
+  generation.
+- Supporting UI or browser artifacts may show those states, but they consume
+  Rust-backed truth only and must not become the authority for pairing or route
+  behavior.
+- This workpack must not reintroduce TS business logic, TS-owned contracts,
+  portal-owned rejection logic, or documentation that tells future agents to
+  rebuild LAN ownership in presentation code.
 
 ## Scope
 
-- Add `crates/agent-service/src/commands/household_commands.rs`: handlers for `StartRecovery`, `RevokeDevice`, `ConfirmPairing`.
-- In `crates/agent-service/src/db/household.rs` (from WP02): add `setup_audit_events` table; write audit record in every command handler.
-- In `crates/agent-service/src/lan/` (already exists, owned by lan-plan): read the household `controller_leases` table to validate the lease before routing a command — do not duplicate LAN origin-check logic, only add household-layer lease validity check.
-- Add `RecoveryState` insertion in `StartRecovery` handler; read it back in `HouseholdReadModel`.
-- Add stale-TTL logic: if a device's last heartbeat timestamp from the LAN spine is older than `stale_ttl_seconds` (config), set `routeState = "stale"` in the read model response.
-- Rust parity test for `SetupAuditEvent` serde (shape defined in WP01 `crates/agent-protocol/src/household.rs`).
-
-## Touched Paths
-
-- `crates/agent-service/src/commands/household_commands.rs` (new)
-- `crates/agent-service/src/commands/mod.rs` (add `household_commands`)
-- `crates/agent-service/src/db/household.rs` (add `setup_audit_events` table)
-- `crates/agent-service/src/read_models/household_read_model.rs` (add stale-TTL, RecoveryState)
-- `crates/agent-protocol/src/household.rs` (SetupAuditEvent serde tests)
-- `scripts/test/family-setup-pairing-and-route-proof.mjs` (new integration test script)
+- Prove Rust-owned pairing, route-selection, recovery, revoke, and audit
+  behavior against the current LAN runtime/read-model path.
+- Keep this slice focused on route/recovery proof and state honesty.
+- Use typed handoffs when household/setup UI consumes these states later.
+- Do not turn this workpack into a portal implementation recipe or a household
+  feature design packet.
 
 ## Tests And Proof
 
-- [ ] Rust unit test: `RevokeDevice` command sets `DeviceRegistration.trustState = "revoked"` in SQLite and subsequent commands return `DeviceRevoked`.
-- [ ] Rust unit test: `StartRecovery` command inserts a `RecoveryState` row and invalidates the old `ParentControllerLease`.
-- [ ] Rust unit test: stale-TTL logic — simulate heartbeat timestamp 2× stale_ttl in the past; assert read model returns `routeState = "stale"`.
-- [ ] Rust unit test: wrong-device command addressed to device A, handled by device B's service — returns `WrongDevice`; `SetupAuditEvent` written.
-- [ ] Rust unit test: `ConfirmPairing` after `StartRecovery` creates a new valid lease and clears the `RecoveryState`.
-- [ ] `SetupAuditEvent` serde round-trip test in `crates/agent-protocol/src/household.rs`.
-- [ ] Integration test script `scripts/test/family-setup-pairing-and-route-proof.mjs`: start local service, execute revoke → reject → recover → re-pair cycle, assert audit log contains all events, output `output/lan-plan-proof/03-pairing-and-route-proof/03-pairing-cycle-proof.json`.
-- Manual-required: two-device physical LAN proof. CI runs single-machine only. Record manual-required before claiming household multi-device readiness.
+- Real tests must live in organized Rust test groups such as `tests/contract`,
+  `tests/unit`, `tests/integration`, `tests/security`, or
+  `tests/version-skew`, depending on the claimed risk.
+- Route-proof closure must include real negative coverage for anonymous,
+  wrong-origin, wrong-route, wrong-device, replayed, expired, revoked, stale,
+  and offline states where applicable.
+- Restart/rescan persistence proof must show that selected-route, trust, audit,
+  and recovery-required state remain honest after reloads.
+- Audit/read-model proof must show typed route status, typed rejection reason,
+  and typed recovery or manual-required state without UI-side invention.
+- Inline source-owned tests, placeholder directories, `.gitkeep` trees, fake
+  coverage, mock-only readiness, or screenshot-only closure do not count.
+- Supporting UI/browser artifacts may be attached only as presentation evidence
+  for already-proved Rust states; they do not substitute for Rust-owned proof.
+- Proof artifact: `output/lan-plan-proof/23-pairing-and-route-proof/`
+
+Supporting presentation evidence already green for this Rust-backed route truth:
+
+- `$env:OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC='portal-ui.spec.ts'; node
+  scripts/test/portal-playwright-runner.mjs`
+  passes on the current Windows `/devices` path after the Rust-backed route
+  snapshot reaches the portal.
 
 ## AI Worker Checklist
 
-Fill this before reporting `DONE` or PR-ready:
-
-- [ ] Confirm source docs read: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md), [LAN pairing expectations](../../expectations/lan-pairing.md), [current PLAN_STATE](../PLAN_STATE.md), and this workpack.
-- [ ] Confirmed WP01 contracts and WP02 tables exist before adding command handlers.
-- [ ] lan-plan origin-check path inspected: household lease check added without duplicating LAN origin-check logic.
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] `RevokeDevice` test written and passes.
-- [ ] `StartRecovery` and `ConfirmPairing` round-trip test written and passes.
-- [ ] Stale-TTL read model test written and passes.
-- [ ] Wrong-device rejection test written and passes; audit event confirmed in SQLite.
-- [ ] `SetupAuditEvent` serde test in `crates/agent-protocol` passes.
-- [ ] Integration script `family-setup-pairing-and-route-proof.mjs` runs and outputs proof JSON.
-- [ ] Physical two-device LAN proof recorded as manual-required in [main checklist](../implementation-checklist.md).
-- [ ] Proof artifacts saved to `output/lan-plan-proof/03-pairing-and-route-proof/`.
-- [ ] [main checklist](../implementation-checklist.md) rows 03 updated.
+- [ ] Confirm WP23 is the assigned active workpack.
+- [ ] Rewrite any stale TS-owned route/recovery wording still present in this
+      file before code moves.
+- [ ] Confirm the consumed command/event/read-model shapes are Rust-owned before
+      runtime or proof work starts.
+- [ ] Keep route-custody, recovery, rejection, and audit truth in Rust-owned
+      runtime/read-model proof.
+- [ ] Do not let portal/UI wording become the authority for route or recovery
+      state.
+- [ ] All claimed tests live in real organized Rust test folders/groups; no
+      inline source-owned, placeholder, `.gitkeep`, fake, or mock-only test
+      surfaces count.
+- [ ] Manual-required physical topology or second-device gaps remain explicit.
 
 ## Manual-Required Gaps
 
-Physical two-device LAN proof: a parent host and a child host on distinct IP addresses with a real router between them, signed hello/heartbeat, and physical revoke/re-pair cycle. This cannot run in CI. Record as `manual-required` with the following evidence requirement: packet capture log, service log from both hosts, and `03-manual-two-device-pairing-proof.md` in the proof folder.
+Real two-device route/revoke/re-pair proof across a real household LAN remains
+manual-required until an actual artifact set exists. Router/firewall behavior,
+local permission constraints, and second-device signed proof remain outside CI
+closure unless a later proof packet regenerates them honestly.

@@ -19,26 +19,6 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-enforcement-integrity-runtime-audit',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-integrity-alert-status-bridge',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
       'enforcement-supported-adapter-runtime-proof-adapter',
@@ -64,7 +44,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/v0-8-enforcement-integrity-runtime-audit.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-enforcement-integrity-runtime-audit.test.ts',
       tsSupportedAdapterExport: 'packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       tsProtocolAdapterTest:

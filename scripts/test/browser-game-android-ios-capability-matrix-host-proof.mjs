@@ -36,7 +36,7 @@ let selectedSerial = null;
 try {
   await main();
 } finally {
-  if (launchedEmulator && selectedSerial !== null) {
+  if (launchedEmulator && selectedSerial !== undefined) {
     await adb(resolveAndroidTools(), selectedSerial, ['emu', 'kill'], { allowFailure: true });
   }
 }
@@ -201,7 +201,7 @@ function listAvds(tools) {
 
 async function ensureDevice(tools, avd) {
   const existing = await findReadyDevice(tools);
-  if (existing !== null) {
+  if (existing !== undefined) {
     await waitForBoot(tools, existing);
     return existing;
   }
@@ -473,7 +473,7 @@ function buildNegativeChecks(matrix) {
             ? {
                 ...row,
                 capabilityState: 'owned-browser-shell-capable-with-proof',
-                proofState: 'existing-parent-domain-proof-ref',
+                proofState: 'existing-rust-parent-proof-ref',
               }
             : row
         ),

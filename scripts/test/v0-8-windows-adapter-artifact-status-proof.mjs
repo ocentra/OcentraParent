@@ -33,7 +33,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsRuntimeContract: 'packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts',
-      tsRuntimeContractTest: 'packages/enforcement-domain/tests/unit/v0-8-supported-adapter-runtime-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof_tests.rs',
       rustServiceReadModel:

@@ -43,34 +43,3 @@ pub fn portal_peer() -> AgentPeer {
         role: AgentPeerRole::Portal,
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use ocentra_parent_agent_protocol::constants;
-    use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
-    use ocentra_parent_agent_protocol::transport::AgentEventName;
-
-    use crate::{
-        event_builder::{build_event, portal_peer},
-        fields::fields_from_pairs,
-    };
-
-    #[test]
-    fn build_event_targets_portal_peer_without_inline_literals() {
-        let event = build_event(
-            constants::event_id::HEALTH_REPORTED,
-            constants::event_id::HEALTH_REPORTED,
-            portal_peer(),
-            AgentEventName::AgentHealthReported,
-            LogLevel::Info,
-            fields_from_pairs(vec![(
-                constants::field::ONLINE,
-                LogFieldValue::Boolean(true),
-            )]),
-            None,
-        );
-
-        assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
-        assert!(event.payload.contains_key(constants::field::ONLINE));
-    }
-}

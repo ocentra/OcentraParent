@@ -1,15 +1,34 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { INTERNAL_SECRET_HEADER, signatureHeaderName, verifyAuthState } from '../../src/auth/verifier.js';
-import { createTestHarness } from '../../src/testing.js';
+import {
+  ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER,
+  INTERNAL_SECRET_HEADER,
+  UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER,
+  signatureHeaderName,
+  verifyAuthState,
+} from '../../src/auth/verifier.js';
+import type { Env } from '../../src/env.js';
 
 async function readJsonBody(response: Response): Promise<Record<string, unknown>> {
   return JSON.parse(await response.text()) as Record<string, unknown>;
 }
 
+function createAuthTestEnv(overrides: Partial<Env> = {}): Env {
+  return {
+    ENVIRONMENT: 'test',
+    APP_ORIGIN: 'http://localhost:3000',
+    CORS_ALLOWED_ORIGINS: 'http://localhost:3000',
+    REQUEST_MAX_BYTES: '2048',
+    AUTH_ADAPTER_MODE: 'local-safe-fixture',
+    INTERNAL_QUEUE_SHARED_SECRET: 'internal-test-secret',
+    ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-test-ref',
+    ...overrides,
+  };
+}
+
 describe('auth boundary', () => {
   it('accepts public routes without any auth headers', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState('public', new Request('https://cloudflare.local/health'), env);
 
     assert.equal(result.ok, true);
@@ -21,7 +40,7 @@ describe('auth boundary', () => {
   });
 
   it('accepts bearer parent sessions', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'parent-session-required',
       new Request('https://cloudflare.local/auth/billing/status', {
@@ -40,7 +59,7 @@ describe('auth boundary', () => {
   });
 
   it('preserves household subject prefixes for downstream role gating', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'parent-session-required',
       new Request('https://cloudflare.local/auth/billing/checkout', {
@@ -58,7 +77,7 @@ describe('auth boundary', () => {
   });
 
   it('rejects parent-session routes without an authorization header', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'parent-session-required',
       new Request('https://cloudflare.local/auth/billing/status'),
@@ -76,7 +95,7 @@ describe('auth boundary', () => {
   });
 
   it('rejects trusted-device routes without the device header', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'trusted-parent-device-required',
       new Request('https://cloudflare.local/auth/billing/entitlement-snapshot', {
@@ -94,7 +113,7 @@ describe('auth boundary', () => {
   });
 
   it('rejects admin routes that only satisfy parent-session auth', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'admin-required',
       new Request('https://cloudflare.local/admin/billing/refunds', {
@@ -118,7 +137,7 @@ describe('auth boundary', () => {
   });
 
   it('accepts support and admin roles on support-owned routes', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const supportResult = await verifyAuthState(
       'support-required',
       new Request('https://cloudflare.local/admin/billing/accounts', {
@@ -151,7 +170,7 @@ describe('auth boundary', () => {
   });
 
   it('rejects support-owned routes without support or admin authority', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'support-required',
       new Request('https://cloudflare.local/admin/billing/accounts', {
@@ -174,7 +193,7 @@ describe('auth boundary', () => {
   });
 
   it('rejects missing, malformed, and wrong-provider webhook signature headers', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const missingResult = await verifyAuthState(
       'provider-webhook-signature-required',
       new Request('https://cloudflare.local/webhooks/stripe', {
@@ -221,8 +240,118 @@ describe('auth boundary', () => {
     }
   });
 
+  it('marks unresolved account-auth adapter states as manual-required for private parent and role routes', async () => {
+    const env = createAuthTestEnv({
+      AUTH_ADAPTER_MODE: 'account-auth-adapter-manual-required',
+    });
+
+    const parentResult = await verifyAuthState(
+      'parent-session-required',
+      new Request('https://cloudflare.local/auth/billing/status', {
+        headers: {
+          authorization: 'Bearer parent:demo-active',
+        },
+      }),
+      env
+    );
+    const adminResult = await verifyAuthState(
+      'admin-required',
+      new Request('https://cloudflare.local/admin/billing/refunds', {
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer parent:demo-admin',
+          'x-ocentra-role': 'admin',
+        },
+      }),
+      env
+    );
+
+    for (const result of [parentResult, adminResult]) {
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        const body = await readJsonBody(result.response);
+        assert.equal(result.response.status, 503);
+        assert.equal(body.error, 'manual-required');
+        assert.equal(body.blocker, ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER);
+      }
+    }
+  });
+
+  it('treats unknown auth adapter modes as manual-required instead of assuming a provider', async () => {
+    const env = createAuthTestEnv({
+      AUTH_ADAPTER_MODE: 'future-provider-adapter',
+    });
+    const result = await verifyAuthState(
+      'support-required',
+      new Request('https://cloudflare.local/admin/billing/accounts', {
+        headers: {
+          authorization: 'Bearer parent:support-agent',
+          'x-ocentra-role': 'support',
+        },
+      }),
+      env
+    );
+
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      const body = await readJsonBody(result.response);
+      assert.equal(result.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'support-required');
+      assert.equal(body.blocker, UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER);
+    }
+  });
+
+  it('treats unresolved and unknown auth adapter modes as manual-required for provider webhooks too', async () => {
+    const unresolvedEnv = createAuthTestEnv({
+      AUTH_ADAPTER_MODE: 'account-auth-adapter-manual-required',
+    });
+    const futureEnv = createAuthTestEnv({
+      AUTH_ADAPTER_MODE: 'future-provider-adapter',
+    });
+
+    const unresolvedResult = await verifyAuthState(
+      'provider-webhook-signature-required',
+      new Request('https://cloudflare.local/webhooks/stripe', {
+        method: 'POST',
+        headers: {
+          'stripe-signature': `t=1710000000,v1=${'0'.repeat(64)}`,
+        },
+      }),
+      unresolvedEnv
+    );
+    const futureResult = await verifyAuthState(
+      'provider-webhook-signature-required',
+      new Request('https://cloudflare.local/webhooks/stripe', {
+        method: 'POST',
+        headers: {
+          'stripe-signature': `t=1710000000,v1=${'0'.repeat(64)}`,
+        },
+      }),
+      futureEnv
+    );
+
+    assert.equal(unresolvedResult.ok, false);
+    if (!unresolvedResult.ok) {
+      const body = await readJsonBody(unresolvedResult.response);
+      assert.equal(unresolvedResult.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'provider-webhook-signature-required');
+      assert.equal(body.blocker, ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER);
+    }
+
+    assert.equal(futureResult.ok, false);
+    if (!futureResult.ok) {
+      const body = await readJsonBody(futureResult.response);
+      assert.equal(futureResult.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'provider-webhook-signature-required');
+      assert.equal(body.blocker, UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER);
+    }
+  });
+
   it('rejects internal-only routes without the queue signal or with the wrong shared secret', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const missingSignalResult = await verifyAuthState(
       'internal-queue-only',
       new Request('https://cloudflare.local/admin/billing/reconciliation', {
@@ -257,7 +386,7 @@ describe('auth boundary', () => {
   });
 
   it('never silently downgrades stronger auth states to weaker ones', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const supportOnAdminResult = await verifyAuthState(
       'admin-required',
       new Request('https://cloudflare.local/admin/billing/refunds', {
@@ -286,7 +415,7 @@ describe('auth boundary', () => {
   });
 
   it('keeps admin and support rejection payloads support-safe and audit-oriented', async () => {
-    const env = createTestHarness().env;
+    const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'support-required',
       new Request('https://cloudflare.local/admin/billing/accounts', {

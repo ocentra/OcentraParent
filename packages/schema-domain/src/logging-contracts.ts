@@ -1,8 +1,42 @@
+/* thin adapter over Rust-generated logging contracts */
+
 import {
   AgentDeviceIdSchema as EventAgentDeviceIdSchema,
   AgentPlatformSchema as EventAgentPlatformSchema,
 } from './event-primitives';
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
+import {
+  GeneratedDevLogBridge,
+  GeneratedDevLogEndpoint,
+  GeneratedDevLogEnvironment,
+  GeneratedDevLogField,
+  GeneratedDevLogFile,
+  GeneratedDevLogHttp,
+  GeneratedDevLogIdPrefix,
+  GeneratedDevLogMessage,
+  GeneratedLoggerRuntimeDefaults,
+  GeneratedLoggerRuntimeEnvironment,
+  GeneratedLogLevel,
+  type GeneratedLogLevel as GeneratedLogLevelValue,
+  type GeneratedLogMessage,
+  GeneratedLogSource,
+  type GeneratedLogSource as GeneratedLogSourceValue,
+  type GeneratedStackTrace,
+  LoggingContractRuntime,
+  type GeneratedAgentIdentity,
+  type GeneratedAgentLogEntry,
+  type GeneratedAgentLogSnapshot,
+  type GeneratedAgentDeviceId,
+  type GeneratedAgentHostname,
+  type GeneratedAgentPlatform,
+  type GeneratedAgentServiceVersion,
+  type GeneratedDevLogEntry,
+  type GeneratedLogEntryId,
+  type GeneratedLogFieldValue,
+  type GeneratedLogFields,
+  type GeneratedLogSnapshotState,
+  type GeneratedLogTimestamp,
+} from './generated/logging-contracts';
 
 export const AgentDeviceIdSchema = EventAgentDeviceIdSchema;
 export const AgentHostnameSchema = brandedNonEmptyStringSchema('AgentHostname');
@@ -15,15 +49,31 @@ export const StackTraceSchema = Schema.String.pipe(Schema.brand('StackTrace'));
 
 export const LogFieldValueSchema = withParser(Schema.Union(Schema.String, Schema.Number, Schema.Boolean, Schema.Null));
 export const LogFieldsSchema = withParser(Schema.Record({ key: Schema.String, value: LogFieldValueSchema }));
-export const LogLevelSchema = withParser(Schema.Literal('trace', 'debug', 'info', 'warn', 'error'));
+export const LogLevelSchema = withParser(
+  Schema.Literal(
+    GeneratedLogLevel.Trace,
+    GeneratedLogLevel.Debug,
+    GeneratedLogLevel.Info,
+    GeneratedLogLevel.Warn,
+    GeneratedLogLevel.Error
+  )
+);
 export const LogSourceSchema = withParser(
-  Schema.Literal('agent-service', 'dev-server', 'local-api', 'portal', 'codex', 'validation', 'rust-test')
+  Schema.Literal(
+    GeneratedLogSource.AgentService,
+    GeneratedLogSource.DevServer,
+    GeneratedLogSource.LocalApi,
+    GeneratedLogSource.Portal,
+    GeneratedLogSource.Codex,
+    GeneratedLogSource.Validation,
+    GeneratedLogSource.RustTest
+  )
 );
 
 const createLogEntrySchema = () =>
   withParser(
     Schema.Struct({
-      schemaVersion: Schema.Literal(1),
+      schemaVersion: Schema.Literal(LoggingContractRuntime.SchemaVersion),
       id: LogEntryIdSchema,
       timestamp: LogTimestampSchema,
       level: LogLevelSchema,
@@ -45,29 +95,30 @@ export const AgentIdentitySchema = withParser(
 export const AgentLogEntrySchema = createLogEntrySchema();
 export const AgentLogSnapshotSchema = withParser(
   Schema.Struct({
-    schemaVersion: Schema.Literal(1),
+    schemaVersion: Schema.Literal(LoggingContractRuntime.SchemaVersion),
     agent: AgentIdentitySchema,
     entries: Schema.Array(AgentLogEntrySchema),
   })
 );
 export const DevLogEntrySchema = createLogEntrySchema();
 
-export type LogFieldValue = Infer<typeof LogFieldValueSchema>;
-export type LogFields = Infer<typeof LogFieldsSchema>;
-export type LogLevel = Infer<typeof LogLevelSchema>;
-export type LogSource = Infer<typeof LogSourceSchema>;
-export type AgentDeviceId = typeof AgentDeviceIdSchema.Type;
-export type AgentHostname = typeof AgentHostnameSchema.Type;
-export type AgentPlatform = typeof AgentPlatformSchema.Type;
-export type AgentServiceVersion = typeof AgentServiceVersionSchema.Type;
-export type LogEntryId = typeof LogEntryIdSchema.Type;
-export type LogTimestamp = typeof LogTimestampSchema.Type;
-export type LogMessage = typeof LogMessageSchema.Type;
-export type StackTrace = typeof StackTraceSchema.Type;
-export type AgentIdentity = Infer<typeof AgentIdentitySchema>;
-export type AgentLogEntry = Infer<typeof AgentLogEntrySchema>;
-export type AgentLogSnapshot = Infer<typeof AgentLogSnapshotSchema>;
-export type DevLogEntry = Infer<typeof DevLogEntrySchema>;
+export type LogFieldValue = Infer<typeof LogFieldValueSchema> & GeneratedLogFieldValue;
+export type LogFields = Infer<typeof LogFieldsSchema> & GeneratedLogFields;
+export type LogLevel = Infer<typeof LogLevelSchema> & GeneratedLogLevelValue;
+export type LogSource = Infer<typeof LogSourceSchema> & GeneratedLogSourceValue;
+export type AgentDeviceId = typeof AgentDeviceIdSchema.Type & GeneratedAgentDeviceId;
+export type AgentHostname = typeof AgentHostnameSchema.Type & GeneratedAgentHostname;
+export type AgentPlatform = typeof AgentPlatformSchema.Type & GeneratedAgentPlatform;
+export type AgentServiceVersion = typeof AgentServiceVersionSchema.Type & GeneratedAgentServiceVersion;
+export type LogEntryId = typeof LogEntryIdSchema.Type & GeneratedLogEntryId;
+export type LogTimestamp = typeof LogTimestampSchema.Type & GeneratedLogTimestamp;
+export type LogMessage = typeof LogMessageSchema.Type & GeneratedLogMessage;
+export type StackTrace = typeof StackTraceSchema.Type & GeneratedStackTrace;
+export type AgentIdentity = Infer<typeof AgentIdentitySchema> & GeneratedAgentIdentity;
+export type AgentLogEntry = Infer<typeof AgentLogEntrySchema> & GeneratedAgentLogEntry;
+export type AgentLogSnapshot = Infer<typeof AgentLogSnapshotSchema> & GeneratedAgentLogSnapshot;
+export type DevLogEntry = Infer<typeof DevLogEntrySchema> & GeneratedDevLogEntry;
+export type LogSnapshotState = string & GeneratedLogSnapshotState;
 
 export const decodeLogEntryId = Schema.decodeUnknownSync(LogEntryIdSchema);
 export const decodeLogMessage = Schema.decodeUnknownSync(LogMessageSchema);
@@ -75,79 +126,36 @@ export const decodeLogTimestamp = Schema.decodeUnknownSync(LogTimestampSchema);
 export const decodeStackTrace = Schema.decodeUnknownSync(StackTraceSchema);
 
 export const LogLevel = {
-  Trace: LogLevelSchema.parse('trace'),
-  Debug: LogLevelSchema.parse('debug'),
-  Info: LogLevelSchema.parse('info'),
-  Warn: LogLevelSchema.parse('warn'),
-  Error: LogLevelSchema.parse('error'),
+  Trace: LogLevelSchema.parse(GeneratedLogLevel.Trace),
+  Debug: LogLevelSchema.parse(GeneratedLogLevel.Debug),
+  Info: LogLevelSchema.parse(GeneratedLogLevel.Info),
+  Warn: LogLevelSchema.parse(GeneratedLogLevel.Warn),
+  Error: LogLevelSchema.parse(GeneratedLogLevel.Error),
 } as const;
 
 export const LogSource = {
-  AgentService: LogSourceSchema.parse('agent-service'),
-  DevServer: LogSourceSchema.parse('dev-server'),
-  LocalApi: LogSourceSchema.parse('local-api'),
-  Portal: LogSourceSchema.parse('portal'),
-  Codex: LogSourceSchema.parse('codex'),
-  Validation: LogSourceSchema.parse('validation'),
-  RustTest: LogSourceSchema.parse('rust-test'),
+  AgentService: LogSourceSchema.parse(GeneratedLogSource.AgentService),
+  DevServer: LogSourceSchema.parse(GeneratedLogSource.DevServer),
+  LocalApi: LogSourceSchema.parse(GeneratedLogSource.LocalApi),
+  Portal: LogSourceSchema.parse(GeneratedLogSource.Portal),
+  Codex: LogSourceSchema.parse(GeneratedLogSource.Codex),
+  Validation: LogSourceSchema.parse(GeneratedLogSource.Validation),
+  RustTest: LogSourceSchema.parse(GeneratedLogSource.RustTest),
 } as const;
 
-export const LoggerRuntimeEnvironment = {
-  RunId: 'OCENTRA_PARENT_LOG_RUN_ID',
-  TestName: 'OCENTRA_PARENT_LOG_TEST_NAME',
-  Scope: 'OCENTRA_PARENT_LOG_SCOPE',
-  RunType: 'OCENTRA_PARENT_LOG_RUN_TYPE',
-  SuiteType: 'OCENTRA_PARENT_LOG_SUITE_TYPE',
-  Origin: 'OCENTRA_PARENT_LOG_ORIGIN',
-  Environment: 'OCENTRA_PARENT_LOG_ENVIRONMENT',
-} as const;
-
-export const LoggerRuntimeDefaults = {
-  GeneratedRunIdPrefix: 'parent-log-run-',
-  TestName: 'parent-runtime-logger',
-  UnknownModule: 'UnknownModule',
-  ModuleContextSuffix: 'module',
-} as const;
-
-export const DevLogEndpoint = { Write: '/__ocentra-parent-dev-log' } as const;
-export const DevLogHttp = {
-  MethodPost: 'POST',
-  HeaderContentType: 'Content-Type',
-  ContentTypeJson: 'application/json',
-  CredentialsSameOrigin: 'same-origin',
-} as const;
-export const DevLogEnvironment = { Directory: 'OCENTRA_PARENT_DEV_LOG_DIR' } as const;
-export const DevLogBridge = {
-  DefaultUrl: 'http://127.0.0.1:4479',
-  EnvironmentUrl: 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL',
-  GlobalUrlKey: '__OCENTRA_PARENT_LOG_BRIDGE_URL',
-  PortalContext: 'portal-dev-observability',
-  PortalEnvironment: 'dev',
-  PortalTestName: 'portal-dev-runtime',
-} as const;
-export const DevLogFile = {
-  DirectoryName: 'dev',
-  Extension: 'ndjson',
-  AgentServicePrefix: 'agent-service',
-  PortalPrefix: 'portal',
-  DevServerPrefix: 'dev-server',
-} as const;
-export const DevLogField = {
-  AgentWebSocketUrl: 'agentWebSocketUrl',
-  Command: 'command',
-  ConnectionState: 'connectionState',
-  Event: 'event',
-  EventsBuffered: 'eventsBuffered',
-  Port: 'port',
-} as const;
-export const DevLogIdPrefix = {
-  Portal: 'portal-log-',
-  DevServer: 'dev-server-log-',
-} as const;
+export const LoggerRuntimeEnvironment = GeneratedLoggerRuntimeEnvironment;
+export const LoggerRuntimeDefaults = GeneratedLoggerRuntimeDefaults;
+export const DevLogEndpoint = GeneratedDevLogEndpoint;
+export const DevLogHttp = GeneratedDevLogHttp;
+export const DevLogEnvironment = GeneratedDevLogEnvironment;
+export const DevLogBridge = GeneratedDevLogBridge;
+export const DevLogFile = GeneratedDevLogFile;
+export const DevLogField = GeneratedDevLogField;
+export const DevLogIdPrefix = GeneratedDevLogIdPrefix;
 export const DevLogMessage = {
-  PortalStarted: decodeLogMessage('Portal dev runtime started.'),
-  PortalCommandSent: decodeLogMessage('Portal command sent.'),
-  PortalEventReceived: decodeLogMessage('Portal WebSocket event received.'),
-  PortalResultCopied: decodeLogMessage('Portal command result copied.'),
-  DevServerStarted: decodeLogMessage('Vite dev server started.'),
+  PortalStarted: decodeLogMessage(GeneratedDevLogMessage.PortalStarted),
+  PortalCommandSent: decodeLogMessage(GeneratedDevLogMessage.PortalCommandSent),
+  PortalEventReceived: decodeLogMessage(GeneratedDevLogMessage.PortalEventReceived),
+  PortalResultCopied: decodeLogMessage(GeneratedDevLogMessage.PortalResultCopied),
+  DevServerStarted: decodeLogMessage(GeneratedDevLogMessage.DevServerStarted),
 } as const;

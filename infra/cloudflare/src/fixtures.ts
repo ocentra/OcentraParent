@@ -686,6 +686,7 @@ function billingStatusAccountStatusForRuntime(
     case 'manual-review':
       return 'manual-review';
   }
+  throw new Error('unsupported runtime account status');
 }
 
 function billingStatusParentVisibleStateForRuntime(
@@ -703,6 +704,7 @@ function billingStatusParentVisibleStateForRuntime(
     case 'manual-review':
       return 'manual-review';
   }
+  throw new Error('unsupported runtime parent visible state');
 }
 
 function billingAccountRuntimeStatusRowForFixture(

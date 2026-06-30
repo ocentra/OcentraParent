@@ -50,6 +50,15 @@ export const ParentDesktopReleaseSupportRejectionReasonSchema = withParser(
 export const ParentDesktopReleaseSupportUpdateChannelSchema = withParser(
   Schema.Literal('scaffold', 'unsigned-preview', 'signature-required', 'production')
 );
+export const ParentDesktopReleaseSupportAvailabilityStateSchema = withParser(
+  Schema.Literal('available', 'unavailable', 'manual-required')
+);
+export const ParentDesktopReleaseSupportVerificationStateSchema = withParser(
+  Schema.Literal('verified', 'unavailable', 'manual-required')
+);
+export const ParentDesktopReleaseSupportNegativeEvidenceStateSchema = withParser(
+  Schema.Literal('recorded', 'missing', 'manual-required')
+);
 export const ParentDesktopReleaseSupportSigningSurfaceSchema = withParser(
   Schema.Literal('windows-code-signing', 'macos-notarization', 'google-play', 'testflight', 'app-store')
 );
@@ -124,9 +133,15 @@ export const ParentDesktopReleaseSupportPackageRuntimeEvidenceSchema = withParse
 export const ParentDesktopReleaseSupportUpdateStateSchema = withParser(
   Schema.Struct({
     channel: ParentDesktopReleaseSupportUpdateChannelSchema,
+    updateAvailabilityState: ParentDesktopReleaseSupportAvailabilityStateSchema,
     packageState: ParentDesktopReleaseSupportStateSchema,
+    checksumState: ParentDesktopReleaseSupportVerificationStateSchema,
+    signatureState: ParentDesktopReleaseSupportVerificationStateSchema,
     signingState: ParentDesktopReleaseSupportStateSchema,
     rollbackState: ParentDesktopReleaseSupportStateSchema,
+    rollbackAvailabilityState: ParentDesktopReleaseSupportAvailabilityStateSchema,
+    teardownEvidenceState: ParentDesktopReleaseSupportNegativeEvidenceStateSchema,
+    revertEvidenceState: ParentDesktopReleaseSupportNegativeEvidenceStateSchema,
     productionPromotionState: ParentDesktopReleaseSupportStateSchema,
     proofRequirement: ReleaseSupportRequirementSchema,
   })
@@ -216,6 +231,7 @@ const ParentDesktopReleaseSupportRunbookSectionSchema = withParser(
   Schema.Literal(
     'rollback-triage',
     'rollback-failure-status',
+    'teardown-revert-evidence',
     'diagnostics-redaction',
     'manual-platform-proof',
     'support-escalation-boundary'
@@ -225,7 +241,13 @@ const ParentDesktopReleaseSupportRunbookSectionSchema = withParser(
 const ParentDesktopReleaseSupportUpdaterRollbackRowSchema = withParser(
   Schema.Struct({
     channel: ParentDesktopReleaseSupportUpdateChannelSchema,
+    updateAvailabilityState: ParentDesktopReleaseSupportAvailabilityStateSchema,
+    checksumState: ParentDesktopReleaseSupportVerificationStateSchema,
+    signatureState: ParentDesktopReleaseSupportVerificationStateSchema,
     rollbackState: ParentDesktopReleaseSupportStateSchema,
+    rollbackAvailabilityState: ParentDesktopReleaseSupportAvailabilityStateSchema,
+    teardownEvidenceState: ParentDesktopReleaseSupportNegativeEvidenceStateSchema,
+    revertEvidenceState: ParentDesktopReleaseSupportNegativeEvidenceStateSchema,
     failureStatusState: ParentDesktopReleaseSupportStateSchema,
     manualRequiredState: ParentDesktopReleaseSupportStateSchema,
     proofRequirement: ReleaseSupportRequirementSchema,
@@ -309,6 +331,15 @@ export type ParentDesktopReleaseSupportMobileBridgeBoundary = Infer<
   typeof ParentDesktopReleaseSupportMobileBridgeBoundarySchema
 >;
 export type ParentDesktopReleaseSupportUpdateState = Infer<typeof ParentDesktopReleaseSupportUpdateStateSchema>;
+export type ParentDesktopReleaseSupportAvailabilityState = Infer<
+  typeof ParentDesktopReleaseSupportAvailabilityStateSchema
+>;
+export type ParentDesktopReleaseSupportVerificationState = Infer<
+  typeof ParentDesktopReleaseSupportVerificationStateSchema
+>;
+export type ParentDesktopReleaseSupportNegativeEvidenceState = Infer<
+  typeof ParentDesktopReleaseSupportNegativeEvidenceStateSchema
+>;
 export type ParentDesktopReleaseSupportSigningStoreState = Infer<
   typeof ParentDesktopReleaseSupportSigningStoreStateSchema
 >;

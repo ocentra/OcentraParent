@@ -79,4 +79,83 @@ fn browser_runtime_payloads_serialize_without_fixture_devices() {
         add_device_json[constants::field::LAN_ROUTE_ID],
         serde_json::json!(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK)
     );
+    assert_eq!(
+        add_device_json[constants::field::LAN_CHILD_DEVICE_ID],
+        serde_json::json!(constants::lan_pairing::CHILD_DEVICE_ID)
+    );
+    assert_eq!(
+        add_device_json[constants::field::LAN_PARENT_DEVICE_ID],
+        serde_json::json!(constants::lan_pairing::PARENT_DEVICE_ID)
+    );
+    assert_eq!(
+        add_device_json["issuedAt"],
+        serde_json::json!(constants::lan_pairing::ISSUED_AT)
+    );
+    assert_eq!(
+        add_device_json["expiresAt"],
+        serde_json::json!(constants::lan_pairing::EXPIRES_AT)
+    );
+}
+
+#[test]
+fn browser_runtime_payloads_reject_missing_required_fields() {
+    let scan_error = result_error_or_unreachable(
+        serde_json::from_value::<LanBrowserDiscoveryScanRequest>(serde_json::json!({
+            "schemaVersion": LAN_PAIRING_SCHEMA_VERSION
+        })),
+        "scan payload must reject missing required fields",
+    );
+    let add_device_error = result_error_or_unreachable(
+        serde_json::from_value::<LanBrowserAddDeviceRequest>(serde_json::json!({
+            "schemaVersion": LAN_PAIRING_SCHEMA_VERSION,
+            "childDeviceId": constants::lan_pairing::CHILD_DEVICE_ID
+        })),
+        "add-device payload must require all required fields",
+    );
+    let add_device_missing_route_error = result_error_or_unreachable(
+        serde_json::from_value::<LanBrowserAddDeviceRequest>(serde_json::json!({
+            "schemaVersion": LAN_PAIRING_SCHEMA_VERSION,
+            "childDeviceId": constants::lan_pairing::CHILD_DEVICE_ID,
+            "parentDeviceId": constants::lan_pairing::PARENT_DEVICE_ID,
+            "origin": constants::lan_pairing::ALLOWED_ORIGIN,
+            "issuedAt": constants::lan_pairing::ISSUED_AT,
+            "expiresAt": constants::lan_pairing::EXPIRES_AT
+        })),
+        "add-device payload must require a route id",
+    );
+    let add_device_missing_origin_error = result_error_or_unreachable(
+        serde_json::from_value::<LanBrowserAddDeviceRequest>(serde_json::json!({
+            "schemaVersion": LAN_PAIRING_SCHEMA_VERSION,
+            "childDeviceId": constants::lan_pairing::CHILD_DEVICE_ID,
+            "parentDeviceId": constants::lan_pairing::PARENT_DEVICE_ID,
+            "routeId": constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+            "issuedAt": constants::lan_pairing::ISSUED_AT,
+            "expiresAt": constants::lan_pairing::EXPIRES_AT
+        })),
+        "add-device payload must require an origin",
+    );
+
+    assert_eq!(scan_error.classify(), serde_json::error::Category::Data);
+    assert_eq!(
+        add_device_error.classify(),
+        serde_json::error::Category::Data
+    );
+    assert_eq!(
+        add_device_missing_route_error.classify(),
+        serde_json::error::Category::Data
+    );
+    assert_eq!(
+        add_device_missing_origin_error.classify(),
+        serde_json::error::Category::Data
+    );
+}
+
+fn result_error_or_unreachable<T>(
+    result: serde_json::Result<T>,
+    context: &str,
+) -> serde_json::Error {
+    match result {
+        Ok(_) => unreachable!("{context}"),
+        Err(error) => error,
+    }
 }

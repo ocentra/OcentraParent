@@ -5,10 +5,14 @@ use ocentra_child_enforcement_core::enforcement_action::{
 use ocentra_child_runtime::runtime_gate as ocentra_child_runtime;
 use ocentra_entitlement_core::entitlement_access::{
     EntitlementCapability, EntitlementCapabilityInput, EntitlementCapabilityRejectionReason,
-    EntitlementCapabilityScope, EntitlementDeviceTrustRequirementState,
-    EntitlementDeviceTrustState, EntitlementPackageBuildState, EntitlementPolicyState,
-    EntitlementSnapshotBindingState, EntitlementSnapshotContext, EntitlementSnapshotFreshnessState,
-    EntitlementSnapshotSignatureState, FamilySetupState, OfflineGraceState, SubscriptionState,
+    EntitlementCapabilityScope, EntitlementPolicyState, FamilySetupState, OfflineGraceState,
+    SubscriptionState,
+};
+use ocentra_entitlement_core::entitlement_snapshot::EntitlementSnapshotContext;
+use ocentra_entitlement_core::entitlement_snapshot_values::{
+    EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState,
+    EntitlementPackageBuildState, EntitlementSnapshotBindingState,
+    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
 };
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::family_identity::{

@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel } from './app-install-purchase-runtime-writer-execution-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseRuntimeReportWriterDeliveryRowGenerated,
+  runtimeReportWriterDeliveryProofIsHonestGenerated,
+  runtimeReportWriterDeliveryRowIsHonestGenerated,
+  summarizeAppInstallPurchaseRuntimeReportWriterDeliveryProofGenerated,
+} from './generated/app-install-purchase-delivery-runtime-helpers';
 const RuntimeReportWriterDeliveryProofVersion = 'app-install-purchase-runtime-report-writer-delivery-proof';
 const SourceRuntimeWriterExecutionDeliveryProofVersion = 'app-install-purchase-runtime-writer-execution-delivery-proof';
 const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';
@@ -156,145 +162,45 @@ export const AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel =
 export function summarizeAppInstallPurchaseRuntimeReportWriterDeliveryProof(
   proof: AppInstallPurchaseRuntimeReportWriterDeliveryProof
 ) {
-  return {
-    runtimeReportWriterDeliveryRows: proof.runtimeReportWriterDeliveryRows.length,
-    reportDeliveryReadyRows: proof.runtimeReportWriterDeliveryRows.filter(
-      (row) => row.runtimeReportWriterDeliveryState === 'report-delivery-ready'
-    ).length,
-    reportReceiptRows: proof.runtimeReportWriterDeliveryRows.filter(
-      (row) => row.runtimeReportWriterReceiptState === 'parent-owned-report-receipt-recorded'
-    ).length,
-    manualRequiredRows: proof.runtimeReportWriterDeliveryRows.filter(
-      (row) => row.runtimeReportWriterDeliveryState === 'manual-required'
-    ).length,
-    externallyDeliveredRows: proof.runtimeReportWriterDeliveryRows.filter(
-      (row) => row.runtimeReportDeliveryClaim !== 'not-delivered'
-    ).length,
-    portalUiRows: proof.runtimeReportWriterDeliveryRows.filter((row) => row.portalReportUiClaim !== 'not-claimed')
-      .length,
-  } as const;
+  return summarizeAppInstallPurchaseRuntimeReportWriterDeliveryProofGenerated(proof);
 }
 
 function runtimeReportWriterDeliveryRow(
   row: (typeof AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.runtimeWriterExecutionDeliveryRows)[number]
 ) {
-  const manual = row.sourceDecisionAction === 'review-needed';
   const reportRows = AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows;
-  return {
-    schemaVersion: RuntimeReportWriterDeliveryProofVersion,
-    runtimeReportWriterDeliveryRowId: `runtime-report-writer-delivery-${row.sourceDecisionAction}`,
-    sourceRuntimeWriterExecutionDeliveryProofVersion: SourceRuntimeWriterExecutionDeliveryProofVersion,
-    sourceRuntimeWriterExecutionDeliveryRowId: row.runtimeWriterExecutionDeliveryRowId,
-    sourceReportRuntimeProofVersion: SourceReportRuntimeProofVersion,
-    sourceReportRuntimeRowIds: reportRows.map((reportRow: (typeof reportRows)[number]) => reportRow.reportRuntimeRowId),
-    sourceDecisionAction: row.sourceDecisionAction,
-    runtimeReportWriterDeliveryState: manual ? 'manual-required' : 'report-delivery-ready',
-    runtimeReportWriterReceiptState: manual ? 'manual-required' : 'parent-owned-report-receipt-recorded',
-    runtimeReportWriterOutputRef: `parent-owned-runtime-report-output-${row.sourceDecisionAction}`,
-    runtimeReportWriterReceiptRef: `parent-owned-runtime-report-receipt-${row.sourceDecisionAction}`,
-    reportCompilerOutputRefs: uniqueRefs(
-      reportRows.map((reportRow: (typeof reportRows)[number]) => reportRow.outputReportRef)
-    ),
-    runtimeWriterReceiptRef: row.deliveryResultReceiptRef,
-    runtimeWriterAuditEventRefs: row.deliveryResultAuditEventRefs,
-    parentActionAuditEventRefs: row.parentActionAuditEventRefs,
-    reportAuditEventRefs: reportRows.map((reportRow: (typeof reportRows)[number]) => reportRow.sourceReportRef),
-    providerApiExecutionClaim: row.providerApiExecutionClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    platformInterceptionClaim: row.platformInterceptionClaim,
-    platformAdapterClaim: row.platformAdapterClaim,
-    childDeviceDeliveryClaim: row.childDeviceDeliveryClaim,
-    runtimeReportDeliveryClaim: row.runtimeReportDeliveryClaim,
-    portalReportUiClaim: 'not-claimed',
-    appBlockingClaim: row.appBlockingClaim,
-    childDataCustody: row.childDataCustody,
-    ocentraHostedFamilyDataCustodyClaim: row.ocentraHostedFamilyDataCustodyClaim,
-    claimBoundary: RuntimeReportWriterDeliveryBoundary,
-    recordedAt: RuntimeReportWriterDeliveryTimestamp,
-  } as const;
-}
-
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
+  return buildAppInstallPurchaseRuntimeReportWriterDeliveryRowGenerated(
+    row,
+    reportRows,
+    SourceRuntimeWriterExecutionDeliveryProofVersion,
+    SourceReportRuntimeProofVersion,
+    RuntimeReportWriterDeliveryBoundary,
+    RuntimeReportWriterDeliveryTimestamp
+  );
 }
 
 function runtimeReportWriterDeliveryRowIsHonest(row: RuntimeReportWriterDeliveryRowCandidate): boolean {
-  return (
-    runtimeReportWriterDeliveryMatchesAction(row) &&
-    runtimeReportWriterDeliveryRefsAreComplete(row) &&
-    runtimeReportWriterDeliveryClaimsStayBounded(row) &&
-    runtimeReportWriterDeliveryBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function runtimeReportWriterDeliveryMatchesAction(row: RuntimeReportWriterDeliveryRowCandidate): boolean {
-  if (row.sourceDecisionAction === 'review-needed') {
-    return (
-      row.runtimeReportWriterDeliveryState === 'manual-required' &&
-      row.runtimeReportWriterReceiptState === 'manual-required'
-    );
-  }
-  return (
-    row.runtimeReportWriterDeliveryState === 'report-delivery-ready' &&
-    row.runtimeReportWriterReceiptState === 'parent-owned-report-receipt-recorded'
-  );
-}
-
-function runtimeReportWriterDeliveryRefsAreComplete(row: RuntimeReportWriterDeliveryRowCandidate): boolean {
-  return (
-    row.sourceRuntimeWriterExecutionDeliveryProofVersion === SourceRuntimeWriterExecutionDeliveryProofVersion &&
-    row.sourceRuntimeWriterExecutionDeliveryRowId.length > 0 &&
-    row.sourceReportRuntimeProofVersion === SourceReportRuntimeProofVersion &&
-    row.sourceReportRuntimeRowIds.length === AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows.length &&
-    row.runtimeReportWriterOutputRef.length > 0 &&
-    row.runtimeReportWriterReceiptRef.length > 0 &&
-    row.reportCompilerOutputRefs.length > 0 &&
-    row.runtimeWriterReceiptRef.length > 0 &&
-    row.runtimeWriterAuditEventRefs.length > 0 &&
-    row.parentActionAuditEventRefs.length > 0 &&
-    row.reportAuditEventRefs.length > 0
-  );
-}
-
-function runtimeReportWriterDeliveryClaimsStayBounded(row: RuntimeReportWriterDeliveryRowCandidate): boolean {
-  return (
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformInterceptionClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.portalReportUiClaim === 'not-claimed' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return runtimeReportWriterDeliveryRowIsHonestGenerated(
+    row,
+    SourceRuntimeWriterExecutionDeliveryProofVersion,
+    SourceReportRuntimeProofVersion,
+    AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows.length,
+    RuntimeReportWriterDeliveryBoundaryFragments
   );
 }
 
 function runtimeReportWriterDeliveryProofIsHonest(proof: AppInstallPurchaseRuntimeReportWriterDeliveryProof): boolean {
-  const actions = new Set(proof.runtimeReportWriterDeliveryRows.map((row) => row.sourceDecisionAction));
-  const deliveryStates = new Set(
-    proof.runtimeReportWriterDeliveryRows.map((row) => row.runtimeReportWriterDeliveryState)
-  );
-  const receiptStates = new Set(
-    proof.runtimeReportWriterDeliveryRows.map((row) => row.runtimeReportWriterReceiptState)
-  );
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourceRuntimeWriterExecutionDeliveryProofVersion === SourceRuntimeWriterExecutionDeliveryProofVersion &&
-    proof.sourceReportRuntimeProofVersion === SourceReportRuntimeProofVersion &&
-    proof.runtimeReportWriterDeliveryRows.length === RuntimeReportWriterDeliveryActions.length &&
-    RuntimeReportWriterDeliveryActions.every((action) => actions.has(action)) &&
-    RuntimeReportWriterDeliveryStates.every((state) => deliveryStates.has(state)) &&
-    RuntimeReportWriterReceiptStates.every((state) => receiptStates.has(state)) &&
-    RuntimeReportWriterDeliveryNonClaims.every((claim) => nonClaims.has(claim)) &&
+    runtimeReportWriterDeliveryProofIsHonestGenerated(
+      proof,
+      SourceRuntimeWriterExecutionDeliveryProofVersion,
+      SourceReportRuntimeProofVersion,
+      RuntimeReportWriterDeliveryActions,
+      RuntimeReportWriterDeliveryStates,
+      RuntimeReportWriterReceiptStates,
+      RuntimeReportWriterDeliveryNonClaims
+    ) &&
     proof.runtimeReportWriterDeliveryRows.every(runtimeReportWriterDeliveryRowIsHonest) &&
     proof.knownGaps.length > 0
   );
-}
-
-function runtimeReportWriterDeliveryBoundaryIsExplicit(
-  boundary: typeof RuntimeReportWriterDeliveryBoundarySchema.Type
-): boolean {
-  return RuntimeReportWriterDeliveryBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }

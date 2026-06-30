@@ -1,5 +1,13 @@
 import { PolicyAction } from './policy';
 import {
+  generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate,
+  generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary,
+  generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest,
+  generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState,
+  generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily,
+  generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof,
+} from './generated/policy-control-helpers';
+import {
   AppGamePolicyCompilerEvidenceState,
   AppGamePolicyCompilerProofKind,
   AppGamePolicyCompilerRequestedAction,
@@ -71,58 +79,20 @@ type CategoryRiskPolicyRouteLike = {
   readonly aiDigestRef: unknown;
 };
 
-const GameContextTargetKinds = [
-  AppGamePolicyTargetKind.MultiplayerGame,
-  AppGamePolicyTargetKind.UgcGame,
-  AppGamePolicyTargetKind.PurchaseCapableGame,
-  AppGamePolicyTargetKind.MatureGame,
-] as const;
-
-const RequestedActionByCandidateAction = {
-  [AppGameCategoryRiskPolicyCandidateAction.Observe]: AppGamePolicyCompilerRequestedAction.Observe,
-  [AppGameCategoryRiskPolicyCandidateAction.Warn]: AppGamePolicyCompilerRequestedAction.Warn,
-  [AppGameCategoryRiskPolicyCandidateAction.AskParent]: AppGamePolicyCompilerRequestedAction.AskParent,
-  [AppGameCategoryRiskPolicyCandidateAction.ManualReview]: AppGamePolicyCompilerRequestedAction.ManualRequired,
-} as const;
-
-const PolicyActionByCandidateAction = {
-  [AppGameCategoryRiskPolicyCandidateAction.Observe]: PolicyAction.Unknown,
-  [AppGameCategoryRiskPolicyCandidateAction.Warn]: PolicyAction.Warn,
-  [AppGameCategoryRiskPolicyCandidateAction.AskParent]: PolicyAction.AskParent,
-  [AppGameCategoryRiskPolicyCandidateAction.ManualReview]: PolicyAction.AskParent,
-} as const;
-
-export const appGameCategoryRiskPolicyRouteTargetMatchesFamily = (route: CategoryRiskPolicyRouteLike) => {
-  switch (route.routeFamily) {
-    case AppGameCategoryRiskPolicyRouteFamily.NativeApp:
-      return route.targetKind === AppGamePolicyTargetKind.AppCategory;
-    case AppGameCategoryRiskPolicyRouteFamily.RiskCandidate:
-      return route.targetKind === AppGamePolicyTargetKind.RiskApp;
-    case AppGameCategoryRiskPolicyRouteFamily.NativeGame:
-      return route.targetKind === AppGamePolicyTargetKind.GameCategory;
-    case AppGameCategoryRiskPolicyRouteFamily.GameContext:
-      return GameContextTargetKinds.some((targetKind) => targetKind === route.targetKind);
-  }
-};
+export const appGameCategoryRiskPolicyRouteTargetMatchesFamily = (route: CategoryRiskPolicyRouteLike) =>
+  generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily(route);
 
 export const appGameCategoryRiskPolicyRouteUsesCategoryProof = (route: CategoryRiskPolicyRouteLike) =>
-  route.categoryProof.proofKind === AppGamePolicyCompilerProofKind.Category &&
-  route.categoryProof.evidenceState === AppGamePolicyCompilerEvidenceState.Active &&
-  route.supportingEvidence.length > 0;
+  generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof(route);
 
 export const appGameCategoryRiskPolicyRouteActionMatchesCandidate = (route: CategoryRiskPolicyRouteLike) =>
-  route.requestedAction === RequestedActionByCandidateAction[route.candidateAction] &&
-  route.policyAction === PolicyActionByCandidateAction[route.candidateAction];
+  generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate(route);
 
 export const appGameCategoryRiskPolicyRouteKeepsSoftBoundary = (route: CategoryRiskPolicyRouteLike) =>
-  route.requestedAction === AppGamePolicyCompilerRequestedAction.Observe ||
-  route.requestedAction === AppGamePolicyCompilerRequestedAction.Warn ||
-  route.requestedAction === AppGamePolicyCompilerRequestedAction.AskParent ||
-  route.requestedAction === AppGamePolicyCompilerRequestedAction.ManualRequired;
+  generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary(route);
 
 export const appGameCategoryRiskPolicyRouteManualReviewRequiresManualState = (route: CategoryRiskPolicyRouteLike) =>
-  route.candidateAction !== AppGameCategoryRiskPolicyCandidateAction.ManualReview ||
-  route.routingState === AppGameCategoryRiskPolicyRoutingState.ManualRequired;
+  generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState(route);
 
 export const appGameCategoryRiskPolicyRouteLocalAiRequiresDigest = (route: CategoryRiskPolicyRouteLike) =>
-  route.sourceKind !== AppGameCategoryRiskPolicyRouteSourceKind.LocalAi || route.aiDigestRef !== null;
+  generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest(route);

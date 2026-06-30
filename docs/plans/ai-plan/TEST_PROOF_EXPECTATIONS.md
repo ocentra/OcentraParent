@@ -29,8 +29,11 @@ Use the subset relevant to the selected workpack:
 
 ```bash
 # Canonical shared AI schema and encoded-shape contract scope
+cargo test -p ocentra-schema
+cargo lint-architecture crates/schema
+
+# Transitional TypeScript validation edge only when the selected workpack still touches it
 npm run build --workspace @ocentra-parent/schema-domain
-npm run test --workspace @ocentra-parent/schema-domain -- ai
 npm run type-check --workspace @ocentra-parent/schema-domain
 
 # AI helper/projection scope
@@ -58,8 +61,9 @@ Run through `npm run agent:run --` when collecting proof if the logging/evidence
 
 ## Command ownership notes
 
-- `packages/schema-domain` owns canonical AI context, runtime, primitive, reference, model artifact, memory, graph, prompt, provider, and result shapes when they cross packages/crates/apps/plans.
-- `packages/ai-domain` proves helper/projection behavior only. It must not re-own canonical shared AI contracts that belong in `schema-domain`.
+- `crates/schema` owns canonical AI context, runtime, primitive, reference, model artifact, memory, graph, prompt, provider, result, and bridge DTO shapes when they cross packages/crates/apps/plans.
+- `packages/schema-domain` is transitional only. Use it when a temporary generated-validation or edge-decoder surface still exists and changes.
+- `packages/ai-domain` proves helper/projection behavior only. It must not re-own canonical shared AI contracts that belong in `crates/schema` or the owning Rust crate.
 - `crates/child-ai-core` proves child-local AI runtime/evaluator behavior only when runtime work is selected.
 - `crates/screen-ai-core` proves screen AI worker/router behavior only when screen AI work is selected.
 - `crates/agent-protocol` and `crates/agent-service` are protocol/service proof only when wire or service behavior is selected.
@@ -71,7 +75,7 @@ Run through `npm run agent:run --` when collecting proof if the logging/evidence
 Do not use one proof family to claim the whole AI product path. For this plan, E2E has separate meanings:
 
 ```text
-contract E2E: schema-domain AI shape -> ai-domain helper/projection -> TypeScript tests.
+contract E2E: Rust-owned AI shape -> generated DTO or temporary edge decoder -> ai-domain helper/projection -> TypeScript tests.
 Rust parity E2E: canonical AI shape/protocol expectation -> child-ai-core or screen-ai-core behavior -> Rust tests.
 context-builder E2E: stored evidence refs + parent rules + runtime refs + memory/graph refs -> validated AI context build result.
 provider/runtime E2E: AI job request -> provider selection/lease/result -> child-agent validation -> accepted or rejected AI result.

@@ -1,21 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { StoredTestLogLineSchema, type StoredTestLogLine } from '@ocentra-parent/schema-domain/test-log/types';
-import { ensureDirectory, getRunNdjsonFilePath } from './ndjsonPaths';
+import { ensureDirectory, getDefaultLogRoot } from './ndjsonPaths';
+import { groupGeneratedTestLogEntriesByFilePath, splitGeneratedNdjsonContent } from '../generated/local-test-log';
 
 export function appendTestLogEntries(entries: readonly StoredTestLogLine[], rootDir?: string): string[] {
-  const grouped = new Map<string, StoredTestLogLine[]>();
-
-  for (const rawEntry of entries) {
-    const entry = StoredTestLogLineSchema.parse(rawEntry);
-    const filePath = getRunNdjsonFilePath(entry.scope, entry.runType, entry.runId, entry.suiteType, rootDir);
-    const existing = grouped.get(filePath);
-    if (existing == null) {
-      grouped.set(filePath, [entry]);
-      continue;
-    }
-    existing.push(entry);
-  }
+  const normalizedEntries = entries.map((rawEntry) => StoredTestLogLineSchema.parse(rawEntry));
+  const grouped = groupGeneratedTestLogEntriesByFilePath(normalizedEntries, rootDir ?? getDefaultLogRoot());
 
   for (const [filePath, fileEntries] of grouped.entries()) {
     ensureDirectory(path.dirname(filePath));
@@ -36,8 +27,5 @@ export function readTestLogEntriesFromFile(filePath: string): StoredTestLogLine[
     return [];
   }
 
-  return content
-    .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0)
-    .map((line) => StoredTestLogLineSchema.parse(JSON.parse(line) as unknown));
+  return splitGeneratedNdjsonContent(content).map((line) => StoredTestLogLineSchema.parse(JSON.parse(line) as unknown));
 }

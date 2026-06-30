@@ -286,7 +286,7 @@ const auditedWorkpacks = workpacks.map((workpack) => {
   };
 });
 const missingReadinessProofs = auditedWorkpacks.filter(
-  (workpack) => workpack.readinessProof !== null && workpack.readinessProofPresent !== true
+  (workpack) => workpack.readinessProof !== undefined && workpack.readinessProofPresent !== true
 );
 const productBlockedWorkpacks = auditedWorkpacks.filter((workpack) => workpack.productReady === false);
 const remainingProductGates = auditedWorkpacks.filter(

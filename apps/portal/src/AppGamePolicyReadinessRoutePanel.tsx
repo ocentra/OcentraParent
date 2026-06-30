@@ -1,34 +1,41 @@
 import type { ReactElement } from 'react';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import {
-  createAppGamePolicyReadinessPanelIntent,
-  type AppGamePolicyReadinessPanelDetail,
-  type AppGamePolicyReadinessPanelIntent,
-  type AppGamePolicyReadinessPanelRow,
-} from '@ocentra-parent/portal-domain/app-game-policy-readiness-panel';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
+import {
+  isParentAppGameParentSurfaceRoute,
+  type ParentAppGamePanelDetailSnapshot,
+  type ParentAppGamePanelRowSnapshot,
+  type ParentAppGamePanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
 
-type AppGamePolicyReadinessRouteReadModelResult = Parameters<typeof createAppGamePolicyReadinessPanelIntent>[0];
+const EmptyPolicyReadinessPanel: ParentAppGamePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'App/game policy readiness',
+  body: 'Rust has not reported an app/game policy readiness panel yet.',
+  loadState: 'unavailable',
+  summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Policy readiness has not been reported yet.' }],
+  rows: [],
+  emptyMessage: 'No app/game policy readiness panel has been reported yet.',
+  productClaim: 'Approval workflow, category routing, and adapter dispatch remain unclaimed.',
+};
 
-export function shouldRenderAppGamePolicyReadinessRoute(route: PortalRouteValue): boolean {
-  return isPortalAppGameParentSurfaceRoute(route);
+export function shouldRenderAppGamePolicyReadinessRoute(route: ParentRouteId): boolean {
+  return isParentAppGameParentSurfaceRoute(route);
 }
 
 export function AppGamePolicyReadinessRoutePanel({
   actions,
   commandEnabled,
-  readModelResult,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AppGamePolicyReadinessRouteReadModelResult;
+  readonly panel: ParentAppGamePanelSnapshot | null;
 }): ReactElement {
-  const intent = createAppGamePolicyReadinessPanelIntent(readModelResult);
+  const resolvedPanel = panel ?? EmptyPolicyReadinessPanel;
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.AppGamePolicyReadiness)}
@@ -36,9 +43,9 @@ export function AppGamePolicyReadinessRoutePanel({
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
@@ -53,11 +60,11 @@ export function AppGamePolicyReadinessRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGamePolicyReadinessSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <AppGamePolicyReadinessEmptyCard intent={intent} />
+          <AppGamePolicyReadinessSummaryCard panel={resolvedPanel} />
+          {resolvedPanel.rows.length === 0 ? (
+            <AppGamePolicyReadinessEmptyCard panel={resolvedPanel} />
           ) : (
-            intent.rows.map((row, index) => (
+            resolvedPanel.rows.map((row, index) => (
               <AppGamePolicyReadinessRowCard key={`${String(row.title)}:${index}`} row={row} />
             ))
           )}
@@ -67,47 +74,32 @@ export function AppGamePolicyReadinessRoutePanel({
   );
 }
 
-function AppGamePolicyReadinessSummaryCard({
-  intent,
-}: {
-  readonly intent: AppGamePolicyReadinessPanelIntent;
-}): ReactElement {
+function AppGamePolicyReadinessSummaryCard({ panel }: { readonly panel: ParentAppGamePanelSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
       <h2>{PortalDetails.PolicyReadiness}</h2>
-      <AppGamePolicyReadinessDetails details={intent.summaryDetails} />
+      <AppGamePolicyReadinessDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function AppGamePolicyReadinessEmptyCard({
-  intent,
-}: {
-  readonly intent: AppGamePolicyReadinessPanelIntent;
-}): ReactElement {
+function AppGamePolicyReadinessEmptyCard({ panel }: { readonly panel: ParentAppGamePanelSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
-      <h2>{intent.loadState}</h2>
-      <p>{intent.emptyMessage}</p>
-      <AppGamePolicyReadinessDetails
-        details={[
-          {
-            label: PortalDetails.ProductClaim,
-            value: intent.productClaim,
-          },
-        ]}
-      />
+      <h2>{panel.loadState}</h2>
+      <p>{panel.emptyMessage}</p>
+      <AppGamePolicyReadinessDetails details={[{ label: PortalDetails.ProductClaim, value: panel.productClaim }]} />
     </article>
   );
 }
 
-function AppGamePolicyReadinessRowCard({ row }: { readonly row: AppGamePolicyReadinessPanelRow }): ReactElement {
+function AppGamePolicyReadinessRowCard({ row }: { readonly row: ParentAppGamePanelRowSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
@@ -122,7 +114,7 @@ function AppGamePolicyReadinessRowCard({ row }: { readonly row: AppGamePolicyRea
 function AppGamePolicyReadinessDetails({
   details,
 }: {
-  readonly details: readonly AppGamePolicyReadinessPanelDetail[];
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
@@ -141,8 +133,8 @@ function AppGamePolicyReadinessDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>

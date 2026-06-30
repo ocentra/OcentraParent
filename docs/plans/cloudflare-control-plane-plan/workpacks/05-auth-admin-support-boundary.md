@@ -36,7 +36,7 @@ Define the auth-state model and adapter interface for parent, admin, support, we
 - Scoped validation: `npm --prefix infra/cloudflare run test:unit`
 - Scoped validation: `npm --prefix infra/cloudflare run test:security`
 - Scoped validation: `npm --prefix infra/cloudflare run test:integration`
-- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/auth`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/auth/verifier.ts infra/cloudflare/tests/unit/auth-boundary.test.ts infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts`
 
 ## Negative cases
 
@@ -46,3 +46,31 @@ Define the auth-state model and adapter interface for parent, admin, support, we
 ## Failure conditions
 
 - Do not hardcode the account provider before the account plan decides it.
+
+## Execution truth
+
+Status: `blocked / proof-present`.
+
+Implemented packet:
+
+- `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/tests/unit/auth-boundary.test.ts`
+- `infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts`
+
+Focused outcome:
+
+- Webhook auth now treats unresolved and unknown auth-adapter modes as `manual-required` instead of falling through to provider-signature evaluation.
+- Unit auth coverage now proves the same `manual-required` boundary for provider webhooks.
+- Integration webhook rejection coverage now proves the same `manual-required` boundary at the Worker request surface.
+
+External blocker:
+
+- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` are all blocked by the same external missing import:
+  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+  - imported from `infra/cloudflare/src/index.ts`
+- This blocker is outside the WP05 owner surface, so WP05 is not green; it is proof-present with an exact carried dependency blocker.
+
+Proof root:
+
+- `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
+- validation log: `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/16-validation-commands.log`

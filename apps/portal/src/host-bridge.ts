@@ -1,40 +1,31 @@
-import { PortalDevToolWindow } from '@ocentra-parent/portal-domain/routes';
-import type {
-  HostBridge,
-  ParentBridgeConnectionState,
-  ParentPortalRowSnapshot,
-  ParentRouteDataSource,
-  ParentRouteId,
-  ParentRouteSnapshot,
-  ParentSubscriptionEvent,
-  ParentUiAction,
-  ParentUiActionResult,
-} from './generated/parent-ui-bridge';
+import {
+  ParentBridgeCommand,
+  type ParentBridgeCommandName,
+  ParentDevBridgeRoute,
+  type ParentDevBridgeRouteName,
+  ParentHostBridgeRuntime,
+  type HostBridge,
+  type ParentDevBridgeUrl,
+  type ParentRouteContext,
+  type ParentRouteSnapshot,
+  type ParentRouteSubscriptionEventName,
+  type ParentRouteSubscriptionId,
+  type ParentSubscriptionEvent,
+  type ParentUiActionResult,
+  parentDevBridgeDispatchUnavailableMessage,
+  parentDevBridgeHttpError,
+  parentRouteSubscriptionEventName,
+  presentationOnlyDevWebHostBridgeMessage,
+} from '../generated/parent-ui-bridge';
+import type { ParentRouteId, ParentUnknownRecord } from '../generated/parent-ui-bridge';
 
-const DEV_DIAGNOSTIC_ROUTES = new Set<ParentRouteId>([
-  'diagnostics',
-  'proof-panels',
-  'commands',
-  'events',
-  'logs',
-  'app-layout',
-]);
-
-const PARENT_BRIDGE_COMMAND = {
-  LoadRoute: 'parent_load_route',
-  Dispatch: 'parent_dispatch',
-  Subscribe: 'parent_subscribe_route',
-  Unsubscribe: 'parent_unsubscribe_route',
-} as const;
-const PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX = 'parent-route-subscription-';
-
-type ParentBridgeCommandName = (typeof PARENT_BRIDGE_COMMAND)[keyof typeof PARENT_BRIDGE_COMMAND];
 type TauriCoreModule = {
-  invoke<TResult>(command: ParentBridgeCommandName, args?: Record<string, unknown>): Promise<TResult>;
+  invoke<TResult>(command: ParentBridgeCommandName, args?: ParentUnknownRecord): Promise<TResult>;
 };
+
 type TauriEventModule = {
   listen<TPayload>(
-    event: string,
+    event: ParentRouteSubscriptionEventName,
     handler: (event: { payload: TPayload }) => void
   ): Promise<() => void>;
 };
@@ -49,19 +40,22 @@ export function createHostBridge(): HostBridge {
 function createTauriHostBridge(): HostBridge {
   return {
     loadRoute(route, context) {
-      return invokeParentBridgeCommand<ParentRouteSnapshot>(PARENT_BRIDGE_COMMAND.LoadRoute, {
+      return invokeParentBridgeCommand<ParentRouteSnapshot>(ParentBridgeCommand.LoadRoute, {
         route,
         context: context ?? null,
       });
     },
     dispatch(action) {
-      return invokeParentBridgeCommand<ParentUiActionResult>(PARENT_BRIDGE_COMMAND.Dispatch, { action });
+      return invokeParentBridgeCommand<ParentUiActionResult>(ParentBridgeCommand.Dispatch, { action });
     },
     async subscribe(route, context, onEvent) {
-      const subscriptionId = await invokeParentBridgeCommand<string>(PARENT_BRIDGE_COMMAND.Subscribe, {
-        route,
-        context: context ?? null,
-      });
+      const subscriptionId = await invokeParentBridgeCommand<ParentRouteSubscriptionId>(
+        ParentBridgeCommand.Subscribe,
+        {
+          route,
+          context: context ?? null,
+        }
+      );
       const tauriEvent = await loadTauriEventModule();
       const unlisten = await tauriEvent.listen<ParentSubscriptionEvent>(
         parentRouteSubscriptionEventName(subscriptionId),
@@ -71,7 +65,7 @@ function createTauriHostBridge(): HostBridge {
       );
       return () => {
         unlisten();
-        void invokeParentBridgeCommand<boolean>(PARENT_BRIDGE_COMMAND.Unsubscribe, {
+        void invokeParentBridgeCommand<boolean>(ParentBridgeCommand.Unsubscribe, {
           subscriptionId,
         });
       };
@@ -79,143 +73,132 @@ function createTauriHostBridge(): HostBridge {
   };
 }
 
-function createDevWebHostBridge(): HostBridge {
+export function createDevWebHostBridge(parentDevBridgeUrl = resolveParentDevBridgeUrl()): HostBridge {
+  if (parentDevBridgeUrl === null) {
+    return createUnavailableDevWebHostBridge();
+  }
+
+  const loadSnapshot = async (
+    route: ParentRouteId,
+    context?: ParentRouteContext
+  ): Promise<ParentRouteSnapshot> => {
+    return invokeParentDevBridgeCommandOrThrow<ParentRouteSnapshot>(
+      parentDevBridgeUrl,
+      ParentDevBridgeRoute.LoadRoute,
+      {
+        route,
+        context: context ?? null,
+      }
+    );
+  };
+
   return {
-    async loadRoute(route) {
-      return createDevSnapshot(route);
+    async loadRoute(route, context) {
+      return loadSnapshot(route, context);
     },
     async dispatch(action) {
-      return {
-        schemaVersion: 1,
-        accepted: false,
-        connectionState: 'disconnected',
-        message: 'Dev web host bridge is presentation-only. Launch the Tauri app for product data and actions.',
-        snapshot: createDevSnapshot(action.route),
-      };
+      return invokeParentDevBridgeCommandOrThrow<ParentUiActionResult>(
+        parentDevBridgeUrl,
+        ParentDevBridgeRoute.Dispatch,
+        {
+          action,
+        }
+      );
     },
-    async subscribe(route, _context, onEvent) {
-      const snapshot = createDevSnapshot(route);
-      queueMicrotask(() => {
+    async subscribe(route, context, onEvent) {
+      let active = true;
+      let lastSnapshotJson = JSON.stringify(null);
+
+      const emitNextSnapshot = async (): Promise<void> => {
+        if (!active) {
+          return;
+        }
+        let snapshot: ParentRouteSnapshot;
+        try {
+          snapshot = await loadSnapshot(route, context);
+        } catch {
+          return;
+        }
+        const snapshotJson = JSON.stringify(snapshot);
+        if (snapshotJson === lastSnapshotJson) {
+          return;
+        }
+        lastSnapshotJson = snapshotJson;
         onEvent({
-          schemaVersion: 1,
+          schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
           route,
           snapshot,
         });
-      });
-      return () => undefined;
+      };
+
+      void emitNextSnapshot();
+      const intervalId = globalThis.setInterval(() => {
+        void emitNextSnapshot();
+      }, ParentHostBridgeRuntime.DevRouteSubscriptionPollMs);
+
+      return () => {
+        active = false;
+        globalThis.clearInterval(intervalId);
+      };
     },
   };
 }
 
-function createDevSnapshot(route: ParentRouteId): ParentRouteSnapshot {
-  const dataSource = devDataSource(route);
-  const routeCapability = dataSource === 'dev-diagnostics' ? 'available' : 'unavailable';
-
+function createUnavailableDevWebHostBridge(): HostBridge {
+  const message = presentationOnlyDevWebHostBridgeMessage();
+  const unavailable = async <T>(): Promise<T> => Promise.reject(new Error(message));
   return {
-    schemaVersion: 1,
-    route,
-    generatedAt: '',
-    seasonLabel: 'LOCAL',
-    lastUpdated: '',
-    connectionState: 'disconnected',
-    commandEnabled: false,
-    agentEndpoint: 'host-bridge://dev-web',
-    dataSource,
-    summary: {
-      title: routeTitle(route),
-      routeCapability,
-      parentAccess: 'proof-missing',
-      household: 'unavailable',
-      childDevice: 'unavailable',
+    async loadRoute() {
+      return unavailable();
     },
-    diagnosticPanelsEnabled: DEV_DIAGNOSTIC_ROUTES.has(route),
-    parentPortalRows: devPortalRows(dataSource),
-    parentPortalShellStatus: {
-      routeLabel: routeTitle(route),
-      parentAccessState: 'proof-missing',
-      globalConnectionState: 'disconnected',
-      routeCapabilityState: routeCapability,
-      dataSourceLabel: dataSource,
-      cards: [
-        {
-          id: 'ui-bridge',
-          label: 'UI bridge',
-          value: 'connected',
-          detail: 'The TSX shell is running without a Tauri host.',
-          tone: 'cyan',
-        },
-        {
-          id: 'product-runtime',
-          label: 'Product runtime',
-          value: 'manual-required',
-          detail: 'Launch the desktop app to load Rust-owned route snapshots.',
-          tone: 'gold',
-        },
-        {
-          id: 'route-capability',
-          label: 'Route capability',
-          value: routeCapability,
-          detail: dataSource === 'dev-diagnostics' ? 'Diagnostics chrome only.' : 'No product read model is attached.',
-          tone: dataSource === 'dev-diagnostics' ? 'muted' : 'red',
-        },
-      ],
+    async dispatch() {
+      return unavailable();
     },
-    liveActivity: null,
-    browserPanels: null,
-    screenSettingsServiceResponse: null,
+    async subscribe() {
+      return unavailable();
+    },
   };
 }
 
-function devPortalRows(dataSource: ParentRouteDataSource): readonly ParentPortalRowSnapshot[] {
-  const routeCapability = dataSource === 'dev-diagnostics' ? 'available' : 'unavailable';
-  return [
+async function invokeParentDevBridgeCommand<TResult>(
+  parentDevBridgeUrl: ParentDevBridgeUrl,
+  route: ParentDevBridgeRouteName,
+  payload: ParentUnknownRecord
+): Promise<TResult> {
+  const response = await fetch(
+    `${trimTrailingSlash(parentDevBridgeUrl)}${ParentHostBridgeRuntime.UrlPathSeparator}${route}`,
     {
-      label: 'UI bridge',
-      order: 1,
-      signalScore: 100,
-      readyCount: 1,
-      gapCount: 0,
-      primaryArea: 'Bridge',
-      trend: 'connected',
-      tone: 'cyan',
-    },
-    {
-      label: 'Product runtime',
-      order: 2,
-      signalScore: 0,
-      readyCount: 0,
-      gapCount: 1,
-      primaryArea: 'Runtime',
-      trend: 'manual-required',
-      tone: 'gold',
-    },
-    {
-      label: 'Route capability',
-      order: 3,
-      signalScore: routeCapability === 'available' ? 100 : 0,
-      readyCount: routeCapability === 'available' ? 1 : 0,
-      gapCount: routeCapability === 'available' ? 0 : 1,
-      primaryArea: 'Route',
-      trend: routeCapability,
-      tone: routeCapability === 'available' ? 'muted' : 'red',
-    },
-  ];
+      method: ParentHostBridgeRuntime.PostMethod,
+      headers: {
+        [ParentHostBridgeRuntime.JsonContentTypeHeader]: ParentHostBridgeRuntime.JsonContentType,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+  if (!response.ok) {
+    throw new Error(parentDevBridgeHttpError(route, response.status));
+  }
+  return (await response.json()) as TResult;
 }
 
-function devDataSource(route: ParentRouteId): ParentRouteDataSource {
-  return DEV_DIAGNOSTIC_ROUTES.has(route) ? 'dev-diagnostics' : 'unavailable';
-}
-
-function routeTitle(route: ParentRouteId): string {
-  return route
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
+async function invokeParentDevBridgeCommandOrThrow<TResult>(
+  parentDevBridgeUrl: ParentDevBridgeUrl,
+  route: ParentDevBridgeRouteName,
+  payload: ParentUnknownRecord
+): Promise<TResult> {
+  try {
+    return await invokeParentDevBridgeCommand<TResult>(parentDevBridgeUrl, route, payload);
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('parent dev bridge ')) {
+      throw error;
+    }
+    throw new Error(parentDevBridgeDispatchUnavailableMessage(parentDevBridgeUrl));
+  }
 }
 
 async function invokeParentBridgeCommand<TResult>(
   command: ParentBridgeCommandName,
-  args: Record<string, unknown>
+  args: ParentUnknownRecord
 ): Promise<TResult> {
   const tauriCore = await loadTauriCoreModule();
   return tauriCore.invoke<TResult>(command, args);
@@ -223,22 +206,31 @@ async function invokeParentBridgeCommand<TResult>(
 
 function loadTauriCoreModule(): Promise<TauriCoreModule> {
   if (tauriCoreModulePromise === null) {
-    tauriCoreModulePromise = import('@tauri-apps/api/core') as Promise<TauriCoreModule>;
+    tauriCoreModulePromise = import(ParentHostBridgeRuntime.TauriCoreModule) as Promise<TauriCoreModule>;
   }
   return tauriCoreModulePromise;
 }
 
 function loadTauriEventModule(): Promise<TauriEventModule> {
   if (tauriEventModulePromise === null) {
-    tauriEventModulePromise = import('@tauri-apps/api/event') as Promise<TauriEventModule>;
+    tauriEventModulePromise = import(ParentHostBridgeRuntime.TauriEventModule) as Promise<TauriEventModule>;
   }
   return tauriEventModulePromise;
 }
 
-function parentRouteSubscriptionEventName(subscriptionId: string): string {
-  return `${PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX}${subscriptionId}`;
+function resolveParentDevBridgeUrl(): ParentDevBridgeUrl | null {
+  const value = import.meta.env[ParentHostBridgeRuntime.DevBridgeUrlEnvKey];
+  return typeof value === ParentHostBridgeRuntime.StringType && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
+
+function trimTrailingSlash(value: ParentDevBridgeUrl): ParentDevBridgeUrl {
+  return value.endsWith(ParentHostBridgeRuntime.UrlPathSeparator)
+    ? value.slice(0, -1)
+    : value;
 }
 
 function isTauriRuntime(): boolean {
-  return typeof window !== 'undefined' && PortalDevToolWindow.TauriInternalKey in window;
+  return typeof window !== ParentHostBridgeRuntime.TypeofUndefined && ParentHostBridgeRuntime.TauriInternalWindowKey in window;
 }

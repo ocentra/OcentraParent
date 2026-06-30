@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel } from './app-install-purchase-product-claim-platform-limitation-fallback-proof';
 import { AppInstallPurchaseProductClaimProviderStoreProofReadModel } from './app-install-purchase-product-claim-provider-store-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseProviderStoreApiExecutionRowGenerated,
+  providerStoreApiExecutionProofIsHonestGenerated,
+  providerStoreApiExecutionRowIsHonestGenerated,
+  summarizeAppInstallPurchaseProviderStoreApiExecutionProofGenerated,
+} from './generated/app-install-purchase-platform-provider-helpers';
 
 const ProofVersion = 'app-install-purchase-provider-store-api-execution-proof';
 const SourceProviderStoreProofVersion = 'app-install-purchase-product-claim-provider-store-proof';
@@ -201,85 +207,19 @@ export const AppInstallPurchaseProviderStoreApiExecutionProofReadModel =
 export function summarizeAppInstallPurchaseProviderStoreApiExecutionProof(
   proof: AppInstallPurchaseProviderStoreApiExecutionProof
 ) {
-  return {
-    providerStoreApiExecutionRows: proof.providerStoreApiExecutionRows.length,
-    executionReadyRows: proof.providerStoreApiExecutionRows.filter(
-      (row) => row.providerStoreApiExecutionState === 'execution-ready'
-    ).length,
-    manualRequiredRows: proof.providerStoreApiExecutionRows.filter(
-      (row) => row.providerStoreApiExecutionState === 'manual-required'
-    ).length,
-    unavailableRows: proof.providerStoreApiExecutionRows.filter(
-      (row) => row.providerStoreApiExecutionState === 'unavailable'
-    ).length,
-    blockedBeforeClaimRows: proof.providerStoreApiExecutionRows.filter(
-      (row) => row.providerStoreApiExecutionState === 'blocked-before-claim'
-    ).length,
-    providerExecutedRows: proof.providerStoreApiExecutionRows.filter(
-      (row) => row.providerApiExecutionClaim !== 'not-executed'
-    ).length,
-    productClaimApprovedRows: proof.providerStoreApiExecutionRows.filter(
-      (row) => row.productClaimApprovalClaim !== 'not-claimed'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseProviderStoreApiExecutionProofGenerated(proof);
 }
 
 function providerStoreApiExecutionRow(
   providerStoreRow: (typeof AppInstallPurchaseProductClaimProviderStoreProofReadModel.providerStoreProductClaimRows)[number]
 ) {
   const fallbackRow = matchingPlatformLimitationFallbackRow(providerStoreRow.platform, providerStoreRow.storeSurface);
-  return {
-    schemaVersion: ProofVersion,
-    providerStoreApiExecutionRowId: `app-install-provider-store-api-execution-${providerStoreRow.platform}-${providerStoreRow.storeSurface}`,
-    sourceProviderStoreProofVersion: SourceProviderStoreProofVersion,
-    sourceProviderStoreRowId: providerStoreRow.providerStoreProductClaimRowId,
-    sourceProviderStoreProductClaimState: providerStoreRow.providerStoreProductClaimState,
-    sourceProviderStorePreflightState: providerStoreRow.sourceProviderStorePreflightState,
-    sourcePlatformLimitationFallbackProofVersion: SourcePlatformLimitationFallbackProofVersion,
-    sourcePlatformLimitationFallbackRowId: fallbackRow.platformLimitationFallbackRowId,
-    sourcePlatformLimitationFallbackState: fallbackRow.fallbackState,
-    platform: providerStoreRow.platform,
-    storeSurface: providerStoreRow.storeSurface,
-    providerStoreApiExecutionState: providerStoreApiExecutionState(providerStoreRow, fallbackRow),
-    providerApiExecutionEvidenceRefs: providerStoreRow.requiredProviderStoreExecutionRefs,
-    providerCredentialRequirementRefs: providerStoreRow.requiredProviderEvidenceRefs,
-    fallbackParentWorkflowRefs: fallbackRow.fallbackParentWorkflowRefs,
-    manualPlatformEvidenceRefs: fallbackRow.requiredManualPlatformEvidenceRefs,
-    requiredPortalTestRefs: uniqueRefs([
-      ...providerStoreRow.requiredPortalTestRefs,
-      ...fallbackRow.requiredPortalTestRefs,
-    ]),
-    requiredChildDeliveryRefs: uniqueRefs([
-      ...providerStoreRow.requiredChildDeliveryRefs,
-      ...fallbackRow.requiredChildDeliveryRefs,
-    ]),
-    requiredPlatformAdapterRefs: uniqueRefs([
-      ...providerStoreRow.requiredPlatformAdapterRefs,
-      ...fallbackRow.requiredPlatformAdapterRefs,
-    ]),
-    blockerRefs: uniqueRefs([...fallbackRow.limitationRefs, ...fallbackRow.requiredProviderStoreExecutionRefs]),
-    auditEventRefs: uniqueRefs([...providerStoreRow.auditEventRefs, ...fallbackRow.auditEventRefs]),
-    reportRuntimeRefs: uniqueRefs([...providerStoreRow.reportRuntimeRefs, ...fallbackRow.reportRuntimeRefs]),
-    productClaimApprovalClaim: 'not-claimed',
-    googlePlayExecutionClaim: 'not-executed',
-    appleAppStoreExecutionClaim: 'not-executed',
-    microsoftStoreExecutionClaim: 'not-executed',
-    billingProviderContactClaim: 'not-executed',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformInterceptionClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    childDeviceDeliveryClaim: 'not-delivered',
-    runtimeWriterDeliveryClaim: 'not-delivered',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    portalApprovalUiClaim: 'not-claimed',
-    portalReportUiClaim: 'not-claimed',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: Boundary,
-    evaluatedAt: UpdatedAt,
-  } as const;
+  return buildAppInstallPurchaseProviderStoreApiExecutionRowGenerated(
+    providerStoreRow,
+    fallbackRow,
+    Boundary,
+    UpdatedAt
+  );
 }
 
 function matchingPlatformLimitationFallbackRow(platform: string, storeSurface: string) {
@@ -293,128 +233,25 @@ function matchingPlatformLimitationFallbackRow(platform: string, storeSurface: s
   return row;
 }
 
-function providerStoreApiExecutionState(
-  providerStoreRow: (typeof AppInstallPurchaseProductClaimProviderStoreProofReadModel.providerStoreProductClaimRows)[number],
-  fallbackRow: (typeof AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel.platformLimitationFallbackRows)[number]
-): (typeof ProviderStoreApiExecutionStates)[number] {
-  if (providerStoreRow.sourceProviderStorePreflightState === 'provider-unavailable') {
-    return 'unavailable';
-  }
-  if (fallbackRow.fallbackState === 'unsupported-platform-limitation-fallback-blocked') {
-    return 'blocked-before-claim';
-  }
-  if (
-    providerStoreRow.providerStoreProductClaimState === 'provider-store-proof-required' &&
-    fallbackRow.fallbackState === 'fallback-parent-workflow-ready'
-  ) {
-    return 'execution-ready';
-  }
-  return 'manual-required';
-}
-
 function providerStoreApiExecutionRowIsHonest(row: ProviderStoreApiExecutionRowCandidate): boolean {
   return (
     row.sourceProviderStoreProofVersion === SourceProviderStoreProofVersion &&
     row.sourcePlatformLimitationFallbackProofVersion === SourcePlatformLimitationFallbackProofVersion &&
-    providerStoreApiExecutionStateMatchesSources(row) &&
-    providerStoreApiExecutionRefsAreComplete(row) &&
-    providerStoreApiExecutionClaimsStayUnimplemented(row) &&
-    BoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
-  );
-}
-
-function providerStoreApiExecutionStateMatchesSources(row: ProviderStoreApiExecutionRowCandidate): boolean {
-  if (row.sourceProviderStorePreflightState === 'provider-unavailable') {
-    return row.providerStoreApiExecutionState === 'unavailable';
-  }
-  if (row.sourcePlatformLimitationFallbackState === 'unsupported-platform-limitation-fallback-blocked') {
-    return row.providerStoreApiExecutionState === 'blocked-before-claim';
-  }
-  if (
-    row.sourceProviderStoreProductClaimState === 'provider-store-proof-required' &&
-    row.sourcePlatformLimitationFallbackState === 'fallback-parent-workflow-ready'
-  ) {
-    return row.providerStoreApiExecutionState === 'execution-ready';
-  }
-  return row.providerStoreApiExecutionState === 'manual-required';
-}
-
-function providerStoreApiExecutionRefsAreComplete(row: ProviderStoreApiExecutionRowCandidate): boolean {
-  return (
-    row.sourceProviderStoreRowId.length > 0 &&
-    row.sourcePlatformLimitationFallbackRowId.length > 0 &&
-    row.providerApiExecutionEvidenceRefs.length > 0 &&
-    row.providerCredentialRequirementRefs.length > 0 &&
-    row.fallbackParentWorkflowRefs.length > 0 &&
-    row.manualPlatformEvidenceRefs.length > 0 &&
-    row.requiredPortalTestRefs.length > 0 &&
-    row.requiredChildDeliveryRefs.length > 0 &&
-    row.requiredPlatformAdapterRefs.length > 0 &&
-    row.blockerRefs.length > 0 &&
-    row.auditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function providerStoreApiExecutionClaimsStayUnimplemented(row: ProviderStoreApiExecutionRowCandidate): boolean {
-  return (
-    providerStoreApiExecutionProviderClaimsStayUnimplemented(row) &&
-    providerStoreApiExecutionPlatformClaimsStayUnimplemented(row) &&
-    providerStoreApiExecutionDeliveryClaimsStayUnimplemented(row) &&
-    providerStoreApiExecutionPortalAndCustodyClaimsStayUnimplemented(row)
-  );
-}
-
-function providerStoreApiExecutionProviderClaimsStayUnimplemented(row: ProviderStoreApiExecutionRowCandidate): boolean {
-  return (
-    row.productClaimApprovalClaim === 'not-claimed' &&
-    row.googlePlayExecutionClaim === 'not-executed' &&
-    row.appleAppStoreExecutionClaim === 'not-executed' &&
-    row.microsoftStoreExecutionClaim === 'not-executed' &&
-    row.billingProviderContactClaim === 'not-executed' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed'
-  );
-}
-
-function providerStoreApiExecutionPlatformClaimsStayUnimplemented(row: ProviderStoreApiExecutionRowCandidate): boolean {
-  return row.platformInterceptionClaim === 'not-claimed' && row.platformAdapterClaim === 'not-implemented';
-}
-
-function providerStoreApiExecutionDeliveryClaimsStayUnimplemented(row: ProviderStoreApiExecutionRowCandidate): boolean {
-  return (
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed'
-  );
-}
-
-function providerStoreApiExecutionPortalAndCustodyClaimsStayUnimplemented(
-  row: ProviderStoreApiExecutionRowCandidate
-): boolean {
-  return (
-    row.portalApprovalUiClaim === 'not-claimed' &&
-    row.portalReportUiClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+    providerStoreApiExecutionRowIsHonestGenerated(row, BoundaryFragments)
   );
 }
 
 function providerStoreApiExecutionProofIsHonest(proof: AppInstallPurchaseProviderStoreApiExecutionProof): boolean {
-  const keys = new Set(proof.providerStoreApiExecutionRows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const states = new Set(proof.providerStoreApiExecutionRows.map((row) => row.providerStoreApiExecutionState));
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.providerStoreApiExecutionRows.length === StoreSurfaces.length &&
-    keys.size === proof.providerStoreApiExecutionRows.length &&
-    ProviderStoreApiExecutionStates.every((state) => states.has(state)) &&
-    NonClaims.every((claim) => nonClaims.has(claim)) &&
+    proof.sourceProviderStoreProofVersion === SourceProviderStoreProofVersion &&
+    proof.sourcePlatformLimitationFallbackProofVersion === SourcePlatformLimitationFallbackProofVersion &&
+    providerStoreApiExecutionProofIsHonestGenerated(
+      proof,
+      StoreSurfaces,
+      ProviderStoreApiExecutionStates,
+      NonClaims
+    ) &&
     proof.providerStoreApiExecutionRows.every(providerStoreApiExecutionRowIsHonest) &&
     proof.knownGaps.length > 0
   );
-}
-
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
 }

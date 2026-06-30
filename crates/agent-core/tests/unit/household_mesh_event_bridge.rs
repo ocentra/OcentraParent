@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::constants::household_mesh as mesh;
 use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgeState;
 
-use super::{
+use crate::{
     export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
     HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
     HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,

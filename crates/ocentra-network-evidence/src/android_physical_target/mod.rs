@@ -1,4 +1,4 @@
-pub(crate) mod types;
+pub mod types;
 mod validation;
 
 use types::{

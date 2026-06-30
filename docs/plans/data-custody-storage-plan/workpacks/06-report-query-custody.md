@@ -59,3 +59,48 @@ Failure conditions:
 - Assistant or report answers cite evidence the parent role cannot access.
 - Query cache returns deleted, expired, wrong-household, or wrong-child data.
 
+## Completion
+
+- Status: complete for WP06 only; no broader plan or PR readiness claim is made.
+- Proof root: `output/data-custody-storage-plan-proof/06-report-query-custody/`
+- Canonical owners: `crates/schema`, `crates/storage-custody-core`, and the thin/generated adapter surface in `packages/schema-domain`.
+
+## Required states proved
+
+- `derivedFresh`, `derivedStale`, and `partiallyRedacted` are covered by the Rust runtime derivation tests and the schema-domain derived source matrix proof.
+- `deletedSource` is covered by the tombstone-required runtime test and the deleted/expired no-leak schema proof.
+- `syncConflict` is covered by the missing-conflict negative runtime test and the stale/conflict schema proof.
+- `cursorExpired` and `rateLimited` are covered by the non-advancing runtime derivation test and the pagination/rate-limit schema proofs.
+
+## Proof artifacts
+
+- `00-derived-source-matrix-proof.md`
+- `01-deleted-expired-not-returned-proof.md`
+- `02-query-cursor-pagination-proof.md`
+- `03-query-rate-limit-proof.md`
+- `04-notification-payload-allow-deny-proof.md`
+- `05-portal-cache-custody-proof.md`
+- `06-assistant-allowed-citation-proof.md`
+- `07-stale-conflict-state-proof.md`
+- `16-validation-commands.log`
+
+## Focused validations
+
+- `cargo test -p ocentra-schema --test contract report_query_custody`
+- `cargo test -p ocentra-storage-custody-core report_query_custody`
+- `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
+- `cmd /c npm run test --workspace @ocentra-parent/schema-domain -- tests/contract/report-query-custody.test.ts`
+- `cargo lint-architecture crates/schema/src/report_query_custody.rs crates/schema/src/report_query_custody_ts.rs crates/storage-custody-core/src/report_query_custody.rs crates/schema/tests/contract/report_query_custody.rs crates/storage-custody-core/tests/unit/report_query_custody.rs`
+- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/report-query-custody.ts packages/schema-domain/src/report-query-custody-rules.ts packages/schema-domain/src/generated/report-query-custody-contracts.ts packages/schema-domain/tests/contract/report-query-custody.test.ts`
+
+## Adjacent handoffs
+
+- AI and notification runtime owners remain sibling consumers of this shared custody boundary; this packet does not re-own their runtime behavior.
+- Portal owners remain downstream consumers; WP06 proves no second truth store or portal-cache mutation claim at the shared contract/runtime layer only.
+
+## No-claim boundary
+
+- No portal rendering claim is made.
+- No notification delivery-runtime claim is made.
+- No AI answer-runtime claim is made.
+- No hosted report/query store claim is made.

@@ -552,7 +552,7 @@ function runtimeOwnerForSeed(seed: GameControlCatalogSettingSeed): GameControlRu
   if (/rules\.|budgets\.|evidence\./u.test(seed.settingId)) {
     return 'child-agent';
   }
-  return 'parent-domain';
+  return 'rust-parent-runtime';
 }
 
 function capabilityStateForSeed(seed: GameControlCatalogSettingSeed): GameControlCapabilityState {

@@ -97,3 +97,56 @@ Failure conditions:
 - Provider status is used to claim OAuth/upload/delete runtime without selected proof.
 - Provider disconnect/delete does not produce visible custody state.
 - Parent storage provider choice overrides key custody or retention constraints.
+
+## Completion
+
+- Status: complete for WP03 only; no broader plan, provider-runtime, or PR readiness claim is made.
+- Proof root: `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/`
+- Canonical owners: `crates/schema` for the shared sync/export contract and `crates/storage-custody-core` for the claim-safe sync/provider/tombstone runtime derivation.
+- TS/shared edge note: `packages/schema-domain` is thin/generated validation only for WP03 and does not own the runtime or shared contract truth.
+
+## What is actually proved
+
+- Provider mode split is explicit across Google Drive, OneDrive, iCloud, Dropbox, NAS, local-folder, and disabled paths.
+- Provider states are explicit for `ready`, `manual-required`, `revoked`, `wrong-account`, `folder-unavailable`, `partial-upload`, `disconnected`, and `disabled`.
+- Sync states are explicit for `synced`, `stale`, `missing`, `conflict`, `offline-retry-pending`, `partial-outage`, `manual-required`, and `not-started`.
+- Encryption-before-upload remains explicit for machine-readable payloads, while human-readable parent-authorized exports stay separate.
+- Manifest integrity, checksum ref, and signature ref remain explicit for honest synced/stale claims.
+- Tombstone propagation remains separate from sync success with explicit `not-requested`, `pending`, `propagated`, `blocked`, and `manual-required` states.
+- Non-claims are explicit for no default Ocentra custody and no OAuth/upload/delete runtime claim from contract proof alone.
+
+## Manual-required and no-claim truth
+
+- `cmd /c cargo test -q -p ocentra-schema --test contract parent_owned_sync_export` is green.
+- `cmd /c cargo test -q -p ocentra-storage-custody-core parent_owned_sync_export` is green.
+- `cmd /c npm run build --workspace @ocentra-parent/schema-domain` is green on the cleared WP01 baseline.
+- `node scripts/test/parent-owned-sync-export-manifest-proof.mjs` is green and emitted a fresh `parent-owned-sync-export-manifest-proof.json`.
+- Provider OAuth runtime, provider upload runtime, provider delete runtime, and provider retrieval runtime remain manual-required/unproven in this lane.
+
+## Proof artifacts
+
+- `00-provider-capability-matrix-proof.md`
+- `01-encrypted-before-upload-proof.md`
+- `02-provider-revoked-state-proof.md`
+- `03-quota-conflict-corruption-proof.md`
+- `04-offline-retry-partial-outage-proof.md`
+- `05-tombstone-propagation-proof.md`
+- `06-no-automatic-ocentra-fallback-proof.md`
+- `16-validation-commands.log`
+
+## Focused validations
+
+- `cmd /c cargo test -q -p ocentra-storage-custody-core parent_owned_sync_export`
+- `cmd /c npm run test --workspace @ocentra-parent/schema-domain -- tests/contract/parent-owned-sync-export.test.ts`
+- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/parent-owned-sync-export.ts packages/schema-domain/src/parent-owned-sync-export-validation.ts packages/schema-domain/tests/contract/parent-owned-sync-export.test.ts scripts/test/parent-owned-sync-export-manifest-proof.mjs`
+- `cargo lint-architecture crates/schema/src/parent_owned_sync_export.rs crates/schema/src/parent_owned_sync_export_ts.rs crates/schema/src/bin/export_parent_owned_sync_export_contract_types.rs crates/storage-custody-core/src/parent_owned_sync_export.rs crates/storage-custody-core/tests/unit/parent_owned_sync_export.rs crates/schema/tests/contract/parent_owned_sync_export.rs`
+- `cmd /c cargo test -q -p ocentra-schema --test contract parent_owned_sync_export`
+- `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
+- `node scripts/test/parent-owned-sync-export-manifest-proof.mjs`
+
+## No-claim boundary
+
+- No provider OAuth readiness claim is made.
+- No provider upload/delete/retrieval runtime claim is made.
+- No Ocentra-hosted default child-evidence store claim is made.
+- No portal, LAN, or sibling workpack completion claim is made.

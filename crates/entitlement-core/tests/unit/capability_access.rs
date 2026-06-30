@@ -3,10 +3,14 @@ use ocentra_entitlement_core::entitlement_access::{
     EntitlementAggregateId, EntitlementCapability, EntitlementCapabilityAccessState,
     EntitlementCapabilityEvaluationRequestedEvent, EntitlementCapabilityInput,
     EntitlementCapabilityRejectionReason, EntitlementCapabilityScope, EntitlementDecisionId,
-    EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState, EntitlementEvaluationId,
-    EntitlementManualReviewState, EntitlementPackageBuildState, EntitlementPolicyState,
-    EntitlementSnapshotBindingState, EntitlementSnapshotContext, EntitlementSnapshotFreshnessState,
-    EntitlementSnapshotSignatureState, FamilySetupState, OfflineGraceState, SubscriptionState,
+    EntitlementEvaluationId, EntitlementManualReviewState, EntitlementPolicyState,
+    FamilySetupState, OfflineGraceState, SubscriptionState,
+};
+use ocentra_entitlement_core::entitlement_snapshot::EntitlementSnapshotContext;
+use ocentra_entitlement_core::entitlement_snapshot_values::{
+    EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState,
+    EntitlementPackageBuildState, EntitlementSnapshotBindingState,
+    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
 };
 use ocentra_eventing::envelope::DomainEvent;
 

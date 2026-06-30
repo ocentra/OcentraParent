@@ -1,6 +1,6 @@
 # Payment Subscription Plan State
 
-Status: engineering-grade monetization spec is complete, but runtime execution remains blocked behind the shared Cloudflare control-plane handoff; implementation and proof remain open.
+Status: engineering-grade monetization spec is complete, WP00 now has a real `blocked / proof-present` handoff bundle, WP01 now has a real `done / proof-present` pricing bundle, WP02 now has a real `blocked / proof-present` checkout and billing-portal bundle, WP03 now has a real Rust-owned `done` webhook lifecycle bundle, WP04 now has a real Rust-owned `done / proof-present` entitlement-delivery bundle, and broader runtime execution remains blocked behind the exact upstream Cloudflare blocker set plus the current broader-workspace validation blockers carried by WP02.
 
 Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the reusable games Cloudflare deep dive summarized in `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
 
@@ -16,7 +16,7 @@ billing-core:
 cloudflare-control-plane-plan:
   Owner of infra/cloudflare, shared Worker/API scaffold, auth, bindings, local dev/test, deploy promotion, and payment handoff proof.
 
-schema-domain:
+crates/schema:
   Canonical shared billing/payment/entitlement shapes when they cross package, app, crate, or plan boundaries.
 
 account-identity-family-plan:
@@ -54,13 +54,24 @@ policy-control-plane-plan:
 ```text
 output/payment-subscription-plan-proof/<workpack>/ is the canonical proof root.
 The upstream Cloudflare handoff gate is output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md.
-All runtime payment rows remain open until selected code, tests, negative cases, rollback/teardown notes, validation logs, and proof bundles exist.
-WP00 blocks all runtime payment work until the handoff proof or exact blocker is recorded.
+WP00 now has a real blocked-state proof bundle at `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/`.
+That bundle consumes `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` and carries its exact blocker set forward into payment.
+WP01 now has a real pricing and entitlement proof bundle at `output/payment-subscription-plan-proof/01-product-pricing-entitlement/`.
+WP02 now has a real checkout and billing portal proof bundle at `output/payment-subscription-plan-proof/02-checkout-billing-portal/`.
+WP03 now has a real Rust-owned webhook lifecycle proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`.
+WP04 now has a real Rust-owned entitlement-delivery proof bundle at `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/`.
+All runtime payment rows after WP00 remain blocked until selected code, tests, negative cases, rollback/teardown notes, validation logs, and proof bundles exist.
 ```
 
 Current Parent direction:
 
 - `cloudflare-control-plane-plan` owns `infra/cloudflare/`, Wrangler envs, auth states, route manifest, local dev loop, test runner, deployment promotion, and the shared payment handoff gate.
+- WP00 is closed only as `blocked / proof-present`: payment consumed the Cloudflare module/auth/route/testing truth, but the upstream handoff still carries missing Cloudflare WP03/WP05/WP09/WP11 proof roots, missing billing-domain runtime boundary modules, unresolved account-auth/trusted-device authority, and blocked portal-smoke/deployment proof.
+- WP01 is closed as `done / proof-present`: the shared payment proof surface now makes the one-parent-plus-one-child starter bundle explicit, keeps extra parent access separate from child-seat math, derives the effective child-device limit from base plus referral plus paid seats, carries visible over-limit grace, preserves safety-critical local behavior under degradation, and rejects game-economy pricing references.
+- WP01 does not restore TS ownership: `crates/schema` remains the Rust-first canonical contract target, while the `packages/schema-domain/src/*` edits in this packet are transitional thin edge validation and proof data only.
+- WP02 is closed only as `blocked / proof-present`: the live schema-domain edge contracts now make hosted checkout/portal return states, redirect/origin/csrf/secret boundaries, invalid-plan rejection, and no-client-secret leakage explicit, while keeping Cloudflare Worker runtime, provider/backend runtime, account backend runtime, portal UI runtime, and entitlement completion as non-claims. WP02 remains blocked by the current broader validation failures in `npm run format:check` and `npm run lint:schema-boundaries`.
+- WP03 is closed as `done`: `crates/billing-core` now carries provider channel, payload-parse, idempotency, replay/order, retry, dead-letter, reconciliation, and test/live boundary truth with real unit coverage under `crates/billing-core/tests/unit/**`. TypeScript does not own this webhook lifecycle contract.
+- WP04 is closed as `done / proof-present`: `crates/entitlement-core` now owns signed entitlement snapshot derivation, provider input-only boundary, referral seat recalculation, fixed snapshot-model fields, and the snapshot-to-device gate bridge with real unit coverage under `crates/entitlement-core/tests/unit/**`. TypeScript remains proof-consumer only for this slice.
 - This plan owns billing semantics on top of that module: pricing, referral qualification, provider strategy, checkout meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning.
 - Stripe Checkout, Billing, Portal, invoices, entitlements, and webhooks remain the default web control-plane path.
 - Razorpay remains the India-native adapter; PayPal remains the secondary wallet/subscription adapter; Apple and Google remain channel adapters, not the root billing authority.
@@ -78,7 +89,7 @@ Current Parent direction:
 | PSP-014 | architecture-closed / implementation-open / manual-required | Parent dashboard and support/admin field boundaries are documented but not runtime-proven. | Allow/deny field lists and parent/support proof remain synchronized. |
 | PSP-015 | architecture-closed / implementation-open / sujan-decision-required | Referral qualification and anti-abuse thresholds are documented but not business-approved or proven. | Qualification thresholds, abuse reviews, and referral grace are approved and proven. |
 | PSP-016 | architecture-closed / implementation-open / legal-tax-required | Mixed-provider invoice, tax, refund, dispute, and grace behavior is documented but not legal/tax-closed. | Billing-grace, refund, dispute, cancellation, and tax policy are approved and proven. |
-| PSP-017 | architecture-closed / spec-complete / runtime-open | Proof matrix, route sync, and exact assertion scope are documented, but not fully backed by handoff and runtime proof. | Proof paths, assertion matrix, validation logs, route docs, and Cloudflare prerequisite handoff all agree. |
+| PSP-017 | architecture-closed / spec-complete / wp00-proof-present / runtime-blocked | Proof matrix, route sync, and exact assertion scope are documented, and WP00 now has a real payment proof root, but runtime remains blocked by the carried upstream Cloudflare handoff blockers. | Proof paths, assertion matrix, validation logs, route docs, WP00 payment proof, and the upstream Cloudflare handoff all agree; upstream blockers are either cleared or carried honestly. |
 
 ## HID Execution Guard
 
@@ -92,4 +103,4 @@ Current Parent direction:
 
 ## Overclaim boundary
 
-This plan is architecture-route ready, not implementation complete. Runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `output/payment-subscription-plan-proof/` and the relevant scoped validation actually passes.
+This plan is architecture-route ready, not implementation complete. WP00 proves the upstream dependency boundary and exact blocker set only, while WP03 and WP04 now prove their Rust-owned lifecycle and entitlement-delivery boundaries on their own surfaces. Broader runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `output/payment-subscription-plan-proof/` and the relevant scoped validation actually passes or is carried as an exact blocker.

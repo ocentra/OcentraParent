@@ -7,7 +7,7 @@ use ocentra_parent_agent_protocol::constants;
 
 use crate::network_capture::NetworkObservation;
 
-pub(crate) fn netstat_observations(
+pub fn netstat_observations(
     output: &str,
     process_names: &BTreeMap<u32, String>,
 ) -> Vec<NetworkObservation> {

@@ -36,8 +36,9 @@ This plan owns device-trust bootstrap rules, proof, and cross-plan handoff bound
 Module roles:
 
 ```text
-schema-domain: canonical shared trust state, device registration, parent step-up assertion, QR approval, recovery, entitlement binding, tamper/uninstall, and route-handoff shapes when those shapes cross package, crate, app, or plan boundaries.
-family-domain: household/role/action authorization helper surface that consumes canonical schema-domain family contracts. It is not the full device-trust runtime.
+crates/schema or the owning Rust crate: canonical shared trust state, device registration, parent step-up assertion, QR approval, recovery, entitlement binding, tamper/uninstall, route-handoff, and route/action/read-model DTO shapes when those shapes cross package, crate, app, or plan boundaries.
+schema-domain: temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+family-domain: household/role/action authorization helper surface that consumes Rust-owned/generated family contracts. It is not the full device-trust runtime.
 lan-domain: LAN pairing and selected-device proof consumer. LAN pairing is not the device-trust root.
 agent-protocol and agent-service: protocol/service proof only when the selected workpack names runtime or wire behavior.
 setup-install-provisioning-plan: install/setup journey owner and first-run handoff producer.
@@ -51,7 +52,7 @@ remote-access-plan and policy-control-plane-plan: standing access grants and pol
 Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
 
 ```text
-canonical schema-domain trust/device/step-up/recovery/entitlement/tamper handoff shapes
+Rust-owned canonical trust/device/step-up/recovery/entitlement/tamper handoff shapes plus generated DTOs or temporary edge decoders
 family-domain public household authority helpers when actor/role proof is selected
 lan-domain public package metadata or selected pairing helper surfaces when the selected workpack names LAN proof
 agent-protocol/agent-service public surfaces only when runtime/protocol proof is selected
@@ -74,7 +75,7 @@ recovery docs upgraded into encrypted recovery execution proof without wrong-hou
 child device runtime allowed to control, disable, or silently remove trust
 ```
 
-If device-trust work needs setup, account, LAN, payment, data custody, runtime distribution, remote access, policy, portal, or child runtime behavior, it must use typed evidence, commands, events, requests, read models, artifact manifests, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
+If device-trust work needs setup, account, LAN, payment, data custody, runtime distribution, remote access, policy, portal, or child runtime behavior, it must use typed evidence, commands, events, requests, read models, artifact manifests, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `crates/schema` or another neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
 
 ## Research Gate
 

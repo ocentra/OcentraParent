@@ -1,11 +1,16 @@
+#[path = "screen_ai_analysis_runtime/adapter.rs"]
 mod adapter;
+#[path = "screen_ai_analysis_runtime/adapter_output_fields.rs"]
 mod adapter_output_fields;
+#[path = "screen_ai_analysis_runtime/adapter_process.rs"]
 mod adapter_process;
+#[path = "screen_ai_analysis_runtime/adapter_redaction.rs"]
 mod adapter_redaction;
-#[cfg(test)]
-mod adapter_tests;
+#[path = "screen_ai_analysis_runtime/config.rs"]
 pub(crate) mod config;
+#[path = "screen_ai_analysis_runtime/event_record.rs"]
 mod event_record;
+#[path = "screen_ai_analysis_runtime/queue.rs"]
 mod queue;
 
 use std::time::Duration;
@@ -63,14 +68,6 @@ async fn run_screen_ai_analysis_runtime(config: ScreenAiAnalysisRuntimeConfig) {
             break;
         }
     }
-}
-
-#[cfg(test)]
-pub(crate) async fn record_screen_ai_analysis_cycle(
-    config: &ScreenAiAnalysisRuntimeConfig,
-    clock: ScreenAiAnalysisCycleClock,
-) -> Result<ScreenAiAnalysisCycleOutcome, ActivityCaptureError> {
-    record_screen_ai_analysis_cycle_with_events(config, clock, None).await
 }
 
 pub(crate) async fn record_screen_ai_analysis_cycle_with_events(

@@ -3,9 +3,6 @@ use std::{
     sync::Arc,
 };
 
-#[cfg(test)]
-use std::sync::Mutex;
-
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_settings::ScreenAnalysisParentSetting;
 use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsRejectionReason;
@@ -33,24 +30,12 @@ pub(crate) struct ScreenSettingsRuntime {
 
 #[derive(Clone, Debug)]
 enum ScreenSettingsPersistence {
-    #[cfg(test)]
-    InMemory(Arc<Mutex<ScreenSettingsStoredState>>),
     LocalJson(PathBuf),
 }
 
 impl ScreenSettingsRuntime {
     pub(crate) fn from_env() -> Self {
         Self::for_store_path(screen_settings_store_path_from_env())
-    }
-
-    #[cfg(test)]
-    pub(crate) fn in_memory() -> Self {
-        Self {
-            persistence: ScreenSettingsPersistence::InMemory(Arc::new(Mutex::new(
-                ScreenSettingsStoredState::empty(),
-            ))),
-            io_lock: Arc::new(AsyncMutex::new(())),
-        }
     }
 
     pub(crate) fn for_store_path(path: impl AsRef<Path>) -> Self {
@@ -171,13 +156,6 @@ impl ScreenSettingsRuntime {
 
     async fn read_state(&self) -> Result<ScreenSettingsStoredState, ScreenSettingsStoreError> {
         match &self.persistence {
-            #[cfg(test)]
-            ScreenSettingsPersistence::InMemory(state) => {
-                state.lock().map(|state| state.clone()).map_err(|error| {
-                    drop(error);
-                    ScreenSettingsStoreError::Unavailable
-                })
-            }
             ScreenSettingsPersistence::LocalJson(path) => read_screen_settings_state(path).await,
         }
     }
@@ -187,16 +165,6 @@ impl ScreenSettingsRuntime {
         state: &ScreenSettingsStoredState,
     ) -> Result<(), ScreenSettingsStoreError> {
         match &self.persistence {
-            #[cfg(test)]
-            ScreenSettingsPersistence::InMemory(current) => current
-                .lock()
-                .map(|mut current| {
-                    *current = state.clone();
-                })
-                .map_err(|error| {
-                    drop(error);
-                    ScreenSettingsStoreError::Unavailable
-                }),
             ScreenSettingsPersistence::LocalJson(path) => {
                 write_screen_settings_state(path, state).await
             }

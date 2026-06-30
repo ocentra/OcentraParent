@@ -8,6 +8,9 @@ const repoRoot = process.cwd();
 const findings = [];
 const scriptName = 'node scripts/check-required-tests.mjs';
 const usageLines = ['--all', '--base <sha> --head <sha>'];
+const strictEmptyTreeFlag = '--strict-empty-test-trees';
+const placeholderFileName = '.gitkeep';
+const workspaceTreeRoots = ['tests', 'proof'];
 
 function toPosix(path) {
   return path.split('\\').join('/');
@@ -34,7 +37,58 @@ function hasFile(path, predicate) {
   return stats.isFile() && predicate(path);
 }
 
-function checkNodeWorkspace(path) {
+function collectEmptyPlaceholderTrees(path, treeFindings) {
+  if (!existsSync(path)) {
+    return { hasRealFile: false, reported: false };
+  }
+
+  const stats = statSync(path);
+  if (!stats.isDirectory()) {
+    return { hasRealFile: false, reported: false };
+  }
+
+  const entries = readdirSync(path, { withFileTypes: true });
+  let hasRealFile = false;
+  let childReported = false;
+
+  for (const entry of entries) {
+    const childPath = join(path, entry.name);
+    if (entry.isDirectory()) {
+      const childResult = collectEmptyPlaceholderTrees(childPath, treeFindings);
+      hasRealFile ||= childResult.hasRealFile;
+      childReported ||= childResult.reported;
+      continue;
+    }
+
+    if (entry.isFile() && entry.name !== placeholderFileName) {
+      hasRealFile = true;
+    }
+  }
+
+  const reported = !hasRealFile && !childReported;
+  if (reported) {
+    treeFindings.push(
+      `${toPosix(relative(repoRoot, path))}: empty test/proof category tree contains only ${placeholderFileName}`
+    );
+  }
+
+  return { hasRealFile, reported };
+}
+
+function checkPlaceholderTrees(path, strictEmptyTreeChecks) {
+  if (!strictEmptyTreeChecks) {
+    return;
+  }
+
+  for (const treeRoot of workspaceTreeRoots) {
+    const treePath = join(path, treeRoot);
+    if (existsSync(treePath)) {
+      collectEmptyPlaceholderTrees(treePath, findings);
+    }
+  }
+}
+
+function checkNodeWorkspace(path, strictEmptyTreeChecks) {
   const packageJsonPath = join(path, 'package.json');
   const srcPath = join(path, 'src');
   if (!existsSync(packageJsonPath) || !existsSync(srcPath)) {
@@ -46,9 +100,11 @@ function checkNodeWorkspace(path) {
   if (!hasTests) {
     findings.push(`${manifest.name ?? toPosix(relative(repoRoot, path))}: missing tests/*.test.ts`);
   }
+
+  checkPlaceholderTrees(path, strictEmptyTreeChecks);
 }
 
-function checkRustCrate(path) {
+function checkRustCrate(path, strictEmptyTreeChecks) {
   const cargoPath = join(path, 'Cargo.toml');
   if (!existsSync(cargoPath)) {
     return;
@@ -64,6 +120,8 @@ function checkRustCrate(path) {
   if (!hasInlineTestModule && !hasIntegrationTest) {
     findings.push(`${toPosix(relative(repoRoot, path))}: missing Rust unit or integration tests`);
   }
+
+  checkPlaceholderTrees(path, strictEmptyTreeChecks);
 }
 
 function collectFullTargets() {
@@ -123,25 +181,27 @@ function collectScopedTargets(rawArgs) {
 
 export function main(rawArgs = process.argv.slice(2)) {
   findings.length = 0;
-  const { nodeWorkspaces, rustCrates } = rawArgs.length === 0 ? collectFullTargets() : collectScopedTargets(rawArgs);
+  const strictEmptyTreeChecks = rawArgs.includes(strictEmptyTreeFlag);
+  const scopeArgs = rawArgs.filter((arg) => arg !== strictEmptyTreeFlag);
+  const { nodeWorkspaces, rustCrates } = scopeArgs.length === 0 ? collectFullTargets() : collectScopedTargets(scopeArgs);
 
   for (const path of nodeWorkspaces) {
-    checkNodeWorkspace(path);
+    checkNodeWorkspace(path, strictEmptyTreeChecks);
   }
 
   for (const path of rustCrates) {
-    checkRustCrate(path);
+    checkRustCrate(path, strictEmptyTreeChecks);
   }
 
   if (findings.length > 0) {
-    console.error('Every source workspace must have tests from the beginning.');
+    console.error('Every source workspace must have real tests; strict mode also rejects empty test/proof category trees.');
     for (const finding of findings) {
       console.error(finding);
     }
     process.exit(1);
   }
 
-  if (rawArgs.length === 0) {
+  if (scopeArgs.length === 0) {
     console.log('Required test scaffold is present for all source workspaces.');
     return;
   }

@@ -1,8 +1,11 @@
-import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
-import { decodePortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import {
+  GeneratedDevLogField as DevLogField,
+  GeneratedDevLogMessage as DevLogMessage,
+} from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom, PortalTiming } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodeParentPortalDetailValue } from '../generated/parent-ui-bridge';
 import { writeClipboardText } from './clipboard';
 import { appendDetail } from './detail-list';
 import { buildDiagnosticsExport } from './diagnostics-export';
@@ -26,9 +29,9 @@ export function renderDiagnosticsPanel(container: HTMLElement, state: PortalRunt
 
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
   const latestEvent = state.events[0] ?? null;
-  appendDetail(metadata, PortalDetails.AgentUrl, decodePortalDetailValue(state.agentEndpoint));
-  appendDetail(metadata, PortalDetails.State, decodePortalDetailValue(state.connectionState));
-  appendDetail(metadata, PortalDetails.Events, decodePortalDetailValue(String(state.events.length)));
+  appendDetail(metadata, PortalDetails.AgentUrl, decodeParentPortalDetailValue(state.agentEndpoint));
+  appendDetail(metadata, PortalDetails.State, decodeParentPortalDetailValue(state.connectionState));
+  appendDetail(metadata, PortalDetails.Events, decodeParentPortalDetailValue(String(state.events.length)));
   appendDetail(metadata, PortalDetails.LastEvent, detailFromValue(latestEvent?.event));
   appendDetail(metadata, PortalDetails.EventId, detailFromValue(latestEvent?.eventId));
 
@@ -60,7 +63,7 @@ async function copyDiagnostics(button: HTMLButtonElement, state: PortalRuntimeSt
 
 function detailFromValue(value: unknown) {
   if (value === undefined || value === null) {
-    return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
+    return decodeParentPortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
   }
-  return decodePortalDetailValue(String(value));
+  return decodeParentPortalDetailValue(String(value));
 }

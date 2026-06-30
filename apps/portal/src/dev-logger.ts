@@ -1,5 +1,7 @@
-import type { LogFields, LogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
-import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
+import {
+  type GeneratedLogFields as LogFields,
+  type GeneratedLogMessage as LogMessage,
+} from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import {
   resolvePortalDevLogBridgeUrl as resolvePortalDomainDevLogBridgeUrl,
   resolvePortalProofTraceConfig as resolvePortalDomainProofTraceConfig,
@@ -34,7 +36,7 @@ export async function sendPortalDevLog(
   return sendPortalDevLogWithContext(message, fields, {
     endpoint,
     runtime,
-    stackTrace: getStackTrace(),
+    stackTrace: new Error().stack ?? '',
     moduleUrl: import.meta.url,
   });
 }
@@ -53,7 +55,7 @@ export async function sendPortalProofTraceLog(
   return sendPortalProofTraceLogWithContext(message, proofTrace, fields, {
     endpoint,
     runtime,
-    stackTrace: getStackTrace(),
+    stackTrace: new Error().stack ?? '',
     moduleUrl: import.meta.url,
   });
 }

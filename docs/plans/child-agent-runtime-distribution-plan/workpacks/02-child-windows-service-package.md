@@ -32,3 +32,26 @@ Purpose: define the child Windows package, service lifecycle, and respawn proof 
 - uninstall leaves trusted child behavior behind
 - package proof is used to claim parent-client readiness
 - manual-required states are hidden
+
+## Execution truth
+
+Current WP02 execution state is `blocked / proof-present`.
+
+What is real:
+- The Windows child-agent package artifact is real. `npm run release:package:windows` built the MSI, latest MSI alias, manifest, checksum sidecars, and bootstrap installer from the real workspace.
+- The Windows proof harness now records distinct install, start, stop, restart, respawn, and uninstall-authority-cleanup states.
+- Respawn is only modeled from Windows service-manager failure-action state and is not inferred from package build, WiX authoring, or WinSW XML alone.
+
+What is blocked/manual-required on this host:
+- Install, start, stop, restart, uninstall, and live respawn execution remain blocked by `admin-required`.
+- The host proof run was non-elevated, so the lifecycle harness correctly left those states at `not-run` instead of inventing success.
+- Reboot recovery remains manual-required and unproved in this workpack.
+
+Non-claims that remain explicit:
+- Parent-client parity is not claimed from this slice.
+- Parent-authorized revoke parity is not claimed from this slice; that remains separate uninstall/revocation scope.
+
+Proof root:
+- `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/`
+- Current blocked install-attempt proof: `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json`
+- Current artifact-only proof: `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json`

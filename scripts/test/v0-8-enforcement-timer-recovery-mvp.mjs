@@ -245,7 +245,7 @@ function assertCancelEvent(event) {
   if (audit.parentOverride?.actionReferenceId !== ids.parentActionReferenceId) {
     throw new Error(`Expected parent override reference, received ${JSON.stringify(audit.parentOverride)}`);
   }
-  if (event.payload.enforcementTimerState !== null) {
+  if (event.payload.enforcementTimerState !== undefined) {
     throw new Error('Cancel event should clear persisted active timer state.');
   }
   return {
@@ -329,12 +329,12 @@ function assertExpireEvent(event) {
   assertPayloadValue(event.payload, 'enforcementTimerEventKind', 'expired');
   assertPayloadValue(event.payload, 'enforcementStatus', 'expired');
   assertStored(event.payload);
-  if (event.payload.enforcementTimerState !== null) {
+  if (event.payload.enforcementTimerState !== undefined) {
     throw new Error('Expire event should clear persisted active timer state.');
   }
   const result = JSON.parse(event.payload.enforcementResult);
   const timer = JSON.parse(event.payload.enforcementTimerEvent);
-  if (result.nextCheckAt !== null) {
+  if (result.nextCheckAt !== undefined) {
     throw new Error(`Expected expire event to clear nextCheckAt, received ${JSON.stringify(result)}`);
   }
   if (timer.actionId !== expiryIds.actionId || timer.policyDecisionId !== expiryIds.policyDecisionId) {

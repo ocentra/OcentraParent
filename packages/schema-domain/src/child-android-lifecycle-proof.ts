@@ -68,6 +68,12 @@ export const ChildAndroidPermissionDeclarationStateSchema = withParser(
   Schema.Literal('declared-in-manifest', 'manual-required')
 );
 export const ChildAndroidRuntimeGrantStateSchema = withParser(Schema.Literal('not-applicable', 'manual-required'));
+export const ChildAndroidInstallModeSchema = withParser(Schema.Literal('debug-apk-sideload'));
+export const ChildAndroidChildAgentArtifactStateSchema = withParser(Schema.Literal('debug-apk-built'));
+export const ChildAndroidInstallStateSchema = withParser(Schema.Literal('manual-install-proof-required'));
+export const ChildAndroidLaunchStateSchema = withParser(Schema.Literal('manual-launch-proof-required'));
+export const ChildAndroidRemovalStateSchema = withParser(Schema.Literal('manual-removal-proof-required'));
+export const ChildAndroidPlatformAuthorityStateSchema = withParser(Schema.Literal('manual-required'));
 
 const ChildAndroidPackageIdSchema = brandedNonEmptyStringSchema('ChildAndroidPackageId');
 const ChildAndroidClassNameSchema = brandedNonEmptyStringSchema('ChildAndroidClassName');
@@ -138,6 +144,25 @@ export const ChildAndroidPermissionProofSchema = withParser(
   })
 );
 
+export const ChildAndroidInstallAuthorityProofSchema = withParser(
+  Schema.Struct({
+    childAgentArtifactState: ChildAndroidChildAgentArtifactStateSchema,
+    installMode: ChildAndroidInstallModeSchema,
+    installState: ChildAndroidInstallStateSchema,
+    launchState: ChildAndroidLaunchStateSchema,
+    removalState: ChildAndroidRemovalStateSchema,
+    deviceOwnerAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    managedProfileAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    childAgentArtifactBoundary: ChildAndroidClaimBoundarySchema,
+    installModeBoundary: ChildAndroidClaimBoundarySchema,
+    installStateBoundary: ChildAndroidClaimBoundarySchema,
+    launchStateBoundary: ChildAndroidClaimBoundarySchema,
+    removalStateBoundary: ChildAndroidClaimBoundarySchema,
+    deviceOwnerBoundary: ChildAndroidClaimBoundarySchema,
+    managedProfileBoundary: ChildAndroidClaimBoundarySchema,
+  })
+);
+
 export const ChildAndroidLifecycleClaimBoundariesSchema = withParser(
   Schema.Struct({
     childAndroidEnforcementParity: ChildAndroidClaimBoundarySchema,
@@ -161,6 +186,7 @@ const ChildAndroidLifecycleReadModelBaseSchema = Schema.Struct({
   capabilityProofs: Schema.Array(ChildAndroidCapabilityProofSchema),
   packageLifecycleAssertions: Schema.Array(ChildAndroidPackageLifecycleAssertionSchema),
   permissionProofs: Schema.Array(ChildAndroidPermissionProofSchema),
+  installAuthorityProof: ChildAndroidInstallAuthorityProofSchema,
   claimBoundaries: ChildAndroidLifecycleClaimBoundariesSchema,
   updatedAt: ParentTimestampSchema,
 });
@@ -225,7 +251,8 @@ function childAndroidLifecycleReadModelIsHonest(readModel: ChildAndroidLifecycle
     protocolBridgeProofIsHonest(readModel.protocolBridgeProof, readModel.packageProof.nativeBridgeClass) &&
     capabilityProofsAreHonest(readModel.capabilityProofs) &&
     lifecycleAssertionsAreHonest(readModel.packageLifecycleAssertions) &&
-    permissionProofsAreHonest(readModel.permissionProofs)
+    permissionProofsAreHonest(readModel.permissionProofs) &&
+    installAuthorityProofIsHonest(readModel.installAuthorityProof)
   );
 }
 
@@ -319,6 +346,25 @@ function permissionProofsAreHonest(proofs: ReadonlyArray<ChildAndroidPermissionP
   );
 }
 
+function installAuthorityProofIsHonest(proof: ChildAndroidInstallAuthorityProof): boolean {
+  return [
+    proof.childAgentArtifactState === 'debug-apk-built',
+    proof.installMode === 'debug-apk-sideload',
+    proof.installState === 'manual-install-proof-required',
+    proof.launchState === 'manual-launch-proof-required',
+    proof.removalState === 'manual-removal-proof-required',
+    proof.deviceOwnerAuthorityState === 'manual-required',
+    proof.managedProfileAuthorityState === 'manual-required',
+    proof.childAgentArtifactBoundary.includes('child-agent artifact'),
+    proof.installModeBoundary.includes('debug APK sideload mode'),
+    proof.installStateBoundary.includes('manual-required'),
+    proof.launchStateBoundary.includes('manual-required'),
+    proof.removalStateBoundary.includes('manual-required'),
+    proof.deviceOwnerBoundary.includes('no device-owner claim'),
+    proof.managedProfileBoundary.includes('no managed-profile claim'),
+  ].every(Boolean);
+}
+
 function requiredValuesArePresent<Value extends string>(
   values: ReadonlyArray<Value>,
   required: ReadonlyArray<Value>
@@ -336,10 +382,17 @@ export type ChildAndroidProtocolEvent = Infer<typeof ChildAndroidProtocolEventSc
 export type ChildAndroidProtocolBridgeState = Infer<typeof ChildAndroidProtocolBridgeStateSchema>;
 export type ChildAndroidPermissionDeclarationState = Infer<typeof ChildAndroidPermissionDeclarationStateSchema>;
 export type ChildAndroidRuntimeGrantState = Infer<typeof ChildAndroidRuntimeGrantStateSchema>;
+export type ChildAndroidInstallMode = Infer<typeof ChildAndroidInstallModeSchema>;
+export type ChildAndroidChildAgentArtifactState = Infer<typeof ChildAndroidChildAgentArtifactStateSchema>;
+export type ChildAndroidInstallState = Infer<typeof ChildAndroidInstallStateSchema>;
+export type ChildAndroidLaunchState = Infer<typeof ChildAndroidLaunchStateSchema>;
+export type ChildAndroidRemovalState = Infer<typeof ChildAndroidRemovalStateSchema>;
+export type ChildAndroidPlatformAuthorityState = Infer<typeof ChildAndroidPlatformAuthorityStateSchema>;
 export type ChildAndroidCapabilityProof = Infer<typeof ChildAndroidCapabilityProofSchema>;
 export type ChildAndroidPackageProof = Infer<typeof ChildAndroidPackageProofSchema>;
 export type ChildAndroidPackageLifecycleAssertion = Infer<typeof ChildAndroidPackageLifecycleAssertionSchema>;
 export type ChildAndroidProtocolBridgeProof = Infer<typeof ChildAndroidProtocolBridgeProofSchema>;
 export type ChildAndroidPermissionProof = Infer<typeof ChildAndroidPermissionProofSchema>;
+export type ChildAndroidInstallAuthorityProof = Infer<typeof ChildAndroidInstallAuthorityProofSchema>;
 export type ChildAndroidLifecycleClaimBoundaries = Infer<typeof ChildAndroidLifecycleClaimBoundariesSchema>;
 export type ChildAndroidLifecycleReadModel = Infer<typeof ChildAndroidLifecycleReadModelSchema>;

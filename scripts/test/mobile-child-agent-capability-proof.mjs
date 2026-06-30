@@ -28,11 +28,11 @@ async function main() {
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/child-runtime-domain',
+    '@ocentra-parent/schema-domain',
     '--',
     'vitest',
     'run',
-    'tests/unit/mobile-child-agent-capability-proof.test.ts',
+    'tests/proof/mobile-child-agent-capability-proof.test.ts',
   ]);
 
   const scriptWiring = await assertScriptWiring();
@@ -49,7 +49,7 @@ async function main() {
     proofLabels,
     evidence: {
       contract: 'packages/schema-domain/src/mobile-child-agent-capability-proof.ts',
-      contractTest: 'packages/child-runtime-domain/tests/unit/mobile-child-agent-capability-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/proof/mobile-child-agent-capability-proof.test.ts',
       output: relativePath(proofPath),
       scriptWiring,
       sourceProofWiring,

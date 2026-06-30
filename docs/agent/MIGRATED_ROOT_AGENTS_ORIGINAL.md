@@ -12,9 +12,20 @@
 
 <!-- /agent-capsule -->
 
-# Ocentra Parent Agent Guide
+# Ocentra Parent Agent Guide (Historical Snapshot)
 
-This repo follows Ocentra-style scaffold discipline. Keep changes narrow, contract-first, and validated.
+> Warning: this file is preserved migration context only. It does not define
+> current ownership, contract, or test authority. Read
+> `.ocentra-ai/rules/ocentra-parent-rules.mdc` and
+> `docs/agent/RUST_FIRST_PARENT_ARCHITECTURE.md` for current direction.
+>
+> Current direction is not negotiable here: TypeScript is pure
+> UI/presentation-only surface, while Rust owns contracts, logic, runtime
+> truth, read models, and proof truth. Historical TS-first package ownership in
+> this file is migration archaeology only and must not be revived.
+
+This repo follows Ocentra-style scaffold discipline in the historical snapshot.
+Use the Rust-first docs for current ownership and validation rules.
 
 ## Ocentra AI Rule Map
 
@@ -78,7 +89,17 @@ When changing multiple layers, use `.ocentra-ai/skills/ocentra-parent-rule-route
 
 Local dev ports default to fixed values: Rust agent on `127.0.0.1:4477`, Vite portal on `127.0.0.1:4478`. Worker lanes that need visible demos can set `OCENTRA_PARENT_AGENT_PORT` and `OCENTRA_PARENT_PORTAL_PORT` before `npm run dev`, `npm run dev:agent`, `npm run dev:portal`, or `npm run dev:lan`; for example codex-b uses agent `4677` and portal `4678`. LAN dev uses the same selected ports with explicit `npm run dev:lan` binding and origin allowlists. Use managed scripts; they reclaim only stale Ocentra Parent processes and must not take over Ocentra Games editor ports.
 
-## Non-Negotiable Boundaries
+## Historical Boundaries Snapshot (Superseded)
+
+The bullets in this section are preserved only as migration context from the
+older TS-first period. They are not current authority. For active work, use
+`.ocentra-ai/rules/ocentra-parent-rules.mdc`,
+`docs/agent/TASK_ROUTER.md`, and
+`docs/agent/RUST_FIRST_PARENT_ARCHITECTURE.md`.
+
+If any bullet below suggests TS-owned contracts, TS-owned runtime truth, or
+TS-first business logic, treat that as superseded history. The live rule is:
+TS renders; Rust owns product truth.
 
 - Do not put shared API paths, route ids, event names, log shapes, policy ids, or device identifiers directly in app or crate code.
 - Add shared TypeScript contracts under `packages/*-domain`.
@@ -97,9 +118,13 @@ Local dev ports default to fixed values: Rust agent on `127.0.0.1:4477`, Vite po
 - Do not add core recorder, blocking, AI, notification delivery, or product portal UI code during scaffold-only tasks.
 - Dev portal screens are allowed only when they prove local protocol and runtime visibility.
 
-## Package Responsibilities
+## Historical Package Responsibilities Snapshot (Superseded)
 
-| Package                                 | Owns                                                                          |
+This table is preserved only to explain the former TS-first package split. Do
+not use it to assign current contract, runtime, or proof ownership. Do not use
+it to justify reviving TS-first package authority.
+
+| Package                                 | Historically owned (superseded)                                               |
 | --------------------------------------- | ----------------------------------------------------------------------------- |
 | `@ocentra-parent/schema-domain`         | Shared Effect Schema wrappers and decode helpers.                             |
 | `@ocentra-parent/endpoint-domain`       | API path, route id, header, query, and endpoint brands.                       |
@@ -148,6 +173,14 @@ ESLint includes local Ocentra Parent rules. Editors with ESLint enabled should r
 `scripts/check-no-test-doubles.mjs` rejects fake-green testing patterns in app, package, and crate source. Build real seams and test real boundaries instead of replacing behavior.
 
 ## Testing Standard
+
+Current test authority is stricter than this historical snapshot: tests belong
+in organized test folders, and inline, placeholder, fake, mocked, or otherwise
+non-provable coverage does not count as completion evidence.
+
+New tests belong in visible test folders/groups/crates. Historical inline or
+source-owned tests are migration debt only and must not be used as fresh
+closure evidence.
 
 - Tests specify behavior.
 - Weak tests are not useful.

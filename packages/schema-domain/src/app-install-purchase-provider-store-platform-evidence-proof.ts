@@ -6,6 +6,12 @@ import {
   type AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof,
 } from './app-install-purchase-windows-package-source-adapter-evidence';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseProviderStorePlatformEvidenceRowGenerated,
+  providerStorePlatformEvidenceProofIsHonestGenerated,
+  providerStorePlatformEvidenceRowIsHonestGenerated,
+  summarizeAppInstallPurchaseProviderStorePlatformEvidenceProofGenerated,
+} from './generated/app-install-purchase-platform-evidence-helpers';
 
 const ProofVersion = 'app-install-purchase-provider-store-platform-evidence-proof';
 const SourceProviderStoreExecutionPreflightProofVersion =
@@ -214,27 +220,7 @@ export const AppInstallPurchaseProviderStorePlatformEvidenceProofReadModel =
 export function summarizeAppInstallPurchaseProviderStorePlatformEvidenceProof(
   proof: AppInstallPurchaseProviderStorePlatformEvidenceProof
 ) {
-  return {
-    providerStorePlatformEvidenceRows: proof.providerStorePlatformEvidenceRows.length,
-    manualRequiredRows: proof.providerStorePlatformEvidenceRows.filter(
-      (row) => row.providerStorePlatformEvidenceState === 'manual-provider-store-platform-evidence-required'
-    ).length,
-    platformUnavailableRows: proof.providerStorePlatformEvidenceRows.filter(
-      (row) => row.providerStorePlatformEvidenceState === 'platform-unavailable'
-    ).length,
-    blockedBeforeClaimRows: proof.providerStorePlatformEvidenceRows.filter(
-      (row) => row.providerStorePlatformEvidenceState === 'blocked-before-claim'
-    ).length,
-    providerExecutedRows: proof.providerStorePlatformEvidenceRows.filter(
-      (row) => row.providerApiExecutionClaim !== 'not-executed'
-    ).length,
-    platformAdapterImplementedRows: proof.providerStorePlatformEvidenceRows.filter(
-      (row) => row.productionPlatformAdapterClaim !== 'not-implemented'
-    ).length,
-    childDeliveredRows: proof.providerStorePlatformEvidenceRows.filter(
-      (row) => row.childDeviceDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseProviderStorePlatformEvidenceProofGenerated(proof);
 }
 
 function providerStorePlatformEvidenceRow(
@@ -246,71 +232,14 @@ function providerStorePlatformEvidenceRow(
     preflightRow.storeSurface,
     runtimeHandoffProof
   );
-  const missingArtifacts = missingArtifactRefs(preflightRow.platform);
-  return {
-    schemaVersion: ProofVersion,
-    providerStorePlatformEvidenceRowId: `provider-store-platform-evidence-${preflightRow.platform}-${preflightRow.storeSurface}`,
-    sourceProviderStoreExecutionPreflightProofVersion: SourceProviderStoreExecutionPreflightProofVersion,
-    sourceProviderStoreExecutionPreflightRowId: preflightRow.providerStoreExecutionPreflightRowId,
-    sourceProviderStoreExecutionPreflightState: preflightRow.providerStoreExecutionPreflightState,
-    sourceWindowsPackageSourceRuntimeHandoffProofVersion: SourceWindowsPackageSourceRuntimeHandoffProofVersion,
-    sourceWindowsPackageSourceRuntimeHandoffRowId: runtimeHandoffRow.runtimeHandoffRowId,
-    sourceRuntimeHandoffState: runtimeHandoffRow.runtimeHandoffState,
-    platform: preflightRow.platform,
-    storeSurface: preflightRow.storeSurface,
-    providerStorePlatformEvidenceState: providerStorePlatformEvidenceState(preflightRow, runtimeHandoffRow),
-    packageSourceEvidenceRefs: runtimeHandoffRow.packageSourceEvidenceRefs,
-    providerStorePreflightRefs: preflightRow.requiredProviderEvidenceRefs,
-    missingProviderStoreArtifactRefs: missingArtifacts.providerStore,
-    missingPlatformArtifactRefs: missingArtifacts.platform,
-    missingChildDeviceArtifactRefs: missingArtifacts.childDevice,
-    requiredPortalTestRefs: runtimeHandoffRow.requiredPortalTestRefs,
-    blockerRefs: uniqueRefs([
-      ...preflightRow.requiredProviderEvidenceRefs,
-      ...runtimeHandoffRow.blockerRefs,
-      ...missingArtifacts.providerStore,
-      ...missingArtifacts.platform,
-      ...missingArtifacts.childDevice,
-    ]),
-    auditEventRefs: uniqueRefs([...preflightRow.auditEventRefs, ...runtimeHandoffRow.auditEventRefs]),
-    reportRuntimeRefs: uniqueRefs([...preflightRow.reportRuntimeRefs, ...runtimeHandoffRow.reportRuntimeRefs]),
-    productClaimApprovalClaim: 'not-claimed',
-    googlePlayExecutionClaim: 'not-executed',
-    appleAppStoreExecutionClaim: 'not-executed',
-    microsoftStoreExecutionClaim: 'not-executed',
-    billingProviderContactClaim: 'not-executed',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformInterceptionClaim: 'not-claimed',
-    productionPlatformAdapterClaim: 'not-implemented',
-    runtimeWriterExecutionClaim: 'not-executed',
-    runtimeWriterDeliveryClaim: 'not-delivered',
-    childDeviceDeliveryClaim: 'not-delivered',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    portalApprovalUiClaim: 'not-claimed',
-    portalReportUiClaim: 'not-claimed',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: Boundary,
-    evaluatedAt: UpdatedAt,
-  } as const;
-}
-
-function providerStorePlatformEvidenceState(
-  preflightRow: (typeof AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel.providerStoreExecutionPreflightRows)[number],
-  runtimeHandoffRow: AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof['runtimeHandoffRows'][number]
-): (typeof ProviderStorePlatformEvidenceStates)[number] {
-  if (
-    preflightRow.providerStoreExecutionPreflightState === 'provider-unavailable' ||
-    runtimeHandoffRow.runtimeHandoffState === 'platform-unavailable'
-  ) {
-    return 'platform-unavailable';
-  }
-  if (runtimeHandoffRow.runtimeHandoffState === 'blocked-before-claim') {
-    return 'blocked-before-claim';
-  }
-  return 'manual-provider-store-platform-evidence-required';
+  return buildAppInstallPurchaseProviderStorePlatformEvidenceRowGenerated(
+    preflightRow,
+    runtimeHandoffRow,
+    SourceProviderStoreExecutionPreflightProofVersion,
+    SourceWindowsPackageSourceRuntimeHandoffProofVersion,
+    Boundary,
+    UpdatedAt
+  );
 }
 
 function matchingRuntimeHandoffRow(
@@ -327,134 +256,28 @@ function matchingRuntimeHandoffRow(
   return row;
 }
 
-function missingArtifactRefs(platform: string) {
-  const refs = {
-    windows: {
-      providerStore: [
-        'missing-microsoft-store-provider-credential-proof',
-        'missing-microsoft-store-provider-api-response-proof',
-        'missing-billing-provider-contact-proof',
-      ],
-      platform: [
-        'missing-windows-production-platform-adapter-execution-proof',
-        'missing-windows-platform-interception-policy-proof',
-      ],
-      childDevice: ['missing-windows-child-device-delivery-receipt-proof'],
-    },
-    macos: {
-      providerStore: [
-        'missing-mac-app-store-credential-proof',
-        'missing-mac-app-store-receipt-response-proof',
-        'missing-billing-provider-contact-proof',
-      ],
-      platform: ['missing-macos-signing-receipt-entitlement-proof', 'missing-macos-platform-adapter-execution-proof'],
-      childDevice: ['missing-macos-child-device-delivery-receipt-proof'],
-    },
-    linux: {
-      providerStore: ['missing-linux-package-manager-provider-proof'],
-      platform: ['missing-tested-linux-distro-package-manager-source-proof'],
-      childDevice: ['missing-linux-child-device-delivery-receipt-proof'],
-    },
-    android: {
-      providerStore: ['missing-google-play-api-policy-proof', 'missing-google-play-provider-response-proof'],
-      platform: [
-        'missing-android-device-owner-managed-profile-proof',
-        'missing-android-platform-adapter-execution-proof',
-      ],
-      childDevice: ['missing-android-child-device-delivery-receipt-proof'],
-    },
-    ios: {
-      providerStore: ['missing-apple-app-store-family-controls-evidence-proof', 'missing-apple-review-proof'],
-      platform: ['missing-ios-family-controls-entitlement-proof', 'missing-ios-platform-adapter-execution-proof'],
-      childDevice: ['missing-ios-child-device-delivery-receipt-proof'],
-    },
-  } as const;
-  return refs[platform as keyof typeof refs];
-}
-
 function providerStorePlatformEvidenceRowIsHonest(row: ProviderStorePlatformEvidenceRowCandidate): boolean {
   return (
     row.sourceProviderStoreExecutionPreflightProofVersion === SourceProviderStoreExecutionPreflightProofVersion &&
-    row.sourceWindowsPackageSourceRuntimeHandoffProofVersion === SourceWindowsPackageSourceRuntimeHandoffProofVersion &&
-    providerStorePlatformEvidenceStateMatchesSources(row) &&
-    providerStorePlatformEvidenceRefsAreComplete(row) &&
-    providerStorePlatformEvidenceClaimsStayUnimplemented(row) &&
-    BoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
+    row.sourceWindowsPackageSourceRuntimeHandoffProofVersion ===
+      SourceWindowsPackageSourceRuntimeHandoffProofVersion &&
+    providerStorePlatformEvidenceRowIsHonestGenerated(row, BoundaryFragments)
   );
-}
-
-function providerStorePlatformEvidenceStateMatchesSources(row: ProviderStorePlatformEvidenceRowCandidate): boolean {
-  if (
-    row.sourceProviderStoreExecutionPreflightState === 'provider-unavailable' ||
-    row.sourceRuntimeHandoffState === 'platform-unavailable'
-  ) {
-    return row.providerStorePlatformEvidenceState === 'platform-unavailable';
-  }
-  if (row.sourceRuntimeHandoffState === 'blocked-before-claim') {
-    return row.providerStorePlatformEvidenceState === 'blocked-before-claim';
-  }
-  return row.providerStorePlatformEvidenceState === 'manual-provider-store-platform-evidence-required';
-}
-
-function providerStorePlatformEvidenceRefsAreComplete(row: ProviderStorePlatformEvidenceRowCandidate): boolean {
-  return (
-    row.sourceProviderStoreExecutionPreflightRowId.length > 0 &&
-    row.sourceWindowsPackageSourceRuntimeHandoffRowId.length > 0 &&
-    row.packageSourceEvidenceRefs.length > 0 &&
-    row.providerStorePreflightRefs.length > 0 &&
-    row.missingProviderStoreArtifactRefs.length > 0 &&
-    row.missingPlatformArtifactRefs.length > 0 &&
-    row.missingChildDeviceArtifactRefs.length > 0 &&
-    row.requiredPortalTestRefs.length > 0 &&
-    row.blockerRefs.length > 0 &&
-    row.auditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function providerStorePlatformEvidenceClaimsStayUnimplemented(row: ProviderStorePlatformEvidenceRowCandidate): boolean {
-  const nonClaimChecks = [
-    row.productClaimApprovalClaim === 'not-claimed',
-    row.googlePlayExecutionClaim === 'not-executed',
-    row.appleAppStoreExecutionClaim === 'not-executed',
-    row.microsoftStoreExecutionClaim === 'not-executed',
-    row.billingProviderContactClaim === 'not-executed',
-    row.providerApiExecutionClaim === 'not-executed',
-    row.storeIntegrationClaim === 'not-claimed',
-    row.platformInterceptionClaim === 'not-claimed',
-    row.productionPlatformAdapterClaim === 'not-implemented',
-    row.runtimeWriterExecutionClaim === 'not-executed',
-    row.runtimeWriterDeliveryClaim === 'not-delivered',
-    row.childDeviceDeliveryClaim === 'not-delivered',
-    row.runtimeReportDeliveryClaim === 'not-delivered',
-    row.portalApprovalUiClaim === 'not-claimed',
-    row.portalReportUiClaim === 'not-claimed',
-    row.appBlockingClaim === 'not-claimed',
-    row.childDataCustody === 'no-child-activity-data',
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed',
-  ];
-  return nonClaimChecks.every(Boolean);
 }
 
 function providerStorePlatformEvidenceProofIsHonest(
   proof: AppInstallPurchaseProviderStorePlatformEvidenceProof
 ): boolean {
-  const keys = new Set(proof.providerStorePlatformEvidenceRows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const states = new Set(proof.providerStorePlatformEvidenceRows.map((row) => row.providerStorePlatformEvidenceState));
-  const nonClaims = new Set(proof.nonClaims);
   return (
     proof.sourceProviderStoreExecutionPreflightProofVersion === SourceProviderStoreExecutionPreflightProofVersion &&
     proof.sourceWindowsPackageSourceRuntimeHandoffProofVersion ===
       SourceWindowsPackageSourceRuntimeHandoffProofVersion &&
-    proof.providerStorePlatformEvidenceRows.length === StoreSurfaces.length &&
-    keys.size === proof.providerStorePlatformEvidenceRows.length &&
-    ProviderStorePlatformEvidenceStates.every((state) => states.has(state)) &&
-    NonClaims.every((claim) => nonClaims.has(claim)) &&
-    proof.providerStorePlatformEvidenceRows.every(providerStorePlatformEvidenceRowIsHonest) &&
-    proof.knownGaps.length > 0
+    providerStorePlatformEvidenceProofIsHonestGenerated(
+      proof,
+      StoreSurfaces,
+      ProviderStorePlatformEvidenceStates,
+      NonClaims
+    ) &&
+    proof.providerStorePlatformEvidenceRows.every(providerStorePlatformEvidenceRowIsHonest)
   );
-}
-
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
 }

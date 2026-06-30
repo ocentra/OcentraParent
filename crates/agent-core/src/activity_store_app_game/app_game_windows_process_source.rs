@@ -31,7 +31,7 @@ impl From<AppGameJournalSqliteIngestError> for AppGameLiveProcessSnapshotError {
     }
 }
 
-pub(crate) fn live_windows_process_snapshot_records(
+pub fn live_windows_process_snapshot_records(
     observed_at: &str,
 ) -> Vec<WindowsProcessRuntimeRecord> {
     let mut system = System::new();

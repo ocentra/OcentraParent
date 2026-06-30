@@ -3,59 +3,15 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Portal route, DOM, and development UI contracts.",
+  "description": "Presentation helpers for the parent portal surface.",
   "exports": {
-    "./app-game-adapter-dispatch-preflight-panel": {
-      "import": "./dist/app-game-adapter-dispatch-preflight-panel.js",
-      "types": "./dist/app-game-adapter-dispatch-preflight-panel.d.ts"
-    },
-    "./app-game-adapter-dispatch-result-panel": {
-      "import": "./dist/app-game-adapter-dispatch-result-panel.js",
-      "types": "./dist/app-game-adapter-dispatch-result-panel.d.ts"
-    },
-    "./app-game-child-runtime-transport-receipt-panel": {
-      "import": "./dist/app-game-child-runtime-transport-receipt-panel.js",
-      "types": "./dist/app-game-child-runtime-transport-receipt-panel.d.ts"
-    },
-    "./app-game-notification-parent-surface-panel": {
-      "import": "./dist/app-game-notification-parent-surface-panel.js",
-      "types": "./dist/app-game-notification-parent-surface-panel.d.ts"
-    },
-    "./app-game-platform-proof-status-panel": {
-      "import": "./dist/app-game-platform-proof-status-panel.js",
-      "types": "./dist/app-game-platform-proof-status-panel.d.ts"
-    },
-    "./app-game-policy-readiness-panel": {
-      "import": "./dist/app-game-policy-readiness-panel.js",
-      "types": "./dist/app-game-policy-readiness-panel.d.ts"
-    },
-    "./app-game-timer-parent-surface-panel": {
-      "import": "./dist/app-game-timer-parent-surface-panel.js",
-      "types": "./dist/app-game-timer-parent-surface-panel.d.ts"
-    },
     "./app-layout": {
       "import": "./dist/app-layout.js",
       "types": "./dist/app-layout.d.ts"
     },
-    "./browser-action-intent-stream-status": {
-      "import": "./dist/browser-action-intent-stream-status.js",
-      "types": "./dist/browser-action-intent-stream-status.d.ts"
-    },
     "./browser-child-intervention-page": {
       "import": "./dist/browser-child-intervention-page.js",
       "types": "./dist/browser-child-intervention-page.d.ts"
-    },
-    "./browser-parent-explanation-panel": {
-      "import": "./dist/browser-parent-explanation-panel.js",
-      "types": "./dist/browser-parent-explanation-panel.d.ts"
-    },
-    "./browser-social-provider-receipt-ingestion-readiness-status": {
-      "import": "./dist/browser-social-provider-receipt-ingestion-readiness-status.js",
-      "types": "./dist/browser-social-provider-receipt-ingestion-readiness-status.d.ts"
-    },
-    "./browser-social-provider-receipt-stream-status": {
-      "import": "./dist/browser-social-provider-receipt-stream-status.js",
-      "types": "./dist/browser-social-provider-receipt-stream-status.d.ts"
     },
     "./command-results": {
       "import": "./dist/command-results.js",
@@ -89,6 +45,10 @@
       "import": "./dist/frame-tuner.js",
       "types": "./dist/frame-tuner.d.ts"
     },
+    "./hosted-portal-distribution": {
+      "import": "./dist/hosted-portal-distribution.js",
+      "types": "./dist/hosted-portal-distribution.d.ts"
+    },
     "./live-activity-state": {
       "import": "./dist/live-activity-state.js",
       "types": "./dist/live-activity-state.d.ts"
@@ -96,6 +56,14 @@
     "./local-ai-runtime-panel": {
       "import": "./dist/local-ai-runtime-panel.js",
       "types": "./dist/local-ai-runtime-panel.d.ts"
+    },
+    "./live-activity-lan-add-device": {
+      "import": "./dist/live-activity-lan-add-device.js",
+      "types": "./dist/live-activity-lan-add-device.d.ts"
+    },
+    "./manage-target-selection": {
+      "import": "./dist/manage-target-selection.js",
+      "types": "./dist/manage-target-selection.d.ts"
     },
     "./network-evidence-drawer": {
       "import": "./dist/network-evidence-drawer.js",
@@ -125,18 +93,6 @@
       "import": "./dist/parent-portal-service-state.js",
       "types": "./dist/parent-portal-service-state.d.ts"
     },
-    "./parent-portal-shell-status": {
-      "import": "./dist/parent-portal-shell-status.js",
-      "types": "./dist/parent-portal-shell-status.d.ts"
-    },
-    "./policy-preview-panel": {
-      "import": "./dist/policy-preview-panel.js",
-      "types": "./dist/policy-preview-panel.d.ts"
-    },
-    "./policy-preview-workspace": {
-      "import": "./dist/policy-preview-workspace.js",
-      "types": "./dist/policy-preview-workspace.d.ts"
-    },
     "./portal-background": {
       "import": "./dist/portal-background.js",
       "types": "./dist/portal-background.d.ts"
@@ -157,29 +113,9 @@
       "import": "./dist/setup-first-run-panel.js",
       "types": "./dist/setup-first-run-panel.d.ts"
     },
-    "./social-alert-report-panel": {
-      "import": "./dist/social-alert-report-panel.js",
-      "types": "./dist/social-alert-report-panel.d.ts"
-    },
-    "./social-alert-report-parent-surface-panel": {
-      "import": "./dist/social-alert-report-parent-surface-panel.js",
-      "types": "./dist/social-alert-report-parent-surface-panel.d.ts"
-    },
-    "./social-audit-explanation-panel": {
-      "import": "./dist/social-audit-explanation-panel.js",
-      "types": "./dist/social-audit-explanation-panel.d.ts"
-    },
     "./social-child-intervention-page-model": {
       "import": "./dist/social-child-intervention-page-model.js",
       "types": "./dist/social-child-intervention-page-model.d.ts"
-    },
-    "./social-dashboard-panel": {
-      "import": "./dist/social-dashboard-panel.js",
-      "types": "./dist/social-dashboard-panel.d.ts"
-    },
-    "./social-parent-notification-delivery-panel": {
-      "import": "./dist/social-parent-notification-delivery-panel.js",
-      "types": "./dist/social-parent-notification-delivery-panel.d.ts"
     },
     "./social-read-model-events": {
       "import": "./dist/social-read-model-events.js",
@@ -238,14 +174,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/activity-domain": "file:../activity-domain",
     "@ocentra-parent/agent-protocol-domain": "file:../agent-protocol-domain",
-    "@ocentra-parent/app-game-domain": "file:../app-game-domain",
-    "@ocentra-parent/browser-domain": "file:../browser-domain",
-    "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/logging-domain": "file:../logging-domain",
-    "@ocentra-parent/network-domain": "file:../network-domain",
-    "@ocentra-parent/schema-domain": "file:../schema-domain",
-    "@ocentra-parent/setup-domain": "file:../setup-domain"
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

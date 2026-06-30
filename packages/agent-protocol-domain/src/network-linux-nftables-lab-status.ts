@@ -2,12 +2,15 @@ import {
   AgentNetworkLinuxNftablesLabStatusSchema,
   type AgentNetworkLinuxNftablesLabStatus,
 } from '@ocentra-parent/schema-domain/agent-network-linux-nftables-status';
-import {
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { mapJsonPayloadEventToStatus, parseJsonPayloadFieldEvent } from './protocol-event-payload.js';
+
+type AgentNetworkLinuxNftablesLabStatusFailureReason =
+  | 'wrong-event'
+  | 'missing-linux-nftables-lab-status'
+  | 'invalid-linux-nftables-lab-status-json'
+  | 'invalid-linux-nftables-lab-status';
 
 export type AgentNetworkLinuxNftablesLabStatusParseResult =
   | {
@@ -16,36 +19,23 @@ export type AgentNetworkLinuxNftablesLabStatusParseResult =
     }
   | {
       readonly ok: false;
-      readonly reason:
-        | 'wrong-event'
-        | 'missing-linux-nftables-lab-status'
-        | 'invalid-linux-nftables-lab-status-json'
-        | 'invalid-linux-nftables-lab-status';
+      readonly reason: AgentNetworkLinuxNftablesLabStatusFailureReason;
     };
 
 export function parseAgentNetworkLinuxNftablesLabStatusEvent(
   event: AgentEventEnvelope
 ): AgentNetworkLinuxNftablesLabStatusParseResult {
-  if (event.event !== AgentEvent.NetworkLinuxNftablesLabStatusReported) {
-    return { ok: false, reason: 'wrong-event' };
-  }
-
-  const raw = event.payload[AgentProtocolDefaults.Field.NetworkLinuxNftablesLabStatus];
-  if (!isAgentProtocolLogText(raw)) {
-    return { ok: false, reason: 'missing-linux-nftables-lab-status' };
-  }
-
-  let value: unknown;
-  try {
-    value = JSON.parse(raw) as unknown;
-  } catch {
-    return { ok: false, reason: 'invalid-linux-nftables-lab-status-json' };
-  }
-
-  const parsed = AgentNetworkLinuxNftablesLabStatusSchema.safeParse(value);
-  if (!parsed.success) {
-    return { ok: false, reason: 'invalid-linux-nftables-lab-status' };
-  }
-
-  return { ok: true, status: parsed.data };
+  return mapJsonPayloadEventToStatus(
+    parseJsonPayloadFieldEvent(
+      event,
+      AgentEvent.NetworkLinuxNftablesLabStatusReported,
+      AgentProtocolDefaults.Field.NetworkLinuxNftablesLabStatus,
+      AgentNetworkLinuxNftablesLabStatusSchema
+    ),
+    {
+      'missing-json-field': 'missing-linux-nftables-lab-status',
+      'invalid-json': 'invalid-linux-nftables-lab-status-json',
+      'invalid-payload': 'invalid-linux-nftables-lab-status',
+    }
+  );
 }

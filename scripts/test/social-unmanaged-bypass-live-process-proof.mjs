@@ -90,7 +90,7 @@ const proof = {
   liveProcessSummary: {
     realLocalBrowserProcessObserved: launchSummary.liveBrowserProcessObserved,
     generatedOrFixturePageUsed: false,
-    realPublicSocialSurfacesRequested: browserCandidate !== null,
+    realPublicSocialSurfacesRequested: browserCandidate !== undefined,
     passiveNavigationOnly: true,
     exactUrlClaimed: false,
     routeEvidenceClaimed: false,

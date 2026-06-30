@@ -35,8 +35,9 @@ App/game is the native app and native game evidence spine. It observes and norma
 Module roles:
 
 ```text
-schema-domain: canonical shared app/game schema, brands, parser, evidence row, adapter readiness, classifier digest, policy target, platform proof, child UX, and handoff shapes when those shapes cross package, crate, app, or plan boundaries.
-app-game-domain: TypeScript helper/projection and focused validation surface. It consumes canonical schema-domain shapes and must not become a broad aggregator of policy, enforcement, notification, portal, or production runtime behavior.
+crates/schema or the owning Rust crate: canonical shared app/game schema, brands, parser, evidence row, adapter readiness, classifier digest, policy target, platform proof, child UX, handoff shapes, and route/action/read-model DTOs when those shapes cross package, crate, app, or plan boundaries.
+schema-domain: temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+app-game-domain: TypeScript helper/projection and focused validation surface. It consumes Rust-owned/generated shapes and must not become a broad aggregator of policy, enforcement, notification, portal, or production runtime behavior.
 app-game-core: child-local Rust app/game observation, sessionization, evidence event, AI-request event, and policy-request event boundary. It should use event/protocol handoffs rather than importing sibling runtime crates.
 agent-protocol and agent-service: wire/service boundaries only when the selected workpack names protocol, service handler, or read API proof.
 parent-domain, policy-domain, enforcement-domain, notification-domain, portal-domain, and apps/portal: consumers/projections/handoff owners. They must not re-own app/game observation, sessionization, or platform adapter authority.
@@ -47,7 +48,7 @@ platform adapters: source observers for assigned OS/platform proof only. They pr
 Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
 
 ```text
-canonical schema-domain app/game/evidence/policy-reference/protocol/capability/logging shapes
+Rust-owned canonical app/game/evidence/policy-reference/protocol/capability/logging shapes plus generated DTOs or temporary edge decoders
 neutral event/evidence/logging/protocol primitives
 approved public app-game-domain helper exports when the selected workpack names app-game-domain scope
 approved Rust runtime/parity crates when the selected workpack names Rust proof
@@ -59,12 +60,12 @@ Forbidden direct imports:
 ```text
 sibling feature owner runtime behavior from AI, policy, enforcement, notification, portal, child-runtime, LAN, remote, setup, payment, or data-custody plans
 private source files from another plan's owning package/crate
-peer feature contracts when the shared shape should live in schema-domain or another neutral boundary
+peer feature contracts when the shared shape should live in crates/schema or another neutral Rust-owned boundary
 portal, policy, AI, or notification code that scans app/game source state instead of consuming app/game evidence/read models
 policy or enforcement internals that execute app/game actions without typed app/game authority, source freshness, and adapter-readiness proof
 ```
 
-If app/game needs AI, policy, enforcement, notification, portal, child-runtime, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+If app/game needs AI, policy, enforcement, notification, portal, child-runtime, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `crates/schema` or another neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete. Do not solve cross-plan behavior by importing another feature's runtime internals.
 
 ## Default read order
 

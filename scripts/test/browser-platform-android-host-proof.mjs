@@ -39,7 +39,7 @@ if (
   listDevices(adb.path).filter((device) => device.state === 'device').length === 0
 ) {
   launchedEmulatorSerial = await launchEmulatorIfAvailable(adb.path, emulator.path, emulatorAvds);
-  launchedEmulator = launchedEmulatorSerial !== null;
+  launchedEmulator = launchedEmulatorSerial !== undefined;
 }
 
 const discoveredDevices = adb ? listDevices(adb.path) : [];
@@ -110,7 +110,7 @@ const proof = {
   commit: git(['rev-parse', 'HEAD']),
   baseCommit: git(['rev-parse', 'origin/main']),
   hostProofSummary: {
-    adbInstalled: adb !== null,
+    adbInstalled: adb !== undefined,
     adbPathPersisted: false,
     adbPathSha256: adb ? sha256(adb.path) : null,
     adbVersionSha256: adbVersion ? sha256(adbVersion) : null,
@@ -193,14 +193,14 @@ writeJson(outputProofPath, proof);
 console.log('browser-platform-android-host-proof-ok=true');
 console.log(`proof=${testResultPath}`);
 console.log(`outputProof=${outputProofPath}`);
-console.log(`adbInstalled=${adb !== null}`);
+console.log(`adbInstalled=${adb !== undefined}`);
 console.log(`attachedDeviceCount=${attachedDevices.length}`);
 console.log(`bootedDeviceCount=${bootedDeviceCount}`);
 console.log(`resultState=${proof.hostProofSummary.resultState}`);
 console.log(`androidSerialFilterUsed=${proof.hostProofSummary.androidSerialFilterUsed}`);
 console.log(`physicalAndroidTargetObserved=${proof.hostProofSummary.physicalAndroidTargetObserved}`);
 
-if (adb && launchedEmulatorSerial !== null) {
+if (adb && launchedEmulatorSerial !== undefined) {
   command(['-s', launchedEmulatorSerial, 'emu', 'kill'], { adbPath: adb.path, allowFailure: true });
 }
 
@@ -319,7 +319,7 @@ function parseDeviceDetails(details) {
         const separatorIndex = detail.indexOf(':');
         return separatorIndex > 0 ? [detail.slice(0, separatorIndex), detail.slice(separatorIndex + 1)] : null;
       })
-      .filter((entry) => entry !== null)
+      .filter((entry) => entry !== undefined)
   );
 }
 

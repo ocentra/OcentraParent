@@ -42,6 +42,7 @@ use ocentra_policy_control_core::policy_source::{
 
 use crate::{
     activity_store_path::activity_db_path, event_builder::build_event, fields::fields_from_pairs,
+    json_contract::serialize_json_string,
 };
 
 #[path = "policy_request_confirm_mapping.rs"]
@@ -52,10 +53,6 @@ use self::mapping::{
     map_protocol_confirmation_state, map_protocol_request_status, map_request_kind,
     map_request_origin, map_request_status, map_requested_action, map_target_kind,
 };
-
-#[cfg(test)]
-#[path = "policy_request_confirm_tests.rs"]
-mod tests;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum PolicyRequestAssistantPreviewConfirmParseState {
@@ -124,8 +121,7 @@ pub(crate) async fn build_policy_request_assistant_preview_confirm_report(
     let (request, parse_state) = parse_policy_request_assistant_preview_confirm_request(&command);
     let result =
         execute_policy_request_assistant_preview_confirm(&command, &request, parse_state).await;
-    let result_text = serde_json::to_string(&result)
-        .unwrap_or_else(|error| panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES));
+    let result_text = serialize_json_string(&result);
 
     build_event(
         constants::event_id::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REPORTED,
@@ -529,7 +525,7 @@ fn supported_policy_preview_target(
     }
 }
 
-fn default_policy_request_assistant_preview_confirm_request(
+pub(crate) fn default_policy_request_assistant_preview_confirm_request(
 ) -> PolicyRequestAssistantPreviewConfirmRequest {
     PolicyRequestAssistantPreviewConfirmRequest {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,

@@ -28,7 +28,12 @@ export const LanPlanWorkpackIdSchema = withParser(
     '17',
     '18',
     '19',
-    '20'
+    '20',
+    '21',
+    '22',
+    '23',
+    '24',
+    '25'
   )
 );
 
@@ -44,10 +49,13 @@ export const LanDiscoverySourceKindSchema = withParser(
     'targeted-arp-refresh',
     'bounded-arp-sweep',
     'passive-arp-listener',
+    'passive-dhcp-listener',
     'passive-mdns-listener',
     'passive-ssdp-listener',
+    'passive-ws-discovery-listener',
     'passive-llmnr-listener',
     'passive-netbios-listener',
+    'passive-snmp-response-listener',
     'mdns-dns-sd-query',
     'ssdp-upnp-query',
     'netbios-name-cache',
@@ -170,12 +178,25 @@ const RequiredWorkpacks = [
   '18',
   '19',
   '20',
+  '21',
+  '22',
+  '23',
+  '24',
+  '25',
 ] as const satisfies ReadonlyArray<LanPlanWorkpackId>;
 const WeakSources = [
   'windows-neighbor-table',
   'linux-proc-net-arp',
   'linux-ip-neigh',
   'macos-arp',
+  'passive-arp-listener',
+  'passive-dhcp-listener',
+  'passive-mdns-listener',
+  'passive-ssdp-listener',
+  'passive-ws-discovery-listener',
+  'passive-llmnr-listener',
+  'passive-netbios-listener',
+  'passive-snmp-response-listener',
   'netbios-name-cache',
   'llmnr-name-query',
   'reverse-dns-query',

@@ -36,14 +36,14 @@ pub struct LiveWindowsForegroundWindowSnapshot {
     pub window_title: String,
 }
 
-pub(crate) fn live_windows_foreground_window_record(
+pub fn live_windows_foreground_window_record(
     observed_at: &str,
 ) -> Option<WindowsForegroundWindowRecord> {
     active_window_snapshot()
         .map(|snapshot| live_windows_foreground_window_record_from_snapshot(observed_at, &snapshot))
 }
 
-pub(crate) fn live_windows_foreground_window_record_from_snapshot(
+pub fn live_windows_foreground_window_record_from_snapshot(
     observed_at: &str,
     snapshot: &LiveWindowsForegroundWindowSnapshot,
 ) -> WindowsForegroundWindowRecord {

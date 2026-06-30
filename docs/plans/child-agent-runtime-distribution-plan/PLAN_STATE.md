@@ -1,17 +1,20 @@
 # Child Agent Runtime Distribution Plan State
 
-Status: canonical child runtime distribution scope documented; implementation and proof remain open.
+Status: canonical child runtime distribution scope documented; WP01 child agent scope and route boundary, WP03 child macOS service package, WP04 child Linux service package, WP05 child Android package, WP06 child iOS capability package, WP07 child managed service respawn, WP08 child parent-authorized uninstall contract/proof, WP09 child signing/store/device-owner matrix, WP10 setup device trust handoff, and WP11 proof CI release gate are complete; WP02 child Windows service package is now blocked / proof-present on exact local lifecycle blockers, and remaining workpacks remain open.
 
 Research status: aligned against the current repo child-service/runtime surface, the existing package scripts for Windows/macOS/Linux/Android/iOS distribution, and the separated parent-client runtime distribution route. The parent client plan now owns the parent artifact boundary; this plan owns the child artifact boundary.
 
 ## Current ownership interpretation
 
 ```text
-schema-domain:
+crates/schema or the owning Rust crate:
   Canonical shared child package, child runtime, platform capability, device-owner, managed-profile, supervision, artifact, signing, setup-trust-handoff, and release-gate shapes when they cross package, crate, app, or plan boundaries.
 
+schema-domain:
+  Temporary thin/generated validation and edge-decoder surface only where TypeScript still consumes Rust-owned contracts during migration.
+
 child-runtime-domain:
-  Child runtime package-boundary metadata/helper surface. Shared child runtime contracts live in schema-domain.
+  Child runtime package-boundary metadata/helper surface. Shared child runtime contracts live in Rust-owned schema surfaces.
 
 scripts/release:
   Artifact build/checksum/signing-package proof only for the selected platform.
@@ -61,26 +64,33 @@ Evidence from the repo:
 
 - `release:package:windows`, `release:package:linux`, `release:package:macos`, `release:package:android`, and `release:package:ios` already exist as child distribution anchors.
 - `test:child-android-protocol-package-lifecycle-proof` already exists as a child proof anchor.
+- `test:child-managed-service-respawn-proof` now proves Windows/macOS/Linux service-manager respawn support, Android manual-required state, and iOS unsupported state under the child proof root.
 - `docs/features/child-agent-local-service.md` describes the child runtime/service boundary that distribution must package honestly.
 - The repo already differentiates child-service/runtime ownership from parent-client packaging, but the plan naming still needs the child route.
 
 Current child direction:
 
-- Windows, macOS, and Linux rows must prove package/service lifecycle behavior separately.
-- Android rows must prove package state, device install state, and device-owner or managed-profile gaps honestly.
-- iOS rows must prove distribution/provisioning state honestly and keep service-limit gaps visible.
-- Managed respawn and parent-authorized uninstall need their own platform-specific proof.
-- Setup-device-trust handoff must stay separate from package distribution.
+- Windows rows now have a real MSI/package proof pack plus an explicit `admin-required` blocked lifecycle proof state; elevated-host install/start/stop/restart/uninstall execution remains open.
+- macOS now has a real proof pack for the launchd package boundary, explicit `unsigned` signing state, and manual-required install/runtime/notarization/uninstall states.
+- Linux now has a real proof pack for the direct `.deb` + `systemd` package boundary, explicit checksum and distro-baseline state, a real Ubuntu 22.04 baseline `.deb` build, and smoke-proved `dpkg` install/remove/purge cleanup; signed distribution, generic distro support, steady-state service health, and crash recovery remain explicit manual-required boundaries.
+- Android rows now prove package state, explicit `debug-apk-sideload` mode, and manual-required install/launch/removal plus device-owner/managed-profile gaps honestly; real device/runtime/store artifacts remain open.
+- WP09 now has a real Rust-owned shared contract under `crates/schema/src/child_signing_store_device_owner_matrix.rs`, a checked-in generated TS contract under `packages/schema-domain/src/generated/child-signing-store-device-owner-matrix-contracts.ts`, and a thin schema-domain adapter/proof pack under `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/`.
+- WP06 now has a real Rust-owned shared contract under `crates/schema/src/child_ios_entitlement_capability_proof.rs`, a checked-in generated TS contract under `packages/schema-domain/src/generated/child-ios-entitlement-capability-proof-contracts.ts`, a thin schema-domain adapter at `packages/schema-domain/src/child-ios-entitlement-capability-proof.ts`, and a real proof pack under `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/`; its focused Rust contract/build/proof/runner/architecture/type-check validations are now green while keeping capability-only, provisioning-limit, supervision-limit, and no-daemon/no-parity boundaries explicit.
+- Managed respawn now has its own platform-specific proof: Windows WinSW, macOS launchd, and Linux systemd claim kill/reboot/service-manager restart support; deliberate stop stays explicit/manual-required; Android remains manual-required; iOS remains unsupported.
+- Parent-authorized uninstall now has its own contract/read-model proof slice with explicit parent-authorization, revocation-audit, teardown, and residual-state boundaries; unsupported or manual-required platform uninstall control remains visible rather than implied.
+- Setup-device-trust handoff now has a real Rust-owned contract proof pack under `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/`, with explicit request/response refs, external artifact pointer, route-sync rows, and no-claim boundaries that keep setup/trust/package/runtime states separate.
+- WP01 now has a real scope-and-route proof pack under `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/`, with explicit Rust-first ownership, historical parent-client compatibility note, and no-claim boundaries between package build, install, runtime health, respawn, uninstall/revocation, setup trust, and release readiness.
+- WP11 now has a real aggregate proof gate under `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/`, and it intentionally records that the child plan is not PR-ready or release-ready while WP02 remains blocked on exact local lifecycle proof gaps.
 
 Open gaps:
 
-- Artifact matrix and signing/device-owner claims need explicit per-platform rows.
-- Tamper/uninstall and managed respawn proof still need separate slices.
-- iOS capability and manual-required state still need explicit wording.
-- WP01 and WP10 remain open; no proof artifacts exist under their declared `output/child-agent-runtime-distribution-plan-proof/...` roots.
+- WP02 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/`, and the latest rerun at `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json` kept install/start/stop/restart/uninstall/respawn execution honestly blocked and manual-required on a non-elevated host.
+- WP04 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/`, and it intentionally limits claims to the unsigned direct `.deb` + `systemd` package boundary plus Ubuntu 22.04 smoke-proved install/remove/purge cleanup; signed distribution, generic distro support, steady-state service health, and crash recovery remain manual-required.
+- WP03 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/`, and it intentionally limits claims to the launchd package boundary plus manual-required install/runtime/restart/notarization/uninstall truth.
+- WP08 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/`, and it intentionally limits claims to contract/read-model truth plus explicit no-claim boundaries rather than platform uninstall-control parity.
+- WP05 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/`, but it intentionally stops at package-only proof and manual-required device/runtime/authority states.
+- WP07 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/`, and it intentionally limits desktop claims to service-manager configuration proof rather than live installed runtime health.
 - Proof docs still disagree between the `output/child-agent-runtime-distribution-plan-proof/...` route and stale legacy proof-path references.
-- Android and iOS proof runners still reference missing parent-domain test ownership paths instead of the existing `packages/child-runtime-domain/tests/unit/...` tests.
-- Focused child proof commands still fail before slice validation when unrelated workspace `build:contracts` dependencies break.
 
 ## HID execution guard
 

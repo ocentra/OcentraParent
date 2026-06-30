@@ -1,32 +1,53 @@
 import { type Infer, Schema, withParser } from './effect';
 import { FamilyReferenceSchema, ParentAccountReferenceSchema, ParentActorReferenceSchema } from './family-references';
 import { ParentTimestampSchema } from './family-reference-primitives';
-import { BillingPlanIdSchema } from './billing-entitlement-values';
 import {
   BillingCheckoutAbuseGateStateSchema,
+  BillingHostedCheckoutPlanIdSchema,
+  BillingHostedCsrfStateSchema,
   BillingCheckoutPortalBoundarySchemaVersionSchema,
   BillingHostedCheckoutUrlSchema,
+  BillingHostedOriginGateStateSchema,
   BillingHostedPortalUrlSchema,
   BillingHostedReturnPathSchema,
+  BillingHostedReturnResolutionSchema,
   BillingHostedReturnRouteIdSchema,
   BillingHostedSessionIdSchema,
   BillingHostedSessionRejectionReasonSchema,
   BillingHostedSessionRequestIdSchema,
   BillingHostedSessionStatusSchema,
+  BillingHostedSurfaceSecretCustodySchema,
 } from './billing-checkout-portal-boundary-values';
 
 type BillingHostedReturnRouteId = Infer<typeof BillingHostedReturnRouteIdSchema>;
 type BillingHostedReturnPath = Infer<typeof BillingHostedReturnPathSchema>;
+type BillingHostedReturnResolution = Infer<typeof BillingHostedReturnResolutionSchema>;
 
-const BillingHostedRoutePathById: Record<BillingHostedReturnRouteId, BillingHostedReturnPath> = {
-  'family-billing-checkout-success': '/family/billing/checkout/success',
-  'family-billing-checkout-cancel': '/family/billing/checkout/cancel',
-  'family-billing-portal-return': '/family/billing/manage',
+const BillingHostedRouteContractById: Record<
+  BillingHostedReturnRouteId,
+  {
+    readonly relativePath: BillingHostedReturnPath;
+    readonly resolution: BillingHostedReturnResolution;
+  }
+> = {
+  'family-billing-checkout-success': {
+    relativePath: '/family/billing/checkout/success',
+    resolution: 'awaiting-provider-webhook',
+  },
+  'family-billing-checkout-cancel': {
+    relativePath: '/family/billing/checkout/cancel',
+    resolution: 'cancelled-before-provider-confirmation',
+  },
+  'family-billing-portal-return': {
+    relativePath: '/family/billing/manage',
+    resolution: 'portal-management-only',
+  },
 } as const;
 
 const BillingHostedReturnRouteStruct = Schema.Struct({
   routeId: BillingHostedReturnRouteIdSchema,
   relativePath: BillingHostedReturnPathSchema,
+  resolution: BillingHostedReturnResolutionSchema,
 });
 type BillingHostedReturnRouteShape = Infer<typeof BillingHostedReturnRouteStruct>;
 
@@ -34,8 +55,13 @@ export const BillingHostedReturnRouteSchema = withParser(
   BillingHostedReturnRouteStruct.pipe(
     Schema.filter(
       (route: BillingHostedReturnRouteShape) =>
-        billingHostedReturnRoutePath(route.routeId) === route.relativePath ||
+        billingHostedReturnRouteContract(route.routeId).relativePath === route.relativePath ||
         'Expected billing hosted session routes to use the exact allowlisted relative path for each route id'
+    ),
+    Schema.filter(
+      (route: BillingHostedReturnRouteShape) =>
+        billingHostedReturnRouteContract(route.routeId).resolution === route.resolution ||
+        'Expected billing hosted session routes to keep explicit return resolution state per allowlisted route id'
     )
   )
 );
@@ -47,7 +73,10 @@ const BillingCheckoutSessionRequestStruct = Schema.Struct({
   actor: ParentActorReferenceSchema,
   parentAccount: ParentAccountReferenceSchema,
   family: FamilyReferenceSchema,
-  planId: BillingPlanIdSchema,
+  planId: BillingHostedCheckoutPlanIdSchema,
+  originGateState: BillingHostedOriginGateStateSchema,
+  csrfState: BillingHostedCsrfStateSchema,
+  surfaceSecretCustody: BillingHostedSurfaceSecretCustodySchema,
   successRoute: BillingHostedReturnRouteSchema,
   cancelRoute: BillingHostedReturnRouteSchema,
   abuseGateState: BillingCheckoutAbuseGateStateSchema,
@@ -86,6 +115,9 @@ const BillingPortalSessionRequestStruct = Schema.Struct({
   actor: ParentActorReferenceSchema,
   parentAccount: ParentAccountReferenceSchema,
   family: FamilyReferenceSchema,
+  originGateState: BillingHostedOriginGateStateSchema,
+  csrfState: BillingHostedCsrfStateSchema,
+  surfaceSecretCustody: BillingHostedSurfaceSecretCustodySchema,
   returnRoute: BillingHostedReturnRouteSchema,
   abuseGateState: BillingCheckoutAbuseGateStateSchema,
 });
@@ -172,19 +204,25 @@ export const BillingHostedReturnRoute = {
   CheckoutSuccess: BillingHostedReturnRouteSchema.parse({
     routeId: 'family-billing-checkout-success',
     relativePath: '/family/billing/checkout/success',
+    resolution: 'awaiting-provider-webhook',
   }),
   CheckoutCancel: BillingHostedReturnRouteSchema.parse({
     routeId: 'family-billing-checkout-cancel',
     relativePath: '/family/billing/checkout/cancel',
+    resolution: 'cancelled-before-provider-confirmation',
   }),
   PortalReturn: BillingHostedReturnRouteSchema.parse({
     routeId: 'family-billing-portal-return',
     relativePath: '/family/billing/manage',
+    resolution: 'portal-management-only',
   }),
 } as const;
 
-function billingHostedReturnRoutePath(routeId: BillingHostedReturnRouteId): string {
-  return BillingHostedRoutePathById[routeId];
+function billingHostedReturnRouteContract(routeId: BillingHostedReturnRouteId): {
+  readonly relativePath: BillingHostedReturnPath;
+  readonly resolution: BillingHostedReturnResolution;
+} {
+  return BillingHostedRouteContractById[routeId];
 }
 
 function billingActorMayCreateHostedSession(actor: Infer<typeof ParentActorReferenceSchema>): boolean {

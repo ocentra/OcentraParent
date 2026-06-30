@@ -139,7 +139,7 @@ fn parent_decision_rows(
         parent_decision_row(
             LanSignedDiscoveryRelayRouteSafetyCheck::ParentRevokeDecisionAudited,
             Some(route_id),
-            revocation_state(trusted_device_registry),
+            revocation_state(trusted_device_registry, household_device_decisions),
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PARENT_REVOCATION,
         ),
     ]
@@ -267,7 +267,14 @@ fn decision_state(
 
 fn revocation_state(
     trusted_device_registry: &[LanTrustedDeviceRegistryEntry],
+    household_device_decisions: &[LanHouseholdDeviceDecision],
 ) -> LanPairingProductionDiscoveryState {
+    if household_device_decisions.iter().any(|decision| {
+        decision.action_kind == LanHouseholdDeviceActionKind::Revoke
+            && decision.revoked_at.is_none()
+    }) {
+        return LanPairingProductionDiscoveryState::Revoked;
+    }
     if trusted_device_registry.iter().any(|entry| {
         entry.revoked_at.is_some() || entry.trust_state == LanPairingTrustState::Revoked
     }) {

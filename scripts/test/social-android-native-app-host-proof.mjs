@@ -64,7 +64,7 @@ const proof = {
   commit: git(['rev-parse', 'HEAD']),
   baseCommit: git(['rev-parse', 'origin/main']),
   hostProofSummary: {
-    adbInstalled: adb !== null,
+    adbInstalled: adb !== undefined,
     adbPathPersisted: false,
     adbPathSha256: adb ? sha256(adb.path) : null,
     adbVersionSha256: adbVersion ? sha256(adbVersion) : null,
@@ -105,7 +105,7 @@ writeJson(outputProofPath, proof);
 console.log('social-android-native-app-host-proof-ok=true');
 console.log(`proof=${testResultPath}`);
 console.log(`outputProof=${outputProofPath}`);
-console.log(`adbInstalled=${adb !== null}`);
+console.log(`adbInstalled=${adb !== undefined}`);
 console.log(`attachedDeviceCount=${attachedDevices.length}`);
 console.log(`resultState=${proof.hostProofSummary.resultState}`);
 

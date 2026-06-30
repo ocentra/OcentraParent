@@ -35,8 +35,9 @@ This plan owns packaging and distribution proof for child runtime artifacts. It 
 Module roles:
 
 ```text
-schema-domain: canonical shared child package, child runtime, platform capability, device-owner, managed-profile, supervision, artifact, signing, setup-trust-handoff, and release-gate shapes when those shapes cross package, crate, app, or plan boundaries.
-child-runtime-domain: child runtime package-boundary metadata/helper surface. Shared child runtime contracts live in schema-domain.
+crates/schema or the owning Rust crate: canonical shared child package, child runtime, platform capability, device-owner, managed-profile, supervision, artifact, signing, setup-trust-handoff, release-gate, and route/action/read-model DTO shapes when those shapes cross package, crate, app, or plan boundaries.
+schema-domain: temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+child-runtime-domain: child runtime package-boundary metadata/helper surface. Shared child runtime contracts live in Rust-owned schema surfaces.
 agent-protocol and agent-service: runtime/protocol proof only when the selected workpack names child runtime, service health, package lifecycle protocol, or service-manager proof.
 scripts/release: artifact build/checksum/signing-packaging proof only. Package scripts do not prove install, runtime, respawn, uninstall, setup, transport, or platform readiness by themselves.
 setup-install-provisioning-plan: setup journey owner; this plan consumes only typed setup-to-child-install handoff state.
@@ -48,7 +49,7 @@ policy, enforcement, AI, portal, notification, LAN, remote, account, payment, an
 Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
 
 ```text
-canonical schema-domain child-runtime/package/platform-capability/setup-trust-handoff/artifact/signing/release-gate shapes
+Rust-owned canonical child-runtime/package/platform-capability/setup-trust-handoff/artifact/signing/release-gate shapes plus generated DTOs or temporary edge decoders
 neutral event/evidence/logging/protocol primitives
 child-runtime-domain package-info and approved metadata helpers
 agent-protocol/agent-service public surfaces only when runtime/protocol proof is selected
@@ -67,7 +68,7 @@ package build/checksum/signing proof upgraded into install, runtime health, resp
 platform unsupported/manual-required states hidden or collapsed into ready states
 ```
 
-If child distribution work needs setup, device trust, policy, enforcement, notification, portal, LAN, remote, account, or data custody behavior, it must use typed evidence, commands, events, requests, read models, artifact manifests, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+If child distribution work needs setup, device trust, policy, enforcement, notification, portal, LAN, remote, account, or data custody behavior, it must use typed evidence, commands, events, requests, read models, artifact manifests, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `crates/schema` or another neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete. Do not solve cross-plan behavior by importing another feature's runtime internals.
 
 ## Research gate
 

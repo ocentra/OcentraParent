@@ -23,7 +23,7 @@ pub async fn prove_network_runtime_remote_delivery_no_enforcement_invariant() ->
     )
 }
 
-pub(crate) fn prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness(
+pub fn prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness(
     dispatch_readiness: NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,

@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel } from './app-install-purchase-provider-store-execution-preflight-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseProviderStoreManualEvidencePacketRowGenerated,
+  providerStoreManualEvidencePacketProofIsHonestGenerated,
+  providerStoreManualEvidencePacketRowIsHonestGenerated,
+  summarizeAppInstallPurchaseProviderStoreManualEvidencePacketProofGenerated,
+} from './generated/app-install-purchase-platform-evidence-helpers';
 
 const ProofVersion = 'app-install-purchase-provider-store-manual-evidence-packet-proof';
 const PlatformProofReadinessVersion = 'app-install-purchase-platform-proof-readiness';
@@ -159,23 +165,7 @@ export const AppInstallPurchaseProviderStoreManualEvidencePacketProofReadModel =
 export function summarizeAppInstallPurchaseProviderStoreManualEvidencePacketProof(
   proof: AppInstallPurchaseProviderStoreManualEvidencePacketProof
 ) {
-  return {
-    manualEvidencePacketRows: proof.manualEvidencePacketRows.length,
-    packetReadyRows: proof.manualEvidencePacketRows.filter(
-      (row) => row.manualEvidencePacketState === 'manual-evidence-packet-ready'
-    ).length,
-    manualReviewRequiredRows: proof.manualEvidencePacketRows.filter(
-      (row) => row.manualEvidencePacketState === 'manual-review-required'
-    ).length,
-    providerUnavailableRows: proof.manualEvidencePacketRows.filter(
-      (row) => row.manualEvidencePacketState === 'provider-unavailable'
-    ).length,
-    providerExecutedRows: proof.manualEvidencePacketRows.filter(
-      (row) => row.providerApiExecutionClaim !== 'not-executed'
-    ).length,
-    childDeliveredRows: proof.manualEvidencePacketRows.filter((row) => row.childDeviceDeliveryClaim !== 'not-delivered')
-      .length,
-  } as const;
+  return summarizeAppInstallPurchaseProviderStoreManualEvidencePacketProofGenerated(proof);
 }
 
 function manualEvidencePacketRow(
@@ -187,111 +177,38 @@ function manualEvidencePacketRow(
   if (!platformRow) {
     throw new Error(`Missing platform proof readiness row for ${preflightRow.platform}`);
   }
-  return {
-    schemaVersion: ProofVersion,
-    manualEvidencePacketRowId: `provider-store-manual-evidence-packet-${preflightRow.platform}-${preflightRow.storeSurface}`,
-    sourcePlatformProofReadinessVersion: PlatformProofReadinessVersion,
-    sourcePlatformProofReadinessState: platformRow.platformProofReadinessState,
-    sourceProviderStorePreflightVersion: ProviderStorePreflightVersion,
-    sourceProviderStorePreflightRowId: preflightRow.providerStoreExecutionPreflightRowId,
-    sourceProviderStorePreflightState: preflightRow.providerStoreExecutionPreflightState,
-    platform: preflightRow.platform,
-    storeSurface: preflightRow.storeSurface,
-    manualEvidencePacketState: packetState(
-      platformRow.platformProofReadinessState,
-      preflightRow.providerStoreExecutionPreflightState
-    ),
-    requiredManualEvidenceRefs: platformRow.requiredManualEvidenceRefs,
-    requiredProviderEvidenceRefs: preflightRow.requiredProviderEvidenceRefs,
-    runtimeWriterReceiptRefs: preflightRow.runtimeWriterReceiptRefs,
-    auditEventRefs: preflightRow.auditEventRefs,
-    reportRuntimeRefs: preflightRow.reportRuntimeRefs,
-    providerApiExecutionClaim: 'not-executed',
-    googlePlayExecutionClaim: 'not-executed',
-    appleAppStoreExecutionClaim: 'not-executed',
-    microsoftStoreExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    runtimeWriterDeliveryClaim: 'not-delivered',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    childDeviceDeliveryClaim: 'not-delivered',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: Boundary,
-    evaluatedAt: UpdatedAt,
-  } as const;
-}
-
-function packetState(
-  platformState: (typeof AppInstallPurchasePlatformProofReadinessProofReadModel.platformProofReadinessRows)[number]['platformProofReadinessState'],
-  preflightState: (typeof AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel.providerStoreExecutionPreflightRows)[number]['providerStoreExecutionPreflightState']
-): (typeof PacketStates)[number] {
-  if (platformState === 'unavailable' || preflightState === 'provider-unavailable') {
-    return 'provider-unavailable';
-  }
-  if (platformState === 'manual-proof-required' && preflightState === 'preflight-ready') {
-    return 'manual-evidence-packet-ready';
-  }
-  return 'manual-review-required';
+  return buildAppInstallPurchaseProviderStoreManualEvidencePacketRowGenerated(
+    {
+      platform: preflightRow.platform,
+      storeSurface: preflightRow.storeSurface,
+      providerStoreExecutionPreflightRowId: preflightRow.providerStoreExecutionPreflightRowId,
+      providerStoreExecutionPreflightState: preflightRow.providerStoreExecutionPreflightState,
+      requiredProviderEvidenceRefs: preflightRow.requiredProviderEvidenceRefs,
+      runtimeWriterReceiptRefs: preflightRow.runtimeWriterReceiptRefs,
+      auditEventRefs: preflightRow.auditEventRefs,
+      reportRuntimeRefs: preflightRow.reportRuntimeRefs,
+    },
+    platformRow,
+    PlatformProofReadinessVersion,
+    ProviderStorePreflightVersion,
+    Boundary,
+    UpdatedAt
+  );
 }
 
 function rowIsHonest(row: RowCandidate): boolean {
   return (
     row.sourcePlatformProofReadinessVersion === PlatformProofReadinessVersion &&
     row.sourceProviderStorePreflightVersion === ProviderStorePreflightVersion &&
-    rowHasEvidenceReferences(row) &&
-    rowHasNoExecutionClaims(row) &&
-    rowHasNoDeliveryCustodyClaims(row) &&
-    BoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
-  );
-}
-
-function rowHasEvidenceReferences(row: RowCandidate): boolean {
-  return (
-    row.sourceProviderStorePreflightRowId.length > 0 &&
-    row.requiredManualEvidenceRefs.length > 0 &&
-    row.requiredProviderEvidenceRefs.length > 0 &&
-    row.runtimeWriterReceiptRefs.length > 0 &&
-    row.auditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function rowHasNoExecutionClaims(row: RowCandidate): boolean {
-  return (
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.googlePlayExecutionClaim === 'not-executed' &&
-    row.appleAppStoreExecutionClaim === 'not-executed' &&
-    row.microsoftStoreExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented'
-  );
-}
-
-function rowHasNoDeliveryCustodyClaims(row: RowCandidate): boolean {
-  return (
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+    providerStoreManualEvidencePacketRowIsHonestGenerated(row, BoundaryFragments)
   );
 }
 
 function proofIsHonest(proof: AppInstallPurchaseProviderStoreManualEvidencePacketProof): boolean {
-  const keys = new Set(proof.manualEvidencePacketRows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const states = new Set(proof.manualEvidencePacketRows.map((row) => row.manualEvidencePacketState));
-  const nonClaims = new Set(proof.nonClaims);
   return (
     proof.sourcePlatformProofReadinessVersion === PlatformProofReadinessVersion &&
     proof.sourceProviderStorePreflightVersion === ProviderStorePreflightVersion &&
-    proof.manualEvidencePacketRows.length === StoreSurfaces.length &&
-    keys.size === proof.manualEvidencePacketRows.length &&
-    PacketStates.every((state) => states.has(state)) &&
-    NonClaims.every((claim) => nonClaims.has(claim)) &&
-    proof.manualEvidencePacketRows.every(rowIsHonest) &&
-    proof.knownGaps.length > 0
+    providerStoreManualEvidencePacketProofIsHonestGenerated(proof, StoreSurfaces, PacketStates, NonClaims) &&
+    proof.manualEvidencePacketRows.every(rowIsHonest)
   );
 }

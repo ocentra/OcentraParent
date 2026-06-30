@@ -187,7 +187,7 @@ async function waitForStartupCaptureSettled(runRoot) {
   let stableChecks = 0;
   while (Date.now() < deadline) {
     const size = await fileSize(journalPath);
-    if (size !== null && size === previousSize) {
+    if (size !== undefined && size === previousSize) {
       stableChecks += 1;
       if (stableChecks >= 2) {
         return;
@@ -218,7 +218,7 @@ function spawnOwnedChildProcess() {
 }
 
 function waitForChildExit(child) {
-  if (child.exitCode !== null || child.signalCode !== null) {
+  if (child.exitCode !== undefined || child.signalCode !== undefined) {
     return Promise.resolve();
   }
   return new Promise((resolve, reject) => {
@@ -235,7 +235,7 @@ function waitForChildExit(child) {
 }
 
 function assertChildStillRunning(child) {
-  if (child.exitCode !== null || child.signalCode !== null) {
+  if (child.exitCode !== undefined || child.signalCode !== undefined) {
     throw new Error(`Expected owned child process ${child.pid} to still be running.`);
   }
 }
@@ -372,7 +372,7 @@ function assertCancelEvent(event) {
   if (audit.parentOverride?.actionReferenceId !== ids.parentActionReferenceId) {
     throw new Error(`Expected parent override reference, received ${JSON.stringify(audit.parentOverride)}`);
   }
-  if (event.payload.enforcementTimerState !== null) {
+  if (event.payload.enforcementTimerState !== undefined) {
     throw new Error('Cancel event should clear persisted active timer state.');
   }
   return {
@@ -409,7 +409,7 @@ async function assertExpireEvent(event, child) {
     assertPayloadValue(event.payload, 'enforcementAdapterResultCode', 'unsupported-platform');
   }
 
-  if (event.payload.enforcementTimerState !== null) {
+  if (event.payload.enforcementTimerState !== undefined) {
     throw new Error('Expire event should clear persisted active timer state.');
   }
 

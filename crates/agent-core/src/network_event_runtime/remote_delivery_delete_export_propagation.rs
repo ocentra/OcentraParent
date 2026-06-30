@@ -25,18 +25,7 @@ pub async fn prove_network_runtime_remote_delivery_delete_export_propagation() -
     )
 }
 
-#[cfg(test)]
-pub(crate) fn prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport(
-    fixture_transport: NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-) -> Result<
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
-> {
-    build_delete_export_propagation_report(fixture_transport)
-}
-
-#[cfg(not(test))]
-fn prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport(
+pub fn prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport(
     fixture_transport: NetworkRuntimeRemoteDeliveryFixtureTransportReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,

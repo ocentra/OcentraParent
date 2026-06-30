@@ -1,5 +1,5 @@
-import { decodeStackTrace, type StackTrace } from '@ocentra-parent/schema-domain/logging-contracts';
+import type { GeneratedStackTrace as StackTrace } from '@ocentra-parent/schema-domain/generated/logging-contracts';
 
 export function getStackTrace(): StackTrace {
-  return decodeStackTrace(new Error().stack ?? '');
+  return new Error().stack ?? '';
 }

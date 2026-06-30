@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
 use ocentra_parent_agent_protocol::constants::enforcement;
 use ocentra_parent_agent_protocol::constants::v08_os_adapter_product_proof as proof;
@@ -28,6 +29,7 @@ use crate::{
     windows_adapter_capability_read_model::windows_adapter_capability_proof,
 };
 
+#[path = "enforcement_os_adapter_product_proof_read_model/product_control_spine.rs"]
 pub(crate) mod product_control_spine;
 
 pub(crate) fn v08_os_adapter_product_proof_read_model(
@@ -454,7 +456,7 @@ fn readiness_entry(
         .entries
         .iter()
         .find(|entry| entry.capability == capability)
-        .unwrap_or_else(|| panic!("{}", enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER))
+        .expect_value(proof::READ_MODEL_ID)
 }
 
 fn assert_links(
@@ -467,14 +469,14 @@ fn assert_links(
             .entries
             .iter()
             .find(|entry| entry.proof_entry_id == **entry_id)
-            .unwrap_or_else(|| panic!("{}", windows_adapter_capability::READ_MODEL_ID_V0_8));
+            .expect_value(proof::READ_MODEL_ID);
     }
     for entry_id in &spec.linked_artifact_gate_entry_ids {
         artifact_gate
             .entries
             .iter()
             .find(|entry| entry.gate_entry_id == **entry_id)
-            .unwrap_or_else(|| panic!("{}", windows_adapter_artifact_gate::READ_MODEL_ID_V0_8));
+            .expect_value(proof::READ_MODEL_ID);
     }
 }
 

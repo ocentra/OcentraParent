@@ -51,8 +51,12 @@ use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_SCHEMA_VER
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_MANUAL;
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_UNAVAILABLE;
 
-use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use crate::{
+    event_builder::build_event, fields::fields_from_pairs, json_contract::serialize_json_string,
+    time::timestamp_now,
+};
 
+#[path = "social_alert_report_parent_surface_read_model_payload/social_parent_surface_status_handoff.rs"]
 mod social_parent_surface_status_handoff;
 
 use social_parent_surface_status_handoff::{
@@ -214,10 +218,7 @@ pub fn parent_surface_payload(
         ),
         (
             constants::field::BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_READ_MODEL,
-            LogFieldValue::String(match serde_json::to_string(read_model) {
-                Ok(serialized) => serialized,
-                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
-            }),
+            LogFieldValue::String(serialize_json_string(read_model)),
         ),
     ])
 }

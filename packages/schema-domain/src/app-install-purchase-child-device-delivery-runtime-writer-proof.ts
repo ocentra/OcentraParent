@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchasePackageSourceCaptureStatusProofReadModel } from './app-install-purchase-package-source-capture-status-proof';
 import { AppInstallPurchaseRuntimeWriterDeliveryProofReadModel } from './app-install-purchase-runtime-writer-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseChildDeviceDeliveryRuntimeWriterRowGenerated,
+  childDeviceDeliveryRuntimeWriterProofIsHonestGenerated,
+  childDeviceDeliveryRuntimeWriterRowIsHonestGenerated,
+  summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofGenerated,
+} from './generated/app-install-purchase-delivery-runtime-helpers';
 const ChildDeviceDeliveryRuntimeWriterProofVersion = 'app-install-purchase-child-device-delivery-runtime-writer-proof';
 const SourceRuntimeWriterDeliveryProofVersion = 'app-install-purchase-runtime-writer-delivery-proof';
 const SourcePackageSourceCaptureStatusProofVersion = 'app-install-purchase-package-source-capture-status-proof';
@@ -183,60 +189,23 @@ export const AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel =
 export function summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof(
   proof: AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof
 ) {
-  return {
-    childDeviceDeliveryRuntimeWriterRows: proof.childDeviceDeliveryRuntimeWriterRows.length,
-    childDeliveryEnvelopeReadyRows: proof.childDeviceDeliveryRuntimeWriterRows.filter(
-      (row) => row.childDeliveryEnvelopeState === 'child-delivery-envelope-ready'
-    ).length,
-    manualReviewRequiredRows: proof.childDeviceDeliveryRuntimeWriterRows.filter(
-      (row) => row.childDeliveryEnvelopeState === 'manual-review-required'
-    ).length,
-    packageSourceCaptureLinkedRows: proof.childDeviceDeliveryRuntimeWriterRows.filter(
-      packageSourceCaptureCoverageIsComplete
-    ).length,
-    runtimeWriterExecutedRows: proof.childDeviceDeliveryRuntimeWriterRows.filter(
-      (row) => row.runtimeWriterExecutionClaim !== 'not-executed'
-    ).length,
-    childDeviceDeliveredRows: proof.childDeviceDeliveryRuntimeWriterRows.filter(
-      (row) => row.childDeviceDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofGenerated(proof);
 }
 
 function childDeviceDeliveryRuntimeWriterRow(
   row: (typeof AppInstallPurchaseRuntimeWriterDeliveryProofReadModel.runtimeWriterDeliveryRows)[number]
 ) {
-  const manual = row.sourceDecisionAction === 'review-needed';
-  return {
-    schemaVersion: ChildDeviceDeliveryRuntimeWriterProofVersion,
-    childDeviceDeliveryRuntimeWriterRowId: `child-device-delivery-runtime-writer-${row.sourceDecisionAction}`,
-    sourceRuntimeWriterDeliveryProofVersion: SourceRuntimeWriterDeliveryProofVersion,
-    sourceRuntimeWriterDeliveryRowId: row.runtimeWriterDeliveryRowId,
-    sourceDecisionAction: row.sourceDecisionAction,
-    sourceRuntimeWriterDeliveryState: row.runtimeWriterDeliveryState,
-    sourcePackageSourceCaptureStatusProofVersion: SourcePackageSourceCaptureStatusProofVersion,
-    sourcePackageSourceCaptureRefs: packageSourceCaptureRefs(),
-    sourcePackageSourceCaptureStatuses: packageSourceCaptureStatuses(),
-    childDeliveryEnvelopeState: manual ? 'manual-review-required' : 'child-delivery-envelope-ready',
-    childDeliveryTargetRefs: childDeliveryTargetRefs(row.reportRuntimeRefs),
-    runtimeWriterAuditEventRefs: row.auditEventRefs,
-    packageSourceAuditEventRefs: packageSourceAuditEventRefs(),
-    reportRuntimeRefs: row.reportRuntimeRefs,
-    runtimeWriterExecutionClaim: 'not-executed',
-    runtimeWriterDeliveryClaim: row.runtimeWriterDeliveryClaim,
-    parentActionRuntimeDeliveryClaim: row.parentActionRuntimeDeliveryClaim,
-    providerApiExecutionClaim: row.providerApiExecutionClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    platformAdapterClaim: row.platformAdapterClaim,
-    childDeviceDeliveryClaim: row.childDeliveryClaim,
-    runtimeReportDeliveryClaim: row.runtimeReportDeliveryClaim,
-    interceptionClaim: row.interceptionClaim,
-    appBlockingClaim: row.appBlockingClaim,
-    childDataCustody: row.childDataCustody,
-    ocentraHostedFamilyDataCustodyClaim: row.ocentraHostedFamilyDataCustodyClaim,
-    claimBoundary: ChildDeviceDeliveryRuntimeWriterClaimBoundary,
-    linkedAt: ChildDeviceDeliveryRuntimeWriterTimestamp,
-  } as const;
+  return buildAppInstallPurchaseChildDeviceDeliveryRuntimeWriterRowGenerated(
+    row,
+    SourceRuntimeWriterDeliveryProofVersion,
+    SourcePackageSourceCaptureStatusProofVersion,
+    packageSourceCaptureRefs(),
+    packageSourceCaptureStatuses(),
+    childDeliveryTargetRefs(row.reportRuntimeRefs),
+    packageSourceAuditEventRefs(),
+    ChildDeviceDeliveryRuntimeWriterClaimBoundary,
+    ChildDeviceDeliveryRuntimeWriterTimestamp
+  );
 }
 
 function packageSourceCaptureRefs() {
@@ -273,92 +242,27 @@ function childDeliveryTargetRefs(runtimeReportRefs: readonly string[]) {
 }
 
 function childDeviceDeliveryRuntimeWriterRowIsHonest(row: ChildDeviceDeliveryRuntimeWriterRowCandidate): boolean {
-  return (
-    childDeliveryEnvelopeMatchesRuntimeWriter(row) &&
-    packageSourceCaptureCoverageIsComplete(row) &&
-    childDeviceDeliveryRuntimeWriterRefsAreComplete(row) &&
-    childDeviceDeliveryRuntimeWriterClaimsStayUnimplemented(row) &&
-    childDeviceDeliveryRuntimeWriterBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function childDeliveryEnvelopeMatchesRuntimeWriter(row: ChildDeviceDeliveryRuntimeWriterRowCandidate): boolean {
-  if (row.sourceDecisionAction === 'review-needed') {
-    return (
-      row.sourceRuntimeWriterDeliveryState === 'manual-review-required' &&
-      row.childDeliveryEnvelopeState === 'manual-review-required'
-    );
-  }
-  return (
-    row.sourceRuntimeWriterDeliveryState === 'writer-envelope-ready' &&
-    row.childDeliveryEnvelopeState === 'child-delivery-envelope-ready'
-  );
-}
-
-function packageSourceCaptureCoverageIsComplete(row: ChildDeviceDeliveryRuntimeWriterRowCandidate): boolean {
-  const statuses = new Set(row.sourcePackageSourceCaptureStatuses);
-  return (
-    row.sourcePackageSourceCaptureStatusProofVersion === SourcePackageSourceCaptureStatusProofVersion &&
-    row.sourcePackageSourceCaptureRefs.length ===
-      AppInstallPurchasePackageSourceCaptureStatusProofReadModel.packageSourceCaptureRows.length &&
-    row.sourcePackageSourceCaptureStatuses.length ===
-      AppInstallPurchasePackageSourceCaptureStatusProofReadModel.packageSourceCaptureRows.length &&
-    RequiredPackageSourceCaptureStatuses.every((status) => statuses.has(status))
-  );
-}
-
-function childDeviceDeliveryRuntimeWriterRefsAreComplete(row: ChildDeviceDeliveryRuntimeWriterRowCandidate): boolean {
-  return (
-    row.sourceRuntimeWriterDeliveryProofVersion === SourceRuntimeWriterDeliveryProofVersion &&
-    row.sourceRuntimeWriterDeliveryRowId.length > 0 &&
-    row.childDeliveryTargetRefs.length > 0 &&
-    row.runtimeWriterAuditEventRefs.length > 0 &&
-    row.packageSourceAuditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function childDeviceDeliveryRuntimeWriterClaimsStayUnimplemented(
-  row: ChildDeviceDeliveryRuntimeWriterRowCandidate
-): boolean {
-  return (
-    row.runtimeWriterExecutionClaim === 'not-executed' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.parentActionRuntimeDeliveryClaim === 'not-delivered' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return childDeviceDeliveryRuntimeWriterRowIsHonestGenerated(
+    row,
+    SourcePackageSourceCaptureStatusProofVersion,
+    RequiredPackageSourceCaptureStatuses,
+    ChildDeviceDeliveryRuntimeWriterBoundaryFragments
   );
 }
 
 function childDeviceDeliveryRuntimeWriterProofIsHonest(
   proof: AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof
 ): boolean {
-  const actions = new Set(proof.childDeviceDeliveryRuntimeWriterRows.map((row) => row.sourceDecisionAction));
-  const envelopeStates = new Set(
-    proof.childDeviceDeliveryRuntimeWriterRows.map((row) => row.childDeliveryEnvelopeState)
-  );
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourceRuntimeWriterDeliveryProofVersion === SourceRuntimeWriterDeliveryProofVersion &&
-    proof.sourcePackageSourceCaptureStatusProofVersion === SourcePackageSourceCaptureStatusProofVersion &&
-    proof.childDeviceDeliveryRuntimeWriterRows.length === RequiredDecisionActions.length &&
-    RequiredDecisionActions.every((action) => actions.has(action)) &&
-    RequiredChildDeliveryEnvelopeStates.every((state) => envelopeStates.has(state)) &&
-    ChildDeviceDeliveryRuntimeWriterNonClaims.every((claim) => nonClaims.has(claim)) &&
+    childDeviceDeliveryRuntimeWriterProofIsHonestGenerated(
+      proof,
+      SourceRuntimeWriterDeliveryProofVersion,
+      SourcePackageSourceCaptureStatusProofVersion,
+      RequiredDecisionActions,
+      RequiredChildDeliveryEnvelopeStates,
+      ChildDeviceDeliveryRuntimeWriterNonClaims
+    ) &&
     proof.childDeviceDeliveryRuntimeWriterRows.every((row) => childDeviceDeliveryRuntimeWriterRowIsHonest(row)) &&
     proof.knownGaps.length > 0
   );
-}
-
-function childDeviceDeliveryRuntimeWriterBoundaryIsExplicit(
-  boundary: typeof ChildDeviceDeliveryRuntimeWriterClaimBoundarySchema.Type
-) {
-  return ChildDeviceDeliveryRuntimeWriterBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }

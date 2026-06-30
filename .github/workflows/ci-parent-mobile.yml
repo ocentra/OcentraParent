@@ -21,7 +21,7 @@ jobs:
         run: npm run build:contracts
 
   parent-mobile-runtime-tests:
-    name: 'Unit: Parent Mobile Runtime Contracts'
+    name: 'Proof: Parent Mobile Capability Contracts'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [parent-mobile-contract-build]
@@ -33,8 +33,8 @@ jobs:
       - name: Build shared contracts
         run: npm run build:contracts
 
-      - name: Parent mobile runtime contracts
-        run: npm run test --workspace @ocentra-parent/parent-domain -- tests/parent-mobile-runtime.test.ts tests/parent-mobile-service-bridge-runtime.test.ts tests/parent-mobile-controller-observer-handoff-runtime.test.ts tests/v0-9-mobile-controller-observer-runtime.test.ts
+      - name: Parent mobile capability contracts
+        run: npm run test:mobile-child-agent-capability-proof
 
   parent-mobile-package-source-proof:
     name: 'Proof: Parent Mobile Package Source Artifact'

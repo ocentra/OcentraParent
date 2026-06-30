@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { validateAuthBoundaryRoute } from '../../src/auth/model.js';
 import { ROUTE_MANIFEST } from '../../src/routes.js';
 
 describe('route auth-state properties', () => {
@@ -47,6 +48,31 @@ describe('route auth-state properties', () => {
 
       if (route.path.startsWith('/auth/')) {
         assert.equal(route.authState, 'parent-session-required');
+      }
+    }
+  });
+
+  it('keeps manual-invoice as the only elevated auth exception inside the /auth/billing route family', () => {
+    const elevatedAuthBillingRoutes = ROUTE_MANIFEST.filter(
+      (route) =>
+        route.path.startsWith('/auth/billing/') &&
+        route.authState !== 'parent-session-required' &&
+        route.authState !== 'trusted-parent-device-required'
+    ).map((route) => `${route.method} ${route.path}`);
+
+    assert.deepEqual(elevatedAuthBillingRoutes, ['POST /auth/billing/manual-invoice']);
+  });
+
+  it('keeps audit rules aligned with the stronger admin and support route families', () => {
+    for (const route of ROUTE_MANIFEST) {
+      assert.equal(validateAuthBoundaryRoute(route), null);
+
+      if (route.authState === 'admin-required') {
+        assert.match(route.auditRule, /^admin-/u);
+      }
+
+      if (route.authState === 'support-required') {
+        assert.match(route.auditRule, /^support-/u);
       }
     }
   });

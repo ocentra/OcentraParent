@@ -5,8 +5,10 @@ use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
-    fields::fields_from_pairs,
-    lan_pairing::LanPairingRuntime,
+    app::{
+        fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
+        websocket::handle_command_text_for_test,
+    },
     lan_pairing_test_assertions::{
         assert_accepted_control, assert_rejection, assert_status_selection,
         assert_status_support_surface,
@@ -17,7 +19,6 @@ use crate::{
         proof_payload_for_pairing, route_select_command, route_select_command_for_target,
         second_proof_payload, serialize_command, status_command,
     },
-    websocket::handle_command_text_for_test,
 };
 
 #[tokio::test]

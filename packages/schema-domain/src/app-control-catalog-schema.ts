@@ -65,7 +65,7 @@ export const AppControlEffectStatusSchema = withParser(
 export const AppControlRuntimeOwnerSchema = withParser(
   Schema.Literal(
     'portal-only',
-    'parent-domain',
+    'rust-parent-runtime',
     'agent-protocol',
     'rust-service',
     'child-agent',

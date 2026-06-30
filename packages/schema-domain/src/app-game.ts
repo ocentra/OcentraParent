@@ -49,13 +49,19 @@ import {
 } from './app-game-primitives';
 import { AppGameRuntimeEvidenceSchema, type AppGameRuntimeEvidence } from './app-game-runtime';
 import {
+  AppRiskDetectionAskParentRouting,
   AppRiskDetectionCandidateSchema,
+  AppRiskDetectionCandidateState,
   AppRiskDetectionConfidenceBandSchema,
   AppRiskDetectionMatrixSchema,
+  AppRiskDetectionNoContentClaimState,
   AppRiskDetectionPolicyCandidateActionSchema,
+  AppRiskDetectionPolicyTargetKind,
   AppRiskDetectionPublisherTrustStateSchema,
   AppRiskDetectionRiskSignalSchema,
+  AppRiskDetectionSourceKind as AppRiskDetectionSourceKindValue,
   AppRiskDetectionSourceKindSchema,
+  AppRiskDetectionSurfaceState,
   decodeAppRiskDetectionCandidate,
   decodeAppRiskDetectionMatrix,
   type AppRiskDetectionCandidate,
@@ -66,14 +72,6 @@ import {
   type AppRiskDetectionRiskSignal,
   type AppRiskDetectionSourceKind as AppRiskDetectionSourceKindType,
 } from './app-riskdetection';
-import {
-  AppRiskDetectionAskParentRouting,
-  AppRiskDetectionCandidateState,
-  AppRiskDetectionNoContentClaimState,
-  AppRiskDetectionPolicyTargetKind,
-  AppRiskDetectionSourceKind,
-  AppRiskDetectionSurfaceState,
-} from './app-riskdetection-rules';
 import { AppGameSessionEndReasonSchema, AppGameSessionRollupDateSchema } from './app-game-session-primitives';
 
 export const AppGameInventoryEntrySchema = withParser(
@@ -418,13 +416,13 @@ export {
   AppRiskDetectionPolicyTargetKind,
   AppRiskDetectionPublisherTrustStateSchema,
   AppRiskDetectionRiskSignalSchema,
-  AppRiskDetectionSourceKind,
   AppRiskDetectionSourceKindSchema,
   AppRiskDetectionSurfaceState,
   decodeAppRiskDetectionCandidate,
   decodeAppRiskDetectionMatrix,
 };
 
+export const AppRiskDetectionSourceKind = AppRiskDetectionSourceKindValue;
 export type AppRiskDetectionSourceKind = AppRiskDetectionSourceKindType;
 export type AppGameInventoryEntry = Infer<typeof AppGameInventoryEntrySchema>;
 export type AppGameIdentity = Infer<typeof AppGameIdentitySchema>;

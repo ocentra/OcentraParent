@@ -1,36 +1,45 @@
 import type { ReactElement } from 'react';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
-  createAppGameTimerParentPreferenceSetupRequestPayload,
-  createAppGameTimerParentSurfacePanelIntent,
-  type AppGameTimerParentSurfacePanelDetail,
-  type AppGameTimerParentSurfacePanelIntent,
-  type AppGameTimerParentSurfacePreferenceSetupRequestAction,
-  type AppGameTimerParentSurfacePanelRow,
-} from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
+  isParentAppGameParentSurfaceRoute,
+  type ParentAppGameActionRowSnapshot,
+  type ParentAppGamePanelDetailSnapshot,
+  type ParentAppGamePanelRowSnapshot,
+  type ParentAppGameTimerParentSurfacePanelSnapshot,
+  type ParentRouteId,
+  type ParentUiActionPayload,
+} from '../generated/parent-ui-bridge';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { isPortalAppGameParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
-type AppGameTimerParentSurfaceRouteReadModel = Parameters<typeof createAppGameTimerParentSurfacePanelIntent>[0];
+const EmptyTimerParentSurfacePanel: ParentAppGameTimerParentSurfacePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'App/game timer parent surface',
+  body: 'Rust has not reported an app/game timer parent surface panel yet.',
+  loadState: 'unavailable',
+  summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Timer parent surface has not been reported yet.' }],
+  parentActionRows: [],
+  parentPreferenceSetupRows: [],
+  rows: [],
+  emptyMessage: 'No timer parent surface rows have been reported yet.',
+  productClaim: 'Timer runtime, child handoff, and preference setup remain unreported.',
+};
 
-export function shouldRenderAppGameTimerParentSurfaceRoute(route: PortalRouteValue): boolean {
-  return isPortalAppGameParentSurfaceRoute(route);
+export function shouldRenderAppGameTimerParentSurfaceRoute(route: ParentRouteId): boolean {
+  return isParentAppGameParentSurfaceRoute(route);
 }
 
 export function AppGameTimerParentSurfaceRoutePanel({
   actions,
   commandEnabled,
-  readModelResult,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AppGameTimerParentSurfaceRouteReadModel;
+  readonly panel: ParentAppGameTimerParentSurfacePanelSnapshot | null;
 }): ReactElement {
-  const intent = createAppGameTimerParentSurfacePanelIntent(readModelResult);
+  const resolvedPanel = panel ?? EmptyTimerParentSurfacePanel;
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.AppGameTimerParentSurface)}
@@ -38,9 +47,9 @@ export function AppGameTimerParentSurfaceRoutePanel({
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
@@ -55,22 +64,22 @@ export function AppGameTimerParentSurfaceRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGameTimerParentSurfaceSummaryCard intent={intent} />
-          {intent.parentActionRows.map((row, index) => (
+          <AppGameTimerParentSurfaceSummaryCard panel={resolvedPanel} />
+          {resolvedPanel.parentActionRows.map((row, index) => (
             <AppGameTimerParentSurfaceRowCard key={`${String(row.title)}:parent-action:${index}`} row={row} />
           ))}
-          {intent.parentPreferenceSetupRows.map((row, index) => (
-            <AppGameTimerParentSurfaceRowCard
+          {resolvedPanel.parentPreferenceSetupRows.map((row, index) => (
+            <AppGameTimerParentSurfaceActionRowCard
               actions={actions}
               commandEnabled={commandEnabled}
               key={`${String(row.title)}:parent-preference:${index}`}
               row={row}
             />
           ))}
-          {intent.rows.length === 0 ? (
-            <AppGameTimerParentSurfaceEmptyCard intent={intent} />
+          {resolvedPanel.rows.length === 0 ? (
+            <AppGameTimerParentSurfaceEmptyCard panel={resolvedPanel} />
           ) : (
-            intent.rows.map((row, index) => (
+            resolvedPanel.rows.map((row, index) => (
               <AppGameTimerParentSurfaceRowCard key={`${String(row.title)}:service:${index}`} row={row} />
             ))
           )}
@@ -82,18 +91,15 @@ export function AppGameTimerParentSurfaceRoutePanel({
 
 export function sendAppGameTimerParentPreferenceSetupAction(
   actions: PortalRenderActions,
-  action: AppGameTimerParentSurfacePreferenceSetupRequestAction,
-  requestedAt: string = new Date().toISOString()
+  payload: ParentUiActionPayload
 ): void {
-  void actions.requestAppGameTimerParentPreferenceSetup?.(
-    createAppGameTimerParentPreferenceSetupRequestPayload(action, requestedAt)
-  );
+  void actions.requestAppGameTimerParentPreferenceSetup?.(payload);
 }
 
 function AppGameTimerParentSurfaceSummaryCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGameTimerParentSurfacePanelIntent;
+  readonly panel: ParentAppGameTimerParentSurfacePanelSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
@@ -101,28 +107,28 @@ function AppGameTimerParentSurfaceSummaryCard({
   return (
     <article className={className}>
       <h2>{PortalDetails.RuntimeReference}</h2>
-      <AppGameTimerParentSurfaceDetails details={intent.summaryDetails} />
+      <AppGameTimerParentSurfaceDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
 function AppGameTimerParentSurfaceEmptyCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGameTimerParentSurfacePanelIntent;
+  readonly panel: ParentAppGameTimerParentSurfacePanelSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
-      <h2>{intent.loadState}</h2>
-      <p>{intent.emptyMessage}</p>
+      <h2>{panel.loadState}</h2>
+      <p>{panel.emptyMessage}</p>
       <AppGameTimerParentSurfaceDetails
         details={[
           {
             label: PortalDetails.ProductClaim,
-            value: intent.productClaim,
+            value: panel.productClaim,
           },
         ]}
       />
@@ -137,7 +143,7 @@ function AppGameTimerParentSurfaceRowCard({
 }: {
   readonly actions?: PortalRenderActions;
   readonly commandEnabled?: boolean;
-  readonly row: AppGameTimerParentSurfacePanelRow;
+  readonly row: ParentAppGamePanelRowSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
@@ -146,20 +152,40 @@ function AppGameTimerParentSurfaceRowCard({
     <article className={className}>
       <h2>{row.title}</h2>
       <AppGameTimerParentSurfaceDetails details={row.details} />
-      {row.preferenceSetupRequestAction === null || actions === undefined ? null : (
+    </article>
+  );
+}
+
+function AppGameTimerParentSurfaceActionRowCard({
+  actions,
+  commandEnabled = false,
+  row,
+}: {
+  readonly actions?: PortalRenderActions;
+  readonly commandEnabled?: boolean;
+  readonly row: ParentAppGameActionRowSnapshot;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article className={className}>
+      <h2>{row.title}</h2>
+      <AppGameTimerParentSurfaceDetails details={row.details} />
+      {row.actionLabel === null ||
+      row.actionLabel === undefined ||
+      row.actionPayload === null ||
+      row.actionPayload === undefined ||
+      actions === undefined ? null : (
         <button
           className={PortalDom.Classes.CommandResultTab}
           disabled={!commandEnabled}
           type={PortalDom.ButtonType.Button}
-          onClick={() => {
-            const action = row.preferenceSetupRequestAction;
-            if (action === null) {
-              return;
-            }
-            sendAppGameTimerParentPreferenceSetupAction(actions, action);
-          }}
+          onClick={() =>
+            sendAppGameTimerParentPreferenceSetupAction(actions, row.actionPayload as ParentUiActionPayload)
+          }
         >
-          {row.preferenceSetupRequestAction.label}
+          {row.actionLabel}
         </button>
       )}
     </article>
@@ -169,16 +195,12 @@ function AppGameTimerParentSurfaceRowCard({
 function AppGameTimerParentSurfaceDetails({
   details,
 }: {
-  readonly details: readonly AppGameTimerParentSurfacePanelDetail[];
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
       {details.map((detail, index) => (
-        <AppGameTimerParentSurfaceDetail
-          key={`${String(detail.label)}:${index}`}
-          label={detail.label}
-          value={detail.value}
-        />
+        <AppGameTimerParentSurfaceDetail key={`${String(detail.label)}:${index}`} label={detail.label} value={detail.value} />
       ))}
     </dl>
   );
@@ -188,8 +210,8 @@ function AppGameTimerParentSurfaceDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>

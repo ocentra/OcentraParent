@@ -1,26 +1,52 @@
+use std::thread;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
 
 use crate::{
     lan_pairing::{rejection_event, LanPairingRuntime},
+    lan_pairing_browser_add_device_state::refresh_browser_discovery_scan_history,
     lan_pairing_payload::parse_household_device_decision,
     lan_pairing_status::{pairing_challenge_status_event, pairing_status_event},
     time::timestamp_now,
 };
 
+const LAN_BROWSER_DISCOVERY_SCAN_THREAD_NAME: &str = "lan-browser-discovery-scan";
+
 pub(crate) fn browser_discovery_scan_event(
     runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    retag_lan_pairing_event(
-        pairing_status_event(runtime, command),
+    let scan_command = command.clone();
+    let event = retag_lan_pairing_event(
+        pairing_status_event(runtime, browser_discovery_scan_ack_command(command)),
         constants::lan_pairing::EVENT_BROWSER_DISCOVERY_REPORTED,
         AgentEventName::AgentLanPairingBrowserDiscoveryReported,
         LogLevel::Info,
-    )
+    );
+    start_background_browser_discovery_scan(runtime, scan_command);
+    event
+}
+
+fn start_background_browser_discovery_scan(
+    runtime: &LanPairingRuntime,
+    command: AgentCommandEnvelope,
+) {
+    let runtime = runtime.clone();
+    let _ = thread::Builder::new()
+        .name(LAN_BROWSER_DISCOVERY_SCAN_THREAD_NAME.to_string())
+        .spawn(move || refresh_browser_discovery_scan_history(&runtime, &command));
+}
+
+fn browser_discovery_scan_ack_command(mut command: AgentCommandEnvelope) -> AgentCommandEnvelope {
+    command.command = AgentCommandName::AgentLanPairingStatusGet;
+    command.target.route = AgentRoute::Localhost;
+    command
 }
 
 pub(crate) fn browser_add_device_request_event(

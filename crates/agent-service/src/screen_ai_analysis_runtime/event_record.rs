@@ -23,15 +23,18 @@ use super::{
     ScreenAiAnalysisCycleOutcome,
 };
 
+#[path = "event_record/parsed_fields.rs"]
 mod parsed_fields;
+#[path = "event_record/policy_refs.rs"]
 mod policy_refs;
+#[path = "event_record/redaction_fields.rs"]
 mod redaction_fields;
 
 use parsed_fields::parsed_fields_from_generation;
 use redaction_fields::screen_analysis_redaction_fields;
 
 #[derive(Clone, Debug)]
-pub(super) struct ScreenAiAnalysisEventRecord {
+pub(crate) struct ScreenAiAnalysisEventRecord {
     queue_job_id: String,
     image_digest: String,
     timestamp: String,
@@ -57,7 +60,7 @@ pub(super) struct ScreenAiAnalysisEventRecord {
     redaction_notes: Vec<String>,
 }
 
-pub(super) fn analysis_event_record(
+pub(crate) fn analysis_event_record(
     image: &QueuedScreenImage,
     metadata: Option<&ScreenAnalysisResult>,
     clock: &ScreenAiAnalysisCycleClock,
@@ -93,7 +96,7 @@ pub(super) fn analysis_event_record(
     }
 }
 
-pub(super) fn outcome_for_generation(
+pub(crate) fn outcome_for_generation(
     queue_job_id: &str,
     generation: &LocalAiChatGenerationResult,
     event_record: &ScreenAiAnalysisEventRecord,
@@ -118,7 +121,7 @@ fn is_recorded_provider_kind(provider_kind: &str) -> bool {
     provider_kind == SCREEN_PROVIDER_LOCAL_VISION || provider_kind == SCREEN_PROVIDER_LOCAL_OCR
 }
 
-pub(super) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> ActivityEvent {
+pub(crate) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> ActivityEvent {
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: prefixed_id(
@@ -253,159 +256,4 @@ fn number_field(key: &'static str, value: f64) -> (&'static str, LogFieldValue) 
 
 fn bool_field(key: &'static str, value: bool) -> (&'static str, LogFieldValue) {
     (key, LogFieldValue::Boolean(value))
-}
-
-#[cfg(test)]
-mod tests {
-    use serde_json::{Map, Value};
-
-    use ocentra_parent_agent_protocol::screen_evidence::{
-        SCREEN_CATEGORY_SCHOOL, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR,
-        SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
-        SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
-        SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_WINRT_OCR_MODEL_ID,
-        SCREEN_WINRT_OCR_RUNTIME_REF, SCREEN_WINRT_OCR_TEMPLATE_VERSION,
-    };
-
-    use super::*;
-
-    #[test]
-    fn local_ocr_analysis_event_is_recorded_with_runtime_metadata() {
-        let image = queued_image();
-        let generation = complete_generation(local_ocr_output_text());
-        let clock = ScreenAiAnalysisCycleClock::from_parts(
-            7,
-            constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        );
-
-        let record = analysis_event_record(
-            &image,
-            None,
-            &clock,
-            &generation,
-            &ScreenOcrRedactionPolicy::default(),
-        );
-        let outcome = outcome_for_generation(&image.queue_job_id, &generation, &record);
-        let event = screen_analysis_event(&record);
-
-        assert_eq!(
-            outcome,
-            ScreenAiAnalysisCycleOutcome::Recorded {
-                queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-                provider_kind: SCREEN_PROVIDER_LOCAL_OCR.to_string()
-            }
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_PROVIDER_KIND),
-            SCREEN_PROVIDER_LOCAL_OCR
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_MODEL_RUNTIME_REF),
-            SCREEN_WINRT_OCR_RUNTIME_REF
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_MODEL_ID),
-            SCREEN_WINRT_OCR_MODEL_ID
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_TEMPLATE_VERSION),
-            SCREEN_WINRT_OCR_TEMPLATE_VERSION
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_OCR_TEXT_SNIPPETS),
-            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_REDACTION_NOTES),
-            constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII
-        );
-    }
-
-    fn queued_image() -> QueuedScreenImage {
-        QueuedScreenImage {
-            queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-            custody_state:
-                ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_TEMP_QUEUE
-                    .to_string(),
-            image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
-            image_bytes: constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER
-                .as_bytes()
-                .to_vec(),
-        }
-    }
-
-    fn local_ocr_output_text() -> String {
-        let mut output = Map::new();
-        output.insert(
-            constants::field::SCREEN_SUMMARY.to_string(),
-            Value::from(constants::activity_store::TEST_SCREEN_SUMMARY),
-        );
-        output.insert(
-            constants::field::SCREEN_PRIMARY_CATEGORY.to_string(),
-            Value::from(SCREEN_CATEGORY_SCHOOL),
-        );
-        output.insert(
-            constants::field::SCREEN_CONFIDENCE.to_string(),
-            Value::from(SCREEN_POLICY_CONFIDENCE_READY),
-        );
-        output.insert(
-            constants::field::SCREEN_POLICY_ELIGIBLE.to_string(),
-            Value::from(true),
-        );
-        output.insert(
-            constants::field::SCREEN_PROVIDER_KIND.to_string(),
-            Value::from(SCREEN_PROVIDER_LOCAL_OCR),
-        );
-        output.insert(
-            constants::field::SCREEN_MODEL_RUNTIME_REF.to_string(),
-            Value::from(SCREEN_WINRT_OCR_RUNTIME_REF),
-        );
-        output.insert(
-            constants::field::SCREEN_MODEL_ID.to_string(),
-            Value::from(SCREEN_WINRT_OCR_MODEL_ID),
-        );
-        output.insert(
-            constants::field::SCREEN_TEMPLATE_VERSION.to_string(),
-            Value::from(SCREEN_WINRT_OCR_TEMPLATE_VERSION),
-        );
-        output.insert(
-            constants::field::SCREEN_OCR_TEXT_SNIPPETS.to_string(),
-            Value::from(vec![
-                constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA,
-            ]),
-        );
-        output.insert(
-            constants::field::SCREEN_REDACTION_NOTES.to_string(),
-            Value::from(vec![
-                constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII,
-            ]),
-        );
-        Value::Object(output).to_string()
-    }
-
-    fn complete_generation(output_text: String) -> LocalAiChatGenerationResult {
-        LocalAiChatGenerationResult {
-            local_ai_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
-            runtime_reference_id: SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
-            provider_id: SCREEN_SERVICE_ANALYSIS_PROVIDER_ID.to_string(),
-            model_id: SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
-            model_reference: SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE.to_string(),
-            generation_state: LocalAiGenerationState::Complete,
-            output_text: Some(output_text),
-            prompt_char_count: 1,
-            max_output_tokens: constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
-            timeout_ms: SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
-            duration_ms: 1,
-            exit_code: Some(0),
-            stderr_byte_size: 0,
-            unavailable_reason: None,
-        }
-    }
-
-    fn string_value<'a>(event: &'a ActivityEvent, field: &str) -> &'a str {
-        match event.fields.get(field) {
-            Some(LogFieldValue::String(value)) => value,
-            _ => panic!(),
-        }
-    }
 }

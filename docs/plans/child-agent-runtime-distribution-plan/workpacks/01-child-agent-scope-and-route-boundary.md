@@ -22,7 +22,7 @@ Purpose: lock the canonical child-agent scope, the setup-device-trust handoff bo
 ## Ownership boundary
 
 ```text
-schema-domain owns shared child package/runtime/setup-trust-handoff shapes.
+crates/schema or the owning Rust crate owns shared child package/runtime/setup-trust-handoff shapes. `schema-domain` is temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 child-runtime-domain owns package-boundary metadata/helpers only.
 this plan owns child distribution proof routing and selected artifact/platform proof expectations.
 parent-client-runtime-distribution-plan owns parent client packages.
@@ -37,7 +37,7 @@ child local-service/runtime owners own runtime behavior; this plan packages and 
 PLAN_INDEX / FEATURE_ROUTE_INDEX route entries
 package scripts under scripts/release when package proof is selected
 child-runtime-domain package metadata/helper public exports
-schema-domain child package/runtime/setup-trust-handoff contracts
+Rust-owned child package/runtime/setup-trust-handoff contracts plus generated DTOs or temporary edge decoders
 selected setup/device-trust handoff references
 selected proof roots under output/child-agent-runtime-distribution-plan-proof/
 ```
@@ -59,10 +59,20 @@ platform scaffold/manual-required rows being counted as READY
 - parent-client distribution stays in `parent-client-runtime-distribution-plan`
 - setup-device-trust is a handoff, not package proof
 - the route bridge names the real input and output state
-- canonical shared shapes route through `schema-domain` or another neutral shared boundary
+- canonical shared shapes route through `crates/schema` or another neutral Rust-owned boundary; use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete
 - `child-runtime-domain` is metadata/helper scope, not the shared-contract source of truth
 - proof pointers stay outside the plan folder
 - no-claim text distinguishes package build, install, runtime health, respawn, uninstall/revocation, setup trust, and release readiness
+
+## Execution truth
+
+- WP01 closed as a docs/proof route-correction slice; no runtime code or shared-contract source change was required.
+- Canonical shared ownership stays Rust-first: `crates/schema` or another neutral Rust-owned crate owns shared child package/runtime/setup-trust-handoff shapes when they cross package, crate, app, or plan boundaries.
+- `schema-domain` remains temporary generated-validation or edge-decoder scope only where TypeScript still consumes Rust-owned contracts during migration.
+- `child-runtime-domain` remains metadata/helper scope only and does not become the shared-contract source of truth.
+- The setup-device-trust path remains a handoff boundary into child distribution rather than package/install/runtime proof.
+- The historical parent-client folder path remains compatibility-only: `docs/plans/parent-desktop-runtime-package-plan/`. Canonical parent distribution ownership stays in `parent-client-runtime-distribution-plan`.
+- Proof for this scope correction is stored only under `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/`.
 
 ## Required proof files
 

@@ -90,11 +90,16 @@ fn compatibility_matrix_renders_deterministic_markdown() {
         lines.first().copied(),
         Some("# Eventing Compatibility Matrix")
     );
-    assert!(lines
-        .iter()
-        .any(|line| *line
-            == "| Semantic Id | Source Semantic | Rust Surface | Status | Proof | Note |"));
-    assert!(lines.iter().any(|line| *line == "| class-backed-contracts | Class-backed contracts expose canonical static event types | Payload-derived DomainEvent::contract plus EventContractRegistry descriptors | intentional-deviation |"));
-    assert!(lines.iter().any(|line| *line == "| payload-republish-override | Payload-carried republish or force override | Explicit idempotency rejection; constrained override remains unclaimed | intentional-deviation |"));
-    assert!(lines.iter().any(|line| *line == "| broker-backed-delivery | Cross-process or broker-backed event delivery | Stored envelope transport boundary is not yet broker-backed | manual-required |"));
+    assert!(
+        lines.contains(&"| Semantic Id | Source Semantic | Rust Surface | Status | Proof | Note |")
+    );
+    assert!(lines.contains(
+        &"| class-backed-contracts | Class-backed contracts expose canonical static event types | Payload-derived DomainEvent::contract plus EventContractRegistry descriptors | intentional-deviation | output/eventing-plan-proof/72-contract-registry/proof-summary.json | Payload-derived contracts support Rust enum variants; stored decode rejects mismatches |"
+    ));
+    assert!(lines.contains(
+        &"| payload-republish-override | Payload-carried republish or force override | Explicit idempotency rejection; constrained override remains unclaimed | intentional-deviation | output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json | Future override must be a typed policy with reason and report |"
+    ));
+    assert!(lines.contains(
+        &"| broker-backed-delivery | Cross-process or broker-backed event delivery | Stored envelope transport boundary is not yet broker-backed | manual-required | docs/plans/network-plan/workpacks/README.md#workpack-45 | Broker delivery is P6 and cannot redefine local dispatch semantics |"
+    ));
 }

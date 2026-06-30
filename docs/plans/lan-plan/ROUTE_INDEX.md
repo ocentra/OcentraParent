@@ -34,14 +34,15 @@ Choose the smallest local route for this plan.
 ## Boundary split
 
 ```text
-schema-domain owns canonical LAN shapes.
-lan-domain owns current package-level metadata and packet-local proof-consumer surface.
+Rust schema crate owns canonical LAN shapes.
+Rust LAN and agent crates own business logic, read models, runtime truth, and proof truth when selected.
+Historical TS package residue may still appear only as migration scaffolding when explicitly selected; it does not own LAN truth.
 agent-protocol and agent-service own wire/service/read-model proof only when selected.
 eventing-plan owns local event bus semantics only; it does not own LAN transport or topology proof.
 account-identity-family-plan owns household, actor, role, and assignment authority.
 device-trust-bootstrap-plan owns trusted-device and key/trust material.
 remote-access-plan owns relay and remote transport.
-portal-domain/apps/portal render service-backed LAN state only.
+apps/portal renders service-backed LAN state only; TS is presentation only.
 parent/child runtime distribution plans own package/install surfaces and child-agent artifacts.
 cloudflare-control-plane-plan owns backend/relay runtime when selected.
 policy/enforcement plans own policy decisions and actions.
@@ -50,7 +51,8 @@ policy/enforcement plans own policy decisions and actions.
 ## Does Not Own
 
 - Account/session authority, trusted-device bootstrap, setup journey, remote relay behavior, event bus implementation, portal shell UX, policy/enforcement outcomes, package distribution, child-agent package runtime, Cloudflare backend behavior, or data-custody policy.
-- Frozen follow-on workpacks `21-25` as current completion scope.
+- automatic closure or skipping of active workpacks `21-25` without their own
+  selected route, row truth, and proof
 - Broad product readiness outside the selected proof root.
 
 ## Handoff Rule
@@ -59,4 +61,7 @@ Open an adjacent plan only after the selected workpack records the exact handoff
 
 ## No-claim Rule
 
-Do not claim real household LAN readiness from schema proof, unit tests, source-matrix proof, single-machine proof, B1/B2 local proof, portal rendering, or frozen follow-on docs. Physical, service/runtime, signed hello/heartbeat, router/firewall, Android/mobile, and relay claims require their own selected proof roots or explicit blockers.
+Do not claim real household LAN readiness from schema proof, unit tests,
+source-matrix proof, single-machine proof, B1/B2 local proof, portal
+rendering, or adjacent follow-on docs. Active workpacks `21-25` still need
+their own selected proof roots or explicit blockers before completion claims.

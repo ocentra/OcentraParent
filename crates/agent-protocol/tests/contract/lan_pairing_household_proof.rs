@@ -63,6 +63,30 @@ fn v09_production_discovery_household_proof_read_model_serializes_honest_route_s
     ));
 }
 
+#[test]
+fn v09_production_discovery_household_proof_read_model_rejects_missing_required_fields() {
+    let error = result_error_or_unreachable(
+        serde_json::from_value::<V09ProductionDiscoveryHouseholdProofReadModel>(
+            serde_json::json!({
+                "schemaVersion": constants::lan_pairing::SCHEMA_VERSION_TEXT
+            }),
+        ),
+        "household proof read model must reject missing required fields",
+    );
+
+    assert_eq!(error.classify(), serde_json::error::Category::Data);
+}
+
+fn result_error_or_unreachable<T>(
+    result: serde_json::Result<T>,
+    context: &str,
+) -> serde_json::Error {
+    match result {
+        Ok(_) => unreachable!("{context}"),
+        Err(error) => error,
+    }
+}
+
 fn json_surface_contains_marker(value: &serde_json::Value, marker: &str) -> bool {
     match value {
         serde_json::Value::String(text) => text.contains(marker),

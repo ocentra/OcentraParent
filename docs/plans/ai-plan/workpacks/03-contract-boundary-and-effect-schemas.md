@@ -16,28 +16,30 @@
 
 ## Target State
 
-All AI input, output, runtime, queue, route, memory, graph, explanation, and remote assistant shapes that cross package, crate, app, or plan boundaries are Effect Schema backed and owned by `packages/schema-domain` or another explicitly neutral shared boundary.
+All AI input, output, runtime, queue, route, memory, graph, explanation, and remote assistant shapes that cross package, crate, app, or plan boundaries are Rust-owned in `crates/schema` or another explicitly neutral Rust boundary. TypeScript may keep generated validation or temporary edge decoders only where migration is still incomplete.
 
 ## Where We Are
 
 Historical notes referenced `packages/parent-domain` as the AI contract home. That is stale for current central-schema direction. Current routing is:
 
 ```text
-packages/schema-domain:
+crates/schema or the owning Rust crate:
   canonical shared AI shapes and parsers.
+packages/schema-domain:
+  temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 packages/ai-domain:
   helper/projection/focused validation only.
 crates/child-ai-core / crates/screen-ai-core / crates/agent-protocol:
   Rust runtime/parity/wire consumers only when selected.
 ```
 
-Do not add new cross-plan canonical AI contracts to `parent-domain`, `browser-domain`, `app-game-domain`, `screen-domain`, or portal packages. If those owners need the same shape, promote it to `schema-domain` or consume it from `schema-domain`.
+Do not add new cross-plan canonical AI contracts to `parent-domain`, `browser-domain`, `app-game-domain`, `screen-domain`, or portal packages. If those owners need the same shape, promote it to `crates/schema` or consume it from the relevant Rust owner. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete.
 
 ## Owner Path
 
 ```text
-Primary owner: packages/schema-domain
-Allowed consumers: ai-domain, child-ai-core, screen-ai-core, agent-protocol, agent-service, portal-domain/apps/portal when selected
+Primary owner: crates/schema or the owning Rust crate
+Allowed consumers: schema-domain as temporary edge validation only, ai-domain, child-ai-core, screen-ai-core, agent-protocol, agent-service, portal-domain/apps/portal when selected
 Forbidden owner drift: browser/screen/tracking/network/app-game/policy/enforcement/portal runtime packages defining their own AI contract copies
 ```
 
@@ -64,8 +66,9 @@ required files:
 Focused proof should include:
 
 ```bash
+cargo test -p ocentra-schema
+cargo lint-architecture crates/schema
 npm run build --workspace @ocentra-parent/schema-domain
-npm run test --workspace @ocentra-parent/schema-domain -- ai
 npm run type-check --workspace @ocentra-parent/schema-domain
 npm run lint:architecture -- --files packages/schema-domain packages/ai-domain docs/plans/ai-plan
 ```
@@ -79,7 +82,7 @@ If Rust/wire consumers are touched, add the focused Rust/protocol commands from 
 - Missing rule/evidence refs block a content-understanding claim.
 - Model/provider output cannot become policy/enforcement authority.
 - Remote assistant shape cannot enter the normal child safety blocking path.
-- A helper package cannot re-own a canonical shared shape that belongs in `schema-domain`.
+- A helper package cannot re-own a canonical shared shape that belongs in `crates/schema` or the owning Rust crate.
 
 ## No-Claim Boundary
 

@@ -1,9 +1,18 @@
-import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import type { PortalActivityMemoryGraphReadModel } from './activity-memory-graph';
-import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { decodePortalDetailValue, type PortalDetailValue, type PortalRouteEventRecord } from './portal-contract-adapter';
 import { PortalDetails } from './details';
+import {
+  localAiRuntimePanelTemplate,
+  type LocalAiHouseholdJobInput,
+  type LocalAiMemoryGraphInput,
+  type LocalAiRemoteAssistantBoundaryInput,
+  type LocalAiRuntimePanelCardKind,
+  type LocalAiRuntimePanelFieldKey,
+  type LocalAiRuntimeStatusInput,
+} from './generated/local-ai-runtime-panel';
 
 export type LocalAiRuntimePanelDetail = {
   readonly label: DisplayText;
@@ -26,18 +35,59 @@ export type LocalAiRuntimePanelIntent = {
   readonly cards: readonly LocalAiRuntimePanelCard[];
 };
 
+const LocalAiRuntimePanelCardTitles: Readonly<Record<LocalAiRuntimePanelCardKind, DisplayText>> = {
+  'runtime-status': decodeDisplayText('Local AI runtime status'),
+  'household-job': decodeDisplayText('Household AI job activity'),
+  'memory-graph': decodeDisplayText('Cited memory and graph evidence'),
+  'remote-assistant-boundary': decodeDisplayText('Remote assistant boundary'),
+};
+
+const LocalAiRuntimePanelFieldLabels: Readonly<Record<LocalAiRuntimePanelFieldKey, DisplayText>> = {
+  eventId: PortalDetails.EventId,
+  sentAt: PortalDetails.SentAt,
+  runtimeReference: PortalDetails.RuntimeReference,
+  provider: PortalDetails.Provider,
+  model: PortalDetails.Model,
+  loadState: PortalDetails.LoadState,
+  capability: PortalDetails.Capability,
+  resourceClass: PortalDetails.ResourceClass,
+  degradedState: PortalDetails.DegradedState,
+  privacyMode: PortalDetails.PrivacyMode,
+  executionState: PortalDetails.ExecutionState,
+  reason: PortalDetails.Reason,
+  requestId: PortalDetails.RequestId,
+  status: PortalDetails.Status,
+  state: PortalDetails.State,
+  providerSource: PortalDetails.ProviderSource,
+  custody: PortalDetails.Custody,
+  policyReadiness: PortalDetails.PolicyReadiness,
+  adapterBoundary: PortalDetails.AdapterBoundary,
+  lastChecked: PortalDetails.LastChecked,
+  lastObserved: PortalDetails.LastObserved,
+  decisionSource: PortalDetails.DecisionSource,
+  productClaim: PortalDetails.ProductClaim,
+  generatedAt: PortalDetails.GeneratedAt,
+  graphNodes: PortalDetails.GraphNodes,
+  graphEdges: PortalDetails.GraphEdges,
+  graphOmittedEdges: PortalDetails.GraphOmittedEdges,
+  evidenceReferences: PortalDetails.EvidenceReferences,
+  deletedEvidence: PortalDetails.DeletedEvidence,
+  rowCount: PortalDetails.RowCount,
+};
+
 export function createLocalAiRuntimePanelIntent(
-  runtimeEvent: AgentEventEnvelope | null,
-  lanAiJobEvent: AgentEventEnvelope | null,
+  runtimeEvent: PortalRouteEventRecord | null,
+  lanAiJobEvent: PortalRouteEventRecord | null,
   memoryGraphReadModel: PortalActivityMemoryGraphReadModel | null = null,
-  parentAssistantBoundaryEvent: AgentEventEnvelope | null = null
+  parentAssistantBoundaryEvent: PortalRouteEventRecord | null = null
 ): LocalAiRuntimePanelIntent {
-  const cards = [
-    runtimeStatusCard(runtimeEvent),
-    lanAiJobCard(lanAiJobEvent),
-    memoryGraphCard(memoryGraphReadModel),
-    parentAssistantBoundaryCard(parentAssistantBoundaryEvent),
-  ].filter((card): card is LocalAiRuntimePanelCard => card !== null);
+  const template = localAiRuntimePanelTemplate({
+    runtimeStatus: normalizeRuntimeStatus(runtimeEvent),
+    householdJob: normalizeHouseholdJob(lanAiJobEvent),
+    memoryGraph: normalizeMemoryGraph(memoryGraphReadModel),
+    remoteAssistantBoundary: normalizeRemoteAssistantBoundary(parentAssistantBoundaryEvent),
+  });
+
   return {
     eyebrow: decodeDisplayText('Local child-device AI'),
     title: decodeDisplayText('AI jobs and runtime activity'),
@@ -48,158 +98,144 @@ export function createLocalAiRuntimePanelIntent(
     summaryDetails: [
       {
         label: PortalDetails.Status,
-        value: decodePortalDetailValue(cards.length > 0 ? 'reported' : 'not-reported'),
+        value: decodePortalDetailValue(template.summaryStatus),
       },
       {
         label: PortalDetails.ReadModelRows,
-        value: decodePortalDetailValue(String(cards.length)),
+        value: decodePortalDetailValue(template.summaryReadModelRows),
       },
       {
         label: PortalDetails.ProductClaim,
-        value: decodePortalDetailValue('no-model-quality-or-enforcement-claim'),
+        value: decodePortalDetailValue(template.summaryProductClaim),
       },
     ],
-    cards,
+    cards: template.cards.map((card) => ({
+      title: LocalAiRuntimePanelCardTitles[card.kind],
+      details: card.details.map((detail) => ({
+        label: LocalAiRuntimePanelFieldLabels[detail.fieldKey],
+        value: decodePortalDetailValue(detail.value),
+      })),
+    })),
   };
 }
 
-function runtimeStatusCard(event: AgentEventEnvelope | null): LocalAiRuntimePanelCard | null {
-  if (event === null || event.event !== AgentEvent.LocalAiRuntimeStatusReported) {
+function normalizeRuntimeStatus(event: PortalRouteEventRecord | null): LocalAiRuntimeStatusInput | null {
+  if (event?.event !== AgentEvent.LocalAiRuntimeStatusReported) {
     return null;
   }
   return {
-    title: decodeDisplayText('Local AI runtime status'),
-    details: [
-      detail(PortalDetails.EventId, event.eventId),
-      detail(PortalDetails.SentAt, event.sentAt),
-      detail(PortalDetails.RuntimeReference, event.payload[AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId]),
-      detail(PortalDetails.Provider, event.payload[AgentProtocolDefaults.Field.LocalAiProviderId]),
-      detail(PortalDetails.Model, event.payload[AgentProtocolDefaults.Field.LocalAiModelId]),
-      detail(PortalDetails.LoadState, event.payload[AgentProtocolDefaults.Field.LoadState]),
-      detail(PortalDetails.Capability, event.payload[AgentProtocolDefaults.Field.LocalAiCapabilityFlags]),
-      detail(PortalDetails.ResourceClass, event.payload[AgentProtocolDefaults.Field.LocalAiResourceClass]),
-      detail(PortalDetails.DegradedState, event.payload[AgentProtocolDefaults.Field.LocalAiDegradedState]),
-      detail(PortalDetails.PrivacyMode, event.payload[AgentProtocolDefaults.Field.LocalAiPrivacyMode]),
-      detail(PortalDetails.ExecutionState, event.payload[AgentProtocolDefaults.Field.LocalAiExecutionState]),
-      detail(PortalDetails.Reason, event.payload[AgentProtocolDefaults.Field.LocalAiUnavailableReason]),
-    ],
+    eventId: stringOrNull(event.eventId),
+    sentAt: stringOrNull(event.sentAt),
+    runtimeReference: payloadValue(event, AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId),
+    provider: payloadValue(event, AgentProtocolDefaults.Field.LocalAiProviderId),
+    model: payloadValue(event, AgentProtocolDefaults.Field.LocalAiModelId),
+    loadState: payloadValue(event, AgentProtocolDefaults.Field.LoadState),
+    capability: payloadValue(event, AgentProtocolDefaults.Field.LocalAiCapabilityFlags),
+    resourceClass: payloadValue(event, AgentProtocolDefaults.Field.LocalAiResourceClass),
+    degradedState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiDegradedState),
+    privacyMode: payloadValue(event, AgentProtocolDefaults.Field.LocalAiPrivacyMode),
+    executionState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiExecutionState),
+    reason: payloadValue(event, AgentProtocolDefaults.Field.LocalAiUnavailableReason),
   };
 }
 
-function lanAiJobCard(event: AgentEventEnvelope | null): LocalAiRuntimePanelCard | null {
-  if (event === null || event.event !== AgentEvent.LanAiJobReported) {
+function normalizeHouseholdJob(event: PortalRouteEventRecord | null): LocalAiHouseholdJobInput | null {
+  if (event?.event !== AgentEvent.LanAiJobReported) {
     return null;
   }
   return {
-    title: decodeDisplayText('Household AI job activity'),
-    details: [
-      detail(PortalDetails.EventId, event.eventId),
-      detail(PortalDetails.SentAt, event.sentAt),
-      detail(PortalDetails.RequestId, event.payload[AgentProtocolDefaults.Field.LanAiJobId]),
-      detail(PortalDetails.Status, event.payload[AgentProtocolDefaults.Field.LanAiJobStatus]),
-      detail(PortalDetails.State, event.payload[AgentProtocolDefaults.Field.LanAiJobState]),
-      detail(PortalDetails.Provider, event.payload[AgentProtocolDefaults.Field.LocalAiProviderId]),
-      detail(PortalDetails.ProviderSource, event.payload[AgentProtocolDefaults.Field.LocalAiProviderSource]),
-      detail(PortalDetails.Capability, event.payload[AgentProtocolDefaults.Field.LocalAiCapabilityFlags]),
-      detail(PortalDetails.ResourceClass, event.payload[AgentProtocolDefaults.Field.LocalAiResourceClass]),
-      detail(PortalDetails.LoadState, event.payload[AgentProtocolDefaults.Field.LocalAiAdapterReadinessState]),
-      detail(PortalDetails.PrivacyMode, event.payload[AgentProtocolDefaults.Field.LocalAiPrivacyMode]),
-      detail(PortalDetails.Custody, event.payload[AgentProtocolDefaults.Field.LanAiProviderCustodyLabel]),
-      detail(PortalDetails.PolicyReadiness, event.payload[AgentProtocolDefaults.Field.LanAiProviderRoutingState]),
-      detail(PortalDetails.AdapterBoundary, event.payload[AgentProtocolDefaults.Field.ClaimBoundary]),
-      detail(PortalDetails.RequestId, event.payload[AgentProtocolDefaults.Field.LanControllerLeaseId]),
-      detail(PortalDetails.LastChecked, event.payload[AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt]),
-      detail(PortalDetails.LastObserved, event.payload[AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]),
-      detail(PortalDetails.DecisionSource, event.payload[AgentProtocolDefaults.Field.LanParentAuthority]),
-      detail(PortalDetails.ExecutionState, event.payload[AgentProtocolDefaults.Field.LocalAiExecutionState]),
-      detail(PortalDetails.Reason, event.payload[AgentProtocolDefaults.Field.Reason]),
-      detail(PortalDetails.ProductClaim, 'worker-only-child-agent-authority'),
-    ],
+    eventId: stringOrNull(event.eventId),
+    sentAt: stringOrNull(event.sentAt),
+    requestId: payloadValue(event, AgentProtocolDefaults.Field.LanAiJobId),
+    status: payloadValue(event, AgentProtocolDefaults.Field.LanAiJobStatus),
+    state: payloadValue(event, AgentProtocolDefaults.Field.LanAiJobState),
+    provider: payloadValue(event, AgentProtocolDefaults.Field.LocalAiProviderId),
+    providerSource: payloadValue(event, AgentProtocolDefaults.Field.LocalAiProviderSource),
+    capability: payloadValue(event, AgentProtocolDefaults.Field.LocalAiCapabilityFlags),
+    resourceClass: payloadValue(event, AgentProtocolDefaults.Field.LocalAiResourceClass),
+    loadState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiAdapterReadinessState),
+    privacyMode: payloadValue(event, AgentProtocolDefaults.Field.LocalAiPrivacyMode),
+    custody: payloadValue(event, AgentProtocolDefaults.Field.LanAiProviderCustodyLabel),
+    policyReadiness: payloadValue(event, AgentProtocolDefaults.Field.LanAiProviderRoutingState),
+    adapterBoundary: payloadValue(event, AgentProtocolDefaults.Field.ClaimBoundary),
+    leaseId: payloadValue(event, AgentProtocolDefaults.Field.LanControllerLeaseId),
+    lastChecked: payloadValue(event, AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt),
+    lastObserved: payloadValue(event, AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt),
+    decisionSource: payloadValue(event, AgentProtocolDefaults.Field.LanParentAuthority),
+    executionState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiExecutionState),
+    reason: payloadValue(event, AgentProtocolDefaults.Field.Reason),
   };
 }
 
-function memoryGraphCard(readModel: PortalActivityMemoryGraphReadModel | null): LocalAiRuntimePanelCard | null {
+function normalizeMemoryGraph(readModel: PortalActivityMemoryGraphReadModel | null): LocalAiMemoryGraphInput | null {
   if (readModel === null) {
     return null;
   }
   return {
-    title: decodeDisplayText('Cited memory and graph evidence'),
-    details: [
-      detail(PortalDetails.Custody, readModel.custody),
-      detail(PortalDetails.Capability, readModel.capabilityStatus),
-      detail(PortalDetails.GeneratedAt, readModel.generatedAt),
-      detail(PortalDetails.GraphNodes, readModel.returnedNodeCount),
-      detail(PortalDetails.GraphEdges, readModel.returnedEdgeCount),
-      detail(PortalDetails.GraphOmittedEdges, readModel.omittedEdgeCount),
-      detail(PortalDetails.EvidenceReferences, memoryGraphEvidenceRefs(readModel)),
-      detail(PortalDetails.DegradedState, detailList(readModel.degradedReasons)),
-      detail(PortalDetails.ProductClaim, 'source-cited-memory-graph-read-model-only'),
-    ],
+    custody: stringOrNull(readModel.custody),
+    capabilityStatus: stringOrNull(readModel.capabilityStatus),
+    generatedAt: stringOrNull(readModel.generatedAt),
+    returnedNodeCount: readModel.returnedNodeCount,
+    returnedEdgeCount: readModel.returnedEdgeCount,
+    omittedEdgeCount: readModel.omittedEdgeCount,
+    degradedReasons: [...readModel.degradedReasons],
+    evidenceReferenceIds: collectMemoryGraphEvidenceReferenceIds(readModel),
   };
 }
 
-function parentAssistantBoundaryCard(event: AgentEventEnvelope | null): LocalAiRuntimePanelCard | null {
+function normalizeRemoteAssistantBoundary(event: PortalRouteEventRecord | null): LocalAiRemoteAssistantBoundaryInput | null {
   if (
-    event === null ||
-    ![
-      AgentEvent.ParentAssistantAnswerReported,
-      AgentEvent.ParentAssistantProviderDegraded,
-      AgentEvent.ParentAssistantErrorReported,
-    ].includes(event.event)
+    event?.event !== AgentEvent.ParentAssistantAnswerReported &&
+    event?.event !== AgentEvent.ParentAssistantProviderDegraded &&
+    event?.event !== AgentEvent.ParentAssistantErrorReported
   ) {
     return null;
   }
   return {
-    title: decodeDisplayText('Remote assistant boundary'),
-    details: [
-      detail(PortalDetails.EventId, event.eventId),
-      detail(PortalDetails.SentAt, event.sentAt),
-      detail(PortalDetails.RequestId, event.payload[AgentProtocolDefaults.Field.ParentAssistantRequestId]),
-      detail(PortalDetails.State, event.payload[AgentProtocolDefaults.Field.ParentAssistantAnswerState]),
-      detail(PortalDetails.Provider, event.payload[AgentProtocolDefaults.Field.ParentAssistantProviderRoute]),
-      detail(
-        PortalDetails.AdapterBoundary,
-        event.payload[AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]
-      ),
-      detail(
-        PortalDetails.PolicyReadiness,
-        event.payload[AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState]
-      ),
-      detail(PortalDetails.Custody, event.payload[AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel]),
-      detail(PortalDetails.DeletedEvidence, event.payload[AgentProtocolDefaults.Field.ParentAssistantApiDeletionState]),
-      detail(PortalDetails.PrivacyMode, event.payload[AgentProtocolDefaults.Field.ParentAssistantApiRetentionState]),
-      detail(
-        PortalDetails.EvidenceReferences,
-        event.payload[AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]
-      ),
-      detail(PortalDetails.RowCount, event.payload[AgentProtocolDefaults.Field.ParentAssistantCitationCount]),
-      detail(PortalDetails.ProductClaim, 'remote-assistant-report-only-local-policy-authority'),
-    ],
+    eventId: stringOrNull(event.eventId),
+    sentAt: stringOrNull(event.sentAt),
+    requestId: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantRequestId),
+    state: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantAnswerState),
+    provider: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantProviderRoute),
+    adapterBoundary: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary),
+    policyReadiness: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState),
+    custody: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel),
+    deletedEvidence: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiDeletionState),
+    privacyMode: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiRetentionState),
+    evidenceReferences: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary),
+    rowCount: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantCitationCount),
   };
 }
 
-function memoryGraphEvidenceRefs(readModel: PortalActivityMemoryGraphReadModel): string {
-  const refs = new Set<string>();
+function collectMemoryGraphEvidenceReferenceIds(readModel: PortalActivityMemoryGraphReadModel): string[] {
+  const refs: string[] = [];
   for (const node of readModel.nodes) {
     for (const evidenceRef of node.trace.sourceEvidenceReferences) {
-      refs.add(evidenceRef.evidenceReferenceId);
+      refs.push(evidenceRef.evidenceReferenceId);
     }
   }
   for (const edge of readModel.edges) {
     for (const evidenceRef of edge.trace.sourceEvidenceReferences) {
-      refs.add(evidenceRef.evidenceReferenceId);
+      refs.push(evidenceRef.evidenceReferenceId);
     }
   }
-  return refs.size === 0 ? 'not-reported' : Array.from(refs).join(',');
+  return refs;
 }
 
-function detailList(values: readonly string[]): string {
-  return values.length === 0 ? 'not-reported' : values.join(',');
+function payloadValue(event: PortalRouteEventRecord, key: string): string | null {
+  return scalarString(event.payload?.[key]);
 }
 
-function detail(label: DisplayText, value: unknown): LocalAiRuntimePanelDetail {
-  return {
-    label,
-    value: decodePortalDetailValue(value === undefined || value === null ? 'not-reported' : String(value)),
-  };
+function scalarString(value: unknown): string | null {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return null;
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
 }

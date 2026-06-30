@@ -28,6 +28,7 @@ use crate::{
     },
     browser_runtime_stream_events::{stream_entries_from_report, BrowserRuntimeServiceStreamEntry},
     fields::fields_from_pairs,
+    json_contract::serialize_json_string,
 };
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -500,6 +501,5 @@ fn serialize_stream_json<T>(value: &T) -> String
 where
     T: Serialize + ?Sized,
 {
-    serde_json::to_string(value)
-        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
+    serialize_json_string(value)
 }

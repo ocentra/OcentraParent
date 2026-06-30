@@ -8,6 +8,11 @@ import {
   ParentEvidenceReferenceSchema,
 } from './family-references';
 import { ParentContractSchemaVersionSchema, ParentPolicyVersionSchema } from './family-reference-primitives';
+import {
+  validateGeneratedPolicyPreview,
+  validateGeneratedPolicySchedule,
+  validateGeneratedPolicyScheduleBoundary,
+} from './generated/policy-control-helpers';
 
 export const PolicyTimestampSchema = brandedNonEmptyStringSchema('PolicyTimestamp');
 export const PolicyRuleIdSchema = brandedNonEmptyStringSchema('PolicyRuleId');
@@ -514,324 +519,28 @@ export const PolicyPreviewBudgetBoundaryState = {
   Expired: PolicyPreviewBudgetBoundaryStateSchema.parse('expired'),
 } as const;
 
-function assertPolicyContract(condition: unknown, message: string): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
-}
-
-function parsePolicyTimestampMillis(timestamp: string, fieldName: string): number {
-  const millis = Date.parse(timestamp);
-  assertPolicyContract(!Number.isNaN(millis), `${fieldName} must be an ISO-8601 timestamp`);
-  return millis;
-}
-
-function parsePolicyLocalTimeMinutes(localTime: string, fieldName: string): number {
-  const match = /^(?<hour>[01]\d|2[0-3]):(?<minute>[0-5]\d)$/.exec(localTime);
-  assertPolicyContract(match !== null, `${fieldName} must use HH:MM 24-hour local time`);
-  const hour = Number(match.groups?.['hour'] ?? '0');
-  const minute = Number(match.groups?.['minute'] ?? '0');
-  return hour * 60 + minute;
-}
-
-function assertPolicyNonNegativeNumber(value: number, fieldName: string): void {
-  assertPolicyContract(Number.isFinite(value) && value >= 0, `${fieldName} must be a non-negative number`);
-}
-
-function assertPolicyPositiveNumber(value: number, fieldName: string): void {
-  assertPolicyContract(Number.isFinite(value) && value > 0, `${fieldName} must be a positive number`);
-}
-
-function validatePolicyScheduleTimeBudget(timeBudget: PolicyScheduleTimeBudget): void {
-  assertPolicyPositiveNumber(timeBudget.budgetWindowMinutes, 'timeBudget.budgetWindowMinutes');
-  assertPolicyNonNegativeNumber(timeBudget.gracePeriodMinutes, 'timeBudget.gracePeriodMinutes');
-  parsePolicyLocalTimeMinutes(timeBudget.reset.localTime, 'timeBudget.reset.localTime');
-
-  const effectiveFrom = parsePolicyTimestampMillis(timeBudget.effectiveFrom, 'timeBudget.effectiveFrom');
-  if (timeBudget.effectiveUntil !== null) {
-    const effectiveUntil = parsePolicyTimestampMillis(timeBudget.effectiveUntil, 'timeBudget.effectiveUntil');
-    assertPolicyContract(
-      effectiveUntil > effectiveFrom,
-      'timeBudget.effectiveUntil must be after timeBudget.effectiveFrom'
-    );
-  }
-
-  if (timeBudget.reset.kind === PolicyScheduleBudgetResetKind.Weekly) {
-    assertPolicyContract(timeBudget.reset.day !== null, 'weekly reset rules require timeBudget.reset.day');
-  } else {
-    assertPolicyContract(timeBudget.reset.day === null, 'non-weekly reset rules cannot set timeBudget.reset.day');
-  }
-
-  switch (timeBudget.carryover.mode) {
-    case PolicyScheduleBudgetCarryoverMode.DiscardUnused:
-      assertPolicyContract(
-        timeBudget.carryover.maxMinutes === null,
-        'discard-unused carryover cannot set timeBudget.carryover.maxMinutes'
-      );
-      break;
-    case PolicyScheduleBudgetCarryoverMode.CarryForward:
-      if (timeBudget.carryover.maxMinutes !== null) {
-        assertPolicyPositiveNumber(timeBudget.carryover.maxMinutes, 'timeBudget.carryover.maxMinutes');
-      }
-      break;
-    case PolicyScheduleBudgetCarryoverMode.CapCarryover:
-      assertPolicyContract(
-        timeBudget.carryover.maxMinutes !== null,
-        'cap-carryover requires timeBudget.carryover.maxMinutes'
-      );
-      assertPolicyPositiveNumber(timeBudget.carryover.maxMinutes ?? 0, 'timeBudget.carryover.maxMinutes');
-      break;
-  }
-}
-
-function validatePolicyScheduleTimeBudgetStatus(timeBudget: PolicyScheduleTimeBudgetStatus, evaluatedAt: number): void {
-  assertPolicyPositiveNumber(timeBudget.budgetWindowMinutes, 'timeBudget.budgetWindowMinutes');
-  assertPolicyNonNegativeNumber(timeBudget.usedMinutes, 'timeBudget.usedMinutes');
-  assertPolicyNonNegativeNumber(timeBudget.remainingMinutes, 'timeBudget.remainingMinutes');
-  assertPolicyNonNegativeNumber(timeBudget.carryoverMinutes, 'timeBudget.carryoverMinutes');
-  assertPolicyNonNegativeNumber(timeBudget.gracePeriodMinutes, 'timeBudget.gracePeriodMinutes');
-
-  const resetAt = parsePolicyTimestampMillis(timeBudget.resetAt, 'timeBudget.resetAt');
-  assertPolicyContract(resetAt > evaluatedAt, 'timeBudget.resetAt must be after evaluatedAt');
-
-  switch (timeBudget.offlineRecovery.state) {
-    case PolicyScheduleOfflineRecoveryState.NotNeeded:
-      assertPolicyContract(
-        timeBudget.offlineRecovery.recoveredAt === null,
-        'offline recovery state not-needed cannot include recoveredAt'
-      );
-      assertPolicyContract(
-        timeBudget.offlineRecovery.recoveredOfflineMinutes === 0,
-        'offline recovery state not-needed cannot recover offline minutes'
-      );
-      break;
-    case PolicyScheduleOfflineRecoveryState.RecoveredFromDevice:
-    case PolicyScheduleOfflineRecoveryState.RecomputedFromJournal:
-      assertPolicyContract(
-        timeBudget.offlineRecovery.recoveredAt !== null,
-        'recovered offline timer states require recoveredAt'
-      );
-      parsePolicyTimestampMillis(timeBudget.offlineRecovery.recoveredAt ?? '', 'offlineRecovery.recoveredAt');
-      assertPolicyNonNegativeNumber(
-        timeBudget.offlineRecovery.recoveredOfflineMinutes,
-        'offlineRecovery.recoveredOfflineMinutes'
-      );
-      break;
-    case PolicyScheduleOfflineRecoveryState.ManualRequired:
-      if (timeBudget.offlineRecovery.recoveredAt !== null) {
-        parsePolicyTimestampMillis(timeBudget.offlineRecovery.recoveredAt, 'offlineRecovery.recoveredAt');
-      }
-      assertPolicyNonNegativeNumber(
-        timeBudget.offlineRecovery.recoveredOfflineMinutes,
-        'offlineRecovery.recoveredOfflineMinutes'
-      );
-      break;
-  }
-
-  if (timeBudget.bonusTimeMinutes === null) {
-    assertPolicyContract(
-      timeBudget.bonusTimeRemainingMinutes === null,
-      'timeBudget.bonusTimeRemainingMinutes requires bonusTimeMinutes'
-    );
-    assertPolicyContract(
-      timeBudget.bonusTimeExpiresAt === null,
-      'timeBudget.bonusTimeExpiresAt requires bonusTimeMinutes'
-    );
-    return;
-  }
-
-  assertPolicyPositiveNumber(timeBudget.bonusTimeMinutes, 'timeBudget.bonusTimeMinutes');
-  assertPolicyContract(
-    timeBudget.bonusTimeRemainingMinutes !== null,
-    'timeBudget.bonusTimeRemainingMinutes is required when bonusTimeMinutes are active'
-  );
-  assertPolicyNonNegativeNumber(timeBudget.bonusTimeRemainingMinutes ?? 0, 'timeBudget.bonusTimeRemainingMinutes');
-  assertPolicyContract(
-    (timeBudget.bonusTimeRemainingMinutes ?? 0) <= timeBudget.bonusTimeMinutes,
-    'timeBudget.bonusTimeRemainingMinutes cannot exceed timeBudget.bonusTimeMinutes'
-  );
-  assertPolicyContract(
-    timeBudget.bonusTimeExpiresAt !== null,
-    'timeBudget.bonusTimeExpiresAt is required when bonusTimeMinutes are active'
-  );
-  const bonusTimeExpiresAt = parsePolicyTimestampMillis(
-    timeBudget.bonusTimeExpiresAt ?? '',
-    'timeBudget.bonusTimeExpiresAt'
-  );
-  assertPolicyContract(
-    bonusTimeExpiresAt > evaluatedAt,
-    'timeBudget.bonusTimeExpiresAt must be after evaluatedAt while bonus time is active'
-  );
-}
-
-function validatePolicyScheduleBoundaryOptionalSections(boundary: PolicyScheduleBoundary, evaluatedAt: number): void {
-  if (boundary.dstBoundary !== null) {
-    parsePolicyLocalTimeMinutes(boundary.dstBoundary.localTime, 'dstBoundary.localTime');
-    assertPolicyContract(
-      Number.isInteger(boundary.dstBoundary.offsetBeforeMinutes),
-      'dstBoundary.offsetBeforeMinutes must be an integer minute offset'
-    );
-    assertPolicyContract(
-      Number.isInteger(boundary.dstBoundary.offsetAfterMinutes),
-      'dstBoundary.offsetAfterMinutes must be an integer minute offset'
-    );
-  }
-
-  if (boundary.clockSkew !== null) {
-    parsePolicyTimestampMillis(boundary.clockSkew.observedAt, 'clockSkew.observedAt');
-    assertPolicyContract(
-      Number.isFinite(boundary.clockSkew.allowedSkewMinutes) && boundary.clockSkew.allowedSkewMinutes >= 0,
-      'clockSkew.allowedSkewMinutes must be a non-negative number'
-    );
-    assertPolicyContract(
-      Number.isFinite(boundary.clockSkew.observedSkewMinutes),
-      'clockSkew.observedSkewMinutes must be a finite number'
-    );
-  }
-
-  if (boundary.exception !== null) {
-    const exceptionStartsAt = parsePolicyTimestampMillis(boundary.exception.startsAt, 'exception.startsAt');
-    const exceptionExpiresAt = parsePolicyTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt');
-    assertPolicyContract(exceptionExpiresAt > exceptionStartsAt, 'schedule exceptions must expire after they start');
-  }
-
-  if (boundary.expiry !== null) {
-    const expiresAt = parsePolicyTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt');
-    const expiredAt = parsePolicyTimestampMillis(boundary.expiry.expiredAt, 'expiry.expiredAt');
-    assertPolicyContract(expiredAt >= expiresAt, 'expiry.expiredAt must be on or after expiry.expiresAt');
-    if (boundary.state !== PolicyScheduleBoundaryState.Expired) {
-      assertPolicyContract(evaluatedAt < expiresAt, 'non-expired schedule boundaries cannot be evaluated after expiry');
-    }
-  }
-
-  if (boundary.timeBudget !== null) {
-    validatePolicyScheduleTimeBudgetStatus(boundary.timeBudget, evaluatedAt);
-  }
-}
-
-function validatePolicyScheduleBoundaryState(boundary: PolicyScheduleBoundary, evaluatedAt: number): void {
-  switch (boundary.state) {
-    case PolicyScheduleBoundaryState.DstGap:
-      assertPolicyContract(boundary.dstBoundary !== null, 'dst-gap boundaries require dstBoundary details');
-      assertPolicyContract(
-        boundary.dstBoundary.transition === PolicyScheduleDstTransition.SpringForward,
-        'dst-gap boundaries must use the spring-forward transition'
-      );
-      assertPolicyContract(
-        boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.FirstOccurrence &&
-          boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.SecondOccurrence,
-        'dst-gap boundaries cannot use overlap-only resolutions'
-      );
-      return;
-    case PolicyScheduleBoundaryState.DstOverlap:
-      assertPolicyContract(boundary.dstBoundary !== null, 'dst-overlap boundaries require dstBoundary details');
-      assertPolicyContract(
-        boundary.dstBoundary.transition === PolicyScheduleDstTransition.FallBack,
-        'dst-overlap boundaries must use the fall-back transition'
-      );
-      assertPolicyContract(
-        boundary.dstBoundary.resolution !== PolicyScheduleDstResolution.SkipForward,
-        'dst-overlap boundaries cannot skip the repeated hour'
-      );
-      return;
-    case PolicyScheduleBoundaryState.ClockSkew:
-      assertPolicyContract(boundary.clockSkew !== null, 'clock-skew boundaries require clockSkew details');
-      assertPolicyContract(
-        Math.abs(boundary.clockSkew.observedSkewMinutes) > boundary.clockSkew.allowedSkewMinutes,
-        'clock-skew boundaries require skew beyond the allowed tolerance'
-      );
-      return;
-    case PolicyScheduleBoundaryState.ExceptionActive: {
-      assertPolicyContract(boundary.exception !== null, 'exception-active boundaries require exception details');
-      const exceptionStartsAt = parsePolicyTimestampMillis(boundary.exception.startsAt, 'exception.startsAt');
-      const exceptionExpiresAt = parsePolicyTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt');
-      assertPolicyContract(
-        evaluatedAt >= exceptionStartsAt && evaluatedAt < exceptionExpiresAt,
-        'exception-active boundaries must be evaluated inside the exception window'
-      );
-      return;
-    }
-    case PolicyScheduleBoundaryState.Expired: {
-      assertPolicyContract(boundary.expiry !== null, 'expired schedule boundaries require expiry details');
-      const expiresAt = parsePolicyTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt');
-      assertPolicyContract(
-        evaluatedAt >= expiresAt,
-        'expired schedule boundaries must be evaluated on or after expiry'
-      );
-      return;
-    }
-    default:
-      return;
-  }
-}
-
-function validatePolicyPreview(preview: PolicyPreview): void {
-  const hasConfirmedBy = preview.confirmedBy !== null;
-  const hasConfirmedAt = preview.confirmedAt !== null;
-
-  assertPolicyContract(
-    hasConfirmedBy === hasConfirmedAt,
-    'preview confirmation requires both confirmedBy and confirmedAt together'
-  );
-  assertPolicyContract(preview.decision.dryRun, 'preview decisions must remain dry-run');
-  assertPolicyContract(
-    preview.decision.enforcementHandoffState === PolicyDecisionHandoffState.Disabled,
-    'preview decisions must keep enforcement handoff disabled'
-  );
-
-  switch (preview.confirmationState) {
-    case PolicyPreviewConfirmationState.ConfirmationRequired:
-      assertPolicyContract(
-        preview.confirmedBy === null && preview.confirmedAt === null,
-        'confirmation-required previews cannot include confirmedBy or confirmedAt'
-      );
-      break;
-    case PolicyPreviewConfirmationState.Confirmed:
-      assertPolicyContract(preview.confirmedBy !== null, 'confirmed previews require confirmedBy');
-      assertPolicyContract(preview.confirmedAt !== null, 'confirmed previews require confirmedAt');
-      break;
-  }
-}
-
-function validatePolicySchedule(schedule: PolicySchedule): void {
-  assertPolicyContract(schedule.windows.length > 0, 'schedules must define at least one local window');
-  for (const [index, window] of schedule.windows.entries()) {
-    assertPolicyContract(window.days.length > 0, `schedules must define at least one day for windows[${index}]`);
-    parsePolicyLocalTimeMinutes(window.startLocalTime, `windows[${index}].startLocalTime`);
-    parsePolicyLocalTimeMinutes(window.endLocalTime, `windows[${index}].endLocalTime`);
-  }
-  validatePolicyScheduleTimeBudget(schedule.timeBudget);
-}
-
-function validatePolicyScheduleBoundary(boundary: PolicyScheduleBoundary): void {
-  const evaluatedAt = parsePolicyTimestampMillis(boundary.evaluatedAt, 'evaluatedAt');
-  parsePolicyLocalTimeMinutes(boundary.localTime, 'localTime');
-  validatePolicyScheduleBoundaryOptionalSections(boundary, evaluatedAt);
-  validatePolicyScheduleBoundaryState(boundary, evaluatedAt);
-}
-
 export function parsePolicySchedule(input: unknown): PolicySchedule {
   const schedule = PolicyScheduleSchema.parse(input);
-  validatePolicySchedule(schedule);
+  validateGeneratedPolicySchedule(schedule);
   return schedule;
 }
 
 export function parseFamilyPolicySet(input: unknown): FamilyPolicySet {
   const policySet = FamilyPolicySetSchema.parse(input);
   for (const schedule of policySet.schedules) {
-    validatePolicySchedule(schedule);
+    validateGeneratedPolicySchedule(schedule);
   }
   return policySet;
 }
 
 export function parsePolicyScheduleBoundary(input: unknown): PolicyScheduleBoundary {
   const boundary = PolicyScheduleBoundarySchema.parse(input);
-  validatePolicyScheduleBoundary(boundary);
+  validateGeneratedPolicyScheduleBoundary(boundary);
   return boundary;
 }
 
 export function parsePolicyPreview(input: unknown): PolicyPreview {
   const preview = PolicyPreviewSchema.parse(input);
-  validatePolicyPreview(preview);
+  validateGeneratedPolicyPreview(preview);
   return preview;
 }

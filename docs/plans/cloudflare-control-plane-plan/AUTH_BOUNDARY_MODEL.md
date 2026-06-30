@@ -17,8 +17,9 @@ Purpose: define the Cloudflare-side trust states without hardcoding the final ac
 ## Required route rules
 
 - `/public/pricing` may be public.
-- All `/auth/billing/*` routes require `parent-session-required`.
+- All `/auth/billing/*` routes require `parent-session-required` unless the route is one of the explicit stronger exceptions below.
 - `/auth/billing/entitlement-snapshot` and `/auth/billing/license-check` additionally require `trusted-parent-device-required` or an explicit manual-required blocker.
+- `/auth/billing/manual-invoice` is the only support-owned exception inside the `/auth/billing/*` family and must remain `support-required` plus `support-write`.
 - All `/admin/*` routes require `admin-required` or `support-required` plus audit logging.
 - All `/webhooks/*` routes require `provider-webhook-signature-required`.
 - Queue and cron routes are `internal-queue-only`.
@@ -33,6 +34,23 @@ AuthVerifier
   verifySupport(request)
   verifyProviderWebhook(provider, request)
 ```
+
+Adapter mode contract:
+
+- `local-safe-fixture` is the only test/local fixture mode that may satisfy parent/admin/support checks today.
+- `account-auth-adapter-manual-required` keeps parent, trusted-device, admin, and support routes in `manual-required` until `account-identity-family-plan` chooses the real provider.
+- Unknown future adapter modes must also return `manual-required`; do not silently assume a provider.
+
+## Audit rule contract
+
+Admin and support surfaces must declare an explicit audit rule in the route manifest, not just a non-empty audit event string.
+
+| Route family | Auth state | Required audit rule family |
+| --- | --- | --- |
+| support review surfaces | `support-required` | `support-read` |
+| support mutation surfaces | `support-required` | `support-write` |
+| admin review surfaces | `admin-required` | `admin-read` |
+| admin mutation surfaces | `admin-required` | `admin-write` |
 
 ## Current blocker handling
 

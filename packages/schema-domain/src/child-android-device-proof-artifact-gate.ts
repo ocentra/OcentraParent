@@ -20,6 +20,12 @@ export const ChildAndroidDeviceProofReadinessDecisionSchema = withParser(
 export const ChildAndroidDeviceProofReadinessStateSchema = withParser(
   Schema.Literal('ci-package-only', 'manual-required', 'device-proof-required')
 );
+export const ChildAndroidInstallModeSchema = withParser(Schema.Literal('debug-apk-sideload'));
+export const ChildAndroidChildAgentArtifactStateSchema = withParser(Schema.Literal('debug-apk-built'));
+export const ChildAndroidInstallStateSchema = withParser(Schema.Literal('manual-install-proof-required'));
+export const ChildAndroidLaunchStateSchema = withParser(Schema.Literal('manual-launch-proof-required'));
+export const ChildAndroidRemovalStateSchema = withParser(Schema.Literal('manual-removal-proof-required'));
+export const ChildAndroidPlatformAuthorityStateSchema = withParser(Schema.Literal('manual-required'));
 export const ChildAndroidAddDevicePairingReadinessStateSchema = withParser(
   Schema.Literal('implemented', 'scaffold', 'manual-required', 'unavailable', 'not-implemented')
 );
@@ -47,6 +53,7 @@ export const ChildAndroidDeviceProofArtifactRequirementSchema = withParser(
     'apk-sha256-checksum',
     'package-local-status-bundles',
     'real-device-install-artifact',
+    'launch-activity-runtime-artifact',
     'foreground-service-runtime-artifact',
     'notification-runtime-grant-artifact',
     'usage-stats-settings-grant-artifact',
@@ -54,6 +61,7 @@ export const ChildAndroidDeviceProofArtifactRequirementSchema = withParser(
     'accessibility-service-grant-artifact',
     'vpn-service-grant-artifact',
     'dns-filtering-behavior-artifact',
+    'package-removal-artifact',
     'device-owner-enrollment-artifact',
     'managed-profile-enrollment-artifact',
     'play-store-signing-artifact',
@@ -132,6 +140,25 @@ export const ChildAndroidAddDevicePairingReadinessSchema = withParser(
   })
 );
 
+export const ChildAndroidInstallAuthorityStateSchema = withParser(
+  Schema.Struct({
+    childAgentArtifactState: ChildAndroidChildAgentArtifactStateSchema,
+    installMode: ChildAndroidInstallModeSchema,
+    installState: ChildAndroidInstallStateSchema,
+    launchState: ChildAndroidLaunchStateSchema,
+    removalState: ChildAndroidRemovalStateSchema,
+    deviceOwnerAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    managedProfileAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    childAgentArtifactBoundary: ChildAndroidDeviceProofBoundarySchema,
+    installModeBoundary: ChildAndroidDeviceProofBoundarySchema,
+    installStateBoundary: ChildAndroidDeviceProofBoundarySchema,
+    launchStateBoundary: ChildAndroidDeviceProofBoundarySchema,
+    removalStateBoundary: ChildAndroidDeviceProofBoundarySchema,
+    deviceOwnerBoundary: ChildAndroidDeviceProofBoundarySchema,
+    managedProfileBoundary: ChildAndroidDeviceProofBoundarySchema,
+  })
+);
+
 export const ChildAndroidDeviceProofClaimBoundariesSchema = withParser(
   Schema.Struct({
     addDevicePairingReadiness: ChildAndroidDeviceProofBoundarySchema,
@@ -150,6 +177,7 @@ const ChildAndroidDeviceProofArtifactGateReadModelBaseSchema = Schema.Struct({
   checkedAt: ParentTimestampSchema,
   readinessDecision: ChildAndroidDeviceProofReadinessDecisionSchema,
   packageMechanicalProofState: ChildAndroidDeviceProofReadinessStateSchema,
+  installAuthorityState: ChildAndroidInstallAuthorityStateSchema,
   addDevicePairingReadiness: ChildAndroidAddDevicePairingReadinessSchema,
   childAndroidDeviceReadinessState: ChildAndroidDeviceProofReadinessStateSchema,
   sourceProofs: Schema.Array(ChildAndroidDeviceProofSourceInputSchema),
@@ -187,6 +215,7 @@ const RequiredArtifactRequirements = [
   'apk-sha256-checksum',
   'package-local-status-bundles',
   'real-device-install-artifact',
+  'launch-activity-runtime-artifact',
   'foreground-service-runtime-artifact',
   'notification-runtime-grant-artifact',
   'usage-stats-settings-grant-artifact',
@@ -194,6 +223,7 @@ const RequiredArtifactRequirements = [
   'accessibility-service-grant-artifact',
   'vpn-service-grant-artifact',
   'dns-filtering-behavior-artifact',
+  'package-removal-artifact',
   'device-owner-enrollment-artifact',
   'managed-profile-enrollment-artifact',
   'play-store-signing-artifact',
@@ -223,6 +253,13 @@ const RequirementExpectations = {
     source: 'child-android-privileged-capability-proof',
   },
   'real-device-install-artifact': {
+    parentCapability: 'package-lifecycle',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'emulator-device-artifact',
+    artifactStatus: 'device-proof-required',
+    source: 'child-android-protocol-package-lifecycle-proof',
+  },
+  'launch-activity-runtime-artifact': {
     parentCapability: 'package-lifecycle',
     parentCapabilityStatus: 'manual-required',
     artifactClass: 'emulator-device-artifact',
@@ -277,6 +314,13 @@ const RequirementExpectations = {
     artifactClass: 'privileged-adapter-artifact',
     artifactStatus: 'not-implemented',
     source: 'child-android-privileged-capability-proof',
+  },
+  'package-removal-artifact': {
+    parentCapability: 'package-lifecycle',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'emulator-device-artifact',
+    artifactStatus: 'device-proof-required',
+    source: 'child-android-protocol-package-lifecycle-proof',
   },
   'device-owner-enrollment-artifact': {
     parentCapability: 'device-owner-policy',
@@ -355,6 +399,7 @@ function childAndroidDeviceProofArtifactGateIsHonest(
   return (
     readModel.readinessDecision === 'manual-device-evidence-required-before-child-android-readiness' &&
     readModel.packageMechanicalProofState === 'ci-package-only' &&
+    installAuthorityStateIsHonest(readModel.installAuthorityState) &&
     addDevicePairingReadinessIsHonest(readModel.addDevicePairingReadiness) &&
     readModel.childAndroidDeviceReadinessState === 'manual-required' &&
     sourceProofsAreComplete(readModel.sourceProofs) &&
@@ -362,6 +407,27 @@ function childAndroidDeviceProofArtifactGateIsHonest(
     manualEvidenceCustodyIsHonest(readModel.manualEvidenceStatus, readModel.artifactRequirements) &&
     claimsStayInsideCiBoundary(readModel.claimsProved, readModel.claimsNotProved)
   );
+}
+
+function installAuthorityStateIsHonest(
+  state: ChildAndroidDeviceProofArtifactGateReadModelCandidate['installAuthorityState']
+): boolean {
+  return [
+    state.childAgentArtifactState === 'debug-apk-built',
+    state.installMode === 'debug-apk-sideload',
+    state.installState === 'manual-install-proof-required',
+    state.launchState === 'manual-launch-proof-required',
+    state.removalState === 'manual-removal-proof-required',
+    state.deviceOwnerAuthorityState === 'manual-required',
+    state.managedProfileAuthorityState === 'manual-required',
+    state.childAgentArtifactBoundary.includes('child-agent artifact'),
+    state.installModeBoundary.includes('debug APK sideload mode'),
+    state.installStateBoundary.includes('manual-required'),
+    state.launchStateBoundary.includes('manual-required'),
+    state.removalStateBoundary.includes('manual-required'),
+    state.deviceOwnerBoundary.includes('no device-owner claim'),
+    state.managedProfileBoundary.includes('no managed-profile claim'),
+  ].every(Boolean);
 }
 
 function addDevicePairingReadinessIsHonest(
@@ -468,6 +534,12 @@ function claimsStayInsideCiBoundary(
 export type ChildAndroidDeviceProofSource = Infer<typeof ChildAndroidDeviceProofSourceSchema>;
 export type ChildAndroidDeviceProofReadinessDecision = Infer<typeof ChildAndroidDeviceProofReadinessDecisionSchema>;
 export type ChildAndroidDeviceProofReadinessState = Infer<typeof ChildAndroidDeviceProofReadinessStateSchema>;
+export type ChildAndroidInstallMode = Infer<typeof ChildAndroidInstallModeSchema>;
+export type ChildAndroidChildAgentArtifactState = Infer<typeof ChildAndroidChildAgentArtifactStateSchema>;
+export type ChildAndroidInstallState = Infer<typeof ChildAndroidInstallStateSchema>;
+export type ChildAndroidLaunchState = Infer<typeof ChildAndroidLaunchStateSchema>;
+export type ChildAndroidRemovalState = Infer<typeof ChildAndroidRemovalStateSchema>;
+export type ChildAndroidPlatformAuthorityState = Infer<typeof ChildAndroidPlatformAuthorityStateSchema>;
 export type ChildAndroidAddDevicePairingReadinessState = Infer<typeof ChildAndroidAddDevicePairingReadinessStateSchema>;
 export type ChildAndroidAddDevicePairingReadinessSurface = Infer<
   typeof ChildAndroidAddDevicePairingReadinessSurfaceSchema
@@ -489,6 +561,7 @@ export type ChildAndroidDeviceProofManualEvidenceCustody = Infer<
   typeof ChildAndroidDeviceProofManualEvidenceCustodySchema
 >;
 export type ChildAndroidAddDevicePairingReadiness = Infer<typeof ChildAndroidAddDevicePairingReadinessSchema>;
+export type ChildAndroidInstallAuthorityState = Infer<typeof ChildAndroidInstallAuthorityStateSchema>;
 export type ChildAndroidDeviceProofClaimBoundaries = Infer<typeof ChildAndroidDeviceProofClaimBoundariesSchema>;
 export type ChildAndroidDeviceProofArtifactGateReadModel = Infer<
   typeof ChildAndroidDeviceProofArtifactGateReadModelSchema

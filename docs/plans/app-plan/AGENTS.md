@@ -32,7 +32,7 @@ Native Apps is the app-only narrowing and reconciliation plan. It does not own t
 Module roles:
 
 ```text
-schema-domain: canonical shared native-app/app-game schema, brands, parser, source-readiness, policy target, platform proof, and handoff shapes when those shapes cross package, crate, app, or plan boundaries.
+crates/schema: canonical shared native-app/app-game schema, brands, parser, source-readiness, policy target, platform proof, and handoff shapes when those shapes cross package, crate, app, or plan boundaries.
 app-core: child-local Rust native-app observation, evidence event, AI-request event, and policy-request event boundary. It should use event/protocol handoffs rather than importing sibling runtime crates.
 app-plan: app-only route, reconciliation, app-specific source-readiness, and proof expectation owner.
 app-game-plan: shared native app/game evidence spine, combined runtime/read-model proof, native game slices, and most generated handoff chains.
@@ -44,7 +44,7 @@ policy, enforcement, notification, child-runtime, setup, payment, data-custody, 
 Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
 
 ```text
-canonical schema-domain app/app-game/evidence/policy-reference/protocol/capability/logging shapes
+canonical crates/schema app/app-game/evidence/policy-reference/protocol/capability/logging shapes
 neutral event/evidence/logging/protocol primitives
 approved public helper exports named by the selected workpack
 app-core when the selected workpack names Rust app observation/event proof
@@ -61,7 +61,7 @@ portal, policy, AI, enforcement, or notification code that scans native-app sour
 policy or enforcement internals that execute app actions without typed native-app source readiness, authority, and adapter-readiness proof
 ```
 
-If native-app work needs app-game, AI, policy, enforcement, notification, portal, child-runtime, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+If native-app work needs app-game, AI, policy, enforcement, notification, portal, child-runtime, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `crates/schema` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
 
 ## Local Decision Tree
 

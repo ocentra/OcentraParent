@@ -17,6 +17,13 @@ Branch: `codex/plan-harness-update`
 
 This file makes the harness-coverage claim testable. The branch applied the same discipline it asks Codex agents to follow: route by plan, inspect actual workpack bodies, preserve proof history, correct stale owner paths, separate shared schema from feature-owner runtime, and write no-claim boundaries instead of broad readiness claims.
 
+Current Rust-first authority supersedes this older harness wording where it
+describes `schema-domain` as canonical product truth. Treat that wording as
+migration/debt inventory. New shared product contracts, route snapshots,
+actions, read models, and product schemas must route through `crates/schema` or
+the owning Rust domain/runtime crate; TypeScript keeps only presentation,
+generated DTO consumption, thin adapters, or temporary edge decoders.
+
 ## Coverage standard
 
 A plan/workpack is considered harness-hardened only when the touched docs satisfy these conditions:
@@ -25,7 +32,7 @@ A plan/workpack is considered harness-hardened only when the touched docs satisf
 1. Actual route files were inspected.
 2. Actual workpack bodies were inspected for high-risk executable rows.
 3. Stale owner paths were corrected where found.
-4. Shared cross-boundary shapes route through schema-domain or another neutral shared boundary.
+4. Shared cross-boundary shapes route through `crates/schema` or the owning Rust domain/runtime crate; old `schema-domain` references are migration/debt only.
 5. Feature-owner runtime imports are forbidden at the workpack level where risk exists.
 6. Expected proof includes command/log artifact, negative case, owner path, and no-claim boundary.
 7. Historical proof records are preserved but not treated as current branch validation.

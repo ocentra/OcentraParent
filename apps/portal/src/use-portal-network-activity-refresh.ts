@@ -1,16 +1,14 @@
 import { useEffect, type MutableRefObject } from 'react';
-import { type PortalConnectionState as PortalConnectionStateValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { isPortalNetworkEvidenceDrawerRoute } from '@ocentra-parent/portal-domain/routes';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import type { ParentBridgeConnectionState, ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import { shouldRequestNetworkFlowReadModelForRoute } from './portal-route-refresh';
+import { isNetworkEvidenceDrawerRoute, shouldRequestNetworkFlowReadModelForRoute } from './portal-route-refresh';
 
 type PortalNetworkActivityRefreshHook = {
   readonly actions: PortalRenderActions;
-  readonly connectionState: PortalConnectionStateValue;
+  readonly connectionState: ParentBridgeConnectionState;
   readonly hasNetworkFlowReadModelEvent: boolean;
   readonly networkActivityRefreshRequestedForRouteRef: MutableRefObject<boolean>;
-  readonly route: PortalRouteValue;
+  readonly route: ParentRouteId;
 };
 
 export function usePortalNetworkActivityRefresh({
@@ -21,7 +19,7 @@ export function usePortalNetworkActivityRefresh({
   route,
 }: PortalNetworkActivityRefreshHook): void {
   useEffect(() => {
-    if (!isPortalNetworkEvidenceDrawerRoute(route)) {
+    if (!isNetworkEvidenceDrawerRoute(route)) {
       networkActivityRefreshRequestedForRouteRef.current = false;
       return;
     }

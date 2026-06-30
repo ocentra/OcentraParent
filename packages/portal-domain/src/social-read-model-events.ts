@@ -1,8 +1,4 @@
-import {
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, isAgentProtocolLogText } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   SocialAlertReportParentSurfaceReadModelSnapshotSchema,
@@ -20,6 +16,7 @@ import {
   SocialParentNotificationDeliveryReadinessReadModelSchema,
   type SocialParentNotificationDeliveryReadinessReadModel,
 } from '@ocentra-parent/schema-domain/social-parent-notification-delivery-readiness';
+import type { PortalRouteEventRecord } from './portal-contract-adapter';
 
 const SocialReadModelFailureReason = {
   WrongEvent: 'wrong-event',
@@ -64,7 +61,7 @@ export type AgentSocialDashboardReadModelFailureReason = SocialReadModelFailureR
 export type AgentSocialDashboardReadModelResult = SocialReadModelResult<SocialDashboardUxSnapshot>;
 
 export function parseAgentSocialAlertReportReadModelEvent(
-  event: AgentEventEnvelope
+  event: PortalRouteEventRecord
 ): AgentSocialAlertReportReadModelResult {
   return parseAgentReadModelEvent(
     event,
@@ -75,7 +72,7 @@ export function parseAgentSocialAlertReportReadModelEvent(
 }
 
 export function parseAgentSocialAlertReportParentSurfaceReadModelEvent(
-  event: AgentEventEnvelope
+  event: PortalRouteEventRecord
 ): AgentSocialAlertReportParentSurfaceReadModelResult {
   return parseAgentReadModelEvent(
     event,
@@ -86,7 +83,7 @@ export function parseAgentSocialAlertReportParentSurfaceReadModelEvent(
 }
 
 export function parseAgentSocialParentNotificationDeliveryReadModelEvent(
-  event: AgentEventEnvelope
+  event: PortalRouteEventRecord
 ): AgentSocialParentNotificationDeliveryReadModelResult {
   return parseAgentReadModelEvent(
     event,
@@ -97,7 +94,7 @@ export function parseAgentSocialParentNotificationDeliveryReadModelEvent(
 }
 
 export function parseAgentSocialDashboardReadModelEvent(
-  event: AgentEventEnvelope
+  event: PortalRouteEventRecord
 ): AgentSocialDashboardReadModelResult {
   return parseAgentReadModelEvent(
     event,
@@ -108,8 +105,8 @@ export function parseAgentSocialDashboardReadModelEvent(
 }
 
 function parseAgentReadModelEvent<T>(
-  event: AgentEventEnvelope,
-  expectedEvent: AgentEventEnvelope['event'],
+  event: PortalRouteEventRecord,
+  expectedEvent: PortalRouteEventRecord['event'],
   payloadField: string,
   schema: SafeParseSchema<T>
 ): SocialReadModelResult<T> {
@@ -117,7 +114,7 @@ function parseAgentReadModelEvent<T>(
     return failure(SocialReadModelFailureReason.WrongEvent);
   }
 
-  const raw = event.payload[payloadField];
+  const raw = event.payload?.[payloadField];
   if (!isAgentProtocolLogText(raw)) {
     return failure(SocialReadModelFailureReason.MissingJsonField);
   }

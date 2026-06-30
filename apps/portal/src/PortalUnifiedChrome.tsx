@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom, PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
-import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
+import { ParentRoute, parentRouteHashPath } from '../generated/parent-ui-bridge';
 import { UnifiedFooter } from '../../../vendor/ocentra-parent-core-ui/Footer/UnifiedFooter';
 import { BrandedLoadingSpinner } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/BrandedLoadingSpinner';
 import { ScopeToggle } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ScopeToggle/ScopeToggle';
@@ -116,7 +116,7 @@ const shellHeaderExtensionAttributes = {
 } as const;
 
 function goHome(): void {
-  window.location.hash = `${PortalDom.HashPrefix}${PortalRoute.Overview}`;
+  window.location.hash = parentRouteHashPath(ParentRoute.Overview);
 }
 
 function PortalHeaderConnector({ children }: { readonly children?: ReactNode }): ReactElement {

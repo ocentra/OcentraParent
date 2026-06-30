@@ -7,14 +7,16 @@ import {
 import { literalSchema, parsedLiteralRecord } from './literal-contracts';
 import {
   PermissionRequestIdSchema,
-  PolicyAction,
   PolicyActionSchema,
   PolicyDecisionSchema,
   PolicyScheduleBoundarySchema,
   PolicyTargetSchema,
   PolicyTimestampSchema,
-  parsePolicyScheduleBoundary,
 } from './policy';
+import {
+  resolveGeneratedPolicyApprovalLifecycle,
+  resolveGeneratedPolicyAuthority,
+} from './generated/policy-control-helpers';
 
 export const PolicyAuthoritySourceLiteral = {
   ParentPolicy: 'parent-policy',
@@ -175,228 +177,12 @@ export const PolicyOverrideState = parsedLiteralRecord(PolicyOverrideStateLitera
   PolicyOverrideStateSchema.parse(value)
 );
 
-function assertAuthorityContract(condition: unknown, message: string): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
-}
-
-function parseTimestampMillis(timestamp: string, fieldName: string): number {
-  const millis = Date.parse(timestamp);
-  assertAuthorityContract(!Number.isNaN(millis), `${fieldName} must be an ISO-8601 timestamp`);
-  return millis;
-}
-
-function validatePolicyApprovalRequest(request: PolicyApprovalRequest): void {
-  const requestedAt = parseTimestampMillis(request.requestedAt, 'approval.requestedAt');
-  const expiresAt = parseTimestampMillis(request.expiresAt, 'approval.expiresAt');
-
-  assertAuthorityContract(expiresAt > requestedAt, 'approval.expiresAt must be after approval.requestedAt');
-
-  if (request.scheduleBoundary !== null) {
-    parsePolicyScheduleBoundary(request.scheduleBoundary);
-  }
-
-  if (request.kind === PolicyApprovalKind.BonusTime) {
-    assertAuthorityContract(
-      request.requestedBonusTimeMinutes !== null && request.requestedBonusTimeMinutes > 0,
-      'bonus-time requests must include a positive requestedBonusTimeMinutes value'
-    );
-    assertAuthorityContract(
-      request.scheduleBoundary !== null,
-      'bonus-time requests must include scheduleBoundary details'
-    );
-    assertAuthorityContract(
-      request.scheduleBoundary.timeBudget !== null,
-      'bonus-time requests must include scheduleBoundary.timeBudget details'
-    );
-  } else {
-    assertAuthorityContract(
-      request.requestedBonusTimeMinutes === null,
-      'only bonus-time requests may include requestedBonusTimeMinutes'
-    );
-  }
-}
-
-function validatePolicyOverrideGrant(
-  grant: PolicyOverrideGrant,
-  approval: PolicyApprovalRequest,
-  evaluatedAt: number
-): void {
-  const effectiveFrom = parseTimestampMillis(grant.effectiveFrom, 'override.effectiveFrom');
-  const effectiveUntil = parseTimestampMillis(grant.effectiveUntil, 'override.effectiveUntil');
-
-  assertAuthorityContract(
-    effectiveUntil > effectiveFrom,
-    'override.effectiveUntil must be after override.effectiveFrom'
-  );
-
-  switch (grant.overrideType) {
-    case PolicyOverrideType.TemporaryAllow:
-      assertAuthorityContract(grant.action === PolicyAction.Allow, 'temporary-allow overrides must resolve to allow');
-      assertAuthorityContract(
-        grant.bonusTimeMinutes === null,
-        'temporary-allow overrides cannot carry bonusTimeMinutes'
-      );
-      break;
-    case PolicyOverrideType.TemporaryBlock:
-      assertAuthorityContract(grant.action === PolicyAction.Block, 'temporary-block overrides must resolve to block');
-      assertAuthorityContract(
-        grant.bonusTimeMinutes === null,
-        'temporary-block overrides cannot carry bonusTimeMinutes'
-      );
-      break;
-    case PolicyOverrideType.BonusTime:
-      assertAuthorityContract(
-        approval.kind === PolicyApprovalKind.BonusTime,
-        'bonus-time overrides require a bonus-time approval request'
-      );
-      assertAuthorityContract(
-        grant.action === PolicyAction.Allow || grant.action === PolicyAction.TimeLimit,
-        'bonus-time overrides must keep the action within allow or time-limit'
-      );
-      assertAuthorityContract(
-        grant.bonusTimeMinutes !== null && grant.bonusTimeMinutes > 0,
-        'bonus-time overrides must include a positive bonusTimeMinutes value'
-      );
-      break;
-  }
-
-  switch (grant.state) {
-    case PolicyOverrideState.Active:
-      assertAuthorityContract(evaluatedAt < effectiveUntil, 'active overrides cannot already be past effectiveUntil');
-      break;
-    case PolicyOverrideState.Expired:
-      assertAuthorityContract(
-        evaluatedAt >= effectiveUntil,
-        'expired overrides require evaluatedAt on or after effectiveUntil'
-      );
-      break;
-    case PolicyOverrideState.Revoked:
-      assertAuthorityContract(evaluatedAt >= effectiveFrom, 'revoked overrides require an effectiveFrom boundary');
-      break;
-  }
-}
-
-function assertResolutionHasNoReviewOrOverrideArtifacts(resolution: PolicyApprovalResolution, message: string): void {
-  assertAuthorityContract(
-    resolution.reviewedBy === null &&
-      resolution.reviewedAt === null &&
-      resolution.auditReferenceId === null &&
-      resolution.override === null,
-    message
-  );
-}
-
-function assertResolutionHasNoReviewOverrideOrReplayArtifacts(
-  resolution: PolicyApprovalResolution,
-  message: string
-): void {
-  assertResolutionHasNoReviewOrOverrideArtifacts(resolution, message);
-  assertAuthorityContract(resolution.replayOfApprovalId === null, message);
-}
-
-function validatePolicyApprovalResolutionState(resolution: PolicyApprovalResolution, evaluatedAt: number): void {
-  switch (resolution.state) {
-    case PolicyApprovalState.Pending:
-      assertAuthorityContract(resolution.reviewedBy === null, 'pending approvals cannot have reviewedBy');
-      assertAuthorityContract(resolution.reviewedAt === null, 'pending approvals cannot have reviewedAt');
-      assertAuthorityContract(resolution.auditReferenceId === null, 'pending approvals cannot have auditReferenceId');
-      assertAuthorityContract(resolution.override === null, 'pending approvals cannot create overrides');
-      assertAuthorityContract(
-        resolution.replayOfApprovalId === null,
-        'pending approvals cannot point at replayOfApprovalId'
-      );
-      return;
-    case PolicyApprovalState.PreviewOnly:
-      assertAuthorityContract(
-        resolution.approval.origin === PolicyApprovalOrigin.AssistantDraft,
-        'preview-only approvals require assistant-draft origin'
-      );
-      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
-        resolution,
-        'preview-only approvals must remain unconfirmed and override-free'
-      );
-      return;
-    case PolicyApprovalState.ExpiredRequest:
-      assertAuthorityContract(
-        evaluatedAt >= parseTimestampMillis(resolution.approval.expiresAt, 'approval.expiresAt'),
-        'expired-request state requires evaluatedAt on or after approval.expiresAt'
-      );
-      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
-        resolution,
-        'expired-request state cannot include review or override artifacts'
-      );
-      return;
-    case PolicyApprovalState.ReplayRejected:
-      assertAuthorityContract(
-        resolution.replayOfApprovalId !== null,
-        'replay-rejected state requires replayOfApprovalId'
-      );
-      assertResolutionHasNoReviewOrOverrideArtifacts(
-        resolution,
-        'replay-rejected state cannot include review or override artifacts'
-      );
-      return;
-    case PolicyApprovalState.Denied:
-      assertAuthorityContract(resolution.reviewedBy !== null, 'denied approvals require reviewedBy');
-      assertAuthorityContract(resolution.reviewedAt !== null, 'denied approvals require reviewedAt');
-      assertAuthorityContract(resolution.auditReferenceId !== null, 'denied approvals require auditReferenceId');
-      assertAuthorityContract(resolution.override === null, 'denied approvals cannot create overrides');
-      assertAuthorityContract(
-        resolution.replayOfApprovalId === null,
-        'denied approvals cannot point at replayOfApprovalId'
-      );
-      return;
-    case PolicyApprovalState.Approved:
-    case PolicyApprovalState.Modified:
-      assertAuthorityContract(resolution.reviewedBy !== null, `${resolution.state} approvals require reviewedBy`);
-      assertAuthorityContract(resolution.reviewedAt !== null, `${resolution.state} approvals require reviewedAt`);
-      assertAuthorityContract(
-        resolution.auditReferenceId !== null,
-        `${resolution.state} approvals require auditReferenceId`
-      );
-      assertAuthorityContract(resolution.override !== null, `${resolution.state} approvals require an override grant`);
-      assertAuthorityContract(
-        resolution.replayOfApprovalId === null,
-        `${resolution.state} approvals cannot point at replayOfApprovalId`
-      );
-      assertAuthorityContract(
-        String(resolution.reviewedBy.actorId) !== String(resolution.approval.childProfile.childProfileId),
-        'child requests cannot self-approve or self-modify'
-      );
-      validatePolicyOverrideGrant(resolution.override, resolution.approval, evaluatedAt);
-      return;
-  }
-}
-
 export function resolvePolicyAuthority(input: PolicyAuthorityRequest): PolicyAuthorityDecision {
   const request = PolicyAuthorityRequestSchema.parse(input);
-  const state = request.decision.dryRun
-    ? PolicyAuthorityState.DryRun
-    : request.source === PolicyAuthoritySource.ParentPolicy
-      ? PolicyAuthorityState.Authorized
-      : PolicyAuthorityState.EvidenceOnly;
-
-  return PolicyAuthorityDecisionSchema.parse({
-    source: request.source,
-    state,
-    decision: request.decision,
-  });
+  return PolicyAuthorityDecisionSchema.parse(resolveGeneratedPolicyAuthority(request));
 }
 
 export function resolvePolicyApprovalLifecycle(input: unknown): PolicyApprovalResolution {
   const resolution = PolicyApprovalResolutionSchema.parse(input);
-  const evaluatedAt = parseTimestampMillis(resolution.evaluatedAt, 'evaluatedAt');
-
-  validatePolicyApprovalRequest(resolution.approval);
-
-  if (resolution.reviewedAt !== null) {
-    const reviewedAt = parseTimestampMillis(resolution.reviewedAt, 'reviewedAt');
-    assertAuthorityContract(reviewedAt <= evaluatedAt, 'reviewedAt cannot be after evaluatedAt');
-  }
-
-  validatePolicyApprovalResolutionState(resolution, evaluatedAt);
-
-  return resolution;
+  return PolicyApprovalResolutionSchema.parse(resolveGeneratedPolicyApprovalLifecycle(resolution));
 }

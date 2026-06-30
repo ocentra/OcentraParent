@@ -14,7 +14,9 @@ import {
   RequiredAppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNonClaims,
   appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceCountsMatch,
   appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceHasNoRuntimeClaims,
-  appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceMatchesRuntimeReadiness,
+  appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRequiredProofRefs,
+  appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateForRuntimeReadiness,
+  countAppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRows,
 } from './app-game-source-gated-policy-preview-timer-scheduler-persistence-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
@@ -165,21 +167,7 @@ export function buildAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence(
     rows,
     nativeAppRowCount: runtimeReadiness.nativeAppRowCount,
     nativeGameRowCount: runtimeReadiness.nativeGameRowCount,
-    schedulerPersistenceProofRequiredCount: rows.filter(
-      (row) =>
-        row.schedulerPersistenceState ===
-        AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState.SchedulerPersistenceProofRequired
-    ).length,
-    blockedBySourceFreshnessCount: rows.filter(
-      (row) =>
-        row.schedulerPersistenceState ===
-        AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState.BlockedBySourceFreshness
-    ).length,
-    blockedByCompilerDecisionCount: rows.filter(
-      (row) =>
-        row.schedulerPersistenceState ===
-        AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState.BlockedByCompilerDecision
-    ).length,
+    ...countAppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRows(rows),
     schedulerPersistenceNonClaims: RequiredAppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNonClaims,
     ...AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNoClaimFlags,
   });
@@ -189,7 +177,10 @@ function buildSchedulerPersistenceRow(
   options: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceOptions,
   runtimeReadinessRow: AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRow
 ): AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRow {
-  const schedulerPersistenceState = schedulerPersistenceStateForRuntimeReadiness(runtimeReadinessRow);
+  const schedulerPersistenceState =
+    appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateForRuntimeReadiness(
+      runtimeReadinessRow.runtimeReadinessState
+    );
   const schedulerProofRequired =
     schedulerPersistenceState ===
     AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState.SchedulerPersistenceProofRequired;
@@ -205,51 +196,15 @@ function buildSchedulerPersistenceRow(
     schedulerStateStoreProofRequired: schedulerProofRequired,
     auditProofRequired: schedulerProofRequired,
     rollbackProofRequired: schedulerProofRequired,
-    requiredProofRefs: requiredProofRefsForSchedulerPersistence(
+    requiredProofRefs: appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRequiredProofRefs(
       options,
       schedulerPersistenceState,
-      runtimeReadinessRow
+      runtimeReadinessRow.requiredProofRefs
     ),
     sourceEvidenceRefs: runtimeReadinessRow.sourceEvidenceRefs,
     ...AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNoClaimFlags,
     generatedAt: options.generatedAt,
   });
-}
-
-function schedulerPersistenceStateForRuntimeReadiness(
-  runtimeReadinessRow: AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRow
-) {
-  for (const state of Object.values(AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState)) {
-    if (
-      appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceMatchesRuntimeReadiness(
-        runtimeReadinessRow.runtimeReadinessState,
-        state
-      )
-    ) {
-      return state;
-    }
-  }
-  return AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState.BlockedByCompilerDecision;
-}
-
-function requiredProofRefsForSchedulerPersistence(
-  options: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceOptions,
-  schedulerPersistenceState: string,
-  runtimeReadinessRow: AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRow
-) {
-  if (
-    schedulerPersistenceState ===
-    AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState.SchedulerPersistenceProofRequired
-  ) {
-    return [
-      options.serviceTimerRuntimeProofRef,
-      options.schedulerPersistenceProofRef,
-      options.schedulerStateStoreProofRef,
-      options.auditProofRef,
-      options.rollbackProofRef,
-    ];
-  }
-  return runtimeReadinessRow.requiredProofRefs;
 }
 
 export const decodeAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence = Schema.decodeUnknownSync(

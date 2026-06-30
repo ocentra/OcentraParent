@@ -2,6 +2,13 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-install-purchase-approved-api-entitlement-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchasePlatformAdapterBoundaryRowGenerated,
+  platformAdapterBoundaryProofIsHonestGenerated,
+  platformAdapterBoundaryRowIsHonestGenerated,
+  summarizeAppInstallPurchasePlatformAdapterBoundaryProofGenerated,
+} from './generated/app-install-purchase-platform-evidence-helpers';
+
 const PlatformAdapterBoundaryVersion = 'app-install-purchase-platform-adapter-boundary-proof';
 const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
 const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';
@@ -32,6 +39,17 @@ const PlatformAdapterBoundaryNonClaims = [
   'no-app-blocking',
   'no-ocentra-hosted-family-data-custody',
 ] as const;
+const PlatformAdapterBoundaryBoundaryFragments = [
+  'no platform adapter implementation',
+  'no provider API execution',
+  'no store integration',
+  'no child-device delivery',
+  'no runtime report delivery',
+  'no real install or purchase interception',
+  'no child activity data',
+  'no app blocking',
+  'no Ocentra-hosted family data custody',
+] as const;
 
 export const AppInstallPurchasePlatformAdapterBoundaryProofSchemaVersionSchema = withParser(
   Schema.Literal(PlatformAdapterBoundaryVersion)
@@ -48,7 +66,9 @@ const AppInstallPurchasePlatformAdapterRuntimeStateSchema = withParser(
 const AppInstallPurchasePlatformAdapterProviderApiExecutionClaimSchema = withParser(Schema.Literal('not-executed'));
 const AppInstallPurchasePlatformAdapterStoreIntegrationClaimSchema = withParser(Schema.Literal('not-claimed'));
 const AppInstallPurchasePlatformAdapterChildDeliveryClaimSchema = withParser(Schema.Literal('not-delivered'));
-const AppInstallPurchasePlatformAdapterRuntimeReportDeliveryClaimSchema = withParser(Schema.Literal('not-delivered'));
+const AppInstallPurchasePlatformAdapterRuntimeReportDeliveryClaimSchema = withParser(
+  Schema.Literal('not-delivered')
+);
 const AppInstallPurchasePlatformAdapterInterceptionClaimSchema = withParser(Schema.Literal('not-claimed'));
 const AppInstallPurchasePlatformAdapterAppBlockingClaimSchema = withParser(Schema.Literal('not-claimed'));
 const AppInstallPurchasePlatformAdapterChildDataCustodyClaimSchema = withParser(
@@ -153,140 +173,34 @@ export const AppInstallPurchasePlatformAdapterBoundaryProofReadModel =
 export function summarizeAppInstallPurchasePlatformAdapterBoundaryProof(
   proof: AppInstallPurchasePlatformAdapterBoundaryProof
 ) {
-  return {
-    adapterBoundaryRows: proof.adapterBoundaryRows.length,
-    notImplementedRows: proof.adapterBoundaryRows.filter((row) => row.adapterRuntimeState === 'not-implemented').length,
-    manualRequiredRows: proof.adapterBoundaryRows.filter((row) => row.adapterRuntimeState === 'manual-required').length,
-    unavailableRows: proof.adapterBoundaryRows.filter((row) => row.adapterRuntimeState === 'unavailable').length,
-    reportRuntimeLinkedRows: proof.adapterBoundaryRows.filter((row) => row.reportRuntimeRefs.length > 0).length,
-  } as const;
+  return summarizeAppInstallPurchasePlatformAdapterBoundaryProofGenerated(proof);
 }
 
 function platformAdapterBoundaryRow(
   row: (typeof AppInstallPurchaseApprovedApiEntitlementProofReadModel.evidenceRows)[number]
 ) {
-  return {
-    schemaVersion: PlatformAdapterBoundaryVersion,
-    adapterBoundaryRowId: `platform-adapter-boundary-${row.platform}-${row.storeSurface}`,
-    sourceApprovedApiEntitlementRowId: row.evidenceRowId,
-    platform: row.platform,
-    storeSurface: row.storeSurface,
-    adapterEvidenceState: adapterEvidenceState(row.evidenceStatus),
-    adapterRuntimeState: adapterRuntimeState(row.evidenceStatus),
-    approvedApiEvidenceRef: row.approvedApiEvidenceRef,
-    entitlementEvidenceRef: row.entitlementEvidenceRef,
-    limitationReportRef: row.limitationReportRef,
-    reportRuntimeRefs: AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows.map(
-      (reportRow: (typeof AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows)[number]) =>
-        reportRow.outputReportRef
-    ),
-    adapterReadinessEvidenceRefs: row.requiredProofRefs.map((proofRef) => `${proofRef}-adapter-readiness`),
-    providerApiExecutionClaim: row.providerApiExecutionClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    childDeliveryClaim: row.childDeliveryClaim,
-    runtimeReportDeliveryClaim: row.runtimeReportDeliveryClaim,
-    interceptionClaim: row.interceptionClaim,
-    appBlockingClaim: row.appBlockingClaim,
-    childDataCustody: row.childDataCustody,
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: PlatformAdapterBoundaryClaimBoundary,
-    evaluatedAt: PlatformAdapterBoundaryTimestamp,
-  } as const;
-}
-
-function adapterEvidenceState(
-  status: (typeof AppInstallPurchaseApprovedApiEntitlementProofReadModel.evidenceRows)[number]['evidenceStatus']
-) {
-  if (status === 'approved-api-evidence-required') {
-    return 'approved-api-adapter-evidence-required';
-  }
-  if (status === 'store-entitlement-evidence-required') {
-    return 'entitlement-adapter-evidence-required';
-  }
-  if (status === 'manual-platform-review-required') {
-    return 'manual-platform-review-required';
-  }
-  return 'platform-unavailable';
-}
-
-function adapterRuntimeState(
-  status: (typeof AppInstallPurchaseApprovedApiEntitlementProofReadModel.evidenceRows)[number]['evidenceStatus']
-) {
-  if (status === 'platform-unavailable') {
-    return 'unavailable';
-  }
-  if (status === 'manual-platform-review-required') {
-    return 'manual-required';
-  }
-  return 'not-implemented';
-}
-
-function platformAdapterBoundaryRowIsHonest(row: PlatformAdapterBoundaryRowCandidate): boolean {
-  return (
-    adapterEvidenceMatchesRuntime(row) &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.childDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed' &&
-    row.reportRuntimeRefs.length > 0 &&
-    row.adapterReadinessEvidenceRefs.length > 0 &&
-    platformAdapterBoundaryIsExplicit(row.claimBoundary)
+  return buildAppInstallPurchasePlatformAdapterBoundaryRowGenerated(
+    row,
+    AppInstallPurchaseReportRuntimeProofReadModel.reportRuntimeRows.map((reportRow) => reportRow.outputReportRef),
+    PlatformAdapterBoundaryClaimBoundary,
+    PlatformAdapterBoundaryTimestamp
   );
 }
 
-function adapterEvidenceMatchesRuntime(row: PlatformAdapterBoundaryRowCandidate): boolean {
-  if (row.adapterEvidenceState === 'platform-unavailable') {
-    return row.adapterRuntimeState === 'unavailable';
-  }
-  if (row.adapterEvidenceState === 'manual-platform-review-required') {
-    return row.adapterRuntimeState === 'manual-required';
-  }
-  return row.adapterRuntimeState === 'not-implemented';
+function platformAdapterBoundaryRowIsHonest(row: PlatformAdapterBoundaryRowCandidate): boolean {
+  return platformAdapterBoundaryRowIsHonestGenerated(row, PlatformAdapterBoundaryBoundaryFragments);
 }
 
 function platformAdapterBoundaryProofIsHonest(proof: AppInstallPurchasePlatformAdapterBoundaryProof): boolean {
   return (
     proof.sourceApprovedApiEntitlementProofVersion === SourceApprovedApiEntitlementProofVersion &&
     proof.sourceReportRuntimeProofVersion === SourceReportRuntimeProofVersion &&
-    platformAdapterRowsAreComplete(proof.adapterBoundaryRows) &&
-    platformAdapterNonClaimsAreComplete(proof.nonClaims) &&
-    proof.knownGaps.length > 0
-  );
-}
-
-function platformAdapterRowsAreComplete(rows: readonly PlatformAdapterBoundaryRowCandidate[]): boolean {
-  const keys = new Set(rows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const evidenceStates = new Set(rows.map((row) => row.adapterEvidenceState));
-  return (
-    rows.length === RequiredPlatformSources.length &&
-    keys.size === rows.length &&
-    RequiredPlatformSources.every(([platform, storeSurface]) => keys.has(`${platform}:${storeSurface}`)) &&
-    RequiredAdapterEvidenceStates.every((state) => evidenceStates.has(state)) &&
-    rows.every((row) => platformAdapterBoundaryRowIsHonest(row))
-  );
-}
-
-function platformAdapterNonClaimsAreComplete(
-  nonClaims: readonly (typeof PlatformAdapterBoundaryNonClaims)[number][]
-): boolean {
-  const claimSet = new Set(nonClaims);
-  return PlatformAdapterBoundaryNonClaims.every((claim) => claimSet.has(claim));
-}
-
-function platformAdapterBoundaryIsExplicit(boundary: typeof PlatformAdapterBoundaryClaimBoundarySchema.Type): boolean {
-  return (
-    boundary.includes('no platform adapter implementation') &&
-    boundary.includes('no provider API execution') &&
-    boundary.includes('no store integration') &&
-    boundary.includes('no child-device delivery') &&
-    boundary.includes('no runtime report delivery') &&
-    boundary.includes('no real install or purchase interception') &&
-    boundary.includes('no child activity data') &&
-    boundary.includes('no app blocking') &&
-    boundary.includes('no Ocentra-hosted family data custody')
+    platformAdapterBoundaryProofIsHonestGenerated(
+      proof,
+      RequiredPlatformSources,
+      RequiredAdapterEvidenceStates,
+      PlatformAdapterBoundaryNonClaims
+    ) &&
+    proof.adapterBoundaryRows.every(platformAdapterBoundaryRowIsHonest)
   );
 }

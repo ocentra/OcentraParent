@@ -2,55 +2,29 @@
 
 mod activity_api;
 mod activity_capture;
-#[cfg(test)]
-mod activity_capture_browser_tests;
-#[cfg(test)]
-mod activity_capture_tests;
 mod activity_family_sources;
-#[cfg(test)]
-mod activity_family_sources_tests;
 mod activity_memory_graph_payload;
-#[cfg(test)]
-mod activity_memory_graph_payload_tests;
 mod activity_network_flow_payload;
 mod activity_payload;
-#[cfg(test)]
-mod activity_report_env_lock;
 mod activity_store_path;
 mod activity_surface_adapter;
-#[cfg(test)]
-mod activity_surface_adapter_tests;
 mod activity_surface_api;
-#[cfg(test)]
-mod activity_surface_main_backed_adapter_tests;
 mod activity_surface_payload;
-#[cfg(test)]
-mod activity_surface_payload_tests;
 mod activity_surface_read_model_states;
 mod activity_surface_read_models;
 mod activity_surface_report;
 mod activity_surface_report_file_name;
 mod activity_surface_report_store;
-#[cfg(test)]
-mod activity_surface_report_store_tests;
 mod activity_surface_request;
 mod activity_surface_store;
 mod app;
 mod browser_evidence_payload;
 mod browser_intervention_page;
 mod browser_inventory_read_model;
-#[cfg(test)]
-mod browser_inventory_read_model_tests;
 mod browser_payload;
 mod browser_policy_api;
-#[cfg(test)]
-mod browser_policy_api_tests;
 mod browser_policy_compiler;
 mod browser_policy_compiler_assessment;
-#[cfg(test)]
-mod browser_policy_compiler_tests;
-#[cfg(test)]
-mod browser_policy_manifest_patch_tests;
 mod browser_policy_payload;
 mod browser_policy_request;
 mod browser_policy_runtime;
@@ -58,113 +32,52 @@ mod browser_policy_runtime_support;
 mod browser_policy_store;
 mod browser_runtime;
 mod browser_runtime_delivery;
-#[cfg(test)]
-mod browser_runtime_delivery_tests;
 mod browser_runtime_paths;
 mod browser_runtime_status;
 mod browser_runtime_stream_api;
 mod browser_runtime_stream_events;
 mod browser_runtime_stream_payload;
 mod browser_runtime_stream_request;
-#[cfg(test)]
-mod browser_runtime_stream_tests;
-#[cfg(test)]
-mod browser_runtime_tests;
 pub mod dev_log;
 mod enforcement_api;
 mod enforcement_browser_domain_adapter_app_control_proof_states;
 mod enforcement_browser_domain_adapter_proof_read_model;
-#[cfg(test)]
-mod enforcement_browser_domain_adapter_proof_read_model_tests;
 mod enforcement_capability;
 mod enforcement_cross_platform_capability_proof_read_model;
-#[cfg(test)]
-mod enforcement_cross_platform_capability_proof_read_model_tests;
 mod enforcement_os_adapter_product_proof_read_model;
-#[cfg(test)]
-mod enforcement_os_adapter_product_proof_read_model_tests;
 mod enforcement_payload;
 mod enforcement_policy_dispatch_read_model;
-#[cfg(test)]
-mod enforcement_policy_dispatch_read_model_tests;
-#[cfg(test)]
-mod enforcement_tests;
 mod enforcement_timer_api;
-#[cfg(test)]
-mod enforcement_timer_expiry_tests;
 mod enforcement_timer_payload;
 mod enforcement_timer_report;
 mod enforcement_timer_state_file;
 mod enforcement_timer_state_path;
-#[cfg(test)]
-mod enforcement_timer_tests;
-mod event_builder;
-mod fields;
+pub(crate) mod event_builder;
+pub(crate) mod fields;
 mod host_identity_read_model;
-#[cfg(test)]
-mod host_identity_read_model_tests;
-mod lan_pairing;
-mod lan_pairing_audit;
-mod lan_pairing_browser_add_device_scan;
-mod lan_pairing_browser_add_device_state;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_browser_add_device_state.rs"]
-mod lan_pairing_browser_add_device_state_tests;
-mod lan_pairing_browser_runtime;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_browser_runtime.rs"]
-mod lan_pairing_browser_runtime_tests;
-#[cfg(test)]
-mod lan_pairing_household_device_spine;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_household_device_spine_test_fixtures.rs"]
-mod lan_pairing_household_device_spine_test_fixtures;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_household_device_spine.rs"]
-mod lan_pairing_household_device_spine_tests;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_multidevice.rs"]
-mod lan_pairing_multidevice_tests;
-mod lan_pairing_payload;
-mod lan_pairing_provider_selection_read_model;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_provider_selection_read_model.rs"]
-mod lan_pairing_provider_selection_read_model_tests;
-mod lan_pairing_runtime_state;
-mod lan_pairing_status;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_test_assertions.rs"]
-mod lan_pairing_test_assertions;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing_test_commands.rs"]
-mod lan_pairing_test_commands;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing.rs"]
-mod lan_pairing_tests;
+pub(crate) mod json_contract;
+pub(crate) mod lan_pairing;
+pub(crate) mod lan_pairing_audit;
+pub(crate) mod lan_pairing_browser_add_device_scan;
+pub(crate) mod lan_pairing_browser_add_device_state;
+pub(crate) mod lan_pairing_browser_runtime;
+pub(crate) mod lan_pairing_payload;
+pub(crate) mod lan_pairing_runtime_state;
+pub(crate) mod lan_pairing_status;
+mod lan_runtime_stream_api;
+pub(crate) mod lan_runtime_stream_payload;
 mod local_ai_cache_root;
 mod local_ai_chat_generation;
 mod local_ai_chat_generation_args;
 mod local_ai_chat_generation_request;
-#[cfg(test)]
-mod local_ai_chat_generation_request_tests;
 mod local_ai_chat_generation_result;
 mod local_ai_chat_generation_runner;
-#[cfg(test)]
-mod local_ai_chat_generation_tests;
 mod local_ai_generation_payload;
 mod local_ai_model_registry;
-#[cfg(test)]
-mod local_ai_model_registry_tests;
-#[cfg(test)]
-mod local_ai_model_request_status_tests;
 mod local_ai_provider_scheduler;
 mod local_ai_provider_scheduler_queue;
 mod local_ai_provider_scheduler_state;
-#[cfg(test)]
-mod local_ai_provider_scheduler_tests;
 mod local_ai_runtime_acceleration_config;
-#[cfg(test)]
-mod local_ai_runtime_acceleration_tests;
 mod local_ai_runtime_cache_status;
 mod local_ai_runtime_config;
 mod local_ai_runtime_config_environment;
@@ -174,126 +87,57 @@ mod local_ai_runtime_config_values;
 mod local_ai_runtime_configured_status;
 mod local_ai_runtime_distribution;
 mod local_ai_runtime_distribution_assets;
-#[cfg(test)]
-mod local_ai_runtime_distribution_tests;
 mod local_ai_runtime_install_plan;
-#[cfg(test)]
-mod local_ai_runtime_install_plan_tests;
 mod local_ai_runtime_model_selection;
 mod local_ai_runtime_payload;
-#[cfg(test)]
-mod local_ai_runtime_payload_tests;
 mod local_ai_runtime_provider_proof_read_model;
-#[cfg(test)]
-mod local_ai_runtime_provider_proof_read_model_tests;
 mod local_ai_runtime_readiness;
 mod local_ai_runtime_status;
-#[cfg(test)]
-mod local_ai_runtime_status_tests;
 mod local_ai_runtime_status_unavailable;
-mod network;
+pub mod network;
 mod network_android_vpn_service_gate_status_bridge;
-#[cfg(test)]
-mod network_android_vpn_service_gate_status_bridge_tests;
 mod network_apple_network_extension_gate_status_bridge;
-#[cfg(test)]
-mod network_apple_network_extension_gate_status_bridge_tests;
 mod network_flow_digest;
 mod network_flow_digest_indicators;
 mod network_flow_digest_rollups;
-#[cfg(test)]
-mod network_flow_digest_tests;
-#[cfg(test)]
-mod network_flow_payload_tests;
 mod network_linux_nftables_lab_status_bridge;
-#[cfg(test)]
-mod network_linux_nftables_lab_status_bridge_tests;
 mod network_live_capture_execution_bridge;
 mod network_live_capture_readiness_bridge;
-#[cfg(test)]
-mod network_live_capture_readiness_bridge_tests;
 mod network_product_path_bridge;
-#[cfg(test)]
-mod network_product_path_bridge_tests;
-#[cfg(test)]
-mod network_product_path_integration_tests;
 mod network_remote_delivery_status_cross_process;
 mod network_remote_delivery_status_payload;
-#[cfg(test)]
-mod network_remote_delivery_status_service_tests;
 mod network_runtime_delivery;
-#[cfg(test)]
-mod network_runtime_delivery_tests;
 mod network_runtime_stream_event_payloads;
 mod network_runtime_stream_event_values;
 mod network_runtime_stream_events;
 mod network_runtime_stream_payload;
-#[cfg(test)]
-mod network_runtime_stream_tests;
 mod network_windows_firewall_lab_status_bridge;
-#[cfg(test)]
-mod network_windows_firewall_lab_status_bridge_tests;
 mod network_windows_wfp_gate_status_bridge;
-#[cfg(test)]
-mod network_windows_wfp_gate_status_bridge_tests;
 mod parent_assistant_api;
-#[cfg(test)]
-mod parent_assistant_api_tests;
 mod parent_assistant_evidence_context;
 mod parent_assistant_payload;
 mod parent_assistant_report_history;
 mod parent_assistant_runtime;
-#[cfg(test)]
-mod parent_assistant_runtime_tests;
 mod policy_preview_api;
 mod policy_preview_payload;
-#[cfg(test)]
-mod policy_preview_tests;
 mod screen_ai_analysis_runtime;
-#[cfg(test)]
-mod screen_ai_analysis_runtime_tests;
 mod screen_ai_cadence_runtime;
 mod screen_ai_cadence_runtime_event;
-#[cfg(test)]
-mod screen_ai_cadence_runtime_tests;
 mod screen_ai_foreground_runtime;
 mod screen_ai_foreground_runtime_config;
-#[cfg(test)]
-mod screen_ai_foreground_runtime_tests;
 mod screen_ai_retention_sweeper_deletion_events;
-#[cfg(test)]
-mod screen_ai_retention_sweeper_deletion_events_tests;
 mod screen_ai_retention_sweeper_runtime;
-#[cfg(test)]
-mod screen_ai_retention_sweeper_runtime_tests;
 mod screen_ai_service_capture_event_builder;
 mod screen_ai_service_event_bridge;
-#[cfg(test)]
-mod screen_ai_service_event_bridge_tests;
 mod screen_ai_service_event_subscription;
-#[cfg(test)]
-mod screen_ai_service_event_subscription_tests;
 mod screen_settings_api;
-#[cfg(test)]
-mod screen_settings_api_tests;
 mod screen_settings_payload;
 mod screen_settings_request;
 mod screen_settings_runtime;
-#[cfg(test)]
-mod screen_settings_runtime_tests;
 mod screen_settings_store;
 pub mod service_runtime;
 mod snapshot;
-mod time;
-#[cfg(test)]
-mod tracking_read_model_service_tests;
-mod websocket;
+pub(crate) mod time;
+pub mod websocket;
 mod windows_adapter_artifact_gate_read_model;
-#[cfg(test)]
-mod windows_adapter_artifact_gate_read_model_tests;
-mod windows_adapter_artifact_ingestion_read_model;
-#[cfg(test)]
-mod windows_adapter_artifact_ingestion_read_model_tests;
 mod windows_adapter_capability_read_model;
-#[cfg(test)]
-mod windows_adapter_capability_read_model_tests;

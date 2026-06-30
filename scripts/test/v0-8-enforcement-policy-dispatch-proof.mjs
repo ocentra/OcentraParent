@@ -19,16 +19,6 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'enforcement-policy-dispatch',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
       'enforcement-policy-dispatch-adapter',
@@ -53,7 +43,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/enforcement-policy-dispatch.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/enforcement-policy-dispatch.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-policy-dispatch-adapter.ts',
       tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/unit/enforcement-policy-dispatch-adapter.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_policy_dispatch.rs',

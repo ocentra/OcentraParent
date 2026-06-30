@@ -9,23 +9,17 @@ use ocentra_parent_agent_protocol::browser::{
 };
 use ocentra_parent_agent_protocol::constants;
 
-pub(crate) mod action_handoff;
-#[cfg(test)]
-pub(crate) mod action_handoff_child_status;
-#[cfg(test)]
-pub(crate) mod action_handoff_child_status_types;
-#[cfg(test)]
-pub(crate) mod action_handoff_durable;
-#[cfg(test)]
-pub(crate) mod action_handoff_durable_types;
-pub(crate) mod action_status;
-pub(crate) mod delivery;
-pub(crate) mod social_provider_receipt;
-#[cfg(test)]
-pub(crate) mod social_provider_receipt_durable;
-#[cfg(test)]
-pub(crate) mod social_provider_receipt_durable_types;
-pub(crate) mod topology;
+pub mod action_handoff;
+pub mod action_handoff_child_status;
+pub mod action_handoff_child_status_types;
+pub mod action_handoff_durable;
+pub mod action_handoff_durable_types;
+pub mod action_status;
+pub mod delivery;
+pub mod social_provider_receipt;
+pub mod social_provider_receipt_durable;
+pub mod social_provider_receipt_durable_types;
+pub mod topology;
 
 use crate::browser_event_runtime_refs::previous_phase_ref;
 
@@ -87,13 +81,12 @@ pub fn browser_runtime_chain_topology_manifest() -> Result<EventTopologyManifest
     topology::browser_runtime_chain_topology_manifest()
 }
 
-#[cfg(test)]
-pub(crate) fn browser_runtime_stream_report_topology_manifest(
+pub fn browser_runtime_stream_report_topology_manifest(
 ) -> Result<EventTopologyManifest, EventingError> {
     topology::browser_runtime_stream_report_topology_manifest()
 }
 
-pub(crate) type BrowserRuntimeEventPayload = ProtocolBrowserRuntimeEventPayload;
+pub type BrowserRuntimeEventPayload = ProtocolBrowserRuntimeEventPayload;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserRuntimeInput {

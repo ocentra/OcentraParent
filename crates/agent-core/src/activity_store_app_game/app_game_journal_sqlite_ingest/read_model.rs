@@ -31,7 +31,7 @@ struct StoredAppGameJournalRow {
     fields: LogFields,
 }
 
-pub(crate) fn app_game_journal_sqlite_read_model(
+pub fn app_game_journal_sqlite_read_model(
     connection: &Connection,
     limit: u64,
     generated_at: &str,

@@ -1,5 +1,8 @@
+#[path = "product_control_spine/entry_factory.rs"]
 mod entry_factory;
+#[path = "product_control_spine/proof_links.rs"]
 mod proof_links;
+#[path = "product_control_spine/surface_entries.rs"]
 mod surface_entries;
 
 use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;

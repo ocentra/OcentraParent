@@ -1,6 +1,6 @@
 # Parent Client Runtime Distribution Plan State
 
-Status: canonical parent client distribution scope documented; implementation and proof remain open.
+Status: WP01 parent client scope/route boundary, WP02 parent web portal distribution, WP03 parent desktop shell package, WP04 parent Android package, WP06 parent local-service route bridge, WP08 parent client update rollback, and WP09 parent client launch smoke matrix are complete with proof roots and focused validation; remaining implementation and proof for later workpacks remain open.
 
 Research status: aligned against the current repo parent client surfaces, the existing desktop/mobile proof scripts, and the runtime-distribution guidance in the pasted apply set. The historical `parent-desktop-runtime-package-plan` path is retained for compatibility only.
 
@@ -39,7 +39,6 @@ account-identity-family-plan, payment-subscription-plan, policy-control-plane-pl
 
 ```text
 - The folder path still says desktop, but the canonical scope is parent client distribution.
-- WP01 text says proof was recorded, while WORKPACK_INDEX still marks WP01 open; keep open until proof root, checklist, and state are aligned.
 - Web build proof is not production account portal readiness.
 - Desktop launch smoke is not desktop product readiness.
 - Mobile scaffold or source artifact proof is not Android/iOS platform support.
@@ -53,7 +52,14 @@ account-identity-family-plan, payment-subscription-plan, policy-control-plane-pl
 ```text
 output/parent-client-runtime-distribution-plan-proof/<workpack>/ is the canonical proof root.
 docs/proof/parent-desktop-runtime-package-plan/ is compatibility-only for old references and should not become the active proof root.
-All WP01-WP11 rows remain open until proof artifacts and checklist rows align.
+WP01 is now closed against `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/`.
+WP02 is now closed against `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/`.
+WP03 is now closed against `output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/`.
+WP04 is now closed against `output/parent-client-runtime-distribution-plan-proof/04-parent-android-package/`.
+WP06 is now closed against `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/`.
+WP08 is now closed against `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/`.
+WP09 is now closed against `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/`.
+Later workpacks remain open until their proof artifacts and checklist rows align.
 Manual-required states are expected for unsupported or unavailable platform/store proof.
 ```
 
@@ -62,15 +68,22 @@ Evidence from the repo:
 - `apps/portal` is the parent web portal surface.
 - `dev:desktop` and `dev:desktop:lan` already exist for the parent desktop shell.
 - `release:package:parent-android` and `release:package:parent-ios` already exist for parent mobile packaging.
-- `test:parent-mobile-shell-runtime-proof`, `test:parent-mobile-package-source-artifact-proof`, `test:parent-desktop-release-support-proof`, `test:parent-mobile-service-bridge`, and `test:parent-mobile-controller-observer-handoff` already exist as proof anchors.
+- `test:parent-android-package-proof`, `test:parent-mobile-shell-runtime-proof`, `test:parent-mobile-package-source-artifact-proof`, `test:parent-desktop-release-support-proof`, `test:parent-mobile-service-bridge`, and `test:parent-mobile-controller-observer-handoff` already exist as proof anchors.
 - The repo already differentiates parent client surfaces from child runtime work, but the plan naming still read as desktop-only before this correction.
-- The plan-local route docs now keep canonical parent-client scope, route bridge, setup handoff, and child-runtime exclusions separate.
+- The plan-local route docs and the WP01 proof root now keep canonical parent-client scope, route bridge, setup handoff, portal UX handoff, and child-runtime exclusions separate under a Rust-first ownership rule.
+- The hosted parent web portal route now has real build, route, auth, cache, and preview/staging/production separation proof under `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/` without upgrading preview/build presence into production readiness.
+- The parent local-service route bridge now has Rust-owned contract and runtime proof under `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/`, including canonical `ParentRouteSnapshot` shape checks plus explicit unavailable/timeout/local-target boundary coverage for Devices-route local-service state.
+- The parent launch smoke matrix now has focused proof under `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/`, with web blocked, desktop manual-required, and Android/iOS blocked rows recorded as smoke-only state instead of readiness.
 
 Current parent direction:
 
 - Parent web portal is a distribution target with build, route, auth, and cache proof.
-- Parent desktop shell/package needs explicit artifact, signing, update, rollback, and launch proof.
-- Parent Android and iOS packages are manual-required until device and store proof exists.
+- Parent web portal now also has explicit hosted env-separation proof for preview, staging, and production labels, plus wrong-route, missing-auth, and stale-cache negative coverage.
+- Parent local-service route bridge now has explicit Rust-owned route snapshot, local-service reachability, timeout degradation, and setup-separation proof without turning the bridge into setup or child-runtime ownership.
+- Parent desktop shell/package now has a real Windows Tauri package proof with MSI and NSIS artifacts, explicit dry-run launch anchors, local artifact-hash evidence, and ready/degraded Rust service-bridge proof; signing, production update, production rollback, setup readiness, child runtime authority, and mobile parity remain explicit manual-required or no-claim boundaries.
+- Parent client launch smoke now has an explicit cross-platform matrix: web blocked with a recorded local blocker, desktop manual-required after passing dry-run launch and Rust bridge proof, and Android/iOS blocked with current parent-mobile proof blockers recorded rather than hidden.
+- WP04 parent Android package is complete with real build/artifact proof; install on a real Android target remains manual-required in this checkout because no attached device or local emulator command was available, and signing/store proof remains manual-required.
+- Parent iOS package remains manual-required until simulator/device and store proof exists.
 - Parent client route bridge contracts must be separate from setup journey and child runtime claims.
 - Child agent runtime/package distribution belongs to `child-agent-runtime-distribution-plan`; this plan may only reference its handoff boundary.
 
@@ -78,10 +91,18 @@ Open gaps:
 
 - Parent client artifact matrix is missing from the old desktop-only plan.
 - Signing/store/notarization states are not explicit per artifact.
-- Update/rollback model is not explicit per artifact.
+- Focused parent-client SBOM artifact proof is still blocked/manual-required in WP08 until a bounded artifact owner path is routed.
+- Parent launch smoke rows now exist, but web local launch and parent-mobile artifact launch remain blocked or manual-required until their owning portal/mobile surfaces close the recorded blockers.
 - Setup handoff contracts are not explicit in a single source.
 - Child-agent distribution proof is owned by `child-agent-runtime-distribution-plan`, not this plan.
-- WP01 status needs reconciliation between workpack text, proof artifacts, and `WORKPACK_INDEX.md`.
+- WP01 scope and route-boundary reconciliation is complete.
+- WP02 hosted parent web portal distribution is complete, but production publishing, account backend/runtime, setup readiness, and child runtime authority remain explicit non-claims outside this workpack.
+- WP03 parent desktop shell/package is complete, but signing, production update, production rollback, setup readiness, child runtime authority, and mobile parity remain explicit manual-required or non-claims outside this workpack.
+- WP04 parent Android package is complete, but device/emulator install proof, release signing, Google Play/store distribution, iOS parity, desktop parity, and child-runtime distribution remain explicit manual-required or non-claims outside this workpack.
+- WP06 parent local-service route bridge is complete, but setup readiness, child runtime distribution, and package/release readiness remain explicit non-claims outside this workpack.
+- WP08 parent client update rollback is complete, but SBOM remains an explicit blocker/manual-required gap and the packet does not claim release readiness.
+- WP09 parent client launch smoke matrix is complete, but smoke stays downstream of runtime truth and does not convert blocked/manual-required rows into readiness claims.
+- Later workpacks still need their own proof roots and focused validation.
 
 ## HID execution guard
 

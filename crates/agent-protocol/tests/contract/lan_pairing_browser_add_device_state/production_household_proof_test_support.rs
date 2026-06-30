@@ -1,4 +1,8 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanDiscoveryEventHistory, LanDiscoveryEventHistoryState, LanDiscoveryEventKind,
+    LanDiscoveryEventRow,
+};
 use ocentra_parent_agent_protocol::LanBrowserAddDeviceReadModel;
 use ocentra_parent_agent_protocol::LanHouseholdDeviceActionKind;
 use ocentra_parent_agent_protocol::LanHouseholdDeviceDecision;
@@ -26,6 +30,7 @@ pub(super) fn browser_add_device_read_model_fixture() -> LanBrowserAddDeviceRead
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
         scan_summary: super::scan_summary(),
         discovered_devices: Vec::new(),
+        discovery_event_history: discovery_event_history_fixture(),
         canonical_household_devices: vec![super::canonical_child_agent_device()],
         pairing_requests: Vec::new(),
         trusted_device_registry: Vec::new(),
@@ -73,6 +78,18 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
         value[constants::field::LAN_SCAN_SUMMARY][constants::field::SOURCE_LABELS],
         serde_json::json!([constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE])
     );
+    assert_eq!(
+        value["discoveryEventHistory"]["state"],
+        serde_json::json!("ready")
+    );
+    assert_eq!(
+        value["discoveryEventHistory"]["latestEventId"],
+        serde_json::json!("lan-discovery-scan-finished-lan-scan-1717255200000")
+    );
+    assert_eq!(
+        value["discoveryEventHistory"]["rows"][0]["eventKind"],
+        serde_json::json!("scan-started")
+    );
     assert_eq!(value["trustedDeviceRegistry"], serde_json::json!([]));
     assert_eq!(
         value["householdDeviceDecisions"][0]["actionKind"],
@@ -103,6 +120,42 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
         value["canonicalHouseholdDevices"][0]["networkIdentity"]["evidenceRecords"][0]["source"],
         serde_json::json!("local-service")
     );
+}
+
+fn discovery_event_history_fixture() -> LanDiscoveryEventHistory {
+    LanDiscoveryEventHistory {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        generated_at: "2026-06-01T15:20:00.000Z".to_string(),
+        state: LanDiscoveryEventHistoryState::Ready,
+        latest_event_id: Some("lan-discovery-scan-finished-lan-scan-1717255200000".to_string()),
+        latest_observed_at: Some("2026-06-01T15:20:00.000Z".to_string()),
+        rows: vec![
+            LanDiscoveryEventRow {
+                schema_version: LAN_PAIRING_SCHEMA_VERSION,
+                event_id: "lan-discovery-scan-started-lan-scan-1717255200000".to_string(),
+                event_kind: LanDiscoveryEventKind::ScanStarted,
+                occurred_at: "2026-06-01T15:19:58.000Z".to_string(),
+                previous_event_id: None,
+                scan_session_id: Some("lan-scan-1717255200000".to_string()),
+                affected_device_id: None,
+                evidence_id: None,
+                summary: "LAN scan started".to_string(),
+            },
+            LanDiscoveryEventRow {
+                schema_version: LAN_PAIRING_SCHEMA_VERSION,
+                event_id: "lan-discovery-scan-finished-lan-scan-1717255200000".to_string(),
+                event_kind: LanDiscoveryEventKind::ScanFinished,
+                occurred_at: "2026-06-01T15:20:00.000Z".to_string(),
+                previous_event_id: Some(
+                    "lan-discovery-scan-started-lan-scan-1717255200000".to_string(),
+                ),
+                scan_session_id: Some("lan-scan-1717255200000".to_string()),
+                affected_device_id: None,
+                evidence_id: None,
+                summary: "LAN scan finished with 1 visible devices".to_string(),
+            },
+        ],
+    }
 }
 
 fn selected_device_readiness_fixture() -> LanSelectedDeviceReadiness {

@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::app_game::{
 
 use super::app_game_session_time::rollup_date;
 
-pub(super) fn daily_rollups_from_summaries(
+pub fn daily_rollups_from_summaries(
     summaries: &[AppGameSessionSummary],
 ) -> Vec<AppGameSessionDailyRollup> {
     let mut rollups = Vec::new();

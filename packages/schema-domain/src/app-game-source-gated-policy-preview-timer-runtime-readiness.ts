@@ -14,7 +14,9 @@ import {
   RequiredAppGameSourceGatedPolicyPreviewTimerRuntimeReadinessNonClaims,
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessCountsMatch,
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessHasNoRuntimeClaims,
-  appGameSourceGatedPolicyPreviewTimerRuntimeReadinessMatchesStatus,
+  appGameSourceGatedPolicyPreviewTimerRuntimeReadinessRequiredProofRefs,
+  appGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateForStatus,
+  countAppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRows,
 } from './app-game-source-gated-policy-preview-timer-runtime-readiness-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
@@ -161,19 +163,7 @@ export function buildAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness(
     rows,
     nativeAppRowCount: timerStatus.nativeAppRowCount,
     nativeGameRowCount: timerStatus.nativeGameRowCount,
-    runtimeProofRequiredCount: rows.filter(
-      (row) =>
-        row.runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.RuntimeProofRequired
-    ).length,
-    blockedBySourceFreshnessCount: rows.filter(
-      (row) =>
-        row.runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.BlockedBySourceFreshness
-    ).length,
-    blockedByCompilerDecisionCount: rows.filter(
-      (row) =>
-        row.runtimeReadinessState ===
-        AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.BlockedByCompilerDecision
-    ).length,
+    ...countAppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRows(rows),
     runtimeReadinessNonClaims: RequiredAppGameSourceGatedPolicyPreviewTimerRuntimeReadinessNonClaims,
     ...AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessNoClaimFlags,
   });
@@ -183,7 +173,9 @@ function buildRuntimeReadinessRow(
   options: AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessOptions,
   timerStatusRow: AppGameSourceGatedPolicyPreviewTimerStatusRow
 ): AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRow {
-  const runtimeReadinessState = runtimeReadinessStateForTimerStatus(timerStatusRow);
+  const runtimeReadinessState = appGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateForStatus(
+    timerStatusRow.timerStatusState
+  );
   const runtimeProofRequired =
     runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.RuntimeProofRequired;
 
@@ -197,36 +189,15 @@ function buildRuntimeReadinessRow(
     schedulerPersistenceProofRequired: runtimeProofRequired,
     auditProofRequired: runtimeProofRequired,
     rollbackProofRequired: runtimeProofRequired,
-    requiredProofRefs: requiredProofRefsForReadiness(options, runtimeReadinessState, timerStatusRow),
+    requiredProofRefs: appGameSourceGatedPolicyPreviewTimerRuntimeReadinessRequiredProofRefs(
+      options,
+      runtimeReadinessState,
+      timerStatusRow.requiredProofRefs
+    ),
     sourceEvidenceRefs: timerStatusRow.sourceEvidenceRefs,
     ...AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessNoClaimFlags,
     generatedAt: options.generatedAt,
   });
-}
-
-function runtimeReadinessStateForTimerStatus(timerStatusRow: AppGameSourceGatedPolicyPreviewTimerStatusRow) {
-  for (const state of Object.values(AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState)) {
-    if (appGameSourceGatedPolicyPreviewTimerRuntimeReadinessMatchesStatus(timerStatusRow.timerStatusState, state)) {
-      return state;
-    }
-  }
-  return AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.BlockedByCompilerDecision;
-}
-
-function requiredProofRefsForReadiness(
-  options: AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessOptions,
-  runtimeReadinessState: string,
-  timerStatusRow: AppGameSourceGatedPolicyPreviewTimerStatusRow
-) {
-  if (runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState.RuntimeProofRequired) {
-    return [
-      options.timerRuntimeProofRef,
-      options.schedulerPersistenceProofRef,
-      options.auditProofRef,
-      options.rollbackProofRef,
-    ];
-  }
-  return timerStatusRow.requiredProofRefs;
 }
 
 export const decodeAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness = Schema.decodeUnknownSync(

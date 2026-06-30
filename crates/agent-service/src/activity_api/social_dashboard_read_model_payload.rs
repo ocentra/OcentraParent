@@ -46,7 +46,10 @@ use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_STATUS_CONTRACT_ONLY;
 use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_STATUS_MANUAL_REQUIRED;
 use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_STATUS_READY_FOR_REVIEW;
 
-use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use crate::{
+    event_builder::build_event, fields::fields_from_pairs, json_contract::serialize_json_string,
+    time::timestamp_now,
+};
 
 type FieldPair = (&'static str, LogFieldValue);
 
@@ -176,10 +179,7 @@ fn read_model_pairs(read_model: &SocialDashboardUxSnapshot) -> Vec<FieldPair> {
         ),
         (
             constants::field::BROWSER_SOCIAL_DASHBOARD_READ_MODEL,
-            LogFieldValue::String(match serde_json::to_string(read_model) {
-                Ok(serialized) => serialized,
-                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
-            }),
+            LogFieldValue::String(serialize_json_string(read_model)),
         ),
     ]
 }

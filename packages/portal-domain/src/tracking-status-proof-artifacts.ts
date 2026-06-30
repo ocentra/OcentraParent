@@ -1,4 +1,4 @@
-import { decodeTrackingStatusProofArtifact } from '@ocentra-parent/schema-domain/portal-contracts';
+import { decodeTrackingStatusProofArtifact } from './portal-contract-adapter';
 import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/schema-domain/tracking-retention-settings-read-model-proof';
 
 const artifact = decodeTrackingStatusProofArtifact;

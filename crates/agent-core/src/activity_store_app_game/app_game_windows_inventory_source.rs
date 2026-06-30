@@ -39,7 +39,7 @@ impl From<AppGameJournalSqliteIngestError> for AppGameLiveInventorySourceError {
     }
 }
 
-pub(crate) fn live_windows_inventory_records_from_roots(
+pub fn live_windows_inventory_records_from_roots(
     observed_at: &str,
     roots: &[PathBuf],
     limit: usize,

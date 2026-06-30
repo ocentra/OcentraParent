@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -7,6 +7,76 @@ import { setTimeout as delay } from 'node:timers/promises';
 export function resolveDebugAgentServicePath(repoRoot = process.cwd()) {
   const binaryName = process.platform === 'win32' ? 'ocentra-parent-agent-service.exe' : 'ocentra-parent-agent-service';
   return join(repoRoot, 'target', 'debug', binaryName);
+}
+
+export function resolveAgentServiceManifestPath(repoRoot = process.cwd()) {
+  return join(repoRoot, 'crates', 'agent-service', 'Cargo.toml');
+}
+
+export function resolveDebugParentDevBridgePath(repoRoot = process.cwd()) {
+  const binaryName = process.platform === 'win32' ? 'ocentra-parent-dev-bridge.exe' : 'ocentra-parent-dev-bridge';
+  return join(repoRoot, 'target', 'debug', binaryName);
+}
+
+export function resolveParentDevBridgeManifestPath(repoRoot = process.cwd()) {
+  return join(repoRoot, 'crates', 'parent-dev-bridge', 'Cargo.toml');
+}
+
+export function spawnAgentService(env, repoRoot = process.cwd()) {
+  return spawn(
+    'cargo',
+    ['run', '--quiet', '--manifest-path', resolveAgentServiceManifestPath(repoRoot)],
+    {
+      cwd: repoRoot,
+      detached: process.platform !== 'win32',
+      env: {
+        ...env,
+        CARGO_TARGET_DIR: join(repoRoot, 'target'),
+      },
+      shell: process.platform === 'win32',
+      stdio: ['ignore', 'inherit', 'inherit'],
+    }
+  );
+}
+
+export function spawnParentDevBridge(env, repoRoot = process.cwd()) {
+  return spawn(
+    'cargo',
+    ['run', '--quiet', '--manifest-path', resolveParentDevBridgeManifestPath(repoRoot)],
+    {
+      cwd: repoRoot,
+      detached: process.platform !== 'win32',
+      env: {
+        ...env,
+        CARGO_TARGET_DIR: join(repoRoot, 'target'),
+      },
+      shell: process.platform === 'win32',
+      stdio: ['ignore', 'inherit', 'inherit'],
+    }
+  );
+}
+
+export async function ensureParentDevBridgeBinaryUnlocked(
+  repoRoot = process.cwd(),
+  { attempts = 20, delayMs = 250 } = {}
+) {
+  if (process.platform !== 'win32') {
+    return;
+  }
+
+  const binaryPath = resolveDebugParentDevBridgePath(repoRoot);
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    terminateWindowsProcessImage('ocentra-parent-dev-bridge.exe');
+    try {
+      await rm(binaryPath, { force: true });
+      return;
+    } catch (error) {
+      if (attempt === attempts || !isRetriableWindowsBinaryUnlockError(error)) {
+        throw error;
+      }
+      await delay(delayMs);
+    }
+  }
 }
 
 export function spawnVitePortal(port, env, repoRoot = process.cwd()) {
@@ -97,4 +167,20 @@ function forceKillProcessTree(child) {
 
 function isRetriableRemoveError(error) {
   return error?.code === 'EBUSY' || error?.code === 'ENOTEMPTY' || error?.code === 'EPERM';
+}
+
+function isRetriableWindowsBinaryUnlockError(error) {
+  return (
+    error?.code === 'EACCES' ||
+    error?.code === 'EBUSY' ||
+    error?.code === 'ENOTEMPTY' ||
+    error?.code === 'EPERM'
+  );
+}
+
+function terminateWindowsProcessImage(imageName) {
+  spawnSync('taskkill', ['/IM', imageName, '/T', '/F'], {
+    stdio: 'ignore',
+    windowsHide: true,
+  });
 }

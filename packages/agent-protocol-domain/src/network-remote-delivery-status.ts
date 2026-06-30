@@ -2,12 +2,15 @@ import {
   AgentNetworkRemoteDeliveryStatusSchema,
   type AgentNetworkRemoteDeliveryStatus,
 } from '@ocentra-parent/schema-domain/network-remote-delivery-status';
-import {
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { mapJsonPayloadEventToStatus, parseJsonPayloadFieldEvent } from './protocol-event-payload.js';
+
+type AgentNetworkRemoteDeliveryStatusFailureReason =
+  | 'wrong-event'
+  | 'missing-remote-delivery-status'
+  | 'invalid-remote-delivery-status-json'
+  | 'invalid-remote-delivery-status';
 
 export type AgentNetworkRemoteDeliveryStatusParseResult =
   | {
@@ -16,36 +19,23 @@ export type AgentNetworkRemoteDeliveryStatusParseResult =
     }
   | {
       readonly ok: false;
-      readonly reason:
-        | 'wrong-event'
-        | 'missing-remote-delivery-status'
-        | 'invalid-remote-delivery-status-json'
-        | 'invalid-remote-delivery-status';
+      readonly reason: AgentNetworkRemoteDeliveryStatusFailureReason;
     };
 
 export function parseAgentNetworkRemoteDeliveryStatusEvent(
   event: AgentEventEnvelope
 ): AgentNetworkRemoteDeliveryStatusParseResult {
-  if (event.event !== AgentEvent.NetworkRemoteDeliveryStatusReported) {
-    return { ok: false, reason: 'wrong-event' };
-  }
-
-  const raw = event.payload[AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus];
-  if (!isAgentProtocolLogText(raw)) {
-    return { ok: false, reason: 'missing-remote-delivery-status' };
-  }
-
-  let value: unknown;
-  try {
-    value = JSON.parse(raw) as unknown;
-  } catch {
-    return { ok: false, reason: 'invalid-remote-delivery-status-json' };
-  }
-
-  const parsed = AgentNetworkRemoteDeliveryStatusSchema.safeParse(value);
-  if (!parsed.success) {
-    return { ok: false, reason: 'invalid-remote-delivery-status' };
-  }
-
-  return { ok: true, status: parsed.data };
+  return mapJsonPayloadEventToStatus(
+    parseJsonPayloadFieldEvent(
+      event,
+      AgentEvent.NetworkRemoteDeliveryStatusReported,
+      AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus,
+      AgentNetworkRemoteDeliveryStatusSchema
+    ),
+    {
+      'missing-json-field': 'missing-remote-delivery-status',
+      'invalid-json': 'invalid-remote-delivery-status-json',
+      'invalid-payload': 'invalid-remote-delivery-status',
+    }
+  );
 }

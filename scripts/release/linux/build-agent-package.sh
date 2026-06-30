@@ -2,6 +2,27 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+
+bootstrap_cargo_path() {
+  if command -v cargo >/dev/null 2>&1; then
+    return
+  fi
+
+  if [[ -f "${HOME}/.cargo/env" ]]; then
+    # shellcheck disable=SC1090
+    . "${HOME}/.cargo/env"
+  fi
+
+  if command -v cargo >/dev/null 2>&1; then
+    return
+  fi
+
+  if [[ -x "${HOME}/.cargo/bin/cargo" ]]; then
+    export PATH="${HOME}/.cargo/bin:${PATH}"
+  fi
+}
+
+bootstrap_cargo_path
 version="${OCENTRA_PARENT_VERSION:-$(cd "$repo_root" && node scripts/release/validate-version.mjs --print-version)}"
 package_root="$repo_root/target/release-packages/linux"
 stage_parent="${OCENTRA_PARENT_LINUX_STAGE_PARENT:-${TMPDIR:-/tmp}}"
@@ -33,6 +54,15 @@ if [[ -z "$host_glibc" ]] && command -v ldd >/dev/null 2>&1; then
 fi
 if [[ -z "$host_glibc" ]]; then
   host_glibc="unknown"
+fi
+
+if ! command -v cargo >/dev/null 2>&1; then
+  cat >&2 <<CARGO_ERROR
+Linux package builds require a Linux cargo toolchain on PATH.
+The current non-login shell could not resolve cargo even after bootstrapping ${HOME}/.cargo.
+Install Rust in this Linux environment or source the Linux cargo toolchain before rerunning.
+CARGO_ERROR
+  exit 1
 fi
 
 allow_non_baseline="${OCENTRA_PARENT_LINUX_ALLOW_NON_BASELINE:-false}"

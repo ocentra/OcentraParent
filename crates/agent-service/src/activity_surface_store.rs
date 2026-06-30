@@ -75,18 +75,6 @@ pub(crate) async fn local_store_snapshot_from_path(
     .flatten()
 }
 
-#[cfg(test)]
-pub(crate) async fn load_recent_summary_from_path(
-    path: PathBuf,
-) -> Option<ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary> {
-    with_store(path, |store| {
-        store
-            .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
-            .ok()
-    })
-    .await
-}
-
 pub(crate) async fn load_browser_model() -> Option<BrowserEvidenceReadModel> {
     load_browser_model_from_path(activity_db_path()).await
 }

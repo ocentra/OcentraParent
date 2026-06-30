@@ -161,7 +161,7 @@ jobs:
             esac
 
             case "$path" in
-              apps/portal/*|packages/portal-domain/*|packages/text-domain/*|packages/endpoint-domain/*|packages/schema-domain/*|vendor/ocentra-parent-core-ui/*)
+              apps/portal/*|packages/portal-domain/*|packages/schema-domain/*|vendor/ocentra-parent-core-ui/*)
                 portal_changed=true
                 ;;
               packages/*)
@@ -185,13 +185,13 @@ jobs:
               apps/parent-desktop/*)
                 parent_desktop_changed=true
                 ;;
-              platforms/android/parent/*|platforms/ios/OcentraParentMobile*|scripts/release/parent-android/*|scripts/release/parent-ios/*|scripts/test/*parent-mobile*|packages/parent-domain/src/*parent-mobile*|packages/parent-domain/tests/*parent-mobile*)
+              platforms/android/parent/*|platforms/ios/OcentraParentMobile*|scripts/release/parent-android/*|scripts/release/parent-ios/*|scripts/test/*parent-mobile*|scripts/test/mobile-child-agent-capability-proof.mjs|packages/schema-domain/src/*parent-mobile*|packages/schema-domain/src/*mobile-controller*|packages/schema-domain/tests/*parent-release-support*|packages/schema-domain/tests/*mobile-child*)
                 parent_mobile_changed=true
                 ;;
-              platforms/android/*|scripts/release/android/*|scripts/smoke/android-*|scripts/test/*android*|packages/parent-domain/src/*android*)
+              platforms/android/*|scripts/release/android/*|scripts/smoke/android-*|scripts/test/*android*|packages/schema-domain/src/*android*|packages/schema-domain/tests/*android*)
                 child_android_changed=true
                 ;;
-              platforms/ios/*|scripts/release/ios/*|scripts/smoke/ios-*|scripts/test/*ios*|packages/parent-domain/src/*ios*)
+              platforms/ios/*|scripts/release/ios/*|scripts/smoke/ios-*|scripts/test/*ios*|packages/schema-domain/src/*ios*|packages/schema-domain/tests/*ios*)
                 child_ios_changed=true
                 ;;
               scripts/release/windows/*|scripts/smoke/windows-*|.wix/*)

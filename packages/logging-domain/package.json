@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Parent-local logging runtime helpers and focused proof coverage built on centralized schemas.",
+  "description": "Parent-local logging helpers and focused proof coverage over Rust-owned contracts.",
   "exports": {
     "./core/logConfig": {
       "import": "./dist/core/logConfig.js",
@@ -96,7 +96,6 @@
   },
   "dependencies": {
     "duckdb": "^1.4.4",
-    "@ocentra-parent/event-domain": "file:../event-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

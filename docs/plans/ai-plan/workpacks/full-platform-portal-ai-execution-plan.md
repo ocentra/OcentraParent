@@ -25,9 +25,10 @@ PRs, CI, and merges.
 Ocentra Parent is not a web parent portal product.
 
 The Vite React portal is a development and HMR surface. The production parent
-portal is a packaged parent app. React/TypeScript owns the user interface. Rust
-owns product runtime behavior, contracts, storage, policy, AI scheduling,
-device routing, timers, enforcement adapters, and service state.
+portal is a packaged parent app. React/TypeScript owns presentation only. Rust
+owns product runtime behavior, contracts, schemas, route snapshots, storage,
+policy, AI scheduling, device routing, timers, enforcement adapters, read
+models, and service state.
 
 Tauri is the preferred desktop parent shell. Tauri mobile is the first mobile
 parent proof path because it preserves the Rust-first direction and allows the
@@ -278,7 +279,8 @@ API AI cannot override local child safety, policy, timers, or enforcement.
 
 Parent desktop is React UI inside Tauri plus Rust service/runtime boundary.
 The Tauri shell embeds the built portal UI and connects through typed local
-service/WebSocket commands. Tauri itself is not the business-logic backend.
+HostBridge/dev-transport commands. The shell is not the business-logic owner;
+the Rust parent facade/runtime is.
 
 Required work:
 
@@ -419,18 +421,18 @@ The correct path is:
 
 ```text
 Activity UI
-  -> typed activity-domain request/response contracts
-  -> agent-protocol-domain WebSocket command/event contracts
-  -> Rust agent-protocol parity
-  -> Rust service/read-model adapter
+  -> generated bridge DTO/action
+  -> Rust parent app facade
+  -> Rust event bus/domain
+  -> Rust read-model adapter
   -> encrypted journal / SQLite query store / stored evidence summaries
-  -> typed result back to UI
+  -> HostBridge snapshot/result back to UI
 ```
 
 Tauri commands may wrap or launch the local runtime where needed, but Activity
-product data should be service/read-model backed first. Direct Tauri command
-wiring is not the product source of truth unless an explicit shell-only command
-is being added.
+product data should be Rust read-model backed first. Direct Tauri or
+TypeScript command wiring is not the product source of truth unless an explicit
+shell-only command is being added.
 
 Behavioral target:
 
@@ -481,20 +483,21 @@ The Activity adapter foundation has these source/proof requirements:
 - [ ] Pull or rebase latest `main`.
 - [ ] Run `npm run hub:inbox`, acknowledge current hub mail, report `STARTED`,
       and lock intended paths.
-- [ ] Add `packages/activity-domain` Effect Schema contracts for Activity target
-      scope, report frequency, report request, report list item, report document,
-      report sections, and tab view rows for Screen, App Use, Browser, Games, and
-      Network.
-- [ ] Add portal/agent command names and response contracts in the appropriate
-      domain/protocol package. Avoid naked strings in app/runtime source.
-- [ ] Add Rust protocol parity in `crates/agent-protocol`.
-- [ ] Add Rust service/read-model adapter stubs in `crates/agent-service` that
-      return real typed unavailable or local-read-model responses.
+- [ ] Add Rust-owned Activity target scope, report frequency, report request,
+      report list item, report document, report section, and tab view row DTOs
+      in `crates/schema` or the owning Rust domain/runtime crate before any UI
+      consumer uses them.
+- [ ] Generate or expose bridge DTO/action names and response shapes from the
+      Rust owner. Avoid naked strings in app/runtime source.
+- [ ] Add Rust protocol/serialization coverage where the shape crosses a
+      transport boundary.
+- [ ] Add Rust service/read-model adapter stubs that return real typed
+      unavailable or local-read-model responses.
 - [ ] Ensure Vite does not own or fake Activity product data.
 - [ ] Keep Data storage selection as a typed unavailable/stubbed state if the
       Data surface is not wired yet.
-- [ ] Add TypeScript contract tests for accepted and rejected report
-      requests/responses.
+- [ ] Add generated bridge/edge-decoder checks for accepted and rejected report
+      requests/responses when TypeScript consumes the shape.
 - [ ] Add Rust protocol serialization/parity tests.
 - [ ] Add command/service adapter boundary tests.
 - [ ] Add focused portal smoke or Playwright coverage proving Reports plus

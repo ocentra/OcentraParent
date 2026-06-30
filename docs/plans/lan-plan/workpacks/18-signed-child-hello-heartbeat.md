@@ -41,22 +41,22 @@ update last confirmed, online, stale, and offline state.
 
 ## Requirement Checklist
 
-- [ ] Current branch records signed-discovery proof rows and rejection outcomes
+- [x] Current branch records signed-discovery proof rows and rejection outcomes
       for invalid, revoked, wrong-target, unavailable, and manual-required
       states in typed contracts and Rust protocol/service parity.
-- [ ] Current branch keeps physical second-device household proof
+- [x] Current branch keeps physical second-device household proof
       manual-required instead of claiming CI can prove it.
-- [ ] Portal LAN selected-device details and Activity/Network diagnostics now
+- [x] Portal LAN selected-device details and Activity/Network diagnostics now
       show signed-hello/signed-heartbeat manual-required labels from the typed
       read model.
-- [ ] Reject unsigned, invalid-signature, expired, replayed, wrong-family,
+- [x] Reject unsigned, invalid-signature, expired, replayed, wrong-family,
       wrong-device, unpaired, and wrong-protocol hello payloads.
-- [ ] Accept unknown future capability only when the contract says it is safe.
-- [ ] Record child-agent capabilities without mixing in browser/app/screen-time
+- [x] Accept unknown future capability only when the contract says it is safe.
+- [x] Record child-agent capabilities without mixing in browser/app/screen-time
       control claims.
-- [ ] Keep Android and iOS MAC/background limits explicit and manual-required
+- [x] Keep Android and iOS MAC/background limits explicit and manual-required
       until real device proof exists.
-- [ ] Transition online to stale to offline without deleting the device record.
+- [x] Transition online to stale to offline without deleting the device record.
 
 ## Acceptance And Proof
 
@@ -72,3 +72,38 @@ update last confirmed, online, stale, and offline state.
 
 This is security-sensitive. Pairing keys, route checks, nonce stores, and
 heartbeat state must stay shared with assignment/revocation work.
+
+## Local Rust/Core Status
+
+As of 2026-06-28, the scoped Rust/core slice is locally validated and recorded
+in `output/lan-plan-proof/18-signed-child-hello-heartbeat/01-local-validation.md`.
+
+- `crates/lan-core/src/lan_pairing.rs` rejects unsigned or malformed signature
+  fields, invalid signatures, expired timestamps, replayed nonces, wrong
+  family, wrong route/parent/child bindings, and fail-closed schema/message
+  drift. The current Rust contract does not expose a separate
+  `protocolVersion` field, so local "wrong-protocol" proof is the existing
+  fail-closed schema/message-kind boundary rather than a second version field.
+- `crates/lan-core/tests/unit/lan_flow.rs` proves valid signed hello/heartbeat,
+  negative verifier cases, future-safe capability passthrough, and no-churn
+  capability recording in the LAN core slice.
+- `crates/lan-core/tests/unit/read_model.rs` proves the signed-discovery
+  read-model spine stays visible across stale/offline/manual-required states
+  without deleting the durable device record.
+- `crates/agent-service/tests/unit/lan_pairing.rs` now proves the runtime
+  boundary accepts real signed hello/heartbeat envelopes, reports
+  manual-required signed-child status, rejects missing parent/child signed
+  context, and keeps stale/offline selected-device state explicit.
+- `crates/agent-service/tests/unit/lan_pairing/device_roles.rs` now proves the
+  default child-mobile runtime surfaces stay scaffold/manual-required on
+  Android and iOS instead of inventing localhost-ready route state before real
+  device proof exists.
+- This packet reran green:
+  `cargo test -p ocentra-lan-core lan_flow -- --nocapture`,
+  `cargo test -p ocentra-lan-core read_model -- --nocapture`,
+  `cargo test -p ocentra-parent-agent-service lan_pairing -- --nocapture`,
+  `cargo test -p ocentra-parent-agent-protocol lan_pairing -- --nocapture`,
+  and `cargo lint-architecture` for the owned Rust files.
+- Remaining open rows are still real and unchanged: explicit physical Android
+  and iOS device evidence plus second physical child-device hello/heartbeat
+  proof are not claimed by this local Rust/core pass.

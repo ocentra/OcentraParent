@@ -52,7 +52,7 @@ const scenarioIds = [
 const rows = scenarioIds.map((scenarioId) => bundleScenario(scenarioId));
 const analyzedRows = rows.filter((row) => row.localVlmAnalysisProof === true);
 const policyRows = rows.filter((row) => row.policyDryRunProof === true);
-const screenshotRows = rows.filter((row) => row.parentExplanationScreenshot !== null);
+const screenshotRows = rows.filter((row) => row.parentExplanationScreenshot !== undefined);
 
 const proof = {
   proof: 'screen-ai-live-operator-evidence-bundle',
@@ -129,7 +129,7 @@ function bundleScenario(scenarioId) {
     noRawImageClaimed || capture.captureMetadata?.rawImagePersistedInProof === false,
     `${scenarioId} persisted raw image in proof`
   );
-  if (deletion !== null) {
+  if (deletion !== undefined) {
     assert(deletion.rawImageDeletedAfterAnalysis === true, `${scenarioId} raw image was not deleted`);
     assert(deletion.existsAfterDelete === false, `${scenarioId} raw image still exists after delete`);
   }

@@ -37,7 +37,7 @@ Module roles:
 ```text
 screen-ai-pipeline-plan: multi-hop integration proof, scenario routing, proof shape, no-claim boundaries, and rollout gate for screen -> AI -> policy/action path.
 screen-plan and screen-domain: screen capture, screen evidence contracts, OCR/VLM/screen intelligence contracts, protected surfaces, disclosure, and screen settings. screen-domain is a real contract package, not just metadata.
-ai-plan and schema-domain: shared AI/runtime/evidence-context/model-result contracts. ai-domain is package identity and focused tests; canonical shared AI contracts live in schema-domain.
+ai-plan and crates/schema: shared AI/runtime/evidence-context/model-result contracts. ai-domain is package identity and focused tests; canonical shared AI contracts live in crates/schema.
 policy-control-plane-plan: deterministic policy source truth, parent rule precedence, preview/delivery/approval semantics, and policy decision boundary.
 v0-8-enforcement-control-plan: enforcement action authority, adapter execution, rollback, and supported runtime proof.
 data-custody-storage-plan: deletion, retention, export, privacy, and custody rules for raw images, queue artifacts, results, and screenshots.
@@ -49,7 +49,7 @@ agent-protocol, agent-service, and agent-core: protocol/service/journal/read-mod
 Direct imports are allowed only for explicit public helper surfaces:
 
 ```text
-schema-domain canonical screen/AI/evidence/policy/action/custody shapes
+crates/schema canonical screen/AI/evidence/policy/action/custody shapes
 screen-domain public screen evidence/intelligence/router/disclosure contracts when selected
 agent-protocol-domain/agent-protocol public read models, events, or command seams when selected
 portal-domain public projection contracts when selected
@@ -61,7 +61,7 @@ Forbidden direct imports and claims:
 
 ```text
 screen capture internals imported to bypass screen-plan ownership
-AI/provider internals imported to bypass ai-plan/schema-domain contracts
+AI/provider internals imported to bypass ai-plan/crates/schema contracts
 AI result upgraded into policy authority
 policy decision upgraded into enforcement execution
 policy dry-run upgraded into adapter/runtime proof

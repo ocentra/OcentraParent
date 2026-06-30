@@ -5,10 +5,9 @@ import {
   type ScreenControlSettingsPortalGate,
   type ScreenControlSettingsPortalMetric,
 } from '@ocentra-parent/schema-domain/screen-control-settings-portal-proof';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { isPortalScreenSettingsRoute } from '@ocentra-parent/portal-domain/routes';
+import { isParentScreenSettingsRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
 import { ScreenOptionalVisibilityCapabilityStatusCard } from './ScreenOptionalVisibilityCapabilityStatusCard';
 import { ScreenSettingsWritableControls } from './ScreenSettingsWritableControls';
@@ -17,8 +16,8 @@ type ScreenSettingsDetailValue =
   | ScreenControlSettingsPortalMetric[keyof ScreenControlSettingsPortalMetric]
   | ScreenControlSettingsPortalGate[keyof ScreenControlSettingsPortalGate];
 
-export function shouldRenderScreenSettingsRoute(route: PortalRouteValue): boolean {
-  return isPortalScreenSettingsRoute(route);
+export function shouldRenderScreenSettingsRoute(route: ParentRouteId): boolean {
+  return isParentScreenSettingsRoute(route);
 }
 
 export function ScreenSettingsRoutePanel({

@@ -66,8 +66,9 @@ The account/family authority surface is shared by many features, but this plan m
 Module roles:
 
 ```text
-schema-domain: canonical shared schema, brand, parser, and encoded-shape owner when account/family shapes cross package, crate, app, or plan boundaries.
-family-domain: TypeScript helper/projection package that consumes canonical schema-domain contracts and exposes only approved account/family helper surfaces.
+crates/schema or the owning Rust crate: canonical shared account/family schema, brand, parser, route/action/read-model DTO, and encoded-shape owner when account/family shapes cross package, crate, app, or plan boundaries.
+schema-domain: temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+family-domain: TypeScript helper/projection package that consumes Rust-owned/generated account/family contracts and exposes only approved account/family helper surfaces.
 family-identity-core: Rust parity/runtime authority boundary for account, household, role, device, session, and invite/recovery primitives.
 setup-domain and provisioning-core: setup/provisioning consumers; they do not own account/family authority.
 portal-domain and apps/portal: parent-visible projections/renderers; they do not own account runtime, household truth, device trust, or child activity state.
@@ -78,7 +79,7 @@ payment, policy, data-custody, device-trust, LAN, and remote plans: handoff cons
 Direct imports are allowed only for neutral/shared infrastructure or explicit public authority contracts:
 
 ```text
-canonical schema-domain shapes, brands, parsers, and literals
+Rust-owned canonical shapes, generated DTOs, temporary edge decoders, brands, and literals
 neutral protocol/event/evidence/logging/capability primitives
 approved public family-domain helper exports for account/family authority consumption
 approved Rust parity crates when the selected workpack names Rust parity proof
@@ -90,7 +91,7 @@ Forbidden direct imports:
 ```text
 sibling feature owner packages or crates for runtime behavior
 private source files from another plan's owning package/crate
-peer feature contracts when the shape should live in schema-domain or a neutral shared boundary
+peer feature contracts when the shape should live in crates/schema or another neutral Rust-owned boundary
 setup, payment, policy, data-custody, device-trust, LAN, remote, or portal internals to satisfy account/family authority
 ```
 

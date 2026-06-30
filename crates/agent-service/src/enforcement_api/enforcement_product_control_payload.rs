@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08Enforce
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 
-use crate::fields::fields_from_pairs;
+use crate::{fields::fields_from_pairs, json_contract::serialize_json_string};
 
 pub(crate) fn enforcement_product_control_spine_payload(
     read_model: &V08EnforcementProductControlSpineReadModel,
@@ -30,8 +30,7 @@ pub(crate) fn enforcement_product_control_spine_payload(
 }
 
 fn read_model_json(read_model: &V08EnforcementProductControlSpineReadModel) -> String {
-    serde_json::to_string(read_model)
-        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    serialize_json_string(read_model)
 }
 
 pub(crate) fn enforcement_policy_dispatch_payload(
@@ -54,6 +53,5 @@ pub(crate) fn enforcement_policy_dispatch_payload(
 }
 
 fn policy_dispatch_read_model_json(read_model: &EnforcementPolicyDispatchReadModel) -> String {
-    serde_json::to_string(read_model)
-        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    serialize_json_string(read_model)
 }

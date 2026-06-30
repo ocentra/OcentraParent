@@ -31,6 +31,7 @@ npm run test --workspace @ocentra-parent/portal
 npm run test:e2e --workspace @ocentra-parent/portal
 npm run test:parent-mobile-shell-runtime-proof
 npm run test:parent-mobile-package-source-artifact-proof
+npm run test:parent-android-package-proof
 npm run test:parent-mobile-service-bridge
 npm run test:parent-mobile-controller-observer-handoff
 npm run test:parent-desktop-release-support-proof
@@ -73,7 +74,7 @@ A workpack can be complete for one tier while other tiers remain open. Record th
 | WP01 | canonical parent-client scope and setup handoff boundary |
 | WP02 | parent web build, route, auth/cache/env separation, no child-agent execution claim |
 | WP03 | desktop shell/package, local service bridge, launch smoke, no product-readiness overclaim |
-| WP04 | parent Android package/build/install state and manual-required/store blockers |
+| WP04 | real parent Android package build/artifact proof, explicit install/device state, and manual-required/store blockers |
 | WP05 | parent iOS package/build/install state and manual-required/store blockers |
 | WP06 | parent client route bridge and local-service boundary without setup-complete claim |
 | WP07 | signing/store/notarization matrix by artifact/platform |

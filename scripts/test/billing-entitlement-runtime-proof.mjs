@@ -15,16 +15,6 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/billing-domain',
-      '--',
-      'tests/unit/billing-entitlement-runtime-proof.test.ts',
-    ])
-  );
 
   const contract = await assertBuiltContract();
   const packageExport = await assertPublicPackageExport();
@@ -38,7 +28,7 @@ async function main() {
     commands,
     evidence: {
       contract: 'packages/schema-domain/src/billing-entitlement-runtime-proof.ts',
-      contractTest: 'packages/billing-domain/tests/unit/billing-entitlement-runtime-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/billing-parent-visible-summary.test.ts',
       packageExport,
       documentation,
       output: relativePath(proofPath),

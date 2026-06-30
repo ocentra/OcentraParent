@@ -19,6 +19,12 @@ Accepted.
 
 ## Context
 
+Current Rust-first parent architecture supersedes this historical scaffold
+decision anywhere the wording implies Vite, WebSocket, Effect Schema, or
+TypeScript domain packages own product truth. The current product path is TSX UI
+through HostBridge into Rust parent runtime/read models and back through
+HostBridge. Vite/web remains dev-only.
+
 Ocentra Parent will become a local-first parental-control system with a
 Windows-first agent and parent-owned portal surfaces. The foundation has to be
 reliable before capture, local AI safety evaluation, policy decisions,
@@ -37,13 +43,13 @@ Start with repository scaffold, validation infrastructure, and a minimal local v
 The first commit should establish:
 
 - workspace layout
-- domain packages
+- transitional TypeScript packages
 - Rust crate boundaries
-- Rust local API and WebSocket smoke endpoints
+- Rust local API and dev WebSocket smoke endpoints
 - explicit LAN dev mode with bind and origin guardrails
-- Vite dev portal smoke surface
+- Vite dev portal smoke surface, not product runtime
 - command/event protocol contracts
-- Effect Schema guardrails
+- Rust-owned schema/serde guardrails plus Effect Schema edge guardrails
 - no-Zod enforcement
 - branded-string enforcement
 - lint, type-check, test, and Rust gates

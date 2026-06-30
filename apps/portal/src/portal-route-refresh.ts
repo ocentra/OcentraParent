@@ -1,15 +1,24 @@
-import { isPortalNetworkEvidenceDrawerRoute } from '@ocentra-parent/portal-domain/routes';
 import {
-  PortalConnectionState,
-  type PortalRoute as PortalRouteValue,
-  type PortalConnectionState as PortalConnectionStateValue,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+  ParentBridgeConnectionState,
+  ParentRoute,
+  type ParentBridgeConnectionState as ParentBridgeConnectionStateValue,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
+
 export type PortalRouteNetworkRefreshState = {
-  readonly connectionState: PortalConnectionStateValue;
+  readonly connectionState: ParentBridgeConnectionStateValue;
   readonly hasNetworkFlowReadModelEvent: boolean;
   readonly requestedForRoute: boolean;
-  readonly route: PortalRouteValue;
+  readonly route: ParentRouteId;
 };
+
+export function isNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {
+  return route === ParentRoute.Activity || route === ParentRoute.NetworkActivity;
+}
+
+export function isInlineNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {
+  return route === ParentRoute.Activity;
+}
 
 export function shouldRequestNetworkFlowReadModelForRoute({
   connectionState,
@@ -18,8 +27,8 @@ export function shouldRequestNetworkFlowReadModelForRoute({
   route,
 }: PortalRouteNetworkRefreshState): boolean {
   return (
-    isPortalNetworkEvidenceDrawerRoute(route) &&
-    connectionState === PortalConnectionState.Connected &&
+    isNetworkEvidenceDrawerRoute(route) &&
+    connectionState === ParentBridgeConnectionState.Connected &&
     !requestedForRoute &&
     !hasNetworkFlowReadModelEvent
   );

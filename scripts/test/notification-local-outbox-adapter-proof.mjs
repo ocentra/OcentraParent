@@ -18,13 +18,13 @@ await main();
 async function main() {
   await mkdir(outboxDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/notification-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/notification-local-outbox-adapter-proof.test.ts',
     ])
@@ -65,10 +65,9 @@ async function main() {
       contract: 'packages/schema-domain/src/notification-local-outbox-adapter-proof.ts',
       schemas: 'packages/schema-domain/src/notification-local-outbox-adapter-proof-schemas.ts',
       values: 'packages/schema-domain/src/notification-local-outbox-adapter-proof-values.ts',
-      contractTest: 'packages/notification-domain/tests/unit/notification-local-outbox-adapter-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/notification-local-outbox-adapter-proof.test.ts',
       builtModule: 'packages/schema-domain/dist/notification-local-outbox-adapter-proof.js',
       packageExport: '@ocentra-parent/schema-domain/notification-local-outbox-adapter-proof',
-      retiredLocalOwnerPackage: '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/notifications.md',
       localOutboxJsonl: relativePath(outboxPath),

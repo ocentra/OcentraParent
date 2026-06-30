@@ -161,7 +161,7 @@ async function assertNetworkPortalSourceGate() {
   );
   assertIncludes(
     portalApp,
-    'latestPortalEvent(props.state.events, AgentEvent.NetworkFlowReadModelReported) !== null',
+    'latestPortalEvent(props.state.events, AgentEvent.NetworkFlowReadModelReported) !== undefined',
     'portal app tracks the latest reported network read-model event'
   );
   proofLabels.push('portal.routes.network-query-only');

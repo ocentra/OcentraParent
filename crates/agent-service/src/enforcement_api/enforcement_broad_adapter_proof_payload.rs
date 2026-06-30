@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdap
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 
-use crate::fields::fields_from_pairs;
+use crate::{fields::fields_from_pairs, json_contract::serialize_json_string};
 
 pub(crate) fn enforcement_broad_adapter_proof_payload(
     read_model: &V08BroadAdapterRuntimeProofReadModel,
@@ -29,6 +29,5 @@ pub(crate) fn enforcement_broad_adapter_proof_payload(
 }
 
 fn read_model_json(read_model: &V08BroadAdapterRuntimeProofReadModel) -> String {
-    serde_json::to_string(read_model)
-        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    serialize_json_string(read_model)
 }

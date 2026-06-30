@@ -39,18 +39,18 @@
 
 ## WP02 Encryption Key Custody
 
-- [ ] Key custody model defined.
-- [ ] Platform key wrapper matrix defined.
-- [ ] Wrong-key negative proof exists.
-- [ ] Revoked-device negative proof exists.
-- [ ] No universal Ocentra key proof exists.
-- [ ] Recovery/manual-required modes defined.
-- [ ] Platform limitations recorded.
-- [ ] Required proof artifacts written.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Workpack completion section filled.
-- [ ] Adjacent device-trust handoff recorded.
-- [ ] No key-readiness overclaim made.
+- [x] Key custody model defined. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/00-key-custody-model-proof.md`
+- [x] Platform key wrapper matrix defined. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/01-platform-key-wrapper-matrix-proof.md`
+- [x] Wrong-key negative proof exists. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/02-wrong-key-negative-proof.md`
+- [x] Revoked-device negative proof exists. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/03-revoked-device-negative-proof.md`
+- [x] No universal Ocentra key proof exists. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/04-no-universal-ocentra-key-proof.md`
+- [x] Recovery/manual-required modes defined. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/05-recovery-mode-proof.md`
+- [x] Platform limitations recorded. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/01-platform-key-wrapper-matrix-proof.md`
+- [x] Required proof artifacts written. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/`
+- [x] Focused commands pass or blocker recorded. Proof: `output/data-custody-storage-plan-proof/02-encryption-key-custody/16-validation-commands.log`
+- [x] Workpack completion section filled. Proof: `docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md`
+- [x] Adjacent device-trust handoff recorded. Proof: `docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md`
+- [x] No key-readiness overclaim made. Proof: `docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md`
 
 ## WP03 Parent Owned Cloud Sync
 
@@ -70,50 +70,50 @@
 
 ## WP04 Retention Delete Tombstone
 
-- [ ] Retention matrix defined.
-- [ ] Delete state machine defined.
-- [ ] Tombstone idempotency proof exists.
-- [ ] Offline retry behavior defined.
-- [ ] Derived-output boundary proof exists.
-- [ ] Wrong-role denial proof exists.
-- [ ] Expiry boundary proof exists.
-- [ ] Restore cannot revive deleted state proof exists.
-- [ ] Required proof artifacts written.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Workpack completion section filled.
-- [ ] No delete-ready overclaim made.
-- [ ] Adjacent eventing/data owner handoffs recorded.
+- [x] Retention matrix defined. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/00-retention-matrix-proof.md`
+- [x] Delete state machine defined. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/01-delete-state-machine-proof.md`
+- [x] Tombstone idempotency proof exists. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/02-tombstone-idempotency-proof.md`
+- [x] Offline retry behavior defined. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/03-offline-retry-proof.md`
+- [x] Derived-output boundary proof exists. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/04-derived-output-boundary-proof.md`
+- [x] Wrong-role denial proof exists. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/05-wrong-role-denied-proof.md`
+- [x] Expiry boundary proof exists. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/06-retention-expiry-boundary-proof.md`
+- [x] Restore cannot revive deleted state proof exists. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/07-restore-cannot-revive-deleted-state-proof.md`
+- [x] Required proof artifacts written. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/`
+- [x] Focused commands pass or blocker recorded. Proof: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/16-validation-commands.log`
+- [x] Workpack completion section filled. Proof: `docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md`
+- [x] No delete-ready overclaim made. Proof: `docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md`
+- [x] Adjacent eventing/data owner handoffs recorded. Proof: `docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md`
 
 ## WP05 Export Import Backup Recovery
 
-- [ ] Export bundle contract defined.
-- [ ] Encrypted payload proof exists.
-- [ ] Import preview is non-mutating proof exists.
-- [ ] Wrong household/key/bundle negative proof exists.
-- [ ] Tombstone preserved proof exists.
-- [ ] Restore/apply idempotency proof exists.
-- [ ] Partial restore state defined.
-- [ ] Support recovery limits recorded.
-- [ ] Required proof artifacts written.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Workpack completion section filled.
-- [ ] No restore-ready overclaim made.
+- [x] Export bundle contract defined. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/00-export-bundle-contract-proof.md`
+- [x] Encrypted payload proof exists. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/01-encrypted-payload-proof.md`
+- [x] Import preview is non-mutating proof exists. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/02-import-preview-non-mutating-proof.md`
+- [x] Wrong household/key/bundle negative proof exists. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/03-wrong-household-key-bundle-proof.md`
+- [x] Tombstone preserved proof exists. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/04-tombstone-preserved-proof.md`
+- [x] Restore/apply idempotency proof exists. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/05-restore-apply-idempotent-proof.md`
+- [x] Partial restore state defined. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/06-partial-restore-proof.md`
+- [x] Support recovery limits recorded. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/01-encrypted-payload-proof.md`
+- [x] Required proof artifacts written. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/16-validation-commands.log`
+- [x] Focused commands pass or blocker recorded. Proof: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/16-validation-commands.log`
+- [x] Workpack completion section filled. Proof: `docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md`
+- [x] No restore-ready overclaim made. Proof: `docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md`
 
 ## WP06 Report Query Custody
 
-- [ ] Derived source matrix defined.
-- [ ] Deleted/expired data not returned proof exists.
-- [ ] Query cursor/pagination proof exists.
-- [ ] Query rate-limit/misuse boundary defined.
-- [ ] Notification payload allow/deny matrix defined.
-- [ ] Portal cache custody proof exists.
-- [ ] Assistant allowed-citation proof exists.
-- [ ] Stale/conflict state proof exists.
-- [ ] Required proof artifacts written.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Workpack completion section filled.
-- [ ] No report/query custody overclaim made.
-- [ ] Adjacent AI/notification owner handoffs recorded.
+- [x] Derived source matrix defined. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/00-derived-source-matrix-proof.md`
+- [x] Deleted/expired data not returned proof exists. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/01-deleted-expired-not-returned-proof.md`
+- [x] Query cursor/pagination proof exists. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/02-query-cursor-pagination-proof.md`
+- [x] Query rate-limit/misuse boundary defined. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/03-query-rate-limit-proof.md`
+- [x] Notification payload allow/deny matrix defined. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/04-notification-payload-allow-deny-proof.md`
+- [x] Portal cache custody proof exists. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/05-portal-cache-custody-proof.md`
+- [x] Assistant allowed-citation proof exists. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/06-assistant-allowed-citation-proof.md`
+- [x] Stale/conflict state proof exists. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/07-stale-conflict-state-proof.md`
+- [x] Required proof artifacts written. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/`
+- [x] Focused commands pass or blocker recorded. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/16-validation-commands.log`
+- [x] Workpack completion section filled. Proof: `docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md`
+- [x] No report/query custody overclaim made. Proof: `docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md`
+- [x] Adjacent AI/notification owner handoffs recorded. Proof: `docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md`
 
 ## WP08 Parent Storage Settings Apply Flow
 
@@ -132,17 +132,17 @@
 
 ## WP07 Rollout Proof And Route Gate
 
-- [ ] WP01 proof root consumed or blocker recorded.
-- [ ] WP02 proof root consumed or blocker recorded.
-- [ ] WP03 proof root consumed or blocker recorded.
-- [ ] WP04 proof root consumed or blocker recorded.
-- [ ] WP05 proof root consumed or blocker recorded.
-- [ ] WP06 proof root consumed or blocker recorded.
-- [ ] WP08 proof root consumed or blocker recorded.
-- [ ] Route/index sync proof written.
-- [ ] Privacy language review proof written.
-- [ ] Manual-required gap register written.
-- [ ] Adjacent handoff proof written.
-- [ ] Focused validation commands pass or blockers recorded.
-- [ ] PLAN_STATE and WORKPACK_INDEX reflect actual state.
-- [ ] No PR_READY claim without required proof roots.
+- [x] WP01 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [x] WP02 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [x] WP03 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [x] WP04 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [x] WP05 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [x] WP06 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [x] WP08 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [x] Route/index sync proof written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/01-route-index-sync-proof.md`
+- [x] Privacy language review proof written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/02-privacy-language-review-proof.md`
+- [x] Manual-required gap register written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/03-manual-required-gap-register.md`
+- [x] Adjacent handoff proof written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/04-adjacent-handoff-proof.md`
+- [x] Focused validation commands pass or blockers recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/16-validation-commands.log`
+- [x] PLAN_STATE and WORKPACK_INDEX reflect actual state. Proof: `docs/plans/data-custody-storage-plan/PLAN_STATE.md`; `docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md`
+- [x] No PR_READY claim without required proof roots. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`

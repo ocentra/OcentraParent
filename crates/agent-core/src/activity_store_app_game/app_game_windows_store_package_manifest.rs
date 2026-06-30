@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::constants;
 
 use super::app_game_windows_store_inventory::WindowsStorePackageInventoryRecord;
 
-pub(crate) fn record_from_manifest_xml(
+pub fn record_from_manifest_xml(
     observed_at: &str,
     source_ref: String,
     manifest: &str,

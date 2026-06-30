@@ -284,7 +284,7 @@ async function runCandidate(browser, entry) {
         realLivePageLoaded: finalUrl.startsWith('http') && visibleText.trim().length > 10,
         managedBrowserCropCaptured: pngInfo.width > 0 && pngInfo.height > 0 && pngBytes.byteLength > 0,
         localVlmExecuted: vlm.status === 0,
-        parseableNormalizedJson: normalizedResult !== null,
+        parseableNormalizedJson: normalizedResult !== undefined,
         expectedTermsDetectedByVlm: vlmTermsMatched.length > 0,
         expectedCategoryMatched: categoryMatched,
         rawCropDeleted,

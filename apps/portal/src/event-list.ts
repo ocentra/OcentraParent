@@ -1,9 +1,9 @@
-import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
+import type { ParentRouteEventSnapshot } from '../generated/parent-ui-bridge';
 
-export function renderEvents(container: HTMLElement, events: readonly AgentEventEnvelope[]): void {
+export function renderEvents(container: HTMLElement, events: readonly ParentRouteEventSnapshot[]): void {
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
   title.textContent = resolvePortalDevText(PortalDevTextToken.AgentEvents);
   container.append(title);
@@ -18,24 +18,25 @@ export function renderEvents(container: HTMLElement, events: readonly AgentEvent
   container.append(list);
 }
 
-function renderEvent(event: AgentEventEnvelope): HTMLLIElement {
+function renderEvent(event: ParentRouteEventSnapshot): HTMLLIElement {
   const item = document.createElement(PortalDom.Tags.ListItem);
-  item.className = [PortalDom.Classes.Log, `${PortalDom.Classes.LogLevelPrefix}${event.severity}`].join(
-    PortalDom.Classes.ClassNameSeparator
-  );
+  item.className = [
+    PortalDom.Classes.Log,
+    `${PortalDom.Classes.LogLevelPrefix}${event.severity ?? 'info'}`,
+  ].join(PortalDom.Classes.ClassNameSeparator);
 
   const message = document.createElement(PortalDom.Tags.Strong);
-  message.textContent = event.event;
+  message.textContent = event.event ?? 'unknown-event';
 
   const detail = document.createElement(PortalDom.Tags.Span);
   detail.textContent = [
-    event.sentAt,
-    event.source.peerId,
-    `${PortalFormatting.CorrelationPrefix}${event.correlationId}`,
+    event.sentAt ?? 'not-reported',
+    event.sourcePeerId ?? 'not-reported',
+    `${PortalFormatting.CorrelationPrefix}${event.correlationId ?? event.eventId ?? 'not-reported'}`,
   ].join(PortalFormatting.EventDetailSeparator);
 
   const fields = document.createElement(PortalDom.Tags.Code);
-  fields.textContent = JSON.stringify(event.payload, null, 2);
+  fields.textContent = JSON.stringify(event.payload ?? {}, null, 2);
 
   item.append(message, detail, fields);
   return item;

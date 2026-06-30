@@ -16,8 +16,8 @@ import {
   RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelNonClaims,
   appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelCountsMatch,
   appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelHasNoRuntimeClaims,
-  appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelMatchesHandoff,
-  type AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateValue,
+  appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateForHandoff,
+  countAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRows,
 } from './app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
@@ -187,21 +187,7 @@ export function buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtoco
     rows,
     nativeAppRowCount: handoff.nativeAppRowCount,
     nativeGameRowCount: handoff.nativeGameRowCount,
-    protocolReadModelProofRequiredCount: rows.filter(
-      (row) =>
-        row.protocolReadModelState ===
-        AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState.ProtocolReadModelProofRequired
-    ).length,
-    blockedBySourceFreshnessCount: rows.filter(
-      (row) =>
-        row.protocolReadModelState ===
-        AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState.BlockedBySourceFreshness
-    ).length,
-    blockedByCompilerDecisionCount: rows.filter(
-      (row) =>
-        row.protocolReadModelState ===
-        AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState.BlockedByCompilerDecision
-    ).length,
+    ...countAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRows(rows),
     protocolReadModelNonClaims: RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelNonClaims,
     ...AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelNoClaimFlags,
   });
@@ -211,7 +197,10 @@ function buildProtocolReadModelRow(
   options: AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelOptions,
   handoffRow: AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffRow
 ): AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRow {
-  const protocolReadModelState = readModelStateForHandoff(handoffRow);
+  const protocolReadModelState =
+    appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateForHandoff(
+      handoffRow.protocolHandoffState
+    );
 
   return AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRowSchema.parse({
     schemaVersion: options.schemaVersion,
@@ -227,22 +216,6 @@ function buildProtocolReadModelRow(
     ...AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelNoClaimFlags,
     generatedAt: options.generatedAt,
   });
-}
-
-function readModelStateForHandoff(
-  handoffRow: AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffRow
-): AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateValue {
-  for (const state of Object.values(AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState)) {
-    if (
-      appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelMatchesHandoff(
-        handoffRow.protocolHandoffState,
-        state
-      )
-    ) {
-      return state;
-    }
-  }
-  return AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState.BlockedByCompilerDecision;
 }
 
 export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModel = Schema.decodeUnknownSync(

@@ -179,7 +179,7 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(payload, 'proofPreviewStatus', 'websocket-direct');
   assertPayloadValue(payload, 'lanAiProviderStatus', 'websocket-direct');
   assertPayloadValue(payload, 'lanAiJobStatus', 'websocket-direct');
-  assertPayloadValue(payload, 'persistenceMode', 'in-memory-fail-closed');
+  assertPayloadValue(payload, 'persistenceMode', 'local-json-registry');
   assertPayloadValue(payload, 'proofMode', 'direct-proof-submit');
   assertPayloadValue(
     payload,

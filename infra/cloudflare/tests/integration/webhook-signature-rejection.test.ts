@@ -89,6 +89,42 @@ describe('POST /webhooks/stripe', () => {
     assert.equal(body.blocker, 'stripe-webhook-secret-missing');
   });
 
+  it('keeps webhook auth manual-required when the auth adapter mode is unresolved or unknown', async () => {
+    for (const authAdapterMode of [
+      'account-auth-adapter-manual-required',
+      'future-provider-adapter',
+    ] as const) {
+      const { response } = await executeRequest({
+        path: '/webhooks/stripe',
+        method: 'POST',
+        body: {
+          id: `evt_${authAdapterMode}`,
+        },
+        headers: {
+          'stripe-signature': `t=1710000000,v1=${'0'.repeat(64)}`,
+        },
+        envOverrides: {
+          AUTH_ADAPTER_MODE: authAdapterMode,
+          STRIPE_WEBHOOK_SECRET: 'whsec_auth_boundary_secret',
+        },
+      });
+
+      const text = await response.text();
+      const body = JSON.parse(text) as WebhookErrorResponse & { authState?: unknown };
+      assert.equal(response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'provider-webhook-signature-required');
+      assert.equal(
+        body.blocker,
+        authAdapterMode === 'account-auth-adapter-manual-required'
+          ? 'account-auth-adapter-manual-required'
+          : 'unsupported-auth-adapter-mode'
+      );
+      assert.equal(text.includes('whsec_auth_boundary_secret'), false);
+      assert.equal(text.includes('stripe-signature'), false);
+    }
+  });
+
   it('accepts valid signed payloads and queues them for reconciliation', async () => {
     const harness = createTestHarness();
     const payload = JSON.stringify({

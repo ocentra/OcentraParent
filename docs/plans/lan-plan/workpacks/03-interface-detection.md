@@ -63,17 +63,18 @@ virtual interfaces by default.
       link-local-only interfaces by default.
 - [x] Prefer the interface with the default route when multiple candidates
       exist.
-- [ ] Support explicit manual interface selection for advanced users.
-- [ ] Record the selected interface id on every evidence item.
+- [x] Support explicit manual interface selection for advanced users.
+- [x] Record the selected interface id on every evidence item.
 
 ## Acceptance And Proof
 
 - Unit tests now cover ignored virtual/link-local candidates, Wi-Fi/Ethernet
   default-route preference, Windows DNS/DHCP/IPv6 capture, Linux DNS/IPv6
-  capture, and computed broadcast address; manual override remains open.
+  capture, computed broadcast address, and manual interface selection.
 - Scanner proof now records selected interface plus gateway/DNS/DHCP/broadcast
   and IPv6-prefix metadata in the scan-plan sidecar; ignored-interface reason
-  codes remain open.
+  codes and selected-interface attribution through discovery evidence are
+  locally proven.
 - No packet-sending scanner path can run before interface selection succeeds.
 
 ## Parallel Ownership Notes

@@ -1,103 +1,130 @@
-# 01 Contract Boundary And Domain Schemas
+# 21 Rust-Owned Contract Boundary And Domain Schemas
 
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `lan-plan`
-> Doc: `01 Contract Boundary And Domain Schemas`
-> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
-> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
-> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Doc: `21 Rust-Owned Contract Boundary And Domain Schemas`
+> Kind: assigned active workpack; read only when this exact workpack is selected.
+> Read when: Only when this exact workpack is explicitly selected from `WORKPACK_INDEX.md`.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack's own proof rows and tests support the claim.
+> Proves: only this workpack's current boundary scope and any progress explicitly recorded here.
+> Does not prove: current completion of sibling workpacks or broad LAN readiness.
+> Proof rule: Rewrite or discard any stale historical assumptions before using this file for execution claims.
 
 <!-- /agent-capsule -->
 
-Sources: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md),
-[family setup expectations](../../expectations/family-setup.md),
-[LAN pairing expectations](../../expectations/lan-pairing.md).
+Sources: [folder README](../README.md), [feature doc](../../../features/family-setup-device-roles.md),
+[family setup expectations](../../../expectations/family-setup.md),
+[LAN pairing expectations](../../../expectations/lan-pairing.md).
+
+## Active scope status
+
+This workpack is part of the authoritative `01-25` LAN execution model. It is
+locally complete for the current Rust-owned contract-boundary slice.
+
+Historical TS-first notes in older copies of this draft are stale. Current
+direction for this workpack is:
+
+- Rust owns the contracts and business logic.
+- `crates/schema` or another Rust-owned shared boundary owns cross-surface
+  household/role shapes.
+- `crates/agent-protocol` and `crates/agent-service` own protocol/runtime parity.
+- TS may consume generated bridge artifacts only at the presentation edge. TS
+  does not become the contract authority, runtime owner, read-model owner, or
+  proof owner.
 
 ## Where We Are
 
-`packages/parent-domain` owns the add-device read model, household device row
-contract, and parent decision fields (assign/rename/ignore/restore/trust/revoke).
-`packages/agent-protocol-domain` owns LAN route commands and discovery-state
-shapes. `crates/agent-protocol` mirrors some of these in Rust. The V0.9 LAN
-spine carries signed discovery, route custody, and stale/offline labels.
+The current LAN spine already has Rust-owned discovery, route-custody,
+stale/offline, and signed-discovery labels. This locally complete workpack
+records the household/role contract family closure for:
 
-What does **not** exist yet: TypeScript schemas for `HouseholdProfile`,
-`ChildProfile`, `ParentMember`, `ParentControllerLease`, `ObserverPermission`,
-`SetupInvite`, `RecoveryState`, and `SetupAuditEvent`. The expectation doc at
-`docs/expectations/family-setup.md` lists these as required contract families.
-No Rust parity exists for household membership shapes. The read model carries
-LAN-specific device rows but lacks a first-class household identity contract
-that ties household id → parent members → child profiles → device registrations.
+- `HouseholdProfile`
+- `ChildProfile`
+- `ParentMember`
+- `ParentControllerLease`
+- `ObserverPermission`
+- `SetupInvite`
+- `RecoveryState`
+- `SetupAuditEvent`
+
+Those shapes are now represented in the Rust-owned household/setup contract
+family under `crates/family-identity-core`, including the record-shaped
+`family_identity::RecoveryState`. They are execution truth only for this
+contract slice; downstream runtime, portal, invite delivery, recovery UX, and
+physical LAN behavior still need their own selected proof.
 
 ## Where We Want To Be
 
-Every household and role concept must live as a typed Effect Schema contract in
-the owning domain package before any runtime code, service handler, or portal
-surface claims to display or enforce it. Rust protocol shapes must mirror the
-TypeScript contracts before `crates/agent-service` accepts or emits the
-payloads.
+Every household and role concept lives as a Rust-owned shared contract before
+any runtime code, service handler, or portal surface claims to display or
+enforce it.
 
-## Scope
+UI-facing bridge artifacts may be generated from those Rust contracts, but the
+UI remains presentation only.
 
-- `HouseholdProfile` schema: `householdId`, `displayName`, `createdAt`, `parentMemberIds[]`, `childProfileIds[]`.
-- `ParentMember` schema: `memberId`, `householdId`, `role` (`controller` | `co-parent` | `observer`), `inviteState`, `joinedAt`.
-- `ChildProfile` schema: `childId`, `householdId`, `displayName`, `deviceIds[]`, `custodyLabel`.
-- `DeviceRegistration` schema: `deviceId`, `childId`, `householdId`, `trustState`, `roleLabel`, `routeState` (`local` | `lan` | `relay` | `cache` | `unavailable`), `staleSince?`.
-- `ParentControllerLease` schema: `leaseId`, `parentMemberId`, `deviceId`, `issuedAt`, `expiresAt`, `revocationState`.
-- `ObserverPermission` schema: `permId`, `parentMemberId`, `householdId`, `grantedScopes[]`, `isWriteBlocked: true`.
-- `SetupInvite` schema: `inviteId`, `householdId`, `inviteeEmail`, `role`, `expiresAt`, `acceptedAt?`, `revokedAt?`.
-- `RecoveryState` schema: `recoveryId`, `deviceId`, `reason` (`stale` | `revoked` | `offline` | `lost`), `parentActionRequired`.
-- `SetupAuditEvent` schema: `eventId`, `householdId`, `actorMemberId`, `targetId`, `action`, `timestamp`, `evidenceRef?`.
-- Rust parity in `crates/agent-protocol/src/household.rs` for `HouseholdProfile`, `ChildProfile`, `DeviceRegistration`, and `ParentControllerLease`.
-- Invalid-state rejection tests: observer with write scope must fail; device in wrong household must fail; revoked lease issued as valid must fail.
+## Active Scope
 
-## Touched Paths
+- Define the household/role contract family in the owning Rust schema boundary.
+- Add Rust protocol/runtime parity only after the shared Rust contracts are
+  stable.
+- Generate UI edge types only where the UI must render or dispatch through the
+  host bridge.
+- Keep this slice schema-focused; do not smuggle runtime/UI ownership into the
+  contract packet.
 
-- `packages/parent-domain/src/household-profile.ts` (new)
-- `packages/parent-domain/src/child-profile.ts` (new)
-- `packages/parent-domain/src/parent-member.ts` (new)
-- `packages/parent-domain/src/device-registration.ts` (new)
-- `packages/parent-domain/src/controller-lease.ts` (new)
-- `packages/parent-domain/src/observer-permission.ts` (new)
-- `packages/parent-domain/src/setup-invite.ts` (new)
-- `packages/parent-domain/src/recovery-state.ts` (new)
-- `packages/parent-domain/src/setup-audit-event.ts` (new)
-- `packages/parent-domain/src/index.ts` (re-export all above)
-- `crates/agent-protocol/src/household.rs` (new)
-- `crates/agent-protocol/src/lib.rs` (add `pub mod household;`)
+## Contract family inventory
+
+The remaining shape family for this workpack includes:
+
+- `HouseholdProfile`: `householdId`, `displayName`, `createdAt`,
+  `parentMemberIds[]`, `childProfileIds[]`
+- `ParentMember`: `memberId`, `householdId`, `role`, `inviteState`, `joinedAt`
+- `ChildProfile`: `childId`, `householdId`, `displayName`, `deviceIds[]`,
+  `custodyLabel`
+- `DeviceRegistration`: `deviceId`, `childId`, `householdId`, `trustState`,
+  `roleLabel`, `routeState`, `staleSince?`
+- `ParentControllerLease`: `leaseId`, `parentMemberId`, `deviceId`, `issuedAt`,
+  `expiresAt`, `revocationState`
+- `ObserverPermission`: `permId`, `parentMemberId`, `householdId`,
+  `grantedScopes[]`, `isWriteBlocked`
+- `SetupInvite`: `inviteId`, `householdId`, `inviteeEmail`, `role`, `expiresAt`
+- `RecoveryState`: `recoveryId`, `deviceId`, `reason`, `parentActionRequired`
+- `SetupAuditEvent`: `eventId`, `householdId`, `actorMemberId`, `targetId`,
+  `action`, `timestamp`, `evidenceRef?`
 
 ## Tests And Proof
 
-- TypeScript Effect Schema parse/reject tests for every shape in `packages/parent-domain/src/*.test.ts`.
-- Rust serde round-trip and invalid-state tests in `crates/agent-protocol/src/household.rs` test module.
-- No raw `string` annotations in domain types; all identifiers use opaque branded types or newtypes.
-- Proof artifact: `output/lan-plan-proof/01-contract-boundary-and-domain-schemas/01-schema-validation-proof.log`.
+- Rust contract parse/reject tests for every new shape in the owning schema or
+  protocol crate test trees.
+- Rust serde round-trip and invalid-state tests for every household/role shape.
+- Generated bridge drift checks may exist only as supporting interface sanity
+  where the UI consumes the shape. They do not create LAN proof closure.
+- Test proof must live in real organized Rust crate test folders. Inline
+  source-owned tests, placeholder directories, `.gitkeep` trees, fake
+  coverage, or mock-only readiness do not count.
+- Proof artifact: `output/lan-plan-proof/21-contract-boundary-and-domain-schemas/`
+- Current proof: `output/lan-plan-proof/21-contract-boundary-and-domain-schemas/01-local-validation.md`
+- Current validation: `cargo test -p ocentra-family-identity-core -- --nocapture`
+  and `cargo lint-architecture crates/family-identity-core`, both green for
+  this slice.
 
 ## AI Worker Checklist
 
-Fill this before reporting `DONE` or PR-ready:
-
-- [ ] Confirm source docs read: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md), [family setup expectations](../../expectations/family-setup.md), [LAN pairing expectations](../../expectations/lan-pairing.md), [current PLAN_STATE](../PLAN_STATE.md), and this workpack.
-- [ ] Check enhancement overlap with adjacent plans: `lan-plan` (route/discovery shapes), `portal-ux-household-surfaces-plan` (read model consumption).
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] Existing source layout inspected; no duplicate household truth created alongside existing add-device read model.
-- [ ] Before-state snapshot recorded in `output/lan-plan-proof/01-contract-boundary-and-domain-schemas/00-source-snapshot.md`.
-- [ ] Contracts written first; no Rust/service/portal changes until TypeScript contracts exist and pass schema tests.
-- [ ] Rust parity added in `crates/agent-protocol/src/household.rs` after TypeScript contracts pass.
-- [ ] No runtime read model, service handler, or portal UI changed by this workpack; schema-only slice.
-- [ ] Invalid-state rejection tests written: observer write-scope rejected, wrong-household device rejected, revoked-lease re-issue rejected.
-- [ ] Tests/proof listed above are implemented or explicitly marked manual-required with reason.
-- [ ] Validation command outputs saved in `output/lan-plan-proof/01-contract-boundary-and-domain-schemas/` and summarized in [main checklist](../implementation-checklist.md).
-- [ ] Feature/expectation/product-checklist update decision recorded in [main checklist](../implementation-checklist.md).
-- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [x] Confirm WP21 is the assigned active workpack.
+- [x] Rewrite any stale TS-first wording still present in this file before code moves.
+- [x] Confirm the owning Rust schema boundary before implementation starts.
+- [x] Keep TS out of contract ownership; generated UI edge types only.
+- [x] No runtime read model, service handler, or portal UI should claim truth
+      that the Rust contract layer does not already own.
+- [x] Invalid-state rejection tests written for observer write-scope, wrong
+      household device, and revoked-lease reuse.
+- [x] Tests/proof listed above are implemented or explicitly marked
+      manual-required with reason.
 
 ## Manual-Required Gaps
 
-No runtime or UI claim is created by contracts alone. `SetupInvite` delivery via
-email or push notification is out of scope for this workpack; record as deferred.
-Physical multi-device LAN proof is manual-required and belongs to workpack 03.
+Contracts alone do not create runtime or UI truth. Any eventual invite
+delivery, recovery UX, or multi-device LAN proof remains separate from this
+contract slice unless a later proof packet proves otherwise.

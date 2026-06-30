@@ -132,6 +132,14 @@ Every secret remains server-only; never browser, portal bundle, desktop, or mobi
 | Mutation tests | Recommended rollout gate, not slice-01 prerequisite. |
 | Static analysis wrappers | Recommended before production promotion. |
 
+## Carried non-goals and no-claim boundary
+
+- This parity map does not import or re-own billing product math, referral qualification semantics, invoice/grace policy, or payment runtime readiness.
+- This parity map does not choose the concrete account provider, parent session authority, trusted-parent-device authority, or setup/bootstrap semantics.
+- This parity map does not authorize child telemetry, raw child data, or generic archive/storage expansion in Cloudflare D1, KV, Queue, or R2 surfaces.
+- This parity map does not carry over game-only economy, Solana, matchmaking, social, AI proxy, asset delivery, leaderboard, or tournament concerns.
+- This parity map does not claim deployment, queue operations, or portal consumer readiness from docs alone.
+
 ## Parent-first conclusion
 
 Parent does need a separate Cloudflare control-plane plan and module scaffold. Payment cannot honestly start from checkout or webhook docs alone because the worker boundary, bindings, auth model, local dev loop, and test runner are shared prerequisites.

@@ -25,15 +25,15 @@ use crate::{
     },
 };
 
-pub(crate) type HouseholdMeshBridgeValidation =
+pub type HouseholdMeshBridgeValidation =
     ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgeValidation;
-pub(crate) type HouseholdMeshBridgeEventPayload =
+pub type HouseholdMeshBridgeEventPayload =
     ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgeEventPayload;
-pub(crate) type HouseholdMeshBridgeInput =
+pub type HouseholdMeshBridgeInput =
     ocentra_parent_agent_protocol::household_mesh::household_mesh_bridge_input::HouseholdMeshBridgeInput;
-pub(crate) type HouseholdMeshBridgeExportCandidate =
+pub type HouseholdMeshBridgeExportCandidate =
     ocentra_parent_agent_protocol::household_mesh::household_mesh_bridge_input::HouseholdMeshBridgeExportCandidate;
-pub(crate) type HouseholdMeshBridgeInboundEnvelope =
+pub type HouseholdMeshBridgeInboundEnvelope =
     ocentra_parent_agent_protocol::household_mesh::household_mesh_bridge_input::HouseholdMeshBridgeInboundEnvelope;
 
 #[derive(Clone, Debug)]

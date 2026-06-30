@@ -307,6 +307,12 @@ export const PortalCommandButtons = [
     payload: {},
   },
   {
+    label: resolvePortalDevText(PortalDevTextToken.GetLanPairingStatus),
+    command: AgentCommand.LanPairingStatusGet,
+    resultEvent: AgentEvent.LanPairingStatusReported,
+    payload: {},
+  },
+  {
     label: resolvePortalDevText(PortalDevTextToken.GetNetworkRuntimeEventChainStream),
     command: AgentCommand.NetworkRuntimeEventChainStreamGet,
     resultEvent: AgentEvent.NetworkRuntimeEventChainStreamReported,

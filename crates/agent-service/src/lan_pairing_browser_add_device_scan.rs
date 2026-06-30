@@ -30,7 +30,11 @@ pub(crate) fn same_physical_network_device(
 
 fn same_device_text(left: Option<&str>, right: Option<&str>) -> bool {
     match (left, right) {
-        (Some(left), Some(right)) => left.trim().eq_ignore_ascii_case(right.trim()),
+        (Some(left), Some(right)) => {
+            let left = left.trim();
+            let right = right.trim();
+            !left.is_empty() && !right.is_empty() && left.eq_ignore_ascii_case(right)
+        }
         _ => false,
     }
 }

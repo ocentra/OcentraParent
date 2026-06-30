@@ -57,7 +57,7 @@ async function main() {
     await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
     printSummary(evidencePath, assertion);
   } finally {
-    if (serviceProcess !== null) {
+    if (serviceProcess !== undefined) {
       await stopProcessTreeAndWait(serviceProcess);
     }
     await stopProcessTreeAndWait(browserProcess);

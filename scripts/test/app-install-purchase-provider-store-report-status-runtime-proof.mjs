@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
     ])
@@ -72,7 +72,7 @@ async function main() {
       sourceRuntimeReportWriterDeliveryContract:
         'packages/schema-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
       contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
@@ -112,7 +112,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-provider-store-report-status-runtime-proof.js'
   );

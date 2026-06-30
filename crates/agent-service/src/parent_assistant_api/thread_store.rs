@@ -26,16 +26,7 @@ pub(crate) fn record_message_for_thread(thread_id: &str) {
     let _ = record_message_for_thread_in_dir(thread_id, &thread_storage_dir());
 }
 
-#[cfg(test)]
 pub(crate) fn thread_response_for_command_in_dir(
-    command: &AgentCommandEnvelope,
-    directory: &Path,
-) -> ParentAssistantThreadResponse {
-    thread_response_for_command_in_dir_impl(command, directory)
-}
-
-#[cfg(not(test))]
-fn thread_response_for_command_in_dir(
     command: &AgentCommandEnvelope,
     directory: &Path,
 ) -> ParentAssistantThreadResponse {

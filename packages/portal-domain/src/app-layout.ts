@@ -1,4 +1,4 @@
-import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
+import { PortalRoute } from './portal-contract-adapter';
 import { PortalFrameTuner } from './frame-tuner';
 import { portalRouteHashPath } from './routes';
 

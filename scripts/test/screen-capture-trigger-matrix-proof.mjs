@@ -57,8 +57,8 @@ try {
     lastCaptureAt: 1_779_999_900,
   });
 
-  const scenarios = [browserUse, nativeAppUse, timedFirst, timedSecond].filter((scenario) => scenario !== null);
-  const imageDigests = scenarios.map((scenario) => scenario.imageDigest).filter((imageDigest) => imageDigest !== null);
+  const scenarios = [browserUse, nativeAppUse, timedFirst, timedSecond].filter((scenario) => scenario !== undefined);
+  const imageDigests = scenarios.map((scenario) => scenario.imageDigest).filter((imageDigest) => imageDigest !== undefined);
   const summary = {
     proof: 'screen-capture-trigger-matrix-proof',
     outputDir,

@@ -1,40 +1,32 @@
 import type { ReactElement } from 'react';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import type { PortalShellParentAccessState } from '@ocentra-parent/portal-domain/parent-portal-shell-status';
 import {
-  createPolicyPreviewPanelIntent,
-  type PolicyPreviewPanelCard,
-  type PolicyPreviewPanelDetail,
-  type PolicyPreviewPanelIntent,
-} from '@ocentra-parent/portal-domain/policy-preview-panel';
-import { isPortalPolicyPreviewRoute } from '@ocentra-parent/portal-domain/routes';
+  isParentPolicyPreviewRoute,
+  type ParentPolicyPreviewPanelCardSnapshot,
+  type ParentPolicyPreviewPanelDetailSnapshot,
+  type ParentPolicyPreviewPanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import type { PortalLiveActivityState } from './live-activity-state';
 
-export function shouldRenderPolicyPreviewRoute(route: PortalRouteValue): boolean {
-  return isPortalPolicyPreviewRoute(route);
+export function shouldRenderPolicyPreviewRoute(route: ParentRouteId): boolean {
+  return isParentPolicyPreviewRoute(route);
 }
 
 export function PolicyPreviewRoutePanel({
   actions,
   commandEnabled,
-  liveActivity,
-  parentAccessState,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly liveActivity: PortalLiveActivityState;
-  readonly parentAccessState: PortalShellParentAccessState;
+  readonly panel: ParentPolicyPreviewPanelSnapshot | null;
 }): ReactElement {
-  const intent = createPolicyPreviewPanelIntent(
-    liveActivity.policyPreviewEvent,
-    liveActivity.policyPreviewReadModel,
-    parentAccessState
-  );
+  if (panel === null) {
+    return <></>;
+  }
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.PolicyPreview)}
@@ -43,8 +35,8 @@ export function PolicyPreviewRoutePanel({
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
           <p className={PortalDom.Classes.ProductEyebrow}>{PortalDetails.PolicyPreview}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <h2>{panel.title}</h2>
+          <p>{panel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
@@ -59,11 +51,11 @@ export function PolicyPreviewRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <PolicyPreviewSummaryCard intent={intent} />
-          {intent.cards.length === 0 ? (
-            <PolicyPreviewEmptyCard intent={intent} />
+          <PolicyPreviewSummaryCard panel={panel} />
+          {panel.cards.length === 0 ? (
+            <PolicyPreviewEmptyCard panel={panel} />
           ) : (
-            intent.cards.map((card, index) => <PolicyPreviewCard key={`${String(card.title)}:${index}`} card={card} />)
+            panel.cards.map((card, index) => <PolicyPreviewCard key={`${String(card.title)}:${index}`} card={card} />)
           )}
         </div>
       </div>
@@ -71,26 +63,26 @@ export function PolicyPreviewRoutePanel({
   );
 }
 
-function PolicyPreviewSummaryCard({ intent }: { readonly intent: PolicyPreviewPanelIntent }): ReactElement {
+function PolicyPreviewSummaryCard({ panel }: { readonly panel: ParentPolicyPreviewPanelSnapshot }): ReactElement {
   return (
     <article className={policyPreviewCardClassName()}>
       <h2>{PortalDetails.PolicyPreview}</h2>
-      <p>{intent.summary}</p>
-      <PolicyPreviewDetails details={intent.summaryDetails} />
+      <p>{panel.summary}</p>
+      <PolicyPreviewDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function PolicyPreviewEmptyCard({ intent }: { readonly intent: PolicyPreviewPanelIntent }): ReactElement {
+function PolicyPreviewEmptyCard({ panel }: { readonly panel: ParentPolicyPreviewPanelSnapshot }): ReactElement {
   return (
     <article className={policyPreviewCardClassName()}>
       <h2>{PortalDetails.Status}</h2>
-      <p>{intent.emptyMessage}</p>
+      <p>{panel.emptyMessage}</p>
       <PolicyPreviewDetails
         details={[
           {
             label: PortalDetails.ProductClaim,
-            value: intent.productClaim,
+            value: panel.productClaim,
           },
         ]}
       />
@@ -98,7 +90,7 @@ function PolicyPreviewEmptyCard({ intent }: { readonly intent: PolicyPreviewPane
   );
 }
 
-function PolicyPreviewCard({ card }: { readonly card: PolicyPreviewPanelCard }): ReactElement {
+function PolicyPreviewCard({ card }: { readonly card: ParentPolicyPreviewPanelCardSnapshot }): ReactElement {
   return (
     <article className={policyPreviewCardClassName()}>
       <h2>{card.title}</h2>
@@ -108,7 +100,11 @@ function PolicyPreviewCard({ card }: { readonly card: PolicyPreviewPanelCard }):
   );
 }
 
-function PolicyPreviewDetails({ details }: { readonly details: readonly PolicyPreviewPanelDetail[] }): ReactElement {
+function PolicyPreviewDetails({
+  details,
+}: {
+  readonly details: readonly ParentPolicyPreviewPanelDetailSnapshot[];
+}): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
       {details.map((detail, index) => (
@@ -122,8 +118,8 @@ function PolicyPreviewDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>

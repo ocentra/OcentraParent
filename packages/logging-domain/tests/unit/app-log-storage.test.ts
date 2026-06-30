@@ -38,14 +38,31 @@ describe('app-log storage', () => {
       correlationId: null,
       environment: 'test',
     });
+    storage.storeLog({
+      timestamp: 2,
+      level: 'error',
+      source: 'portal',
+      context: 'app-log',
+      message: 'second app log',
+      data: 'failure',
+      file: null,
+      filePath: null,
+      line: null,
+      column: null,
+      correlationId: null,
+      environment: 'test',
+    });
     await storage.flush();
 
     const query = await storage.queryLogs({ search: 'first app' });
     expect(query).toHaveLength(1);
     expect(query[0]?.message).toBe('first app log');
+    const errorQuery = await storage.queryLogs({ level: 'error', search: 'failure' });
+    expect(errorQuery).toHaveLength(1);
+    expect(errorQuery[0]?.message).toBe('second app log');
 
     const stats = await storage.getStats();
-    expect(stats.totalLogs).toBe(1);
+    expect(stats.totalLogs).toBe(2);
     expect(stats.sessions).toBe(1);
 
     const cleared = await storage.clearLogs();

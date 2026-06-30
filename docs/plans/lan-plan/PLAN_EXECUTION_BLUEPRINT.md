@@ -30,13 +30,15 @@ output/lan-plan-proof/<workpack-file-stem>/
 ## Focused commands
 
 ```bash
-npm run build --workspace @ocentra-parent/lan-domain
-npm run test --workspace @ocentra-parent/lan-domain
+cargo test -p ocentra-lan-core lan
 cargo test -p ocentra-parent-agent-protocol lan
 cargo test -p ocentra-parent-agent-service lan
 npm run test --workspace @ocentra-parent/portal -- lan
-npm run lint:architecture -- --files packages/lan-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
+npm run lint:architecture -- --files crates/lan-core crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
+cargo lint-architecture crates/lan-core crates/agent-protocol crates/agent-service
 ```
+
+Use real organized test folders/crates only. Do not count inline source-owned tests, placeholder directories, or mock-only coverage as workpack closure.
 
 ## Proof files
 

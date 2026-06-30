@@ -50,12 +50,16 @@ Use this section to decide where code belongs before opening source.
 
 ```text
 Canonical shared schema owner:
-  packages/schema-domain
+  crates/schema or the owning Rust crate
   Owns shared account/family/session/device-authority shapes when those shapes cross package, crate, app, or plan boundaries.
+
+TypeScript edge-validation migration surface:
+  packages/schema-domain
+  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one.
 
 TypeScript helper/projection owner:
   packages/family-domain
-  Consumes canonical schema-domain contracts and exposes approved account/family helper surfaces for this plan.
+  Consumes Rust-owned/generated account/family contracts and exposes approved account/family helper surfaces for this plan.
 
 Rust parity/runtime authority owner:
   crates/family-identity-core
@@ -90,7 +94,7 @@ Adjacent consumer plans:
   These consume account/family authority through explicit handoff contracts, events, requests, read models, or proof routes. They must not re-own account/family authority.
 ```
 
-If the selected workpack needs a shape that is useful to more than this plan, place or consume it through `schema-domain` or another neutral shared boundary. Do not make a sibling feature owner package/crate the shared contract owner.
+If the selected workpack needs a shape that is useful to more than this plan, place or consume it through `crates/schema` or another neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete. Do not make a sibling feature owner package/crate the shared contract owner.
 
 ## Do not select
 

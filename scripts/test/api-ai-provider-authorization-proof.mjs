@@ -170,7 +170,7 @@ function assertAuthorizedDegradedAnswerResult(payload) {
   if (
     answer.providerState !== 'unavailable' ||
     answer.answerState !== 'unavailable' ||
-    answer.answerText !== null ||
+    answer.answerText !== undefined ||
     answer.actionPreview.enforcementApplied !== false
   ) {
     throw new Error(

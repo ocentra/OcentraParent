@@ -44,7 +44,6 @@ pub(crate) fn indexed_activity_memory_graph_read_model(
     })
 }
 
-#[cfg(test)]
 pub(crate) fn indexed_citation_count(connection: &Connection) -> Result<u64, ActivityStoreError> {
     let count: i64 = connection.query_row(
         constants::sqlite::COUNT_INDEXED_ACTIVITY_MEMORY_GRAPH_CITATIONS,
@@ -54,7 +53,6 @@ pub(crate) fn indexed_citation_count(connection: &Connection) -> Result<u64, Act
     Ok(count as u64)
 }
 
-#[cfg(test)]
 pub(crate) fn delete_activity_events_for_memory_graph_test(
     connection: &Connection,
 ) -> Result<(), ActivityStoreError> {

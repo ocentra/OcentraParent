@@ -9,18 +9,6 @@ mkdirSync(testRoot, { recursive: true });
 
 const commands = [
   {
-    name: 'setup-domain-build',
-    command: npmCommand(),
-    args: npmArgs(['run', 'build', '--workspace', '@ocentra-parent/setup-domain']),
-    log: join(proofRoot, 'setup-domain-build.log'),
-  },
-  {
-    name: 'child-runtime-domain-build',
-    command: npmCommand(),
-    args: npmArgs(['run', 'build', '--workspace', '@ocentra-parent/child-runtime-domain']),
-    log: join(proofRoot, 'child-runtime-domain-build.log'),
-  },
-  {
     name: 'service-network-runtime-stream-tests',
     command: 'cargo',
     args: ['test', '-p', 'ocentra-parent-agent-service', 'network_runtime_stream'],

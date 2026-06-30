@@ -32,8 +32,8 @@ screen-plan:
 screen-domain:
   Screen capture, evidence, OCR, VLM, disclosure, settings, screen-intelligence router, and screen handoff contracts. This is a real contract package.
 
-ai-plan/schema-domain:
-  Shared AI context/result/provider/degradation contracts. `ai-domain` is package identity and focused tests; canonical shared AI contracts live in `schema-domain`.
+ai-plan/crates/schema:
+  Shared AI context/result/provider/degradation contracts. `ai-domain` is package identity and focused tests; canonical shared AI contracts live in `crates/schema`.
 
 policy-control-plane-plan:
   Policy authority, parent-rule precedence, policy decision semantics, and no-direct-AI-authority boundary.
@@ -74,7 +74,7 @@ agent-protocol/agent-service/agent-core:
 - Real source surface exists across `crates/agent-service`, `crates/agent-core`, `packages/screen-domain`, `packages/ai-domain`, `packages/portal-domain`, and `apps/portal`.
 - Real test surface exists across `packages/*/tests`, `apps/portal/tests`, and `scripts/test`.
 - `implementation-checklist.md`, the workpacks, and `pipeline-proof-matrix.md` all define screen-to-AI pipeline scenarios and proof expectations under `output/screen-ai-pipeline-proof/`.
-- Current source role interpretation: `screen-domain` is a real screen contract package; `ai-domain` is package identity/focused tests with canonical shared AI contracts in `schema-domain`.
+- Current source role interpretation: `screen-domain` is a real screen contract package; `ai-domain` is package identity/focused tests with canonical shared AI contracts in `crates/schema`.
 
 ## Open gaps / missing product runtime
 

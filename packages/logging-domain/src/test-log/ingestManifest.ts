@@ -2,7 +2,14 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
-import { ensureDirectory, getManifestDir, listNdjsonFiles } from './ndjsonPaths';
+import { ensureDirectory, getDefaultLogRoot, listNdjsonFiles } from './ndjsonPaths';
+import {
+  buildGeneratedManifest,
+  classifyGeneratedManifestChanges,
+  getGeneratedManifestPath,
+  type GeneratedIngestManifest,
+  type GeneratedObservedFileState,
+} from '../generated/local-test-log';
 
 export interface ManifestEntry {
   readonly size: number;
@@ -21,7 +28,7 @@ function fileHash(filePath: string): string {
 }
 
 export function getManifestPath(scope: TestLogScope, rootDir?: string): string {
-  return path.join(getManifestDir(rootDir), `${scope}-ingest-manifest.json`);
+  return getGeneratedManifestPath(scope, rootDir ?? getDefaultLogRoot());
 }
 
 export function loadManifest(scope: TestLogScope, rootDir?: string): IngestManifest {
@@ -54,51 +61,47 @@ export function getChangedFiles(
 ): { readonly newFiles: string[]; readonly changedFiles: string[]; readonly manifest: IngestManifest } {
   const manifest = loadManifest(scope, rootDir);
   const files = listNdjsonFiles(logsDir);
-  const newFiles: string[] = [];
-  const changedFiles: string[] = [];
+  const observedFiles: GeneratedObservedFileState[] = [];
 
   for (const filePath of files) {
-    const resolvedPath = path.resolve(filePath);
+    const resolvedPath = filePath;
     const currentStat = fs.statSync(resolvedPath);
     const existing = manifest.files[resolvedPath];
-
-    if (existing == null) {
-      newFiles.push(resolvedPath);
-      continue;
-    }
-
-    if (existing.size === currentStat.size && existing.modifiedMs === currentStat.mtimeMs) {
-      continue;
-    }
-
-    const sha256 = fileHash(resolvedPath);
-    if (sha256 !== existing.sha256) {
-      changedFiles.push(resolvedPath);
-    }
+    const sha256 =
+      existing != null && existing.size === currentStat.size && existing.modifiedMs === currentStat.mtimeMs
+        ? existing.sha256
+        : fileHash(resolvedPath);
+    observedFiles.push({
+      resolvedPath,
+      size: currentStat.size,
+      modifiedMs: currentStat.mtimeMs,
+      sha256,
+    });
   }
 
+  const { newFiles, changedFiles } = classifyGeneratedManifestChanges(
+    manifest as GeneratedIngestManifest,
+    observedFiles
+  );
   return { newFiles, changedFiles, manifest };
 }
 
 export function updateManifest(scope: TestLogScope, logsDir: string, rootDir?: string): IngestManifest {
   const files = listNdjsonFiles(logsDir);
-  const nextFiles: Record<string, ManifestEntry> = {};
+  const observedFiles: GeneratedObservedFileState[] = [];
 
   for (const filePath of files) {
-    const resolvedPath = path.resolve(filePath);
+    const resolvedPath = filePath;
     const stat = fs.statSync(resolvedPath);
-    nextFiles[resolvedPath] = {
+    observedFiles.push({
+      resolvedPath,
       size: stat.size,
       modifiedMs: stat.mtimeMs,
       sha256: fileHash(resolvedPath),
-    };
+    });
   }
 
-  const manifest: IngestManifest = {
-    scope,
-    updatedAt: Date.now(),
-    files: nextFiles,
-  };
+  const manifest = buildGeneratedManifest(scope, Date.now(), observedFiles) as IngestManifest;
   saveManifest(manifest, rootDir);
   return manifest;
 }

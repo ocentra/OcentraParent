@@ -6,14 +6,14 @@ import type {
   AgentActivityTrackingReadModelCount,
   AgentActivityTrackingReadModelRow,
 } from '@ocentra-parent/schema-domain/agent-tracking-read-model';
-import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import type { AgentActivityTrackingReadModelResult } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 
 import {
   decodePortalDetailValue,
+  type PortalRouteEventRecord,
   type PortalDetailValue,
   type TrackingStatusProofArtifact,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+} from './portal-contract-adapter';
+import type { PortalActivityTrackingReadModelResult } from './live-activity-state';
 import { PortalFormatting } from './formatting';
 import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 
@@ -106,8 +106,8 @@ export type TrackingStatusServiceDataCoverage = {
 };
 
 export type TrackingStatusLiveProjectionInput = {
-  readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
-  readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
+  readonly activityTrackingReadModelEvent: PortalRouteEventRecord | null;
+  readonly activityTrackingReadModel: PortalActivityTrackingReadModelResult | null;
 };
 
 export type TrackingUnsupportedManualPlatformRow = {

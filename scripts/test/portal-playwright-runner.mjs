@@ -12,15 +12,23 @@ import {
   ParentDevPort,
   createAgentAddress,
   createAgentHealthUrl,
+  createParentDevBridgeUrl,
   createAgentWebSocketUrl,
   createHttpOrigin,
   createPortalCommandsUrl,
   isLikelyParentAgentOccupant,
+  isLikelyParentBridgeOccupant,
   isLikelyParentPortalOccupant,
   resolveParentDevPort,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
-import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from './agent-service-process.mjs';
+import {
+  ensureParentDevBridgeBinaryUnlocked,
+  spawnAgentService,
+  spawnParentDevBridge,
+  spawnVitePortal,
+  stopProcessTree,
+} from './agent-service-process.mjs';
 import {
   assertAgentNetworkActivityReadModel,
   describeAgentNetworkActivityReadModel,
@@ -42,23 +50,52 @@ const portalPort = resolveParentDevPort(
   ParentDevPort.PortalSmokePortal,
   ParentDevEnv.PortalPort
 );
+const parentBridgePort = resolveParentDevPort(
+  process.env[ParentDevEnv.ParentBridgePort],
+  portalPort >= 65535 ? ParentDevPort.ParentBridge : portalPort + 1,
+  ParentDevEnv.ParentBridgePort
+);
+const parentBridgeUrl = createParentDevBridgeUrl(parentBridgePort);
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];
 const playwrightArgs = process.argv.slice(2);
+const agentStartupTimeoutMs = 120000;
 
 let exitCode = 1;
 let stopping = false;
 
 try {
-  await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
-  await ensurePortFree(portalPort, isLikelyParentPortalOccupant, console.log);
+  await requireManagedPortFree('agent', agentPort, isLikelyParentAgentOccupant, ParentDevEnv.AgentPort);
+  await requireManagedPortFree('portal', portalPort, isLikelyParentPortalOccupant, ParentDevEnv.PortalPort);
+  await requireManagedPortFree(
+    'parent dev bridge',
+    parentBridgePort,
+    isLikelyParentBridgeOccupant,
+    ParentDevEnv.ParentBridgePort
+  );
   seedPortalNetworkActivityStore(activityDbPath);
 
   const agent = spawnAgent();
   trackChild(agent, 'agent');
-  await waitForHttp(createAgentHealthUrl(agentPort));
+  await waitForHttp(createAgentHealthUrl(agentPort), agentStartupTimeoutMs);
   await assertAgentNetworkActivityReadModel(createAgentWebSocketUrl(agentPort), activityDbPath);
+
+  // Windows can leave the bridge image locked after a prior run even when the
+  // bridge port is free, which prevents `cargo run` from replacing the binary.
+  await ensureParentDevBridgeBinaryUnlocked(repoRoot);
+  const bridge = spawnParentDevBridge(
+    {
+      ...process.env,
+      [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
+      [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
+      [ParentDevEnv.DevLogDir]: devLogDir,
+      [ParentDevEnv.ParentBridgePort]: String(parentBridgePort),
+    },
+    repoRoot
+  );
+  trackChild(bridge, 'bridge');
+  await waitForParentDevBridge(parentBridgeUrl);
 
   const portal = spawnVitePortal(
     portalPort,
@@ -67,6 +104,7 @@ try {
       [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
       [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
+      [ParentDevEnv.PortalParentBridgeUrl]: parentBridgeUrl,
     },
     repoRoot
   );
@@ -114,18 +152,16 @@ async function printDevLogs() {
 process.exit(exitCode);
 
 function spawnAgent() {
-  return spawn(resolveDebugAgentServicePath(repoRoot), [], {
-    cwd: repoRoot,
-    detached: process.platform !== 'win32',
-    env: {
+  return spawnAgentService(
+    {
       ...process.env,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
       [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
     },
-    stdio: ['ignore', 'inherit', 'inherit'],
-  });
+    repoRoot
+  );
 }
 
 function trackChild(child, label) {
@@ -173,9 +209,23 @@ function runPlaywright() {
   });
 }
 
-async function waitForHttp(url) {
+async function requireManagedPortFree(label, port, shouldKill, envName) {
+  const released = await ensurePortFree(port, shouldKill, console.log);
+  if (released) {
+    return;
+  }
+
+  throw new Error(
+    [
+      `Required ${label} port ${port} is occupied by a non-Parent process.`,
+      `Set ${envName} to a free port or stop the foreign process before rerunning.`,
+    ].join(' ')
+  );
+}
+
+async function waitForHttp(url, timeoutMs = 30000) {
   const startedAt = Date.now();
-  while (Date.now() - startedAt < 30000) {
+  while (Date.now() - startedAt < timeoutMs) {
     try {
       const response = await fetch(url);
       if (response.ok) {
@@ -189,26 +239,60 @@ async function waitForHttp(url) {
 }
 
 async function assertPortalDevLogWritten() {
-  const content = await waitForDevLogContent('portal-', 'Portal command sent.');
-  if (!content.includes('Portal WebSocket event received.')) {
-    throw new Error(`Portal dev log did not include WebSocket event entry:\n${content}`);
+  const content = await waitForDevLogContent('portal-', [
+    'Portal command sent.',
+    'Portal host bridge event received.',
+    'Portal dev runtime started.',
+  ]);
+  if (
+    !content.includes('Portal host bridge event received.') &&
+    !content.includes('Portal dev runtime started.') &&
+    !content.includes('Portal command sent.')
+  ) {
+    throw new Error(`Portal dev log did not include startup, host-bridge, or command proof entries:\n${content}`);
   }
 }
 
 async function waitForDevLogContent(prefix, expectedText) {
+  const expectedTexts = Array.isArray(expectedText) ? expectedText : [expectedText];
   const startedAt = Date.now();
   while (Date.now() - startedAt < 10000) {
     const files = await readdir(devLogDir);
     const logFile = files.find((file) => file.startsWith(prefix) && file.endsWith('.ndjson'));
     if (logFile !== undefined) {
       const content = await readFile(path.join(devLogDir, logFile), 'utf8');
-      if (content.includes(expectedText)) {
+      if (expectedTexts.some((entry) => content.includes(entry))) {
         return content;
       }
     }
     await delay(250);
   }
   throw new Error(`Timed out waiting for dev log ${prefix} in ${devLogDir}`);
+}
+
+async function waitForParentDevBridge(url) {
+  const startedAt = Date.now();
+  const loadRouteUrl = `${url}/load-route`;
+  while (Date.now() - startedAt < 120000) {
+    try {
+      const response = await fetch(loadRouteUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          route: 'commands',
+          context: null,
+        }),
+      });
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      await delay(250);
+    }
+  }
+  throw new Error(`Timed out waiting for ${loadRouteUrl}`);
 }
 
 async function stopChildren() {

@@ -2,11 +2,11 @@ import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
-  DevLogBridge,
-  DevLogEndpoint,
-  DevLogMessage,
-  type LogFields,
-} from '@ocentra-parent/schema-domain/logging-contracts';
+  GeneratedDevLogBridge as DevLogBridge,
+  GeneratedDevLogEndpoint as DevLogEndpoint,
+  GeneratedDevLogMessage as DevLogMessage,
+  type GeneratedLogFields as LogFields,
+} from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { resolvePortalDevLogBridgeUrl, sendPortalDevLog } from '../../src/dev-logger';
 

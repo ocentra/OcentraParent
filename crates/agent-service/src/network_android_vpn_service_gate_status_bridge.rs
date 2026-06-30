@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::{
     android_vpn_service_gate::{
         plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
@@ -173,7 +174,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
         requested_action: NetworkEvidencePolicyAction::Block,
         adapter_capability_proof_ref: None,
     })
-    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    .expect_value(constants::event_id::NETWORK_ANDROID_VPN_SERVICE_GATE_STATUS_REPORTED)
 }
 
 fn protocol_capability_state(

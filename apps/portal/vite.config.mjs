@@ -4,7 +4,10 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
+import {
+  GeneratedDevLogField as DevLogField,
+  GeneratedDevLogMessage as DevLogMessage,
+} from '@ocentra-parent/schema-domain/generated/logging-contracts';
 
 import { setupDevLogMiddleware, writeDevServerLog } from '../../scripts/dev/dev-log-writer.mjs';
 

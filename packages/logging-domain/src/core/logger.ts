@@ -1,10 +1,10 @@
 import {
-  LogLevel,
-  LoggerRuntimeDefaults,
-  LoggerRuntimeEnvironment,
-  type LogLevel as LogLevelValue,
-  type StackTrace,
-} from '@ocentra-parent/schema-domain/logging-contracts';
+  GeneratedLoggerRuntimeDefaults as LoggerRuntimeDefaults,
+  GeneratedLoggerRuntimeEnvironment as LoggerRuntimeEnvironment,
+  GeneratedLogLevel as LogLevel,
+  type GeneratedLogLevel as LogLevelValue,
+  type GeneratedStackTrace as StackTrace,
+} from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import {
   RunType,
   TestLogOrigin,
@@ -21,6 +21,13 @@ import { createParentLogDecisionProvider } from './logDecisionProvider';
 import { resolveBridgeEndpoint, sendToBridge } from '../transport/bridgeTransport';
 import type { BridgeEntry } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
 import { parseStackTrace, type StackFrame } from './stackTraceParser';
+import {
+  fileNameFromGeneratedPath,
+  moduleNameFromGeneratedPath,
+  normalizeGeneratedStackPath,
+  resolveGeneratedLoggerContext,
+  resolveGeneratedLoggerSource,
+} from '../generated/stack-trace-runtime';
 
 export interface LoggerRuntimeConfig {
   readonly bridgeEndpoint?: string | null;
@@ -71,24 +78,20 @@ function readEnv(name: string): string | undefined {
   return value != null && value.trim().length > 0 ? value.trim() : undefined;
 }
 
-function normalizePath(value: string): string {
-  return value.replace(/\\/g, '/');
-}
-
 function toFilePath(moduleUrl: string): string {
   if (moduleUrl.startsWith('file://')) {
     const url = new URL(moduleUrl);
-    return normalizePath(decodeURIComponent(url.pathname).replace(/^\/([A-Za-z]:)/, '$1'));
+    return normalizeGeneratedStackPath(decodeURIComponent(url.pathname).replace(/^\/([A-Za-z]:)/, '$1'));
   }
-  return normalizePath(moduleUrl);
+  return normalizeGeneratedStackPath(moduleUrl);
 }
 
 function toRelativePath(filePath: string): string {
-  const normalized = normalizePath(filePath);
+  const normalized = normalizeGeneratedStackPath(filePath);
   if (typeof process === 'undefined') {
     return normalized;
   }
-  const cwd = normalizePath(process.cwd());
+  const cwd = normalizeGeneratedStackPath(process.cwd());
   if (normalized.toLowerCase().startsWith(`${cwd.toLowerCase()}/`)) {
     return normalized.slice(cwd.length + 1);
   }
@@ -96,21 +99,6 @@ function toRelativePath(filePath: string): string {
     return '.';
   }
   return normalized;
-}
-
-function fileNameFromPath(filePath: string): string {
-  const normalized = normalizePath(filePath);
-  const lastSlash = normalized.lastIndexOf('/');
-  return lastSlash >= 0 ? normalized.slice(lastSlash + 1) : normalized;
-}
-
-function moduleNameFromPath(filePath: string): string {
-  const fileName = fileNameFromPath(filePath).replace(/\.[^.]+$/, '');
-  return fileName
-    .split(/[^a-zA-Z0-9]+/)
-    .filter((segment) => segment.length > 0)
-    .map((segment) => segment.slice(0, 1).toUpperCase() + segment.slice(1))
-    .join('');
 }
 
 function resolveOrigin(value: string | null | undefined): TestLogOriginValue | null {
@@ -128,20 +116,6 @@ function resolveOrigin(value: string | null | undefined): TestLogOriginValue | n
     default:
       return null;
   }
-}
-
-function resolveContext(moduleName: string, frame: StackFrame | null): string {
-  if (frame?.functionName != null && frame.functionName.trim().length > 0) {
-    return frame.functionName.includes('.') ? frame.functionName : `${moduleName}.${frame.functionName}`;
-  }
-  return `${moduleName}.${LoggerRuntimeDefaults.ModuleContextSuffix}`;
-}
-
-function resolveSource(moduleName: string, frame: StackFrame | null): string {
-  if (frame?.functionName != null && frame.functionName.includes('.')) {
-    return frame.functionName.split('.')[0] ?? moduleName;
-  }
-  return moduleName;
 }
 
 export class Logger {
@@ -172,10 +146,10 @@ export class Logger {
     const absolutePath = toFilePath(moduleUrl);
     const relativePath = toRelativePath(absolutePath);
     const registration: LoggerRegistration = {
-      moduleName: moduleNameFromPath(relativePath),
-      file: fileNameFromPath(relativePath),
+      moduleName: moduleNameFromGeneratedPath(relativePath),
+      file: fileNameFromGeneratedPath(relativePath),
       filePath: relativePath,
-      absoluteFilePath: normalizePath(absolutePath),
+      absoluteFilePath: normalizeGeneratedStackPath(absolutePath),
     };
     this.registrations.set(registration.absoluteFilePath.toLowerCase(), registration);
   }
@@ -241,7 +215,7 @@ export class Logger {
       if (frame.filePath == null) {
         continue;
       }
-      const registration = this.registrations.get(normalizePath(frame.filePath).toLowerCase());
+      const registration = this.registrations.get(normalizeGeneratedStackPath(frame.filePath).toLowerCase());
       if (registration != null) {
         return registration;
       }
@@ -294,8 +268,12 @@ export class Logger {
       log: {
         log_timestamp: Date.now(),
         level,
-        source: resolveSource(location.moduleName, location.matchedFrame),
-        context: resolveContext(location.moduleName, location.matchedFrame),
+        source: resolveGeneratedLoggerSource(location.moduleName, location.matchedFrame),
+        context: resolveGeneratedLoggerContext(
+          location.moduleName,
+          location.matchedFrame,
+          LoggerRuntimeDefaults.ModuleContextSuffix
+        ),
         message,
         data: this.serializeData(data),
         file: location.file,

@@ -67,6 +67,20 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  browserControlBrowserGameLimitIsConsistentGenerated,
+  browserControlEffectiveLimitPostureIsConsistentGenerated,
+  browserControlExactUrlPolicyIsHonestGenerated,
+  browserControlLimitPostureIsConsistentGenerated,
+  browserControlRuleTargetIsSpecifiedGenerated,
+  defaultBrowserGamesGenerated,
+  defaultChildFacingGenerated,
+  defaultDiscoveryGenerated,
+  defaultFallbacksGenerated,
+  defaultPlatformCapabilityGenerated,
+  defaultPlatformsGenerated,
+  defaultPortalAiGenerated,
+} from './generated/browser-policy-control-catalog-helpers';
 
 export const BrowserControlBudgetSchema = withParser(
   Schema.Struct({
@@ -707,134 +721,49 @@ export function browserControlCreateStorageUnavailableResponse(
 export type BrowserControlPatchPolicyRequest = Infer<typeof BrowserControlPatchPolicyRequestSchema>;
 
 function browserControlLimitPostureIsConsistent(policy: BrowserControlPolicyValueCandidate): boolean {
-  return (
-    policy.defaultPosture !== 'limit' ||
-    (policy.budgets.enabled && policy.budgets.defaultDailyMinutes !== null) ||
-    policy.fallbackPosture !== null
-  );
+  return browserControlLimitPostureIsConsistentGenerated(policy);
 }
 
 function browserControlEffectiveLimitPostureIsConsistent(policy: BrowserControlEffectivePolicyCandidate): boolean {
-  return (
-    policy.defaultPosture !== 'limit' ||
-    (policy.budgets.enabled && policy.budgets.defaultDailyMinutes !== null) ||
-    policy.fallbackPosture !== null
-  );
+  return browserControlEffectiveLimitPostureIsConsistentGenerated(policy);
 }
 
 function browserControlRuleTargetIsSpecified(rule: BrowserControlRuleCandidate): boolean {
-  return (rule.targetType !== null && rule.targetValue !== null) || rule.target !== null;
+  return browserControlRuleTargetIsSpecifiedGenerated(rule);
 }
 
 function browserControlExactUrlPolicyIsHonest(policy: BrowserControlPolicyValueCandidate): boolean {
-  const authoredRules = [...policy.rules.items, ...policy.rules.entries];
-  if (!policy.rules.allowedTargetTypes.includes('exact-url') && !authoredRules.some(ruleUsesExactUrlTarget)) {
-    return true;
-  }
-  if (policy.evidence.proofFallback !== null) {
-    return true;
-  }
-  if (policy.evidence.whenProofUnavailable !== 'mark-unavailable') {
-    return true;
-  }
-  return (
-    (policy.managedBrowser.mode === 'required-for-exact-rules' ||
-      policy.managedBrowser.mode === 'required-for-all-browsing') &&
-    policy.evidence.requiredProof === 'fresh-managed-active-tab'
-  );
-}
-
-function ruleUsesExactUrlTarget(rule: BrowserControlRuleCandidate): boolean {
-  return rule.targetType === 'exact-url' || rule.target?.kind === 'exact-url';
+  return browserControlExactUrlPolicyIsHonestGenerated(policy);
 }
 
 function browserControlBrowserGameLimitIsConsistent(policy: BrowserControlPolicyValueCandidate): boolean {
-  const gameLimitSelected =
-    policy.browserGames.educationalGameMode === 'limit' ||
-    policy.browserGames.unknownGameMode === 'limit' ||
-    policy.browserGames.unblockedPortalMode === 'limit' ||
-    policy.browserGames.webglCanvasMode === 'limit';
-  return !gameLimitSelected || policy.browserGames.defaultDailyMinutes !== null || policy.fallbackPosture !== null;
+  return browserControlBrowserGameLimitIsConsistentGenerated(policy);
 }
 
 function defaultBrowserGames() {
-  return {
-    educationalGameMode: 'allow' as const,
-    unknownGameMode: 'parent-review' as const,
-    cloudGamingApproval: 'parent-review' as const,
-    purchaseAccountApproval: 'parent-review' as const,
-    unblockedPortalMode: 'warn' as const,
-    webglCanvasMode: 'observe' as const,
-    defaultDailyMinutes: 30,
-  };
+  return defaultBrowserGamesGenerated();
 }
 
 function defaultChildFacing() {
-  return {
-    showWarnText: false,
-    showBlockReason: false,
-    showAskParentState: false,
-    showTimeLeft: false,
-    showUseManagedBrowserAction: false,
-    hideParentDiagnostics: false,
-  };
+  return defaultChildFacingGenerated();
 }
 
 function defaultDiscovery() {
-  return {
-    scanInstalledBrowsers: false,
-    scanRunningBrowsers: true,
-    detectUnmanagedBrowsers: true,
-  };
+  return defaultDiscoveryGenerated();
 }
 
 function defaultPortalAi() {
-  return {
-    allowSummaries: false,
-    allowPolicyExplanation: false,
-    allowRuleSuggestions: false,
-    allowEvidenceRefs: false,
-    allowRawContent: false,
-    requiresManualReview: false,
-    fallbackWhenUnavailable: null,
-  };
+  return defaultPortalAiGenerated();
 }
 
 function defaultPlatformCapability() {
-  return {
-    enabled: false,
-    state: null,
-    allowedAdapters: [],
-    manualRequiredAdapters: [],
-    authoringOnly: false,
-    mayRunCapture: false,
-    mayConnectToBrowserBridge: false,
-  };
+  return defaultPlatformCapabilityGenerated();
 }
 
 function defaultPlatforms() {
-  return {
-    windows: defaultPlatformCapability(),
-    macos: defaultPlatformCapability(),
-    linux: defaultPlatformCapability(),
-    android: defaultPlatformCapability(),
-    ios: defaultPlatformCapability(),
-    webPortal: defaultPlatformCapability(),
-  };
+  return defaultPlatformsGenerated();
 }
 
 function defaultFallbacks() {
-  return {
-    managedProfileMissing: null,
-    bridgeMissing: null,
-    extensionDisabled: null,
-    nativeHostMissing: null,
-    unsupportedBrowser: null,
-    staleEvidence: null,
-    networkAdapterUnavailable: null,
-    processControlUnavailable: null,
-    enforcementFailure: null,
-    childDeviceOffline: null,
-    platformUnsupported: null,
-  };
+  return defaultFallbacksGenerated();
 }

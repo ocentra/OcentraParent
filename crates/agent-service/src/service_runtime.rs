@@ -50,7 +50,7 @@ pub async fn run_agent_service() {
     }
 }
 
-pub(crate) fn startup_log_fields(network: &NetworkPolicy) -> LogFields {
+pub fn startup_log_fields(network: &NetworkPolicy) -> LogFields {
     fields_from_pairs(vec![
         (
             STARTUP_LOG_CONTEXT_FIELD,
@@ -76,7 +76,3 @@ fn startup_error_log_fields(network: &NetworkPolicy, reason: String) -> LogField
         (constants::field::REASON, LogFieldValue::String(reason)),
     ])
 }
-
-#[cfg(test)]
-#[path = "../tests/unit/service_runtime.rs"]
-mod service_runtime_tests;

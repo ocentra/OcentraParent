@@ -37,11 +37,14 @@ Current direction from research and the pasted plan set:
 ## Current ownership interpretation
 
 ```text
-schema-domain:
+crates/schema or the owning Rust crate:
   Canonical shared trust state, device registration, parent step-up assertion, QR approval, recovery, entitlement binding, tamper/uninstall, and route-handoff shapes when they cross package, crate, app, or plan boundaries.
 
+schema-domain:
+  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+
 family-domain:
-  Household/role/action authorization helper surface consuming canonical schema-domain contracts. It is trust-adjacent, not full device-trust runtime.
+  Household/role/action authorization helper surface consuming Rust-owned/generated contracts. It is trust-adjacent, not full device-trust runtime.
 
 lan-domain:
   LAN pairing and selected-device proof consumer. It is transport/pairing-adjacent, not the trust root.

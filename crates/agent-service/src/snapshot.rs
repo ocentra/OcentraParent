@@ -66,18 +66,3 @@ fn capture_enabled() -> bool {
 fn capture_enabled() -> bool {
     false
 }
-
-#[cfg(test)]
-mod tests {
-    use super::{build_dev_log_snapshot, constants};
-
-    #[test]
-    fn build_dev_log_snapshot_uses_protocol_owned_constants() {
-        let snapshot = build_dev_log_snapshot();
-
-        assert_eq!(snapshot.agent.device_id, constants::peer::LOCAL_DEV_AGENT);
-        assert!(snapshot.entries[0]
-            .fields
-            .contains_key(constants::field::CAPTURE_ENABLED));
-    }
-}

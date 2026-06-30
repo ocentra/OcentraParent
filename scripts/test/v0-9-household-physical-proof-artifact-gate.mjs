@@ -221,12 +221,12 @@ async function parseArtifactGateReadModel(readModel) {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'rust-parent-runtime',
     'dist',
     'v0-9-household-physical-proof-artifact-gate.js'
   );
   const module = await import(`file:///${modulePath.replaceAll('\\', '/')}`);
-  proofLabels.push('parent-domain.v0.9-household-physical-proof-artifact-gate-parse');
+  proofLabels.push('rust-parent-runtime.v0.9-household-physical-proof-artifact-gate-parse');
   return module.V09HouseholdPhysicalProofArtifactGateReadModelSchema.parse(readModel);
 }
 

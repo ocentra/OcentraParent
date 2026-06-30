@@ -21,7 +21,7 @@ export const RequiredParentOwnedLocalExportRuntimeNonClaims = [
 ] as const;
 
 export const ParentOwnedLocalExportRuntimeKnownGaps = [
-  'No cloud transfer, connector OAuth, provider API, or remote report compiler runtime is implemented by this parent-domain proof.',
+  'No cloud transfer, connector OAuth, provider API, or remote report compiler runtime is implemented by this rust-parent-runtime proof.',
   'No portal UI, CLI control, account backend, or subscription enforcement path is claimed.',
   'No Ocentra-hosted custody of family activity data, generated reports, exported bundles, or source evidence is claimed.',
   'Retention scheduler and parent-visible status controls remain future work before broader product export/delete claims.',

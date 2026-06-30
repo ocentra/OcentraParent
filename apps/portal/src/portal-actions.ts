@@ -3,7 +3,7 @@ import type {
   AgentEventName,
   AgentProtocolLogFields,
 } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import type { ParentUiAction, ParentUiActionResult } from './generated/parent-ui-bridge';
+import type { ParentUiActionPayload, ParentUiActionResult } from '../generated/parent-ui-bridge';
 
 export interface PortalRenderActions {
   reconnect(): void;
@@ -13,10 +13,11 @@ export interface PortalRenderActions {
   requestLanPairingBrowserDiscoveryScan?(): Promise<ParentUiActionResult | null>;
   requestNetworkFlowReadModelRefresh?(): Promise<ParentUiActionResult | null>;
   requestTrackingRetentionSettingsWrite?(): Promise<ParentUiActionResult | null>;
-  requestScreenSettingsGet?(payload: ParentUiAction['payload']): Promise<ParentUiActionResult | null>;
-  requestScreenSettingsReplace?(payload: ParentUiAction['payload']): Promise<ParentUiActionResult | null>;
-  requestAppGameAdapterDispatchExecute?(): Promise<ParentUiActionResult | null>;
-  requestAppGameTimerParentPreferenceSetup?(
-    payload: ParentUiAction['payload']
+  requestPolicyRequestAssistantPreviewConfirm?(
+    payload: ParentUiActionPayload,
   ): Promise<ParentUiActionResult | null>;
+  requestScreenSettingsGet?(payload: ParentUiActionPayload): Promise<ParentUiActionResult | null>;
+  requestScreenSettingsReplace?(payload: ParentUiActionPayload): Promise<ParentUiActionResult | null>;
+  requestAppGameAdapterDispatchExecute?(): Promise<ParentUiActionResult | null>;
+  requestAppGameTimerParentPreferenceSetup?(payload: ParentUiActionPayload): Promise<ParentUiActionResult | null>;
 }

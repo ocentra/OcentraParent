@@ -93,4 +93,27 @@ describe('admin auth rejection boundaries', () => {
     assert.equal(text.includes('sk_live_admin_secret'), false);
     assert.equal(text.includes('authorization'), false);
   });
+
+  it('returns manual-required when the account-auth provider decision is still unresolved', async () => {
+    const { response } = await executeRequest({
+      path: '/admin/billing/accounts',
+      headers: {
+        authorization: 'Bearer parent:support-agent',
+        'x-ocentra-role': 'support',
+      },
+      envOverrides: {
+        AUTH_ADAPTER_MODE: 'account-auth-adapter-manual-required',
+        STRIPE_SECRET_KEY: 'sk_live_manual_required_secret',
+      },
+    });
+
+    const text = await response.text();
+    const body = JSON.parse(text) as Record<string, unknown>;
+    assert.equal(response.status, 503);
+    assert.equal(body.error, 'manual-required');
+    assert.equal(body.authState, 'support-required');
+    assert.equal(body.blocker, 'account-auth-adapter-manual-required');
+    assert.equal(text.includes('sk_live_manual_required_secret'), false);
+    assert.equal(text.includes('authorization'), false);
+  });
 });

@@ -2,12 +2,15 @@ import {
   AgentNetworkWindowsFirewallLabStatusSchema,
   type AgentNetworkWindowsFirewallLabStatus,
 } from '@ocentra-parent/schema-domain/agent-network-windows-firewall-status';
-import {
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { mapJsonPayloadEventToStatus, parseJsonPayloadFieldEvent } from './protocol-event-payload.js';
+
+type AgentNetworkWindowsFirewallLabStatusFailureReason =
+  | 'wrong-event'
+  | 'missing-windows-firewall-lab-status'
+  | 'invalid-windows-firewall-lab-status-json'
+  | 'invalid-windows-firewall-lab-status';
 
 export type AgentNetworkWindowsFirewallLabStatusParseResult =
   | {
@@ -16,36 +19,23 @@ export type AgentNetworkWindowsFirewallLabStatusParseResult =
     }
   | {
       readonly ok: false;
-      readonly reason:
-        | 'wrong-event'
-        | 'missing-windows-firewall-lab-status'
-        | 'invalid-windows-firewall-lab-status-json'
-        | 'invalid-windows-firewall-lab-status';
+      readonly reason: AgentNetworkWindowsFirewallLabStatusFailureReason;
     };
 
 export function parseAgentNetworkWindowsFirewallLabStatusEvent(
   event: AgentEventEnvelope
 ): AgentNetworkWindowsFirewallLabStatusParseResult {
-  if (event.event !== AgentEvent.NetworkWindowsFirewallLabStatusReported) {
-    return { ok: false, reason: 'wrong-event' };
-  }
-
-  const raw = event.payload[AgentProtocolDefaults.Field.NetworkWindowsFirewallLabStatus];
-  if (!isAgentProtocolLogText(raw)) {
-    return { ok: false, reason: 'missing-windows-firewall-lab-status' };
-  }
-
-  let value: unknown;
-  try {
-    value = JSON.parse(raw) as unknown;
-  } catch {
-    return { ok: false, reason: 'invalid-windows-firewall-lab-status-json' };
-  }
-
-  const parsed = AgentNetworkWindowsFirewallLabStatusSchema.safeParse(value);
-  if (!parsed.success) {
-    return { ok: false, reason: 'invalid-windows-firewall-lab-status' };
-  }
-
-  return { ok: true, status: parsed.data };
+  return mapJsonPayloadEventToStatus(
+    parseJsonPayloadFieldEvent(
+      event,
+      AgentEvent.NetworkWindowsFirewallLabStatusReported,
+      AgentProtocolDefaults.Field.NetworkWindowsFirewallLabStatus,
+      AgentNetworkWindowsFirewallLabStatusSchema
+    ),
+    {
+      'missing-json-field': 'missing-windows-firewall-lab-status',
+      'invalid-json': 'invalid-windows-firewall-lab-status-json',
+      'invalid-payload': 'invalid-windows-firewall-lab-status',
+    }
+  );
 }

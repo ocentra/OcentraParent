@@ -1,0 +1,706 @@
+use std::fmt::{Display, Formatter};
+
+use serde::{Deserialize, Serialize};
+
+macro_rules! app_risk_detection_identifier {
+    ($name:ident) => {
+        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+        #[serde(transparent)]
+        pub struct $name(String);
+
+        impl $name {
+            pub fn parse(value: impl Into<String>) -> Option<Self> {
+                let value = value.into();
+                if value.trim().is_empty() {
+                    None
+                } else {
+                    Some(Self(value))
+                }
+            }
+
+            pub fn as_str(&self) -> &str {
+                &self.0
+            }
+        }
+
+        impl Display for $name {
+            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str(self.as_str())
+            }
+        }
+    };
+}
+
+app_risk_detection_identifier!(ParentEvidenceReferenceId);
+app_risk_detection_identifier!(AppRiskDetectionCandidateId);
+app_risk_detection_identifier!(AppRiskDetectionInventoryEntryRef);
+app_risk_detection_identifier!(AppRiskDetectionIdentityRef);
+app_risk_detection_identifier!(AppRiskDetectionSourceRef);
+app_risk_detection_identifier!(AppRiskDetectionLocalAiDigestRef);
+app_risk_detection_identifier!(AppRiskDetectionMatrixId);
+
+pub const APP_RISK_DETECTION_SCHEMA_VERSION: &str = "v0.6";
+const APP_RISK_DETECTION_RISK_SIGNAL_VPN_PROXY: &str = "vpnProxy";
+const APP_RISK_DETECTION_RISK_SIGNAL_REMOTE_DESKTOP: &str = "remoteDesktop";
+const APP_RISK_DETECTION_RISK_SIGNAL_DOWNLOAD_TORRENT: &str = "downloadTorrent";
+const APP_RISK_DETECTION_RISK_SIGNAL_INSTALLER_UPDATER: &str = "installerUpdater";
+const APP_RISK_DETECTION_RISK_SIGNAL_AI_CHATBOT: &str = "aiChatbot";
+const APP_RISK_DETECTION_RISK_SIGNAL_SOCIAL_VIDEO_MESSAGING: &str = "socialVideoMessaging";
+const APP_RISK_DETECTION_RISK_SIGNAL_UNKNOWN_RISK: &str = "unknownRisk";
+const APP_RISK_DETECTION_SOURCE_KIND_KNOWN_CATALOG: &str = "knownCatalog";
+const APP_RISK_DETECTION_SOURCE_KIND_EXECUTABLE_NAME: &str = "executableName";
+const APP_RISK_DETECTION_SOURCE_KIND_PUBLISHER_METADATA: &str = "publisherMetadata";
+const APP_RISK_DETECTION_SOURCE_KIND_EXECUTABLE_HASH: &str = "executableHash";
+const APP_RISK_DETECTION_SOURCE_KIND_LOCAL_AI_DIGEST: &str = "localAiDigest";
+const APP_RISK_DETECTION_SOURCE_KIND_PARENT_OVERRIDE: &str = "parentOverride";
+const APP_RISK_DETECTION_CANDIDATE_STATE_CATALOG_MATCH: &str = "catalogMatch";
+const APP_RISK_DETECTION_CANDIDATE_STATE_HEURISTIC_CANDIDATE: &str = "heuristicCandidate";
+const APP_RISK_DETECTION_CANDIDATE_STATE_AI_CANDIDATE: &str = "aiCandidate";
+const APP_RISK_DETECTION_CANDIDATE_STATE_PARENT_REVIEW_CANDIDATE: &str = "parentReviewCandidate";
+const APP_RISK_DETECTION_CANDIDATE_STATE_PARENT_DISPLAY_OVERRIDE: &str = "parentDisplayOverride";
+const APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_KNOWN_PUBLISHER: &str = "knownPublisher";
+const APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_UNKNOWN_PUBLISHER: &str = "unknownPublisher";
+const APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_MISSING_PUBLISHER: &str = "missingPublisher";
+const APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_UNVERIFIED_PUBLISHER: &str = "unverifiedPublisher";
+const APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_PARENT_TRUSTED: &str = "parentTrusted";
+const APP_RISK_DETECTION_POLICY_ACTION_NONE: &str = "none";
+const APP_RISK_DETECTION_POLICY_ACTION_OBSERVE: &str = "observe";
+const APP_RISK_DETECTION_POLICY_ACTION_WARN: &str = "warn";
+const APP_RISK_DETECTION_POLICY_ACTION_ASK_PARENT: &str = "askParent";
+const APP_RISK_DETECTION_POLICY_ACTION_MANUAL_REVIEW: &str = "manualReview";
+const APP_RISK_DETECTION_CONFIDENCE_BAND_HIGH: &str = "high";
+const APP_RISK_DETECTION_CONFIDENCE_BAND_MEDIUM: &str = "medium";
+const APP_RISK_DETECTION_CONFIDENCE_BAND_LOW: &str = "low";
+const APP_RISK_DETECTION_CONFIDENCE_BAND_REVIEW: &str = "review";
+const APP_RISK_DETECTION_POLICY_TARGET_KIND_RISK_APP: &str = "risk-app";
+const APP_RISK_DETECTION_ASK_PARENT_ROUTING_AVAILABLE: &str = "available";
+const APP_RISK_DETECTION_ASK_PARENT_ROUTING_MANUAL_REVIEW: &str = "manual-review";
+const APP_RISK_DETECTION_ASK_PARENT_ROUTING_NOT_ROUTED: &str = "not-routed";
+const APP_RISK_DETECTION_SURFACE_STATE_RISK_DISCLOSURE_READY: &str = "riskdisclosure-ready";
+const APP_RISK_DETECTION_NO_CONTENT_CLAIM_STATE_NO_CONTENT_CAPTURED: &str = "no-content-captured";
+const APP_RISK_DETECTION_PARENT_EVIDENCE_REFERENCE_ID_EXPECTATION: &str =
+    "parent evidence reference id";
+const APP_RISK_DETECTION_CANDIDATE_ID_EXPECTATION: &str = "app risk detection candidate id";
+const APP_RISK_DETECTION_INVENTORY_ENTRY_REF_EXPECTATION: &str =
+    "app risk detection inventory entry ref";
+const APP_RISK_DETECTION_IDENTITY_REF_EXPECTATION: &str = "app risk detection identity ref";
+const APP_RISK_DETECTION_SOURCE_REF_EXPECTATION: &str = "app risk detection source ref";
+const APP_RISK_DETECTION_LOCAL_AI_DIGEST_REF_EXPECTATION: &str =
+    "app risk detection local ai digest ref";
+const APP_RISK_DETECTION_MATRIX_ID_EXPECTATION: &str = "app risk detection matrix id";
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentEvidenceReference {
+    pub evidence_reference_id: ParentEvidenceReferenceId,
+    pub kind: ParentEvidenceReferenceKind,
+    pub observed_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentEvidenceReferenceKind {
+    #[serde(rename = "activity-event")]
+    ActivityEvent,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentPlatform {
+    #[serde(rename = "windows")]
+    Windows,
+    #[serde(rename = "linux")]
+    Linux,
+    #[serde(rename = "macos")]
+    Macos,
+    #[serde(rename = "android")]
+    Android,
+    #[serde(rename = "ios")]
+    Ios,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionRiskSignal {
+    #[serde(rename = "vpnProxy")]
+    VpnProxy,
+    #[serde(rename = "remoteDesktop")]
+    RemoteDesktop,
+    #[serde(rename = "downloadTorrent")]
+    DownloadTorrent,
+    #[serde(rename = "installerUpdater")]
+    InstallerUpdater,
+    #[serde(rename = "aiChatbot")]
+    AiChatbot,
+    #[serde(rename = "socialVideoMessaging")]
+    SocialVideoMessaging,
+    #[serde(rename = "unknownRisk")]
+    UnknownRisk,
+}
+
+impl AppRiskDetectionRiskSignal {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::VpnProxy => APP_RISK_DETECTION_RISK_SIGNAL_VPN_PROXY,
+            Self::RemoteDesktop => APP_RISK_DETECTION_RISK_SIGNAL_REMOTE_DESKTOP,
+            Self::DownloadTorrent => APP_RISK_DETECTION_RISK_SIGNAL_DOWNLOAD_TORRENT,
+            Self::InstallerUpdater => APP_RISK_DETECTION_RISK_SIGNAL_INSTALLER_UPDATER,
+            Self::AiChatbot => APP_RISK_DETECTION_RISK_SIGNAL_AI_CHATBOT,
+            Self::SocialVideoMessaging => APP_RISK_DETECTION_RISK_SIGNAL_SOCIAL_VIDEO_MESSAGING,
+            Self::UnknownRisk => APP_RISK_DETECTION_RISK_SIGNAL_UNKNOWN_RISK,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionSourceKind {
+    #[serde(rename = "knownCatalog")]
+    KnownCatalog,
+    #[serde(rename = "executableName")]
+    ExecutableName,
+    #[serde(rename = "publisherMetadata")]
+    PublisherMetadata,
+    #[serde(rename = "executableHash")]
+    ExecutableHash,
+    #[serde(rename = "localAiDigest")]
+    LocalAiDigest,
+    #[serde(rename = "parentOverride")]
+    ParentOverride,
+}
+
+impl AppRiskDetectionSourceKind {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::KnownCatalog => APP_RISK_DETECTION_SOURCE_KIND_KNOWN_CATALOG,
+            Self::ExecutableName => APP_RISK_DETECTION_SOURCE_KIND_EXECUTABLE_NAME,
+            Self::PublisherMetadata => APP_RISK_DETECTION_SOURCE_KIND_PUBLISHER_METADATA,
+            Self::ExecutableHash => APP_RISK_DETECTION_SOURCE_KIND_EXECUTABLE_HASH,
+            Self::LocalAiDigest => APP_RISK_DETECTION_SOURCE_KIND_LOCAL_AI_DIGEST,
+            Self::ParentOverride => APP_RISK_DETECTION_SOURCE_KIND_PARENT_OVERRIDE,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionCandidateState {
+    #[serde(rename = "catalogMatch")]
+    CatalogMatch,
+    #[serde(rename = "heuristicCandidate")]
+    HeuristicCandidate,
+    #[serde(rename = "aiCandidate")]
+    AiCandidate,
+    #[serde(rename = "parentReviewCandidate")]
+    ParentReviewCandidate,
+    #[serde(rename = "parentDisplayOverride")]
+    ParentDisplayOverride,
+}
+
+impl AppRiskDetectionCandidateState {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::CatalogMatch => APP_RISK_DETECTION_CANDIDATE_STATE_CATALOG_MATCH,
+            Self::HeuristicCandidate => APP_RISK_DETECTION_CANDIDATE_STATE_HEURISTIC_CANDIDATE,
+            Self::AiCandidate => APP_RISK_DETECTION_CANDIDATE_STATE_AI_CANDIDATE,
+            Self::ParentReviewCandidate => {
+                APP_RISK_DETECTION_CANDIDATE_STATE_PARENT_REVIEW_CANDIDATE
+            }
+            Self::ParentDisplayOverride => {
+                APP_RISK_DETECTION_CANDIDATE_STATE_PARENT_DISPLAY_OVERRIDE
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionPublisherTrustState {
+    #[serde(rename = "knownPublisher")]
+    KnownPublisher,
+    #[serde(rename = "unknownPublisher")]
+    UnknownPublisher,
+    #[serde(rename = "missingPublisher")]
+    MissingPublisher,
+    #[serde(rename = "unverifiedPublisher")]
+    UnverifiedPublisher,
+    #[serde(rename = "parentTrusted")]
+    ParentTrusted,
+}
+
+impl AppRiskDetectionPublisherTrustState {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::KnownPublisher => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_KNOWN_PUBLISHER,
+            Self::UnknownPublisher => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_UNKNOWN_PUBLISHER,
+            Self::MissingPublisher => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_MISSING_PUBLISHER,
+            Self::UnverifiedPublisher => {
+                APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_UNVERIFIED_PUBLISHER
+            }
+            Self::ParentTrusted => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_PARENT_TRUSTED,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionPolicyCandidateAction {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "observe")]
+    Observe,
+    #[serde(rename = "warn")]
+    Warn,
+    #[serde(rename = "askParent")]
+    AskParent,
+    #[serde(rename = "manualReview")]
+    ManualReview,
+}
+
+impl AppRiskDetectionPolicyCandidateAction {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::None => APP_RISK_DETECTION_POLICY_ACTION_NONE,
+            Self::Observe => APP_RISK_DETECTION_POLICY_ACTION_OBSERVE,
+            Self::Warn => APP_RISK_DETECTION_POLICY_ACTION_WARN,
+            Self::AskParent => APP_RISK_DETECTION_POLICY_ACTION_ASK_PARENT,
+            Self::ManualReview => APP_RISK_DETECTION_POLICY_ACTION_MANUAL_REVIEW,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionConfidenceBand {
+    #[serde(rename = "high")]
+    High,
+    #[serde(rename = "medium")]
+    Medium,
+    #[serde(rename = "low")]
+    Low,
+    #[serde(rename = "review")]
+    Review,
+}
+
+impl AppRiskDetectionConfidenceBand {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::High => APP_RISK_DETECTION_CONFIDENCE_BAND_HIGH,
+            Self::Medium => APP_RISK_DETECTION_CONFIDENCE_BAND_MEDIUM,
+            Self::Low => APP_RISK_DETECTION_CONFIDENCE_BAND_LOW,
+            Self::Review => APP_RISK_DETECTION_CONFIDENCE_BAND_REVIEW,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionPolicyTargetKind {
+    #[serde(rename = "risk-app")]
+    RiskApp,
+}
+
+impl AppRiskDetectionPolicyTargetKind {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::RiskApp => APP_RISK_DETECTION_POLICY_TARGET_KIND_RISK_APP,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionAskParentRouting {
+    #[serde(rename = "available")]
+    Available,
+    #[serde(rename = "manual-review")]
+    ManualReview,
+    #[serde(rename = "not-routed")]
+    NotRouted,
+}
+
+impl AppRiskDetectionAskParentRouting {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Available => APP_RISK_DETECTION_ASK_PARENT_ROUTING_AVAILABLE,
+            Self::ManualReview => APP_RISK_DETECTION_ASK_PARENT_ROUTING_MANUAL_REVIEW,
+            Self::NotRouted => APP_RISK_DETECTION_ASK_PARENT_ROUTING_NOT_ROUTED,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionSurfaceState {
+    #[serde(rename = "riskdisclosure-ready")]
+    RiskDisclosureReady,
+}
+
+impl AppRiskDetectionSurfaceState {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::RiskDisclosureReady => APP_RISK_DETECTION_SURFACE_STATE_RISK_DISCLOSURE_READY,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppRiskDetectionNoContentClaimState {
+    #[serde(rename = "no-content-captured")]
+    NoContentCaptured,
+}
+
+impl AppRiskDetectionNoContentClaimState {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::NoContentCaptured => {
+                APP_RISK_DETECTION_NO_CONTENT_CLAIM_STATE_NO_CONTENT_CAPTURED
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppRiskDetectionParentOverride {
+    pub parent_display_label: String,
+    pub policy_candidate_action: AppRiskDetectionPolicyCandidateAction,
+    pub raw_identity_changed: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppRiskDetectionSurfaceDisclosure {
+    pub surface_state: AppRiskDetectionSurfaceState,
+    pub confidence_percent: u8,
+    pub source_evidence_count: u8,
+    pub no_content_claim_state: AppRiskDetectionNoContentClaimState,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppRiskDetectionCandidate {
+    pub schema_version: String,
+    pub candidate_id: AppRiskDetectionCandidateId,
+    pub platform: ParentPlatform,
+    pub inventory_entry_ref: Option<AppRiskDetectionInventoryEntryRef>,
+    pub identity_ref: Option<AppRiskDetectionIdentityRef>,
+    pub risk_signal: AppRiskDetectionRiskSignal,
+    pub source_kind: AppRiskDetectionSourceKind,
+    pub candidate_state: AppRiskDetectionCandidateState,
+    pub publisher_trust_state: AppRiskDetectionPublisherTrustState,
+    pub confidence: f64,
+    pub confidence_band: AppRiskDetectionConfidenceBand,
+    pub evidence_references: Vec<ParentEvidenceReference>,
+    pub source_refs: Vec<AppRiskDetectionSourceRef>,
+    pub local_ai_digest_ref: Option<AppRiskDetectionLocalAiDigestRef>,
+    pub parent_override: Option<AppRiskDetectionParentOverride>,
+    pub policy_candidate_action: AppRiskDetectionPolicyCandidateAction,
+    pub policy_target_kind: AppRiskDetectionPolicyTargetKind,
+    pub ask_parent_routing: AppRiskDetectionAskParentRouting,
+    pub not_direct_enforcement: bool,
+    pub no_content_claim: bool,
+    pub surface_disclosure: AppRiskDetectionSurfaceDisclosure,
+    pub last_checked_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppRiskDetectionMatrix {
+    pub schema_version: String,
+    pub matrix_id: AppRiskDetectionMatrixId,
+    pub generated_at: String,
+    pub candidates: Vec<AppRiskDetectionCandidate>,
+}
+
+const GENERATED_AT: &str = "2026-06-03T10:55:00.000Z";
+
+pub fn sample_app_risk_detection_matrix() -> AppRiskDetectionMatrix {
+    AppRiskDetectionMatrix {
+        schema_version: APP_RISK_DETECTION_SCHEMA_VERSION.to_owned(),
+        matrix_id: app_risk_detection_matrix_id("app-riskdetection-proof-matrix"),
+        generated_at: GENERATED_AT.to_owned(),
+        candidates: vec![
+            known_catalog(
+                "known-vpn-proxy-risk",
+                AppRiskDetectionRiskSignal::VpnProxy,
+                0.94,
+                AppRiskDetectionPolicyCandidateAction::Warn,
+            ),
+            known_catalog(
+                "known-remote-desktop-risk",
+                AppRiskDetectionRiskSignal::RemoteDesktop,
+                0.92,
+                AppRiskDetectionPolicyCandidateAction::AskParent,
+            ),
+            known_catalog(
+                "known-download-torrent-risk",
+                AppRiskDetectionRiskSignal::DownloadTorrent,
+                0.9,
+                AppRiskDetectionPolicyCandidateAction::Warn,
+            ),
+            known_catalog(
+                "known-ai-chatbot-risk",
+                AppRiskDetectionRiskSignal::AiChatbot,
+                0.86,
+                AppRiskDetectionPolicyCandidateAction::ManualReview,
+            ),
+            heuristic_candidate(
+                "unknown-vpn-name-candidate",
+                AppRiskDetectionRiskSignal::VpnProxy,
+                AppRiskDetectionSourceKind::ExecutableName,
+                0.42,
+            ),
+            heuristic_candidate(
+                "unknown-publisher-hash-candidate",
+                AppRiskDetectionRiskSignal::UnknownRisk,
+                AppRiskDetectionSourceKind::ExecutableHash,
+                0.38,
+            ),
+            ai_digest_candidate(),
+            parent_override_candidate(),
+        ],
+    }
+}
+
+pub fn required_app_risk_detection_source_kinds() -> &'static [AppRiskDetectionSourceKind] {
+    &[
+        AppRiskDetectionSourceKind::KnownCatalog,
+        AppRiskDetectionSourceKind::ExecutableName,
+        AppRiskDetectionSourceKind::PublisherMetadata,
+        AppRiskDetectionSourceKind::ExecutableHash,
+        AppRiskDetectionSourceKind::LocalAiDigest,
+        AppRiskDetectionSourceKind::ParentOverride,
+    ]
+}
+
+fn known_catalog(
+    candidate_id: &str,
+    risk_signal: AppRiskDetectionRiskSignal,
+    confidence: f64,
+    policy_candidate_action: AppRiskDetectionPolicyCandidateAction,
+) -> AppRiskDetectionCandidate {
+    risk_candidate(RiskCandidateInput {
+        candidate_id: candidate_id.to_string(),
+        risk_signal,
+        source_kind: AppRiskDetectionSourceKind::KnownCatalog,
+        publisher_trust_state: AppRiskDetectionPublisherTrustState::KnownPublisher,
+        confidence,
+        confidence_band: AppRiskDetectionConfidenceBand::High,
+        policy_candidate_action,
+        inventory_entry_ref: Some(app_risk_detection_inventory_entry_ref(format!(
+            "inventory-{candidate_id}"
+        ))),
+        identity_ref: Some(app_risk_detection_identity_ref(format!(
+            "identity-{candidate_id}"
+        ))),
+        source_refs: Some(vec![app_risk_detection_source_ref(format!(
+            "source-{candidate_id}"
+        ))]),
+        local_ai_digest_ref: None,
+        parent_override: None,
+    })
+}
+
+fn heuristic_candidate(
+    candidate_id: &str,
+    risk_signal: AppRiskDetectionRiskSignal,
+    source_kind: AppRiskDetectionSourceKind,
+    confidence: f64,
+) -> AppRiskDetectionCandidate {
+    risk_candidate(RiskCandidateInput {
+        candidate_id: candidate_id.to_string(),
+        risk_signal,
+        source_kind,
+        publisher_trust_state: AppRiskDetectionPublisherTrustState::UnknownPublisher,
+        confidence,
+        confidence_band: AppRiskDetectionConfidenceBand::Review,
+        policy_candidate_action: AppRiskDetectionPolicyCandidateAction::ManualReview,
+        inventory_entry_ref: None,
+        identity_ref: None,
+        source_refs: Some(vec![app_risk_detection_source_ref(format!(
+            "source-{candidate_id}"
+        ))]),
+        local_ai_digest_ref: None,
+        parent_override: None,
+    })
+}
+
+fn ai_digest_candidate() -> AppRiskDetectionCandidate {
+    risk_candidate(RiskCandidateInput {
+        candidate_id: "local-ai-social-video-messaging-risk".to_string(),
+        risk_signal: AppRiskDetectionRiskSignal::SocialVideoMessaging,
+        source_kind: AppRiskDetectionSourceKind::LocalAiDigest,
+        publisher_trust_state: AppRiskDetectionPublisherTrustState::KnownPublisher,
+        confidence: 0.73,
+        confidence_band: AppRiskDetectionConfidenceBand::Medium,
+        policy_candidate_action: AppRiskDetectionPolicyCandidateAction::AskParent,
+        inventory_entry_ref: None,
+        identity_ref: None,
+        source_refs: Some(vec![app_risk_detection_source_ref(
+            "source-local-ai-social-video-messaging-risk",
+        )]),
+        local_ai_digest_ref: Some(app_risk_detection_local_ai_digest_ref(
+            "local-ai-digest-social-video-messaging",
+        )),
+        parent_override: None,
+    })
+}
+
+fn parent_override_candidate() -> AppRiskDetectionCandidate {
+    risk_candidate(RiskCandidateInput {
+        candidate_id: "parent-display-override-ai-tool".to_string(),
+        risk_signal: AppRiskDetectionRiskSignal::AiChatbot,
+        source_kind: AppRiskDetectionSourceKind::ParentOverride,
+        publisher_trust_state: AppRiskDetectionPublisherTrustState::ParentTrusted,
+        confidence: 0.8,
+        confidence_band: AppRiskDetectionConfidenceBand::Medium,
+        policy_candidate_action: AppRiskDetectionPolicyCandidateAction::Observe,
+        inventory_entry_ref: None,
+        identity_ref: None,
+        source_refs: Some(vec![app_risk_detection_source_ref(
+            "source-parent-display-override-ai-tool",
+        )]),
+        local_ai_digest_ref: None,
+        parent_override: Some(AppRiskDetectionParentOverride {
+            parent_display_label: "Homework AI tool".to_string(),
+            policy_candidate_action: AppRiskDetectionPolicyCandidateAction::Observe,
+            raw_identity_changed: false,
+        }),
+    })
+}
+
+struct RiskCandidateInput {
+    candidate_id: String,
+    risk_signal: AppRiskDetectionRiskSignal,
+    source_kind: AppRiskDetectionSourceKind,
+    publisher_trust_state: AppRiskDetectionPublisherTrustState,
+    confidence: f64,
+    confidence_band: AppRiskDetectionConfidenceBand,
+    policy_candidate_action: AppRiskDetectionPolicyCandidateAction,
+    inventory_entry_ref: Option<AppRiskDetectionInventoryEntryRef>,
+    identity_ref: Option<AppRiskDetectionIdentityRef>,
+    source_refs: Option<Vec<AppRiskDetectionSourceRef>>,
+    local_ai_digest_ref: Option<AppRiskDetectionLocalAiDigestRef>,
+    parent_override: Option<AppRiskDetectionParentOverride>,
+}
+
+fn risk_candidate(input: RiskCandidateInput) -> AppRiskDetectionCandidate {
+    let RiskCandidateInput {
+        candidate_id,
+        risk_signal,
+        source_kind,
+        publisher_trust_state,
+        confidence,
+        confidence_band,
+        policy_candidate_action,
+        inventory_entry_ref,
+        identity_ref,
+        source_refs,
+        local_ai_digest_ref,
+        parent_override,
+    } = input;
+
+    let candidate_state = match source_kind {
+        AppRiskDetectionSourceKind::KnownCatalog => AppRiskDetectionCandidateState::CatalogMatch,
+        AppRiskDetectionSourceKind::LocalAiDigest => AppRiskDetectionCandidateState::AiCandidate,
+        AppRiskDetectionSourceKind::ParentOverride => {
+            AppRiskDetectionCandidateState::ParentDisplayOverride
+        }
+        AppRiskDetectionSourceKind::ExecutableName
+        | AppRiskDetectionSourceKind::PublisherMetadata
+        | AppRiskDetectionSourceKind::ExecutableHash => {
+            AppRiskDetectionCandidateState::HeuristicCandidate
+        }
+    };
+
+    let ask_parent_routing = match policy_candidate_action {
+        AppRiskDetectionPolicyCandidateAction::AskParent => {
+            AppRiskDetectionAskParentRouting::Available
+        }
+        AppRiskDetectionPolicyCandidateAction::ManualReview => {
+            AppRiskDetectionAskParentRouting::ManualReview
+        }
+        _ => AppRiskDetectionAskParentRouting::NotRouted,
+    };
+
+    AppRiskDetectionCandidate {
+        schema_version: APP_RISK_DETECTION_SCHEMA_VERSION.to_owned(),
+        candidate_id: app_risk_detection_candidate_id(candidate_id.clone()),
+        platform: ParentPlatform::Windows,
+        inventory_entry_ref,
+        identity_ref,
+        risk_signal,
+        source_kind,
+        candidate_state,
+        publisher_trust_state,
+        confidence,
+        confidence_band,
+        evidence_references: vec![ParentEvidenceReference {
+            evidence_reference_id: parent_evidence_reference_id(format!("evidence-{candidate_id}")),
+            kind: ParentEvidenceReferenceKind::ActivityEvent,
+            observed_at: GENERATED_AT.to_owned(),
+        }],
+        source_refs: source_refs.unwrap_or_else(|| {
+            vec![app_risk_detection_source_ref(format!(
+                "source-{candidate_id}"
+            ))]
+        }),
+        local_ai_digest_ref,
+        parent_override,
+        policy_candidate_action,
+        policy_target_kind: AppRiskDetectionPolicyTargetKind::RiskApp,
+        ask_parent_routing,
+        not_direct_enforcement: true,
+        no_content_claim: true,
+        surface_disclosure: AppRiskDetectionSurfaceDisclosure {
+            surface_state: AppRiskDetectionSurfaceState::RiskDisclosureReady,
+            confidence_percent: (confidence * 100.0).round() as u8,
+            source_evidence_count: 1,
+            no_content_claim_state: AppRiskDetectionNoContentClaimState::NoContentCaptured,
+        },
+        last_checked_at: GENERATED_AT.to_owned(),
+    }
+}
+
+fn parent_evidence_reference_id(value: impl Into<String>) -> ParentEvidenceReferenceId {
+    crate::schema_option_or_unreachable(
+        ParentEvidenceReferenceId::parse(value),
+        APP_RISK_DETECTION_PARENT_EVIDENCE_REFERENCE_ID_EXPECTATION,
+    )
+}
+
+fn app_risk_detection_candidate_id(value: impl Into<String>) -> AppRiskDetectionCandidateId {
+    crate::schema_option_or_unreachable(
+        AppRiskDetectionCandidateId::parse(value),
+        APP_RISK_DETECTION_CANDIDATE_ID_EXPECTATION,
+    )
+}
+
+fn app_risk_detection_inventory_entry_ref(
+    value: impl Into<String>,
+) -> AppRiskDetectionInventoryEntryRef {
+    crate::schema_option_or_unreachable(
+        AppRiskDetectionInventoryEntryRef::parse(value),
+        APP_RISK_DETECTION_INVENTORY_ENTRY_REF_EXPECTATION,
+    )
+}
+
+fn app_risk_detection_identity_ref(value: impl Into<String>) -> AppRiskDetectionIdentityRef {
+    crate::schema_option_or_unreachable(
+        AppRiskDetectionIdentityRef::parse(value),
+        APP_RISK_DETECTION_IDENTITY_REF_EXPECTATION,
+    )
+}
+
+fn app_risk_detection_source_ref(value: impl Into<String>) -> AppRiskDetectionSourceRef {
+    crate::schema_option_or_unreachable(
+        AppRiskDetectionSourceRef::parse(value),
+        APP_RISK_DETECTION_SOURCE_REF_EXPECTATION,
+    )
+}
+
+fn app_risk_detection_local_ai_digest_ref(
+    value: impl Into<String>,
+) -> AppRiskDetectionLocalAiDigestRef {
+    crate::schema_option_or_unreachable(
+        AppRiskDetectionLocalAiDigestRef::parse(value),
+        APP_RISK_DETECTION_LOCAL_AI_DIGEST_REF_EXPECTATION,
+    )
+}
+
+fn app_risk_detection_matrix_id(value: impl Into<String>) -> AppRiskDetectionMatrixId {
+    crate::schema_option_or_unreachable(
+        AppRiskDetectionMatrixId::parse(value),
+        APP_RISK_DETECTION_MATRIX_ID_EXPECTATION,
+    )
+}

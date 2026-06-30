@@ -18,13 +18,12 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.test.ts',
     ])
@@ -77,13 +76,13 @@ async function main() {
       sourceExternalRuntimeTransportQueueContract:
         'packages/schema-domain/src/app-install-purchase-external-runtime-transport-queue-proof.ts',
       contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
         '@ocentra-parent/schema-domain/app-install-purchase-external-runtime-transport-dispatch-preflight-proof',
-      packageReadme: 'packages/app-game-domain/package.json',
+      packageReadme: 'packages/schema-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval deferred by current lock',
       output: relative(repoRoot, proofPath),
     },
@@ -130,7 +129,7 @@ async function loadExternalRuntimeTransportDispatchPreflightProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-external-runtime-transport-dispatch-preflight-proof.js'
   );

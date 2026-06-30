@@ -110,6 +110,57 @@ pub struct HouseholdAuthorityDecision {
     pub failure_reason: Option<HouseholdAuthorizationFailureReason>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentStepUpValidationFailureReason {
+    #[serde(rename = "required")]
+    Required,
+    #[serde(rename = "expired")]
+    Expired,
+    #[serde(rename = "wrong-household")]
+    WrongHousehold,
+    #[serde(rename = "wrong-account")]
+    WrongAccount,
+    #[serde(rename = "wrong-action")]
+    WrongAction,
+    #[serde(rename = "wrong-device")]
+    WrongDevice,
+    #[serde(rename = "wrong-target")]
+    WrongTarget,
+    #[serde(rename = "replay-rejected")]
+    ReplayRejected,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ParentStepUpAssertionSnapshot {
+    pub family_id: String,
+    pub parent_account_id: String,
+    pub action_device_id: String,
+    pub action_device_child_profile_id: Option<String>,
+    pub target_child_profile_id: Option<String>,
+    pub action: HouseholdAuthorityAction,
+    pub nonce: String,
+    pub expires_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ParentStepUpValidationInput {
+    pub assertion: Option<ParentStepUpAssertionSnapshot>,
+    pub family_id: String,
+    pub parent_account_id: String,
+    pub action_device_id: String,
+    pub action_device_child_profile_id: Option<String>,
+    pub target_child_profile_id: Option<String>,
+    pub action: HouseholdAuthorityAction,
+    pub observed_at: String,
+    pub expected_nonce: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ParentStepUpValidationDecision {
+    pub valid: bool,
+    pub failure_reason: Option<ParentStepUpValidationFailureReason>,
+}
+
 pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAuthorityDecision {
     if !input.same_family {
         return rejected(
@@ -194,6 +245,79 @@ pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAu
     }
 }
 
+pub fn requires_parent_step_up(action: HouseholdAuthorityAction) -> bool {
+    matches!(
+        action,
+        HouseholdAuthorityAction::PairChildDevice
+            | HouseholdAuthorityAction::RevokeChildDevice
+            | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::StartRemoteControl
+            | HouseholdAuthorityAction::ExportDeleteData
+            | HouseholdAuthorityAction::ManageBilling
+    )
+}
+
+pub fn validate_parent_step_up_assertion(
+    input: ParentStepUpValidationInput,
+) -> ParentStepUpValidationDecision {
+    let Some(assertion) = input.assertion else {
+        return rejected_parent_step_up_validation(ParentStepUpValidationFailureReason::Required);
+    };
+
+    if assertion.expires_at < input.observed_at {
+        return rejected_parent_step_up_validation(ParentStepUpValidationFailureReason::Expired);
+    }
+
+    if assertion.family_id != input.family_id {
+        return rejected_parent_step_up_validation(
+            ParentStepUpValidationFailureReason::WrongHousehold,
+        );
+    }
+
+    if assertion.parent_account_id != input.parent_account_id {
+        return rejected_parent_step_up_validation(
+            ParentStepUpValidationFailureReason::WrongAccount,
+        );
+    }
+
+    if assertion.action != input.action {
+        return rejected_parent_step_up_validation(
+            ParentStepUpValidationFailureReason::WrongAction,
+        );
+    }
+
+    if assertion.action_device_id != input.action_device_id
+        || assertion.action_device_child_profile_id != input.action_device_child_profile_id
+    {
+        return rejected_parent_step_up_validation(
+            ParentStepUpValidationFailureReason::WrongDevice,
+        );
+    }
+
+    if !matches_target_child_profile(
+        assertion.target_child_profile_id.as_deref(),
+        input.target_child_profile_id.as_deref(),
+    ) {
+        return rejected_parent_step_up_validation(
+            ParentStepUpValidationFailureReason::WrongTarget,
+        );
+    }
+
+    if input
+        .expected_nonce
+        .is_some_and(|nonce| assertion.nonce != nonce)
+    {
+        return rejected_parent_step_up_validation(
+            ParentStepUpValidationFailureReason::ReplayRejected,
+        );
+    }
+
+    ParentStepUpValidationDecision {
+        valid: true,
+        failure_reason: None,
+    }
+}
+
 fn rejected(
     failure_reason: HouseholdAuthorizationFailureReason,
     action: HouseholdAuthorityAction,
@@ -202,6 +326,15 @@ fn rejected(
         authorization_state: HouseholdAuthorizationState::Rejected,
         audit_requirement_state: audit_requirement_state(action),
         elevated_confirmation_state: elevated_confirmation_state(action),
+        failure_reason: Some(failure_reason),
+    }
+}
+
+fn rejected_parent_step_up_validation(
+    failure_reason: ParentStepUpValidationFailureReason,
+) -> ParentStepUpValidationDecision {
+    ParentStepUpValidationDecision {
+        valid: false,
         failure_reason: Some(failure_reason),
     }
 }
@@ -234,6 +367,10 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
             matches!(role, HouseholdRole::ParentOwner)
         }
     }
+}
+
+fn matches_target_child_profile(asserted: Option<&str>, expected: Option<&str>) -> bool {
+    asserted == expected
 }
 
 fn requires_capability_grant(action: HouseholdAuthorityAction) -> bool {

@@ -14,19 +14,6 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-broad-os-adapter-proof',
-      'enforcement-os-adapter-product-proof',
-      'enforcement-readiness',
-    ])
-  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_os_adapter_product_proof']);
   await runCommand('cargo', [
     'test',
@@ -65,7 +52,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/v0-8-broad-os-adapter-proof.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-broad-os-adapter-proof.test.ts',
       proofHarness: 'scripts/test/v0-8-broad-os-adapter-proof.mjs',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/v0-8-broad-os-adapter-proof-2026-05-30.md',

@@ -2,19 +2,16 @@ use super::{
     constants, tracking_retention_accepted_at, AgentCommandEnvelope,
     TrackingRetentionSettingsWriteRequest,
 };
-#[cfg(test)]
 use ocentra_parent_agent_protocol::child_agent::child_agent_events::{
     ChildCommandKind, ChildCommandReceivedEvent,
 };
 use ocentra_parent_agent_protocol::parent_controller_events::{
     ParentActionReceivedEvent, ParentControllerActionKind, ParentControllerSource,
 };
-#[cfg(test)]
 use ocentra_parent_agent_protocol::parent_controller_events::{
     ParentChildCommandForwardRequestedEvent, ParentChildCommandTransportBoundary,
     ParentCommandRejectedEvent, ParentCommandValidatedEvent, ParentCommandValidationState,
 };
-#[cfg(test)]
 use ocentra_parent_agent_protocol::tracking::config_update_event::ParentTrackingConfigUpdatedEvent;
 
 type TrackingRetentionCommandId =
@@ -57,7 +54,6 @@ pub(super) fn tracking_parent_action_received_event(
     }
 }
 
-#[cfg(test)]
 pub(super) fn tracking_parent_command_validated_event(
     command_id: &TrackingRetentionCommandId,
     parent_action_received: &ParentActionReceivedEvent,
@@ -81,7 +77,6 @@ pub(super) fn tracking_parent_command_validated_event(
     }
 }
 
-#[cfg(test)]
 pub(super) fn tracking_parent_command_rejected_event(
     command_id: &TrackingRetentionCommandId,
     parent_action_received: &ParentActionReceivedEvent,
@@ -104,7 +99,6 @@ pub(super) fn tracking_parent_command_rejected_event(
     }
 }
 
-#[cfg(test)]
 pub(super) fn tracking_parent_child_command_forward_requested_event(
     command_id: &TrackingRetentionCommandId,
     parent_command_validated: &ParentCommandValidatedEvent,
@@ -129,7 +123,6 @@ pub(super) fn tracking_parent_child_command_forward_requested_event(
     }
 }
 
-#[cfg(test)]
 pub(super) fn tracking_child_command_received_event(
     command_id: &TrackingRetentionCommandId,
     forward_requested_event: &ParentChildCommandForwardRequestedEvent,
@@ -149,7 +142,6 @@ pub(super) fn tracking_child_command_received_event(
     }
 }
 
-#[cfg(test)]
 fn tracking_parent_command_ref(command_id: &TrackingRetentionCommandId) -> String {
     tracking_service_ref(
         command_id,
@@ -157,7 +149,6 @@ fn tracking_parent_command_ref(command_id: &TrackingRetentionCommandId) -> Strin
     )
 }
 
-#[cfg(test)]
 fn tracking_child_command_ref(command_id: &TrackingRetentionCommandId) -> String {
     tracking_service_ref(
         command_id,
@@ -165,7 +156,6 @@ fn tracking_child_command_ref(command_id: &TrackingRetentionCommandId) -> String
     )
 }
 
-#[cfg(test)]
 fn tracking_transport_message_ref(command_id: &TrackingRetentionCommandId) -> String {
     tracking_service_ref(
         command_id,

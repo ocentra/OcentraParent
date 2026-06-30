@@ -43,28 +43,38 @@ confidence, and source history. IP address is never permanent identity.
 
 ## Requirement Checklist
 
-- [ ] Model IP, MAC, hostname, service, vendor, protocol, child-agent, and
+- [x] Model IP, MAC, hostname, service, vendor, protocol, child-agent, and
       parent-manual evidence as separate source-backed entries.
-- [ ] Preserve first-seen and last-seen timestamps for each evidence value.
-- [ ] Allow multiple IPs, MACs, names, services, and sources per device.
-- [ ] Keep manual labels and assignments separate from raw scanner evidence.
-- [ ] Mark stale, offline, ignored, trusted, revoked, manual-required, and
+- [x] Preserve first-seen and last-seen timestamps for each evidence value.
+- [x] Allow multiple IPs, MACs, names, services, and sources per device.
+- [x] Keep manual labels and assignments separate from raw scanner evidence.
+- [x] Mark stale, offline, ignored, trusted, revoked, manual-required, and
       unsupported states explicitly.
 
 ## Acceptance And Proof
 
-- Unit tests prove repeated evidence updates `lastSeen` without moving
+- Focused unit tests prove repeated evidence updates `lastSeen` without moving
   `firstSeen`.
-- Property tests prove adding evidence never drops source history.
-- Contract/read-model tests reject visible device rows with empty evidence
-  summaries.
+- Focused unit tests prove adding evidence from a second source preserves
+  source-backed history instead of collapsing provenance.
+- Focused registry and service validation prove router scan-suppression truth
+  stays visible while paired/trusted child truth is deduped instead of queued
+  twice for scan-hint reuse.
 
 Current proof:
 
-- `cargo test -p ocentra-parent-agent-core trusted_device_registry`
-- The trusted registry now persists `knownHouseholdDevices` using the canonical
-  household device shape, and focused Rust proof covers restart recovery plus
-  evidence timestamp merge behavior for repeated updates on the same device.
+- `cargo test -p ocentra-parent-agent-core trusted_device_registry -- --nocapture`
+- `cargo test -p ocentra-parent-agent-service lan_pairing_browser_add_device_state -- --nocapture`
+- `cargo lint-architecture crates/agent-core/src/trusted_device_registry.rs crates/agent-core/src/trusted_device_registry/known_household_devices.rs crates/agent-core/tests/unit/trusted_device_registry.rs crates/agent-core/tests/unit/trusted_device_registry_test_fixtures.rs crates/agent-service/src/lan_pairing_browser_add_device_state.rs crates/agent-service/src/lan_pairing_browser_add_device_state/discovery_projection.rs crates/agent-service/tests/unit/lan_pairing_browser_add_device_state.rs`
+- The trusted registry persists `knownHouseholdDevices` using the canonical
+  household device shape, preserves distinct source-backed evidence rows for the
+  same merge key, and reuses durable router/paired-child truth for scan
+  suppression without duplicating paired child scan hints.
+- Local rerun status on `2026-06-28`: green for the current Rust registry,
+  durable known-household restore path, service add-device projection, focused
+  unit coverage (`21` targeted `agent-core` tests and `36` targeted
+  `agent-service` tests), and scoped Rust architecture validation. Broader
+  all-source evidence closure remains an explicit non-claim for this workpack.
 
 ## Parallel Ownership Notes
 

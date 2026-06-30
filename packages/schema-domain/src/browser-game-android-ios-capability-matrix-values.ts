@@ -57,7 +57,7 @@ export const BrowserGameMobileProofStateSchema = withParser(
     'platform-entitlement-required',
     'permission-grant-required',
     'adapter-not-implemented',
-    'existing-parent-domain-proof-ref',
+    'existing-rust-parent-runtime-proof-ref',
     'unavailable'
   )
 );

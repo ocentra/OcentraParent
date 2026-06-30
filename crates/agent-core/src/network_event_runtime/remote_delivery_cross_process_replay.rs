@@ -30,7 +30,7 @@ pub async fn prove_network_runtime_remote_delivery_cross_process_replay() -> Res
     )
 }
 
-pub(crate) fn prove_network_runtime_remote_delivery_cross_process_replay_from_custody_readiness(
+pub fn prove_network_runtime_remote_delivery_cross_process_replay_from_custody_readiness(
     cross_process_custody_readiness: NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,

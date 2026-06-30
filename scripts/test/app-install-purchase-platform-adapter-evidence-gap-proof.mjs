@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
     ])
@@ -47,7 +47,7 @@ async function main() {
     proofMode: 'app-install-purchase-platform-adapter-evidence-gap-proof',
     baseMainState: 'after-pr485-provider-store-api-execution-proof-merged',
     commands,
-    packageExportState: 'public app-game-domain subpath export retired; proof imports the built dist module directly.',
+    packageExportState: 'canonical schema-domain public subpath export confirmed; proof imports the built dist module directly.',
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       platformAdapterEvidenceGapContract:
@@ -57,14 +57,14 @@ async function main() {
       sourcePlatformProofReadinessContract:
         'packages/schema-domain/src/app-install-purchase-platform-proof-readiness.ts',
       contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
-      packageReadme: 'packages/app-game-domain/package.json',
+      packageReadme: 'packages/schema-domain/package.json',
       packageExport:
-        'packages/app-game-domain/package.json no longer publishes this proof as a public subpath export; the script imports the built dist module directly.',
+        'packages/schema-domain/package.json publishes this proof as a public subpath export; the script imports the built dist module directly.',
       output: relative(repoRoot, proofPath),
     },
     platformAdapterEvidenceGapSummary: summary,
@@ -81,7 +81,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-platform-adapter-evidence-gap-proof.js'
   );

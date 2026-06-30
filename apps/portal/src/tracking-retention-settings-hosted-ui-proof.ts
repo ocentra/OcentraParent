@@ -1,8 +1,8 @@
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import {
-  type PortalDetailValue,
-  type TrackingStatusProofArtifact,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+  type ParentPortalDetailValue,
+  type ParentTrackingStatusProofArtifact,
+} from '../generated/parent-ui-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
@@ -93,6 +93,6 @@ function appendRetentionSettingsWritePreflight(
   appendDetail(metadata, PortalDetails.AdapterBoundary, toDetail(writePreflight.boundary));
 }
 
-function toDetail(value: PortalDisplayText | TrackingStatusProofArtifact): PortalDetailValue {
+function toDetail(value: PortalDisplayText | ParentTrackingStatusProofArtifact): ParentPortalDetailValue {
   return portalDetailFromValue(value);
 }

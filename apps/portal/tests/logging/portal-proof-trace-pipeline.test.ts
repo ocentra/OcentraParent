@@ -5,7 +5,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
+import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
 import { getTestLogScopeDir, listNdjsonFiles } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
 import { TestLogDuckDb } from '@ocentra-parent/logging-domain/test-log/testLogDuckDb';

@@ -1,7 +1,12 @@
 #![forbid(unsafe_code)]
 
-#[cfg(test)]
-mod runtime_decision;
+pub mod app_game_notification_parent_surface_intent;
+pub mod app_game_policy_preview_handoff;
+pub mod app_game_source_freshness_preview_gate;
+pub mod app_game_source_gated_policy_preview;
+pub mod app_game_source_gated_policy_preview_timer_chain;
+pub mod app_game_source_gated_policy_preview_timer_followthrough;
+pub mod runtime_decision;
 
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,

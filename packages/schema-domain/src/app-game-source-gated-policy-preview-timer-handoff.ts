@@ -9,9 +9,10 @@ import {
   AppGameSourceGatedPolicyPreviewTimerHandoffNoClaimFlags,
   AppGameSourceGatedPolicyPreviewTimerHandoffState,
   RequiredAppGameSourceGatedPolicyPreviewTimerHandoffNonClaims,
+  appGameSourceGatedPolicyPreviewTimerHandoffStateForProjection,
   appGameSourceGatedPolicyPreviewTimerHandoffCountsMatch,
   appGameSourceGatedPolicyPreviewTimerHandoffHasNoRuntimeClaims,
-  appGameSourceGatedPolicyPreviewTimerStateMatchesProjection,
+  countAppGameSourceGatedPolicyPreviewTimerHandoffRows,
 } from './app-game-source-gated-policy-preview-timer-handoff-rules';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import {
@@ -152,17 +153,7 @@ export function buildAppGameSourceGatedPolicyPreviewTimerHandoff(
     rows,
     nativeAppRowCount: readModel.nativeAppRowCount,
     nativeGameRowCount: readModel.nativeGameRowCount,
-    timerSequenceCandidateCount: rows.filter(
-      (row) => row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffState.ReadyForTimerSequencing
-    ).length,
-    sourceManualBlockedCount: rows.filter(
-      (row) =>
-        row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffState.SourceManualRequiredBeforeTimer
-    ).length,
-    compilerManualBlockedCount: rows.filter(
-      (row) =>
-        row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffState.CompilerManualRequiredBeforeTimer
-    ).length,
+    ...countAppGameSourceGatedPolicyPreviewTimerHandoffRows(rows),
     timerHandoffNonClaims: RequiredAppGameSourceGatedPolicyPreviewTimerHandoffNonClaims,
     ...AppGameSourceGatedPolicyPreviewTimerHandoffNoClaimFlags,
   });
@@ -172,7 +163,9 @@ function buildTimerHandoffRow(
   options: AppGameSourceGatedPolicyPreviewTimerHandoffOptions,
   sourceRow: AppGameSourceGatedPolicyPreviewReadModelRow
 ): AppGameSourceGatedPolicyPreviewTimerHandoffRow {
-  const timerHandoffState = timerHandoffStateForProjection(sourceRow);
+  const timerHandoffState = appGameSourceGatedPolicyPreviewTimerHandoffStateForProjection(
+    sourceRow.projectionState
+  );
 
   return AppGameSourceGatedPolicyPreviewTimerHandoffRowSchema.parse({
     schemaVersion: options.schemaVersion,
@@ -188,15 +181,6 @@ function buildTimerHandoffRow(
     ...AppGameSourceGatedPolicyPreviewTimerHandoffNoClaimFlags,
     generatedAt: options.generatedAt,
   });
-}
-
-function timerHandoffStateForProjection(sourceRow: AppGameSourceGatedPolicyPreviewReadModelRow) {
-  for (const state of Object.values(AppGameSourceGatedPolicyPreviewTimerHandoffState)) {
-    if (appGameSourceGatedPolicyPreviewTimerStateMatchesProjection(sourceRow.projectionState, state)) {
-      return state;
-    }
-  }
-  return AppGameSourceGatedPolicyPreviewTimerHandoffState.CompilerManualRequiredBeforeTimer;
 }
 
 export const decodeAppGameSourceGatedPolicyPreviewTimerHandoff = Schema.decodeUnknownSync(

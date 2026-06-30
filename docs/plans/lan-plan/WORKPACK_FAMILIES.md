@@ -16,18 +16,23 @@
 
 Use this file to classify a selected workpack before opening source. This plan owns LAN discovery/readiness proof and local-network handoff boundaries. It does not own account authority, device trust, eventing, portal UI, remote relay, package distribution, setup, policy, enforcement, or child-agent runtime behavior.
 
+Active direction: Rust owns LAN contracts, shapes, business logic, read models, runtime truth, and proof truth. TypeScript is presentation only.
+
 ## Contract and schema boundary family
 
 ```text
 Workpacks:
-01 Contract Boundary And Effect Schemas
+01 Contract Boundary And Effect Schemas (historical title; execution is Rust-owned
+schema/bridge boundary work, not TS schema authority)
 
 Owners:
-schema-domain for canonical LAN contract/read-model/proof shapes
-lan-domain for package-level metadata and proof-consumer surface
+Rust schema crate for canonical LAN contract/read-model/proof shapes
+legacy TS proof-consumer residue only when explicitly selected; it does not own LAN truth
 
 Rule:
 Schema/contract proof is not packet/runtime proof, physical LAN proof, portal proof, or service delivery proof.
+Generated UI edge types are allowed, but TS stays presentation-only and does not
+become the contract authority.
 ```
 
 ## Evidence model and device record family
@@ -39,8 +44,8 @@ Workpacks:
 14 Explainable Classification
 
 Owners:
-schema-domain for canonical evidence/device/merge/classification shapes
-lan-domain for current proof-consumer package surface
+Rust schema crate for canonical evidence/device/merge/classification shapes
+Rust LAN crates for current runtime/read-model truth
 account/device-trust handoffs only when authority/trust is selected
 
 Rule:
@@ -56,8 +61,8 @@ Workpacks:
 
 Owners:
 selected OS/platform adapter surface when implemented
-schema-domain for normalized LAN source/read-model shapes
-lan-domain for current contract/proof consumer rows
+Rust schema crate for normalized LAN source/read-model shapes
+legacy TS proof-consumer residue only when explicitly selected
 
 Rule:
 Interface and neighbor proof is platform-specific. Windows proof is not Linux/mac proof, and source presence is not physical household discovery.
@@ -72,7 +77,7 @@ Workpacks:
 
 Owners:
 LAN packet/runtime implementation when selected
-schema-domain for ARP evidence/readiness shapes
+Rust schema crate for ARP evidence/readiness shapes
 
 Rule:
 ARP proof must show bounded scope, rate limits, malformed packet handling, stale/offline behavior, and manual-required states. ARP evidence is weak until merged with stronger source/trust proof.
@@ -86,7 +91,7 @@ Workpacks:
 
 Owners:
 LAN packet/runtime implementation when selected
-schema-domain for passive-source evidence shapes
+Rust schema crate for passive-source evidence shapes
 
 Rule:
 Passive listener proof must handle malformed/oversized packets, privacy redaction, source confidence, and explicit weak-source fencing. Passive evidence is not device trust proof.
@@ -103,7 +108,7 @@ Workpacks:
 Owners:
 LAN packet/runtime implementation when selected
 child runtime/distribution owners when signed child-agent advertisements are selected
-schema-domain for advertisement/discovery shapes
+Rust schema crate for advertisement/discovery shapes
 
 Rule:
 Discovery advertisements prove only visible LAN metadata unless signed child-agent proof and trust handoff exist. mDNS/SSDP proof is not household assignment or physical child-agent confirmation by itself.
@@ -119,7 +124,7 @@ Workpacks:
 
 Owners:
 LAN source adapters when implemented
-schema-domain for weak-source/vendor/evidence confidence shapes
+Rust schema crate for weak-source/vendor/evidence confidence shapes
 
 Rule:
 Names, service hints, and vendor/OUI evidence are weak/manual sources. They must not confirm child identity, household membership, or device trust.
@@ -148,9 +153,9 @@ Workpacks:
 16 Read Models And LAN Events
 
 Owners:
-agent-protocol/agent-service when service-backed read models are selected
-portal plans for projection only
-schema-domain for canonical read-model/event shapes
+Rust agent-protocol/agent-service when service-backed read models are selected
+portal plans for presentation only
+Rust schema crate for canonical read-model/event shapes
 eventing-plan for local event bus semantics only
 
 Rule:
@@ -167,7 +172,7 @@ Owners:
 child-agent-runtime-distribution-plan for child package/runtime surfaces
 device-trust-bootstrap-plan for trust material
 lan-plan for LAN signed hello/heartbeat proof boundary
-schema-domain for signed hello/heartbeat shapes
+Rust schema crate for signed hello/heartbeat shapes
 
 Rule:
 Signed hello/heartbeat proof must show real signed artifacts, family/route binding, expiry, replay rejection, revoked-state rejection, and manual-required physical gaps. Contract rows are not signed artifact proof.
@@ -187,15 +192,19 @@ Rule:
 Rollout proof may aggregate only accepted roots or exact carried blockers. B1/B2 local proof cannot become portal, service, signed child hello, physical household, router/firewall, or relay proof.
 ```
 
-## Frozen follow-on family
+## Active follow-on family
 
 ```text
 Workpacks:
 21-25
 
 Owners:
-none for current completion scope
+selected owning Rust crate/plan per row; TS remains presentation only
 
 Rule:
-Rows 21-25 are frozen follow-on material. Do not use them as current completion scope or PR_READY evidence.
+Rows 21-25 are active LAN follow-on scope. Use current row truth instead of
+treating the whole family as uniformly open: 21, 22, and 24 are locally
+complete with their own proof; 23 and 25 remain partial/manual. Do not skip,
+auto-close, or use any row for PR_READY without current Rust-first proof,
+organized tests where applicable, and row truth.
 ```

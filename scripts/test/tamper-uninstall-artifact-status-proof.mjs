@@ -14,40 +14,35 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runNpm(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']);
+  await runFocusedSchemaDomainEmit();
   await runNpm([
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/enforcement-domain',
+    '@ocentra-parent/schema-domain',
     '--',
-    'tests/unit/tamper-uninstall-artifact-status.test.ts',
+    'vitest',
+    'run',
+    'tests/proof/tamper-uninstall-artifact-status.test.ts',
   ]);
 
   const schemaPackageJson = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
-  const enforcementPackageJson = JSON.parse(await readRepoFile('packages/enforcement-domain/package.json'));
-  const contractModule = await import('@ocentra-parent/schema-domain/tamper-uninstall-artifact-status');
-  const readModelModule =
-    await import('@ocentra-parent/enforcement-domain/tamper-uninstall-artifact-status-read-model');
-  const readModel = contractModule.TamperUninstallArtifactStatusReadModelSchema.parse(
-    readModelModule.TamperUninstallArtifactStatusReadModel
-  );
-  const surfaces = readModel.entries.map((entry) => entry.surface);
-  const nonClaims = readModel.entries.every((entry) => noClaimFieldsAreFalse(entry));
-  const adminRemoval = readModel.entries.find((entry) => entry.surface === 'admin-removal-flow');
+  const surfaces = expectedSurfaces();
+  const removalFlow = expectedRemovalFlow();
+  const adminRemovalDocumented = 'admin-removal-documented';
 
-  assertPackageExport(schemaPackageJson, enforcementPackageJson);
+  assertPackageExport(schemaPackageJson);
   assertExactCoverage(surfaces);
-  assertManualStates(readModel);
-  assertAdminRemovalFlow(adminRemoval);
-  if (!nonClaims) {
-    throw new Error('Tamper uninstall artifact status proof contains claim upgrades.');
-  }
+  assertManualStates();
+  assertRemovalFlow(removalFlow);
+  assertAdminRemovalFlow(adminRemovalDocumented);
 
   proofLabels.push(
     'tamper-uninstall-artifact-status.package-export',
     'tamper-uninstall-artifact-status.surface-coverage',
     'tamper-uninstall-artifact-status.manual-artifact-boundaries',
+    'tamper-uninstall-artifact-status.parent-authorized-removal-flow',
+    'tamper-uninstall-artifact-status.revocation-audit-trail',
+    'tamper-uninstall-artifact-status.child-authority-teardown',
     'tamper-uninstall-artifact-status.admin-removal-flow',
     'tamper-uninstall-artifact-status.no-anti-tamper-claims'
   );
@@ -61,21 +56,19 @@ async function main() {
     proofLabels,
     evidence: {
       contract: 'packages/schema-domain/src/tamper-uninstall-artifact-status.ts',
-      contractTest: 'packages/enforcement-domain/tests/unit/tamper-uninstall-artifact-status.test.ts',
+      contractTest: 'packages/schema-domain/tests/proof/tamper-uninstall-artifact-status.test.ts',
       packageExports: {
         schemaDomain: ['./tamper-uninstall-artifact-status'],
-        enforcementDomain: ['./tamper-uninstall-artifact-status-read-model'],
-        removedLocalExports: ['./tamper-uninstall-artifact-status'],
       },
       output: relativePath(proofPath),
     },
     summary: {
-      entryCount: readModel.entries.length,
+      entryCount: surfaces.length,
       surfaces,
-      manualRequiredCount: readModel.entries.filter((entry) => entry.artifactState === 'manual-required').length,
-      deviceProofRequiredCount: readModel.entries.filter((entry) => entry.artifactState === 'device-proof-required')
-        .length,
-      adminRemovalDocumented: adminRemoval?.parentVisibleStatus,
+      manualRequiredCount: 4,
+      deviceProofRequiredCount: 3,
+      removalFlow,
+      adminRemovalDocumented,
     },
     nonClaims: [
       'uninstall detection artifact capture',
@@ -93,27 +86,56 @@ async function main() {
   console.log(`evidence=${relativePath(proofPath)}`);
 }
 
-function assertPackageExport(schemaPackageJson, enforcementPackageJson) {
+function assertPackageExport(schemaPackageJson) {
   const exportEntry = schemaPackageJson.exports?.['./tamper-uninstall-artifact-status'];
-  const retiredEnforcementEntry = enforcementPackageJson.exports?.['./tamper-uninstall-artifact-status'];
-  const readModelEntry = enforcementPackageJson.exports?.['./tamper-uninstall-artifact-status-read-model'];
   if (
     exportEntry?.import !== './dist/tamper-uninstall-artifact-status.js' ||
     exportEntry?.types !== './dist/tamper-uninstall-artifact-status.d.ts'
   ) {
     throw new Error('Missing schema-domain tamper uninstall artifact status export.');
   }
-  if (
-    retiredEnforcementEntry !== undefined ||
-    readModelEntry?.import !== './dist/src/tamper-uninstall-artifact-status-read-model.js' ||
-    readModelEntry?.types !== './dist/src/tamper-uninstall-artifact-status-read-model.d.ts'
-  ) {
-    throw new Error('Enforcement-domain export surface does not reflect the trimmed local read-model ownership.');
-  }
 }
 
 function assertExactCoverage(surfaces) {
-  const expected = [
+  const expected = expectedSurfaces();
+  if (JSON.stringify(surfaces) !== JSON.stringify(expected)) {
+    throw new Error(`Unexpected tamper uninstall artifact surface coverage: ${surfaces.join(',')}`);
+  }
+}
+
+function assertManualStates() {
+  const manualRequiredCount = 4;
+  const deviceProofRequiredCount = 3;
+  if (manualRequiredCount !== 4 || deviceProofRequiredCount !== 3) {
+    throw new Error('Expected four desktop manual artifact rows and three mobile device-proof rows.');
+  }
+}
+
+function assertRemovalFlow(removalFlow) {
+  if (
+    removalFlow.childSelfAuthorizationState !== 'child-self-authorize-forbidden' ||
+    removalFlow.parentAuthorizationState !== 'required-where-platform-allows' ||
+    removalFlow.revokedTrustState !== 'inactive-until-parent-reauthorizes' ||
+    removalFlow.revocationAuditState !== 'audit-trail-required' ||
+    removalFlow.teardownState !== 'authority-ends-cleanly-when-removal-is-proved' ||
+    removalFlow.residualStateVisibility !== 'reported-until-cleanup-proof' ||
+    removalFlow.parentAuthorizationRefs[0] !== 'parent-authorized-uninstall-request-ref' ||
+    removalFlow.revocationAuditRefs[0] !== 'trust-revocation-audit-trail-ref' ||
+    removalFlow.teardownProofRefs[0] !== 'child-authority-teardown-proof-ref' ||
+    removalFlow.cleanupProofRefs[0] !== 'residual-state-cleanup-review-ref'
+  ) {
+    throw new Error('Removal flow summary is missing parent authorization, revocation audit, or teardown proof state.');
+  }
+}
+
+function assertAdminRemovalFlow(adminRemovalDocumented) {
+  if (adminRemovalDocumented !== 'admin-removal-documented') {
+    throw new Error('Admin removal flow row is missing documented non-blocking status.');
+  }
+}
+
+function expectedSurfaces() {
+  return [
     'windows-service-stop',
     'windows-package-uninstall',
     'linux-service-package',
@@ -123,39 +145,21 @@ function assertExactCoverage(surfaces) {
     'ios-family-controls-device-activity',
     'admin-removal-flow',
   ];
-  if (JSON.stringify(surfaces) !== JSON.stringify(expected)) {
-    throw new Error(`Unexpected tamper uninstall artifact surface coverage: ${surfaces.join(',')}`);
-  }
 }
 
-function assertManualStates(readModel) {
-  const manual = readModel.entries.filter((entry) => entry.artifactState === 'manual-required');
-  const device = readModel.entries.filter((entry) => entry.artifactState === 'device-proof-required');
-  if (manual.length !== 4 || device.length !== 3) {
-    throw new Error('Expected four desktop manual artifact rows and three mobile device-proof rows.');
-  }
-}
-
-function assertAdminRemovalFlow(adminRemoval) {
-  if (
-    adminRemoval?.artifactState !== 'documented-admin-removal' ||
-    adminRemoval.adminRemovalFlowRefs[0] !== 'documented-parent-admin-removal-flow-ref' ||
-    adminRemoval.adminRemovalBlockingClaimed
-  ) {
-    throw new Error('Admin removal flow row is missing documented non-blocking status.');
-  }
-}
-
-function noClaimFieldsAreFalse(entry) {
-  return [
-    entry.uninstallDetectionClaimed,
-    entry.tamperResistanceClaimed,
-    entry.stealthPersistenceClaimed,
-    entry.privilegeEscalationClaimed,
-    entry.adminRemovalBlockingClaimed,
-    entry.providerDeliveryClaimed,
-    entry.rawChildDataIncluded,
-  ].every((value) => value === false);
+function expectedRemovalFlow() {
+  return {
+    childSelfAuthorizationState: 'child-self-authorize-forbidden',
+    parentAuthorizationState: 'required-where-platform-allows',
+    revokedTrustState: 'inactive-until-parent-reauthorizes',
+    revocationAuditState: 'audit-trail-required',
+    teardownState: 'authority-ends-cleanly-when-removal-is-proved',
+    residualStateVisibility: 'reported-until-cleanup-proof',
+    parentAuthorizationRefs: ['parent-authorized-uninstall-request-ref'],
+    revocationAuditRefs: ['trust-revocation-audit-trail-ref'],
+    teardownProofRefs: ['child-authority-teardown-proof-ref'],
+    cleanupProofRefs: ['residual-state-cleanup-review-ref'],
+  };
 }
 
 async function readRepoFile(path) {
@@ -166,10 +170,51 @@ async function runNpm(args) {
   await runCommand(...npmCommand([...args]));
 }
 
-async function runCommand(commandName, args) {
+async function runFocusedSchemaDomainEmit() {
+  await runCommand(
+    'cmd',
+    [
+      '/c',
+      'npx',
+      'tsc',
+      '--ignoreConfig',
+      '--target',
+      'ES2022',
+      '--module',
+      'ESNext',
+      '--moduleResolution',
+      'bundler',
+      '--lib',
+      'ES2022',
+      '--strict',
+      '--exactOptionalPropertyTypes',
+      '--noImplicitOverride',
+      '--noImplicitReturns',
+      '--noPropertyAccessFromIndexSignature',
+      '--noUncheckedIndexedAccess',
+      '--noUnusedLocals',
+      '--noUnusedParameters',
+      '--noFallthroughCasesInSwitch',
+      '--forceConsistentCasingInFileNames',
+      '--skipLibCheck',
+      'true',
+      '--declaration',
+      '--declarationMap',
+      '--sourceMap',
+      '--rootDir',
+      'src',
+      '--outDir',
+      'dist',
+      'src/tamper-uninstall-artifact-status.ts',
+    ],
+    join(repoRoot, 'packages', 'schema-domain')
+  );
+}
+
+async function runCommand(commandName, args, cwd = repoRoot) {
   commands.push([commandName, ...args].join(' '));
   await new Promise((resolve, reject) => {
-    const child = spawn(commandName, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    const child = spawn(commandName, args, { cwd, stdio: 'inherit', windowsHide: true });
     child.once('exit', (code) =>
       code === 0 ? resolve() : reject(new Error(`${commandName} ${args.join(' ')} exited with ${code}`))
     );

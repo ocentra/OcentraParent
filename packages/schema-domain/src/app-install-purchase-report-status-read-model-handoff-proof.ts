@@ -2,9 +2,16 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseApprovalReportDomainProofReadModel } from './app-install-purchase-approval-report-domain-proof';
 import { AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel } from './app-install-purchase-runtime-report-writer-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseReportStatusReadModelRowGenerated,
+  reportStatusReadModelProofIsHonestGenerated,
+  reportStatusReadModelRowIsHonestGenerated,
+  summarizeAppInstallPurchaseReportStatusReadModelHandoffProofGenerated,
+} from './generated/app-install-purchase-report-status-helpers';
 const ReportStatusReadModelProofVersion = 'app-install-purchase-report-status-read-model-handoff-proof';
-const SourceRuntimeReportWriterDeliveryProofVersion = 'app-install-purchase-runtime-report-writer-delivery-proof';
-const SourceApprovalReportDomainProofVersion = 'app-install-purchase-approval-report-domain-proof';
+const SourceRuntimeReportWriterDeliveryProofVersion =
+  AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel.schemaVersion;
+const SourceApprovalReportDomainProofVersion = AppInstallPurchaseApprovalReportDomainProofReadModel.schemaVersion;
 const ReportStatusReadModelTimestamp = '2026-06-06T02:40:00.000Z';
 const ReportStatusReadModelBoundary =
   'report status read-model handoff proof only; parent-visible report status rows link approval report domain rows to runtime report writer delivery rows no portal report UI no external runtime report delivery no provider API execution no store integration no platform adapter implementation no child-device delivery no app blocking no child activity data no Ocentra-hosted family data custody';
@@ -126,7 +133,7 @@ export const AppInstallPurchaseReportStatusReadModelHandoffProofSchema = withPar
 );
 
 export const AppInstallPurchaseReportStatusReadModelHandoffKnownGaps = [
-  'Report status read-model rows are parent-domain proof rows only; no portal report UI or external runtime report delivery is implemented.',
+  'Report status read-model rows are rust-parent-runtime proof rows only; no portal report UI or external runtime report delivery is implemented.',
   'Provider/store execution, platform adapters, child-device delivery, app blocking, child activity data, and hosted family data custody remain unimplemented.',
   'Review-needed remains manual-required until portal approval/report UI and a real parent approval action path exist.',
 ] as const;
@@ -148,54 +155,20 @@ export const AppInstallPurchaseReportStatusReadModelHandoffProofReadModel =
 export function summarizeAppInstallPurchaseReportStatusReadModelHandoffProof(
   proof: AppInstallPurchaseReportStatusReadModelHandoffProof
 ) {
-  return {
-    reportStatusReadModelRows: proof.reportStatusReadModelRows.length,
-    readyRows: proof.reportStatusReadModelRows.filter(
-      (row) => row.parentVisibleReportStatusState === 'parent-report-status-ready'
-    ).length,
-    manualRequiredRows: proof.reportStatusReadModelRows.filter(
-      (row) => row.parentVisibleReportStatusState === 'manual-required'
-    ).length,
-    portalReportUiRows: proof.reportStatusReadModelRows.filter((row) => row.portalReportUiClaim !== 'not-implemented')
-      .length,
-    externallyDeliveredRows: proof.reportStatusReadModelRows.filter(
-      (row) => row.runtimeReportDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseReportStatusReadModelHandoffProofGenerated(proof);
 }
 
 function reportStatusReadModelRow(
   row: (typeof AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel.runtimeReportWriterDeliveryRows)[number]
 ) {
-  const approvalRow = approvalReportDomainRowFor(row.sourceDecisionAction);
-  return {
-    schemaVersion: ReportStatusReadModelProofVersion,
-    reportStatusReadModelRowId: `report-status-read-model-${row.sourceDecisionAction}`,
-    sourceRuntimeReportWriterDeliveryProofVersion: SourceRuntimeReportWriterDeliveryProofVersion,
-    sourceRuntimeReportWriterDeliveryRowId: row.runtimeReportWriterDeliveryRowId,
-    sourceApprovalReportDomainProofVersion: SourceApprovalReportDomainProofVersion,
-    sourceApprovalReportDomainRowId: approvalRow.approvalReportDomainRowId,
-    sourceDecisionAction: row.sourceDecisionAction,
-    sourceApprovalReportDomainState: approvalRow.approvalReportDomainState,
-    sourceRuntimeReportWriterDeliveryState: row.runtimeReportWriterDeliveryState,
-    sourceRuntimeReportWriterReceiptState: row.runtimeReportWriterReceiptState,
-    parentVisibleReportStatusState:
-      row.sourceDecisionAction === 'review-needed' ? 'manual-required' : 'parent-report-status-ready',
-    parentVisibleReportStatusRef: `parent-visible-report-status-${row.sourceDecisionAction}`,
-    parentVisibleReportReceiptRef: row.runtimeReportWriterReceiptRef,
-    reportAuditEventRefs: row.reportAuditEventRefs,
-    portalReportUiClaim: 'not-implemented',
-    runtimeReportDeliveryClaim: row.runtimeReportDeliveryClaim,
-    providerApiExecutionClaim: row.providerApiExecutionClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    platformAdapterClaim: row.platformAdapterClaim,
-    childDeviceDeliveryClaim: row.childDeviceDeliveryClaim,
-    appBlockingClaim: row.appBlockingClaim,
-    childDataCustody: row.childDataCustody,
-    ocentraHostedFamilyDataCustodyClaim: row.ocentraHostedFamilyDataCustodyClaim,
-    claimBoundary: ReportStatusReadModelBoundary,
-    recordedAt: ReportStatusReadModelTimestamp,
-  } as const;
+  return buildAppInstallPurchaseReportStatusReadModelRowGenerated(
+    row,
+    approvalReportDomainRowFor(row.sourceDecisionAction),
+    SourceRuntimeReportWriterDeliveryProofVersion,
+    SourceApprovalReportDomainProofVersion,
+    ReportStatusReadModelBoundary,
+    ReportStatusReadModelTimestamp
+  );
 }
 
 function approvalReportDomainRowFor(action: (typeof ReportStatusReadModelActions)[number]) {
@@ -209,56 +182,16 @@ function approvalReportDomainRowFor(action: (typeof ReportStatusReadModelActions
 }
 
 function reportStatusReadModelRowIsHonest(row: ReportStatusReadModelRowCandidate): boolean {
-  return (
-    reportStatusReadModelStateMatchesAction(row) &&
-    reportStatusReadModelRefsAreComplete(row) &&
-    reportStatusReadModelClaimsStayUnimplemented(row) &&
-    ReportStatusReadModelBoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
-  );
-}
-
-function reportStatusReadModelStateMatchesAction(row: ReportStatusReadModelRowCandidate): boolean {
-  return row.sourceDecisionAction === 'review-needed'
-    ? row.parentVisibleReportStatusState === 'manual-required'
-    : row.parentVisibleReportStatusState === 'parent-report-status-ready';
-}
-
-function reportStatusReadModelRefsAreComplete(row: ReportStatusReadModelRowCandidate): boolean {
-  return (
-    row.sourceRuntimeReportWriterDeliveryRowId.length > 0 &&
-    row.sourceApprovalReportDomainRowId.length > 0 &&
-    row.parentVisibleReportStatusRef.length > 0 &&
-    row.parentVisibleReportReceiptRef.length > 0 &&
-    row.reportAuditEventRefs.length > 0
-  );
-}
-
-function reportStatusReadModelClaimsStayUnimplemented(row: ReportStatusReadModelRowCandidate): boolean {
-  return (
-    row.portalReportUiClaim === 'not-implemented' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
-  );
+  return reportStatusReadModelRowIsHonestGenerated(row, ReportStatusReadModelBoundaryFragments);
 }
 
 function reportStatusReadModelProofIsHonest(proof: AppInstallPurchaseReportStatusReadModelHandoffProof): boolean {
-  const actions = new Set(proof.reportStatusReadModelRows.map((row) => row.sourceDecisionAction));
-  const states = new Set(proof.reportStatusReadModelRows.map((row) => row.parentVisibleReportStatusState));
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.sourceRuntimeReportWriterDeliveryProofVersion === SourceRuntimeReportWriterDeliveryProofVersion &&
-    proof.sourceApprovalReportDomainProofVersion === SourceApprovalReportDomainProofVersion &&
-    proof.reportStatusReadModelRows.length === ReportStatusReadModelActions.length &&
-    ReportStatusReadModelActions.every((action) => actions.has(action)) &&
-    ReportStatusReadModelStates.every((state) => states.has(state)) &&
-    ReportStatusReadModelNonClaims.every((claim) => nonClaims.has(claim)) &&
-    proof.reportStatusReadModelRows.every(reportStatusReadModelRowIsHonest) &&
-    proof.knownGaps.length > 0
+    reportStatusReadModelProofIsHonestGenerated(
+      proof,
+      ReportStatusReadModelActions,
+      ReportStatusReadModelStates,
+      ReportStatusReadModelNonClaims
+    ) && proof.reportStatusReadModelRows.every(reportStatusReadModelRowIsHonest)
   );
 }

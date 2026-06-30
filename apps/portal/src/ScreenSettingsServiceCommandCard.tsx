@@ -4,7 +4,7 @@ import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-do
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
-  latestScreenSettingsServiceResponse,
+  type ScreenSettingsServiceResponse,
   type ScreenSettingsServiceRequestId,
 } from './screen-settings-service-command-state';
 
@@ -22,7 +22,7 @@ export function ScreenSettingsServiceCommandCard({
   readonly onSave: () => void;
   readonly pendingRequestId: ScreenSettingsServiceRequestId | null;
   readonly proof: ReturnType<typeof screenEvidenceSettingsWritableUiProof>;
-  readonly response: ReturnType<typeof latestScreenSettingsServiceResponse>;
+  readonly response: ScreenSettingsServiceResponse;
   readonly serviceStatus: ReactNode;
 }): ReactElement {
   return (

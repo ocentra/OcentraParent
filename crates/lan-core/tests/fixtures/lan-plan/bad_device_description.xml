@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  <device>
+    <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
+    <friendlyName>Broken Device Description</friendlyName>
+    <manufacturer>Example Corp</manufacturer>
+    <modelName>Bad XML
+    <UDN>uuid:broken-0001</UDN>
+  </device>
+</root>

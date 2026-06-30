@@ -145,7 +145,7 @@ $rows | ConvertTo-Json -Depth 4
   return asArray(rows).flatMap((row) => {
     const candidates = [];
     const iconPath = executableTargetPath(row.DisplayIcon);
-    if (iconPath !== null) {
+    if (iconPath !== undefined) {
       candidates.push(candidate(iconPath, 'registry-uninstall'));
     }
     if (typeof row.InstallLocation === 'string' && row.InstallLocation.trim() !== '') {
@@ -327,12 +327,12 @@ function executableTargetPath(value) {
   const trimmed = value.trim();
   if (trimmed.startsWith('"')) {
     const quoted = trimmed.slice(1).split('"')[0] || null;
-    return quoted !== null && knownExecutables.has(basename(quoted).toLowerCase()) ? quoted : null;
+    return quoted !== undefined && knownExecutables.has(basename(quoted).toLowerCase()) ? quoted : null;
   }
   const lower = trimmed.toLowerCase();
   const executable = [...knownExecutables.keys()]
     .map((name) => ({ name, index: executableNameIndex(lower, name) }))
-    .filter((match) => match.index !== null)
+    .filter((match) => match.index !== undefined)
     .sort((left, right) => left.index - right.index)[0];
   if (executable) return trimmed.slice(0, executable.index + executable.name.length);
   return null;
@@ -463,7 +463,7 @@ function validateProof(proof) {
   for (const row of proof.rows) {
     if (row.installState !== 'packaged' && (!row.fileSha256 || row.fileSha256.length !== 64))
       failures.push(`${row.productName} missing file hash ref`);
-    if (row.installState === 'packaged' && row.executableName !== null)
+    if (row.installState === 'packaged' && row.executableName !== undefined)
       failures.push(`${row.productName} packaged row must not claim an executable`);
     if (row.exactUrlCapability === 'managed-exact-url-available') failures.push(`${row.productName} claimed exact URL`);
     if (!row.noClaims.includes('page-body')) failures.push(`${row.productName} missing no-content no-claim`);

@@ -22,16 +22,19 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-lan-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 20 authoritative rows plus frozen follow-on rows 21-25
-- Current proof roots: Slice A, B1, and B2 under `output/lan-plan-proof/`
+- Workpacks indexed: 25 active rows, with `23` and `25` still open follow-on workpacks
+- Current proof roots: Slice A, B1, B2, and current `01-25` row proof roots under `output/lan-plan-proof/`
 
 ## Consistency warnings
 
 - No high-level checklist/workpack contradiction detected by the generated health check. Still verify the assigned workpack and checklist rows before DONE/PR_READY.
 - B1 is local proof-regeneration only and ends in `not-ready-for-product-ready-household-lan-claim`.
 - B2 is test-category truth only; placeholder test folders do not count as integration/e2e/security/performance/load coverage.
-- `packages/lan-domain` is the current package-level proof surface, while canonical LAN shapes live in schema-domain.
-- Frozen follow-on workpacks `21-25` are not current completion scope.
+- Rust owns canonical LAN contracts, shapes, business logic, read models, runtime truth, and proof truth. Remaining TS LAN package surfaces are migration residue or UI-only and are not ownership signals.
+- Real organized test folders/crates only; inline source-owned tests, placeholder directories, and mock-only coverage do not count as closure.
+- Workpacks `21-25` are active LAN follow-on scope. Rows `21`, `22`, and `24`
+  now have their own completion proof; rows `23` and `25` remain open and
+  still need manual/physical proof before broader completion claims.
 
 ## Required hygiene before PR_READY
 
@@ -46,7 +49,8 @@ This file records documentation health and consistency checks for the plan. It i
 - Do not claim READY from source matrix proof as physical LAN discovery proof.
 - Do not claim READY from portal rendering as LAN truth proof.
 - Do not claim READY from B1/B2 local proof as signed hello/heartbeat, service/runtime, portal, physical household, router/firewall, Android/mobile, or relay proof.
-- Do not claim READY from frozen workpacks `21-25`.
+- Do not claim READY from follow-on workpacks unless each included row has its
+  own row truth, organized tests where applicable, and current proof artifacts.
 - Do not claim feature completeness until the relevant E2E tier in `TEST_PROOF_EXPECTATIONS.md` is explicitly proven or blocked.
 
 ## Known healthy boundaries
@@ -90,6 +94,8 @@ integration/e2e/security/performance/load categories beyond unit tests
 
 ## PR-ready rule
 
-The whole plan is PR-ready only when the selected rollout/proof gate consumes or blocks every authoritative `01-20` proof root and updates PLAN_STATE.
+The whole plan is PR-ready only when the selected rollout/proof gate consumes or
+blocks every still-open authoritative `01-25` proof path that applies to the
+current state and updates `PLAN_STATE.md`.
 
 A partial PR may be ready only when one selected workpack is closed with proof artifacts, command logs, no-claim language, and remaining open workpacks listed.

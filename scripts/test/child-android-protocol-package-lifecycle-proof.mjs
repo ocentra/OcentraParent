@@ -20,11 +20,11 @@ async function main() {
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/child-runtime-domain',
+    '@ocentra-parent/schema-domain',
     '--',
     'vitest',
     'run',
-    'tests/unit/child-android-lifecycle-proof.test.ts',
+    'tests/proof/child-android-lifecycle-proof.test.ts',
   ]);
   await runNpm(['run', 'release:package:android']);
 
@@ -45,7 +45,7 @@ async function main() {
       sourceProof,
       packageArtifacts,
       contract: 'packages/schema-domain/src/child-android-lifecycle-proof.ts',
-      contractTest: 'packages/child-runtime-domain/tests/unit/child-android-lifecycle-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/proof/child-android-lifecycle-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-protocol-package-lifecycle-proof-2026-05-31.md',
       output: relativePath(proofPath),
@@ -54,19 +54,23 @@ async function main() {
     matrixProof,
     scriptWiring,
     androidCapabilitiesProved: {
+      childAgentArtifact: 'ci-mechanical-proof: debug APK is built and checksummed as the Android child-agent artifact',
+      androidMode: 'ci-mechanical-proof: chosen Android mode is explicit debug APK sideload, not managed-profile or device-owner',
       foregroundService: 'ci-mechanical-proof: manifest declaration, Java start path, and debug package compile',
       typedProtocolBridge: 'ci-mechanical-proof: native wrapper exposes lifecycle/capability/package proof commands',
       packageLifecycle: 'ci-mechanical-proof for debug APK build and checksum only',
       localStorage: 'scaffold only',
     },
     androidCapabilitiesStillManual: [
+      'APK install under debug APK sideload mode',
+      'launcher activity runtime launch on emulator or physical device',
       'notification permission grant and delivery',
       'UsageStats permission grant and observations',
       'AccessibilityService grant and behavior',
       'VPN/DNS filtering adapter behavior',
       'device-owner enrollment and policy behavior',
       'managed-profile enrollment and behavior',
-      'APK install/update/background/reboot/uninstall lifecycle on emulator or physical device',
+      'APK update/background/reboot/uninstall lifecycle on emulator or physical device',
     ],
     nonClaims: [
       'child Android enforcement parity',
@@ -205,6 +209,24 @@ function buildRuntimeReadModel(packageArtifacts) {
       permissionProof('android.permission.FOREGROUND_SERVICE_DATA_SYNC', 'declared-in-manifest', 'not-applicable'),
       permissionProof('android.permission.POST_NOTIFICATIONS', 'declared-in-manifest', 'manual-required'),
     ],
+    installAuthorityProof: {
+      childAgentArtifactState: 'debug-apk-built',
+      installMode: 'debug-apk-sideload',
+      installState: 'manual-install-proof-required',
+      launchState: 'manual-launch-proof-required',
+      removalState: 'manual-removal-proof-required',
+      deviceOwnerAuthorityState: 'manual-required',
+      managedProfileAuthorityState: 'manual-required',
+      childAgentArtifactBoundary:
+        'debug APK is the Android child-agent artifact proved by CI package output and checksum only',
+      installModeBoundary:
+        'proof is limited to debug APK sideload mode and does not claim managed-profile or device-owner packaging',
+      installStateBoundary: 'Android install remains manual-required until emulator or physical-device proof exists',
+      launchStateBoundary: 'Android launcher runtime remains manual-required until emulator or physical-device proof exists',
+      removalStateBoundary: 'Android uninstall and removal behavior remain manual-required until device proof exists',
+      deviceOwnerBoundary: 'manual-required; no device-owner claim is made without enrollment evidence',
+      managedProfileBoundary: 'manual-required; no managed-profile claim is made without enrollment evidence',
+    },
     claimBoundaries: {
       childAndroidEnforcementParity: 'not claimed; this proof covers package-local bridge mechanics only',
       foregroundServiceRuntime:

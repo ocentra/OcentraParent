@@ -552,7 +552,7 @@ function guideRuntimeOwnerFor(sectionTitle: string, groupTitle: string, sourceTe
     return 'os-adapter';
   }
   if (/policy|decision|rule|fallback|compile|deterministic/iu.test(searchable)) {
-    return 'parent-domain';
+    return 'rust-parent-runtime';
   }
   return 'child-agent';
 }

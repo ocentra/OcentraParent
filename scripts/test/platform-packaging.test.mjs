@@ -62,7 +62,8 @@ test('parent desktop Tauri package connects to the Rust service instead of Vite 
 
   assert.match(cargoToml, /ocentra-parent-agent-protocol/u);
   assert.match(tauriConfig, /"frontendDist": "\.\.\/\.\.\/portal\/dist"/u);
-  assert.match(tauriConfig, /ws:\/\/127\.0\.0\.1:4477/u);
+  assert.match(tauriConfig, /ws:\/\/127\.0\.0\.1:4478/u);
+  assert.doesNotMatch(tauriConfig, /ws:\/\/127\.0\.0\.1:4477/u);
   assert.match(tauriLib, /parent_platform_proof_state/u);
   assert.match(tauriLib, /TcpStream::connect_timeout/u);
   assert.match(tauriLib, /activity_adapter_state/u);
@@ -98,7 +99,7 @@ test('parent desktop Tauri package connects to the Rust service instead of Vite 
   assert.match(tauriLib, /platform_matrix_state/u);
   assert.match(tauriLib, /release_branch_state/u);
   assert.match(tauriLib, /artifact_proof_state/u);
-  assert.match(tauriLib, /TcpListener::bind/u);
+  assert.match(tauriLib, /TcpStream::connect_timeout/u);
   assert.match(tauriLib, /PARENT_DESKTOP_BACKEND_RUST_SERVICE/u);
   assert.match(tauriLib, /PARENT_DESKTOP_RUNTIME_READY/u);
   assert.match(tauriLib, /PARENT_DESKTOP_RUNTIME_DEGRADED/u);
@@ -143,19 +144,15 @@ test('Linux and macOS packages install real service managers', () => {
 });
 
 test('mobile platform projects define real installable app targets', () => {
-  const androidManifest = readRepoFile('platforms/android/agent/app/src/main/AndroidManifest.xml');
-  const iosProject = readRepoFile('platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj');
-  const parentMobileProof = readRepoFile('scripts/test/parent-mobile-shell-runtime-proof.mjs');
+  const androidManifest = readRepoFile('platforms/android/parent/app/src/main/AndroidManifest.xml');
+  const iosProject = readRepoFile('platforms/ios/OcentraParentMobile.xcodeproj/project.pbxproj');
+  const parentMobileSourceProof = readRepoFile('scripts/test/parent-mobile-package-source-artifact-proof.mjs');
 
   assert.match(androidManifest, /android\.intent\.action\.MAIN/u);
-  assert.match(androidManifest, /OcentraParentAgentService/u);
-  assert.match(androidManifest, /foregroundServiceType="dataSync"/u);
-  assert.match(androidManifest, /POST_NOTIFICATIONS/u);
+  assert.match(androidManifest, /android\.intent\.category\.LAUNCHER/u);
+  assert.doesNotMatch(androidManifest, /OcentraParentAgentService/u);
   assert.match(iosProject, /productType = "com\.apple\.product-type\.application"/u);
-  assert.match(iosProject, /PRODUCT_BUNDLE_IDENTIFIER = ca\.ocentra\.parent\.agent/u);
-  assert.match(parentMobileProof, /platformCapabilities/u);
-  assert.match(parentMobileProof, /parent-mobile-capabilities\.platform-boundaries/u);
-  assert.match(parentMobileProof, /localModelExecutionAllowed !== false/u);
-  assert.match(parentMobileProof, /childAgentBehaviorClaim !== 'not-claimed'/u);
-  assert.match(parentMobileProof, /node scripts\/test\/parent-mobile-shell-runtime-proof\.mjs/u);
+  assert.match(iosProject, /PRODUCT_BUNDLE_IDENTIFIER = ca\.ocentra\.parent\.mobile/u);
+  assert.match(parentMobileSourceProof, /child-agent-parity=not-claimed/u);
+  assert.match(parentMobileSourceProof, /parent mobile release scripts and smoke inputs are separate from child agent package scripts/u);
 });

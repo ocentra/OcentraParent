@@ -2,6 +2,8 @@
 
 Purpose: define the derived artifact the product can trust on-device after the server has decided the entitlement state.
 
+Current Rust owner: `crates/entitlement-core/src/entitlement_access.rs` owns the signed snapshot derivation model and the bridge that turns a signed snapshot plus verification inputs into the device-side entitlement gate context. TypeScript proof files may consume this model but must not become the source of truth.
+
 ## Snapshot fields
 
 | Field | Meaning |
@@ -31,8 +33,10 @@ Purpose: define the derived artifact the product can trust on-device after the s
 ## Validation rules
 
 - The app must verify the signature before trusting the snapshot.
+- The snapshot payload must be derived from billing, referral, and entitlement ledgers before it is signed.
 - The snapshot must match the household and device binding.
 - Expired or revoked snapshots must be rejected.
+- `deviceTrustRequired` must flow into the local gate so missing sealed device trust fails closed only where the model says it is required.
 - The snapshot must not contain child names, child activity, screenshots, or provider secrets.
 
 ## Rejection rules
@@ -50,3 +54,4 @@ Purpose: define the derived artifact the product can trust on-device after the s
 - Do not treat the snapshot as the root of trust.
 - Do not let a snapshot outlive the ledger state that generated it.
 - Do not reuse a snapshot across households or devices.
+- Do not let provider echoes or provider device-limit hints replace ledger-owned plan or effective-limit truth.

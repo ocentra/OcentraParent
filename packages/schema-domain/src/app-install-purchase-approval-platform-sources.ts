@@ -1,68 +1,72 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-const RequiredRequestKinds = ['install', 'purchase', 'subscription'] as const;
-const RequiredMetadataFields = [
-  'store-listing-id',
-  'app-title',
-  'publisher-name',
-  'category',
-  'age-rating',
-  'price-display',
-  'subscription-period',
-  'source-url',
-] as const;
-const RequiredPlatformSources = [
-  { platform: 'windows', storeSurface: 'microsoft-store' },
-  { platform: 'macos', storeSurface: 'mac-app-store' },
-  { platform: 'linux', storeSurface: 'linux-package-manager' },
-  { platform: 'android', storeSurface: 'google-play' },
-  { platform: 'ios', storeSurface: 'apple-app-store' },
-] as const;
+import {
+  AppInstallPurchaseApprovalContractRuntime,
+  GeneratedAppInstallPurchaseApprovalInterceptionClaims,
+  GeneratedAppInstallPurchaseApprovalPlatformAdapterClaims,
+  GeneratedAppInstallPurchaseApprovalPlatformSourceAuthorities,
+  GeneratedAppInstallPurchaseApprovalPlatformSourceEvidenceStates,
+  GeneratedAppInstallPurchaseApprovalPlatformSourceManualFallbacks,
+  GeneratedAppInstallPurchaseApprovalPlatformSourceMetadataFields,
+  GeneratedAppInstallPurchaseApprovalPlatformSourceMetadataStates,
+  GeneratedAppInstallPurchaseApprovalRequestKinds,
+  GeneratedAppInstallPurchaseApprovalStoreIntegrationClaims,
+  type GeneratedAppInstallPurchaseApprovalStoreSurface,
+} from './generated/app-install-purchase-approval-contracts';
+import {
+  appInstallPurchaseApprovalPlatformSourceMetadataRowIsHonestGenerated,
+  appInstallPurchaseApprovalPlatformSourceMetadataRowsAreCompleteGenerated,
+} from './generated/app-install-purchase-proof-helpers';
 
+const RequiredRequestKinds = GeneratedAppInstallPurchaseApprovalRequestKinds;
+const RequiredMetadataFields = GeneratedAppInstallPurchaseApprovalPlatformSourceMetadataFields;
 const AppInstallPurchaseApprovalPlatformSourceSchemaVersionSchema = withParser(
-  Schema.Literal('app-install-purchase-approval-contract-proof')
+  Schema.Literal(AppInstallPurchaseApprovalContractRuntime.SchemaVersion)
 );
+const PlatformSourceStoreSurfaces = [
+  'google-play',
+  'apple-app-store',
+  'mac-app-store',
+  'microsoft-store',
+  'linux-package-manager',
+] as const satisfies readonly GeneratedAppInstallPurchaseApprovalStoreSurface[];
+const PlatformSourceAuthorities = GeneratedAppInstallPurchaseApprovalPlatformSourceAuthorities;
+const PlatformSourceMetadataStates = GeneratedAppInstallPurchaseApprovalPlatformSourceMetadataStates;
+const PlatformSourceEvidenceStates = GeneratedAppInstallPurchaseApprovalPlatformSourceEvidenceStates;
+const PlatformSourceManualFallbacks = GeneratedAppInstallPurchaseApprovalPlatformSourceManualFallbacks;
+const PlatformSourceStoreIntegrationClaims = GeneratedAppInstallPurchaseApprovalStoreIntegrationClaims;
+const PlatformSourcePlatformAdapterClaims = GeneratedAppInstallPurchaseApprovalPlatformAdapterClaims;
+const PlatformSourceInterceptionClaims = GeneratedAppInstallPurchaseApprovalInterceptionClaims;
 const AppInstallPurchaseApprovalPlatformSourceRequestKindSchema = withParser(
-  Schema.Literal('install', 'purchase', 'subscription')
+  Schema.Literal(...RequiredRequestKinds)
 );
 const AppInstallPurchaseApprovalPlatformSourceStoreSurfaceSchema = withParser(
-  Schema.Literal('google-play', 'apple-app-store', 'mac-app-store', 'microsoft-store', 'linux-package-manager')
+  Schema.Literal(...PlatformSourceStoreSurfaces)
 );
 const AppInstallPurchaseApprovalPlatformSourceAuthoritySchema = withParser(
-  Schema.Literal(
-    'google-play-listing',
-    'apple-app-store-listing',
-    'mac-app-store-listing',
-    'microsoft-store-listing',
-    'linux-package-manager-index'
-  )
+  Schema.Literal(...PlatformSourceAuthorities)
 );
 export const AppInstallPurchaseApprovalPlatformSourceMetadataStateSchema = withParser(
-  Schema.Literal('contract-only', 'manual-required', 'unavailable')
+  Schema.Literal(...PlatformSourceMetadataStates)
 );
 const AppInstallPurchaseApprovalPlatformSourceEvidenceStateSchema = withParser(
-  Schema.Literal('requires-approved-api-proof', 'requires-store-artifact-proof', 'platform-unavailable')
+  Schema.Literal(...PlatformSourceEvidenceStates)
 );
 const AppInstallPurchaseApprovalPlatformSourceMetadataFieldSchema = withParser(
-  Schema.Literal(
-    'store-listing-id',
-    'app-title',
-    'publisher-name',
-    'category',
-    'age-rating',
-    'price-display',
-    'subscription-period',
-    'source-url'
-  )
+  Schema.Literal(...RequiredMetadataFields)
 );
 const AppInstallPurchaseApprovalPlatformSourceManualFallbackSchema = withParser(
-  Schema.Literal('contract-only-parent-review')
+  Schema.Literal(...PlatformSourceManualFallbacks)
 );
-const AppInstallPurchaseApprovalPlatformSourceStoreIntegrationClaimSchema = withParser(Schema.Literal('not-claimed'));
+const AppInstallPurchaseApprovalPlatformSourceStoreIntegrationClaimSchema = withParser(
+  Schema.Literal(...PlatformSourceStoreIntegrationClaims)
+);
 const AppInstallPurchaseApprovalPlatformSourcePlatformAdapterClaimSchema = withParser(
-  Schema.Literal('not-implemented')
+  Schema.Literal(...PlatformSourcePlatformAdapterClaims)
 );
-const AppInstallPurchaseApprovalPlatformSourceInterceptionClaimSchema = withParser(Schema.Literal('not-claimed'));
+const AppInstallPurchaseApprovalPlatformSourceInterceptionClaimSchema = withParser(
+  Schema.Literal(...PlatformSourceInterceptionClaims)
+);
 
 const AppInstallPurchaseApprovalPlatformSourceRowIdSchema = brandedNonEmptyStringSchema(
   'AppInstallPurchaseApprovalPlatformSourceRowId'
@@ -110,7 +114,7 @@ export const AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema = withPar
   AppInstallPurchaseApprovalPlatformSourceMetadataRowBaseSchema.pipe(
     Schema.filter(
       (row) =>
-        platformSourceMetadataRowIsHonest(row) ||
+        appInstallPurchaseApprovalPlatformSourceMetadataRowIsHonestGenerated(row) ||
         'Expected platform-source metadata rows to cite limitation proof without store integration or interception claims'
     )
   )
@@ -123,91 +127,7 @@ export type AppInstallPurchaseApprovalPlatformSourceMetadataRow = Infer<
 export function appInstallPurchaseApprovalPlatformSourceMetadataRowsAreComplete(
   rows: ReadonlyArray<AppInstallPurchaseApprovalPlatformSourceMetadataRow>
 ): boolean {
-  const rowKeys = new Set(rows.map((row) => platformSourceKey(row)));
-  return (
-    rows.length === RequiredPlatformSources.length &&
-    RequiredPlatformSources.every((source) => rowKeys.has(platformSourceKey(source))) &&
-    rows.every((row) => platformSourceMetadataRowIsHonest(row))
+  return appInstallPurchaseApprovalPlatformSourceMetadataRowsAreCompleteGenerated(
+    rows satisfies ReadonlyArray<AppInstallPurchaseApprovalPlatformSourceMetadataRowCandidate>
   );
-}
-
-function platformSourceMetadataRowIsHonest(row: AppInstallPurchaseApprovalPlatformSourceMetadataRowCandidate): boolean {
-  if (
-    !platformSourceClaimsStayContractOnly(row) ||
-    !rowRequestCoverageIsComplete(row) ||
-    !rowMetadataFieldsAreExplicit(row) ||
-    !rowStoreSourceMatchesAuthority(row)
-  ) {
-    return false;
-  }
-
-  if (row.metadataState === 'unavailable') {
-    return row.sourceEvidenceState === 'platform-unavailable' && row.fieldsAvailableFromContract.length === 0;
-  }
-
-  return (
-    row.metadataState === 'manual-required' &&
-    row.sourceEvidenceState !== 'platform-unavailable' &&
-    row.fieldsAvailableFromContract.length === 0
-  );
-}
-
-function platformSourceClaimsStayContractOnly(
-  row: AppInstallPurchaseApprovalPlatformSourceMetadataRowCandidate
-): boolean {
-  return (
-    row.requiredArtifacts.length > 0 &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.parentManualFallback === 'contract-only-parent-review' &&
-    row.claimBoundary.includes('no store integration') &&
-    row.claimBoundary.includes('no platform adapter') &&
-    row.claimBoundary.includes('no real install or purchase interception')
-  );
-}
-
-function rowRequestCoverageIsComplete(row: AppInstallPurchaseApprovalPlatformSourceMetadataRowCandidate): boolean {
-  return arrayContainsEvery(row.requestKindCoverage, RequiredRequestKinds) && arrayIsUnique(row.requestKindCoverage);
-}
-
-function rowMetadataFieldsAreExplicit(row: AppInstallPurchaseApprovalPlatformSourceMetadataRowCandidate): boolean {
-  return (
-    row.fieldsRequiringPlatformProof.length === RequiredMetadataFields.length &&
-    arrayContainsEvery(row.fieldsRequiringPlatformProof, RequiredMetadataFields) &&
-    arrayIsUnique(row.fieldsRequiringPlatformProof) &&
-    arrayIsUnique(row.fieldsAvailableFromContract)
-  );
-}
-
-function rowStoreSourceMatchesAuthority(row: AppInstallPurchaseApprovalPlatformSourceMetadataRowCandidate): boolean {
-  if (row.storeSurface === 'google-play') {
-    return row.sourceAuthority === 'google-play-listing';
-  }
-  if (row.storeSurface === 'apple-app-store') {
-    return row.sourceAuthority === 'apple-app-store-listing';
-  }
-  if (row.storeSurface === 'mac-app-store') {
-    return row.sourceAuthority === 'mac-app-store-listing';
-  }
-  if (row.storeSurface === 'microsoft-store') {
-    return row.sourceAuthority === 'microsoft-store-listing';
-  }
-  return row.sourceAuthority === 'linux-package-manager-index';
-}
-
-function arrayContainsEvery<T extends string>(values: readonly T[], requiredValues: readonly T[]): boolean {
-  const valueSet = new Set(values);
-  return requiredValues.every((value) => valueSet.has(value));
-}
-
-function arrayIsUnique<T extends string>(values: readonly T[]): boolean {
-  return new Set(values).size === values.length;
-}
-
-function platformSourceKey(input: {
-  readonly platform: (typeof RequiredPlatformSources)[number]['platform'];
-  readonly storeSurface: (typeof RequiredPlatformSources)[number]['storeSurface'];
-}): string {
-  return `${input.platform}:${input.storeSurface}`;
 }

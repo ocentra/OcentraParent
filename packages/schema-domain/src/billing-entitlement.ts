@@ -17,7 +17,9 @@ import {
   BillingEntitlementSnapshotIdSchema,
   BillingEntitlementSourceSchema,
   BillingEvidenceExportAccessSchema,
+  BillingExtraParentSlotStateSchema,
   BillingFeatureCodeSchema,
+  BillingIncludedParentPortalCountSchema,
   BillingLocalSafetyBehaviorSchema,
   BillingParentVisibleStateSchema,
   BillingPlanActiveStateSchema,
@@ -36,6 +38,8 @@ import {
   PositiveBillingLimitSchema,
 } from './billing-entitlement-values';
 import { buildBillingFailureStateSchema } from './billing-support-admin-common-values';
+
+const RejectedBillingGameEconomyPattern = /\b(coin|coins|gem|gems|loot|battle-?pass|skin|crate|marketplace)\b/i;
 
 export const BillingFeatureEntitlementSchema = withParser(
   Schema.Struct({
@@ -61,6 +65,10 @@ export const BillingPlanSchema = withParser(
     planId: BillingPlanIdSchema,
     displayTextToken: BillingDisplayTextTokenSchema,
     activeState: BillingPlanActiveStateSchema,
+    parentPortalAccess: Schema.Struct({
+      includedParentPortalCount: BillingIncludedParentPortalCountSchema,
+      extraParentSlotState: BillingExtraParentSlotStateSchema,
+    }),
     deviceLimit: PositiveBillingLimitSchema,
     featureEntitlements: Schema.Array(BillingFeatureEntitlementSchema),
     retentionExportAllowance: Schema.Struct({
@@ -70,7 +78,19 @@ export const BillingPlanSchema = withParser(
     }),
     priceReference: BillingPriceReferenceSchema,
     updatedAt: ParentTimestampSchema,
-  })
+  }).pipe(
+    Schema.filter(
+      (plan) =>
+        plan.displayTextToken.startsWith('billing.plan.') ||
+        'Expected billing plan display tokens to stay inside the billing plan namespace'
+    ),
+    Schema.filter(
+      (plan) =>
+        (!RejectedBillingGameEconomyPattern.test(plan.displayTextToken) &&
+          !RejectedBillingGameEconomyPattern.test(plan.priceReference)) ||
+        'Expected billing plans to reject game-economy pricing tokens or marketplace semantics'
+    )
+  )
 );
 
 export const BillingFailureStateSchema = buildBillingFailureStateSchema('billing');

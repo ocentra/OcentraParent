@@ -1,4 +1,4 @@
-import { type LogFields } from '@ocentra-parent/schema-domain/logging-contracts';
+import { type GeneratedLogFields as LogFields } from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import { type SafeParseResult } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentBrowserRuntimePhase,
@@ -9,6 +9,7 @@ import {
   type AgentBrowserRuntimeEventChainStream,
 } from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { parseJsonPayloadFieldArray, parseJsonStringArrayField } from './protocol-event-payload.js';
 
 export type AgentBrowserRuntimeActionIntentStatus = {
   readonly candidateCount: number;
@@ -67,24 +68,17 @@ export type AgentBrowserRuntimeEventChainStreamResult =
 export function parseAgentBrowserRuntimeEventChainStreamFields(
   fields: LogFields
 ): AgentBrowserRuntimeEventChainStreamResult {
-  const raw = fields[AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream];
-  if (typeof raw !== 'string') {
-    return parserFailure('missing-json-field');
-  }
+  const parsedStream = parseJsonPayloadFieldArray(fields, AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream);
+  if (!parsedStream.ok) {
+    if (parsedStream.reason === 'missing-json-field' || parsedStream.reason === 'invalid-json') {
+      return parserFailure(parsedStream.reason);
+    }
 
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(raw);
-  } catch {
-    return parserFailure('invalid-json');
-  }
-
-  if (!Array.isArray(decoded)) {
     return parserFailure('invalid-entry');
   }
 
   const entries: AgentBrowserRuntimeEventChainEntry[] = [];
-  for (const entry of decoded) {
+  for (const entry of parsedStream.value) {
     const parsed = AgentBrowserRuntimeEventChainEntrySchema.safeParse(entry);
     if (!parsed.success || parsed.data === undefined) {
       return parserFailure('invalid-entry');
@@ -288,21 +282,7 @@ function numberField(fields: LogFields, key: string): number | null {
 }
 
 function stringArrayField(fields: LogFields, key: string): readonly string[] | null {
-  const value = fields[key];
-  if (typeof value !== 'string') {
-    return null;
-  }
-
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(value);
-  } catch {
-    return null;
-  }
-  if (!Array.isArray(decoded) || decoded.some((entry) => typeof entry !== 'string' || entry.length === 0)) {
-    return null;
-  }
-  return decoded;
+  return parseJsonStringArrayField(fields, key);
 }
 
 function actionIntentCandidateFromEntry(

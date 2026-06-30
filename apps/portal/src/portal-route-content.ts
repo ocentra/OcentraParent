@@ -1,4 +1,4 @@
-import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
+import { ParentRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
 import { renderDevLogPanel } from './dev-log-panel';
 import { renderEvents } from './event-list';
 import { renderCommands } from './portal-command-controls';
@@ -7,21 +7,21 @@ import type { PortalRuntimeState } from './portal-state';
 
 export function renderRouteContent(
   container: HTMLElement,
-  route: PortalRouteValue,
+  route: ParentRouteId,
   state: PortalRuntimeState,
   actions: PortalRenderActions,
   _theme: unknown,
   _rerender: () => void
 ): void {
-  if (route === PortalRoute.Commands) {
+  if (route === ParentRoute.Commands) {
     renderCommands(container, state, actions);
     return;
   }
-  if (route === PortalRoute.Events) {
+  if (route === ParentRoute.Events) {
     renderEvents(container, state.events);
     return;
   }
-  if (route === PortalRoute.Logs) {
+  if (route === ParentRoute.Logs) {
     renderDevLogPanel(container, state.latestSnapshot);
     return;
   }

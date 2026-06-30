@@ -45,6 +45,7 @@
     "child-android-service-protocol-capability-proof",
     "child-android-permission-capability-proof",
     "child-android-privileged-capability-proof",
+    "child-macos-service-package-proof",
     "child-ios-entitlement-capability-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
@@ -1451,6 +1452,41 @@
       ]
     },
     {
+      "id": "child-macos-service-package-proof",
+      "title": "Child macOS Service Package Proof",
+      "claimIds": ["child-macos-service-package-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the schema-domain child macOS service package contract test.",
+        "Verify the macOS package script stages the child service binary, LaunchDaemon plist, and launchctl bootstrap/enable path.",
+        "Verify the launchd plist declares RunAtLoad and KeepAlive without upgrading runtime or restart claims.",
+        "Record signing as unsigned and keep notarization, entitlement, install, runtime, uninstall, and removal states manual-required until real macOS artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/child-macos-service-package-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-macos-service-package-proof/proof.json",
+        "packages/schema-domain/src/child-macos-service-package-proof.ts",
+        "packages/schema-domain/tests/proof/child-macos-service-package-proof.test.ts",
+        "scripts/release/macos/build-agent-package.sh",
+        "scripts/release/macos/ca.ocentra.parent.agent.plist"
+      ],
+      "knownGaps": [
+        "CI proof inspects macOS package and launchd source only; it does not install or run the package on a macOS host in this worker environment.",
+        "Install, runtime launch, restart recovery, signing, notarization, entitlements, uninstall, and removal remain manual-required until real macOS artifacts exist."
+      ],
+      "notProof": [
+        "A launchd plist or KeepAlive declaration presented as proved runtime launch or restart recovery.",
+        "A pkgbuild script presented as signed, notarized, entitlement-approved, or uninstall-proved macOS behavior.",
+        "A child macOS launchd package presented as parent-client parity or hidden background-service authority."
+      ]
+    },
+    {
       "id": "child-ios-entitlement-capability-proof",
       "title": "Child iOS Entitlement Package Capability Proof",
       "claimIds": ["child-ios-entitlement-capability-proof"],
@@ -1462,15 +1498,15 @@
       "proofMode": "ci-mechanical-proof",
       "realEvidencePath": [
         "Build TypeScript contracts from the current commit.",
-        "Run the parent-domain Child iOS entitlement/package contract test.",
+        "Run the schema-domain Child iOS entitlement/package contract test.",
         "Verify the iOS simulator target, bundle identifier, Info.plist scaffold, status surface labels, and simulator build script without invoking unavailable Apple signing or device tooling.",
         "Record Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, and physical device states as manual-required, entitlement-required, signing-required, device-proof-required, planned, or not implemented until Apple artifacts exist."
       ],
       "ciCommands": ["node scripts/test/child-ios-entitlement-capability-proof.mjs"],
       "requiredArtifacts": [
         "test-results/child-ios-entitlement-capability-proof/proof.json",
-        "packages/parent-domain/src/child-ios-entitlement-capability-proof.ts",
-        "packages/parent-domain/tests/child-ios-entitlement-capability-proof.test.ts",
+        "packages/schema-domain/src/child-ios-entitlement-capability-proof.ts",
+        "packages/schema-domain/tests/proof/child-ios-entitlement-capability-proof.test.ts",
         "platforms/ios/OcentraParentAgent/AgentStatusViewController.swift",
         "scripts/release/ios/build-simulator-app.sh"
       ],
@@ -3951,6 +3987,82 @@
       ]
     },
     {
+      "id": "child-macos-service-package-proof",
+      "roadmapSlice": "Child macOS service package proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child macOS service package proof validates a typed schema-domain macOS package read model, proves the pkgbuild script and LaunchDaemon plist define the child launchd service boundary, records signing as unsigned, and keeps install, runtime, restart recovery, notarization, entitlement, uninstall, removal, and parent-parity states honest and manual-required until macOS artifacts exist.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-macos-service-package-proof.mjs"],
+        "jobs": ["Worker D child macOS service package proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "ci-mechanical-proof",
+        "android": "not-applicable",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "packageScript": {
+          "state": "ci-mechanical-proof",
+          "proof": "The macOS release script stages the child agent binary and LaunchDaemon plist into a pkgbuild payload."
+        },
+        "launchdBoundary": {
+          "state": "ci-mechanical-proof",
+          "proof": "The package script bootstraps and enables the ca.ocentra.parent.agent LaunchDaemon and the plist declares RunAtLoad."
+        },
+        "runtimeLaunch": {
+          "state": "manual-required",
+          "proof": "Source proof does not show installed launch success or service health on macOS."
+        },
+        "restartRecovery": {
+          "state": "manual-required",
+          "proof": "KeepAlive is declared, but restart or recovery behavior remains manual-required without runtime artifacts."
+        },
+        "signing": {
+          "state": "unsigned",
+          "proof": "The package script has no codesign or productsign step, so the child artifact stays explicitly unsigned in this proof surface."
+        },
+        "notarization": {
+          "state": "manual-required",
+          "proof": "No notarytool or stapled ticket artifact is attached."
+        },
+        "entitlements": {
+          "state": "manual-required",
+          "proof": "No signed entitlement or hardened-runtime artifact is attached."
+        },
+        "uninstallDisable": {
+          "state": "manual-required",
+          "proof": "No uninstall script or launchctl disable artifact is attached."
+        },
+        "removalCleanup": {
+          "state": "manual-required",
+          "proof": "No package removal, plist cleanup, or post-remove heartbeat artifact is attached."
+        },
+        "parentParity": {
+          "state": "not-yet-proven",
+          "proof": "The child macOS package proof does not imply parent-client parity or hidden persistence."
+        }
+      },
+      "knownGaps": [
+        "The proof does not install or run the child package on a macOS host in this worker environment.",
+        "Install, runtime launch, restart recovery, signing, notarization, entitlements, uninstall, and removal remain manual-required until real macOS artifacts exist.",
+        "The proof does not claim parent-client parity or hidden background-service behavior."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/child-macos-service-package-proof/proof.json with the commit SHA.",
+        "Install the child macOS package on a macOS host and capture launchctl/bootstrap output before upgrading install or runtime states.",
+        "Record service health and crash/restart artifacts before upgrading restart or recovery claims.",
+        "Record Apple signing identity, entitlement, and notarization artifacts before upgrading those states.",
+        "Record disable, uninstall, removal, and cleanup artifacts before upgrading lifecycle removal claims."
+      ]
+    },
+    {
       "id": "child-ios-entitlement-capability-proof",
       "roadmapSlice": "Child iOS entitlement/package capability proof",
       "expectationFiles": [
@@ -3958,7 +4070,7 @@
         "docs/expectations/platforms.md",
         "docs/expectations/real-evidence-proof.md"
       ],
-      "claim": "Child iOS entitlement/package capability proof validates a typed parent-domain iOS entitlement read model, proves the simulator target, bundle id, Info.plist scaffold, status surface labels, and simulator build script are present, and records Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, physical-device, and external child-agent states without over-claiming Apple artifacts.",
+      "claim": "Child iOS entitlement/package capability proof validates a typed schema-domain iOS entitlement read model, proves the simulator target, bundle id, Info.plist scaffold, status surface labels, and simulator build script are present, and records launch availability, recovery non-claim, Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, physical-device, and external child-agent states without over-claiming Apple artifacts.",
       "privilegedCapability": false,
       "ciProof": {
         "commands": ["node scripts/test/child-ios-entitlement-capability-proof.mjs"],

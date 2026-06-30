@@ -16,16 +16,6 @@ async function main() {
 
   await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'enforcement-readiness.test.ts',
-    ])
-  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_readiness']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'enforcement_readiness']);
   await runCommand('cargo', [

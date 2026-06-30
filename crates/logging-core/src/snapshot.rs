@@ -1,15 +1,4 @@
-use serde::{Deserialize, Serialize};
+pub const SNAPSHOT_SCHEMA_VERSION: u16 =
+    ocentra_schema::logging_contracts::LOG_SNAPSHOT_SCHEMA_VERSION;
 
-use crate::event::ParentLogEvent;
-
-pub const SNAPSHOT_SCHEMA_VERSION: u16 = 1;
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LogSnapshot {
-    pub schema_version: u16,
-    #[serde(rename = "status")]
-    pub snapshot_state: String,
-    #[serde(default)]
-    pub entries: Vec<ParentLogEvent>,
-}
+pub type LogSnapshot = ocentra_schema::logging_contracts::LogSnapshot;

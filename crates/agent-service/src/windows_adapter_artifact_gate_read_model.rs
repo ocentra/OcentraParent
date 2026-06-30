@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants::{
     windows_adapter_artifact_gate as artifact_gate, windows_adapter_capability as windows_adapter,
 };
@@ -233,23 +234,24 @@ fn capability_entry_for(
         .entries
         .iter()
         .find(|entry| entry.surface == surface)
-        .unwrap_or_else(|| panic!("{}", windows_adapter::READ_MODEL_ID_V0_8))
+        .expect_value(artifact_gate::READ_MODEL_ID_V0_8)
 }
 
 fn present_artifacts<'a>(
     spec: &ArtifactGateSpec,
     artifacts: &'a [WindowsAdapterArtifactEvidence],
 ) -> Vec<&'a WindowsAdapterArtifactEvidence> {
-    spec.required_artifact_kinds
-        .iter()
-        .filter_map(|required_kind| {
-            artifacts.iter().find(|artifact| {
-                artifact.surface == spec.surface
-                    && artifact.artifact_kind == *required_kind
-                    && artifact_satisfies_kind(artifact)
-            })
-        })
-        .collect()
+    let mut present = Vec::new();
+    for required_kind in spec.required_artifact_kinds {
+        if let Some(artifact) = artifacts.iter().find(|artifact| {
+            artifact.surface == spec.surface
+                && artifact.artifact_kind == *required_kind
+                && artifact_satisfies_kind(artifact)
+        }) {
+            present.push(artifact);
+        }
+    }
+    present
 }
 
 fn missing_artifact_kinds(

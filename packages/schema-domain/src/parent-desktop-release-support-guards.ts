@@ -87,6 +87,7 @@ const RequiredUpdaterChannels = [
 const RequiredRunbookSections = [
   'rollback-triage',
   'rollback-failure-status',
+  'teardown-revert-evidence',
   'diagnostics-redaction',
   'manual-platform-proof',
   'support-escalation-boundary',
@@ -194,26 +195,65 @@ function mobileBoundaryIsSeparate(boundary: ParentDesktopReleaseSupportMobileBri
 
 function updateStatesAreHonest(states: ReadonlyArray<ParentDesktopReleaseSupportUpdateState>): boolean {
   const byChannel = new Map(states.map((entry) => [entry.channel, entry] as const));
-  if (!byChannel.has('unsigned-preview') || !byChannel.has('production') || byChannel.size !== states.length) {
+  if (byChannel.size !== states.length || !RequiredUpdaterChannels.every((channel) => byChannel.has(channel))) {
     return false;
   }
 
   return states.every((entry) => {
+    if (entry.channel === 'scaffold') {
+      return (
+        entry.updateAvailabilityState === 'unavailable' &&
+        entry.packageState === 'scaffold' &&
+        entry.checksumState === 'unavailable' &&
+        entry.signatureState === 'unavailable' &&
+        entry.signingState === 'signature-required' &&
+        entry.rollbackState === 'rollback-unavailable' &&
+        entry.rollbackAvailabilityState === 'unavailable' &&
+        entry.teardownEvidenceState === 'recorded' &&
+        entry.revertEvidenceState === 'recorded'
+      );
+    }
     if (entry.channel === 'unsigned-preview') {
       return (
+        entry.updateAvailabilityState === 'available' &&
         entry.packageState === 'unsigned-preview' &&
+        entry.checksumState === 'verified' &&
+        entry.signatureState === 'manual-required' &&
         entry.signingState === 'signature-required' &&
-        entry.rollbackState === 'rollback-unavailable'
+        entry.rollbackState === 'rollback-unavailable' &&
+        entry.rollbackAvailabilityState === 'unavailable' &&
+        entry.teardownEvidenceState === 'recorded' &&
+        entry.revertEvidenceState === 'recorded'
+      );
+    }
+    if (entry.channel === 'signature-required') {
+      return (
+        entry.updateAvailabilityState === 'manual-required' &&
+        entry.packageState === 'signature-required' &&
+        entry.checksumState === 'verified' &&
+        entry.signatureState === 'manual-required' &&
+        entry.signingState === 'signature-required' &&
+        entry.rollbackState === 'manual-required' &&
+        entry.rollbackAvailabilityState === 'manual-required' &&
+        entry.teardownEvidenceState === 'manual-required' &&
+        entry.revertEvidenceState === 'manual-required'
       );
     }
     if (entry.channel === 'production') {
       return (
+        entry.updateAvailabilityState === 'manual-required' &&
         entry.packageState === 'production-promotion-required' &&
+        entry.checksumState === 'manual-required' &&
+        entry.signatureState === 'manual-required' &&
         entry.signingState === 'signature-required' &&
+        entry.rollbackState === 'manual-required' &&
+        entry.rollbackAvailabilityState === 'manual-required' &&
+        entry.teardownEvidenceState === 'manual-required' &&
+        entry.revertEvidenceState === 'manual-required' &&
         entry.productionPromotionState === 'production-promotion-required'
       );
     }
-    return entry.rollbackState !== 'rollback-available';
+    return false;
   });
 }
 
@@ -358,13 +398,48 @@ function updaterRollbackRowsAreHonest(rows: ReadonlyArray<UpdaterRollbackRow>): 
   return (
     byChannel.size === rows.length &&
     RequiredUpdaterChannels.every((channel) => byChannel.has(channel)) &&
-    rows.every(
-      (entry) =>
-        entry.rollbackState === 'rollback-unavailable' &&
+    rows.every((entry) => {
+      if (entry.channel === 'scaffold') {
+        return (
+          entry.updateAvailabilityState === 'unavailable' &&
+          entry.checksumState === 'unavailable' &&
+          entry.signatureState === 'unavailable' &&
+          entry.rollbackState === 'rollback-unavailable' &&
+          entry.rollbackAvailabilityState === 'unavailable' &&
+          entry.teardownEvidenceState === 'recorded' &&
+          entry.revertEvidenceState === 'recorded' &&
+          entry.failureStatusState === 'manual-required' &&
+          entry.manualRequiredState === 'manual-required' &&
+          entry.proofRequirement.includes('teardown or revert evidence')
+        );
+      }
+      if (entry.channel === 'unsigned-preview') {
+        return (
+          entry.updateAvailabilityState === 'available' &&
+          entry.checksumState === 'verified' &&
+          entry.signatureState === 'manual-required' &&
+          entry.rollbackState === 'rollback-unavailable' &&
+          entry.rollbackAvailabilityState === 'unavailable' &&
+          entry.teardownEvidenceState === 'recorded' &&
+          entry.revertEvidenceState === 'recorded' &&
+          entry.failureStatusState === 'manual-required' &&
+          entry.manualRequiredState === 'manual-required' &&
+          entry.proofRequirement.includes('teardown or revert evidence')
+        );
+      }
+      return (
+        entry.updateAvailabilityState === 'manual-required' &&
+        (entry.checksumState === 'verified' || entry.checksumState === 'manual-required') &&
+        entry.signatureState === 'manual-required' &&
+        entry.rollbackState === 'manual-required' &&
+        entry.rollbackAvailabilityState === 'manual-required' &&
+        entry.teardownEvidenceState === 'manual-required' &&
+        entry.revertEvidenceState === 'manual-required' &&
         entry.failureStatusState === 'manual-required' &&
         entry.manualRequiredState === 'manual-required' &&
         entry.proofRequirement.includes('manual proof')
-    ) &&
+      );
+    }) &&
     byChannel.get('production')?.proofRequirement.includes('signed production update channel') === true
   );
 }

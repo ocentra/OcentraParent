@@ -18,14 +18,11 @@ use crate::screen_ai_service_event_bridge::{
     ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
 
+#[path = "screen_ai_service_event_subscription/live_view_service_runtime.rs"]
 pub(crate) mod live_view_service_runtime;
-#[cfg(test)]
-mod live_view_service_runtime_tests;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
     bus: EventBus,
-    #[cfg(test)]
-    state: ScreenAiServiceEventSubscriptionState,
 }
 
 impl ScreenAiServiceEventRuntime {
@@ -33,11 +30,7 @@ impl ScreenAiServiceEventRuntime {
         let bus = EventBus::new();
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
-        Ok(Self {
-            bus,
-            #[cfg(test)]
-            state,
-        })
+        Ok(Self { bus })
     }
 
     pub(crate) async fn publish_row_ready(
@@ -52,11 +45,6 @@ impl ScreenAiServiceEventRuntime {
             observed_at,
         )
         .await
-    }
-
-    #[cfg(test)]
-    pub(crate) fn dispatches(&self) -> Vec<ScreenAiServiceEventSubscriptionDispatch> {
-        self.state.dispatches()
     }
 }
 
@@ -101,15 +89,10 @@ impl DomainEvent for ScreenAiServiceRowReadyEvent {
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct ScreenAiServiceEventSubscriptionState {
-    dispatches: Arc<Mutex<Vec<ScreenAiServiceEventSubscriptionDispatch>>>,
+    pub(crate) dispatches: Arc<Mutex<Vec<ScreenAiServiceEventSubscriptionDispatch>>>,
 }
 
 impl ScreenAiServiceEventSubscriptionState {
-    #[cfg(test)]
-    pub(crate) fn dispatches(&self) -> Vec<ScreenAiServiceEventSubscriptionDispatch> {
-        lock_recover(&self.dispatches).clone()
-    }
-
     fn record(&self, dispatch: ScreenAiServiceEventSubscriptionDispatch) {
         lock_recover(&self.dispatches).push(dispatch);
     }

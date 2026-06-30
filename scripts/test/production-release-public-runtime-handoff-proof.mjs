@@ -20,15 +20,15 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/production-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/production-release-public-runtime-handoff.test.ts',
+      'tests/proof/production-release-public-runtime-handoff.test.ts',
     ])
   );
 
@@ -45,7 +45,7 @@ async function main() {
       contract: 'packages/schema-domain/src/production-release-public-runtime-handoff.ts',
       values: 'packages/schema-domain/src/production-release-public-runtime-handoff-values.ts',
       readModel: 'packages/schema-domain/src/production-release-public-runtime-handoff-read-model.ts',
-      contractTest: 'packages/production-domain/tests/unit/production-release-public-runtime-handoff.test.ts',
+      contractTest: 'packages/schema-domain/tests/proof/production-release-public-runtime-handoff.test.ts',
       packageExports,
       documentation,
       proofOutput: relativePath(proofPath),

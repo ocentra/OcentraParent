@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/app-install-purchase-platform-artifact-proof.test.ts',
+      'tests/unit/app-install-purchase-platform-artifact-proof.test.ts',
     ])
   );
 
@@ -68,7 +68,7 @@ async function main() {
       platformArtifactContract: 'packages/schema-domain/src/app-install-purchase-platform-artifact-proof.ts',
       sourceRuntimeContract: 'packages/schema-domain/src/app-install-purchase-runtime-proof.ts',
       sourceApprovalContract: 'packages/schema-domain/src/app-install-purchase-approval.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-artifact-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/app-install-purchase-platform-artifact-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklist: 'docs/product-capability-checklist.md',
@@ -118,7 +118,7 @@ async function loadPlatformArtifactProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-platform-artifact-proof.js'
   );

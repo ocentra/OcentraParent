@@ -12,3 +12,17 @@ pub const LOCAL_SERVICE_STATE_SNAPSHOT_REF: &str = "agent-service-local-retentio
 pub const DURABLE_SETTINGS_STORE_REF: &str = "agent-service-local-retention-settings-durable-json";
 pub const DURABLE_SETTINGS_STORE_FILE_NAME: &str =
     "ocentra-parent-tracking-retention-settings-durable-proof.json";
+pub const FLOW_OBSERVABILITY_FIELD: &str = "trackingRetentionSettingsWriteFlowObservability";
+pub const FLOW_PARENT_ACTION_EVENT_REF: &str = "parentActionEventRef";
+pub const FLOW_PARENT_COMMAND_VALIDATED: &str = "parentCommandValidated";
+pub const FLOW_PARENT_COMMAND_REJECTED: &str = "parentCommandRejected";
+pub const FLOW_CHANGE_REQUESTED: &str = "changeRequested";
+pub const FLOW_POLICY_EVALUATION_REQUESTED: &str = "policyEvaluationRequested";
+pub const FLOW_POLICY_DECISION_COMPLETED: &str = "policyDecisionCompleted";
+pub const FLOW_CHANGE_APPROVED: &str = "changeApproved";
+pub const FLOW_CHANGE_REJECTED: &str = "changeRejected";
+pub const FLOW_CHILD_COMMAND_FORWARD_REQUESTED: &str = "childCommandForwardRequested";
+pub const FLOW_CHILD_COMMAND_RECEIVED: &str = "childCommandReceived";
+pub const FLOW_CHILD_RUNTIME_FLOW: &str = "childRuntimeFlow";
+pub const FLOW_AUDIT_ENTRY_COMMITTED: &str = "auditEntryCommitted";
+pub const FLOW_PORTAL_READ_MODEL_UPDATED: &str = "portalReadModelUpdated";

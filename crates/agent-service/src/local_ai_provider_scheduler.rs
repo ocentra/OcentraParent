@@ -46,17 +46,6 @@ impl LocalAiProviderSchedulerRuntime {
         }
     }
 
-    #[cfg(test)]
-    pub(crate) fn new_for_test() -> Self {
-        Self {
-            lanes: Mutex::new(HashMap::new()),
-            states: std::sync::Mutex::new(HashMap::from([(
-                constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
-                status_unavailable(constants::local_ai_runtime::TEST_CHECKED_AT.to_string()),
-            )])),
-        }
-    }
-
     pub(crate) fn status_snapshot(&self) -> LocalAiProviderSchedulerStatus {
         self.status_snapshot_for_device(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL)
     }
@@ -109,19 +98,6 @@ impl LocalAiProviderSchedulerRuntime {
             Some(status.queue.total()),
             None,
             true,
-        )
-    }
-
-    #[cfg(test)]
-    pub(crate) fn record_running_job(
-        &self,
-        runtime: &LocalModelRuntimeStatus,
-        job_class: LocalAiProviderSchedulerJobClass,
-    ) -> LocalAiProviderSchedulerDecision {
-        self.record_running_job_for_device(
-            constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
-            runtime,
-            job_class,
         )
     }
 

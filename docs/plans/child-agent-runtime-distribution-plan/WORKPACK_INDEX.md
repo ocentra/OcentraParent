@@ -18,17 +18,17 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
-| open | [WP01 Child Agent Scope And Route Boundary](workpacks/01-child-agent-scope-and-route-boundary.md) | 0/10 | `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/` |
-| open | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` |
-| open | [WP03 Child macOS Service Package](workpacks/03-child-macos-service-package.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` |
-| open | [WP04 Child Linux Service Package](workpacks/04-child-linux-service-package.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/` |
-| open | [WP05 Child Android Agent Package](workpacks/05-child-android-agent-package.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/` |
-| open | [WP06 Child iOS Capability Package](workpacks/06-child-ios-agent-capability-package.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/06-child-ios-agent-capability-package/` |
-| open | [WP07 Child Managed Service Respawn](workpacks/07-child-managed-service-respawn.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/` |
-| open | [WP08 Child Parent Authorized Uninstall](workpacks/08-child-parent-authorized-uninstall.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/` |
-| open | [WP09 Child Signing Store Device Owner Matrix](workpacks/09-child-signing-store-device-owner-matrix.md) | 0/12 | `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/` |
-| open | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | 0/10 | `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` |
-| open | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 0/14 | `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
+| complete | [WP01 Child Agent Scope And Route Boundary](workpacks/01-child-agent-scope-and-route-boundary.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/` |
+| blocked / proof-present | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` |
+| complete | [WP03 Child macOS Service Package](workpacks/03-child-macos-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` |
+| complete | [WP04 Child Linux Service Package](workpacks/04-child-linux-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/` |
+| complete | [WP05 Child Android Agent Package](workpacks/05-child-android-agent-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/` |
+| complete | [WP06 Child iOS Capability Package](workpacks/06-child-ios-agent-capability-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/` |
+| complete | [WP07 Child Managed Service Respawn](workpacks/07-child-managed-service-respawn.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/` |
+| complete | [WP08 Child Parent Authorized Uninstall](workpacks/08-child-parent-authorized-uninstall.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/` |
+| complete | [WP09 Child Signing Store Device Owner Matrix](workpacks/09-child-signing-store-device-owner-matrix.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/` |
+| complete | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` |
+| complete | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 14/14 | `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
 
 ## Default execution order
 

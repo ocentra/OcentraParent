@@ -57,8 +57,8 @@ function artifactRows(evidence) {
   const interventionFamilies = browserFamilies(evidence.intervention?.data?.browsers);
   const profileScreenshots = evidence.profileScreenshots;
   const interventionScreenshots = evidence.interventionScreenshots;
-  const domainAdapterPresent = evidence.domainAdapter !== null;
-  const performancePresent = evidence.performanceHealth !== null;
+  const domainAdapterPresent = evidence.domainAdapter !== undefined;
+  const performancePresent = evidence.performanceHealth !== undefined;
 
   return [
     claimRow({
@@ -98,7 +98,7 @@ function artifactRows(evidence) {
     claimRow({
       id: 'unmanaged-chrome-bypass',
       label: 'Unmanaged Chrome bypass',
-      present: evidence.windowsEnforcement !== null,
+      present: evidence.windowsEnforcement !== undefined,
       artifacts: [jsonArtifact('windows-managed-unmanaged-proof-json', evidence.windowsEnforcement)],
       manualRequiredReason:
         'Run windows-managed-unmanaged-browser-enforcement proof on a Windows host before unmanaged bypass release claims.',
@@ -108,7 +108,7 @@ function artifactRows(evidence) {
     claimRow({
       id: 'bridge-disconnect-stale',
       label: 'Bridge disconnect stale state',
-      present: evidence.serviceProof !== null,
+      present: evidence.serviceProof !== undefined,
       artifacts: [jsonArtifact('managed-browser-service-proof-json', evidence.serviceProof)],
       manualRequiredReason:
         'Run managed-browser service proof with bridge disconnect/stale scenario before claiming live stale-state evidence.',
@@ -127,7 +127,7 @@ function artifactRows(evidence) {
     claimRow({
       id: 'managed-block-page',
       label: 'Managed block page',
-      present: evidence.intervention !== null && interventionScreenshots.length > 0,
+      present: evidence.intervention !== undefined && interventionScreenshots.length > 0,
       artifacts: [
         jsonArtifact('managed-browser-intervention-proof-json', evidence.intervention),
         countedArtifact('intervention-screenshots', interventionScreenshots),
@@ -149,7 +149,7 @@ function artifactRows(evidence) {
       ],
       manualRequiredReason:
         'Model/provider classification, policy decision, action, and degraded-state artifacts are manual-required until URL/video intelligence exists.',
-      partialPresent: evidence.intervention !== null,
+      partialPresent: evidence.intervention !== undefined,
       claimsProved: ['Route-level intervention artifacts can be indexed when present.'],
       claimsNotProved: ['Semantic video classification quality and provider/model evidence are not claimed.'],
     }),
@@ -165,7 +165,7 @@ function artifactRows(evidence) {
       ],
       manualRequiredReason:
         'Approval workflow, parent decision, policy audit, degraded states, and platform-specific social proof are manual-required.',
-      partialPresent: evidence.intervention !== null,
+      partialPresent: evidence.intervention !== undefined,
       claimsProved: ['Managed intervention route artifacts can be indexed when present.'],
       claimsNotProved: ['Social account ownership, feed identity, and final parent/child approval UX are not claimed.'],
     }),
@@ -182,7 +182,7 @@ function artifactRows(evidence) {
       ],
       manualRequiredReason:
         'Runtime signals, metadata, AI result, policy decision, time-budget action, and cloud-gaming heuristics are manual-required.',
-      partialPresent: evidence.intervention !== null || performancePresent,
+      partialPresent: evidence.intervention !== undefined || performancePresent,
       claimsProved: ['Hold-page and manual-required performance rows can be indexed when artifacts exist.'],
       claimsNotProved: [
         'Canvas/WebGL/gamepad/fullscreen signals and cloud bandwidth/session heuristics are not claimed.',
@@ -201,7 +201,7 @@ function artifactRows(evidence) {
     claimRow({
       id: 'windows-manual-proof-matrix',
       label: 'Windows manual proof matrix',
-      present: evidence.windowsEnforcement !== null,
+      present: evidence.windowsEnforcement !== undefined,
       artifacts: [jsonArtifact('windows-managed-unmanaged-proof-json', evidence.windowsEnforcement)],
       manualRequiredReason: 'Run the Windows managed/unmanaged proof before Windows release evidence claims.',
       claimsProved: ['Windows proof JSON is indexed when present.'],
@@ -295,7 +295,7 @@ function manifestMarkdown(manifest) {
   for (const row of manifest.rows) {
     const evidence = row.artifacts
       .map((artifact) => {
-        if (artifact.path !== undefined && artifact.path !== null) {
+        if (artifact.path !== undefined && artifact.path !== undefined) {
           return artifact.path;
         }
         if (artifact.count !== undefined) {

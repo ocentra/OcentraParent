@@ -1,14 +1,17 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanAiProviderRoutingState, LanChildAgentResponse, LanPairingAuditEvent,
+    DeviceRoleRuntimeReadModel, LanAiProviderRoutingState, LanChildAgentResponse,
+    LanChildMdnsAdvertisement, LanChildMdnsAdvertisementInput, LanMdnsAdvertisementLifecycleState,
+    LanMdnsAdvertisementSupportState, LanMdnsTxtRecord, LanPairingAuditEvent,
     LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingChallenge,
     LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingDeviceRef,
     LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus, LanPairingIntentKind,
     LanPairingNetworkMode, LanPairingProductionDiscoveryState, LanPairingProof,
     LanPairingProofPreview, LanPairingRejectionReason, LanPairingResponseState,
     LanPairingRouteSelectionRequest, LanPairingRoutingDecision, LanPairingTrustState,
-    LanParentIntentEnvelope, LanSelectedRouteTarget, LanTrustedDeviceRegistryEntry,
-    LanTrustedDeviceRegistrySnapshot,
+    LanParentIntentEnvelope, LanParentMdnsAdvertisement, LanSelectedRouteTarget,
+    LanSignedChildAgentClaim, LanSignedChildAgentEnvelope, LanSignedChildAgentMessageKind,
+    LanTrustedDeviceRegistryEntry, LanTrustedDeviceRegistrySnapshot,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_support::{
@@ -74,6 +77,386 @@ fn lan_pairing_contracts_serialize_to_typescript_shapes() {
     );
     assert_eq!(entry_json["trustState"], "paired");
     assert_eq!(response_json["state"], "accepted");
+}
+
+#[test]
+fn signed_child_agent_envelopes_keep_hello_and_heartbeat_fields_explicit() {
+    let hello = signed_child_agent_envelope(
+        LanSignedChildAgentMessageKind::Hello,
+        "child-install-1",
+        "nonce-1",
+        1,
+    );
+    let heartbeat = signed_child_agent_envelope(
+        LanSignedChildAgentMessageKind::Heartbeat,
+        "child-install-2",
+        "nonce-2",
+        2,
+    );
+
+    let hello_json = serde_json::to_value(hello).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let heartbeat_json = serde_json::to_value(heartbeat).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+
+    assert_eq!(hello_json["claim"]["messageKind"], "hello");
+    assert_eq!(heartbeat_json["claim"]["messageKind"], "heartbeat");
+    assert_eq!(
+        hello_json["claim"]["installId"],
+        serde_json::json!("child-install-1")
+    );
+    assert_eq!(
+        heartbeat_json["claim"]["installId"],
+        serde_json::json!("child-install-2")
+    );
+    assert_eq!(
+        hello_json["claim"]["familyHash"],
+        serde_json::json!("sha256:family-1")
+    );
+    assert_eq!(
+        hello_json["claim"]["childProfileHash"],
+        serde_json::json!("sha256:child-profile-1")
+    );
+    assert_eq!(
+        hello_json["claim"]["platform"],
+        serde_json::json!(constants::lan_pairing::PLATFORM_WINDOWS)
+    );
+    assert_eq!(
+        hello_json["claim"]["hostname"],
+        serde_json::json!(constants::lan_pairing::TEST_HOSTNAME)
+    );
+    assert_eq!(
+        hello_json["claim"]["agentVersion"],
+        serde_json::json!("1.2.3")
+    );
+    assert_eq!(
+        hello_json["claim"]["localIps"],
+        serde_json::json!([constants::lan_pairing::TEST_LAN_IP])
+    );
+    assert_eq!(
+        hello_json["claim"]["macAddresses"],
+        serde_json::json!([constants::lan_pairing::TEST_LAN_MAC])
+    );
+    assert_eq!(
+        hello_json["claim"]["capabilities"],
+        serde_json::json!([
+            constants::lan_pairing::CHILD_AGENT_CAPABILITY_PAIRING_ROUTE,
+            "future-safe-local-capability"
+        ])
+    );
+    assert_eq!(hello_json["claim"]["nonce"], serde_json::json!("nonce-1"));
+    assert_eq!(
+        heartbeat_json["claim"]["nonce"],
+        serde_json::json!("nonce-2")
+    );
+    assert_eq!(
+        hello_json["claim"]["childDeviceId"],
+        constants::lan_pairing::CHILD_DEVICE_ID
+    );
+    assert_eq!(
+        hello_json["claim"]["parentDeviceId"],
+        constants::lan_pairing::PARENT_DEVICE_ID
+    );
+    assert_eq!(
+        hello_json["claim"]["routeId"],
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK
+    );
+    assert_eq!(
+        hello_json["claim"]["issuedAt"],
+        constants::lan_pairing::ISSUED_AT
+    );
+    assert_eq!(
+        hello_json["claim"]["expiresAt"],
+        constants::lan_pairing::EXPIRES_AT
+    );
+    assert_eq!(hello_json["claim"]["sequence"], 1);
+    assert_eq!(heartbeat_json["claim"]["sequence"], 2);
+    assert_eq!(
+        heartbeat_json["claim"]["issuedAt"],
+        constants::lan_pairing::ISSUED_AT
+    );
+    assert_eq!(
+        heartbeat_json["signatureAlgorithm"],
+        constants::lan_pairing::SIGNED_CHILD_AGENT_SIGNATURE_ALGORITHM_ED25519
+    );
+}
+
+#[test]
+fn signed_child_agent_envelope_rejects_missing_claim_fields() {
+    let error = result_error_or_unreachable(
+        serde_json::from_value::<LanSignedChildAgentEnvelope>(serde_json::json!({
+            "schemaVersion": constants::lan_pairing::SCHEMA_VERSION,
+            "claim": {
+                "schemaVersion": constants::lan_pairing::SCHEMA_VERSION,
+                "messageKind": "hello"
+            },
+            "publicKeyBase64": "public-key-base64",
+            "publicKeyId": "public-key-id",
+            "signatureBase64": "signature-base64",
+            "signatureAlgorithm": constants::lan_pairing::SIGNED_CHILD_AGENT_SIGNATURE_ALGORITHM_ED25519,
+        })),
+        "missing claim fields must fail closed",
+    );
+
+    assert_eq!(error.classify(), serde_json::error::Category::Data);
+}
+
+#[test]
+fn signed_child_agent_envelope_rejects_missing_signature_fields() {
+    let mut envelope_json = serde_json::to_value(signed_child_agent_envelope(
+        LanSignedChildAgentMessageKind::Hello,
+        "child-install-3",
+        "nonce-3",
+        3,
+    ))
+    .unwrap_or_else(|error| unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES));
+    let envelope_object = match envelope_json.as_object_mut() {
+        Some(value) => value,
+        None => unreachable!("envelope is an object"),
+    };
+    envelope_object.remove("signatureBase64");
+
+    let error = result_error_or_unreachable(
+        serde_json::from_value::<LanSignedChildAgentEnvelope>(envelope_json),
+        "missing signature fields must fail closed",
+    );
+
+    assert_eq!(error.classify(), serde_json::error::Category::Data);
+}
+
+#[test]
+fn lan_pairing_contracts_reject_wrong_schema_versions() {
+    let mut proof_json = serde_json::to_value(LanPairingProof {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        pairing_id: constants::lan_pairing::PAIRING_ID.to_string(),
+        challenge_id: constants::lan_pairing::CHALLENGE_ID.to_string(),
+        child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        parent_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
+        proof_digest: constants::lan_pairing::PROOF_DIGEST.to_string(),
+        issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+    })
+    .unwrap_or_else(|error| unreachable!("proof serializes: {error:?}"));
+    proof_json["schemaVersion"] = serde_json::json!(constants::lan_pairing::SCHEMA_VERSION + 1);
+
+    let proof_error = result_error_or_unreachable(
+        serde_json::from_value::<LanPairingProof>(proof_json),
+        "future LAN schema version must fail closed",
+    );
+    assert!(proof_error
+        .to_string()
+        .contains("unsupported LAN schema version"));
+
+    let mut envelope_json = serde_json::to_value(signed_child_agent_envelope(
+        LanSignedChildAgentMessageKind::Hello,
+        "child-install-version",
+        "nonce-version",
+        11,
+    ))
+    .unwrap_or_else(|error| unreachable!("signed envelope serializes: {error:?}"));
+    envelope_json["claim"]["schemaVersion"] =
+        serde_json::json!(constants::lan_pairing::SCHEMA_VERSION + 1);
+
+    let envelope_error = result_error_or_unreachable(
+        serde_json::from_value::<LanSignedChildAgentEnvelope>(envelope_json),
+        "nested LAN schema version must fail closed",
+    );
+    assert!(envelope_error
+        .to_string()
+        .contains("unsupported LAN schema version"));
+}
+
+#[test]
+fn lan_pairing_string_schema_read_models_reject_wrong_schema_version() {
+    let error = result_error_or_unreachable(
+        serde_json::from_value::<DeviceRoleRuntimeReadModel>(serde_json::json!({
+            "schemaVersion": "v1.0",
+            "physicalDeviceId": "physical-device-1",
+            "surface": "child-desktop",
+            "platform": constants::lan_pairing::PLATFORM_WINDOWS,
+            "roles": [
+                {
+                    "role": "child-agent",
+                    "state": "implemented"
+                }
+            ],
+            "primaryRole": "child-agent",
+            "controllerLeaseId": null,
+            "parentAuthority": null,
+            "selectedRouteId": null,
+            "routeState": "local-network",
+            "lanAiProviderState": "available",
+            "localAiRuntimeClaim": "none",
+            "updatedAt": constants::lan_pairing::OBSERVED_AT
+        })),
+        "string LAN schema version must fail closed",
+    );
+
+    assert!(error.to_string().contains("unsupported LAN schema version"));
+}
+
+#[test]
+fn signed_child_agent_envelope_rejects_unknown_message_kind() {
+    let mut envelope_json = serde_json::to_value(signed_child_agent_envelope(
+        LanSignedChildAgentMessageKind::Hello,
+        "child-install-unknown-kind",
+        "nonce-unknown-kind",
+        17,
+    ))
+    .unwrap_or_else(|error| unreachable!("signed envelope serializes: {error:?}"));
+    envelope_json["claim"]["messageKind"] = serde_json::json!("future-lan-message-kind");
+
+    let error = result_error_or_unreachable(
+        serde_json::from_value::<LanSignedChildAgentEnvelope>(envelope_json),
+        "unknown LAN message kind must be rejected",
+    );
+
+    assert!(error.is_data());
+}
+
+#[test]
+fn mdns_advertisements_use_opaque_metadata_and_hint_only_txt_records() {
+    let parent = LanParentMdnsAdvertisement::new(
+        "sha256:parent-family-1",
+        constants::lan_pairing::SCHEMA_VERSION_TEXT,
+        "sha256:family-1",
+        LanPairingTrustState::Paired,
+        LanMdnsAdvertisementLifecycleState::Start,
+        LanMdnsAdvertisementSupportState::Supported,
+    )
+    .unwrap_or_else(|error| unreachable!("parent advertisement constructs: {error}"));
+    let child = LanChildMdnsAdvertisement::new(LanChildMdnsAdvertisementInput {
+        advertisement_id: "sha256:child-family-1".to_string(),
+        opaque_device_id: "sha256:child-device-1".to_string(),
+        protocol_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        family_hash: "sha256:family-1".to_string(),
+        platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+        agent_version: "1.2.3".to_string(),
+        pairing_state: LanPairingTrustState::Unpaired,
+        lifecycle_state: LanMdnsAdvertisementLifecycleState::Degraded,
+        support_state: LanMdnsAdvertisementSupportState::Degraded,
+    })
+    .unwrap_or_else(|error| unreachable!("child advertisement constructs: {error}"));
+
+    let parent_json = serde_json::to_value(parent).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+    let child_json = serde_json::to_value(child).unwrap_or_else(|error| {
+        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
+    });
+
+    assert_eq!(
+        parent_json["serviceType"],
+        constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE
+    );
+    assert_eq!(
+        child_json["serviceType"],
+        constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE
+    );
+    assert_eq!(
+        parent_json["confirmationState"],
+        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY
+    );
+    assert_eq!(
+        child_json["confirmationState"],
+        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY
+    );
+    assert_eq!(
+        parent_json["txtRecords"][0]["key"],
+        constants::lan_pairing::MDNS_TXT_KEY_SCHEMA_VERSION
+    );
+    assert_eq!(
+        parent_json["txtRecords"][4]["value"],
+        serde_json::json!(constants::lan_pairing::MDNS_TXT_VALUE_START)
+    );
+    assert_eq!(
+        parent_json["txtRecords"][5]["value"],
+        serde_json::json!(constants::lan_pairing::MDNS_TXT_VALUE_SUPPORTED)
+    );
+    assert_eq!(
+        parent_json["txtRecords"][6]["value"],
+        serde_json::json!(constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY)
+    );
+    assert_eq!(
+        child_json["txtRecords"][2]["key"],
+        constants::lan_pairing::MDNS_TXT_KEY_OPAQUE_DEVICE_ID
+    );
+    assert_eq!(
+        child_json["txtRecords"][7]["value"],
+        serde_json::json!(constants::lan_pairing::MDNS_TXT_VALUE_DEGRADED)
+    );
+    assert_eq!(
+        child_json["txtRecords"][8]["value"],
+        serde_json::json!(constants::lan_pairing::MDNS_TXT_VALUE_DEGRADED)
+    );
+    assert_eq!(
+        child_json["txtRecords"][9]["value"],
+        serde_json::json!(constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY)
+    );
+    assert_json_surface_excludes_markers(
+        &parent_json,
+        &["child name", "email", "rawPolicy", "sensitive"],
+    );
+    assert_json_surface_excludes_markers(
+        &child_json,
+        &["child name", "email", "rawPolicy", "sensitive"],
+    );
+}
+
+#[test]
+fn mdns_lifecycle_and_support_states_map_to_contract_values() {
+    assert_eq!(
+        LanMdnsAdvertisementLifecycleState::Start.as_str(),
+        constants::lan_pairing::MDNS_TXT_VALUE_START
+    );
+    assert_eq!(
+        LanMdnsAdvertisementLifecycleState::Update.as_str(),
+        constants::lan_pairing::MDNS_TXT_VALUE_UPDATE
+    );
+    assert_eq!(
+        LanMdnsAdvertisementLifecycleState::Stop.as_str(),
+        constants::lan_pairing::MDNS_TXT_VALUE_STOP
+    );
+    assert_eq!(
+        LanMdnsAdvertisementLifecycleState::Degraded.as_str(),
+        constants::lan_pairing::MDNS_TXT_VALUE_DEGRADED
+    );
+    assert_eq!(
+        LanMdnsAdvertisementSupportState::UnsupportedPlatform.as_str(),
+        constants::lan_pairing::MDNS_TXT_VALUE_UNSUPPORTED_PLATFORM
+    );
+}
+
+#[test]
+fn mdns_advertisement_constructors_reject_missing_or_unsanitized_values() {
+    assert!(LanParentMdnsAdvertisement::new(
+        "",
+        constants::lan_pairing::SCHEMA_VERSION_TEXT,
+        "sha256:family-1",
+        LanPairingTrustState::Unpaired,
+        LanMdnsAdvertisementLifecycleState::Start,
+        LanMdnsAdvertisementSupportState::Supported,
+    )
+    .is_err());
+    assert!(
+        LanChildMdnsAdvertisement::new(LanChildMdnsAdvertisementInput {
+            advertisement_id: "sha256:child-family-1".to_string(),
+            opaque_device_id: "child display name".to_string(),
+            protocol_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+            family_hash: "sha256:family-1".to_string(),
+            platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+            agent_version: "1.2.3".to_string(),
+            pairing_state: LanPairingTrustState::Unpaired,
+            lifecycle_state: LanMdnsAdvertisementLifecycleState::Start,
+            support_state: LanMdnsAdvertisementSupportState::Supported,
+        })
+        .is_err()
+    );
+    assert!(LanMdnsTxtRecord::new("bad key", "value").is_err());
 }
 
 #[test]
@@ -375,6 +758,11 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         support_json["supportedWebSocketCommands"][2],
         constants::lan_pairing::COMMAND_ROUTE_REVOKE
     );
+    assert!(support_json["supportedWebSocketCommands"]
+        .as_array()
+        .unwrap_or_else(|| unreachable!("supported websocket commands serializes as an array"))
+        .iter()
+        .any(|command| command == constants::lan_pairing::COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET));
     assert_eq!(
         support_json["unsupportedHttpEndpoints"][0]["support"],
         constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
@@ -577,6 +965,45 @@ fn evidence() -> ParentEvidenceReference {
     }
 }
 
+fn signed_child_agent_envelope(
+    message_kind: LanSignedChildAgentMessageKind,
+    install_id: &str,
+    nonce: &str,
+    sequence: u64,
+) -> LanSignedChildAgentEnvelope {
+    LanSignedChildAgentEnvelope {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        claim: LanSignedChildAgentClaim {
+            schema_version: constants::lan_pairing::SCHEMA_VERSION,
+            message_kind,
+            child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+            parent_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+            install_id: install_id.to_string(),
+            family_hash: "sha256:family-1".to_string(),
+            child_profile_hash: Some("sha256:child-profile-1".to_string()),
+            platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+            hostname: constants::lan_pairing::TEST_HOSTNAME.to_string(),
+            agent_version: "1.2.3".to_string(),
+            local_ips: vec![constants::lan_pairing::TEST_LAN_IP.to_string()],
+            mac_addresses: vec![constants::lan_pairing::TEST_LAN_MAC.to_string()],
+            capabilities: vec![
+                constants::lan_pairing::CHILD_AGENT_CAPABILITY_PAIRING_ROUTE.to_string(),
+                "future-safe-local-capability".to_string(),
+            ],
+            route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+            nonce: nonce.to_string(),
+            sequence,
+            issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+            expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        },
+        public_key_base64: "public-key-base64".to_string(),
+        public_key_id: "public-key-id".to_string(),
+        signature_base64: "signature-base64".to_string(),
+        signature_algorithm: constants::lan_pairing::SIGNED_CHILD_AGENT_SIGNATURE_ALGORITHM_ED25519
+            .to_string(),
+    }
+}
+
 fn planned_http_endpoints() -> Vec<LanPairingUnsupportedHttpEndpoint> {
     vec![
         planned_http_endpoint(
@@ -607,6 +1034,16 @@ fn planned_http_endpoint(endpoint_id: &str, path: &str) -> LanPairingUnsupported
         endpoint_id: endpoint_id.to_string(),
         path: path.to_string(),
         support: LanPairingHttpEndpointSupport::PlannedUnsupported,
+    }
+}
+
+fn result_error_or_unreachable<T>(
+    result: serde_json::Result<T>,
+    context: &str,
+) -> serde_json::Error {
+    match result {
+        Ok(_) => unreachable!("{context}"),
+        Err(error) => error,
     }
 }
 

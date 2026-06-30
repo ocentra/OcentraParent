@@ -1,7 +1,7 @@
 import { EventingEventTypeSchema } from './eventing';
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
-export const LanPairingSchemaVersionSchema = withParser(Schema.Literal('v0.9'));
+export const LanPairingSchemaVersionSchema = withParser(Schema.Literal(1));
 
 export const LanPairingIdSchema = brandedNonEmptyStringSchema('LanPairingId');
 export const LanPairingChallengeIdSchema = brandedNonEmptyStringSchema('LanPairingChallengeId');
@@ -139,7 +139,7 @@ export type LanPairingRejectionReason = Infer<typeof LanPairingRejectionReasonSc
 export type LanPairingAuditEventType = Infer<typeof LanPairingAuditEventTypeSchema>;
 
 export const LanPairingSchemaVersion = {
-  V0_9: LanPairingSchemaVersionSchema.parse('v0.9'),
+  V1: LanPairingSchemaVersionSchema.parse(1),
 } as const;
 
 export const LanPairingNetworkMode = {

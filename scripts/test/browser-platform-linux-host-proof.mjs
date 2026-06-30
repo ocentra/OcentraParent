@@ -191,7 +191,7 @@ function captureLinuxBrowserLaunchProof(entries) {
   );
   const screenshot = screenshotBase64.length > 0 ? Buffer.from(screenshotBase64, 'base64') : null;
 
-  if (screenshot !== null) {
+  if (screenshot !== undefined) {
     writeFileSync(screenshotProofPath, screenshot);
   } else if (existsSync(screenshotProofPath)) {
     writeFileSync(screenshotProofPath, Buffer.alloc(0));
@@ -199,12 +199,12 @@ function captureLinuxBrowserLaunchProof(entries) {
 
   return {
     browserLaunchAttempted: true,
-    browserLaunchObserved: launchOutput.includes(marker) && screenshot !== null && screenshot.length > 0,
+    browserLaunchObserved: launchOutput.includes(marker) && screenshot !== undefined && screenshot.length > 0,
     browserLaunchCommandRef: `redacted-linux-browser-command-${sha256(browser.commandName).slice(0, 16)}`,
     browserLaunchDomSha256: launchOutput.length > 0 ? sha256(launchOutput) : null,
-    browserLaunchScreenshotCaptured: screenshot !== null && screenshot.length > 0,
-    browserLaunchScreenshotPersisted: screenshot !== null && screenshot.length > 0,
-    browserLaunchScreenshotSha256: screenshot !== null && screenshot.length > 0 ? sha256(screenshot) : null,
+    browserLaunchScreenshotCaptured: screenshot !== undefined && screenshot.length > 0,
+    browserLaunchScreenshotPersisted: screenshot !== undefined && screenshot.length > 0,
+    browserLaunchScreenshotSha256: screenshot !== undefined && screenshot.length > 0 ? sha256(screenshot) : null,
   };
 }
 

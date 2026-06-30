@@ -46,7 +46,7 @@ let selectedSerial = null;
 try {
   await main();
 } finally {
-  if (startedEmulator && selectedSerial !== null) {
+  if (startedEmulator && selectedSerial !== undefined) {
     await shutdownEmulator(resolveAndroidTools(), selectedSerial);
   }
 }
@@ -583,7 +583,7 @@ async function ensureDevice(tools) {
   }
 
   const existing = await findReadyEmulatorDevice(tools);
-  if (existing !== null) {
+  if (existing !== undefined) {
     await waitForBoot(tools, existing);
     return existing;
   }
@@ -1451,25 +1451,25 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
     runtime.ui.foregroundLocationSampleStateText === 'current-location-sample-observed-emulator-location-manager';
   const foregroundSampleMetadataObserved =
     foregroundSampleObserved &&
-    runtime.ui.foregroundLocationProvider !== null &&
-    runtime.ui.foregroundLocationObservedAtEpochMillis !== null &&
-    runtime.ui.foregroundLocationAccuracyMeters !== null;
+    runtime.ui.foregroundLocationProvider !== undefined &&
+    runtime.ui.foregroundLocationObservedAtEpochMillis !== undefined &&
+    runtime.ui.foregroundLocationAccuracyMeters !== undefined;
   const foregroundRawCoordinateObserved =
     foregroundCurrentSampleObserved &&
-    runtime.ui.foregroundLocationLatitude !== null &&
-    runtime.ui.foregroundLocationLongitude !== null &&
+    runtime.ui.foregroundLocationLatitude !== undefined &&
+    runtime.ui.foregroundLocationLongitude !== undefined &&
     runtime.ui.foregroundLocationSampleSource === 'android-location-manager-current-listener-emulator';
   const fusedForegroundCurrentSampleObserved =
     runtime.ui.fusedForegroundLocationSampleStateText ===
       'current-fused-foreground-location-sample-observed-emulator' &&
-    runtime.ui.fusedForegroundLocationLatitude !== null &&
-    runtime.ui.fusedForegroundLocationLongitude !== null &&
+    runtime.ui.fusedForegroundLocationLatitude !== undefined &&
+    runtime.ui.fusedForegroundLocationLongitude !== undefined &&
     runtime.ui.fusedForegroundLocationSampleSource === 'google-play-services-fused-current-emulator';
   const fusedForegroundSampleObserved =
     fusedForegroundCurrentSampleObserved ||
     (runtime.ui.fusedForegroundLocationSampleStateText === 'last-known-fused-foreground-location-sample-observed' &&
-      runtime.ui.fusedForegroundLocationLatitude !== null &&
-      runtime.ui.fusedForegroundLocationLongitude !== null &&
+      runtime.ui.fusedForegroundLocationLatitude !== undefined &&
+      runtime.ui.fusedForegroundLocationLongitude !== undefined &&
       runtime.ui.fusedForegroundLocationSampleSource === 'google-play-services-fused-last-known');
   const geofenceEnterExitObserved =
     runtime.geofenceTransitions.enterCount > 0 &&
@@ -1480,8 +1480,8 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
   const systemProximityRegistrationObserved = runtime.geofenceTransitions.systemProximityRegistered;
   const backgroundSampleObserved =
     runtime.backgroundLocationSample.sampleCount > 0 &&
-    runtime.backgroundLocationSample.provider !== null &&
-    runtime.backgroundLocationSample.observedAtEpochMillis !== null;
+    runtime.backgroundLocationSample.provider !== undefined &&
+    runtime.backgroundLocationSample.observedAtEpochMillis !== undefined;
   const backgroundDegradedStatusObserved = backgroundDegradedStatusProof().observed;
   return {
     '08-android-foreground-location-adapter': {
@@ -1731,8 +1731,8 @@ function foregroundLocationProof(proof) {
   const foregroundRawCoordinateObserved =
     proof.runtime.ui.foregroundLocationSampleStateText ===
       'current-location-sample-observed-emulator-location-manager' &&
-    proof.runtime.ui.foregroundLocationLatitude !== null &&
-    proof.runtime.ui.foregroundLocationLongitude !== null;
+    proof.runtime.ui.foregroundLocationLatitude !== undefined &&
+    proof.runtime.ui.foregroundLocationLongitude !== undefined;
   return {
     schemaVersion: 1,
     checkedAt: proof.checkedAt,
@@ -1773,8 +1773,8 @@ function foregroundLocationProof(proof) {
         'current-fused-foreground-location-sample-observed-emulator' ||
         proof.runtime.ui.fusedForegroundLocationSampleStateText ===
           'last-known-fused-foreground-location-sample-observed') &&
-      proof.runtime.ui.fusedForegroundLocationLatitude !== null &&
-      proof.runtime.ui.fusedForegroundLocationLongitude !== null,
+      proof.runtime.ui.fusedForegroundLocationLatitude !== undefined &&
+      proof.runtime.ui.fusedForegroundLocationLongitude !== undefined,
     missingProofReason: proof.workpackProof['08-android-foreground-location-adapter'].reason,
     device: proof.device,
     artifacts: proof.runtime.artifacts,
@@ -1877,7 +1877,7 @@ function backgroundDegradedStatusProof() {
     pendingUploadClaimState: statusGapProof.pendingUpload?.claimState ?? null,
     manualRequiredClaimState: statusGapProof.manualRequired?.claimState ?? null,
     proofBoundary:
-      'WP10 parent-domain Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery, Android system dwell, or physical-device background behavior.',
+      'WP10 Rust parent Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery, Android system dwell, or physical-device background behavior.',
     nonClaims: backgroundDegradedStatusNonClaims(),
   };
 }

@@ -180,7 +180,7 @@ function validateSource(required, source) {
 
 function validateAuthenticatedAccountSource(required, source) {
   const evidence = source.authenticatedAccountEvidence;
-  assert(evidence !== null && typeof evidence === 'object', `${required.id} missing account evidence`);
+  assert(evidence !== undefined && typeof evidence === 'object', `${required.id} missing account evidence`);
   assert(evidence.operatorConsentForAccountCapture === true, `${required.id} missing operator consent`);
   assert(
     typeof evidence.accountIdentifierHash === 'string' && evidence.accountIdentifierHash.length >= 32,

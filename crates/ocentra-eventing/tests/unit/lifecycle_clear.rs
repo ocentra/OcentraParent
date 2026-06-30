@@ -33,7 +33,11 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
     .expect_value("subscriber registers");
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
         subscriber_for_event(OTHER_SUBSCRIBER, OTHER_TARGET, OTHER_EVENT_TYPE),
-        |_| async { Err(EventingError::empty_value("lifecycle_clear_failure")) },
+        |_| async {
+            Err(EventingError::EmptyValue {
+                field: "lifecycle_clear_failure",
+            })
+        },
     )
     .await
     .expect_value("failing subscriber registers");

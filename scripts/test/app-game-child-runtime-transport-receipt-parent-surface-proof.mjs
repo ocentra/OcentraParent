@@ -39,9 +39,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
-      'tests/unit/app-game-child-runtime-transport-receipt-panel.test.ts',
+      'app-game-child-runtime-transport-receipt-route-panel',
     ])
   );
 
@@ -68,15 +68,15 @@ async function main() {
     evidence: {
       portalCommands: 'packages/portal-domain/src/commands.ts',
       portalCommandsTest: 'packages/portal-domain/tests/unit/contracts.test.ts',
-      portalPanel: 'packages/portal-domain/src/app-game-child-runtime-transport-receipt-panel.ts',
-      portalPanelTest: 'packages/portal-domain/tests/unit/app-game-child-runtime-transport-receipt-panel.test.ts',
-      portalLiveState: 'packages/portal-domain/src/live-activity-state.ts',
+      portalRoutePanel: 'apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx',
+      portalRoutePanelTest: 'apps/portal/tests/app-game-child-runtime-transport-receipt-route-panel.test.ts',
+      portalRouteBridgeGuard: 'apps/portal/tests/parent-ui-bridge.test.ts',
     },
     claimsProved: [
       'The portal-domain command catalog includes the child runtime transport receipt read-model request and result event',
-      'The portal-domain live-activity state parses the service-reported child runtime transport receipt event',
-      'The portal-domain panel intent renders transport-required, manual-required, and unavailable rows with parent-safe refs',
-      'The portal-domain parent surface keeps runtime transport, receipt ingestion, provider delivery, platform channel delivery, adapter dispatch, platform enforcement, and raw private rows unclaimed',
+      'The product route snapshot bridge exposes the Rust-owned child runtime transport receipt panel to the portal surface',
+      'The portal route panel renders transport-required, manual-required, and unavailable rows with parent-safe refs',
+      'The portal parent surface keeps runtime transport, receipt ingestion, provider delivery, platform channel delivery, adapter dispatch, platform enforcement, and raw private rows unclaimed',
     ],
     claimsNotProved: [
       'Child runtime transport execution',
@@ -97,8 +97,8 @@ async function main() {
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
       '- Portal commands: packages/portal-domain/src/commands.ts',
-      '- Portal panel: packages/portal-domain/src/app-game-child-runtime-transport-receipt-panel.ts',
-      '- Live state parser: packages/portal-domain/src/live-activity-state.ts',
+      '- Portal route panel: apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx',
+      '- Route bridge guard: apps/portal/tests/parent-ui-bridge.test.ts',
       '',
       'Evidence:',
       '- The portal-domain command catalog requests the service-backed child runtime transport receipt read model.',

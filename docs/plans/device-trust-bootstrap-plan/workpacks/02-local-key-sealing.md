@@ -14,7 +14,7 @@ Purpose: define platform-backed key sealing, fallback behavior, and wrong-device
 ## Ownership boundary
 
 ```text
-schema-domain owns canonical key-custody/trust-state shapes.
+crates/schema or the owning Rust crate owns canonical key-custody/trust-state shapes. `schema-domain` is temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 device-trust-bootstrap-plan owns the local trust sealing proof contract.
 platform-specific runtime owners prove actual platform store behavior when selected.
 data-custody-storage-plan owns encrypted recovery artifact custody after trust exists.

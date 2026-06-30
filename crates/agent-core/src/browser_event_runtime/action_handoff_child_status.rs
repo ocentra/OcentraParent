@@ -23,7 +23,6 @@ struct BrowserRuntimeActionIntentExecutionCounts {
     enforcement_execution_count: usize,
 }
 
-#[cfg(test)]
 pub async fn prove_browser_runtime_action_intent_child_status(
 ) -> Result<BrowserRuntimeActionIntentChildStatusReport, BrowserRuntimeActionIntentChildStatusError>
 {
@@ -170,7 +169,6 @@ fn parent_read_model_projected(
         .ok_or(BrowserRuntimeActionIntentChildStatusError::MissingPayload)
 }
 
-#[cfg(test)]
 fn handoff_matches_child_status(
     durable_row: &super::action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffRecord,
     received: &ChildCommandReceivedEvent,
@@ -186,7 +184,6 @@ fn handoff_matches_child_status(
         && parent_read_model.visible_to_portal
 }
 
-#[cfg(test)]
 fn has_unsupported_claims(
     durable: &super::action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffReport,
 ) -> bool {

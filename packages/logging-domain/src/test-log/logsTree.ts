@@ -2,9 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { RunType, TestLogScope, TestSuiteType } from '@ocentra-parent/schema-domain/test-log/types';
 import { getDefaultLogRoot, getRunNdjsonFilePath } from './ndjsonPaths';
-
-const DELIMITER = '\0';
-const TEST_LOG_DIR = 'test-logs';
+import { GeneratedLocalLogDirs, buildGeneratedLogsTreeKey, getGeneratedRunDirPath } from '../generated/local-test-log';
 
 export type LogsTree = Map<string, string> & { readonly __brand: 'LogsTree' };
 
@@ -25,12 +23,8 @@ function suiteSegment(value: LogsTreeScope['suiteType']): string {
   return value ?? 'unspecified';
 }
 
-function buildCompositeKey(scope: string, runType: string, suiteType: string, fileKey: string): string {
-  return [scope, runType, suiteType, fileKey].join(DELIMITER);
-}
-
 function testLogRoot(rootDir?: string): string {
-  return path.join(normalizeRoot(rootDir), TEST_LOG_DIR);
+  return path.join(normalizeRoot(rootDir), GeneratedLocalLogDirs.TestLogs);
 }
 
 function addSuiteFiles(
@@ -45,7 +39,7 @@ function addSuiteFiles(
       continue;
     }
     const fileKey = fileEntry.name.slice(0, -'.ndjson'.length);
-    tree.set(buildCompositeKey(scopeName, runTypeName, suiteName, fileKey), path.join(suitePath, fileEntry.name));
+    tree.set(buildGeneratedLogsTreeKey(scopeName, runTypeName, suiteName, fileKey), path.join(suitePath, fileEntry.name));
   }
 }
 
@@ -116,7 +110,7 @@ export function getRunFilePath(scope: LogsTreeScope, fileKey: string, rootDir?: 
 }
 
 export function getDirPath(scope: LogsTreeScope, fileKey: string, rootDir?: string): string {
-  return path.dirname(getRunFilePath(scope, fileKey, rootDir));
+  return getGeneratedRunDirPath(scope, fileKey, rootDir ?? getDefaultLogRoot());
 }
 
 export function listFileKeysInScope(scope: LogsTreeScope, rootDir?: string): string[] {
@@ -138,9 +132,7 @@ export function listFileKeysInScope(scope: LogsTreeScope, rootDir?: string): str
 }
 
 export function tryGet(tree: LogsTree, scope: LogsTreeScope, fileKey: string): string | undefined {
-  return tree.get(
-    buildCompositeKey(String(scope.scope), String(scope.runType), suiteSegment(scope.suiteType), fileKey)
-  );
+  return tree.get(buildGeneratedLogsTreeKey(String(scope.scope), String(scope.runType), suiteSegment(scope.suiteType), fileKey));
 }
 
 export function asLogsTree(tree: Map<string, string>): LogsTree {

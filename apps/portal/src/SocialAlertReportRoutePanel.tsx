@@ -1,78 +1,65 @@
+import { type ReactElement } from 'react';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
-  createSocialAlertReportPanelIntent,
-  type SocialAlertReportPanelDetail,
-  type SocialAlertReportPanelIntent,
-  type SocialAlertReportPanelRow,
-} from '@ocentra-parent/portal-domain/social-alert-report-panel';
-import {
-  createSocialAlertReportParentSurfacePanelIntent,
-  type SocialAlertReportParentSurfacePanelDetail,
-  type SocialAlertReportParentSurfacePanelIntent,
-} from '@ocentra-parent/portal-domain/social-alert-report-parent-surface-panel';
-import {
-  createSocialParentNotificationDeliveryPanelIntent,
-  type SocialParentNotificationDeliveryPanelDetail,
-  type SocialParentNotificationDeliveryPanelIntent,
-} from '@ocentra-parent/portal-domain/social-parent-notification-delivery-panel';
-import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import {
-  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
-  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
-} from '@ocentra-parent/portal-domain/browser-social-provider-receipt-ingestion-readiness-status';
-import {
-  type BrowserSocialProviderReceiptStreamStatusDetail,
-  type BrowserSocialProviderReceiptStreamStatusIntent,
-} from '@ocentra-parent/portal-domain/browser-social-provider-receipt-stream-status';
-import { type ReactElement } from 'react';
-import type { PortalLiveActivityState } from './live-activity-state';
+  isParentBrowserParentSurfaceRoute,
+  type ParentBrowserPanelDetailSnapshot,
+  type ParentBrowserPanelRowSnapshot,
+  type ParentBrowserPanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import {
-  createBrowserActionIntentStreamStatusIntent,
-  type BrowserActionIntentStreamStatusDetail,
-  type BrowserActionIntentStreamStatusIntent,
-} from '@ocentra-parent/portal-domain/browser-action-intent-stream-status';
 
-export function shouldRenderSocialAlertReportRoute(route: PortalRouteValue): boolean {
-  return isPortalBrowserParentSurfaceRoute(route);
+export function shouldRenderSocialAlertReportRoute(route: ParentRouteId): boolean {
+  return isParentBrowserParentSurfaceRoute(route);
 }
 
 export function SocialAlertReportRoutePanel({
   actions,
   commandEnabled,
-  liveActivity,
-  socialAlertReportSnapshot,
-  socialAlertReportParentSurfaceSnapshot,
-  socialParentNotificationDeliverySnapshot,
+  socialAlertReportPanel,
+  socialAlertReportParentSurfacePanel,
+  socialParentNotificationDeliveryPanel,
+  browserActionIntentStreamStatusPanel,
+  browserSocialProviderReceiptStreamStatusPanel,
+  browserSocialProviderReceiptIngestionReadinessStatusPanel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly liveActivity: PortalLiveActivityState;
-  readonly socialAlertReportSnapshot: unknown | null;
-  readonly socialAlertReportParentSurfaceSnapshot: unknown | null;
-  readonly socialParentNotificationDeliverySnapshot: unknown | null;
+  readonly socialAlertReportPanel: ParentBrowserPanelSnapshot | null;
+  readonly socialAlertReportParentSurfacePanel: ParentBrowserPanelSnapshot | null;
+  readonly socialParentNotificationDeliveryPanel: ParentBrowserPanelSnapshot | null;
+  readonly browserActionIntentStreamStatusPanel: ParentBrowserPanelSnapshot | null;
+  readonly browserSocialProviderReceiptStreamStatusPanel: ParentBrowserPanelSnapshot | null;
+  readonly browserSocialProviderReceiptIngestionReadinessStatusPanel: ParentBrowserPanelSnapshot | null;
 }): ReactElement {
-  const intent = createSocialAlertReportPanelIntent(socialAlertReportSnapshot);
-  const notificationIntent =
-    createSocialParentNotificationDeliveryPanelIntent(socialParentNotificationDeliverySnapshot);
-  const parentSurfaceIntent =
-    createSocialAlertReportParentSurfacePanelIntent(socialAlertReportParentSurfaceSnapshot);
+  if (socialAlertReportPanel === null) {
+    return (
+      <section aria-label="Social alerts and reports unavailable" className={PortalDom.Classes.TrackingStatusOverlay}>
+        <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+          <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+            <p className={PortalDom.Classes.ProductEyebrow}>Browser route</p>
+            <h2>Social alerts and reports unavailable</h2>
+            <p>Parent Rust snapshot unavailable for the social alert/report route.</p>
+          </header>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
+    <section aria-label={socialAlertReportPanel.title} className={PortalDom.Classes.TrackingStatusOverlay}>
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{socialAlertReportPanel.eyebrow}</p>
+          <h2>{socialAlertReportPanel.title}</h2>
+          <p>{socialAlertReportPanel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             onClick={() => void actions.refreshRouteSnapshot?.()}
             type={PortalDom.ButtonType.Button}
           >
-            {intent.title}
+            {socialAlertReportPanel.title}
           </button>
           <button
             className={PortalDom.Classes.CommandResultTab}
@@ -80,7 +67,7 @@ export function SocialAlertReportRoutePanel({
             onClick={() => void actions.refreshRouteSnapshot?.()}
             type={PortalDom.ButtonType.Button}
           >
-            {notificationIntent.title}
+            {socialParentNotificationDeliveryPanel?.title ?? 'Social parent notification delivery readiness'}
           </button>
           <button
             className={PortalDom.Classes.CommandResultTab}
@@ -88,7 +75,7 @@ export function SocialAlertReportRoutePanel({
             onClick={() => void actions.refreshRouteSnapshot?.()}
             type={PortalDom.ButtonType.Button}
           >
-            {parentSurfaceIntent.title}
+            {socialAlertReportParentSurfacePanel?.title ?? 'Social parent surface status'}
           </button>
         </header>
         <div
@@ -96,45 +83,54 @@ export function SocialAlertReportRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <SocialAlertReportSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <SocialAlertReportEmptyCard intent={intent} />
+          <SocialAlertReportSummaryCard panel={socialAlertReportPanel} />
+          {socialAlertReportPanel.rows.length === 0 ? (
+            <SocialAlertReportEmptyCard panel={socialAlertReportPanel} />
           ) : (
-            intent.rows.map((row) => <SocialAlertReportRowCard key={row.key} row={row} />)
+            socialAlertReportPanel.rows.map((row) => <SocialAlertReportRowCard key={row.key} row={row} />)
           )}
-          <SocialParentNotificationDeliveryCards intent={notificationIntent} />
-          <SocialAlertReportParentSurfaceCards intent={parentSurfaceIntent} />
-          <BrowserReceiptStatusCards liveActivity={liveActivity} />
+          <SupplementalBrowserPanelCards panel={socialParentNotificationDeliveryPanel} />
+          <SupplementalBrowserPanelCards panel={socialAlertReportParentSurfacePanel} />
+          <SupplementalBrowserPanelCards panel={browserActionIntentStreamStatusPanel} />
+          <SupplementalBrowserPanelCards panel={browserSocialProviderReceiptStreamStatusPanel} />
+          <SupplementalBrowserPanelCards panel={browserSocialProviderReceiptIngestionReadinessStatusPanel} />
         </div>
       </div>
     </section>
   );
 }
 
-function SocialAlertReportSummaryCard({ intent }: { readonly intent: SocialAlertReportPanelIntent }): ReactElement {
+function SocialAlertReportSummaryCard({
+  panel,
+}: {
+  readonly panel: ParentBrowserPanelSnapshot;
+}): ReactElement {
   return (
     <article className={cardClassName()}>
-      <h2>{intent.summary}</h2>
-      <SocialAlertReportDetails details={intent.metrics} />
+      <h2>{panel.summary}</h2>
+      <SocialAlertReportDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function SocialAlertReportEmptyCard({ intent }: { readonly intent: SocialAlertReportPanelIntent }): ReactElement {
+function SocialAlertReportEmptyCard({
+  panel,
+}: {
+  readonly panel: ParentBrowserPanelSnapshot;
+}): ReactElement {
   return (
     <article className={cardClassName()}>
-      <h2>{intent.emptyMessage}</h2>
-      <SocialAlertReportDetails
-        details={[
-          { label: PortalDetails.Status, value: intent.state },
-          { label: PortalDetails.ProductClaim, value: intent.productClaim },
-        ]}
-      />
+      <h2>{panel.emptyMessage}</h2>
+      <SocialAlertReportDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function SocialAlertReportRowCard({ row }: { readonly row: SocialAlertReportPanelRow }): ReactElement {
+function SocialAlertReportRowCard({
+  row,
+}: {
+  readonly row: ParentBrowserPanelRowSnapshot;
+}): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{row.title}</h2>
@@ -143,18 +139,23 @@ function SocialAlertReportRowCard({ row }: { readonly row: SocialAlertReportPane
   );
 }
 
-function SocialParentNotificationDeliveryCards({
-  intent,
+function SupplementalBrowserPanelCards({
+  panel,
 }: {
-  readonly intent: SocialParentNotificationDeliveryPanelIntent;
+  readonly panel: ParentBrowserPanelSnapshot | null;
 }): ReactElement {
+  if (panel === null) {
+    return <></>;
+  }
+
   return (
     <>
       <article className={cardClassName()}>
-        <h2>{intent.summary}</h2>
-        <SocialAlertReportDetails details={intent.details} />
+        <h2>{panel.title}</h2>
+        <p>{panel.summary}</p>
+        <SocialAlertReportDetails details={panel.summaryDetails} />
       </article>
-      {intent.rows.map((row) => (
+      {panel.rows.map((row) => (
         <article className={cardClassName()} key={row.key}>
           <h2>{row.title}</h2>
           <SocialAlertReportDetails details={row.details} />
@@ -163,74 +164,11 @@ function SocialParentNotificationDeliveryCards({
     </>
   );
 }
-
-function SocialAlertReportParentSurfaceCards({
-  intent,
-}: {
-  readonly intent: SocialAlertReportParentSurfacePanelIntent;
-}): ReactElement {
-  return (
-    <>
-      <article className={cardClassName()}>
-        <h2>{intent.summary}</h2>
-        <SocialAlertReportDetails details={intent.details} />
-      </article>
-      {intent.rows.map((row) => (
-        <article className={cardClassName()} key={row.key}>
-          <h2>{row.title}</h2>
-          <SocialAlertReportDetails details={row.details} />
-        </article>
-      ))}
-    </>
-  );
-}
-
-function BrowserReceiptStatusCards({ liveActivity }: { readonly liveActivity: PortalLiveActivityState }): ReactElement {
-  return (
-    <>
-      {browserReceiptStatusIntents(liveActivity).map((intent) => (
-        <BrowserReceiptStatusCard key={intent.title} intent={intent} />
-      ))}
-    </>
-  );
-}
-
-function BrowserReceiptStatusCard({ intent }: { readonly intent: BrowserReceiptStatusIntent }): ReactElement {
-  return (
-    <article className={cardClassName()}>
-      <h2>{intent.title}</h2>
-      <SocialAlertReportDetails details={intent.details} />
-    </article>
-  );
-}
-
-function browserReceiptStatusIntents(liveActivity: PortalLiveActivityState): readonly BrowserReceiptStatusIntent[] {
-  return [
-    liveActivity.browserRuntimeEventChainStream === null
-      ? null
-      : createBrowserActionIntentStreamStatusIntent(liveActivity.browserRuntimeEventChainStream),
-    liveActivity.browserSocialProviderReceiptStreamStatusIntent,
-    liveActivity.browserSocialProviderReceiptIngestionReadinessStatusIntent,
-  ].filter((intent): intent is BrowserReceiptStatusIntent => intent !== null);
-}
-
-type BrowserReceiptStatusIntent =
-  | BrowserActionIntentStreamStatusIntent
-  | BrowserSocialProviderReceiptStreamStatusIntent
-  | BrowserSocialProviderReceiptIngestionReadinessStatusIntent;
-
-type SocialAlertReportRenderableDetail =
-  | SocialAlertReportPanelDetail
-  | BrowserActionIntentStreamStatusDetail
-  | BrowserSocialProviderReceiptStreamStatusDetail
-  | BrowserSocialProviderReceiptIngestionReadinessStatusDetail
-  | SocialParentNotificationDeliveryPanelDetail
-  | SocialAlertReportParentSurfacePanelDetail;
 
 function SocialAlertReportDetails({
   details,
 }: {
-  readonly details: readonly SocialAlertReportRenderableDetail[];
+  readonly details: readonly ParentBrowserPanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl>

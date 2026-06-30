@@ -18,11 +18,14 @@ This file is truth-synced to the executable `lan-plan` model on 2026-06-17.
 
 ## Authoritative Plan Model
 
-- Authoritative execution workpacks: `01-20`
-- Frozen follow-on only: `21-25`
+- Authoritative execution workpacks: `01-25`
+- Active open follow-on workpacks: `23`, `25`
 - Current slice evidence root: `output/lan-plan-proof/00-plan-model-reconciliation/`
 
-`21-25` remain in the folder as draft follow-on material. They do not drive current completion claims for `lan-plan`.
+`21-25` are active `lan-plan` follow-on workpacks. Rows `21`, `22`, and `24`
+are locally complete with their own proof; rows `23` and `25` remain
+partial/manual. No row counts as PR-ready without its own current Rust-first
+proof, organized tests where applicable, and row truth.
 
 ## Product Docs
 
@@ -35,18 +38,16 @@ This file is truth-synced to the executable `lan-plan` model on 2026-06-17.
 
 | Surface | Authoritative paths | Truth rule |
 | --- | --- | --- |
-| TypeScript LAN domain | `packages/lan-domain/src/lan-discovery-source-matrix.ts`, `packages/lan-domain/src/household-device-spine.ts`, `packages/lan-domain/src/lan-production-household-proof.ts`, `packages/lan-domain/src/lan-signed-discovery-relay-spine.ts`, `packages/lan-domain/src/lan-pairing-device.ts`, `packages/lan-domain/src/lan-pairing-control.ts`, `packages/lan-domain/src/lan-pairing-product-proof.ts`, `packages/lan-domain/src/v0-9-production-discovery-household-proof.ts` | This package is the current TypeScript owner for executable `lan-plan` work. |
-| Legacy compatibility shims | `packages/parent-domain/src/lan-*.ts` | These paths are legacy compatibility or stale references only. They are not authoritative ownership for current `lan-plan` completion. |
-| TypeScript protocol/domain | `packages/agent-protocol-domain/src/lan-discovery-source-matrix.ts`, `packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts`, `packages/agent-protocol-domain/src/lan-pairing-browser-runtime.ts`, `packages/agent-protocol-domain/src/lan-pairing-challenge.ts` | Shared typed protocol and browser-runtime adapters. |
-| Rust service/runtime | `crates/agent-service/src/lan_pairing_browser_add_device_state/source_matrix.rs`, `crates/agent-service/src/lan_pairing_household_device_spine.rs`, `crates/agent-service/src/lan_pairing.rs`, `crates/agent-service/src/lan_pairing_status.rs` | Service-backed read models and route/device state. |
-| Portal proof surfaces | `apps/portal/tests/transport-lan-target.test.ts`, `apps/portal/tests/live-activity-network-flow.test.ts`, `apps/portal/e2e/portal-ui.spec.ts` | Rendering and proof consumers only. Portal is not the source of LAN truth. |
+| Rust shared contracts and LAN core | `crates/schema`, `crates/lan-core`, `crates/agent-protocol` | Shared LAN contracts, protocol shapes, read-model DTOs, and discovery/runtime truth live in Rust. This is the authoritative contract and business-logic boundary for current `lan-plan` work. |
+| Rust service/runtime | `crates/agent-service/src/lan_pairing_browser_add_device_state/source_matrix.rs`, `crates/agent-service/src/lan_pairing_household_device_spine.rs`, `crates/agent-service/src/lan_pairing.rs`, `crates/agent-service/src/lan_pairing_status.rs`, `crates/parent-runtime-core` | Service-backed read models, route/device state, runtime decisions, and proof truth are Rust-owned. |
+| Historical TS package surfaces | `packages/lan-domain/src/lan-discovery-source-matrix.ts`, `packages/lan-domain/src/household-device-spine.ts`, `packages/lan-domain/src/lan-production-household-proof.ts`, `packages/lan-domain/src/lan-signed-discovery-relay-spine.ts`, `packages/lan-domain/src/lan-pairing-device.ts`, `packages/lan-domain/src/lan-pairing-control.ts`, `packages/lan-domain/src/lan-pairing-product-proof.ts`, `packages/lan-domain/src/v0-9-production-discovery-household-proof.ts`, `packages/agent-protocol-domain/src/lan-discovery-source-matrix.ts`, `packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts`, `packages/agent-protocol-domain/src/lan-pairing-browser-runtime.ts`, `packages/agent-protocol-domain/src/lan-pairing-challenge.ts`, `packages/parent-domain/src/lan-*.ts` | These paths are migration debt, compatibility seams, or historical references only. They are not authoritative LAN contract, business-logic, runtime, or proof owners. |
+| Portal presentation and proof consumers | `apps/portal/tests/transport-lan-target.test.ts`, `apps/portal/tests/live-activity-network-flow.test.ts`, `apps/portal/e2e/portal-ui.spec.ts` | TS is presentation only here: portal/UI rendering, fixture-backed proof consumption, and bridge-facing tests. Portal is not the source of LAN truth. |
 
 ## Validation And Proof Entry Points
 
-- `npx vitest run tests/unit/v0-9-production-discovery-household-proof.test.ts`
-- `npm run test --workspace @ocentra-parent/lan-domain`
-- `npm run build --workspace @ocentra-parent/lan-domain`
-- `npm run lint:architecture -- --files packages/lan-domain`
+- `cargo check -p ocentra-lan-core --tests`
+- `cargo check -p ocentra-parent-agent-service --tests`
+- `cargo check -p ocentra-parent-runtime-core --tests`
 - `node scripts/test/v0-9-production-lan-household-proof.mjs`
 - `node scripts/test/v0-9-household-lan-proof-readiness.mjs`
 - `node scripts/test/v0-9-household-lan-product-proof.mjs`
@@ -55,6 +56,8 @@ This file is truth-synced to the executable `lan-plan` model on 2026-06-17.
 
 ## Routing Rules
 
-- Do not treat `packages/parent-domain/src/lan-*` as active ownership while `packages/lan-domain` is the executable source.
-- Do not use `21-25` for current completion claims.
+- Do not treat historical TS package surfaces as active LAN ownership while Rust owns contracts, runtime, read models, and proof truth.
+- Use organized crate/app test folders only; placeholder trees, fake tests, mock-only closure, and inline source-owned tests do not count.
+- Do not mark any follow-on row complete without its own current proof
+  artifacts, organized tests where applicable, and row truth.
 - Do not cite proof artifacts that are missing on disk. Missing artifacts must be marked open, manual-required, or not yet regenerated.

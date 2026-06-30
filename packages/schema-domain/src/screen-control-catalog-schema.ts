@@ -110,7 +110,7 @@ export const ScreenControlCatalogEffectStatusSchema = withParser(
 export const ScreenControlCatalogRuntimeOwnerSchema = withParser(
   Schema.Literal(
     'portal-only',
-    'parent-domain',
+    'rust-parent-runtime',
     'agent-protocol',
     'rust-service',
     'child-agent',

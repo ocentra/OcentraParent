@@ -39,8 +39,48 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - `cloudflare-control.test-runner-security`
 - `cloudflare-control.property-fuzz-boundary`
 
+## Current execution truth
+
+- Status: `blocked / proof-present`
+- Proof root: `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
+- The runner in `infra/cloudflare/scripts/test-runner.ts` now owns the WP08 family-to-file contract and emits the selected proof IDs, assertion IDs, and any same-directory exclusions with `--list`.
+- Same-directory extras are explicit and excluded from the WP08 runner contract until the strategy and matrix adopt them first:
+  - unit: `tests/unit/billing-binding-read-model.test.ts`
+  - integration: `tests/integration/checkout-portal-hosted.test.ts`, `local-dev-seeding-workflow.test.ts`, `payment-routes-real.test.ts`, `provider-webhooks.test.ts`, `reconciliation-auth-boundary.test.ts`, `worker-runtime-real.test.ts`
+  - security: `tests/security/interactive-billing-boundary.test.ts`
+
+## Families proved vs blocked
+
+- Proved at runner-contract surface: `unit`, `integration`, `e2e`, `contract`, `security`, `property`, and `fuzz` are explicit, file-scoped, and mapped to exact assertion IDs.
+- Runtime-blocked today: `unit`, `integration`, `e2e`, `contract`, `security`, `property`, and `fuzz`.
+- Partial file-level passes inside blocked family runs:
+  - unit: `auth-boundary`, `route-manifest`, `env-bindings`, `redaction`
+  - security: `redaction`
+  - property: `route-auth-state`
+- Blocked file-level execution remains explicit:
+  - unit: `request-limits`, `kill-switch`
+  - integration: `worker-health`, `pricing-public`, `billing-status-auth`, `webhook-signature-rejection`, `admin-auth-rejection`
+  - e2e: `portal-to-worker-billing-status`
+  - contract: `billing-api-contract`
+  - security: `no-provider-secrets-in-client`, `cors-origin-rejection`, `request-smuggling`
+  - property: `billing-idempotency`
+  - fuzz: `provider-webhook-payload`
+
+## Exact blockers
+
+- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+- `packages/billing-domain/src/billing-referral-boundary.js`
+- `packages/billing-domain/src/billing-support-admin-api-boundary.js`
+- `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+- `packages/billing-domain/src/billing-account-runtime-boundary.js`
+- `npm --prefix infra/cloudflare run lint` also remains blocked by module-wide debt outside the narrowed WP08 inventory:
+  - `infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
+  - `infra/cloudflare/tests/integration/payment-routes-real.test.ts`
+  - `infra/cloudflare/tests/integration/provider-webhooks.test.ts`
+
 ## Validation
 
+- `node --import tsx infra/cloudflare/scripts/test-runner.ts --list`
 - `npm --prefix infra/cloudflare run test:unit`
 - `npm --prefix infra/cloudflare run test:integration`
 - `npm --prefix infra/cloudflare run test:e2e`
@@ -49,14 +89,29 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - `npm --prefix infra/cloudflare run test:property`
 - `npm --prefix infra/cloudflare run test:fuzz`
 - `npm --prefix infra/cloudflare run lint`
+- `npm run lint:architecture -- --files infra/cloudflare/scripts/test-runner.ts`
+
+Validation truth from the current proof root:
+
+- `--list` passed.
+- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, `test:fuzz`, and `lint` each blocked honestly on the exact blocker set above.
+- focused architecture lint passed with a zero-match focused scope under the current gate surface.
 
 ## Negative cases
 
 - Reject pretending coverage or mutation exists from docs alone.
 - Reject collapsing several required files into one broad umbrella suite without
   updating the matrix first.
+- Reject treating the narrowed runner inventory as runtime-green while the blocked billing-domain boundaries still stop the runtime-facing families.
 
 ## Failure conditions
 
 - Do not treat placeholder tests as passing tests.
 - Do not mark WP08 runtime-complete from assertion inventory alone.
+
+## No-claim boundary
+
+- This workpack does not prove Cloudflare runtime readiness.
+- This workpack does not prove billing readiness, payment handoff readiness, or portal completion.
+- This workpack does not prove the excluded same-directory tests belong to the WP08 contract.
+- WP08 stays open/blocked until the missing billing-domain boundaries and the recorded module-lint debt are actually resolved and rerun green.

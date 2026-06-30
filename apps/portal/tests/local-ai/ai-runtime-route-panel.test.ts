@@ -1,41 +1,64 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
-import { shouldRenderAiRuntimeRoute } from '../../src/AiRuntimeRoutePanel';
-import { resolveLiveActivityState } from '../../src/live-activity-state';
+import { parseActivityMemoryGraphReadModel } from '@ocentra-parent/portal-domain/contracts';
+import { ParentRoute } from '../../generated/parent-ui-bridge';
+import { AiRuntimeRoutePanel, shouldRenderAiRuntimeRoute } from '../../src/AiRuntimeRoutePanel';
+import { EMPTY_ROUTE_LIVE_ACTIVITY_STATE } from '../../src/route-live-activity-state';
 
 describe('AI runtime route panel', () => {
   it('renders only on the AI runtime route', () => {
-    expect(shouldRenderAiRuntimeRoute(PortalRoute.AiRuntime)).toBe(true);
-    expect(shouldRenderAiRuntimeRoute(PortalRoute.Memory)).toBe(false);
-    expect(shouldRenderAiRuntimeRoute(PortalRoute.Overview)).toBe(false);
+    expect(shouldRenderAiRuntimeRoute(ParentRoute.AiRuntime)).toBe(true);
+    expect(shouldRenderAiRuntimeRoute(ParentRoute.Memory)).toBe(false);
+    expect(shouldRenderAiRuntimeRoute(ParentRoute.Overview)).toBe(false);
   });
 
-  it('selects real local AI runtime, household AI job, and remote boundary events from live state', () => {
-    const state = resolveLiveActivityState([
-      localAiRuntimeStatusEvent(),
-      lanAiJobEvent(),
-      memoryGraphEvent(),
-      parentAssistantBoundaryEvent(),
-    ]);
+  it('renders local AI runtime, household AI job, cited memory, and remote assistant boundary details', () => {
+    const markup = renderToStaticMarkup(
+      createElement(AiRuntimeRoutePanel, {
+        actions: aiRuntimeActions(),
+        commandEnabled: true,
+        liveActivity: routeLiveActivity(),
+      })
+    );
 
-    expect(state.localAiRuntimeStatusEvent?.event).toBe(AgentEvent.LocalAiRuntimeStatusReported);
-    expect(state.localAiRuntimeStatusEvent?.payload[AgentProtocolDefaults.Field.LocalAiModelId]).toBe(
-      'screen-local-vlm-v1'
-    );
-    expect(state.lanAiJobEvent?.event).toBe(AgentEvent.LanAiJobReported);
-    expect(state.lanAiJobEvent?.payload[AgentProtocolDefaults.Field.LanAiJobStatus]).toBe('claimed');
-    expect(state.activityMemoryGraphReadModel?.returnedEdgeCount).toBe(1);
-    expect(state.activityMemoryGraphReadModel?.edges[0]?.trace.sourceEvidenceReferences[0]?.evidenceReferenceId).toBe(
-      'evidence-screen-summary-1'
-    );
-    expect(state.parentAssistantBoundaryEvent?.event).toBe(AgentEvent.ParentAssistantAnswerReported);
-    expect(
-      state.parentAssistantBoundaryEvent?.payload[AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]
-    ).toBe('parent-authorized-report-bundle');
+    expect(markup).toContain('AI jobs and runtime activity');
+    expect(markup).toContain('Refresh local AI');
+    expect(markup).toContain('screen-local-vlm-v1');
+    expect(markup).toContain('claimed');
+    expect(markup).toContain('evidence-screen-summary-1');
+    expect(markup).toContain('parent-authorized-report-bundle');
+    expect(markup).toContain('worker-only-child-agent-authority');
+    expect(markup).toContain('source-cited-memory-graph-read-model-only');
+    expect(markup).toContain('remote-assistant-report-only-local-policy-authority');
   });
 });
+
+function routeLiveActivity() {
+  const activityMemoryGraphReadModel = parseActivityMemoryGraphReadModel(memoryGraphEvent().payload);
+  if (activityMemoryGraphReadModel === null) {
+    throw new Error('Expected activity memory graph read model fixture to parse.');
+  }
+
+  return {
+    ...EMPTY_ROUTE_LIVE_ACTIVITY_STATE,
+    localAiRuntimeStatusEvent: localAiRuntimeStatusEvent(),
+    lanAiJobEvent: lanAiJobEvent(),
+    activityMemoryGraphReadModel,
+    parentAssistantBoundaryEvent: parentAssistantBoundaryEvent(),
+  };
+}
+
+function aiRuntimeActions() {
+  return {
+    reconnect: () => undefined,
+    selectCommandResult: () => undefined,
+    sendCommand: async () => null,
+    refreshRouteSnapshot: async () => null,
+  };
+}
 
 function localAiRuntimeStatusEvent() {
   return AgentEventEnvelopeSchema.parse({

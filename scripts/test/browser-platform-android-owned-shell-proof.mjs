@@ -74,7 +74,7 @@ try {
   createProofAvd(avdManager.path);
   proofAvdCreated = true;
   launchedEmulatorSerial = await launchEmulatorIfAvailable(adb.path, emulator.path, existingSerials);
-  launchedEmulator = launchedEmulatorSerial !== null;
+  launchedEmulator = launchedEmulatorSerial !== undefined;
 
   const devices = selectProofDevices(adb.path, launchedEmulatorSerial);
   if (devices.length === 0) {
@@ -286,7 +286,7 @@ try {
   if (server) {
     await new Promise((resolve) => server.instance.close(resolve));
   }
-  if (adb && launchedEmulatorSerial !== null) {
+  if (adb && launchedEmulatorSerial !== undefined) {
     command(['-s', launchedEmulatorSerial, 'emu', 'kill'], { adbPath: adb.path, allowFailure: true });
   }
   if (avdManager && proofAvdCreated) {

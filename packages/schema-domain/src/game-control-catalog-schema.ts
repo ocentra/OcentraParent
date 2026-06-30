@@ -76,7 +76,7 @@ const GameControlEffectStatusSchema = withParser(
 const GameControlRuntimeOwnerSchema = withParser(
   Schema.Literal(
     'portal-only',
-    'parent-domain',
+    'rust-parent-runtime',
     'agent-protocol',
     'rust-service',
     'child-agent',

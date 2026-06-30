@@ -152,7 +152,3 @@ pub struct ActivityEvent {
     pub fields: LogFields,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
-
-#[cfg(test)]
-#[path = "policy_tests.rs"]
-mod policy_tests;

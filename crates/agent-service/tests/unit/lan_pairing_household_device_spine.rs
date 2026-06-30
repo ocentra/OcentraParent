@@ -8,12 +8,13 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdSurface, LanHouseholdDeviceActionKind,
 };
 
-use crate::lan_pairing_household_device_spine::canonical_household_devices;
+use crate::app::lan_pairing_household_device_spine::canonical_household_devices;
 use crate::lan_pairing_household_device_spine_test_fixtures::{
     expected_test_mac_canonical_id, household_decision, household_restore_decision,
     ip_only_neighbor, local_agent_discovery_device, router_neighbor, same_host_network_neighbor,
     trusted_registry_entry,
 };
+use crate::test_invariants::require_some;
 
 #[test]
 fn local_agent_and_neighbor_merge_into_one_canonical_physical_device() {
@@ -55,7 +56,7 @@ fn local_agent_and_neighbor_merge_into_one_canonical_physical_device() {
         ]
         .as_slice()
     );
-    assert!(matches!(device.child_agent_inventory.as_ref(), Some(_)));
+    assert!(device.child_agent_inventory.as_ref().is_some());
 }
 
 #[test]
@@ -70,7 +71,7 @@ fn router_neighbor_stays_visible_but_not_enrollable() {
     );
     assert!(!device.enrollable);
     assert_eq!(device.role_badges.as_slice(), [].as_slice());
-    assert!(matches!(device.child_agent_inventory.as_ref(), None));
+    assert!(device.child_agent_inventory.as_ref().is_none());
     assert_eq!(
         device.policy_target_surfaces,
         vec![
@@ -107,8 +108,20 @@ fn passive_neighbors_do_not_merge_on_ip_only_identity() {
         .all(|device| device.network_identity.mac_address.is_none()));
     assert!(devices
         .iter()
-        .all(|device| device.network_identity.confidence
-            == LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor));
+        .any(|device| device.network_identity.confidence
+            == LanCanonicalHouseholdDeviceConfidence::ManualRequired));
+    assert!(devices.iter().any(|device| {
+        device
+            .network_identity
+            .evidence_records
+            .iter()
+            .any(|record| {
+                record.note.as_deref().is_some_and(|note| {
+                    note.contains("dedupe-decision=manual-required")
+                        && note.contains("shared-ip-address")
+                })
+            })
+    }));
 }
 
 #[test]
@@ -146,6 +159,35 @@ fn child_agent_and_neighbor_may_merge_on_ip_when_agent_evidence_exists() {
 }
 
 #[test]
+fn local_agent_and_registry_merge_on_explicit_install_and_pairing_keys() {
+    let mut local_agent = local_agent_discovery_device();
+    local_agent.child_device.mac_address = None;
+    local_agent.child_device.child_profile_id = None;
+    local_agent.child_device.install_id = Some("fixture-install-merge".to_string());
+    local_agent.pairing_id = Some("fixture-pairing-merge".to_string());
+
+    let mut trusted = trusted_registry_entry();
+    trusted.child_device.device_id = local_agent.child_device.device_id.clone();
+    trusted.child_device.mac_address = None;
+    trusted.child_device.child_profile_id = Some("fixture-child-profile-merge".to_string());
+    trusted.child_device.install_id = Some("fixture-install-merge".to_string());
+    trusted.pairing_id = "fixture-pairing-merge".to_string();
+
+    let devices = canonical_household_devices(&[local_agent], &[trusted], &[]);
+
+    assert_eq!(devices.len(), 1);
+    let evidence = &devices[0].network_identity.evidence_records;
+    assert!(evidence.iter().any(|record| {
+        record.evidence_kind
+            == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind::InstallId
+    }));
+    assert!(evidence.iter().any(|record| {
+        record.evidence_kind
+            == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind::PairingId
+    }));
+}
+
+#[test]
 fn trusted_registry_device_remains_available_to_product_target_surfaces() {
     let devices = canonical_household_devices(&[], &[trusted_registry_entry()], &[]);
 
@@ -170,6 +212,15 @@ fn trusted_registry_device_remains_available_to_product_target_surfaces() {
             LanCanonicalHouseholdSurface::Ai,
         ]
         .as_slice()
+    );
+    let inventory = require_some(
+        device.child_agent_inventory.as_ref(),
+        "paired trusted registry child agent inventory",
+    );
+    assert_eq!(inventory.pairing_trust_state, LanPairingTrustState::Paired);
+    assert_eq!(
+        inventory.route_state,
+        ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdRouteState::LocalNetwork
     );
 }
 
@@ -203,6 +254,46 @@ fn parent_rename_decision_updates_canonical_display_name_with_evidence() {
             .last()
             .map(|record| record.merge_key.as_str()),
         Some(expected_merge_key.as_str())
+    );
+}
+
+#[test]
+fn parent_rename_decision_survives_same_mac_rescan_with_new_ip_and_weaker_neighbor_label() {
+    let renamed_label = constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL;
+    let initial_devices = canonical_household_devices(&[same_host_network_neighbor()], &[], &[]);
+    let canonical_device_id = initial_devices[0].canonical_device_id.clone();
+    let mut rescanned_neighbor = same_host_network_neighbor();
+    rescanned_neighbor.child_device.ip_address = Some("192.168.0.77".to_string());
+    rescanned_neighbor.child_device.hostname =
+        Some(constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME.to_string());
+    rescanned_neighbor.child_device.label = "LAN 192.168.0.77".to_string();
+    rescanned_neighbor.child_device.platform = constants::lan_pairing::PLATFORM_UNKNOWN.to_string();
+
+    let devices = canonical_household_devices(
+        &[rescanned_neighbor],
+        &[],
+        &[household_decision(
+            LanHouseholdDeviceActionKind::Rename,
+            &canonical_device_id,
+            Some(renamed_label),
+        )],
+    );
+
+    assert_eq!(devices.len(), 1);
+    let device = &devices[0];
+    assert_eq!(device.canonical_device_id, canonical_device_id);
+    assert_eq!(device.display_name, renamed_label);
+    assert_eq!(
+        device.network_identity.ip_addresses,
+        vec!["192.168.0.77".to_string()]
+    );
+    assert_eq!(
+        device.network_identity.mac_address.as_deref(),
+        Some(constants::lan_pairing::TEST_LAN_MAC)
+    );
+    assert_eq!(
+        device.discovery_state,
+        LanPairingProductionDiscoveryState::Discovered
     );
 }
 

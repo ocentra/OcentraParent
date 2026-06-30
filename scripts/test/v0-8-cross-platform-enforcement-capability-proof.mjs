@@ -14,17 +14,6 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-cross-platform-enforcement-capability-proof',
-    ])
-  );
   await runCommand('cargo', [
     'test',
     '-p',
@@ -55,7 +44,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/v0-8-cross-platform-enforcement-capability-proof.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-cross-platform-enforcement-capability-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_cross_platform_capability_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_cross_platform_capability_proof_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/enforcement_cross_platform_capability_proof_read_model.rs',

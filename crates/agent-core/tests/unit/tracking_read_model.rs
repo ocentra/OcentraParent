@@ -13,9 +13,7 @@ use ocentra_parent_agent_protocol::tracking::{
     },
 };
 
-use ocentra_parent_agent_core::{
-    activity_store::ActivityStore, tracking::tracking_read_model_for_store,
-};
+use crate::{activity_store::ActivityStore, tracking::tracking_read_model_for_store};
 
 #[test]
 fn activity_store_reports_tracking_read_model_from_ingested_events() {

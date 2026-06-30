@@ -5,16 +5,17 @@ import {
   AgentTrackingParentExportState,
   AgentTrackingRemoteAiState,
   AgentTrackingRemoteSyncState,
+  type AgentTrackingRetentionSettingsWriteResult,
 } from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
-import type { AgentTrackingRetentionSettingsWriteResultParseResult } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import type { DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import {
   decodePortalDetailValue,
   type PortalDetailValue,
   type TrackingStatusProofArtifact,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+} from './portal-contract-adapter';
 import { PortalFormatting } from './formatting';
+import type { ParsedPayloadResult } from './read-model-result';
 import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 
 type PortalDisplayText = DisplayText;
@@ -109,7 +110,7 @@ const TrackingRetentionSettingsHostedUiDefinitions = [
 ] as const satisfies readonly TrackingRetentionSettingsHostedUiDefinition[];
 
 export function trackingRetentionSettingsHostedUiProof(
-  writeResult: AgentTrackingRetentionSettingsWriteResultParseResult | null = null
+  writeResult: ParsedPayloadResult<AgentTrackingRetentionSettingsWriteResult> | null = null
 ): TrackingRetentionSettingsHostedUiProof {
   const rows = TrackingRetentionSettingsHostedUiDefinitions.map((definition) =>
     retentionSettingsHostedUiRow(definition)
@@ -148,7 +149,7 @@ function retentionSettingsHostedUiRow(
 }
 
 function retentionSettingsWritePreflight(
-  writeResult: AgentTrackingRetentionSettingsWriteResultParseResult | null
+  writeResult: ParsedPayloadResult<AgentTrackingRetentionSettingsWriteResult> | null
 ): TrackingRetentionSettingsWritePreflight {
   const base = emptyRetentionSettingsWritePreflight();
   if (writeResult === null) {

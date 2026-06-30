@@ -19,6 +19,7 @@ use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
+    local_ai_provider_scheduler::local_ai_provider_scheduler,
     local_ai_runtime_cache_status::local_ai_model_cache_status_from_config,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_configured_status::{
@@ -27,6 +28,7 @@ use crate::{
     },
     local_ai_runtime_model_selection::requested_model_unavailable_reason,
     local_ai_runtime_payload::local_ai_runtime_status_payload,
+    local_ai_runtime_provider_proof_read_model::local_ai_runtime_provider_proof_read_model,
     local_ai_runtime_readiness::runtime_configuration_unavailable_reason,
     local_ai_runtime_status_unavailable::{
         unavailable_local_ai_runtime_status_for_model,
@@ -147,15 +149,22 @@ pub async fn build_local_ai_runtime_status_report(
         .await
         .unwrap_or_else(|_| LocalAiRuntimeConfigSnapshot::unconfigured());
     let requested_model_id = requested_model_id_from_command(&command);
-    let (status, probe, cache) =
-        local_ai_runtime_status_for_model_from_config(checked_at, &config, requested_model_id);
+    let (status, probe, cache) = local_ai_runtime_status_for_model_from_config(
+        checked_at.clone(),
+        &config,
+        requested_model_id,
+    );
+    let provider_proof = local_ai_runtime_provider_proof_read_model(
+        &checked_at,
+        &local_ai_provider_scheduler().status_snapshot(),
+    );
     build_event(
         constants::event_id::LOCAL_AI_RUNTIME_STATUS_REPORTED,
         &command.message_id,
         command.source,
         AgentEventName::AgentLocalAiRuntimeStatusReported,
         LogLevel::Info,
-        local_ai_runtime_status_payload(&status, &probe, &cache),
+        local_ai_runtime_status_payload(&status, &probe, &cache, &provider_proof),
         None,
     )
 }

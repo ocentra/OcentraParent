@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::{
     dns::types::NetworkEvidenceGrade,
     policy::{
@@ -182,7 +183,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
             constants::network_flow::TEST_WINDOWS_FIREWALL_CAPABILITY_PROOF_REF.to_string(),
         ),
     })
-    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    .expect_value(constants::event_id::NETWORK_WINDOWS_FIREWALL_LAB_STATUS_REPORTED)
 }
 
 fn lab_execution_input(

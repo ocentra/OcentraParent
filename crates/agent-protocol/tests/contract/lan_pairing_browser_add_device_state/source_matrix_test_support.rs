@@ -40,7 +40,7 @@ pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
                 constants::value::LAN_READ_MODEL_JSON_EXPECTATION
             ))
             .len(),
-        20
+        25
     );
     assert_eq!(
         value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS][17]
@@ -78,7 +78,7 @@ pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
 fn workpack_rows() -> Vec<LanPlanWorkpackStatusRow> {
     let mut rows = Vec::new();
     rows.extend(workpack_rows_01_to_10());
-    rows.extend(workpack_rows_11_to_20());
+    rows.extend(workpack_rows_11_to_25());
     rows
 }
 
@@ -127,7 +127,7 @@ fn workpack_rows_01_to_10() -> Vec<LanPlanWorkpackStatusRow> {
     ]
 }
 
-fn workpack_rows_11_to_20() -> Vec<LanPlanWorkpackStatusRow> {
+fn workpack_rows_11_to_25() -> Vec<LanPlanWorkpackStatusRow> {
     vec![
         workpack(
             LanPlanWorkpackId::W11,
@@ -169,6 +169,26 @@ fn workpack_rows_11_to_20() -> Vec<LanPlanWorkpackStatusRow> {
             LanPlanWorkpackId::W20,
             constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_20,
         ),
+        workpack(
+            LanPlanWorkpackId::W21,
+            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_21,
+        ),
+        workpack(
+            LanPlanWorkpackId::W22,
+            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_22,
+        ),
+        workpack(
+            LanPlanWorkpackId::W23,
+            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_23,
+        ),
+        workpack(
+            LanPlanWorkpackId::W24,
+            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_24,
+        ),
+        workpack(
+            LanPlanWorkpackId::W25,
+            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_25,
+        ),
     ]
 }
 
@@ -185,11 +205,15 @@ fn source_rows() -> Vec<LanDiscoverySourceRow> {
             LanPlanWorkpackId::W15,
             constants::lan_pairing::LAN_SCAN_SOURCE_PREVIOUS_SCAN_SNAPSHOT,
         ),
-        source(
+        partial_weak_identity_source(
             LanDiscoverySourceKind::MdnsDnsSdQuery,
             LanPlanWorkpackId::W08,
-            false,
-            Some(constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP),
+            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_08,
+        ),
+        partial_weak_identity_source(
+            LanDiscoverySourceKind::SsdpUpnpQuery,
+            LanPlanWorkpackId::W09,
+            constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_09,
         ),
         source(
             LanDiscoverySourceKind::SignedChildAgentHello,
@@ -268,5 +292,28 @@ fn source(
         persists_across_restart: can_confirm_child_agent,
         evidence_label: constants::lan_pairing::LAN_SOURCE_MATRIX_CLAIM_WEAK_SOURCES.to_string(),
         required_artifact_summary: required_artifact_summary.map(str::to_string),
+    }
+}
+
+fn partial_weak_identity_source(
+    source: LanDiscoverySourceKind,
+    workpack_id: LanPlanWorkpackId,
+    evidence_label: &str,
+) -> LanDiscoverySourceRow {
+    LanDiscoverySourceRow {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        source,
+        workpack_id,
+        status: LanDiscoverySourceStatus::Partial,
+        authority: LanDiscoverySourceAuthority::PresenceOnly,
+        runtime_path: LanDiscoverySourceRuntimePath::RustServiceReadModel,
+        ui_surface: LanDiscoverySourceUiSurface::DevicesLan,
+        can_confirm_child_agent: false,
+        can_assign_child_profile: false,
+        can_control_route: false,
+        requires_selected_interface: false,
+        persists_across_restart: false,
+        evidence_label: evidence_label.to_string(),
+        required_artifact_summary: None,
     }
 }

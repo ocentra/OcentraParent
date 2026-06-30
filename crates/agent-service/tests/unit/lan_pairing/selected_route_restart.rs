@@ -12,7 +12,7 @@ use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 
 use crate::{
-    lan_pairing::LanPairingRuntime,
+    app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
     lan_pairing_test_assertions::{
         assert_accepted_control, assert_persistent_selected_route_support_surface,
         assert_status_selected_route_trust, assert_status_selection,
@@ -21,7 +21,6 @@ use crate::{
         command_for_target, health_command, intent_payload, pairing_command, proof_payload,
         route_select_command, serialize_command,
     },
-    websocket::handle_command_text_for_test,
 };
 
 #[tokio::test]
@@ -52,7 +51,7 @@ async fn lan_pairing_persistent_registry_recovers_selected_route_after_restart()
         &restarted_status,
         constants::lan_pairing::PAIRING_ID,
         constants::value::LAN_PAIRING_PAIRED,
-        constants::lan_pairing::EXPIRES_AT,
+        constants::value::EMPTY,
         constants::value::EMPTY,
     );
     assert_accepted_control(&accepted_after_restart);

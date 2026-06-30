@@ -55,6 +55,9 @@ pub(crate) fn reason_value(reason: &LanPairingRejectionReason) -> &'static str {
         LanPairingRejectionReason::Stale => constants::value::LAN_REASON_STALE,
         LanPairingRejectionReason::Offline => constants::value::LAN_REASON_OFFLINE,
         LanPairingRejectionReason::Revoked => constants::value::LAN_REASON_REVOKED,
+        LanPairingRejectionReason::SignedChildAgentContextUnavailable => {
+            constants::value::LAN_REASON_SIGNED_CHILD_AGENT_CONTEXT_UNAVAILABLE
+        }
         LanPairingRejectionReason::LocalNetworkDisabled => {
             constants::value::LAN_REASON_UNSUPPORTED_ROUTE
         }
@@ -86,6 +89,7 @@ pub(crate) fn authentication_state_value(
         | Some(LanPairingRejectionReason::ControllerLeaseMissing)
         | Some(LanPairingRejectionReason::ControllerLeaseExpired)
         | Some(LanPairingRejectionReason::Malformed)
+        | Some(LanPairingRejectionReason::SignedChildAgentContextUnavailable)
         | Some(LanPairingRejectionReason::ObserverReadOnly)
         | Some(LanPairingRejectionReason::TakeoverDenied)
         | Some(LanPairingRejectionReason::LanAiProviderUnavailable)

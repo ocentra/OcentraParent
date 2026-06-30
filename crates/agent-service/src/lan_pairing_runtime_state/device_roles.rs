@@ -12,17 +12,6 @@ use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthor
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 impl LanPairingRuntime {
-    #[cfg(test)]
-    pub fn empty_with_device_role_read_model(device_roles: DeviceRoleRuntimeReadModel) -> Self {
-        let mut runtime = Self::empty();
-        runtime.device_roles = device_roles;
-        runtime.lan_ai_provider_capabilities = vec![
-            constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION.to_string(),
-            constants::local_ai_runtime::CAPABILITY_SUMMARIZATION.to_string(),
-        ];
-        runtime
-    }
-
     pub(crate) fn device_role_read_model(&self) -> DeviceRoleRuntimeReadModel {
         let mut read_model = self.device_roles.clone();
         if let Some(selected) = self.selected_target() {

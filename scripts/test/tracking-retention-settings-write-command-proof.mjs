@@ -61,7 +61,7 @@ async function main() {
         result.serviceWritePreflightClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
       serviceMutationExecuted:
         result.serviceMutationExecutionState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
-      localServiceStateRevisionRecorded: result.localServiceStateRevision !== null,
+      localServiceStateRevisionRecorded: result.localServiceStateRevision !== undefined,
     },
     productClaims: {
       durableSettingsPersisted:

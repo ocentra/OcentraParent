@@ -10,7 +10,7 @@ use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
-use crate::{
+use crate::app::{
     fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
 };

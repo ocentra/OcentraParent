@@ -82,6 +82,55 @@ export const AgentLanSelectedDeviceReadinessSchema = withParser(
   })
 );
 
+export const AgentLanDiscoveryEventHistoryStateSchema = withParser(
+  Schema.Literal(
+    'ready',
+    'empty',
+    'agent-offline',
+    'manual-required',
+    'unavailable',
+    'degraded'
+  )
+);
+export const AgentLanDiscoveryEventKindSchema = withParser(
+  Schema.Literal(
+    'interface-changed',
+    'scan-started',
+    'scan-finished',
+    'evidence-found',
+    'device-found',
+    'device-updated',
+    'device-online',
+    'device-offline',
+    'agent-discovered',
+    'agent-confirmed',
+    'unknown-detected'
+  )
+);
+export const AgentLanDiscoveryEventRowSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    eventId: NonEmptyStringSchema,
+    eventKind: AgentLanDiscoveryEventKindSchema,
+    occurredAt: AgentTimestampSchema,
+    previousEventId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    scanSessionId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    affectedDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
+    evidenceId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    summary: NonEmptyStringSchema,
+  })
+);
+export const AgentLanDiscoveryEventHistorySchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    generatedAt: AgentTimestampSchema,
+    state: AgentLanDiscoveryEventHistoryStateSchema,
+    latestEventId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    latestObservedAt: Schema.Union(AgentTimestampSchema, Schema.Null),
+    rows: Schema.Array(AgentLanDiscoveryEventRowSchema),
+  })
+);
+
 export const AgentLanCanonicalHouseholdDeviceRoleSchema = withParser(
   Schema.Literal('parent-controller', 'parent-observer', 'child-agent', 'portal', 'ai-provider')
 );
@@ -100,6 +149,7 @@ export const AgentLanDiscoveryEvidenceSourceSchema = withParser(
     'windows-neighbor-table',
     'dns-cache',
     'netbios',
+    'previous-scan-snapshot',
     'trusted-registry',
     'parent-assignment',
     'child-agent-hello',
@@ -114,6 +164,7 @@ export const AgentLanDiscoveryEvidenceKindSchema = withParser(
     'hostname',
     'vendor',
     'router-classification',
+    'historical-identity-hint',
     'child-agent-presence',
     'trusted-registry',
     'parent-decision',
@@ -176,7 +227,7 @@ export const AgentLanProductionHouseholdProofStateSchema = withParser(
   Schema.Literal('ci-mechanical-proof', 'manual-required', 'not-implemented')
 );
 export const AgentLanProductionHouseholdProofRuntimeOwnerSchema = withParser(
-  Schema.Literal('parent-domain-contract', 'agent-protocol', 'rust-service-read-model', 'proof-harness', 'manual-proof')
+  Schema.Literal('rust-parent-runtime-contract', 'agent-protocol', 'rust-service-read-model', 'proof-harness', 'manual-proof')
 );
 export const AgentLanProductionHouseholdProofStatusSchema = withParser(
   Schema.Struct({
@@ -314,6 +365,7 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
     cloudRelayState: AgentLanPairingProductionDiscoveryStateSchema,
     scanSummary: AgentLanBrowserAddDeviceScanSummarySchema,
     discoveredDevices: Schema.Array(AgentLanBrowserAddDeviceDiscoveryDeviceSchema),
+    discoveryEventHistory: AgentLanDiscoveryEventHistorySchema,
     canonicalHouseholdDevices: Schema.Array(AgentLanCanonicalHouseholdDeviceSchema).pipe(
       Schema.filter(
         (devices) =>
@@ -351,6 +403,10 @@ export type AgentLanBrowserAddDeviceDiscoveryDevice = Infer<typeof AgentLanBrows
 export type AgentLanBrowserAddDevicePairingRequest = Infer<typeof AgentLanBrowserAddDevicePairingRequestSchema>;
 export type AgentLanBrowserAddDeviceScanSummary = Infer<typeof AgentLanBrowserAddDeviceScanSummarySchema>;
 export type AgentLanSelectedDeviceReadiness = Infer<typeof AgentLanSelectedDeviceReadinessSchema>;
+export type AgentLanDiscoveryEventHistoryState = Infer<typeof AgentLanDiscoveryEventHistoryStateSchema>;
+export type AgentLanDiscoveryEventKind = Infer<typeof AgentLanDiscoveryEventKindSchema>;
+export type AgentLanDiscoveryEventRow = Infer<typeof AgentLanDiscoveryEventRowSchema>;
+export type AgentLanDiscoveryEventHistory = Infer<typeof AgentLanDiscoveryEventHistorySchema>;
 export type AgentLanProductionHouseholdProofCapability = Infer<typeof AgentLanProductionHouseholdProofCapabilitySchema>;
 export type AgentLanProductionHouseholdProofState = Infer<typeof AgentLanProductionHouseholdProofStateSchema>;
 export type AgentLanProductionHouseholdProofRuntimeOwner = Infer<

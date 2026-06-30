@@ -5,7 +5,7 @@ Status: audit-open. Core TypeScript and Rust policy-control contracts exist and 
 ## Current ownership interpretation
 
 ```text
-schema-domain:
+crates/schema:
   Canonical shared policy shapes when contracts cross package, app, crate, or plan boundaries.
 
 policy-domain:

@@ -1,10 +1,10 @@
 use ocentra_eventing::error::EventingError;
 
-pub(crate) type BrowserRuntimeSocialProviderReceiptDurableReadModelState =
+pub type BrowserRuntimeSocialProviderReceiptDurableReadModelState =
     ocentra_parent_agent_protocol::browser::social_provider_receipt_durable::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
-pub(crate) type BrowserRuntimeSocialProviderReceiptDurableRecord =
+pub type BrowserRuntimeSocialProviderReceiptDurableRecord =
     ocentra_parent_agent_protocol::browser::social_provider_receipt_durable::BrowserRuntimeSocialProviderReceiptDurableRecord;
-pub(crate) type BrowserRuntimeSocialProviderReceiptDurableReport =
+pub type BrowserRuntimeSocialProviderReceiptDurableReport =
     ocentra_parent_agent_protocol::browser::social_provider_receipt_durable::BrowserRuntimeSocialProviderReceiptDurableReport;
 
 #[derive(Clone, Debug, PartialEq, Eq)]

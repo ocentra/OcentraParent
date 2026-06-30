@@ -41,8 +41,12 @@ use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_RECORDE
 use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED;
 use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY;
 
-use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use crate::{
+    event_builder::build_event, fields::fields_from_pairs, json_contract::serialize_json_string,
+    time::timestamp_now,
+};
 
+#[path = "social_parent_notification_delivery_read_model_payload/social_report_writer_delivery_event_handoff.rs"]
 pub(crate) mod social_report_writer_delivery_event_handoff;
 
 use self::social_report_writer_delivery_event_handoff::{
@@ -225,10 +229,7 @@ fn read_model_pairs(
         ),
         (
             constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL,
-            LogFieldValue::String(match serde_json::to_string(read_model) {
-                Ok(serialized) => serialized,
-                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
-            }),
+            LogFieldValue::String(serialize_json_string(read_model)),
         ),
     ]
 }

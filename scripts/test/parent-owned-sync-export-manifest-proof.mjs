@@ -20,92 +20,94 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/production-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/parent-owned-sync-export.test.ts',
+      'tests/contract/parent-owned-sync-export.test.ts',
     ])
   );
 
   const proofModule = await loadContractProofModule();
   await assertPackageExport(proofModule);
-  const readModel = proofModule.ParentOwnedSyncExportContractProofReadModel;
-  const dataClassCounts = proofModule.summarizeParentOwnedSyncExportDataClasses(readModel.manifest.items);
-  const connectorStatusCounts = proofModule.summarizeParentOwnedSyncExportConnectorStatuses(
-    readModel.connectorStatuses
-  );
-  const recoveryBundleStateCounts = proofModule.summarizeParentOwnedSyncExportRecoveryBundleStates(
-    readModel.recoveryBundles
-  );
-  const recoveryHandoffStateCounts = proofModule.summarizeParentOwnedSyncExportRecoveryHandoffStates(
-    readModel.recoveryBundles
-  );
+  const proof = proofModule.ParentOwnedSyncExportContractProofReadModel;
 
-  assert.equal(
-    Object.values(dataClassCounts).every((count) => count === 1),
-    true
-  );
-  assert.equal(
-    Object.values(connectorStatusCounts).every((count) => count === 1),
-    true
-  );
-  assert.equal(readModel.transferRuntimeClaimed, false);
-  assert.equal(readModel.connectorOAuthClaimed, false);
-  assert.equal(readModel.ocentraHostedChildEvidenceStored, false);
-  assert.deepEqual(
-    readModel.importResults.map((result) => result.resultState),
-    ['accepted-preview', 'rejected-schema-version', 'rejected-scope', 'not-applied']
-  );
-  assert.deepEqual(
-    readModel.deleteResults.map((result) => result.resultState),
-    ['pending', 'confirmed', 'failed', 'not-requested']
-  );
-  assert.equal(recoveryBundleStateCounts.bundlePreviewOnly, 1);
-  assert.equal(recoveryBundleStateCounts.bundleApplyPending, 1);
-  assert.equal(recoveryBundleStateCounts.bundleApplied, 1);
-  assert.equal(recoveryBundleStateCounts.bundleWrongHousehold, 1);
-  assert.equal(recoveryBundleStateCounts.bundleWrongKey, 1);
-  assert.equal(recoveryBundleStateCounts.bundleCorrupt, 1);
-  assert.equal(recoveryBundleStateCounts.bundleManualRequired, 1);
-  assert.equal(recoveryHandoffStateCounts['delete-pending'], 1);
-  assert.equal(recoveryHandoffStateCounts['delete-confirmed'], 1);
+  const dataClassCounts = proofModule.summarizeParentOwnedSyncExportDataClasses(proof.manifest.items);
+  const providerModeCounts = proofModule.summarizeParentOwnedSyncExportProviderModes(proof.providerStatuses);
+  const providerStatusCounts = proofModule.summarizeParentOwnedSyncExportProviderStatuses(proof.providerStatuses);
+  const syncStateCounts = proofModule.summarizeParentOwnedSyncExportSyncStates(proof.syncStates);
+  const tombstoneStateCounts = proofModule.summarizeParentOwnedSyncExportTombstoneStates(proof.tombstones);
 
-  const proof = {
+  assert.equal(Object.values(dataClassCounts).every((count) => count === 1), true);
+  assert.equal(providerModeCounts['google-drive-appdata'], 1);
+  assert.equal(providerModeCounts['disabled'], 1);
+  assert.equal(providerStatusCounts['manual-required'], 1);
+  assert.equal(providerStatusCounts.revoked, 1);
+  assert.equal(providerStatusCounts['wrong-account'], 1);
+  assert.equal(providerStatusCounts['folder-unavailable'], 1);
+  assert.equal(providerStatusCounts['partial-upload'], 1);
+  assert.equal(providerStatusCounts.disconnected, 1);
+  assert.equal(syncStateCounts.synced, 1);
+  assert.equal(syncStateCounts['manual-required'], 1);
+  assert.equal(tombstoneStateCounts.propagated, 1);
+  assert.equal(tombstoneStateCounts.blocked, 1);
+  assert.equal(tombstoneStateCounts['manual-required'], 1);
+  assert.equal(proof.transferRuntimeClaimed, false);
+  assert.equal(proof.connectorOAuthClaimed, false);
+  assert.equal(proof.uploadRuntimeClaimed, false);
+  assert.equal(proof.deleteRuntimeClaimed, false);
+  assert.equal(proof.ocentraHostedChildEvidenceStored, false);
+
+  const proofJson = {
     schemaVersion: 1,
     checkedAt: new Date().toISOString(),
     commit: await gitHead(),
     proofMode: 'parent-owned-sync-export-manifest-proof',
     commands,
     evidence: {
-      contract: 'packages/schema-domain/src/parent-owned-sync-export.ts',
-      contractTest: 'packages/production-domain/tests/unit/parent-owned-sync-export.test.ts',
+      rustContract: 'crates/schema/src/parent_owned_sync_export.rs',
+      rustCustodyCore: 'crates/storage-custody-core/src/parent_owned_sync_export.rs',
+      tsAdapter: 'packages/schema-domain/src/parent-owned-sync-export.ts',
+      generatedTs: 'packages/schema-domain/src/generated/parent-owned-sync-export-contracts.ts',
+      contractTest: 'packages/schema-domain/tests/contract/parent-owned-sync-export.test.ts',
       builtModule: 'packages/schema-domain/dist/parent-owned-sync-export.js',
       packageExport: '@ocentra-parent/schema-domain/parent-owned-sync-export',
-      featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/sync-export.md',
       output: relative(repoRoot, proofPath),
     },
+    providerModes: proof.providerStatuses.map((row) => row.providerMode),
+    providerStatuses: proof.providerStatuses.map((row) => ({
+      mode: row.providerMode,
+      status: row.providerStatus,
+      disconnectVisibilityState: row.disconnectVisibilityState,
+      deleteVisibilityState: row.deleteVisibilityState,
+    })),
     dataClassCounts,
-    connectorStatusCounts,
-    syncCursorStates: readModel.syncCursors.map((cursor) => cursor.cursorState),
-    conflictResolutions: readModel.conflictRecords.map((record) => record.resolution),
-    importResultStates: readModel.importResults.map((result) => result.resultState),
-    deleteResultStates: readModel.deleteResults.map((result) => result.resultState),
-    recoveryBundleStates: recoveryBundleStateCounts,
-    recoveryHandoffStates: recoveryHandoffStateCounts,
-    recoveryHandoffTargets: [...new Set(readModel.recoveryBundles.map((bundle) => bundle.handoff.handoffTarget))],
-    nonClaims: readModel.nonClaims,
+    providerModeCounts,
+    providerStatusCounts,
+    syncStates: proof.syncStates.map((row) => ({
+      syncState: row.syncState,
+      manifestIntegrityState: row.manifestIntegrityState,
+      providerStatusRef: row.providerStatusRef,
+      parentActionRequired: row.parentActionRequired,
+    })),
+    syncStateCounts,
+    tombstones: proof.tombstones.map((row) => ({
+      dataClass: row.dataClass,
+      propagationState: row.propagationState,
+      providerStatusRef: row.providerStatusRef,
+    })),
+    tombstoneStateCounts,
+    nonClaims: proof.nonClaims,
     claimBoundaries: {
-      transferRuntimeClaimed: readModel.transferRuntimeClaimed,
-      connectorOAuthClaimed: readModel.connectorOAuthClaimed,
-      portalUiClaimed: readModel.portalUiClaimed,
-      reportCompilerRuntimeClaimed: readModel.reportCompilerRuntimeClaimed,
-      accountSubscriptionBackendClaimed: readModel.accountSubscriptionBackendClaimed,
-      ocentraHostedChildEvidenceStored: readModel.ocentraHostedChildEvidenceStored,
+      transferRuntimeClaimed: proof.transferRuntimeClaimed,
+      connectorOAuthClaimed: proof.connectorOAuthClaimed,
+      uploadRuntimeClaimed: proof.uploadRuntimeClaimed,
+      deleteRuntimeClaimed: proof.deleteRuntimeClaimed,
+      ocentraHostedChildEvidenceStored: proof.ocentraHostedChildEvidenceStored,
     },
     knownGaps: proofModule.ParentOwnedSyncExportKnownGaps,
   };
 
-  await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await writeFile(proofPath, `${JSON.stringify(proofJson, null, 2)}\n`);
   console.log(`parent-owned-sync-export-manifest-proof-ok:${relative(repoRoot, proofPath)}`);
 }
 

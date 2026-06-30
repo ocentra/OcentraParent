@@ -181,7 +181,7 @@ async function measureSample(sample) {
 
   const sampler = setInterval(() => {
     const sampleRow = readProcessSample(child.pid);
-    if (sampleRow !== null) {
+    if (sampleRow !== undefined) {
       resourceSamples.push(sampleRow);
     }
   }, 250);
@@ -190,7 +190,7 @@ async function measureSample(sample) {
     child.on('close', (code) => {
       clearInterval(sampler);
       const sampleRow = readProcessSample(child.pid);
-      if (sampleRow !== null) {
+      if (sampleRow !== undefined) {
         resourceSamples.push(sampleRow);
       }
       resolveExit(code ?? -1);
@@ -224,7 +224,7 @@ async function measureSample(sample) {
     stderrPreview: stderr.replace(/\s+/g, ' ').slice(0, 500),
     assertions: {
       parseableMeaningfulJson:
-        normalized !== null &&
+        normalized !== undefined &&
         typeof normalized.primary_category === 'string' &&
         typeof normalized.visible_text === 'string' &&
         Array.isArray(normalized.risk_signals) &&

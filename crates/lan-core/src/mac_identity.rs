@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum LanMacIdentityDisposition {
+pub enum LanMacIdentityDisposition {
     KnownVendor,
     UnknownVendor,
     LocallyAdministered,
@@ -10,7 +10,7 @@ pub(crate) enum LanMacIdentityDisposition {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct LanMacIdentityAssessment {
+pub struct LanMacIdentityAssessment {
     raw: String,
     normalized: Option<String>,
     compact: Option<String>,
@@ -20,23 +20,23 @@ pub(crate) struct LanMacIdentityAssessment {
 }
 
 impl LanMacIdentityAssessment {
-    pub(crate) fn normalized(&self) -> Option<&str> {
+    pub fn normalized(&self) -> Option<&str> {
         self.normalized.as_deref()
     }
 
-    pub(crate) fn normalized_owned(&self) -> Option<String> {
+    pub fn normalized_owned(&self) -> Option<String> {
         self.normalized.clone()
     }
 
-    pub(crate) fn vendor_name(&self) -> Option<&'static str> {
+    pub fn vendor_name(&self) -> Option<&'static str> {
         self.vendor
     }
 
-    pub(crate) fn disposition(&self) -> LanMacIdentityDisposition {
+    pub fn disposition(&self) -> LanMacIdentityDisposition {
         self.disposition
     }
 
-    pub(crate) fn identity_key_allowed(&self) -> bool {
+    pub fn identity_key_allowed(&self) -> bool {
         !matches!(
             self.disposition,
             LanMacIdentityDisposition::RejectedMalformed
@@ -44,7 +44,14 @@ impl LanMacIdentityAssessment {
         )
     }
 
-    pub(crate) fn vendor_evidence_value(&self) -> String {
+    pub fn stable_identity_key_allowed(&self) -> bool {
+        matches!(
+            self.disposition,
+            LanMacIdentityDisposition::KnownVendor | LanMacIdentityDisposition::UnknownVendor
+        )
+    }
+
+    pub fn vendor_evidence_value(&self) -> String {
         match self.disposition {
             LanMacIdentityDisposition::KnownVendor => self
                 .vendor
@@ -61,7 +68,7 @@ impl LanMacIdentityAssessment {
         }
     }
 
-    pub(crate) fn vendor_evidence_note(&self) -> Option<&'static str> {
+    pub fn vendor_evidence_note(&self) -> Option<&'static str> {
         match self.disposition {
             LanMacIdentityDisposition::KnownVendor => None,
             LanMacIdentityDisposition::UnknownVendor => {
@@ -80,7 +87,7 @@ impl LanMacIdentityAssessment {
     }
 }
 
-pub(crate) fn assess_mac_address(value: Option<&str>) -> Option<LanMacIdentityAssessment> {
+pub fn assess_mac_address(value: Option<&str>) -> Option<LanMacIdentityAssessment> {
     let raw = value?.trim();
     if raw.is_empty() {
         return None;
@@ -161,7 +168,7 @@ pub(crate) fn assess_mac_address(value: Option<&str>) -> Option<LanMacIdentityAs
     })
 }
 
-pub(crate) fn normalize_scan_mac_address(value: &str) -> Option<String> {
+pub fn normalize_scan_mac_address(value: &str) -> Option<String> {
     let assessment = assess_mac_address(Some(value))?;
     assessment
         .identity_key_allowed()
@@ -203,90 +210,3 @@ const KNOWN_OUI_VENDORS: [(&str, &str); 4] = [
     ("70f8ae", "Microsoft Corporation"),
     ("dca632", "Raspberry Pi Trading Ltd"),
 ];
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn known_vendor_lookup_normalizes_mac_and_returns_vendor() {
-        let assessment = assess_mac_address(Some("54:27:1E:97:C3:31"))
-            .unwrap_or_else(|| unreachable!("assessment exists"));
-
-        assert_eq!(
-            assessment.normalized(),
-            Some(constants::lan_pairing::TEST_LAN_MAC)
-        );
-        assert_eq!(assessment.vendor_name(), Some("AzureWave Technology Inc."));
-        assert_eq!(
-            assessment.disposition(),
-            LanMacIdentityDisposition::KnownVendor
-        );
-        assert!(assessment.identity_key_allowed());
-    }
-
-    #[test]
-    fn unknown_vendor_prefix_stays_identity_eligible() {
-        let assessment = assess_mac_address(Some(constants::lan_pairing::TEST_ROUTER_MAC))
-            .unwrap_or_else(|| unreachable!("assessment exists"));
-
-        assert_eq!(
-            assessment.normalized(),
-            Some(constants::lan_pairing::TEST_ROUTER_MAC)
-        );
-        assert_eq!(assessment.vendor_name(), None);
-        assert_eq!(
-            assessment.disposition(),
-            LanMacIdentityDisposition::UnknownVendor
-        );
-        assert_eq!(
-            assessment.vendor_evidence_note(),
-            Some(constants::lan_pairing::LAN_VENDOR_UNKNOWN_PREFIX_NOTE)
-        );
-        assert!(assessment.identity_key_allowed());
-    }
-
-    #[test]
-    fn locally_administered_mac_stays_visible_but_warned() {
-        let assessment = assess_mac_address(Some("02-aa-bb-cc-dd-ee"))
-            .unwrap_or_else(|| unreachable!("assessment exists"));
-
-        assert_eq!(assessment.normalized(), Some("02-aa-bb-cc-dd-ee"));
-        assert_eq!(
-            assessment.disposition(),
-            LanMacIdentityDisposition::LocallyAdministered
-        );
-        assert!(assessment.identity_key_allowed());
-        assert_eq!(
-            assessment.vendor_evidence_note(),
-            Some(constants::lan_pairing::LAN_VENDOR_LOCAL_ADMINISTERED_NOTE)
-        );
-    }
-
-    #[test]
-    fn multicast_mac_is_rejected_for_scan_identity() {
-        let assessment = assess_mac_address(Some("01:00:5e:00:00:fb"))
-            .unwrap_or_else(|| unreachable!("assessment exists"));
-
-        assert_eq!(assessment.normalized(), Some("01-00-5e-00-00-fb"));
-        assert_eq!(
-            assessment.disposition(),
-            LanMacIdentityDisposition::RejectedMulticast
-        );
-        assert!(!assessment.identity_key_allowed());
-        assert!(normalize_scan_mac_address("01:00:5e:00:00:fb").is_none());
-    }
-
-    #[test]
-    fn malformed_mac_is_rejected() {
-        let assessment = assess_mac_address(Some("zz-not-a-mac"))
-            .unwrap_or_else(|| unreachable!("assessment exists"));
-
-        assert_eq!(assessment.normalized(), None);
-        assert_eq!(
-            assessment.disposition(),
-            LanMacIdentityDisposition::RejectedMalformed
-        );
-        assert!(!assessment.identity_key_allowed());
-    }
-}

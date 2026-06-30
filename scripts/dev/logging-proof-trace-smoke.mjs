@@ -15,7 +15,7 @@ import {
   flushBridgeRun,
   notifyBridgeRunStarted,
 } from '@ocentra-parent/logging-domain/transport/bridgeTransport';
-import { DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
+import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import { sendPortalProofTraceLog } from '../../apps/portal/src/dev-logger.ts';
 import { getProofTrace, getProofTraceGaps } from './lib/log-query-service.mjs';
 

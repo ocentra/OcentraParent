@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
 import {
-  decodePortalDetailValue,
-  type PortalDetailValue,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+  decodeParentPortalDetailValue,
+  type ParentPortalDetailValue,
+} from '../generated/parent-ui-bridge';
 import { decodeDisplayText, type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
@@ -13,29 +12,32 @@ import {
   type NetworkEvidenceDrawerSummary,
 } from '@ocentra-parent/portal-domain/network-evidence-drawer';
 import {
-  isPortalInlineNetworkEvidenceDrawerRoute,
-  isPortalNetworkEvidenceDrawerRoute,
-} from '@ocentra-parent/portal-domain/routes';
+  projectPortalLanDiagnosticsViewModel,
+  type PortalLanDiagnosticsViewModel,
+} from '@ocentra-parent/portal-domain/live-activity-lan-add-device';
+import type { ParentNetworkEvidenceSummarySnapshot, ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalLiveActivityState } from './live-activity-state';
+import { isInlineNetworkEvidenceDrawerRoute, isNetworkEvidenceDrawerRoute } from './portal-route-refresh';
 
-export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
-  return isPortalNetworkEvidenceDrawerRoute(route);
+export function shouldRenderNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {
+  return isNetworkEvidenceDrawerRoute(route);
 }
 
 export function NetworkEvidenceDrawerRoutePanel({
   liveActivity,
+  networkEvidenceSummary,
   route,
 }: {
   readonly liveActivity: PortalLiveActivityState;
-  readonly route: PortalRouteValue;
+  readonly networkEvidenceSummary?: ParentNetworkEvidenceSummarySnapshot | null;
+  readonly route: ParentRouteId;
 }): ReactElement {
   const summary = networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel, {
-    networkFlowEventPayload: liveActivity.networkFlowEvent?.payload ?? null,
-    policyPreviewReadModel: liveActivity.policyPreviewReadModel,
-    networkRuntimeEventChainStream: liveActivity.networkRuntimeEventChainStream,
+    networkEvidenceSummary: networkEvidenceSummary ?? null,
   });
   const lanSourceMatrix = projectLanDiscoverySourceMatrixViewModel(liveActivity.lanAddDeviceReadModel);
-  const inlineOnActivityRoute = isPortalInlineNetworkEvidenceDrawerRoute(route);
+  const lanDiagnostics = projectPortalLanDiagnosticsViewModel(liveActivity.lanAddDeviceReadModel);
+  const inlineOnActivityRoute = isInlineNetworkEvidenceDrawerRoute(route);
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.NetworkFlow)}
@@ -60,7 +62,7 @@ export function NetworkEvidenceDrawerRoutePanel({
         >
           <NetworkEvidenceDrawerCard summary={summary} />
           <NetworkEvidenceUnsupportedClaimCard summary={summary} />
-          <NetworkEvidenceLanSourceMatrixCard matrix={lanSourceMatrix} />
+          <NetworkEvidenceLanSourceMatrixCard matrix={lanSourceMatrix} diagnostics={lanDiagnostics} />
         </div>
       </div>
     </section>
@@ -127,8 +129,10 @@ function NetworkEvidenceUnsupportedClaimCard({
 
 function NetworkEvidenceLanSourceMatrixCard({
   matrix,
+  diagnostics,
 }: {
   readonly matrix: LanDiscoverySourceMatrixViewModel | null;
+  readonly diagnostics: PortalLanDiagnosticsViewModel | null;
 }): ReactElement {
   return (
     <article className={networkEvidenceDrawerCardClassName()}>
@@ -137,6 +141,19 @@ function NetworkEvidenceLanSourceMatrixCard({
         <NetworkEvidenceDrawerDetail label={PortalDetails.GeneratedAt} value={detailFromValue(matrix?.generatedAt)} />
         <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.matrixCoverage} value={detailFromValue(matrix?.rowSummary)} />
         <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.statusMix} value={detailFromValue(matrix?.statusSummary)} />
+        <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.historyState} value={detailFromValue(matrix?.historyState)} />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.historySummary}
+          value={detailFromValue(matrix?.historySummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.latestHistoryEvent}
+          value={detailFromValue(matrix?.latestHistoryEventId)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.latestHistoryObserved}
+          value={detailFromValue(matrix?.latestHistoryObservedAt)}
+        />
         <NetworkEvidenceDrawerDetail
           label={LAN_SOURCE_MATRIX_TEXT.currentScanSources}
           value={detailFromValue(matrix?.currentSourceSummary)}
@@ -148,6 +165,38 @@ function NetworkEvidenceLanSourceMatrixCard({
         <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.weakFenceSummary} value={detailFromValue(matrix?.fenceSummary)} />
         <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.claimsProved} value={detailFromValue(matrix?.claimsProved)} />
         <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.claimsNotProved} value={detailFromValue(matrix?.claimsNotProved)} />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.evidenceWindow}
+          value={detailFromValue(diagnostics?.evidenceWindowSummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.trustedRegistry}
+          value={detailFromValue(diagnostics?.trustedRegistrySummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.decisionHistory}
+          value={detailFromValue(diagnostics?.decisionHistorySummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.policyTargets}
+          value={detailFromValue(diagnostics?.policyTargetSurfaceSummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.productionProof}
+          value={detailFromValue(diagnostics?.productionProofSummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.signedProof}
+          value={detailFromValue(diagnostics?.signedProofSummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.routeSafety}
+          value={detailFromValue(diagnostics?.routeSafetySummary)}
+        />
+        <NetworkEvidenceDrawerDetail
+          label={LAN_SOURCE_MATRIX_TEXT.relayCache}
+          value={detailFromValue(diagnostics?.relayCacheSummary)}
+        />
       </dl>
       <NetworkEvidenceDrawerRowSection title={LAN_SOURCE_MATRIX_TEXT.workpacks} rows={matrix?.workpackRows ?? []} />
       <NetworkEvidenceDrawerRowSection
@@ -157,6 +206,19 @@ function NetworkEvidenceLanSourceMatrixCard({
       <NetworkEvidenceDrawerRowSection
         title={LAN_SOURCE_MATRIX_TEXT.weakSourceFences}
         rows={matrix?.weakSourceRows ?? []}
+      />
+      <NetworkEvidenceDrawerRowSection title={LAN_SOURCE_MATRIX_TEXT.recentEvents} rows={matrix?.recentEventRows ?? []} />
+      <NetworkEvidenceDrawerRowSection
+        title={LAN_SOURCE_MATRIX_TEXT.evidenceRows}
+        rows={diagnostics?.evidenceRecordRows ?? []}
+      />
+      <NetworkEvidenceDrawerRowSection
+        title={LAN_SOURCE_MATRIX_TEXT.trustedRoutes}
+        rows={diagnostics?.trustedRegistryRows ?? []}
+      />
+      <NetworkEvidenceDrawerRowSection
+        title={LAN_SOURCE_MATRIX_TEXT.householdDecisions}
+        rows={diagnostics?.decisionRows ?? []}
       />
     </article>
   );
@@ -190,7 +252,7 @@ function NetworkEvidenceDrawerDetail({
   value,
 }: {
   readonly label: PortalDisplayText;
-  readonly value: PortalDetailValue;
+  readonly value: ParentPortalDetailValue;
 }): ReactElement {
   return (
     <div>
@@ -208,6 +270,10 @@ export type LanDiscoverySourceMatrixViewModel = {
   readonly generatedAt: string | null;
   readonly rowSummary: string;
   readonly statusSummary: string;
+  readonly historyState: string;
+  readonly historySummary: string;
+  readonly latestHistoryEventId: string | null;
+  readonly latestHistoryObservedAt: string | null;
   readonly currentSourceSummary: string;
   readonly persistedSourceSummary: string;
   readonly fenceSummary: string;
@@ -216,6 +282,7 @@ export type LanDiscoverySourceMatrixViewModel = {
   readonly workpackRows: readonly LanDiscoverySourceMatrixDisplayRow[];
   readonly implementedSourceRows: readonly LanDiscoverySourceMatrixDisplayRow[];
   readonly weakSourceRows: readonly LanDiscoverySourceMatrixDisplayRow[];
+  readonly recentEventRows: readonly LanDiscoverySourceMatrixDisplayRow[];
 };
 
 type LanDiscoverySourceMatrixDisplayRow = {
@@ -228,6 +295,7 @@ type LanSourceMatrixReadModel = {
     NonNullable<PortalLiveActivityState['lanAddDeviceReadModel']>['scanSummary'],
     'sourceLabels'
   >;
+  readonly discoveryEventHistory?: LanDiscoveryEventHistoryRecord | null;
   readonly lanDiscoverySourceMatrix: LanDiscoverySourceMatrixRecord | null;
 };
 
@@ -236,6 +304,26 @@ type PortalLanDiscoverySourceMatrix = NonNullable<
 >;
 type PortalLanDiscoverySourceMatrixWorkpackRow = PortalLanDiscoverySourceMatrix['workpackRows'][number];
 type PortalLanDiscoverySourceMatrixSourceRow = PortalLanDiscoverySourceMatrix['sourceRows'][number];
+
+type LanDiscoveryEventHistoryRecord = {
+  readonly schemaVersion: number;
+  readonly generatedAt: string | null;
+  readonly state: string;
+  readonly latestEventId: string | null;
+  readonly latestObservedAt: string | null;
+  readonly rows: readonly LanDiscoveryEventHistoryRowRecord[];
+};
+
+type LanDiscoveryEventHistoryRowRecord = {
+  readonly schemaVersion: number;
+  readonly eventId: string;
+  readonly eventKind: string;
+  readonly occurredAt: string;
+  readonly scanSessionId: string | null;
+  readonly affectedDeviceId: string | null;
+  readonly evidenceId: string | null;
+  readonly summary: string;
+};
 
 type LanDiscoverySourceMatrixRecord = {
   readonly generatedAt: string | null;
@@ -285,6 +373,8 @@ export function projectLanDiscoverySourceMatrixViewModel(
   const restartPersistedSources = matrix.sourceRows.filter((row) => row.persistsAcrossRestart);
   const routeControlSources = matrix.sourceRows.filter((row) => row.canControlRoute);
   const statusCounts = countSourceRowsByStatus(matrix.sourceRows);
+  const discoveryEventHistory = lanAddDeviceReadModel.discoveryEventHistory ?? null;
+  const recentEventRows = discoveryEventHistory?.rows.slice(-4).reverse() ?? [];
 
   return {
     generatedAt: matrix.generatedAt,
@@ -295,6 +385,13 @@ export function projectLanDiscoverySourceMatrixViewModel(
       `${statusCounts.manualRequired} manual required`,
       `${statusCounts.notImplemented} not implemented`,
     ]),
+    historyState: discoveryEventHistory?.state ?? notReportedText(),
+    historySummary:
+      discoveryEventHistory === null
+        ? notReportedText()
+        : joinTexts([`${discoveryEventHistory.rows.length} events`, discoveryEventHistory.state]),
+    latestHistoryEventId: discoveryEventHistory?.latestEventId ?? null,
+    latestHistoryObservedAt: discoveryEventHistory?.latestObservedAt ?? null,
     currentSourceSummary: joinTexts(lanAddDeviceReadModel.scanSummary.sourceLabels),
     persistedSourceSummary: joinTexts(
       restartPersistedSources.map((row) => `${row.source} (WP ${row.workpackId})`)
@@ -308,6 +405,7 @@ export function projectLanDiscoverySourceMatrixViewModel(
     workpackRows: visibleWorkpacks.map(projectWorkpackDisplayRow),
     implementedSourceRows: implementedSourceRows.map(projectImplementedSourceDisplayRow),
     weakSourceRows: weakSourceRows.map(projectWeakSourceDisplayRow),
+    recentEventRows: recentEventRows.map(projectDiscoveryEventDisplayRow),
   };
 }
 
@@ -358,6 +456,20 @@ function projectWeakSourceDisplayRow(row: LanDiscoverySourceMatrixSourceRow): La
   };
 }
 
+function projectDiscoveryEventDisplayRow(row: LanDiscoveryEventHistoryRowRecord): LanDiscoverySourceMatrixDisplayRow {
+  return {
+    label: row.eventKind,
+    value: joinTexts([
+      row.eventId,
+      row.summary,
+      row.occurredAt,
+      row.scanSessionId,
+      row.affectedDeviceId,
+      row.evidenceId,
+    ]),
+  };
+}
+
 function countSourceRowsByStatus(
   rows: readonly LanDiscoverySourceMatrixSourceRow[]
 ): Record<'implemented' | 'partial' | 'manualRequired' | 'notImplemented', number> {
@@ -391,11 +503,11 @@ function detailLabel(label: string): PortalDisplayText {
   return decodeDisplayText(label);
 }
 
-function detailFromValue(value: string | null | undefined): PortalDetailValue {
+function detailFromValue(value: string | null | undefined): ParentPortalDetailValue {
   if (value === null || value === undefined || value.length === 0) {
-    return decodePortalDetailValue(notReportedText());
+    return decodeParentPortalDetailValue(notReportedText());
   }
-  return decodePortalDetailValue(value);
+  return decodeParentPortalDetailValue(value);
 }
 
 function joinTexts(values: readonly (string | null | undefined)[]): string {
@@ -414,14 +526,30 @@ const LAN_SOURCE_MATRIX_TEXT = {
   title: decodeDisplayText('LAN source matrix'),
   matrixCoverage: decodeDisplayText('Matrix coverage'),
   statusMix: decodeDisplayText('Status mix'),
+  historyState: decodeDisplayText('History state'),
+  historySummary: decodeDisplayText('History summary'),
+  latestHistoryEvent: decodeDisplayText('Latest history event'),
+  latestHistoryObserved: decodeDisplayText('Latest history observed'),
   currentScanSources: decodeDisplayText('Current scan sources'),
   restartPersistedSources: decodeDisplayText('Restart-persisted sources'),
   weakFenceSummary: decodeDisplayText('Weak-source fence summary'),
   claimsProved: decodeDisplayText('Claims proved'),
   claimsNotProved: decodeDisplayText('Claims not proved'),
+  evidenceWindow: decodeDisplayText('Evidence window'),
+  trustedRegistry: decodeDisplayText('Trusted registry'),
+  decisionHistory: decodeDisplayText('Decision history'),
+  policyTargets: decodeDisplayText('Policy targets'),
+  productionProof: decodeDisplayText('Production proof'),
+  signedProof: decodeDisplayText('Signed proof'),
+  routeSafety: decodeDisplayText('Route safety'),
+  relayCache: decodeDisplayText('Relay cache'),
   workpacks: decodeDisplayText('Workpack rows'),
   implementedSources: decodeDisplayText('Implemented source proof'),
   weakSourceFences: decodeDisplayText('Weak-source fences'),
+  recentEvents: decodeDisplayText('Recent LAN events'),
+  evidenceRows: decodeDisplayText('Evidence rows'),
+  trustedRoutes: decodeDisplayText('Trusted routes'),
+  householdDecisions: decodeDisplayText('Household decisions'),
 } as const;
 
 const WEAK_SOURCE_AUTHORITIES = new Set(['weak-identity', 'name-only', 'presence-only', 'no-child-confirmation']);

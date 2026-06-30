@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { FileKey, NdjsonSummaryContent, TestName } from '@ocentra-parent/schema-domain/test-log/ndjsonBrands';
-import { ensureDirectory, sanitizeTestNameForNdjson } from './ndjsonPaths';
-import { getDirPath, refreshLogsTree, type LogsTreeScope } from './logsTree';
+import { ensureDirectory, getDefaultLogRoot, sanitizeTestNameForNdjson } from './ndjsonPaths';
+import { refreshLogsTree, type LogsTreeScope } from './logsTree';
+import { getGeneratedRunDirPath } from '../generated/local-test-log';
 
 function hasErrorCode(error: unknown, code: string): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && (error as { code?: unknown }).code === code;
@@ -27,7 +28,7 @@ function createFileIfMissing(filePath: string): boolean {
 }
 
 export function writeSummary(scope: LogsTreeScope, fileKey: FileKey, content: NdjsonSummaryContent): void {
-  const dirPath = ensureDirectory(getDirPath(scope, fileKey));
+  const dirPath = ensureDirectory(getGeneratedRunDirPath(scope, fileKey, getDefaultLogRoot()));
   const filePath = path.join(dirPath, `${fileKey}.ndjson`);
   try {
     fs.appendFileSync(filePath, content, 'utf8');
@@ -40,7 +41,7 @@ export function writeSummary(scope: LogsTreeScope, fileKey: FileKey, content: Nd
 }
 
 export function writeLogEntry(scope: LogsTreeScope, fileKey: FileKey, testName: TestName, lines: string): void {
-  const dirPath = ensureDirectory(getDirPath(scope, fileKey));
+  const dirPath = ensureDirectory(getGeneratedRunDirPath(scope, fileKey, getDefaultLogRoot()));
   const filePath = path.join(dirPath, `${sanitizeTestNameForNdjson(testName)}.ndjson`);
   try {
     if (lines.length > 0) {
@@ -68,7 +69,7 @@ export function createEmptyTestNdjsonFiles(
   fileKey: FileKey,
   testNames: TestName[]
 ): number {
-  const baseDir = ensureDirectory(getDirPath(scope, fileKey, outputDir));
+  const baseDir = ensureDirectory(getGeneratedRunDirPath(scope, fileKey, outputDir));
   let created = 0;
   for (const name of testNames) {
     const sanitized = sanitizeTestNameForNdjson(name);

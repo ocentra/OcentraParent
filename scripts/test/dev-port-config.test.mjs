@@ -12,6 +12,7 @@ import {
   isLikelyParentAgentOccupant,
   isLikelyParentPortalOccupant,
 } from '../dev/local-dev-config.mjs';
+import { createParentDesktopDevEnv } from '../dev/dev-parent-desktop.mjs';
 import { isPortAvailable, waitForPort } from '../dev/port-utils.mjs';
 
 test('dev port config avoids Ocentra Games and generic Vite ports', () => {
@@ -33,8 +34,10 @@ test('LAN dev mode binds services to the network without changing fixed ports', 
 
   assert.equal(config.mode, ParentDevNetworkMode.Lan);
   assert.equal(config.agentBindHost, ParentDevHost.Wildcard);
+  assert.equal(config.agentConnectHost, ParentDevHost.Loopback);
   assert.equal(config.portalBindHost, ParentDevHost.Wildcard);
   assert.equal(config.agentAddress, `0.0.0.0:${ParentDevPort.Agent}`);
+  assert.equal(config.agentConnectAddress, `127.0.0.1:${ParentDevPort.Agent}`);
   assert.equal(config.agentWebSocketUrl, `ws://192.168.50.25:${ParentDevPort.Agent}/api/dev/ws`);
   assert.deepEqual(config.allowedOrigins, createAllowedOrigins('192.168.50.25'));
 });
@@ -53,6 +56,7 @@ test('dev port config supports explicit lane port overrides', () => {
   assert.equal(config.agentPort, 4677);
   assert.equal(config.portalPort, 4678);
   assert.equal(config.agentAddress, '127.0.0.1:4677');
+  assert.equal(config.agentConnectAddress, '127.0.0.1:4677');
   assert.equal(config.agentHealthUrl, 'http://127.0.0.1:4677/health');
   assert.equal(config.agentWebSocketUrl, 'ws://127.0.0.1:4677/api/dev/ws');
   assert.equal(config.portalCommandsUrl, 'http://127.0.0.1:4678/#/commands');
@@ -71,6 +75,7 @@ test('dev port config uses portal override for LAN origins', () => {
   );
 
   assert.equal(config.agentAddress, '0.0.0.0:4777');
+  assert.equal(config.agentConnectAddress, '127.0.0.1:4777');
   assert.equal(config.agentWebSocketUrl, 'ws://192.168.50.25:4777/api/dev/ws');
   assert.equal(config.portalCommandsUrl, 'http://192.168.50.25:4778/#/commands');
   assert.deepEqual(config.allowedOrigins, [
@@ -78,6 +83,31 @@ test('dev port config uses portal override for LAN origins', () => {
     'http://localhost:4778',
     'http://192.168.50.25:4778',
   ]);
+});
+
+test('parent desktop dev env uses the LAN runtime connect address and allowed origins', () => {
+  const config = resolveParentDevNetworkConfig(
+    {
+      [ParentDevEnv.DevNetworkMode]: ParentDevNetworkMode.Lan,
+      [ParentDevEnv.AgentPort]: '4777',
+      [ParentDevEnv.PortalPort]: '4778',
+    },
+    { Ethernet: [{ family: 'IPv4', internal: false, address: '192.168.50.25' }] },
+    []
+  );
+  const devEnv = createParentDesktopDevEnv(config, { KEEP_EXISTING_ENV: 'true' });
+
+  assert.equal(devEnv.KEEP_EXISTING_ENV, 'true');
+  assert.equal(devEnv[ParentDevEnv.AgentAddress], '127.0.0.1:4777');
+  assert.equal(
+    devEnv[ParentDevEnv.AgentAllowedOrigins],
+    'http://127.0.0.1:4778,http://localhost:4778,http://192.168.50.25:4778'
+  );
+  assert.equal(devEnv[ParentDevEnv.AgentPort], '4777');
+  assert.equal(devEnv[ParentDevEnv.ParentBridgePort], '4779');
+  assert.equal(devEnv[ParentDevEnv.PortalPort], '4778');
+  assert.equal(devEnv[ParentDevEnv.DevNetworkMode], ParentDevNetworkMode.Lan);
+  assert.equal(devEnv[ParentDevEnv.PortalAgentWebSocketUrl], 'ws://192.168.50.25:4777/api/dev/ws');
 });
 
 test('dev port config rejects invalid explicit port overrides', () => {

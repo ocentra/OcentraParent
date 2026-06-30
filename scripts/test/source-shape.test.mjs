@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { inspectRustSource, inspectTypeScriptSource } from '../check-source-shape.mjs';
+import {
+  inspectRustSource,
+  inspectTypeScriptSource,
+  resolveSourceShapePolicy,
+} from '../check-source-shape.mjs';
 
 test('source shape guard rejects oversized TypeScript files', () => {
   const source = Array.from({ length: 1001 }, () => 'const value = 1;').join('\n');
@@ -51,5 +55,20 @@ test('source shape guard moves file warnings to the next 250-line band', () => {
   assert.equal(
     warnings.some((warning) => warning.reason.includes('crossed 500-line advisory band')),
     true
+  );
+});
+
+test('source shape guard allows the generated portal bridge contract to exceed the default app export budget', () => {
+  const source = Array.from({ length: 53 }, (_value, index) => `export const value${index} = ${index};`).join('\n');
+  const relativePath = 'apps/portal/generated/parent-ui-bridge.ts';
+  const policy = resolveSourceShapePolicy(relativePath);
+
+  assert.notEqual(policy, undefined);
+
+  const { findings } = inspectTypeScriptSource(relativePath, source, policy);
+
+  assert.equal(
+    findings.some((finding) => finding.reason.includes('exports')),
+    false
   );
 });

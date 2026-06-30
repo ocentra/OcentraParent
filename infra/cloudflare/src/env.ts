@@ -69,7 +69,110 @@ const TRACKED_BINDING_KEYS = [...REQUIRED_BINDING_KEYS, ...OPTIONAL_BINDING_KEYS
 const KNOWN_ENV_KEYS = [...REQUIRED_ENV_KEYS, ...OPTIONAL_ENV_KEYS, ...TRACKED_BINDING_KEYS] as const;
 
 export type RequiredBindingKey = (typeof REQUIRED_BINDING_KEYS)[number];
+export type OptionalBindingKey = (typeof OPTIONAL_BINDING_KEYS)[number];
 export type TrackedBindingKey = (typeof TRACKED_BINDING_KEYS)[number];
+export type BindingFamily = 'analytics' | 'd1' | 'durable-object' | 'kv' | 'queue' | 'r2';
+export type BindingReadinessState = 'manual-required' | 'optional' | 'required';
+
+export interface BindingOwnership {
+  owner: string;
+  purpose: string;
+  bindingFamily: BindingFamily;
+  privacyBoundary: string;
+  childDataStorage: 'forbidden';
+  readinessState: BindingReadinessState;
+  queueRole?: 'dead-letter' | 'producer';
+  pairedQueueBinding?: TrackedBindingKey;
+  rejectedUse?: string;
+}
+
+export const BINDING_OWNERSHIP = {
+  BILLING_D1: {
+    owner: 'billing-ledger-read-model',
+    purpose: 'queryable billing ledgers, support/admin views, and reconciliation read models',
+    bindingFamily: 'd1',
+    privacyBoundary: 'billing, support, and reconciliation records only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+  },
+  BILLING_DO: {
+    owner: 'billing-control-do',
+    purpose: 'serialized billing-state writes and idempotency coordination',
+    bindingFamily: 'durable-object',
+    privacyBoundary: 'billing write coordination only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+  },
+  REFERRAL_DO: {
+    owner: 'referral-control-do',
+    purpose: 'serialized referral qualification, abuse review, and credit lifecycle coordination',
+    bindingFamily: 'durable-object',
+    privacyBoundary: 'referral coordination only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+  },
+  ENTITLEMENT_SNAPSHOT_DO: {
+    owner: 'entitlement-snapshot-do',
+    purpose: 'snapshot issuance coordination and replay-safe signing workflow',
+    bindingFamily: 'durable-object',
+    privacyBoundary: 'entitlement snapshot coordination only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+  },
+  BILLING_RECONCILIATION_QUEUE: {
+    owner: 'billing-reconciliation-jobs',
+    purpose: 'retry, provider polling, and reconciliation jobs',
+    bindingFamily: 'queue',
+    privacyBoundary: 'redacted reconciliation payloads only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+    queueRole: 'producer',
+    pairedQueueBinding: 'BILLING_DEAD_LETTER_QUEUE',
+  },
+  BILLING_DEAD_LETTER_QUEUE: {
+    owner: 'billing-dead-letter-ops',
+    purpose: 'dead-letter capture and operator replay workflow for reconciliation failures',
+    bindingFamily: 'queue',
+    privacyBoundary: 'redacted dead-letter payloads only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+    queueRole: 'dead-letter',
+    pairedQueueBinding: 'BILLING_RECONCILIATION_QUEUE',
+  },
+  BILLING_RATE_LIMIT_KV: {
+    owner: 'billing-rate-limit-guard',
+    purpose: 'rate limits and lightweight abuse counters',
+    bindingFamily: 'kv',
+    privacyBoundary: 'rate-limit counters and low-risk abuse state only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+  },
+  BILLING_CONFIG_KV: {
+    owner: 'billing-runtime-config',
+    purpose: 'low-risk runtime flags and rollout config',
+    bindingFamily: 'kv',
+    privacyBoundary: 'rollout flags and non-secret config only; no child telemetry, raw child data, or provider secrets',
+    childDataStorage: 'forbidden',
+    readinessState: 'required',
+  },
+  BILLING_AUDIT_R2: {
+    owner: 'support-audit-export',
+    purpose: 'support-safe audit and export bundles only',
+    bindingFamily: 'r2',
+    privacyBoundary: 'support-safe audit/export artifacts only; no child telemetry or raw child data',
+    childDataStorage: 'forbidden',
+    readinessState: 'manual-required',
+    rejectedUse: 'must not become a telemetry dump or general-purpose child-data storage',
+  },
+  ANALYTICS: {
+    owner: 'redacted-ops-analytics',
+    purpose: 'redacted operational metrics and audit event counters',
+    bindingFamily: 'analytics',
+    privacyBoundary: 'redacted operational metrics only; no child telemetry, raw child data, or provider secrets',
+    childDataStorage: 'forbidden',
+    readinessState: 'optional',
+  },
+} as const satisfies Record<TrackedBindingKey, BindingOwnership>;
 
 export function parseAllowedOrigins(env: Env): string[] {
   return env.CORS_ALLOWED_ORIGINS.split(',')
@@ -102,6 +205,10 @@ export function getBindingHealth(env: Env): Record<TrackedBindingKey, 'configure
     TrackedBindingKey,
     'configured' | 'missing'
   >;
+}
+
+export function getBindingOwnership(): Record<TrackedBindingKey, BindingOwnership> {
+  return BINDING_OWNERSHIP;
 }
 
 export function validateEnv(env: Env): string[] {

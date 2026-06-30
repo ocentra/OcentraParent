@@ -120,10 +120,12 @@ fn topology_manifest_renders_deterministic_markdown() {
         *line == "| Event Type | Schema Version | Publishers | Subscribers | Families | Status | Rust Type |"
     }));
     assert!(lines.iter().any(|line| {
-        *line == "| eventing.test.observed | 1 | covered-publisher | covered-subscriber -> topology-target | eventing.topology.family | covered | TestEvent |"
+        *line
+            == "| eventing.test.observed | 1 | covered-publisher | covered-subscriber -> topology-target | eventing.topology.family | covered | contract::support::TestEvent |"
     }));
     assert!(lines.iter().any(|line| {
-        *line == "| eventing.test.other | 1 | none | none | none | no-publisher | TestEvent |"
+        *line
+            == "| eventing.test.other | 1 | none | none | none | no-publisher | contract::support::TestEvent |"
     }));
 }
 

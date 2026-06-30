@@ -14,16 +14,6 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-enforcement-product-control-spine',
-    ])
-  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_product_control_spine']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'product_control']);
   await runCommand(
@@ -53,7 +43,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsContract: 'packages/schema-domain/src/v0-8-enforcement-product-control-spine.ts',
-      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-enforcement-product-control-spine.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_product_control_spine.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_product_control_spine_tests.rs',
       rustServiceCommand: 'agent.enforcement.product-control-spine.get',

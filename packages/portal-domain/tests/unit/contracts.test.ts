@@ -269,6 +269,7 @@ describe('portal route schema contracts', () => {
       PortalRouteLiteral.Diagnostics,
       PortalRouteLiteral.ProofPanels,
       PortalRouteLiteral.SettingsRules,
+      PortalRouteLiteral.AppLayout,
       PortalRouteLiteral.FrameTuner,
       PortalRouteLiteral.Commands,
       PortalRouteLiteral.Events,
@@ -281,7 +282,8 @@ describe('portal route schema contracts', () => {
     expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyScreen).success).toBe(true);
     expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyNetwork).success).toBe(true);
     expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyTracking).success).toBe(true);
-    expect(PortalRouteSchema.safeParse('frame-tuner').success).toBe(false);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.AppLayout).success).toBe(true);
+    expect(PortalRouteSchema.safeParse('frame-tuner').success).toBe(true);
     expect(PortalRouteSchema.safeParse('billing').success).toBe(false);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyApps);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyGames);
@@ -532,6 +534,7 @@ const EXPECTED_PORTAL_COMMAND_BUTTONS = [
   [AgentCommand.BrowserManagedBridgePoll, AgentEvent.BrowserManagedStatusReported],
   [AgentCommand.BrowserRuntimeEventChainStreamGet, AgentEvent.BrowserRuntimeEventChainStreamReported],
   [AgentCommand.NetworkFlowReadModelGet, AgentEvent.NetworkFlowReadModelReported],
+  [AgentCommand.LanPairingStatusGet, AgentEvent.LanPairingStatusReported],
   [AgentCommand.NetworkRuntimeEventChainStreamGet, AgentEvent.NetworkRuntimeEventChainStreamReported],
   [AgentCommand.NetworkRemoteDeliveryStatusGet, AgentEvent.NetworkRemoteDeliveryStatusReported],
   [AgentCommand.NetworkLiveCaptureStatusGet, AgentEvent.NetworkLiveCaptureStatusReported],

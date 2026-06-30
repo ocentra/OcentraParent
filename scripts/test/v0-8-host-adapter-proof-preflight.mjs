@@ -16,17 +16,6 @@ async function main() {
 
   await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'enforcement-host-adapter-preflight.test.ts',
-    ])
-  );
 
   const { EnforcementBroadAdapterCapability, V08BroadOsAdapterReadinessMatrix } =
     await import('../../packages/schema-domain/dist/enforcement-readiness.js');
@@ -46,7 +35,6 @@ async function main() {
     proofLabels,
     evidence: {
       preflightContract: 'packages/schema-domain/src/enforcement-host-adapter-preflight.ts',
-      preflightTest: 'packages/enforcement-domain/tests/unit/enforcement-host-adapter-preflight.test.ts',
       readinessContract: 'packages/schema-domain/src/enforcement-readiness.ts',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/v0-8-host-adapter-proof-preflight-2026-05-29.md',

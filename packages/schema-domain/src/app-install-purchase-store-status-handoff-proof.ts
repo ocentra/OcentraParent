@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseParentActionRuntimeHandoffProofReadModel } from './app-install-purchase-parent-action-runtime-handoff-proof';
 import { AppInstallPurchasePlatformAdapterBoundaryProofReadModel } from './app-install-purchase-platform-adapter-boundary-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseStoreStatusHandoffRowGenerated,
+  storeStatusHandoffProofIsHonestGenerated,
+  storeStatusHandoffRowIsHonestGenerated,
+  summarizeAppInstallPurchaseStoreStatusHandoffProofGenerated,
+} from './generated/app-install-purchase-report-status-helpers';
 const StoreStatusHandoffProofVersion = 'app-install-purchase-store-status-handoff-proof';
 const SourceParentActionRuntimeHandoffProofVersion = 'app-install-purchase-parent-action-runtime-handoff-proof';
 const SourcePlatformAdapterBoundaryProofVersion = 'app-install-purchase-platform-adapter-boundary-proof';
@@ -163,201 +169,49 @@ export const AppInstallPurchaseStoreStatusHandoffProofReadModel = AppInstallPurc
 );
 
 export function summarizeAppInstallPurchaseStoreStatusHandoffProof(proof: AppInstallPurchaseStoreStatusHandoffProof) {
-  return {
-    storeStatusHandoffRows: proof.storeStatusHandoffRows.length,
-    approvedApiRequiredRows: proof.storeStatusHandoffRows.filter(
-      (row) => row.storeStatusHandoffState === 'approved-api-status-proof-required'
-    ).length,
-    entitlementRequiredRows: proof.storeStatusHandoffRows.filter(
-      (row) => row.storeStatusHandoffState === 'store-entitlement-status-proof-required'
-    ).length,
-    manualRequiredRows: proof.storeStatusHandoffRows.filter(
-      (row) => row.storeStatusHandoffState === 'manual-platform-status-review-required'
-    ).length,
-    unavailableRows: proof.storeStatusHandoffRows.filter(
-      (row) => row.storeStatusHandoffState === 'platform-store-status-unavailable'
-    ).length,
-    parentActionRuntimeLinkedRows: proof.storeStatusHandoffRows.filter(parentActionRuntimeCoverageIsComplete).length,
-    deliveredRows: proof.storeStatusHandoffRows.filter((row) => row.statusHandoffDeliveryClaim !== 'not-delivered')
-      .length,
-  } as const;
+  return summarizeAppInstallPurchaseStoreStatusHandoffProofGenerated(proof);
 }
 
 function storeStatusHandoffRow(
   row: (typeof AppInstallPurchasePlatformAdapterBoundaryProofReadModel.adapterBoundaryRows)[number]
 ) {
-  return {
-    schemaVersion: StoreStatusHandoffProofVersion,
-    storeStatusHandoffRowId: `store-status-handoff-${row.platform}-${row.storeSurface}`,
-    sourcePlatformAdapterBoundaryProofVersion: SourcePlatformAdapterBoundaryProofVersion,
-    sourcePlatformAdapterBoundaryRowId: row.adapterBoundaryRowId,
-    sourceParentActionRuntimeHandoffProofVersion: SourceParentActionRuntimeHandoffProofVersion,
-    sourceParentActionRuntimeHandoffRefs:
-      AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.runtimeHandoffRows.map(
-        (handoffRow) => handoffRow.runtimeHandoffRowId
-      ),
-    sourceParentActionRuntimeStatuses:
-      AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.runtimeHandoffRows.map(
-        (handoffRow) => handoffRow.runtimeHandoffStatus
-      ),
-    platform: row.platform,
-    storeSurface: row.storeSurface,
-    sourceAdapterEvidenceState: row.adapterEvidenceState,
-    sourceAdapterRuntimeState: row.adapterRuntimeState,
-    storeStatusHandoffState: storeStatusHandoffState(row.adapterEvidenceState),
-    storeStatusRuntimeState: row.adapterRuntimeState,
-    storeStatusHandoffEvidenceRefs: [
-      row.approvedApiEvidenceRef,
-      row.entitlementEvidenceRef,
-      row.limitationReportRef,
-      ...row.adapterReadinessEvidenceRefs,
-    ],
-    sourceReportRuntimeRefs: row.reportRuntimeRefs,
-    storeStatusHandoffClaim: 'status-handoff-proof-only',
-    statusHandoffDeliveryClaim: 'not-delivered',
-    providerApiExecutionClaim: row.providerApiExecutionClaim,
-    storeIntegrationClaim: row.storeIntegrationClaim,
-    platformAdapterClaim: 'not-implemented',
-    parentActionRuntimeDeliveryClaim: 'not-delivered',
-    childDeliveryClaim: row.childDeliveryClaim,
-    runtimeReportDeliveryClaim: row.runtimeReportDeliveryClaim,
-    interceptionClaim: row.interceptionClaim,
-    appBlockingClaim: row.appBlockingClaim,
-    childDataCustody: row.childDataCustody,
-    ocentraHostedFamilyDataCustodyClaim: row.ocentraHostedFamilyDataCustodyClaim,
-    claimBoundary: StoreStatusHandoffClaimBoundary,
-    handedOffAt: StoreStatusHandoffTimestamp,
-  } as const;
-}
-
-function storeStatusHandoffState(
-  adapterEvidenceState: (typeof AppInstallPurchasePlatformAdapterBoundaryProofReadModel.adapterBoundaryRows)[number]['adapterEvidenceState']
-) {
-  if (adapterEvidenceState === 'approved-api-adapter-evidence-required') {
-    return 'approved-api-status-proof-required';
-  }
-  if (adapterEvidenceState === 'entitlement-adapter-evidence-required') {
-    return 'store-entitlement-status-proof-required';
-  }
-  if (adapterEvidenceState === 'manual-platform-review-required') {
-    return 'manual-platform-status-review-required';
-  }
-  return 'platform-store-status-unavailable';
+  return buildAppInstallPurchaseStoreStatusHandoffRowGenerated(
+    row,
+    AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.runtimeHandoffRows,
+    SourcePlatformAdapterBoundaryProofVersion,
+    SourceParentActionRuntimeHandoffProofVersion,
+    StoreStatusHandoffClaimBoundary,
+    StoreStatusHandoffTimestamp
+  );
 }
 
 function storeStatusHandoffRowIsHonest(row: StoreStatusHandoffRowCandidate): boolean {
-  return (
-    storeStatusMatchesAdapterEvidence(row) &&
-    parentActionRuntimeCoverageIsComplete(row) &&
-    storeStatusHandoffEvidenceIsComplete(row) &&
-    storeStatusHandoffClaimsStayUnimplemented(row) &&
-    storeStatusHandoffBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function storeStatusMatchesAdapterEvidence(row: StoreStatusHandoffRowCandidate): boolean {
-  if (row.sourceAdapterEvidenceState === 'approved-api-adapter-evidence-required') {
-    return row.storeStatusHandoffState === 'approved-api-status-proof-required' && notImplemented(row);
-  }
-  if (row.sourceAdapterEvidenceState === 'entitlement-adapter-evidence-required') {
-    return row.storeStatusHandoffState === 'store-entitlement-status-proof-required' && notImplemented(row);
-  }
-  if (row.sourceAdapterEvidenceState === 'manual-platform-review-required') {
-    return (
-      row.storeStatusHandoffState === 'manual-platform-status-review-required' &&
-      row.sourceAdapterRuntimeState === 'manual-required' &&
-      row.storeStatusRuntimeState === 'manual-required'
-    );
-  }
-  return (
-    row.storeStatusHandoffState === 'platform-store-status-unavailable' &&
-    row.sourceAdapterRuntimeState === 'unavailable' &&
-    row.storeStatusRuntimeState === 'unavailable'
-  );
-}
-
-function notImplemented(row: StoreStatusHandoffRowCandidate): boolean {
-  return row.sourceAdapterRuntimeState === 'not-implemented' && row.storeStatusRuntimeState === 'not-implemented';
-}
-
-function parentActionRuntimeCoverageIsComplete(row: StoreStatusHandoffRowCandidate): boolean {
-  const statusSet = new Set(row.sourceParentActionRuntimeStatuses);
-  return (
-    row.sourceParentActionRuntimeHandoffProofVersion === SourceParentActionRuntimeHandoffProofVersion &&
-    row.sourceParentActionRuntimeHandoffRefs.length ===
-      AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.runtimeHandoffRows.length &&
-    row.sourceParentActionRuntimeStatuses.length ===
-      AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.runtimeHandoffRows.length &&
-    RequiredParentActionRuntimeStatuses.every((status) => statusSet.has(status))
-  );
-}
-
-function storeStatusHandoffEvidenceIsComplete(row: StoreStatusHandoffRowCandidate): boolean {
-  return (
-    row.sourcePlatformAdapterBoundaryProofVersion === SourcePlatformAdapterBoundaryProofVersion &&
-    row.sourcePlatformAdapterBoundaryRowId.length > 0 &&
-    row.storeStatusHandoffEvidenceRefs.length >= 4 &&
-    row.sourceReportRuntimeRefs.length > 0
-  );
-}
-
-function storeStatusHandoffClaimsStayUnimplemented(row: StoreStatusHandoffRowCandidate): boolean {
-  return (
-    row.storeStatusHandoffClaim === 'status-handoff-proof-only' &&
-    row.statusHandoffDeliveryClaim === 'not-delivered' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.parentActionRuntimeDeliveryClaim === 'not-delivered' &&
-    row.childDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return storeStatusHandoffRowIsHonestGenerated(
+    row,
+    AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.runtimeHandoffRows.length,
+    RequiredParentActionRuntimeStatuses,
+    [
+      'no provider API execution',
+      'no store integration',
+      'no platform adapter implementation',
+      'no parent action runtime delivery',
+      'no child-device delivery',
+      'no runtime report delivery',
+      'no real install or purchase interception',
+      'no child activity data',
+      'no app blocking',
+      'no Ocentra-hosted family data custody',
+    ]
   );
 }
 
 function storeStatusHandoffProofIsHonest(proof: AppInstallPurchaseStoreStatusHandoffProof): boolean {
   return (
-    proof.sourcePlatformAdapterBoundaryProofVersion === SourcePlatformAdapterBoundaryProofVersion &&
-    proof.sourceParentActionRuntimeHandoffProofVersion === SourceParentActionRuntimeHandoffProofVersion &&
-    storeStatusHandoffRowsAreComplete(proof.storeStatusHandoffRows) &&
-    storeStatusHandoffNonClaimsAreComplete(proof.nonClaims) &&
-    proof.knownGaps.length > 0
-  );
-}
-
-function storeStatusHandoffRowsAreComplete(rows: readonly StoreStatusHandoffRowCandidate[]): boolean {
-  const keys = new Set(rows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const states = new Set(rows.map((row) => row.storeStatusHandoffState));
-  return (
-    rows.length === RequiredPlatformSources.length &&
-    keys.size === rows.length &&
-    RequiredPlatformSources.every(([platform, storeSurface]) => keys.has(`${platform}:${storeSurface}`)) &&
-    RequiredStoreStatusHandoffStates.every((state) => states.has(state)) &&
-    rows.every((row) => storeStatusHandoffRowIsHonest(row))
-  );
-}
-
-function storeStatusHandoffNonClaimsAreComplete(
-  nonClaims: readonly (typeof StoreStatusHandoffNonClaims)[number][]
-): boolean {
-  const claimSet = new Set(nonClaims);
-  return StoreStatusHandoffNonClaims.every((claim) => claimSet.has(claim));
-}
-
-function storeStatusHandoffBoundaryIsExplicit(boundary: typeof StoreStatusHandoffClaimBoundarySchema.Type): boolean {
-  return (
-    boundary.includes('no provider API execution') &&
-    boundary.includes('no store integration') &&
-    boundary.includes('no platform adapter implementation') &&
-    boundary.includes('no parent action runtime delivery') &&
-    boundary.includes('no child-device delivery') &&
-    boundary.includes('no runtime report delivery') &&
-    boundary.includes('no real install or purchase interception') &&
-    boundary.includes('no child activity data') &&
-    boundary.includes('no app blocking') &&
-    boundary.includes('no Ocentra-hosted family data custody')
+    storeStatusHandoffProofIsHonestGenerated(
+      proof,
+      RequiredPlatformSources,
+      RequiredStoreStatusHandoffStates,
+      StoreStatusHandoffNonClaims
+    ) && proof.storeStatusHandoffRows.every(storeStatusHandoffRowIsHonest)
   );
 }

@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
     ])
@@ -72,13 +72,13 @@ async function main() {
         'packages/schema-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
       sourceReportRuntimeContract: 'packages/schema-domain/src/app-install-purchase-report-runtime-proof.ts',
       contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       packageExportDeferred:
-        'packages/app-game-domain/package.json does not currently publish this proof as a public subpath export.',
-      packageReadme: 'packages/app-game-domain/package.json',
+        'packages/schema-domain/package.json is the current generated/thin package surface for this proof.',
+      packageReadme: 'packages/schema-domain/package.json',
       output: relative(repoRoot, proofPath),
     },
     runtimeReportWriterDeliverySummary: summary,
@@ -119,7 +119,7 @@ async function loadRuntimeReportWriterDeliveryProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-runtime-report-writer-delivery-proof.js'
   );

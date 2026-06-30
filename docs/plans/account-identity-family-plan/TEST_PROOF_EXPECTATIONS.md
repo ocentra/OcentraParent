@@ -47,8 +47,9 @@ Run through `npm run agent:run --` when collecting proof if the logging/evidence
 
 ## Command ownership notes
 
-- `packages/schema-domain` is required when canonical account/family/session/device-authority shapes, literals, brands, parser outputs, or encoded wire shapes change.
-- `packages/family-domain` proves TypeScript helper/projection behavior for account/family authority. It must not re-own canonical shared shapes that belong in `schema-domain`.
+- `crates/schema` is required when canonical account/family/session/device-authority shapes, literals, brands, parser outputs, route/action/read-model DTOs, or encoded wire shapes change.
+- `packages/schema-domain` is required only when a temporary generated-validation or edge-decoder surface changes.
+- `packages/family-domain` proves TypeScript helper/projection behavior for account/family authority. It must not re-own canonical shared shapes that belong in `crates/schema` or the owning Rust crate.
 - `crates/family-identity-core` proves Rust account/family parity and runtime authority semantics. It must not invent field names, discriminants, nullability, status values, or action names that differ from canonical shared contracts.
 - `packages/setup-domain`, `crates/provisioning-core`, `packages/portal-domain`, and `apps/portal` are consumer/projection scopes. Run them only when the selected workpack touches setup/provisioning or UI surfaces.
 - `crates/agent-protocol` and `crates/agent-service` are not default proof for every account/family workpack. Use them only when the selected workpack touches protocol envelopes, service handlers, or transport-visible account/family authority.
@@ -84,7 +85,7 @@ The logging evidence should let a human, Codex, or project MCP ask what failed, 
 Do not use one test family to overclaim the whole feature. For this plan, E2E has separate meanings:
 
 ```text
-contract E2E: schema-domain canonical shape -> family-domain helper/projection -> TypeScript tests.
+contract E2E: Rust-owned canonical shape -> generated DTO or temporary edge decoder -> family-domain helper/projection -> TypeScript tests.
 Rust parity E2E: canonical shape/protocol expectation -> family-identity-core parity behavior -> Rust tests.
 UI E2E: family/setup state -> portal-domain projection -> apps/portal route -> Playwright or focused browser proof.
 runtime E2E: provider/session/account adapter -> D1/DO/KV schema or blocker -> runtime route proof.

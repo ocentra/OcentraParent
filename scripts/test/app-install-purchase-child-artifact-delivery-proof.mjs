@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-child-artifact-delivery-proof.test.ts',
     ])
@@ -72,11 +72,11 @@ async function main() {
       childArtifactDeliveryContract: 'packages/schema-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
       sourcePlatformArtifactContract: 'packages/schema-domain/src/app-install-purchase-platform-artifact-proof.ts',
       sourceRuntimeContract: 'packages/schema-domain/src/app-install-purchase-runtime-proof.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-child-artifact-delivery-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/app-install-purchase-child-artifact-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta: 'DOC_DELTA: docs/product-capability-checklist.md row Install/purchase approval',
-      parentDomainReadmeDelta: 'DOC_DELTA: packages/app-game-domain/package.json app install/purchase bullet and gap',
+      parentDomainReadmeDelta: 'DOC_DELTA: packages/schema-domain/package.json app install/purchase bullet and gap',
       output: relative(repoRoot, proofPath),
     },
     childArtifactSummary: summary,
@@ -129,7 +129,7 @@ async function loadChildArtifactProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-child-artifact-delivery-proof.js'
   );

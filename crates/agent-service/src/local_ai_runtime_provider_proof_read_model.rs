@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use ocentra_parent_agent_protocol::constants::{self, local_ai_runtime_provider_proof as proof};
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
 use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;

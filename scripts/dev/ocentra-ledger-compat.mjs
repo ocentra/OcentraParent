@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 const repoRoot = git(['rev-parse', '--show-toplevel']);
 const ledgerWrapper = process.env.OCENTRA_LEDGER_WRAPPER ?? join(repoRoot, 'scripts', 'dev', 'ocentra-ledger.mjs');
@@ -59,6 +59,21 @@ async function main() {
       return;
     case 'hub:report':
       reportWithPrimaryNotification();
+      return;
+    case 'hub:delegate-grant':
+      setDelegateGrant(requiredCurrentPromptedThread(true), required('session-id'));
+      return;
+    case 'hub:delegate-revoke':
+      clearDelegateGrant(requiredCurrentPromptedThread(true), required('session-id'));
+      return;
+    case 'hub:thread-upgrade':
+      setThreadMode(requiredCurrentPromptedThread(false), 'manual-only');
+      return;
+    case 'hub:thread-default':
+      setThreadMode(requiredCurrentPromptedThread(false), 'default');
+      return;
+    case 'hub:thread-mode':
+      printThreadModeStatus();
       return;
     case 'hub:lock':
       {
@@ -164,23 +179,160 @@ function claimHookSession(input, eventName) {
     return { context: [] };
   }
 
-  const result = tryRunLedgerJson([
-    'session',
-    'claim',
-    lane,
-    sessionId,
-    '--ttl-seconds',
-    '7200',
-    '--summary',
-    `${eventName} hook active`,
-  ]);
+  const state = readCompatThreadState();
+  state.latestHookSessionId = sessionId;
+  state.latestHookEventName = eventName;
+  if (eventName === 'UserPromptSubmit') {
+    const nextMode =
+      state.latestUserPromptSessionId === sessionId && state.latestUserPromptMode === 'manual-only'
+        ? 'manual-only'
+        : 'default';
+    state.latestUserPromptSessionId = sessionId;
+    state.latestUserPromptMode = nextMode;
+  }
+
+  const manualOnlyActive =
+    state.latestUserPromptSessionId === sessionId &&
+    state.latestUserPromptMode === 'manual-only' &&
+    eventName !== 'UserPromptSubmit';
+  const claimResult = manualOnlyActive
+    ? { ok: false, skipped: true }
+    : tryRunLedgerJson([
+        'session',
+        'claim',
+        lane,
+        sessionId,
+        '--ttl-seconds',
+        '7200',
+        '--summary',
+        `${eventName} hook active`,
+      ]);
+  const activeSessionId = readActiveSessionId();
+  writeCompatThreadState(state);
+
   return {
-    context: [
-      result.ok
-        ? '- Active Codex session lease is recorded for this thread; exact-file claims are the write gate.'
-        : '- Active Codex session lease could not be refreshed, but this thread may still answer questions and inspect status; exact-file claims are the write gate.',
-    ],
+    context: buildHookContextLines({
+      eventName,
+      sessionId,
+      state,
+      activeSessionId,
+      claimResult,
+    }),
   };
+}
+
+function buildHookContextLines({ eventName, sessionId, state, activeSessionId, claimResult }) {
+  const lines = [];
+  const delegatedBy = state.delegateGrants[sessionId] ?? null;
+  const promptedSession = state.latestUserPromptSessionId;
+  const promptedOverride = promptedSession === sessionId && activeSessionId !== null && activeSessionId !== sessionId;
+  const manualOnlyActive = promptedSession === sessionId && state.latestUserPromptMode === 'manual-only';
+
+  if (manualOnlyActive) {
+    lines.push(
+      eventName === 'UserPromptSubmit'
+        ? '- MANUAL-ONLY: this thread keeps write access only on explicit user prompts.'
+        : '- MANUAL-ONLY: automatic lane refresh is disabled for this thread except on explicit user prompts.'
+    );
+  }
+
+  if (!manualOnlyActive && promptedOverride) {
+    lines.push(
+      `- USER-OVERRIDE: explicit user prompt keeps this thread writable without taking the lane lease. Active lane session remains ${activeSessionId}.`
+    );
+  }
+
+  if (delegatedBy !== null) {
+    lines.push(
+      `- COORDINATED-DELEGATE-GRANT: writable access delegated by ${delegatedBy} without taking the lane lease.`
+    );
+  }
+
+  if (claimResult.ok) {
+    lines.push(
+      eventName === 'SessionStart'
+        ? '- Active Codex session lease is recorded for this thread; exact-file claims are the write gate.'
+        : '- Active Codex session lease is held by this thread; exact-file claims are the write gate.'
+    );
+    return lines;
+  }
+
+  if (claimResult.skipped === true) {
+    return lines;
+  }
+
+  if (promptedOverride || delegatedBy !== null) {
+    return lines;
+  }
+
+  if (state.latestUserPromptSessionId === null) {
+    lines.push(
+      '- Active Codex session lease could not be refreshed, but this thread may still answer questions and inspect status; exact-file claims are the write gate.'
+    );
+    return lines;
+  }
+
+  lines.push(
+    `- READ-ONLY: this lane is already owned by another active Codex session (${activeSessionId ?? state.latestUserPromptSessionId}).`
+  );
+  return lines;
+}
+
+function requiredCurrentPromptedThread(allowTargetSessionId) {
+  if (!allowTargetSessionId && options['session-id'] !== undefined) {
+    throw new Error('Thread mode commands only operate on the current thread after a real user prompt.');
+  }
+  const state = readCompatThreadState();
+  if (state.latestUserPromptSessionId === null) {
+    throw new Error('Thread mode commands require the current thread after a real user prompt.');
+  }
+  if (state.latestHookSessionId !== state.latestUserPromptSessionId) {
+    throw new Error(
+      `Thread mode commands require the current thread after a real user prompt. latest-hook-session=${state.latestHookSessionId ?? 'none'} latest-user-prompt-session=${state.latestUserPromptSessionId}.`
+    );
+  }
+  return state.latestUserPromptSessionId;
+}
+
+function setDelegateGrant(delegatedBy, targetSessionId) {
+  const state = readCompatThreadState();
+  state.delegateGrants[targetSessionId] = delegatedBy;
+  writeCompatThreadState(state);
+  console.log(`delegate-grant-set: lane=${lane} session=${targetSessionId} delegated-by=${delegatedBy}`);
+}
+
+function clearDelegateGrant(_delegatedBy, targetSessionId) {
+  const state = readCompatThreadState();
+  delete state.delegateGrants[targetSessionId];
+  writeCompatThreadState(state);
+  console.log(`delegate-grant-cleared: lane=${lane} session=${targetSessionId}`);
+}
+
+function setThreadMode(sessionId, mode) {
+  const state = readCompatThreadState();
+  state.latestUserPromptSessionId = sessionId;
+  state.latestUserPromptMode = mode;
+  writeCompatThreadState(state);
+  console.log(`thread-mode-set: lane=${lane} session=${sessionId} mode=${mode}`);
+}
+
+function printThreadModeStatus() {
+  const state = readCompatThreadState();
+  const activeSessionId = readActiveSessionId();
+  const activeMode =
+    activeSessionId !== null && activeSessionId === state.latestUserPromptSessionId
+      ? state.latestUserPromptMode
+      : 'default';
+  const writeGrants = Object.entries(state.delegateGrants);
+  const summary = [
+    `thread-mode: lane=${lane}`,
+    `active-session=${activeSessionId ?? 'none'}`,
+    `active-mode=${activeMode}`,
+    `latest-user-prompt-session=${state.latestUserPromptSessionId ?? 'none'}`,
+    `latest-user-prompt-mode=${state.latestUserPromptMode}`,
+    `write-grants=${writeGrants.length === 0 ? 'none' : writeGrants.map(([sessionId, delegatedBy]) => `${sessionId}:${delegatedBy}`).join(',')}`,
+  ].join(' ');
+  console.log(summary);
 }
 
 function messageBody() {
@@ -402,6 +554,61 @@ function readStdinJson() {
     return text.length === 0 ? {} : JSON.parse(text);
   } catch {
     return {};
+  }
+}
+
+function compatStateRoot() {
+  return process.env.LEDGER_ROOT ?? null;
+}
+
+function compatStatePath(fileName) {
+  const root = compatStateRoot();
+  return root === null ? null : join(root, fileName);
+}
+
+function readCompatThreadState() {
+  const path = compatStatePath('thread-mode-state.json');
+  if (path === null || !existsSync(path)) {
+    return {
+      latestHookSessionId: null,
+      latestHookEventName: null,
+      latestUserPromptSessionId: null,
+      latestUserPromptMode: 'default',
+      delegateGrants: {},
+    };
+  }
+
+  const parsed = JSON.parse(readFileSync(path, 'utf8'));
+  return {
+    latestHookSessionId: typeof parsed.latestHookSessionId === 'string' ? parsed.latestHookSessionId : null,
+    latestHookEventName: typeof parsed.latestHookEventName === 'string' ? parsed.latestHookEventName : null,
+    latestUserPromptSessionId:
+      typeof parsed.latestUserPromptSessionId === 'string' ? parsed.latestUserPromptSessionId : null,
+    latestUserPromptMode: parsed.latestUserPromptMode === 'manual-only' ? 'manual-only' : 'default',
+    delegateGrants:
+      parsed.delegateGrants !== null && typeof parsed.delegateGrants === 'object' ? parsed.delegateGrants : {},
+  };
+}
+
+function writeCompatThreadState(state) {
+  const path = compatStatePath('thread-mode-state.json');
+  if (path === null) {
+    return;
+  }
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(state, null, 2));
+}
+
+function readActiveSessionId() {
+  const path = compatStatePath('active-session.json');
+  if (path === null || !existsSync(path)) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(readFileSync(path, 'utf8'));
+    return typeof parsed.sessionId === 'string' && parsed.sessionId.length > 0 ? parsed.sessionId : null;
+  } catch {
+    return null;
   }
 }
 

@@ -2,18 +2,18 @@ use ocentra_parent_agent_protocol::constants;
 use serde_json::Value;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct BrowserNativeHostFrame<'a> {
-    pub(crate) origin: &'a str,
-    pub(crate) managed_browser_session_id: &'a str,
-    pub(crate) profile_id: &'a str,
-    pub(crate) length_bytes: usize,
-    pub(crate) payload_json: &'a str,
-    pub(crate) heartbeat_age_ms: u64,
-    pub(crate) heartbeat_stale_after_ms: u64,
+pub struct BrowserNativeHostFrame<'a> {
+    pub origin: &'a str,
+    pub managed_browser_session_id: &'a str,
+    pub profile_id: &'a str,
+    pub length_bytes: usize,
+    pub payload_json: &'a str,
+    pub heartbeat_age_ms: u64,
+    pub heartbeat_stale_after_ms: u64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum BrowserNativeHostFrameError {
+pub enum BrowserNativeHostFrameError {
     OriginMismatch,
     MissingManagedProfileBinding,
     DefaultProfileBinding,
@@ -23,7 +23,7 @@ pub(crate) enum BrowserNativeHostFrameError {
     HeartbeatStale,
 }
 
-pub(crate) fn validate_browser_native_host_frame(
+pub fn validate_browser_native_host_frame(
     frame: &BrowserNativeHostFrame<'_>,
 ) -> Result<(), BrowserNativeHostFrameError> {
     validate_origin(frame)?;

@@ -28,11 +28,11 @@ async function main() {
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/child-runtime-domain',
+    '@ocentra-parent/schema-domain',
     '--',
     'vitest',
     'run',
-    'tests/unit/child-android-device-proof-artifact-gate.test.ts',
+    'tests/proof/child-android-device-proof-artifact-gate.test.ts',
   ]);
 
   for (const sourceMode of sourceProofModes) {
@@ -56,7 +56,7 @@ async function main() {
       sourceProofs,
       packageArtifacts,
       contract: 'packages/schema-domain/src/child-android-device-proof-artifact-gate.ts',
-      contractTest: 'packages/child-runtime-domain/tests/unit/child-android-device-proof-artifact-gate.test.ts',
+      contractTest: 'packages/schema-domain/tests/proof/child-android-device-proof-artifact-gate.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-device-proof-artifact-gate-2026-06-01.md',
       output: relativePath(proofPath),
@@ -66,18 +66,20 @@ async function main() {
     scriptWiring,
     androidDeviceProofGateProved: {
       sourceComposition: 'ci-mechanical-proof: five existing child Android proof outputs were generated and parsed',
-      packageArtifacts: 'ci-mechanical-proof: debug APK and SHA-256 checksum are present',
+      packageArtifacts: 'ci-mechanical-proof: debug APK and SHA-256 checksum are present as the Android child-agent artifact',
+      androidMode: 'ci-mechanical-proof: chosen Android mode is explicit debug APK sideload only',
       statusBundles: 'package-local-scaffold: status bundle source artifacts exist but remain package-local only',
       addDevicePairingReadiness:
         'manual-required: parent-visible add-device/pairing entry exposes package, service, storage, protocol, permission, and privileged inputs',
     },
     androidDeviceProofStillManual: [
       'Parent add-device/pairing readiness entry before emulator or physical-device artifacts',
-      'APK install and runtime service behavior on emulator or physical device',
+      'APK install, launcher runtime, and runtime service behavior on emulator or physical device',
       'POST_NOTIFICATIONS runtime grant and notification delivery',
       'UsageStats settings grant and observed usage events',
       'AccessibilityService declaration, grant, and behavior',
       'VPN service, DNS adapter, and filtering behavior',
+      'Android uninstall and removal behavior on emulator or physical device',
       'device-owner enrollment and policy action',
       'managed-profile enrollment and behavior',
       'Play Store signing or release-track proof',
@@ -153,6 +155,24 @@ function buildRuntimeReadModel(sourceProofs, packageArtifacts) {
     checkedAt,
     readinessDecision: 'manual-device-evidence-required-before-child-android-readiness',
     packageMechanicalProofState: 'ci-package-only',
+    installAuthorityState: {
+      childAgentArtifactState: 'debug-apk-built',
+      installMode: 'debug-apk-sideload',
+      installState: 'manual-install-proof-required',
+      launchState: 'manual-launch-proof-required',
+      removalState: 'manual-removal-proof-required',
+      deviceOwnerAuthorityState: 'manual-required',
+      managedProfileAuthorityState: 'manual-required',
+      childAgentArtifactBoundary:
+        'debug APK is the Android child-agent artifact proved by CI package output and checksum only',
+      installModeBoundary:
+        'proof is limited to debug APK sideload mode and does not claim managed-profile or device-owner packaging',
+      installStateBoundary: 'Android install remains manual-required until emulator or physical-device proof exists',
+      launchStateBoundary: 'Android launcher runtime remains manual-required until emulator or physical-device proof exists',
+      removalStateBoundary: 'Android uninstall and removal behavior remain manual-required until device proof exists',
+      deviceOwnerBoundary: 'manual-required; no device-owner claim is made without enrollment evidence',
+      managedProfileBoundary: 'manual-required; no managed-profile claim is made without enrollment evidence',
+    },
     addDevicePairingReadiness: {
       surface: 'parent-add-device-pairing',
       readinessState: 'manual-required',
@@ -165,10 +185,10 @@ function buildRuntimeReadModel(sourceProofs, packageArtifacts) {
     artifactRequirements: artifactRequirements(checkedAt, packageArtifacts),
     manualEvidenceStatus: {
       custodyState: 'ci-artifacts-only',
-      requiredArtifactCount: 15,
+      requiredArtifactCount: 17,
       ciArtifactCount: 3,
       collectedDeviceArtifactCount: 0,
-      missingDeviceArtifactCount: 12,
+      missingDeviceArtifactCount: 14,
       reviewerSummary: 'CI artifacts exist, but real Android device proof artifacts are not collected',
     },
     claimBoundaries: {
@@ -188,7 +208,7 @@ function buildRuntimeReadModel(sourceProofs, packageArtifacts) {
       'Android add-device/pairing readiness remains manual-required without emulator or physical-device artifacts',
       'Android child device readiness remains manual-required without emulator or physical-device artifacts',
       'Android child enforcement parity is not proved by package-local proof outputs',
-      'UsageStats grant, Accessibility, VPN/DNS, device-owner, managed-profile, signing, and external transport remain unproved',
+      'Android install, launch, removal, UsageStats grant, Accessibility, VPN/DNS, device-owner, managed-profile, signing, and external transport remain unproved',
     ],
   };
 }
@@ -305,6 +325,16 @@ function manualArtifactRequirements() {
       'child-android-protocol-package-lifecycle-proof'
     ),
     artifactRequirement(
+      'launch-activity-runtime-artifact',
+      'package-lifecycle',
+      'manual-required',
+      'emulator-device-artifact',
+      'device-proof-required',
+      null,
+      null,
+      'child-android-protocol-package-lifecycle-proof'
+    ),
+    artifactRequirement(
       'foreground-service-runtime-artifact',
       'foreground-mobile-service',
       'manual-required',
@@ -373,6 +403,16 @@ function manualArtifactRequirements() {
       null,
       null,
       'child-android-privileged-capability-proof'
+    ),
+    artifactRequirement(
+      'package-removal-artifact',
+      'package-lifecycle',
+      'manual-required',
+      'emulator-device-artifact',
+      'device-proof-required',
+      null,
+      null,
+      'child-android-protocol-package-lifecycle-proof'
     ),
     artifactRequirement(
       'device-owner-enrollment-artifact',

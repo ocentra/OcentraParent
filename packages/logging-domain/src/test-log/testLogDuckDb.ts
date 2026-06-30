@@ -5,6 +5,20 @@ import { getChangedFiles, removeManifest, updateManifest } from './ingestManifes
 import { getDbDir, getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
 import {
+  buildGeneratedSearchLikeQuery,
+  encodeGeneratedDuckDbTags,
+  GeneratedCreateTestLogsTableSql,
+  GeneratedDeleteByFileSql,
+  GeneratedIndexScopeLevelSql,
+  GeneratedIndexScopeRunSql,
+  GeneratedLatestFailuresQuerySql,
+  GeneratedSearchQuerySql,
+  GeneratedStatsQuerySql,
+  getGeneratedDefaultDuckDbFileName,
+  rowToGeneratedStats,
+  rowToGeneratedStoredLog,
+} from '../generated/duckdb-log-query';
+import {
   type StoredTestLogLine,
   type TestLogScope as TestLogScopeType,
   type TestLogStats,
@@ -70,7 +84,7 @@ function loadDuckDb(): DuckDbModule {
 }
 
 function getDefaultDbPath(scope: TestLogScopeType, rootDir?: string): string {
-  return path.join(getDbDir(rootDir), `${scope}-test-log.duckdb`);
+  return path.join(getDbDir(rootDir), getGeneratedDefaultDuckDbFileName(scope));
 }
 
 function openDatabase(filePath: string): Promise<DuckDbDatabase> {
@@ -134,61 +148,12 @@ function closeDatabase(database: DuckDbDatabase): Promise<void> {
   });
 }
 
-function encodeTags(tags: readonly string[]): string | null {
-  return tags.length > 0 ? tags.join(',') : null;
-}
-
-function decodeTags(tags: string | null): string[] {
-  if (tags == null || tags.trim().length === 0) {
-    return [];
-  }
-  return tags.split(',');
-}
-
 function rowToStoredLog(row: StoredLogRow): StoredTestLogLine {
-  return {
-    schemaVersion: 1,
-    type: 'log',
-    scope: row.scope as TestLogScopeType,
-    runId: row.run_id,
-    runType: row.run_type as StoredTestLogLine['runType'],
-    suiteType: row.suite_type as StoredTestLogLine['suiteType'],
-    testName: row.test_name,
-    timestamp: Number(row.log_timestamp),
-    level: row.level as StoredTestLogLine['level'],
-    source: row.source,
-    context: row.context,
-    message: row.message,
-    data: row.data,
-    file: row.file,
-    filePath: row.file_path,
-    line: row.line == null ? null : Number(row.line),
-    column: row.column_value == null ? null : Number(row.column_value),
-    correlationId: row.correlation_id,
-    tags: decodeTags(row.tags),
-    stack: row.stack,
-    origin: row.origin as StoredTestLogLine['origin'],
-    environment: row.environment,
-  };
-}
-
-function numberOrZero(value: number | undefined): number {
-  return Number(value ?? 0);
-}
-
-function nullableNumber(value: number | null | undefined): number | null {
-  return value == null ? null : Number(value);
+  return rowToGeneratedStoredLog(row);
 }
 
 function rowToStats(row: StatsRow | undefined): TestLogStats {
-  return {
-    totalLogs: numberOrZero(row?.total_logs),
-    errorLogs: numberOrZero(row?.error_logs),
-    warnLogs: numberOrZero(row?.warn_logs),
-    distinctRuns: numberOrZero(row?.distinct_runs),
-    distinctTests: numberOrZero(row?.distinct_tests),
-    newestTimestamp: nullableNumber(row?.newest_timestamp),
-  };
+  return rowToGeneratedStats(row);
 }
 
 export class TestLogDuckDb {
@@ -220,33 +185,11 @@ export class TestLogDuckDb {
   async ensureSchema(): Promise<void> {
     await runAsync(
       this.connection,
-      `CREATE TABLE IF NOT EXISTS test_logs (
-        ndjson_file VARCHAR NOT NULL,
-        scope VARCHAR NOT NULL,
-        run_id VARCHAR NOT NULL,
-        run_type VARCHAR NOT NULL,
-        suite_type VARCHAR,
-        test_name VARCHAR NOT NULL,
-        log_timestamp BIGINT NOT NULL,
-        level VARCHAR NOT NULL,
-        source VARCHAR,
-        context VARCHAR,
-        message VARCHAR NOT NULL,
-        data VARCHAR,
-        file VARCHAR,
-        file_path VARCHAR,
-        line BIGINT,
-        column_value BIGINT,
-        correlation_id VARCHAR,
-        tags VARCHAR,
-        stack VARCHAR,
-        origin VARCHAR,
-        environment VARCHAR
-      )`
+      GeneratedCreateTestLogsTableSql
     );
 
-    await runAsync(this.connection, 'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_level ON test_logs(scope, level)');
-    await runAsync(this.connection, 'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_run ON test_logs(scope, run_id)');
+    await runAsync(this.connection, GeneratedIndexScopeLevelSql);
+    await runAsync(this.connection, GeneratedIndexScopeRunSql);
   }
 
   async reset(): Promise<void> {
@@ -258,7 +201,7 @@ export class TestLogDuckDb {
       return 0;
     }
 
-    await runAsync(this.connection, 'DELETE FROM test_logs WHERE ndjson_file = ?', filePath);
+    await runAsync(this.connection, GeneratedDeleteByFileSql, filePath);
 
     for (const log of logs) {
       await runAsync(
@@ -303,7 +246,7 @@ export class TestLogDuckDb {
         log.line,
         log.column,
         log.correlationId,
-        encodeTags(log.tags),
+        encodeGeneratedDuckDbTags(log.tags),
         log.stack,
         log.origin,
         log.environment
@@ -345,15 +288,7 @@ export class TestLogDuckDb {
   async getStats(scope: TestLogScopeType): Promise<TestLogStats> {
     const rows = await allAsync<StatsRow>(
       this.connection,
-      `SELECT
-        COUNT(*)::BIGINT AS total_logs,
-        SUM(CASE WHEN level = 'error' THEN 1 ELSE 0 END)::BIGINT AS error_logs,
-        SUM(CASE WHEN level = 'warn' THEN 1 ELSE 0 END)::BIGINT AS warn_logs,
-        COUNT(DISTINCT run_id)::BIGINT AS distinct_runs,
-        COUNT(DISTINCT test_name)::BIGINT AS distinct_tests,
-        MAX(log_timestamp)::BIGINT AS newest_timestamp
-      FROM test_logs
-      WHERE scope = ?`,
+      GeneratedStatsQuerySql,
       scope
     );
 
@@ -363,31 +298,7 @@ export class TestLogDuckDb {
   async latestFailures(scope: TestLogScopeType, limit = 20): Promise<StoredTestLogLine[]> {
     const rows = await allAsync<StoredLogRow>(
       this.connection,
-      `SELECT
-        scope,
-        run_id,
-        run_type,
-        suite_type,
-        test_name,
-        log_timestamp,
-        level,
-        source,
-        context,
-        message,
-        data,
-        file,
-        file_path,
-        line,
-        column_value,
-        correlation_id,
-        tags,
-        stack,
-        origin,
-        environment
-      FROM test_logs
-      WHERE scope = ? AND level = 'error'
-      ORDER BY log_timestamp DESC
-      LIMIT ?`,
+      GeneratedLatestFailuresQuerySql,
       scope,
       limit
     );
@@ -396,39 +307,10 @@ export class TestLogDuckDb {
   }
 
   async search(scope: TestLogScopeType, query: string, limit = 20): Promise<StoredTestLogLine[]> {
-    const likeQuery = `%${query}%`;
+    const likeQuery = buildGeneratedSearchLikeQuery(query);
     const rows = await allAsync<StoredLogRow>(
       this.connection,
-      `SELECT
-        scope,
-        run_id,
-        run_type,
-        suite_type,
-        test_name,
-        log_timestamp,
-        level,
-        source,
-        context,
-        message,
-        data,
-        file,
-        file_path,
-        line,
-        column_value,
-        correlation_id,
-        tags,
-        stack,
-        origin,
-        environment
-      FROM test_logs
-      WHERE scope = ?
-        AND (
-          message LIKE ?
-          OR COALESCE(context, '') LIKE ?
-          OR COALESCE(data, '') LIKE ?
-        )
-      ORDER BY log_timestamp DESC
-      LIMIT ?`,
+      GeneratedSearchQuerySql,
       scope,
       likeQuery,
       likeQuery,
@@ -441,18 +323,5 @@ export class TestLogDuckDb {
 
   dbFilePath(): string {
     return this.dbPath;
-  }
-}
-
-export async function withTestLogDuckDb<T>(
-  scope: TestLogScopeType,
-  work: (db: TestLogDuckDb) => Promise<T>,
-  rootDir?: string
-): Promise<T> {
-  const db = await TestLogDuckDb.create(scope, rootDir);
-  try {
-    return await work(db);
-  } finally {
-    await db.close();
   }
 }

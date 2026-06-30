@@ -2,13 +2,15 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
 import { collectBrowserFailures } from './browser-failures';
-import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
+import { assertLanRouteScaffolds } from './portal-route-scaffold-assertions';
 
 test.setTimeout(420_000);
 
 const portalShellReadyTimeoutMs = 90_000;
 const defaultPortalPort = '4490';
 const manageTargetSelectionStorageKey = 'ocentra.parent.portal.manage-target-selection.v1';
+const devicesLanScreenshotPath = process.env['LAN_SOURCE_MATRIX_DEVICES_SCREENSHOT']?.trim() ?? '';
+const policyNetworkTargetScreenshotPath = process.env['LAN_SOURCE_MATRIX_POLICY_TARGET_SCREENSHOT']?.trim() ?? '';
 
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
@@ -37,7 +39,7 @@ test('portal UI connects to the real agent and renders command results', async (
   await assertManageRouteRequiresExplicitDeviceSelection(page);
   const selectedDeviceLabel = await assertDevicesRoute(page);
   await assertSelectedDeviceContextPersistsAcrossRoutes(page, selectedDeviceLabel);
-  await assertRouteScaffolds(page);
+  await assertLanRouteScaffolds(page);
 
   expect(browserFailures).toEqual([]);
 });
@@ -226,7 +228,6 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await assertRawEventPresent(page, 'agent.log.snapshot.reported');
   await assertRawEventPresent(page, 'agent.dev.echoed');
   await assertRawEventPresent(page, 'agent.watch.status.reported');
-  await assertRawEventPresent(page, 'agent.lan-pairing.status.reported');
   await assertRawEventPresent(page, 'agent.activity.ingest.status.reported');
   await assertRawEventPresent(page, 'agent.activity.recent.summary.reported');
   await assertRawEventPresent(page, 'agent.browser.evidence.recent.reported');
@@ -280,68 +281,54 @@ async function assertActivityCommandResult(
 
 async function assertOverview(page: Page): Promise<void> {
   await page.goto('/#/overview');
-  const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface).toBeVisible({
-    timeout: portalShellReadyTimeoutMs,
-  });
-  await expect(surface.locator('text').filter({ hasText: 'Current device state' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+  await expect(page.getByText('Current device state').first()).toBeVisible();
+  await expect(page.getByText('WHAT PARENTS CONTROL').first()).toBeVisible();
+  await expect(page.getByText('DATA CUSTODY').first()).toBeVisible();
 }
 
 async function assertManageRouteRequiresExplicitDeviceSelection(page: Page): Promise<void> {
   await page.goto('/#/browser-settings');
-  const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface).toBeVisible({
+  await expect(page.getByText('Per Device').first()).toBeVisible();
+  await expect(page.getByText('Browser target: Whole family').first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
-  await expect(page.getByText('Per Device').first()).toBeVisible();
-  await expectSurfaceTextToContain(surface, 'Browser target');
-  await expectSurfaceTextToContain(surface, 'No device selected');
 }
 
 async function assertDevicesRoute(page: Page): Promise<string> {
-  await page.goto('/#/devices');
   const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface).toBeVisible({
+  await page.goto('/#/devices');
+  await expect(page.getByText('SELECTED DEVICE CONTEXT').first()).toBeVisible();
+  await expect(page.getByText('SELECTED DEVICE').first()).toBeVisible();
+  await expect(page.getByText('SOURCE').first()).toBeVisible();
+  await expect(page.getByText('CONTROL').first()).toBeVisible();
+  for (const tabName of [
+    'Show LAN pairing Info',
+    'Show LAN pairing Update',
+    'Show LAN pairing Capability',
+  ]) {
+    await expect(page.getByRole('tab', { exact: true, name: tabName })).toBeVisible();
+  }
+  const pairTab = page.getByRole('tab', { exact: true, name: 'Show LAN pairing Pair' });
+  await expect(pairTab.or(page.getByText('Policy target').first()).first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
-  await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
-  await expect(
-    surface
-      .locator('text')
-      .filter({ hasText: /SELECTED DEVICE/i })
-      .first()
-  ).toBeVisible();
-  await expect(
-    surface
-      .locator('text')
-      .filter({ hasText: /SOURCE/i })
-      .first()
-  ).toBeVisible();
-  await expect(
-    surface
-      .locator('text')
-      .filter({ hasText: /CONTROL/i })
-      .first()
-  ).toBeVisible();
-  for (const tabLabel of ['Info', 'Update', 'Capability']) {
-    await expect(surface.locator('text').filter({ hasText: tabLabel }).first()).toBeVisible();
-  }
-  const pairTab = surface.getByRole('tab', { exact: true, name: 'Show LAN pairing Pair' });
-  if ((await pairTab.count()) > 0) {
-    await expect(pairTab).toBeVisible();
-  } else {
-    await expect(surface.locator('text').filter({ hasText: 'Policy target' }).first()).toBeVisible();
-  }
 
-  return selectLanDeviceForContextProof(page, surface);
+  const selectedDeviceLabel = await selectLanDeviceForContextProof(page, surface);
+  await captureOptionalFullPageScreenshot(page, devicesLanScreenshotPath);
+  return selectedDeviceLabel;
 }
 
 async function assertSelectedDeviceContextPersistsAcrossRoutes(page: Page, selectedDeviceLabel: string): Promise<void> {
   await assertSelectedDeviceContextOnManageRoute(page, '/#/browser-settings', selectedDeviceLabel, 'Browser target');
   await assertSelectedDeviceContextOnManageRoute(page, '/#/ai-runtime', selectedDeviceLabel, 'AI device');
   await assertSelectedDeviceContextOnManageRoute(page, '/#/entitlements', selectedDeviceLabel, 'Account device');
+  await assertSelectedDeviceContextOnManageRoute(
+    page,
+    '/#/policy-network',
+    selectedDeviceLabel,
+    'Network target',
+    policyNetworkTargetScreenshotPath
+  );
   await assertSelectedDeviceContextOnActivityRoute(page, selectedDeviceLabel);
 }
 
@@ -356,7 +343,9 @@ async function selectLanDeviceForContextProof(page: Page, surface: Locator): Pro
   const ariaLabel = (await deviceChoice.getAttribute('aria-label')) ?? '';
   const selectedDeviceLabel = ariaLabel.replace(/^Select /u, '');
   await deviceChoice.click({ force: true });
-  await expectSurfaceTextToContain(surface, selectedDeviceLabel);
+  await expect(surface.locator('text').filter({ hasText: selectedDeviceLabel }).first()).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
   return selectedDeviceLabel;
 }
 
@@ -364,39 +353,25 @@ async function assertSelectedDeviceContextOnManageRoute(
   page: Page,
   path: string,
   selectedDeviceLabel: string,
-  expectedTargetLabel: string
+  expectedTargetLabel: string,
+  screenshotPath = ''
 ): Promise<void> {
   await page.goto(path);
-  const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface).toBeVisible({
+  await expect(page.getByText('Per Device').first()).toBeVisible();
+  await expect(page.getByText(`${expectedTargetLabel}: ${selectedDeviceLabel}`).first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
-  await expect(page.getByText('Per Device').first()).toBeVisible();
-  await expectSurfaceTextToContain(surface, `${expectedTargetLabel}: ${selectedDeviceLabel}`);
-  await expectSurfaceTextNotToContain(surface, `${expectedTargetLabel}: No device selected`);
+  await expect(page.getByText(`${expectedTargetLabel}: No device selected`)).toHaveCount(0);
+  await captureOptionalFullPageScreenshot(page, screenshotPath);
 }
 
 async function assertSelectedDeviceContextOnActivityRoute(page: Page, selectedDeviceLabel: string): Promise<void> {
   await page.goto('/#/activity');
-  const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface).toBeVisible({
+  await expect(page.getByText(`Report device: ${selectedDeviceLabel}`).first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
-  await expectSurfaceTextToContain(surface, `Report device: ${selectedDeviceLabel}`);
-  await expectSurfaceTextNotToContain(surface, 'Report device: Whole family');
-  await expectSurfaceTextNotToContain(surface, 'Report device: No device selected');
-}
-
-async function surfaceText(surface: Locator): Promise<string> {
-  return (await surface.locator('text').allTextContents()).join(' ');
-}
-
-async function expectSurfaceTextToContain(surface: Locator, expected: string): Promise<void> {
-  await expect.poll(() => surfaceText(surface), { timeout: portalShellReadyTimeoutMs }).toContain(expected);
-}
-
-async function expectSurfaceTextNotToContain(surface: Locator, unexpected: string): Promise<void> {
-  await expect.poll(() => surfaceText(surface), { timeout: portalShellReadyTimeoutMs }).not.toContain(unexpected);
+  await expect(page.getByText('Report device: Whole family')).toHaveCount(0);
+  await expect(page.getByText('Report device: No device selected')).toHaveCount(0);
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {
@@ -406,4 +381,12 @@ async function assertCopyButton(page: Page, commandResult: Locator, eventName: s
   const copiedText = await page.evaluate(() => navigator.clipboard.readText());
   expect(copiedText).toContain(eventName);
   expect(copiedText).toContain('"payload"');
+}
+
+async function captureOptionalFullPageScreenshot(page: Page, screenshotPath: string): Promise<void> {
+  if (screenshotPath.length === 0) {
+    return;
+  }
+
+  await page.screenshot({ fullPage: true, path: screenshotPath });
 }

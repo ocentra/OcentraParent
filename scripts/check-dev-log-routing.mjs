@@ -20,45 +20,70 @@ function readText(filePath) {
 
 function main() {
   const repoRoot = parseRepoRoot(process.argv.slice(2));
-  const contractsPath = path.join(repoRoot, 'packages', 'logging-domain', 'src', 'contracts.ts');
-  const portalLoggerPath = path.join(repoRoot, 'apps', 'portal', 'src', 'dev-logger.ts');
+  const contractsPath = path.join(repoRoot, 'packages', 'schema-domain', 'src', 'logging-contracts.ts');
+  const portalLoggerPath = path.join(repoRoot, 'packages', 'portal-domain', 'src', 'dev-logger.ts');
+  const portalLoggerWrapperPath = path.join(repoRoot, 'apps', 'portal', 'src', 'dev-logger.ts');
   const bridgeServerPath = path.join(repoRoot, 'packages', 'logging-domain', 'src', 'transport', 'bridgeServer.ts');
   const cargoPath = path.join(repoRoot, 'crates', 'agent-service', 'Cargo.toml');
   const devLogPath = path.join(repoRoot, 'crates', 'agent-service', 'src', 'dev_log.rs');
   const readmePath = path.join(repoRoot, 'packages', 'logging-domain', 'README.md');
 
-  for (const filePath of [contractsPath, portalLoggerPath, bridgeServerPath, cargoPath, devLogPath, readmePath]) {
+  for (const filePath of [
+    contractsPath,
+    portalLoggerPath,
+    portalLoggerWrapperPath,
+    bridgeServerPath,
+    cargoPath,
+    devLogPath,
+    readmePath,
+  ]) {
     ensure(fs.existsSync(filePath), `missing ${path.relative(repoRoot, filePath).replace(/\\/g, '/')}`);
   }
 
   const contractsText = readText(contractsPath);
   const portalLoggerText = readText(portalLoggerPath);
+  const portalLoggerWrapperText = readText(portalLoggerWrapperPath);
   const bridgeServerText = readText(bridgeServerPath);
   const cargoText = readText(cargoPath);
   const devLogText = readText(devLogPath);
   const readmeText = readText(readmePath);
 
-  const portalUsesDirectBridgeTransport = portalLoggerText.includes('sendToBridge(');
   const portalUsesSharedLoggerBridge =
-    portalLoggerText.includes('sendPortalLoggerMessage(') &&
-    portalLoggerText.includes('portalLogger.register(import.meta.url)') &&
-    portalLoggerText.includes('portalLogger.flush()');
-  const portalUsesImplementedBridgeReceiver =
-    (portalUsesDirectBridgeTransport || portalUsesSharedLoggerBridge) &&
-    bridgeServerText.includes("url.pathname === '/__logs__'");
+    portalLoggerText.includes('portalLogger.register(context.moduleUrl)') &&
+    portalLoggerText.includes('portalLogger.flush()') &&
+    portalLoggerText.includes('sendPortalBridgeMessage(') &&
+    portalLoggerText.includes('buildPortalLoggerConfiguration(');
+  const portalWrapperDelegatesToPortalDomain =
+    portalLoggerWrapperText.includes("from '@ocentra-parent/portal-domain/dev-logger'") &&
+    portalLoggerWrapperText.includes('sendPortalDevLogWithContext') &&
+    portalLoggerWrapperText.includes('sendPortalProofTraceLogWithContext');
+  const portalUsesCompatibilityEndpoint =
+    portalLoggerText.includes('DevLogEndpoint.Write') &&
+    portalLoggerText.includes('resolvePortalCompatibilityUrl(') &&
+    portalLoggerText.includes('sendPortalCompatibilityLog(');
+  const portalPrefersBridgeBeforeCompatibility =
+    portalLoggerText.includes('if (await sendPortalBridgeMessage(') &&
+    portalLoggerText.includes('return sendPortalCompatibilityLog(');
+  const bridgeServerImplementsReceiver = bridgeServerText.includes("case '/__logs__':");
 
   if (contractsText.includes('DevLogEndpoint') && contractsText.includes('Write:')) {
     ensure(
-      portalUsesImplementedBridgeReceiver,
+      portalWrapperDelegatesToPortalDomain,
+      'portal dev logger wrapper must delegate to the portal-domain dev logger implementation'
+    );
+    ensure(
+      portalUsesSharedLoggerBridge && bridgeServerImplementsReceiver,
       'DevLogEndpoint.Write exists but portal dev logger does not route through the implemented bridge receiver'
+    );
+    ensure(
+      portalUsesCompatibilityEndpoint && portalPrefersBridgeBeforeCompatibility,
+      'portal dev logger must keep the compatibility endpoint only as a fallback after the bridge transport'
     );
   }
 
   ensure(
-    !portalLoggerText.includes('DevLogEndpoint.Write') &&
-      !portalLoggerText.includes('/__ocentra-parent-dev-log') &&
-      (portalUsesDirectBridgeTransport || portalUsesSharedLoggerBridge),
-    'portal dev logger must not post to an unimplemented endpoint'
+    !portalLoggerWrapperText.includes('DevLogEndpoint.Write') && !portalLoggerWrapperText.includes('/__ocentra-parent-dev-log'),
+    'portal dev logger wrapper must not post directly to the compatibility endpoint'
   );
 
   ensure(

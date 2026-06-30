@@ -35,8 +35,8 @@ Browser owns browser evidence and browser-control handoff surfaces. It does not 
 Module roles:
 
 ```text
-schema-domain: canonical shared browser/evidence/policy-reference/protocol/capability/logging shapes when browser shapes cross package, crate, app, or plan boundaries.
-browser-domain: TypeScript browser helper/projection and focused validation surface. It consumes canonical shared shapes and must not become a policy, notification, family, AI, portal, or enforcement runtime aggregator.
+crates/schema: canonical shared browser/evidence/policy-reference/protocol/capability/logging shapes when browser shapes cross package, crate, app, or plan boundaries.
+browser-domain: TypeScript browser helper/projection and focused validation surface. It is presentation-only and generated/thin at the edge; it must not become a policy, notification, family, AI, portal, or enforcement runtime aggregator.
 browser-core: child-local Rust browser observation, evidence event, AI-request event, and policy-request event boundary. It should use event/protocol handoffs rather than importing sibling runtime crates.
 agent-protocol and agent-service: wire/service/read-model boundaries only when the selected workpack names protocol, service handler, or read API proof.
 AI plan: consumes stored browser evidence, source refs, or structured digests only. AI does not import browser runtime, scrape browser state, or decide enforcement.
@@ -48,7 +48,7 @@ network, screen, app-game, tracking, LAN, remote, account, data-custody, and set
 Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
 
 ```text
-canonical schema-domain browser/evidence/policy-reference/protocol/capability/logging shapes
+canonical crates/schema browser/evidence/policy-reference/protocol/capability/logging shapes
 neutral event/evidence/logging/protocol primitives
 approved public browser-domain helper exports when the selected workpack names browser-domain scope
 browser-core when the selected workpack names Rust browser observation/event proof
@@ -60,12 +60,12 @@ Forbidden direct imports:
 ```text
 sibling feature owner runtime behavior from AI, policy, enforcement, network, screen, app-game, tracking, portal, notification, child-runtime, LAN, remote, setup, payment, or data-custody plans
 private source files from another plan's owning package/crate
-peer feature contracts when the shared shape should live in schema-domain or another neutral boundary
+peer feature contracts when the shared shape should live in crates/schema or another neutral Rust boundary
 AI, policy, enforcement, portal, or notification code that captures or infers browser source state instead of consuming browser evidence/read models
 network/process/window evidence being upgraded into exact tab URL, active tab, page title, or browser-game proof without the selected browser source proof
 ```
 
-If browser work needs AI, policy, enforcement, notification, portal, network, screen, app-game, tracking, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+If browser work needs AI, policy, enforcement, notification, portal, network, screen, app-game, tracking, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `crates/schema` or another neutral Rust shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
 
 ## Default read order
 

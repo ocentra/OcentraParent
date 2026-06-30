@@ -2,12 +2,15 @@ import {
   AgentNetworkAppleNetworkExtensionGateStatusSchema,
   type AgentNetworkAppleNetworkExtensionGateStatus,
 } from '@ocentra-parent/schema-domain/agent-network-apple-extension-status';
-import {
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { mapJsonPayloadEventToStatus, parseJsonPayloadFieldEvent } from './protocol-event-payload.js';
+
+type AgentNetworkAppleNetworkExtensionGateStatusFailureReason =
+  | 'wrong-event'
+  | 'missing-apple-network-extension-gate-status'
+  | 'invalid-apple-network-extension-gate-status-json'
+  | 'invalid-apple-network-extension-gate-status';
 
 export type AgentNetworkAppleNetworkExtensionGateStatusParseResult =
   | {
@@ -16,36 +19,23 @@ export type AgentNetworkAppleNetworkExtensionGateStatusParseResult =
     }
   | {
       readonly ok: false;
-      readonly reason:
-        | 'wrong-event'
-        | 'missing-apple-network-extension-gate-status'
-        | 'invalid-apple-network-extension-gate-status-json'
-        | 'invalid-apple-network-extension-gate-status';
+      readonly reason: AgentNetworkAppleNetworkExtensionGateStatusFailureReason;
     };
 
 export function parseAgentNetworkAppleNetworkExtensionGateStatusEvent(
   event: AgentEventEnvelope
 ): AgentNetworkAppleNetworkExtensionGateStatusParseResult {
-  if (event.event !== AgentEvent.NetworkAppleNetworkExtensionGateStatusReported) {
-    return { ok: false, reason: 'wrong-event' };
-  }
-
-  const raw = event.payload[AgentProtocolDefaults.Field.NetworkAppleNetworkExtensionGateStatus];
-  if (!isAgentProtocolLogText(raw)) {
-    return { ok: false, reason: 'missing-apple-network-extension-gate-status' };
-  }
-
-  let value: unknown;
-  try {
-    value = JSON.parse(raw) as unknown;
-  } catch {
-    return { ok: false, reason: 'invalid-apple-network-extension-gate-status-json' };
-  }
-
-  const parsed = AgentNetworkAppleNetworkExtensionGateStatusSchema.safeParse(value);
-  if (!parsed.success) {
-    return { ok: false, reason: 'invalid-apple-network-extension-gate-status' };
-  }
-
-  return { ok: true, status: parsed.data };
+  return mapJsonPayloadEventToStatus(
+    parseJsonPayloadFieldEvent(
+      event,
+      AgentEvent.NetworkAppleNetworkExtensionGateStatusReported,
+      AgentProtocolDefaults.Field.NetworkAppleNetworkExtensionGateStatus,
+      AgentNetworkAppleNetworkExtensionGateStatusSchema
+    ),
+    {
+      'missing-json-field': 'missing-apple-network-extension-gate-status',
+      'invalid-json': 'invalid-apple-network-extension-gate-status-json',
+      'invalid-payload': 'invalid-apple-network-extension-gate-status',
+    }
+  );
 }

@@ -1,0 +1,45 @@
+use ocentra_parent_agent_maintenance::constants::ED25519_ALGORITHM;
+use ocentra_parent_agent_maintenance::crypto::{generate_key_pair, sign_bytes, verify_bytes};
+
+#[test]
+fn generated_key_pair_signs_and_verifies_payload() {
+    let keys = generate_key_pair();
+    let payload = b"ocentra-parent-update-payload";
+    let sign_result = sign_bytes(payload, &keys.private_key_base64);
+    assert!(sign_result.is_ok(), "payload signs failed: {sign_result:?}");
+    let Ok((signature, key_id)) = sign_result else {
+        return;
+    };
+
+    let verification = verify_bytes(
+        payload,
+        &signature,
+        &keys.public_key_base64,
+        &key_id,
+        ED25519_ALGORITHM,
+    );
+    assert!(
+        verification.is_ok(),
+        "payload verifies failed: {verification:?}"
+    );
+}
+
+#[test]
+fn verification_rejects_tampered_payload() {
+    let keys = generate_key_pair();
+    let sign_result = sign_bytes(b"trusted", &keys.private_key_base64);
+    assert!(sign_result.is_ok(), "payload signs failed: {sign_result:?}");
+    let Ok((signature, key_id)) = sign_result else {
+        return;
+    };
+
+    let result = verify_bytes(
+        b"tampered",
+        &signature,
+        &keys.public_key_base64,
+        &key_id,
+        ED25519_ALGORITHM,
+    );
+
+    assert!(result.is_err());
+}

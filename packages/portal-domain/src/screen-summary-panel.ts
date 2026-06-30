@@ -1,4 +1,3 @@
-import type { ActivitySurfaceAdapterResult } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import {
   ActivityScreenReadModelSchema,
   type ActivityScreenReadModel,
@@ -6,6 +5,7 @@ import {
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';
+import type { StatefulReadModelResult } from './read-model-result';
 
 const DetailSeparator = ' | ';
 
@@ -33,7 +33,7 @@ export type ScreenSummaryPanelIntent = {
 };
 
 export function createScreenSummaryPanelIntent(
-  readModelResult: ActivitySurfaceAdapterResult<unknown> | null
+  readModelResult: StatefulReadModelResult<string, unknown> | null
 ): ScreenSummaryPanelIntent {
   const base = baseIntent();
 

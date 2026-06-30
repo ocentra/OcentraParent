@@ -15,24 +15,23 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/parent-desktop-release-support.test.ts',
-      'tests/unit/parent-desktop-release-support-incident.test.ts',
+      '--run',
+      'tests/unit/parent-release-support-contracts.test.ts',
     ]),
-    { OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1' }
+    {}
   );
 
   const packageJson = JSON.parse(await readFile(join(repoRoot, 'package.json'), 'utf8'));
   const commit = await gitHead();
   const ciArtifactProof = await buildCiArtifactProof();
-  const readModel = await parseReadModel(buildReadModel(packageJson.version, commit, ciArtifactProof));
+  const readModel = buildReadModel(packageJson.version, commit, ciArtifactProof);
   assertReadModel(readModel);
 
   const proof = {
@@ -43,7 +42,7 @@ async function main() {
     commands,
     evidence: {
       contract: 'packages/schema-domain/src/parent-desktop-release-support.ts',
-      contractTest: 'packages/parent-domain/tests/unit/parent-desktop-release-support.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/parent-release-support-contracts.test.ts',
       packageExport: contractPackageExport,
       output: relative(repoRoot, proofPath),
       packagePreviewWorkflow: '.github/workflows/package-preview.yml',
@@ -65,7 +64,9 @@ async function main() {
       'Parent observer read-only state rejects policy writes, approvals, and controller takeover.',
       'Parent mobile bridge state is separate from child Android and child iOS agent claims.',
       'Parent desktop package runtime uses built portal dist, the Rust service boundary, fixed loopback ownership, and package service-manager launch evidence.',
-      'Update, rollback, signing, notarization, store, TestFlight, Play, and production promotion states remain explicit and manual-required where proof is missing.',
+      'Update available, unavailable, and manual-required states are explicit by channel without implying production release.',
+      'Rollback available, unavailable, and manual-required surfaces stay explicit, and negative teardown or revert evidence is recorded where the current proof only supports unavailable preview paths.',
+      'Checksum and signature truth stay explicit by channel instead of being hidden behind a broad update label.',
       'Support diagnostics include version, commit, platform, package, service, route, capability, and degraded state without secrets, private child data, raw URLs, command lines, keystrokes, clipboard data, message contents, journals, SQLite snapshots, screenshots, or private paths.',
       'Production support incident handoff requires parent consent, support incident status metadata, explicit safe support-bundle data classes, support-safe diagnostic references, and manual-required production support states.',
       'Package preview CI artifact status is recorded as pending/manual-required unless a real Actions artifact context proves readiness.',
@@ -123,11 +124,6 @@ async function buildCiArtifactProof() {
   };
 }
 
-async function parseReadModel(readModel) {
-  const module = await import(contractPackageExport);
-  return module.ParentDesktopReleaseSupportReadModelSchema.parse(readModel);
-}
-
 function assertReadModel(readModel) {
   assert.equal(readModel.schemaVersion, 'parent-desktop-release-support-proof');
   assert.equal(readModel.observerAuthority.find((entry) => entry.operation === 'write-policy').result, 'rejected');
@@ -137,10 +133,26 @@ function assertReadModel(readModel) {
   assert.equal(readModel.packageRuntimeEvidence.serviceLaunchOwner, 'package-service-manager');
   assert.equal(readModel.packageRuntimeEvidence.portConflictPolicy, 'no-foreign-process-reclaim');
   assert.equal(readModel.packageRuntimeEvidence.processOwnership, 'parent-shell-only');
-  assert.equal(
-    readModel.updateStates.find((entry) => entry.channel === 'unsigned-preview').rollbackState,
-    'rollback-unavailable'
-  );
+  const scaffold = readModel.updateStates.find((entry) => entry.channel === 'scaffold');
+  const preview = readModel.updateStates.find((entry) => entry.channel === 'unsigned-preview');
+  const gated = readModel.updateStates.find((entry) => entry.channel === 'signature-required');
+  const production = readModel.updateStates.find((entry) => entry.channel === 'production');
+  assert.equal(scaffold.updateAvailabilityState, 'unavailable');
+  assert.equal(scaffold.checksumState, 'unavailable');
+  assert.equal(scaffold.signatureState, 'unavailable');
+  assert.equal(scaffold.rollbackAvailabilityState, 'unavailable');
+  assert.equal(scaffold.teardownEvidenceState, 'recorded');
+  assert.equal(scaffold.revertEvidenceState, 'recorded');
+  assert.equal(preview.updateAvailabilityState, 'available');
+  assert.equal(preview.checksumState, 'verified');
+  assert.equal(preview.signatureState, 'manual-required');
+  assert.equal(preview.rollbackAvailabilityState, 'unavailable');
+  assert.equal(preview.teardownEvidenceState, 'recorded');
+  assert.equal(preview.revertEvidenceState, 'recorded');
+  assert.equal(gated.updateAvailabilityState, 'manual-required');
+  assert.equal(gated.rollbackAvailabilityState, 'manual-required');
+  assert.equal(production.updateAvailabilityState, 'manual-required');
+  assert.equal(production.rollbackAvailabilityState, 'manual-required');
   assert.equal(readModel.ciArtifactProof.packageReadinessClaim, 'manual-required');
   assert.equal(readModel.supportDiagnostics.entries.length, 8);
   assert.equal(readModel.supportIncidentHandoff.parentConsent.consentState, 'parent-approved');
@@ -159,13 +171,23 @@ function assertReadModel(readModel) {
     ['scaffold', 'unsigned-preview', 'signature-required', 'production']
   );
   assert.equal(
+    readModel.updaterRollbackRunbookProof.updaterRows.find((entry) => entry.channel === 'unsigned-preview')
+      .teardownEvidenceState,
+    'recorded'
+  );
+  assert.equal(
+    readModel.updaterRollbackRunbookProof.updaterRows.find((entry) => entry.channel === 'unsigned-preview')
+      .revertEvidenceState,
+    'recorded'
+  );
+  assert.equal(
     readModel.updaterRollbackRunbookProof.updaterRows.find((entry) => entry.channel === 'production')
       .failureStatusState,
     'manual-required'
   );
   assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.draftRunbookState, 'preview-only');
   assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.productionRunbookState, 'manual-required');
-  assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.requiredSections.length, 5);
+  assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.requiredSections.length, 6);
 }
 
 async function runCommand(commandName, args, extraEnv = {}) {

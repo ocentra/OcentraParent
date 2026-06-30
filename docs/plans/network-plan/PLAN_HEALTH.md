@@ -29,7 +29,7 @@ This file records documentation health and consistency checks for the plan. It i
 
 - Previous generated index said there was no executable workpack route. That was stale because the detailed scope lived in `03-network-implementation-checklist-and-workpacks.md` and giant moved control docs. The plan now has 8 focused route workpacks under `workpacks/`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match current proof.
-- `packages/network-domain` is package metadata/proof-consumer surface unless explicit public exports exist; canonical shared network shapes live in `schema-domain`.
+- `packages/network-domain` is package metadata/proof-consumer surface unless explicit public exports exist; canonical shared network shapes live in `crates/schema` or the owning Rust crate. `packages/schema-domain` is temporary generated-validation or edge-decoder surface only where migration is still incomplete.
 - Current slice proof is bounded to parent-domain frontage cleanup and does not close WP01-WP08.
 
 ## Required hygiene before PR_READY

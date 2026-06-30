@@ -8,7 +8,10 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
-use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use crate::{
+    event_builder::build_event, fields::fields_from_pairs, json_contract::serialize_json_string,
+    time::timestamp_now,
+};
 
 use super::enforcement_integrity_runtime_audit_read_model::v08_enforcement_integrity_runtime_audit_read_model;
 use super::enforcement_supported_adapter_runtime_proof_read_model::v08_supported_adapter_runtime_proof_read_model;
@@ -59,11 +62,9 @@ fn enforcement_supported_adapter_runtime_proof_payload(
 }
 
 fn read_model_json(read_model: &V08SupportedAdapterRuntimeProofReadModel) -> String {
-    serde_json::to_string(read_model)
-        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    serialize_json_string(read_model)
 }
 
 fn integrity_read_model_json(read_model: &V08EnforcementIntegrityRuntimeAuditReadModel) -> String {
-    serde_json::to_string(read_model)
-        .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    serialize_json_string(read_model)
 }

@@ -33,3 +33,11 @@ Purpose: close the child-agent route with proof pointers, CI evidence, and PR-re
 - route sync is skipped
 - CI success is treated as a substitute for proof
 - the release gate is claimed without a teardown or uninstall path
+
+## Execution truth
+
+- WP11 closes as an aggregate proof-gate slice only when the child plan truth matches the current accepted and rejected packets.
+- WP11 does not require the overall child plan to be release-ready; it requires the gate to say when release readiness is blocked and why.
+- WP11 must keep WP06 and WP09 open until their canonical shared contracts move from hand-authored TypeScript in `schema-domain` to Rust-owned shared contract surfaces and that correction is proved.
+- WP11 must keep WP02 and WP04 visibly open-blocked until platform lifecycle execution is proved on the required hosts.
+- WP11 completion does not upgrade blocked or rejected workpacks into done. It proves that aggregate route/index/state/proof truth is aligned and that PR-ready release gating is not falsely claimed.

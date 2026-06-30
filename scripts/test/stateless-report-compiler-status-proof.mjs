@@ -20,9 +20,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/production-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/stateless-report-compiler-status.test.ts',
+      'tests/contract/stateless-report-compiler-status.test.ts',
     ])
   );
 
@@ -69,7 +69,7 @@ async function main() {
     evidence: {
       contract: 'packages/schema-domain/src/stateless-report-compiler-status.ts',
       values: 'packages/schema-domain/src/stateless-report-compiler-status-values.ts',
-      contractTest: 'packages/production-domain/tests/unit/stateless-report-compiler-status.test.ts',
+      contractTest: 'packages/schema-domain/tests/contract/stateless-report-compiler-status.test.ts',
       builtModule: 'packages/schema-domain/dist/stateless-report-compiler-status.js',
       packageExport: '@ocentra-parent/schema-domain/stateless-report-compiler-status',
       featureDoc: 'docs/features/reports-notifications-sync.md',

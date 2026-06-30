@@ -11,7 +11,7 @@ use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;
 
-pub(crate) fn persist_read_model(
+pub fn persist_read_model(
     connection: &Connection,
     read_model: &ActivityMemoryGraphReadModel,
     source_event_count: u64,

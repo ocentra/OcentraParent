@@ -14,6 +14,11 @@ import { appendTestLogEntries } from '../test-log/ndjsonWriter';
 import { wipeNdjsonScope } from '../test-log/wipeNdjsonScope';
 import { bridgeEntryToStoredLog } from '../test-log/bridgeConvert';
 import { BridgeEntryArraySchema } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
+import {
+  generatedHasRunInfoConflict,
+  generatedStaleRunInfoWarning,
+  resolveGeneratedBridgeRoute,
+} from '../generated/parent-log-runtime';
 
 export interface BridgeServerOptions {
   readonly host?: string;
@@ -38,7 +43,6 @@ interface BridgeRunInfoState {
   startedAt: number | null;
 }
 
-const STALE_RUN_INFO_MAX_AGE_MS = 5 * 60 * 1000;
 type BridgeRoute = 'health' | 'run-info' | 'run-started' | 'logs' | 'flush' | 'not-found';
 
 interface ParsedRunStartedPayload {
@@ -86,12 +90,7 @@ function createRunInfoState(): BridgeRunInfoState {
 }
 
 function staleRunInfoWarning(runInfo: BridgeRunInfoState): string | null {
-  if (runInfo.runId == null || runInfo.startedAt == null) {
-    return null;
-  }
-  return Date.now() - runInfo.startedAt > STALE_RUN_INFO_MAX_AGE_MS
-    ? 'previous run info was stale and has been replaced'
-    : null;
+  return generatedStaleRunInfoWarning(runInfo.runId, runInfo.startedAt, Date.now());
 }
 
 function parseRunStartedPayload(rawBody: string): ParsedRunStartedPayload {
@@ -130,20 +129,7 @@ function updateRunInfo(runInfo: BridgeRunInfoState, payload: ParsedRunStartedPay
 }
 
 function resolveRoute(method: string, pathname: string): BridgeRoute {
-  switch (pathname) {
-    case '/__health__':
-      return method === 'GET' ? 'health' : 'not-found';
-    case '/__run_info__':
-      return method === 'GET' ? 'run-info' : 'not-found';
-    case '/__run_started__':
-      return method === 'POST' ? 'run-started' : 'not-found';
-    case '/__logs__':
-      return method === 'POST' ? 'logs' : 'not-found';
-    case '/__flush__':
-      return method === 'GET' || method === 'POST' ? 'flush' : 'not-found';
-    default:
-      return 'not-found';
-  }
+  return resolveGeneratedBridgeRoute(method, pathname);
 }
 
 async function handleRunStarted(
@@ -176,11 +162,7 @@ async function handleLogs(
   try {
     const rawBody = await readRequestBody(request);
     const payload = BridgeEntryArraySchema.parse(JSON.parse(rawBody) as unknown);
-    if (
-      runInfo.runId != null &&
-      runInfo.scope != null &&
-      payload.some((entry) => entry.consumer === runInfo.scope && entry.runId !== runInfo.runId)
-    ) {
+    if (generatedHasRunInfoConflict(runInfo, payload)) {
       sendJson(response, 409, {
         ok: false,
         error: 'stale run info mismatch',

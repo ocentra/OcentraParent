@@ -58,6 +58,7 @@ the assertion matrix owns the exact cases future execution must implement.
 - `test:property`
 - `test:fuzz`
 - `test:all-cloudflare`
+- `infra/cloudflare/scripts/test-runner.ts` is the WP08 source of truth for family-to-file routing: it executes only the required files for the selected family, emits proof IDs plus assertion IDs with `--list`, and reports extra same-directory tests as `unexpectedFilesByFamily` instead of silently widening WP08.
 
 ## Execution rules
 
@@ -65,6 +66,9 @@ the assertion matrix owns the exact cases future execution must implement.
   assertion ID listed in `REQUIRED_TEST_ASSERTION_MATRIX.md`.
 - Proof artifacts for WP08 and WP10 must list the assertion IDs executed, the
   exact command used, and any blocked IDs that remain manual-required.
+- Extra Cloudflare tests in the same family directory stay outside the WP08
+  required runner contract until this file and
+  `REQUIRED_TEST_ASSERTION_MATRIX.md` add them explicitly.
 - Observability proof is carried by the redaction, auth-rejection, billing
   status, and portal smoke cases; it is not a free-floating claim.
 

@@ -3,6 +3,8 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentClaim;
+use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentMessageKind;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
@@ -13,7 +15,11 @@ use self::values::{
 use crate::fields::fields_from_pairs;
 use crate::lan_pairing::LanPairingChallengeState;
 
+#[path = "lan_pairing_audit/values.rs"]
 mod values;
+
+const SIGNED_CHILD_MESSAGE_KIND_HELLO: &str = "hello";
+const SIGNED_CHILD_MESSAGE_KIND_HEARTBEAT: &str = "heartbeat";
 
 pub(crate) fn accepted_control_audit_fields(
     command: &AgentCommandEnvelope,
@@ -164,6 +170,41 @@ pub(crate) fn challenge_issued_audit_fields(challenge: &LanPairingChallengeState
         (
             constants::field::STALE_AT,
             LogFieldValue::String(challenge.expires_at.clone()),
+        ),
+    ])
+}
+
+pub(crate) fn signed_child_agent_audit_fields(claim: &LanSignedChildAgentClaim) -> LogFields {
+    fields_from_pairs(vec![
+        (
+            constants::field::LAN_SIGNED_CHILD_AGENT_VERIFICATION,
+            LogFieldValue::String(
+                constants::value::LAN_SIGNED_CHILD_AGENT_VERIFICATION_ACCEPTED.to_string(),
+            ),
+        ),
+        (
+            constants::field::LAN_SIGNED_CHILD_AGENT_STATUS,
+            LogFieldValue::String(
+                constants::lan_pairing::PRODUCTION_PROOF_STATE_MANUAL_REQUIRED.to_string(),
+            ),
+        ),
+        (
+            constants::field::LAN_SIGNED_CHILD_AGENT_MESSAGE_KIND,
+            LogFieldValue::String(
+                signed_child_agent_message_kind_value(&claim.message_kind).to_string(),
+            ),
+        ),
+        (
+            constants::field::LAN_CHILD_DEVICE_ID,
+            LogFieldValue::String(claim.child_device_id.clone()),
+        ),
+        (
+            constants::field::LAN_PARENT_DEVICE_ID,
+            LogFieldValue::String(claim.parent_device_id.clone()),
+        ),
+        (
+            constants::field::LAN_ROUTE_ID,
+            LogFieldValue::String(claim.route_id.clone()),
         ),
     ])
 }
@@ -463,4 +504,13 @@ fn payload_string<'a>(fields: &'a LogFields, field_name: &str) -> Option<&'a str
         LogFieldValue::String(value) if !value.is_empty() => Some(value.as_str()),
         _ => None,
     })
+}
+
+fn signed_child_agent_message_kind_value(
+    message_kind: &LanSignedChildAgentMessageKind,
+) -> &'static str {
+    match message_kind {
+        LanSignedChildAgentMessageKind::Hello => SIGNED_CHILD_MESSAGE_KIND_HELLO,
+        LanSignedChildAgentMessageKind::Heartbeat => SIGNED_CHILD_MESSAGE_KIND_HEARTBEAT,
+    }
 }

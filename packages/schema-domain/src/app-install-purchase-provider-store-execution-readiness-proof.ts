@@ -4,6 +4,13 @@ import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from '.
 import { AppInstallPurchaseParentActionDeliveryReadinessProofReadModel } from './app-install-purchase-parent-action-delivery-readiness-proof';
 import { AppInstallPurchaseStoreStatusHandoffProofReadModel } from './app-install-purchase-store-status-handoff-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseProviderStoreExecutionReadinessRowGenerated,
+  providerStoreExecutionReadinessProofIsHonestGenerated,
+  providerStoreExecutionReadinessRowIsHonestGenerated,
+  providerStoreExecutionReadinessStateGenerated,
+  summarizeAppInstallPurchaseProviderStoreExecutionReadinessProofGenerated,
+} from './generated/app-install-purchase-platform-provider-helpers';
 const ProviderStoreExecutionReadinessProofVersion = 'app-install-purchase-provider-store-execution-readiness-proof';
 const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
 const SourceStoreStatusHandoffProofVersion = 'app-install-purchase-store-status-handoff-proof';
@@ -229,30 +236,7 @@ export const AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel =
 export function summarizeAppInstallPurchaseProviderStoreExecutionReadinessProof(
   proof: AppInstallPurchaseProviderStoreExecutionReadinessProof
 ) {
-  return {
-    providerStoreExecutionReadinessRows: proof.providerStoreExecutionReadinessRows.length,
-    executionReadyRows: proof.providerStoreExecutionReadinessRows.filter(
-      (row) => row.providerStoreExecutionReadinessState === 'provider-store-execution-ready'
-    ).length,
-    manualRequiredRows: proof.providerStoreExecutionReadinessRows.filter(
-      (row) => row.providerStoreExecutionReadinessState === 'manual-required'
-    ).length,
-    unavailableRows: proof.providerStoreExecutionReadinessRows.filter(
-      (row) => row.providerStoreExecutionReadinessState === 'unavailable'
-    ).length,
-    packageSourceAdapterLinkedRows: proof.providerStoreExecutionReadinessRows.filter(
-      packageSourceAdapterCoverageIsComplete
-    ).length,
-    parentActionReadinessLinkedRows: proof.providerStoreExecutionReadinessRows.filter(
-      parentActionDeliveryReadinessCoverageIsComplete
-    ).length,
-    providerExecutedRows: proof.providerStoreExecutionReadinessRows.filter(
-      (row) => row.providerApiExecutionClaim !== 'not-executed'
-    ).length,
-    childDeliveredRows: proof.providerStoreExecutionReadinessRows.filter(
-      (row) => row.childDeviceDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseProviderStoreExecutionReadinessProofGenerated(proof);
 }
 
 function providerStoreExecutionReadinessRow(
@@ -262,57 +246,14 @@ function providerStoreExecutionReadinessRow(
   const packageSourceAdapterRow = packageSourceAdapterRowFor(row.platform, row.storeSurface);
   const parentActionReadinessRows =
     AppInstallPurchaseParentActionDeliveryReadinessProofReadModel.parentActionDeliveryReadinessRows;
-  return {
-    schemaVersion: ProviderStoreExecutionReadinessProofVersion,
-    providerStoreExecutionReadinessRowId: `provider-store-execution-readiness-${row.platform}-${row.storeSurface}`,
-    sourceApprovedApiEntitlementProofVersion: SourceApprovedApiEntitlementProofVersion,
-    sourceApprovedApiEntitlementRowId: apiEntitlementRow.evidenceRowId,
-    sourceStoreStatusHandoffProofVersion: SourceStoreStatusHandoffProofVersion,
-    sourceStoreStatusHandoffRowId: row.storeStatusHandoffRowId,
-    sourcePackageSourceAdapterExecutionProofVersion: SourcePackageSourceAdapterExecutionProofVersion,
-    sourcePackageSourceAdapterExecutionRowId: packageSourceAdapterRow.packageSourceAdapterExecutionRowId,
-    sourceParentActionDeliveryReadinessProofVersion: SourceParentActionDeliveryReadinessProofVersion,
-    sourceParentActionDeliveryReadinessRefs: parentActionReadinessRows.map(
-      (readinessRow) => readinessRow.parentActionDeliveryReadinessRowId
-    ),
-    sourceParentActionDeliveryReadinessStates: parentActionReadinessRows.map(
-      (readinessRow) => readinessRow.parentActionDeliveryReadinessState
-    ),
-    platform: row.platform,
-    storeSurface: row.storeSurface,
-    sourceApiEntitlementEvidenceStatus: apiEntitlementRow.evidenceStatus,
-    sourceStoreStatusHandoffState: row.storeStatusHandoffState,
-    sourcePackageSourceAdapterExecutionState: packageSourceAdapterRow.adapterExecutionState,
-    providerStoreExecutionReadinessState: providerStoreExecutionReadinessState(row.platform),
-    approvedApiEvidenceRefs: [apiEntitlementRow.approvedApiEvidenceRef],
-    entitlementEvidenceRefs: [apiEntitlementRow.entitlementEvidenceRef],
-    storeStatusHandoffEvidenceRefs: row.storeStatusHandoffEvidenceRefs,
-    packageSourceAdapterArtifactRefs: packageSourceAdapterRow.adapterExecutionArtifactRefs,
-    parentActionAuditEventRefs: parentActionReadinessRows.flatMap(
-      (readinessRow) => readinessRow.parentActionAuditEventRefs
-    ),
-    reportRuntimeRefs: uniqueRefs([...row.sourceReportRuntimeRefs, ...packageSourceAdapterRow.reportRefs]),
-    requiredProofRefs: uniqueRefs([
-      ...apiEntitlementRow.requiredProofRefs,
-      ...packageSourceAdapterRow.requiredProofRefs,
-    ]),
-    googlePlayExecutionClaim: 'not-executed',
-    appleAppStoreExecutionClaim: 'not-executed',
-    microsoftStoreExecutionClaim: 'not-executed',
-    billingProviderContactClaim: 'not-executed',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformInterceptionClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    childDeviceDeliveryClaim: 'not-delivered',
-    runtimeWriterDeliveryClaim: 'not-delivered',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: ProviderStoreExecutionReadinessClaimBoundary,
-    evaluatedAt: ProviderStoreExecutionReadinessTimestamp,
-  } as const;
+  return buildAppInstallPurchaseProviderStoreExecutionReadinessRowGenerated(
+    row,
+    apiEntitlementRow,
+    packageSourceAdapterRow,
+    parentActionReadinessRows,
+    ProviderStoreExecutionReadinessClaimBoundary,
+    ProviderStoreExecutionReadinessTimestamp
+  );
 }
 
 function apiEntitlementRowFor(platform: typeof ParentPlatformSchema.Type, storeSurface: string) {
@@ -327,34 +268,23 @@ function packageSourceAdapterRowFor(platform: typeof ParentPlatformSchema.Type, 
   )!;
 }
 
-function providerStoreExecutionReadinessState(platform: typeof ParentPlatformSchema.Type) {
-  if (platform === 'windows') {
-    return 'provider-store-execution-ready';
-  }
-  if (platform === 'linux') {
-    return 'unavailable';
-  }
-  return 'manual-required';
-}
-
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
-}
-
 function providerStoreExecutionReadinessRowIsHonest(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
   return (
+    row.sourceApprovedApiEntitlementProofVersion === SourceApprovedApiEntitlementProofVersion &&
+    row.sourceStoreStatusHandoffProofVersion === SourceStoreStatusHandoffProofVersion &&
+    row.sourcePackageSourceAdapterExecutionProofVersion === SourcePackageSourceAdapterExecutionProofVersion &&
+    row.sourceParentActionDeliveryReadinessProofVersion === SourceParentActionDeliveryReadinessProofVersion &&
     providerStoreExecutionReadinessStateMatchesSources(row) &&
-    approvedApiEntitlementCoverageIsComplete(row) &&
-    storeStatusHandoffCoverageIsComplete(row) &&
-    packageSourceAdapterCoverageIsComplete(row) &&
-    parentActionDeliveryReadinessCoverageIsComplete(row) &&
-    providerStoreExecutionReadinessClaimsStayUnimplemented(row) &&
-    providerStoreExecutionReadinessBoundaryIsExplicit(row.claimBoundary)
+    providerStoreExecutionReadinessRowIsHonestGenerated(
+      row,
+      AppInstallPurchaseParentActionDeliveryReadinessProofReadModel.parentActionDeliveryReadinessRows.length,
+      ProviderStoreExecutionReadinessBoundaryFragments
+    )
   );
 }
 
 function providerStoreExecutionReadinessStateMatchesSources(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
-  const expectedState = providerStoreExecutionReadinessState(row.platform);
+  const expectedState = providerStoreExecutionReadinessStateGenerated(row.platform);
   if (expectedState === 'provider-store-execution-ready') {
     return (
       row.providerStoreExecutionReadinessState === expectedState &&
@@ -378,100 +308,21 @@ function providerStoreExecutionReadinessStateMatchesSources(row: ProviderStoreEx
   );
 }
 
-function approvedApiEntitlementCoverageIsComplete(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
-  return (
-    row.sourceApprovedApiEntitlementProofVersion === SourceApprovedApiEntitlementProofVersion &&
-    row.sourceApprovedApiEntitlementRowId.length > 0 &&
-    row.approvedApiEvidenceRefs.length > 0 &&
-    row.entitlementEvidenceRefs.length > 0 &&
-    row.requiredProofRefs.length > 0
-  );
-}
-
-function storeStatusHandoffCoverageIsComplete(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
-  return (
-    row.sourceStoreStatusHandoffProofVersion === SourceStoreStatusHandoffProofVersion &&
-    row.sourceStoreStatusHandoffRowId.length > 0 &&
-    row.storeStatusHandoffEvidenceRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function packageSourceAdapterCoverageIsComplete(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
-  return (
-    row.sourcePackageSourceAdapterExecutionProofVersion === SourcePackageSourceAdapterExecutionProofVersion &&
-    row.sourcePackageSourceAdapterExecutionRowId.length > 0 &&
-    row.packageSourceAdapterArtifactRefs.length > 0
-  );
-}
-
-function parentActionDeliveryReadinessCoverageIsComplete(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
-  const readinessStates = new Set(row.sourceParentActionDeliveryReadinessStates);
-  return (
-    row.sourceParentActionDeliveryReadinessProofVersion === SourceParentActionDeliveryReadinessProofVersion &&
-    row.sourceParentActionDeliveryReadinessRefs.length ===
-      AppInstallPurchaseParentActionDeliveryReadinessProofReadModel.parentActionDeliveryReadinessRows.length &&
-    readinessStates.has('parent-action-delivery-ready') &&
-    readinessStates.has('manual-review-required') &&
-    row.parentActionAuditEventRefs.length > 0
-  );
-}
-
-function providerStoreExecutionReadinessClaimsStayUnimplemented(
-  row: ProviderStoreExecutionReadinessRowCandidate
-): boolean {
-  return providerExecutionClaimsStayUnimplemented(row) && deliveryAndCustodyClaimsStayUnimplemented(row);
-}
-
-function providerExecutionClaimsStayUnimplemented(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
-  return (
-    row.googlePlayExecutionClaim === 'not-executed' &&
-    row.appleAppStoreExecutionClaim === 'not-executed' &&
-    row.microsoftStoreExecutionClaim === 'not-executed' &&
-    row.billingProviderContactClaim === 'not-executed' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformInterceptionClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented'
-  );
-}
-
-function deliveryAndCustodyClaimsStayUnimplemented(row: ProviderStoreExecutionReadinessRowCandidate): boolean {
-  return (
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
-  );
-}
-
 function providerStoreExecutionReadinessProofIsHonest(
   proof: AppInstallPurchaseProviderStoreExecutionReadinessProof
 ): boolean {
-  const keys = new Set(proof.providerStoreExecutionReadinessRows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const states = new Set(
-    proof.providerStoreExecutionReadinessRows.map((row) => row.providerStoreExecutionReadinessState)
-  );
-  const nonClaims = new Set(proof.nonClaims);
   return (
     proof.sourceApprovedApiEntitlementProofVersion === SourceApprovedApiEntitlementProofVersion &&
     proof.sourceStoreStatusHandoffProofVersion === SourceStoreStatusHandoffProofVersion &&
     proof.sourcePackageSourceAdapterExecutionProofVersion === SourcePackageSourceAdapterExecutionProofVersion &&
     proof.sourceParentActionDeliveryReadinessProofVersion === SourceParentActionDeliveryReadinessProofVersion &&
-    proof.providerStoreExecutionReadinessRows.length === RequiredPlatformSources.length &&
-    keys.size === proof.providerStoreExecutionReadinessRows.length &&
-    RequiredPlatformSources.every(([platform, storeSurface]) => keys.has(`${platform}:${storeSurface}`)) &&
-    RequiredProviderStoreExecutionReadinessStates.every((state) => states.has(state)) &&
-    ProviderStoreExecutionReadinessNonClaims.every((claim) => nonClaims.has(claim)) &&
+    providerStoreExecutionReadinessProofIsHonestGenerated(
+      proof,
+      RequiredPlatformSources,
+      RequiredProviderStoreExecutionReadinessStates,
+      ProviderStoreExecutionReadinessNonClaims
+    ) &&
     proof.providerStoreExecutionReadinessRows.every(providerStoreExecutionReadinessRowIsHonest) &&
     proof.knownGaps.length > 0
   );
-}
-
-function providerStoreExecutionReadinessBoundaryIsExplicit(
-  boundary: typeof ProviderStoreExecutionReadinessClaimBoundarySchema.Type
-): boolean {
-  return ProviderStoreExecutionReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }

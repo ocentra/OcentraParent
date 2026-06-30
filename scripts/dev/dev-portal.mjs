@@ -9,13 +9,21 @@ function log(message) {
 }
 
 const network = resolveParentDevNetworkConfig();
+const productHostMode = process.argv.includes('--product-host');
 const port = network.portalPort;
 const isFree = await ensurePortFree(port, isLikelyParentPortalOccupant, log, network.portalBindHost);
 if (!isFree) {
   throw new Error(`Cannot start Ocentra Parent portal because port ${port} is not available.`);
 }
 
-log(`Starting Vite portal on ${network.portalBindHost}:${port}; open ${network.portalCommandsUrl}.`);
+log(
+  `Starting Vite portal on ${network.portalBindHost}:${port}; open ${network.portalCommandsUrl}.`
+);
+if (productHostMode) {
+  log('Host bridge mode Tauri invoke/listen; local dev bridge env is disabled for this portal process.');
+} else {
+  log(`Dev web bridge target ${network.parentBridgeUrl}.`);
+}
 const portal = spawn(
   'npm',
   [
@@ -34,10 +42,13 @@ const portal = spawn(
     cwd: process.cwd(),
     stdio: 'inherit',
     shell: process.platform === 'win32',
-    env: {
-      ...process.env,
-      [ParentDevEnv.PortalAgentWebSocketUrl]: network.agentWebSocketUrl,
-    },
+    env: productHostMode
+      ? { ...process.env }
+      : {
+          ...process.env,
+          [ParentDevEnv.PortalAgentWebSocketUrl]: network.agentWebSocketUrl,
+          [ParentDevEnv.PortalParentBridgeUrl]: network.parentBridgeUrl,
+        },
   }
 );
 

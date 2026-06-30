@@ -17,13 +17,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
     ])
@@ -61,12 +61,12 @@ async function main() {
       sourcePlatformLimitationActionContract:
         'packages/schema-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
       contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
-      packageReadme: 'packages/app-game-domain/package.json',
+      packageReadme: 'packages/schema-domain/package.json',
       packageExport:
         '@ocentra-parent/schema-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof',
       output: relative(repoRoot, proofPath),
@@ -87,7 +87,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-product-claim-platform-limitation-fallback-proof.js'
   );

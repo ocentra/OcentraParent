@@ -21,7 +21,7 @@ This plan owns native app identity, installed inventory, process/runtime, foregr
 ## Current ownership interpretation
 
 ```text
-schema-domain:
+crates/schema:
   Canonical shared native-app/app-game contracts when app shapes cross package, crate, app, or plan boundaries.
 
 app-core:

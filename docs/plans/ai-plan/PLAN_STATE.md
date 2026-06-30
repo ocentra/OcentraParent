@@ -23,11 +23,14 @@ This folder is the single working plan location for local AI safety contracts, l
 ## Current ownership interpretation
 
 ```text
-schema-domain:
+crates/schema or the owning Rust crate:
   Canonical shared AI contracts when AI shapes cross package, crate, app, or plan boundaries.
 
+schema-domain:
+  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+
 ai-domain:
-  Helper/projection and focused validation surface. It consumes canonical schema-domain AI contracts and must not re-own shared AI contracts.
+  Helper/projection and focused validation surface. It consumes Rust-owned/generated AI contracts and must not re-own shared AI contracts.
 
 child-ai-core:
   Child-local AI runtime/evaluator boundary for context validation, provider result validation, degraded states, and accepted AI output.
@@ -51,7 +54,7 @@ Policy and enforcement plans:
 ## Current coupling risks
 
 ```text
-- `ai-domain` dependencies on family-domain, lan-domain, and policy-domain are transition-sensitive. Keep only explicit public helper/contract consumption; shared shapes should move through schema-domain.
+- `ai-domain` dependencies on family-domain, lan-domain, and policy-domain are transition-sensitive. Keep only explicit public helper/contract consumption; shared shapes should move through `crates/schema` or another neutral Rust-owned boundary.
 - `child-ai-core` currently depends on tracking-core. Treat it as migration debt unless the selected workpack records a temporary compatibility reason and a replacement event/read-model route.
 - Bridge work for browser, screen, tracking, network, or app/game must use evidence/read-model/request results instead of direct runtime calls.
 ```

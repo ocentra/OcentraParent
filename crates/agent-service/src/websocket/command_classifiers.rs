@@ -44,6 +44,7 @@ pub(super) fn is_lan_runtime_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentLanPairingRouteSelect
             | AgentCommandName::AgentLanPairingRouteRevoke
             | AgentCommandName::AgentLanPairingStatusGet
+            | AgentCommandName::AgentLanRuntimeEventChainStreamGet
             | AgentCommandName::AgentLanPairingBrowserDiscoveryScan
             | AgentCommandName::AgentLanPairingAddDeviceRequest
             | AgentCommandName::AgentLanPairingControllerLeaseRenew

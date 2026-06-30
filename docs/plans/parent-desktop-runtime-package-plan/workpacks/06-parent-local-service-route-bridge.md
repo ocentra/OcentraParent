@@ -23,3 +23,10 @@ Purpose: prove the typed route bridge between parent client launch/readiness and
 - bridge state becomes a setup completion claim
 - route bridge and package claims are merged
 - missing service state is reported as healthy
+
+## Completion
+
+- Proof root: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/`
+- Status: complete. The Rust-owned route snapshot contract, Devices-route local-service boundary, and checklist/index/state truth are aligned.
+- Focused validation: `cargo test -p ocentra-parent-runtime-core --test unit parent_ui_bridge::snapshot_and_dispatch_tests::devices_route`, `cargo test -p ocentra-parent-runtime-core --test unit parent_ui_bridge::snapshot_and_dispatch_tests::start_route_snapshot_attaches_setup_first_run_panel`, and `cargo test -p ocentra-schema --test contract parent_ui_bridge` all passed.
+- No-claim boundary: this workpack does not claim setup readiness, child runtime distribution ownership, or desktop/mobile/web package readiness.

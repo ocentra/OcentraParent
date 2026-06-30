@@ -2,6 +2,13 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel } from './app-install-purchase-provider-store-execution-readiness-proof';
 import { AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel } from './app-install-purchase-runtime-writer-execution-delivery-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseProviderStoreExecutionPreflightRowGenerated,
+  providerStoreExecutionPreflightProofIsHonestGenerated,
+  providerStoreExecutionPreflightRowIsHonestGenerated,
+  summarizeAppInstallPurchaseProviderStoreExecutionPreflightProofGenerated,
+} from './generated/app-install-purchase-platform-evidence-helpers';
+
 const ProviderStoreExecutionPreflightProofVersion = 'app-install-purchase-provider-store-execution-preflight-proof';
 const SourceProviderStoreExecutionReadinessProofVersion =
   'app-install-purchase-provider-store-execution-readiness-proof';
@@ -177,173 +184,42 @@ export const AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel =
 export function summarizeAppInstallPurchaseProviderStoreExecutionPreflightProof(
   proof: AppInstallPurchaseProviderStoreExecutionPreflightProof
 ) {
-  return {
-    providerStoreExecutionPreflightRows: proof.providerStoreExecutionPreflightRows.length,
-    preflightReadyRows: proof.providerStoreExecutionPreflightRows.filter(
-      (row) => row.providerStoreExecutionPreflightState === 'preflight-ready'
-    ).length,
-    manualProviderProofRequiredRows: proof.providerStoreExecutionPreflightRows.filter(
-      (row) => row.providerStoreExecutionPreflightState === 'manual-provider-proof-required'
-    ).length,
-    providerUnavailableRows: proof.providerStoreExecutionPreflightRows.filter(
-      (row) => row.providerStoreExecutionPreflightState === 'provider-unavailable'
-    ).length,
-    providerExecutedRows: proof.providerStoreExecutionPreflightRows.filter(
-      (row) => row.providerApiExecutionClaim !== 'not-executed'
-    ).length,
-    runtimeDeviceDeliveredRows: proof.providerStoreExecutionPreflightRows.filter(
-      (row) => row.runtimeDeviceDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseProviderStoreExecutionPreflightProofGenerated(proof);
 }
 
 function providerStoreExecutionPreflightRow(
   row: (typeof AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel.providerStoreExecutionReadinessRows)[number]
 ) {
-  const runtimeWriterRows =
-    AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.runtimeWriterExecutionDeliveryRows;
-  return {
-    schemaVersion: ProviderStoreExecutionPreflightProofVersion,
-    providerStoreExecutionPreflightRowId: `provider-store-execution-preflight-${row.platform}-${row.storeSurface}`,
-    sourceProviderStoreExecutionReadinessProofVersion: SourceProviderStoreExecutionReadinessProofVersion,
-    sourceProviderStoreExecutionReadinessRowId: row.providerStoreExecutionReadinessRowId,
-    sourceRuntimeWriterExecutionDeliveryProofVersion: SourceRuntimeWriterExecutionDeliveryProofVersion,
-    sourceRuntimeWriterExecutionDeliveryRowIds: runtimeWriterRows.map(
-      (runtimeRow) => runtimeRow.runtimeWriterExecutionDeliveryRowId
-    ),
-    platform: row.platform,
-    storeSurface: row.storeSurface,
-    sourceProviderStoreExecutionReadinessState: row.providerStoreExecutionReadinessState,
-    sourceRuntimeWriterReceiptClaims: runtimeWriterRows.map((runtimeRow) => runtimeRow.runtimeWriterDeliveryClaim),
-    providerStoreExecutionPreflightState: providerStoreExecutionPreflightState(row),
-    requiredProviderEvidenceRefs: row.requiredProofRefs,
-    runtimeWriterReceiptRefs: runtimeWriterRows.map((runtimeRow) => runtimeRow.deliveryResultReceiptRef),
-    auditEventRefs: uniqueRefs([
-      ...row.parentActionAuditEventRefs,
-      ...runtimeWriterRows.flatMap((r) => r.deliveryResultAuditEventRefs),
-    ]),
-    reportRuntimeRefs: uniqueRefs([...row.reportRuntimeRefs, ...runtimeWriterRows.flatMap((r) => r.reportRuntimeRefs)]),
-    googlePlayExecutionClaim: 'not-executed',
-    appleAppStoreExecutionClaim: 'not-executed',
-    microsoftStoreExecutionClaim: 'not-executed',
-    billingProviderContactClaim: 'not-executed',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformInterceptionClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    runtimeDeviceDeliveryClaim: 'not-delivered',
-    childDeviceDeliveryClaim: 'not-delivered',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: ProviderStoreExecutionPreflightBoundary,
-    evaluatedAt: ProviderStoreExecutionPreflightTimestamp,
-  } as const;
-}
-
-function providerStoreExecutionPreflightState(
-  row: (typeof AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel.providerStoreExecutionReadinessRows)[number]
-) {
-  if (row.providerStoreExecutionReadinessState === 'provider-store-execution-ready') {
-    return 'preflight-ready';
-  }
-  if (row.providerStoreExecutionReadinessState === 'unavailable') {
-    return 'provider-unavailable';
-  }
-  return 'manual-provider-proof-required';
-}
-
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
+  return buildAppInstallPurchaseProviderStoreExecutionPreflightRowGenerated(
+    row,
+    AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.runtimeWriterExecutionDeliveryRows,
+    SourceProviderStoreExecutionReadinessProofVersion,
+    SourceRuntimeWriterExecutionDeliveryProofVersion,
+    ProviderStoreExecutionPreflightBoundary,
+    ProviderStoreExecutionPreflightTimestamp
+  );
 }
 
 function providerStoreExecutionPreflightRowIsHonest(row: ProviderStoreExecutionPreflightRowCandidate): boolean {
-  return (
-    providerStoreExecutionPreflightStateMatchesSource(row) &&
-    providerStoreExecutionPreflightRefsAreComplete(row) &&
-    providerStoreExecutionPreflightClaimsStayUnimplemented(row) &&
-    providerStoreExecutionPreflightBoundaryIsExplicit(row.claimBoundary)
-  );
-}
-
-function providerStoreExecutionPreflightStateMatchesSource(row: ProviderStoreExecutionPreflightRowCandidate): boolean {
-  if (row.sourceProviderStoreExecutionReadinessState === 'provider-store-execution-ready') {
-    return row.providerStoreExecutionPreflightState === 'preflight-ready';
-  }
-  if (row.sourceProviderStoreExecutionReadinessState === 'unavailable') {
-    return row.providerStoreExecutionPreflightState === 'provider-unavailable';
-  }
-  return row.providerStoreExecutionPreflightState === 'manual-provider-proof-required';
-}
-
-function providerStoreExecutionPreflightRefsAreComplete(row: ProviderStoreExecutionPreflightRowCandidate): boolean {
-  return (
-    row.sourceProviderStoreExecutionReadinessProofVersion === SourceProviderStoreExecutionReadinessProofVersion &&
-    row.sourceProviderStoreExecutionReadinessRowId.length > 0 &&
-    row.sourceRuntimeWriterExecutionDeliveryProofVersion === SourceRuntimeWriterExecutionDeliveryProofVersion &&
-    row.sourceRuntimeWriterExecutionDeliveryRowIds.length ===
-      AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.runtimeWriterExecutionDeliveryRows.length &&
-    row.sourceRuntimeWriterReceiptClaims.includes('parent-owned-delivery-result-recorded') &&
-    row.sourceRuntimeWriterReceiptClaims.includes('manual-required') &&
-    row.requiredProviderEvidenceRefs.length > 0 &&
-    row.runtimeWriterReceiptRefs.length > 0 &&
-    row.auditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function providerStoreExecutionPreflightClaimsStayUnimplemented(
-  row: ProviderStoreExecutionPreflightRowCandidate
-): boolean {
-  return providerStoreExecutionClaimsStayUnimplemented(row) && deliveryAndCustodyClaimsStayUnimplemented(row);
-}
-
-function providerStoreExecutionClaimsStayUnimplemented(row: ProviderStoreExecutionPreflightRowCandidate): boolean {
-  return (
-    row.googlePlayExecutionClaim === 'not-executed' &&
-    row.appleAppStoreExecutionClaim === 'not-executed' &&
-    row.microsoftStoreExecutionClaim === 'not-executed' &&
-    row.billingProviderContactClaim === 'not-executed' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformInterceptionClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented'
-  );
-}
-
-function deliveryAndCustodyClaimsStayUnimplemented(row: ProviderStoreExecutionPreflightRowCandidate): boolean {
-  return (
-    row.runtimeDeviceDeliveryClaim === 'not-delivered' &&
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+  return providerStoreExecutionPreflightRowIsHonestGenerated(
+    row,
+    AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.runtimeWriterExecutionDeliveryRows.length,
+    ProviderStoreExecutionPreflightBoundaryFragments
   );
 }
 
 function providerStoreExecutionPreflightProofIsHonest(
   proof: AppInstallPurchaseProviderStoreExecutionPreflightProof
 ): boolean {
-  const keys = new Set(proof.providerStoreExecutionPreflightRows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const states = new Set(
-    proof.providerStoreExecutionPreflightRows.map((row) => row.providerStoreExecutionPreflightState)
-  );
-  const nonClaims = new Set(proof.nonClaims);
   return (
     proof.sourceProviderStoreExecutionReadinessProofVersion === SourceProviderStoreExecutionReadinessProofVersion &&
     proof.sourceRuntimeWriterExecutionDeliveryProofVersion === SourceRuntimeWriterExecutionDeliveryProofVersion &&
-    proof.providerStoreExecutionPreflightRows.length === RequiredPlatformSources.length &&
-    keys.size === proof.providerStoreExecutionPreflightRows.length &&
-    RequiredPlatformSources.every(([platform, storeSurface]) => keys.has(`${platform}:${storeSurface}`)) &&
-    ProviderStoreExecutionPreflightStates.every((state) => states.has(state)) &&
-    ProviderStoreExecutionPreflightNonClaims.every((claim) => nonClaims.has(claim)) &&
-    proof.providerStoreExecutionPreflightRows.every(providerStoreExecutionPreflightRowIsHonest) &&
-    proof.knownGaps.length > 0
+    providerStoreExecutionPreflightProofIsHonestGenerated(
+      proof,
+      RequiredPlatformSources,
+      ProviderStoreExecutionPreflightStates,
+      ProviderStoreExecutionPreflightNonClaims
+    ) &&
+    proof.providerStoreExecutionPreflightRows.every(providerStoreExecutionPreflightRowIsHonest)
   );
-}
-
-function providerStoreExecutionPreflightBoundaryIsExplicit(
-  boundary: typeof ProviderStoreExecutionPreflightBoundarySchema.Type
-): boolean {
-  return ProviderStoreExecutionPreflightBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }

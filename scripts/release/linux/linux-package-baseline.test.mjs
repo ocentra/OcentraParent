@@ -22,6 +22,12 @@ test('Linux package preview builds on the Ubuntu 22.04 glibc 2.35 baseline', () 
 test('Linux package builder refuses accidental newer-glibc release builds', () => {
   const builder = readRepoFile('scripts/release/linux/build-agent-package.sh');
 
+  assert.match(builder, /bootstrap_cargo_path\(\)/u);
+  assert.match(builder, /\[\[ -f "\$\{HOME\}\/\.cargo\/env" \]\]/u);
+  assert.match(builder, /\. "\$\{HOME\}\/\.cargo\/env"/u);
+  assert.match(builder, /\[\[ -x "\$\{HOME\}\/\.cargo\/bin\/cargo" \]\]/u);
+  assert.match(builder, /export PATH="\$\{HOME\}\/\.cargo\/bin:\$\{PATH\}"/u);
+  assert.match(builder, /Linux package builds require a Linux cargo toolchain on PATH\./u);
   assert.match(builder, /baseline_id="\$\{OCENTRA_PARENT_LINUX_BASELINE_ID:-ubuntu\}"/u);
   assert.match(builder, /baseline_version="\$\{OCENTRA_PARENT_LINUX_BASELINE_VERSION:-22\.04\}"/u);
   assert.match(builder, /baseline_glibc_min="\$\{OCENTRA_PARENT_LINUX_GLIBC_MIN:-2\.35\}"/u);

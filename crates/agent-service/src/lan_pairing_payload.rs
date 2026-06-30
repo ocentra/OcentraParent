@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingIntentKind;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentEnvelope;
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceActionKind;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
@@ -47,6 +48,19 @@ pub(crate) fn parse_pairing_proof(
         proof_digest: required_string(fields, constants::field::LAN_PROOF_DIGEST)?,
         issued_at: required_string(fields, constants::field::STARTED_AT)?,
         expires_at: required_string(fields, constants::field::STALE_AT)?,
+    })
+}
+
+pub(crate) fn parse_signed_child_agent_envelope(
+    fields: &LogFields,
+) -> Result<LanSignedChildAgentEnvelope, LanPairingRejectionReason> {
+    let envelope_json = required_string(
+        fields,
+        constants::field::LAN_SIGNED_CHILD_AGENT_ENVELOPE_JSON,
+    )?;
+    serde_json::from_str::<LanSignedChildAgentEnvelope>(&envelope_json).map_err(|error| {
+        drop(error);
+        LanPairingRejectionReason::Malformed
     })
 }
 
@@ -144,6 +158,7 @@ fn required_household_action_kind(
         constants::lan_pairing::HOUSEHOLD_ACTION_ASSIGN => Ok(LanHouseholdDeviceActionKind::Assign),
         constants::lan_pairing::HOUSEHOLD_ACTION_RENAME => Ok(LanHouseholdDeviceActionKind::Rename),
         constants::lan_pairing::HOUSEHOLD_ACTION_IGNORE => Ok(LanHouseholdDeviceActionKind::Ignore),
+        constants::lan_pairing::HOUSEHOLD_ACTION_REVOKE => Ok(LanHouseholdDeviceActionKind::Revoke),
         constants::lan_pairing::HOUSEHOLD_ACTION_RESTORE => {
             Ok(LanHouseholdDeviceActionKind::Restore)
         }

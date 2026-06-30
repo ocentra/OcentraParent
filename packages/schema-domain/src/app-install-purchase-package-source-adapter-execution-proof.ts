@@ -145,7 +145,7 @@ export const AppInstallPurchasePackageSourceAdapterExecutionProofSchema = withPa
 );
 
 export const AppInstallPurchasePackageSourceAdapterExecutionKnownGaps = [
-  'Package-source adapter execution rows are parent-domain proof rows; production host adapters still need physical platform evidence.',
+  'Package-source adapter execution rows are rust-parent-runtime proof rows; production host adapters still need physical platform evidence.',
   'Android and iOS adapter execution remains blocked until managed-profile/device-owner or Apple entitlement proof exists.',
   'Provider/store APIs, store integration, portal approval UI, child-device delivery, runtime report delivery, interception, app blocking, and Ocentra-hosted family data custody remain unimplemented.',
 ] as const;

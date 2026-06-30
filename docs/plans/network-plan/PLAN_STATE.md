@@ -23,11 +23,14 @@ This folder is the single working plan location for child-device network evidenc
 ## Current ownership interpretation
 
 ```text
+crates/schema or the owning Rust crate:
+  Canonical shared network contracts and route/action/read-model DTOs when shapes cross package, app, crate, or plan boundaries.
+
 schema-domain:
-  Canonical shared TypeScript network contracts when shapes cross package, app, crate, or plan boundaries.
+  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 
 network-domain:
-  Package metadata and proof-consumer surface unless a selected public export explicitly exists. Current tests consume canonical schema-domain network contracts.
+  Package metadata and proof-consumer surface unless a selected public export explicitly exists. Current tests consume Rust-owned/generated network contracts.
 
 ocentra-network-evidence:
   Rust network evidence/proof crate for packet, DNS, domain, flow, classifier, cascade, policy-handoff, platform-gate, adapter, risk, and AI-audit proof helpers.
@@ -48,7 +51,7 @@ Browser, screen, AI, policy, enforcement, LAN, data custody, device-trust, and n
 ## Current coupling risks
 
 ```text
-- `network-domain` is currently package metadata/proof-consumer surface, while canonical shared TypeScript contracts live in schema-domain.
+- `network-domain` is currently package metadata/proof-consumer surface, while canonical shared network contracts live in `crates/schema` or the owning Rust crate.
 - Checklist count is not proof completion.
 - Shim-cleanup skeleton proof is not workpack completion.
 - Schema/unit tests are not live capture proof.
@@ -87,7 +90,7 @@ Real platform proof remains required for platform claims unless explicitly marke
 
 Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a` found:
 
-- the canonical TypeScript contract source is `schema-domain`; `packages/network-domain` is a package metadata/proof-consumer surface unless selected public exports exist;
+- the canonical network contract source is `crates/schema` or the owning Rust crate; `packages/network-domain` is a package metadata/proof-consumer surface unless selected public exports exist;
 - real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
 - the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
 - only the slice-01 proof pack exists right now; broader plan proof bundles are still missing;
@@ -97,12 +100,12 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 
 - 2026-06-17 `network-foundation-shim-cleanup` is limited to the parent-domain TypeScript ownership boundary plus the initial proof-root restoration; current source truth now carries that slice through the dead-frontage retirement.
 - This slice retires `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` because `@ocentra-parent/parent-domain` does not publish `./network-flow` or `./network-contracts`, and no live in-repo consumers were found for those parent-domain paths; it does not widen into Rust, portal, or platform proof.
-- The former `@ocentra-parent/parent-domain` `./network-control-catalog` contradiction is already retired as well; canonical `network-flow`, `network-contracts`, and control-catalog ownership remains only in schema-domain or selected network proof surfaces.
+- The former `@ocentra-parent/parent-domain` `./network-control-catalog` contradiction is already retired as well; canonical `network-flow`, `network-contracts`, and control-catalog ownership remains only in `crates/schema`, the owning Rust crate, or selected network proof surfaces.
 - Proof pack for this slice lives at `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` with artifacts under `output/network-plan-proof/01-network-foundation-shim-cleanup/`.
 
 ## What is already present in source
 
-- `packages/network-domain` is present as package metadata/proof-consumer surface and has unit tests that consume canonical `schema-domain` network contracts.
+- `packages/network-domain` is present as package metadata/proof-consumer surface and has unit tests that consume Rust-owned/generated network contracts.
 - `crates/agent-protocol` owns real Rust network contracts, status payload shapes, constants, and protocol tests.
 - `crates/agent-core` owns real network capture, ActivityStore network rows, runtime chain, queue, replay, and remote-delivery proof logic with tests.
 - `crates/agent-service` owns real network payload, digest, runtime-delivery, product-path, remote-delivery, and platform-gate bridge code with tests.

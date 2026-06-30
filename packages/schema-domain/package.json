@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared Effect Schema validation helpers.",
+  "description": "Generated/thin validation and edge-decoder helpers over Rust-owned contracts.",
   "exports": {
     "./activity-capture": {
       "import": "./dist/activity-capture.js",
@@ -941,50 +941,6 @@
       "import": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.js",
       "types": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.d.ts"
     },
-    "./app-install-purchase-dispatch-executor-receipt-proof": {
-      "import": "./dist/app-install-purchase-dispatch-executor-receipt-proof.js",
-      "types": "./dist/app-install-purchase-dispatch-executor-receipt-proof.d.ts"
-    },
-    "./app-install-purchase-execution-receipt-gate-proof": {
-      "import": "./dist/app-install-purchase-execution-receipt-gate-proof.js",
-      "types": "./dist/app-install-purchase-execution-receipt-gate-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-delivery-handoff-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-delivery-handoff-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-delivery-handoff-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-device-delivery-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-device-delivery-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-device-delivery-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-transport-dispatch-preflight-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-transport-queue-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-transport-queue-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-transport-queue-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-writer-delivery-blocker-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-writer-delivery-blocker-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-writer-delivery-blocker-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-writer-delivery-boundary-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-writer-delivery-boundary-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-writer-delivery-boundary-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-writer-readiness-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-writer-readiness-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-writer-readiness-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-writer-transport-execution-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.d.ts"
-    },
-    "./app-install-purchase-external-runtime-writer-transport-preflight-proof": {
-      "import": "./dist/app-install-purchase-external-runtime-writer-transport-preflight-proof.js",
-      "types": "./dist/app-install-purchase-external-runtime-writer-transport-preflight-proof.d.ts"
-    },
     "./app-install-purchase-limitation-summary-proof": {
       "import": "./dist/app-install-purchase-limitation-summary-proof.js",
       "types": "./dist/app-install-purchase-limitation-summary-proof.d.ts"
@@ -1097,10 +1053,6 @@
       "import": "./dist/app-install-purchase-report-status-read-model-handoff-proof.js",
       "types": "./dist/app-install-purchase-report-status-read-model-handoff-proof.d.ts"
     },
-    "./app-install-purchase-runtime-delivery-receipt-boundary-proof": {
-      "import": "./dist/app-install-purchase-runtime-delivery-receipt-boundary-proof.js",
-      "types": "./dist/app-install-purchase-runtime-delivery-receipt-boundary-proof.d.ts"
-    },
     "./app-install-purchase-runtime-proof": {
       "import": "./dist/app-install-purchase-runtime-proof.js",
       "types": "./dist/app-install-purchase-runtime-proof.d.ts"
@@ -1112,10 +1064,6 @@
     "./app-install-purchase-runtime-report-writer-delivery-proof": {
       "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
       "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"
-    },
-    "./app-install-purchase-runtime-transport-delivery-execution-proof": {
-      "import": "./dist/app-install-purchase-runtime-transport-delivery-execution-proof.js",
-      "types": "./dist/app-install-purchase-runtime-transport-delivery-execution-proof.d.ts"
     },
     "./app-install-purchase-runtime-writer-delivery-proof": {
       "import": "./dist/app-install-purchase-runtime-writer-delivery-proof.js",
@@ -1749,9 +1697,25 @@
       "import": "./dist/child-android-device-proof-artifact-gate.js",
       "types": "./dist/child-android-device-proof-artifact-gate.d.ts"
     },
+    "./child-linux-service-package-proof": {
+      "import": "./dist/child-linux-service-package-proof.js",
+      "types": "./dist/child-linux-service-package-proof.d.ts"
+    },
+    "./child-macos-service-package-proof": {
+      "import": "./dist/child-macos-service-package-proof.js",
+      "types": "./dist/child-macos-service-package-proof.d.ts"
+    },
+    "./child-signing-store-device-owner-matrix": {
+      "import": "./dist/child-signing-store-device-owner-matrix.js",
+      "types": "./dist/child-signing-store-device-owner-matrix.d.ts"
+    },
     "./child-android-lifecycle-proof": {
       "import": "./dist/child-android-lifecycle-proof.js",
       "types": "./dist/child-android-lifecycle-proof.d.ts"
+    },
+    "./child-managed-service-respawn-proof": {
+      "import": "./dist/child-managed-service-respawn-proof.js",
+      "types": "./dist/child-managed-service-respawn-proof.d.ts"
     },
     "./child-android-permission-capability-proof": {
       "import": "./dist/child-android-permission-capability-proof.js",
@@ -2121,6 +2085,18 @@
       "import": "./dist/logging-contracts.js",
       "types": "./dist/logging-contracts.d.ts"
     },
+    "./generated/logging-contracts": {
+      "import": "./dist/generated/logging-contracts.js",
+      "types": "./dist/generated/logging-contracts.d.ts"
+    },
+    "./generated/app-install-purchase-approval-contracts": {
+      "import": "./dist/generated/app-install-purchase-approval-contracts.js",
+      "types": "./dist/generated/app-install-purchase-approval-contracts.d.ts"
+    },
+    "./generated/portal-contracts": {
+      "import": "./dist/generated/portal-contracts.js",
+      "types": "./dist/generated/portal-contracts.d.ts"
+    },
     "./mobile-child-agent-capability-proof": {
       "import": "./dist/mobile-child-agent-capability-proof.js",
       "types": "./dist/mobile-child-agent-capability-proof.d.ts"
@@ -2268,6 +2244,10 @@
     "./parent-owned-sync-export": {
       "import": "./dist/parent-owned-sync-export.js",
       "types": "./dist/parent-owned-sync-export.d.ts"
+    },
+    "./parent-storage-settings-apply-flow": {
+      "import": "./dist/parent-storage-settings-apply-flow.js",
+      "types": "./dist/parent-storage-settings-apply-flow.d.ts"
     },
     "./policy": {
       "import": "./dist/policy.js",
@@ -2972,6 +2952,10 @@
     "./stateless-report-compiler-status-values": {
       "import": "./dist/stateless-report-compiler-status-values.js",
       "types": "./dist/stateless-report-compiler-status-values.d.ts"
+    },
+    "./report-query-custody": {
+      "import": "./dist/report-query-custody.js",
+      "types": "./dist/report-query-custody.d.ts"
     },
     "./status-backend-payload-custody": {
       "import": "./dist/status-backend-payload-custody.js",

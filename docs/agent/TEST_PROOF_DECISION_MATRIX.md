@@ -20,6 +20,12 @@ behavior, then run or cite the exact command/artifact.
 ## Baseline rules
 
 - Tests must exercise real contracts, parsers, services, transports, or UI paths.
+- Rust tests must be visible at the crate level for closure evidence. Use
+  `tests/<category>/...` or a crate-level `tests/<category>.rs` harness with
+  real test modules. Inline `#[cfg(test)]` blocks count only for tiny private
+  invariants, not plan or product closure.
+- Do not keep empty `.gitkeep` test category folders as proof. Add a category
+  only when that crate has real tests or an immediate claimed packet to fill it.
 - Test doubles, fake-green seams, broad mocks, spies, MSW, Nock, Sinon,
   `vi.mock`, `vi.fn`, and equivalent shortcuts are forbidden unless an owning
   rule explicitly permits a narrow adapter boundary.
@@ -31,6 +37,11 @@ behavior, then run or cite the exact command/artifact.
   the minimum boundary needed for the claim. Invariant and fuzz tests are required
   for parsers, external input, and schema boundaries. Mutation and differential
   tests are mandatory for security/policy/entitlement-risk paths.
+- For Rust-first parent architecture packets, prove the Rust owner first:
+  serde/encoded-shape tests for `crates/schema`, route/action/read-model tests
+  for `crates/parent-runtime-core`, and domain crate tests for product logic.
+  TypeScript tests should prove rendering generated snapshots or dispatching
+  generated actions, not reconstructing product truth.
 
 ## Test selection by risk
 

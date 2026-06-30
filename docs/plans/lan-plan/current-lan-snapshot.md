@@ -1,4 +1,4 @@
-# Current LAN Snapshot - 2026-06-17
+# Current LAN Snapshot - 2026-06-28 Truth Sync
 
 <!-- agent-capsule -->
 
@@ -7,7 +7,7 @@
 > Doc: `Current LAN Snapshot - 2026-06-17`
 > Kind: current executable truth snapshot.
 > Read when: status or claim routing is needed before opening a workpack.
-> Stop rule: this snapshot does not authorize frozen follow-on work.
+> Stop rule: this snapshot does not authorize broad cross-plan widening; `21-25` remain active LAN follow-on scope, with `23` and `25` currently open.
 > Proves: current LAN model, current Slice A/B1/B2 evidence, and current open gaps only.
 > Does not prove: physical household readiness or sibling plan completion.
 > Proof rule: every supportable claim below points either to current source or to a current proof artifact from the active LAN proof roots.
@@ -16,8 +16,8 @@
 
 ## Authoritative Model
 
-- Authoritative workpacks: `01-20`
-- Frozen follow-on only: `21-25`
+- Authoritative workpacks: `01-25`
+- Active open follow-on workpacks: `23`, `25`
 - Current evidence roots:
   - `output/lan-plan-proof/00-plan-model-reconciliation/`
   - `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
@@ -25,47 +25,47 @@
 
 ## Current Source Truth
 
-- `packages/lan-domain` is the current TypeScript source owner for executable LAN work.
-- `packages/parent-domain/src/lan-*` is legacy compatibility or stale reference surface only.
-- `packages/agent-protocol-domain` carries typed LAN protocol/browser-runtime adapters.
-- `crates/agent-service` carries the service-backed source matrix and household device spine/runtime state.
-- Portal LAN proof surfaces remain consumers of service-backed truth, not a parallel LAN truth source.
+- `crates/schema`, `crates/lan-core`, and `crates/agent-protocol` are the Rust-owned contract and protocol boundary for executable LAN work.
+- `crates/agent-service` and `crates/parent-runtime-core` carry the service-backed source matrix, household device spine, route snapshots, and runtime truth.
+- `packages/lan-domain`, `packages/agent-protocol-domain`, and `packages/parent-domain/src/lan-*` are historical or migration-era TS surfaces only. They are not authoritative contract owners or runtime owners.
+- Portal LAN proof surfaces remain consumers of Rust-backed truth, not a parallel LAN truth source.
+- Organized Rust crate test groups and explicit portal presentation tests are the forward test surface. Inline source-owned tests, placeholder trees, fake tests, and mock-only closure do not count.
 
 ## Evidence That Exists Now
 
-- `packages/lan-domain/src/lan-pairing.ts` repaired to an explicit export surface
-- `packages/lan-domain/src/v0-9-production-discovery-household-proof.ts` repaired to use direct local imports
+- Rust-owned LAN contract/runtime proof remains the target truth boundary for current work.
 - `output/lan-plan-proof/00-plan-model-reconciliation/01-lan-domain-validation.log`
 - `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`
 - `output/lan-plan-proof/01-lan-b1-proof-regeneration/02-lan-signed-discovery-relay-spine-proof.json`
 - `output/lan-plan-proof/01-lan-b1-proof-regeneration/03-production-discovery-household-proof.json`
 - `output/lan-plan-proof/01-lan-b1-proof-regeneration/04-household-lan-proof-readiness.json`
-- `packages/lan-domain/tests/README.md`
+- historical migration note only, not an active proof or ownership surface:
+  `packages/lan-domain/tests/README.md`
 - `output/lan-plan-proof/02-lan-b2-test-truth-repair/00-b2-test-truth-note.md`
 
 Validated commands:
 
-- `npx vitest run tests/unit/v0-9-production-discovery-household-proof.test.ts`
-- `npm run test --workspace @ocentra-parent/lan-domain`
-- `npm run build --workspace @ocentra-parent/lan-domain`
-- `npm run lint:architecture -- --files packages/lan-domain`
+- `cargo check -p ocentra-lan-core --tests`
+- `cargo check -p ocentra-parent-agent-service --tests`
+- `cargo check -p ocentra-parent-runtime-core --tests`
 - `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs`
 - `node scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs`
 - `node scripts/test/v0-9-production-discovery-household-proof.mjs`
 - `node scripts/test/v0-9-household-lan-proof-readiness.mjs`
-- `packages/lan-domain :: cmd /c npx vitest run tests/unit`
 
 ## Claims Supportable Now
 
-- the LAN package export/contract surface is green for the current scoped package
-- the current executable source-matrix/read-model model is still `01-20`
+- the Rust-owned LAN contract/read-model boundary is the current executable truth target
+- the current executable source-matrix/read-model path is implemented through
+  the core `01-20` discovery/runtime rows, while active follow-on workpacks
+  `21-25` remain in-scope row-truth work rather than frozen out-of-model
+  material; current open follow-on rows are `23` and `25`
 - regenerated source-matrix and signed-discovery relay proof artifacts exist for the local `B1` slice
 - production discovery states and readiness non-claim are machine-checked for the current local proof slice
-- only `packages/lan-domain/tests/unit` currently contains real LAN test files
-- placeholder LAN test folders do not count as integration, contract, e2e, property, security, or other higher-category coverage
+- tests must live in real organized test folders and crates; placeholder folders, inline source-owned tests, and fake/mock coverage claims do not count as higher-category proof
 - weak/manual network evidence remains fenced from child-agent identity claims
 - signed hello/heartbeat is not overclaimed as implemented proof
-- stale `parent-domain` ownership and stale proof references are no longer valid current-plan truth
+- stale TS package ownership and stale proof references are no longer valid current-plan truth
 
 ## Claims Not Supportable Now
 
@@ -78,5 +78,8 @@ Validated commands:
 
 ## Immediate Next Slice
 
-After `B2`, the next slice is `lan-c1-protocol-service-truth-repair` unless a
-new contradiction is found inside `packages/lan-domain/tests/**`.
+After the 2026-06-28 truth-sync, the next open work remains the explicit
+partial/manual rows: `16`, `18`, `19`, `20`, `23`, `25`, plus packet/manual
+tails for locally code-complete discovery rows. That does not park `21-25`;
+those follow-on rows remain active scope and must stay aligned to Rust-first
+ownership, organized tests where applicable, and real proof.

@@ -13,13 +13,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/app-install-purchase-package-source-capture-status-proof.test.ts',
     ])
@@ -76,14 +76,14 @@ async function main() {
         'packages/schema-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
       sourceStoreStatusHandoffContract: 'packages/schema-domain/src/app-install-purchase-store-status-handoff-proof.ts',
       contractTest:
-        'packages/app-game-domain/tests/unit/app-install-purchase-package-source-capture-status-proof.test.ts',
+        'packages/schema-domain/tests/unit/app-install-purchase-package-source-capture-status-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistRow:
         'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes package-source capture/status proof with captured/blocked/manual-required/unavailable rows.',
       packageExport:
-        'packages/app-game-domain/package.json no longer publishes this proof as a public subpath export; the script imports the built dist module directly.',
+        'packages/schema-domain/package.json no longer publishes this proof as a public subpath export; the script imports the built dist module directly.',
       output: relative(repoRoot, proofPath),
     },
     packageSourceCaptureStatusSummary: summary,
@@ -130,7 +130,7 @@ async function loadPackageSourceCaptureStatusProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'app-game-domain',
+    'schema-domain',
     'dist',
     'app-install-purchase-package-source-capture-status-proof.js'
   );

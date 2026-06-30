@@ -183,7 +183,7 @@ try {
   writeJson(join(outputDir, 'screen-read-model.json'), sanitizedReadModel);
   writeJson(join(outputDir, 'winrt-ocr-observation.json'), sanitizedObservation);
   writeJson(join(outputDir, 'queue-records-after-analysis.json'), sanitizedQueueRecords);
-  if (portalArtifact !== null) {
+  if (portalArtifact !== undefined) {
     writeJson(join(outputDir, 'portal-proof-summary.json'), portalArtifact.summary);
   }
   writeText(validationLogPath, `${validationCommands.join('\n')}\n`);

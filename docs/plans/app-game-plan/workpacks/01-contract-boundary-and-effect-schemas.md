@@ -16,22 +16,24 @@
 
 ## Target State
 
-Shared app/game identity, inventory, runtime, foreground, launcher, session, category, risk, approval, policy, authority, capability, action, AI digest, and enforcement-result contracts exist in the canonical shared schema layer before Rust, service, portal, policy, enforcement, notification, or adapter code consumes them.
+Shared app/game identity, inventory, runtime, foreground, launcher, session, category, risk, approval, policy, authority, capability, action, AI digest, enforcement-result contracts, and route/action/read-model DTOs exist in the Rust-owned canonical schema layer before service, portal, policy, enforcement, notification, or adapter code consumes them.
 
 ## Scope
 
 Current owner path:
 
 ```text
-packages/schema-domain:
+crates/schema or the owning Rust crate:
   canonical shared app/game contracts when shapes cross package, crate, app, or plan boundaries.
+packages/schema-domain:
+  temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 packages/app-game-domain:
   helper/projection/focused validation only.
 crates/app-game-core / crates/agent-protocol / crates/agent-service:
   Rust/runtime/wire/service consumers only when selected.
 ```
 
-Historical references to `packages/activity-domain/src/app-game*.ts` and `packages/parent-domain` are stale owner paths for new canonical shared shapes. Existing legacy contracts may be read for migration context, but new cross-boundary shape ownership should be in `schema-domain` or another explicitly neutral shared boundary.
+Historical references to `packages/activity-domain/src/app-game*.ts` and `packages/parent-domain` are stale owner paths for new canonical shared shapes. Existing legacy contracts may be read for migration context, but new cross-boundary shape ownership should be in `crates/schema` or another explicitly neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete.
 
 Required scope:
 
@@ -46,8 +48,9 @@ Required scope:
 Focused proof should include:
 
 ```bash
+cargo test -p ocentra-schema
+cargo lint-architecture crates/schema
 npm run build --workspace @ocentra-parent/schema-domain
-npm run test --workspace @ocentra-parent/schema-domain -- app-game
 npm run type-check --workspace @ocentra-parent/schema-domain
 npm run build --workspace @ocentra-parent/app-game-domain
 npm run test --workspace @ocentra-parent/app-game-domain
@@ -64,7 +67,7 @@ Negative proof required:
 - Launcher evidence cannot become known game without child-game proof.
 - AI output cannot contain block/terminate/hide/suspend/shield authority.
 - Manual-required/unavailable states cannot mark actions executed.
-- Helper/projection package cannot re-own canonical schema-domain shapes.
+- Helper/projection package cannot re-own canonical shapes that belong in `crates/schema` or the owning Rust crate.
 
 ## Required Proof Root
 
@@ -83,7 +86,7 @@ Required files:
 
 ## Done Signal
 
-TypeScript contracts and decode tests exist for the selected shared app/game contract slice, and Rust/service/portal/policy/enforcement changes are either absent or consume those contracts through explicit handoff boundaries.
+Rust-owned contracts exist for the selected shared app/game contract slice, TypeScript edge validation stays temporary, and Rust/service/portal/policy/enforcement changes are either absent or consume those contracts through explicit handoff boundaries.
 
 Do not claim runtime source readiness, service readiness, policy readiness, adapter execution, platform parity, portal readiness, or PR_READY from this workpack alone.
 

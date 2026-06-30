@@ -13,6 +13,10 @@ export const BillingEntitlementSchemaVersionSchema = withParser(Schema.Literal('
 export const BillingPlanActiveStateSchema = withParser(
   Schema.Literal('active', 'trial-only', 'retired', 'manual-required')
 );
+export const BillingIncludedParentPortalCountSchema = withParser(Schema.Literal(1));
+export const BillingExtraParentSlotStateSchema = withParser(
+  Schema.Literal('not-included', 'manual-required', 'separate-paid-addon')
+);
 export const BillingSubscriptionStatusSchema = withParser(
   Schema.Literal('trialing', 'active', 'past-due', 'cancelled', 'expired', 'grace', 'unknown', 'unavailable')
 );

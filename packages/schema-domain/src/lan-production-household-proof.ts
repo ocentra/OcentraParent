@@ -33,7 +33,7 @@ export const LanProductionHouseholdProofCapabilitySchema = withParser(
 );
 
 export const LanProductionHouseholdProofRuntimeOwnerSchema = withParser(
-  Schema.Literal('parent-domain-contract', 'agent-protocol', 'rust-service-read-model', 'proof-harness', 'manual-proof')
+  Schema.Literal('rust-parent-runtime-contract', 'agent-protocol', 'rust-service-read-model', 'proof-harness', 'manual-proof')
 );
 
 export const LanProductionHouseholdProofStatusSchema = withParser(

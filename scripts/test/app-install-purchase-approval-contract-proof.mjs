@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/app-game-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/app-install-purchase-approval.test.ts',
+      'tests/unit/app-install-purchase-approval-proof.test.ts',
     ])
   );
 
@@ -105,7 +105,7 @@ async function main() {
       contract: 'packages/schema-domain/src/app-install-purchase-approval.ts',
       platformSourceContract: 'packages/schema-domain/src/app-install-purchase-approval-platform-sources.ts',
       packageSourceContract: 'packages/schema-domain/src/app-install-purchase-approval-package-sources.ts',
-      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approval.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/app-install-purchase-approval-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
     },
@@ -197,7 +197,7 @@ async function main() {
 }
 
 async function loadContractProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-install-purchase-approval-proof.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'app-install-purchase-approval-proof.js');
   return import(pathToFileURL(modulePath).href);
 }
 

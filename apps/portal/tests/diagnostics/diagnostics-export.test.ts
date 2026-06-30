@@ -1,41 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { ActivityEventKind } from '@ocentra-parent/schema-domain/evidence-kinds';
-import { PortalConnectionState } from '@ocentra-parent/schema-domain/portal-contracts';
 import { applyParentRouteSnapshot, createPortalRuntimeState } from '../../src/portal-state';
 import { buildDiagnosticsExport } from '../../src/diagnostics-export';
+import {
+  ParentBridgeConnectionState,
+  type ParentRouteEventSnapshot,
+  type ParentRouteLiveActivitySnapshot,
+} from '../../generated/parent-ui-bridge';
+import { networkFlowReadModelSnapshot } from '../live-activity/live-activity-state-test-support';
 
 describe('portal diagnostics export', () => {
   it('copies connection, health, event, and read-model summaries without raw service payload dumps', () => {
     const state = createPortalRuntimeState();
-    applyParentRouteSnapshot(state, {
-      schemaVersion: 1,
-      route: 'devices',
-      generatedAt: '2026-05-20T20:44:58Z',
-      seasonLabel: 'LOCAL',
-      lastUpdated: '2026-05-20T20:44:58Z',
-      connectionState: 'connected',
-      commandEnabled: true,
-      agentEndpoint: 'host-bridge://tauri-parent',
-      dataSource: 'rust-read-model',
-      diagnosticPanelsEnabled: false,
-      parentPortalShellStatus: {
-        routeLabel: 'Devices',
-        parentAccessState: 'proof-missing',
-        globalConnectionState: 'manual-required',
-        routeCapabilityState: 'available',
-        dataSourceLabel: 'rust-read-model',
-        cards: [],
+    applyDevicesSnapshot(state, {
+      recentSummary: {
+        returned: 1,
+        mostRecentSubjectName: 'notepad.exe',
       },
-      summary: {
-        title: 'Devices',
-        routeCapability: 'available',
-        parentAccess: 'proof-missing',
-        household: 'proof-missing',
-        childDevice: 'proof-missing',
-      },
+      networkFlowReadModel: networkFlowReadModelSnapshot(),
     });
-    state.connectionState = PortalConnectionState.Connected;
+    state.connectionState = ParentBridgeConnectionState.Connected;
     state.events.unshift(networkFlowEvent(), recentSummaryEvent(), healthEvent());
 
     const copied = JSON.parse(buildDiagnosticsExport(state));
@@ -57,42 +41,12 @@ describe('portal diagnostics export', () => {
 
   it('uses route snapshot live activity when raw agent events are absent', () => {
     const state = createPortalRuntimeState();
-    applyParentRouteSnapshot(state, {
-      schemaVersion: 1,
-      route: 'devices',
-      generatedAt: '2026-05-20T20:44:58Z',
-      seasonLabel: 'LOCAL',
-      lastUpdated: '2026-05-20T20:44:58Z',
-      connectionState: 'connected',
-      commandEnabled: true,
-      agentEndpoint: 'host-bridge://tauri-parent',
-      dataSource: 'rust-read-model',
-      diagnosticPanelsEnabled: false,
-      parentPortalShellStatus: {
-        routeLabel: 'Devices',
-        parentAccessState: 'proof-missing',
-        globalConnectionState: 'manual-required',
-        routeCapabilityState: 'available',
-        dataSourceLabel: 'rust-read-model',
-        cards: [],
+    applyDevicesSnapshot(state, {
+      recentSummary: {
+        returned: 1,
+        mostRecentSubjectName: 'Child Laptop',
       },
-      liveActivity: {
-        recentSummary: {
-          returned: 1,
-          mostRecentSubjectName: 'Child Laptop',
-        },
-        networkFlowReadModel: {
-          returned: 1,
-          rows: [{ destinationDomain: 'example-network.test' }],
-        },
-      },
-      summary: {
-        title: 'Devices',
-        routeCapability: 'available',
-        parentAccess: 'proof-missing',
-        household: 'proof-missing',
-        childDevice: 'proof-missing',
-      },
+      networkFlowReadModel: networkFlowReadModelSnapshot(),
     });
 
     const copied = JSON.parse(buildDiagnosticsExport(state));
@@ -102,21 +56,50 @@ describe('portal diagnostics export', () => {
   });
 });
 
-function healthEvent() {
-  return AgentEventEnvelopeSchema.parse({
+function applyDevicesSnapshot(
+  state: ReturnType<typeof createPortalRuntimeState>,
+  liveActivity?: Pick<ParentRouteLiveActivitySnapshot, 'recentSummary' | 'networkFlowReadModel'>
+): void {
+  applyParentRouteSnapshot(state, {
     schemaVersion: 1,
+    route: 'devices',
+    generatedAt: '2026-05-20T20:44:58Z',
+    seasonLabel: 'LOCAL',
+    lastUpdated: '2026-05-20T20:44:58Z',
+    connectionState: 'connected',
+    commandEnabled: true,
+    agentEndpoint: 'host-bridge://tauri-parent',
+    dataSource: 'rust-read-model',
+    diagnosticPanelsEnabled: false,
+    parentPortalShellStatus: {
+      routeLabel: 'Devices',
+      parentAccessState: 'proof-missing',
+      globalConnectionState: 'manual-required',
+      routeCapabilityState: 'available',
+      dataSourceLabel: 'rust-read-model',
+      cards: [],
+    },
+    ...(liveActivity === undefined ? {} : { liveActivity }),
+    summary: {
+      title: 'Devices',
+      routeCapability: 'available',
+      parentAccess: 'proof-missing',
+      household: 'proof-missing',
+      childDevice: 'proof-missing',
+    },
+  });
+}
+
+function healthEvent() {
+  return {
     eventId: 'evt-health',
     correlationId: 'cmd-health',
     sentAt: '2026-05-20T20:45:00Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: AgentEvent.HealthReported,
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    event: 'agent.health.reported',
     severity: 'info',
     payload: {
       online: true,
@@ -124,24 +107,19 @@ function healthEvent() {
       privatePayloadExample: 'not copied',
     },
     snapshot: null,
-  });
+  } satisfies ParentRouteEventSnapshot;
 }
 
 function recentSummaryEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return {
     eventId: 'evt-recent',
     correlationId: 'cmd-recent',
     sentAt: '2026-05-20T20:45:01Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: AgentEvent.ActivityRecentSummaryReported,
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    event: 'activity.recent.summary.reported',
     severity: 'info',
     payload: {
       limit: 25,
@@ -156,24 +134,19 @@ function recentSummaryEvent() {
       mostRecentSubjectName: 'notepad.exe',
     },
     snapshot: null,
-  });
+  } satisfies ParentRouteEventSnapshot;
 }
 
 function networkFlowEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return {
     eventId: 'evt-network',
     correlationId: 'cmd-network',
     sentAt: '2026-05-20T20:45:02Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: AgentEvent.NetworkFlowReadModelReported,
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    event: 'activity.network.flow.read-model.reported',
     severity: 'info',
     payload: {
       generatedAt: '2026-05-20T20:45:02Z',
@@ -210,7 +183,7 @@ function networkFlowEvent() {
       activityDigest: JSON.stringify(networkFlowDigest()),
     },
     snapshot: null,
-  });
+  } satisfies ParentRouteEventSnapshot;
 }
 
 function networkFlowDigest() {

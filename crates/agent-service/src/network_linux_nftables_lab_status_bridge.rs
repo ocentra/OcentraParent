@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::{
     dns::types::NetworkEvidenceGrade,
     linux_adapter_gate::{
@@ -180,7 +181,7 @@ fn policy_mapping() -> NetworkEvidencePolicyMapping {
             constants::network_flow::TEST_LINUX_ADAPTER_CAPABILITY_PROOF_REF.to_string(),
         ),
     })
-    .unwrap_or_else(|_| panic!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+    .expect_value(constants::event_id::NETWORK_LINUX_NFTABLES_LAB_STATUS_REPORTED)
 }
 
 fn lab_execution_input(

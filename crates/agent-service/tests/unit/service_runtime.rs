@@ -3,8 +3,7 @@ use std::net::{Ipv4Addr, SocketAddr};
 use axum::http::HeaderValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
-
-use crate::network::NetworkPolicy;
+use ocentra_parent_agent_service::network::NetworkPolicy;
 
 use super::startup_log_fields;
 

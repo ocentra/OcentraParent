@@ -30,7 +30,10 @@ use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_SETTINGS_ID;
 use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_USE_AI_CANDIDATE;
 use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_USE_PARENT_EXPLANATION;
 
-use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use crate::{
+    event_builder::build_event, fields::fields_from_pairs, json_contract::serialize_json_string,
+    time::timestamp_now,
+};
 
 type FieldPair = (&'static str, LogFieldValue);
 
@@ -125,10 +128,7 @@ fn mutation_pairs(mutation: &SocialSourceCustodyMutationSnapshot) -> Vec<FieldPa
         ),
         (
             constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION,
-            LogFieldValue::String(match serde_json::to_string(mutation) {
-                Ok(serialized) => serialized,
-                Err(error) => panic!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES),
-            }),
+            LogFieldValue::String(serialize_json_string(mutation)),
         ),
     ]
 }

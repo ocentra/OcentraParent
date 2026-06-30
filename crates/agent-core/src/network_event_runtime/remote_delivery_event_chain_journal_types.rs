@@ -3,8 +3,7 @@ use ocentra_eventing::error::EventingError;
 use super::remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusError;
 use super::NetworkRuntimeEventPayload;
 
-#[cfg(test)]
-pub(crate) type NetworkRuntimeRemoteEventChainJournalReport =
+pub type NetworkRuntimeRemoteEventChainJournalReport =
     ocentra_parent_agent_protocol::network_flow::remote_delivery_reports::NetworkRuntimeRemoteEventChainJournalReport;
 
 #[derive(Clone, Debug, PartialEq, Eq)]

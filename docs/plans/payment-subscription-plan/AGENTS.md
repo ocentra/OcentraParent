@@ -39,7 +39,7 @@ billing-domain: TypeScript billing account, pricing, entitlement, referral, dash
 billing-core: Rust webhook intake, provider lifecycle classification, event/idempotency, dispute/manual-review, and downstream entitlement update requirement helpers.
 cloudflare-control-plane-plan: shared Worker/API runtime module, bindings, auth states, route manifest, local dev/test shape, deployment promotion, and payment handoff proof.
 infra/cloudflare: Cloudflare runtime surface owned by cloudflare-control-plane-plan; payment consumes only approved billing route groups and handoff contracts.
-schema-domain: canonical shared billing/payment/entitlement shapes when contracts cross package, app, crate, or plan boundaries.
+crates/schema: canonical shared billing/payment/entitlement shapes when contracts cross package, app, crate, or plan boundaries.
 account-identity-family-plan and family-domain: account, household, role, session, and parent authority owners.
 device-trust-bootstrap-plan: trusted-device binding and local sealed trust owner for signed entitlement consumption.
 data-custody-storage-plan: billing-record retention, export, deletion, privacy, and custody owner.
@@ -52,7 +52,7 @@ Direct imports are allowed only for explicit public helper surfaces:
 ```text
 billing-domain public contracts/helpers when selected by the workpack
 billing-core public Rust lifecycle/eventing helpers when selected by the workpack
-schema-domain canonical billing/payment/entitlement shapes
+crates/schema canonical billing/payment/entitlement shapes
 Cloudflare route/handoff contracts produced by cloudflare-control-plane-plan
 account/device-trust/data-custody/portal public handoff contracts only when the selected workpack names them
 neutral event/evidence/logging/protocol helpers that do not own product behavior

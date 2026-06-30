@@ -16,17 +16,6 @@ async function main() {
 
   await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'enforcement-process-package-identity.test.ts',
-    ])
-  );
 
   const { V08HostAdapterProofPreflightMatrix } =
     await import('../../packages/schema-domain/dist/enforcement-host-adapter-preflight.js');
@@ -46,7 +35,6 @@ async function main() {
     proofLabels,
     evidence: {
       bridgeContract: 'packages/schema-domain/src/enforcement-process-package-identity.ts',
-      bridgeTest: 'packages/enforcement-domain/tests/unit/enforcement-process-package-identity.test.ts',
       preflightContract: 'packages/schema-domain/src/enforcement-host-adapter-preflight.ts',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/v0-8-process-package-identity-proof-bridge-2026-05-29.md',

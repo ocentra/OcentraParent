@@ -186,6 +186,3 @@ fn platform_capture_window_title_contains_png(
 fn platform_capture_primary_display_png() -> ScreenCaptureAttempt {
     linux_x11::capture_primary_display_png()
 }
-
-#[cfg(test)]
-mod lib_tests;

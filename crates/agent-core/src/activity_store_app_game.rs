@@ -6,62 +6,34 @@ use ocentra_parent_agent_protocol::app_game::{
 use rusqlite::Connection;
 
 pub mod app_game_journal_sqlite_ingest;
-#[cfg(test)]
-mod app_game_journal_sqlite_ingest_tests;
-#[cfg(test)]
-mod app_game_journal_sqlite_protocol_rows_tests;
-mod app_game_session_rollups;
+pub mod app_game_session_rollups;
 mod app_game_session_time;
-mod app_game_sessionization;
+pub mod app_game_sessionization;
 // WP06 stages the typed parser before live Windows source readers call it.
-pub(crate) mod app_game_windows_inventory;
-#[cfg(test)]
-mod app_game_windows_inventory_tests;
+pub mod app_game_windows_inventory;
 // WP41 adds a bounded live Windows shortcut inventory source.
-pub(crate) mod app_game_windows_inventory_source;
-#[cfg(test)]
-mod app_game_windows_inventory_source_tests;
+pub mod app_game_windows_inventory_source;
 // WP45 adds a bounded live Windows installed-app registry source.
 mod app_game_windows_registry_export;
 #[cfg(windows)]
 mod app_game_windows_registry_live;
 mod app_game_windows_registry_record;
-pub(crate) mod app_game_windows_registry_source;
-#[cfg(test)]
-mod app_game_windows_registry_source_test_support;
-#[cfg(test)]
-mod app_game_windows_registry_source_tests;
+pub mod app_game_windows_registry_source;
 // WP07 stages Store/UWP package parsing before live package readers call it.
 pub mod app_game_windows_store_inventory;
-#[cfg(test)]
-mod app_game_windows_store_inventory_tests;
 // WP43 adds a bounded live Windows packaged-app manifest source.
-mod app_game_windows_store_package_manifest;
-pub(crate) mod app_game_windows_store_package_source;
-#[cfg(test)]
-mod app_game_windows_store_package_source_tests;
+pub mod app_game_windows_store_package_manifest;
+pub mod app_game_windows_store_package_source;
 // WP08 stages process runtime evidence before live process capture calls it.
 pub mod app_game_windows_process_runtime;
-#[cfg(test)]
-mod app_game_windows_process_runtime_tests;
 // WP32 adds a real process snapshot source that feeds the staged runtime rows.
 pub mod app_game_windows_process_source;
-#[cfg(test)]
-mod app_game_windows_process_source_tests;
 // WP09 stages foreground-window evidence before live window capture calls it.
 pub mod app_game_windows_foreground;
-#[cfg(test)]
-mod app_game_windows_foreground_tests;
 // WP36 adds a real foreground-window source that feeds the staged rows.
 pub mod app_game_windows_foreground_source;
-#[cfg(test)]
-mod app_game_windows_foreground_source_tests;
 // WP10 stages launcher evidence before live launcher manifest readers call it.
-#[cfg(test)]
-mod app_game_sessionization_tests;
 pub mod app_game_windows_launcher;
-#[cfg(test)]
-mod app_game_windows_launcher_tests;
 
 use crate::{activity_store_app_game_rows::app_game_rows, ActivityStoreError};
 

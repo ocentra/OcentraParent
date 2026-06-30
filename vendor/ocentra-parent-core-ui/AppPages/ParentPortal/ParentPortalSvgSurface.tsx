@@ -84,19 +84,18 @@ import {
   PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
 } from '@ocentra-parent/portal-domain/parent-portal-guide-controls';
 import { parentPortalManageLaneForRoute } from '@ocentra-parent/portal-domain/parent-portal-data';
+import {
+  defaultManageTargetSelection,
+  readStoredManageTargetSelection,
+  withManageTargetSelectionDevice,
+  writeStoredManageTargetSelection,
+  type ManageTargetSelection,
+} from '@ocentra-parent/portal-domain/manage-target-selection';
 import { portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import { AgentCommand, type AgentCommandName } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import {
-  BrowserPolicyDefaultAnswers,
-  type BrowserPolicyAnswerMap,
-} from '@ocentra-parent/schema-domain/browser-policy-questionnaire-forest-contract';
 import type { AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
-import {
-  browserPolicyQuestionState,
-  browserPolicyVisibleQuestions,
-} from '@ocentra-parent/browser-domain/browser-policy-questionnaire-forest';
 import {
   LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
   LAN_HOUSEHOLD_DEVICE_KIND_VALUES,
@@ -3838,41 +3837,7 @@ type ManageControlSpec = {
 };
 
 type ManageLaneId = 'portal' | 'childPolicy' | 'deviceOps';
-type ManageScopeId = 'global' | 'perDevice';
-
-type ManageTargetSelection = {
-  readonly scope: ManageScopeId;
-  readonly device: string;
-  readonly browser: string;
-};
-
-const PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY = 'ocentra.parent.portal.manage-target-selection.v1';
-
-function readStoredManageTargetSelection(): ManageTargetSelection | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = window.sessionStorage.getItem(PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<ManageTargetSelection> | null;
-    if (!parsed || (parsed.scope !== 'global' && parsed.scope !== 'perDevice')) return null;
-    return {
-      scope: parsed.scope,
-      device: typeof parsed.device === 'string' ? parsed.device : '',
-      browser: typeof parsed.browser === 'string' ? parsed.browser : 'Chrome',
-    };
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredManageTargetSelection(selection: ManageTargetSelection): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.sessionStorage.setItem(PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY, JSON.stringify(selection));
-  } catch {
-    // Ignore storage write failures and keep the in-memory selection authoritative.
-  }
-}
+type ManageScopeId = ManageTargetSelection['scope'];
 
 type ManageTargetChoice = {
   readonly label: string;
@@ -4190,16 +4155,66 @@ function reportPlanSeatSlots(planSeatLimit: number): DeviceSlot[] {
   return slots;
 }
 
-function reportSelectedSlotValue(slots: readonly DeviceSlot[], device: string): string | undefined {
-  return slots.find((slot) => slot.label === device || slot.device?.name === device)?.value;
+function reportSelectedSlot(slots: readonly DeviceSlot[], selection: ManageTargetSelection): DeviceSlot | undefined {
+  return slots.find((slot) => slotMatchesManageTargetSelection(slot, selection));
 }
 
 function selectedDeviceIdentity(slot: DeviceSlot | null | undefined): string {
   return slot?.device?.name ?? slot?.label ?? '';
 }
 
-function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], device: string): boolean {
-  return Boolean(reportSelectedSlotValue(slots, device));
+function reportSelectedSlotValue(slots: readonly DeviceSlot[], selection: ManageTargetSelection): string | undefined {
+  return reportSelectedSlot(slots, selection)?.value;
+}
+
+function storedManageTargetSelectionSlot(
+  slots: readonly DeviceSlot[],
+  selection: ManageTargetSelection
+): DeviceSlot | null {
+  if (selection.scope !== 'perDevice' || reportSelectedSlot(slots, selection)) return null;
+  const deviceId = selection.deviceId.trim();
+  const deviceLabel = selection.device.trim();
+  if (deviceId.length === 0 && deviceLabel.length === 0) return null;
+  const slotValue = deviceId.length > 0 ? deviceId : `stored-manage-target-${assetKey(deviceLabel) || slots.length + 1}`;
+  const deviceName = deviceLabel.length > 0 ? deviceLabel : deviceId;
+  return {
+    value: slotValue,
+    label: deviceName,
+    status: 'offline',
+    slotIndex: slots.length,
+    device: {
+      id: slotValue,
+      name: deviceName,
+      status: 'offline',
+      portalEligible: true,
+    },
+  };
+}
+
+function withStoredManageTargetSelectionSlot(
+  slots: readonly DeviceSlot[],
+  selection: ManageTargetSelection
+): readonly DeviceSlot[] {
+  const storedSlot = storedManageTargetSelectionSlot(slots, selection);
+  return storedSlot ? [...slots, storedSlot] : slots;
+}
+
+function slotMatchesManageTargetSelection(slot: DeviceSlot, selection: ManageTargetSelection): boolean {
+  return (
+    (selection.deviceId.length > 0 && slot.value === selection.deviceId) ||
+    (selection.device.length > 0 && (slot.label === selection.device || slot.device?.name === selection.device))
+  );
+}
+
+function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], selection: ManageTargetSelection): boolean {
+  return Boolean(reportSelectedSlot(slots, selection));
+}
+
+function selectedManageTargetSelectionForSlot(
+  selection: ManageTargetSelection,
+  slot: DeviceSlot | null | undefined
+): ManageTargetSelection {
+  return withManageTargetSelectionDevice(selection, slot?.value ?? '', selectedDeviceIdentity(slot));
 }
 
 type ManageDeviceGridConfigOverride = NonNullable<DeviceChoiceGridProps['config']>;
@@ -9172,6 +9187,14 @@ const POLICY_FIRST_PASS_COMMON_OPTIONS = {
 } as const;
 
 const POLICY_FIRST_PASS_AREA_TARGETS = {
+  Browser: [
+    { value: 'site-domain', label: 'Site domain' },
+    { value: 'page-title', label: 'Page title' },
+    { value: 'navigation-route', label: 'Navigation route' },
+    { value: 'tab-session', label: 'Tab/session' },
+    { value: 'download-target', label: 'Download target' },
+    { value: 'unknown-site', label: 'Unknown site' },
+  ],
   Apps: [
     { value: 'installed-apps', label: 'Installed apps' },
     { value: 'running-processes', label: 'Running processes' },
@@ -9223,6 +9246,13 @@ const POLICY_FIRST_PASS_AREA_TARGETS = {
 } as const satisfies Record<string, readonly BrowserRulesChoiceOption[]>;
 
 const POLICY_FIRST_PASS_AREA_PROOF = {
+  Browser: [
+    { value: 'url-title', label: 'URL/title' },
+    { value: 'history-row', label: 'History row' },
+    { value: 'page-snapshot', label: 'Page snapshot' },
+    { value: 'network-trace', label: 'Network trace' },
+    { value: 'block-signal', label: 'Block signal' },
+  ],
   Apps: [
     { value: 'process-window', label: 'Process + window' },
     { value: 'install-records', label: 'Install records' },
@@ -9474,71 +9504,67 @@ function BrowserRulesGridGuide({
   onEnforcementChange: (value: string) => void;
   onInfoClick?: () => void;
 }) {
+  const questionDefinitions = useMemo(() => policyFirstPassRuleQuestions('Browser'), []);
   const [collapsedBubbleIds, setCollapsedBubbleIds] = useState<readonly string[]>([]);
   const [bubbleEnforcementChoices, setBubbleEnforcementChoices] = useState<Record<string, string>>({});
-  const [draftSingleChoices, setDraftSingleChoices] = useState<Record<string, string>>({});
-  const [draftMultiSelections, setDraftMultiSelections] = useState<Record<string, readonly string[]>>({});
-  const answers: BrowserPolicyAnswerMap = useMemo(() => {
-    const merged: Record<string, readonly string[]> = { ...BrowserPolicyDefaultAnswers };
+  const [singleChoices, setSingleChoices] = useState<Record<string, string>>({ 1: 'on', 5: 'ask-parent' });
+  const [multiSelections, setMultiSelections] = useState<Record<string, readonly string[]>>({
+    2: ['observe', 'ask-parent', 'limit', 'block'],
+    3: questionDefinitions[2]?.options.slice(0, 3).map((option) => option.value) ?? [],
+    4: questionDefinitions[3]?.options.slice(0, 2).map((option) => option.value) ?? [],
+  });
 
-    Object.entries(draftSingleChoices).forEach(([questionId, value]) => {
-      if (value.length > 0) merged[questionId] = [value];
+  useEffect(() => {
+    setCollapsedBubbleIds([]);
+    setBubbleEnforcementChoices({});
+    setSingleChoices({ 1: 'on', 5: 'ask-parent' });
+    setMultiSelections({
+      2: ['observe', 'ask-parent', 'limit', 'block'],
+      3: questionDefinitions[2]?.options.slice(0, 3).map((option) => option.value) ?? [],
+      4: questionDefinitions[3]?.options.slice(0, 2).map((option) => option.value) ?? [],
     });
-    Object.entries(draftMultiSelections).forEach(([questionId, selected]) => {
-      if (selected.length > 0) merged[questionId] = selected;
-    });
+  }, [questionDefinitions]);
 
-    return merged as BrowserPolicyAnswerMap;
-  }, [draftMultiSelections, draftSingleChoices]);
-  const visibleQuestions = browserPolicyVisibleQuestions(answers, 'rules');
-  const toggleCollapsedBubble = (id: string, collapsed: boolean) => {
-    setCollapsedBubbleIds((current) => {
-      const hasId = current.includes(id);
-      if (collapsed && !hasId) return [...current, id];
-      if (!collapsed && hasId) return current.filter((currentId) => currentId !== id);
-      return current;
-    });
-  };
-  const setQuestionEnforcementChoice = (id: string, nextValue: string) => {
-    setBubbleEnforcementChoices((current) => ({ ...current, [id]: nextValue }));
-    onEnforcementChange(nextValue);
-  };
-  const setQuestionAnswer = (id: string, multiSelect: boolean, selected: readonly string[]) => {
-    if (multiSelect) {
-      setDraftMultiSelections((current) => ({ ...current, [id]: selected }));
-      return;
-    }
-
-    setDraftSingleChoices((current) => ({ ...current, [id]: selected[0] ?? '' }));
-    if (id === '1.1') {
-      setCollapsedBubbleIds([]);
-    }
-  };
-  const questions: readonly BrowserRulesQuestion[] = visibleQuestions.map((question) => {
-    const state = browserPolicyQuestionState(question, answers);
-    const selected = answers[question.id] ?? [];
+  const policyOff = singleChoices[1] === 'off';
+  const questions: readonly BrowserRulesQuestion[] = questionDefinitions.map((question) => {
     const multiSelect = question.selectionMode === 'multi';
-    const questionDisabled = disabled === true || state.disabled || state.readonly;
-    const rootOff = answers['1.1']?.[0] === 'off';
+    const selected = multiSelect ? (multiSelections[question.id] ?? []) : [singleChoices[question.id] ?? ''];
+    const questionDisabled = disabled === true || (policyOff && question.id !== '1');
     return {
       id: question.id,
       header: `${question.id}. ${question.title}`,
       title: question.id,
       kind: 'multi',
       disabled: questionDisabled,
-      enforcementDisabled: question.id === '1.1' ? rootOff : questionDisabled,
+      enforcementDisabled: question.id === '1' ? policyOff : questionDisabled,
       multiSelect,
       selected,
-      options: question.options.map((option) => ({
-        value: option.id,
-        label: option.label,
-      })),
+      options: question.options,
       collapsed: collapsedBubbleIds.includes(question.id),
-      onCollapsedChange: (nextCollapsed) => toggleCollapsedBubble(question.id, nextCollapsed),
-      onMultiChange: (nextSelected) => setQuestionAnswer(question.id, multiSelect, nextSelected),
+      onCollapsedChange: (nextCollapsed) => {
+        setCollapsedBubbleIds((current) => {
+          const hasId = current.includes(question.id);
+          if (nextCollapsed && !hasId) return [...current, question.id];
+          if (!nextCollapsed && hasId) return current.filter((currentId) => currentId !== question.id);
+          return current;
+        });
+      },
+      onMultiChange: (nextSelected) => {
+        if (multiSelect) {
+          setMultiSelections((current) => ({ ...current, [question.id]: nextSelected }));
+          return;
+        }
+        setSingleChoices((current) => ({ ...current, [question.id]: nextSelected[0] ?? '' }));
+        if (question.id === '1') {
+          setCollapsedBubbleIds([]);
+        }
+      },
       enforcementValue:
-        question.id === '1.1' && rootOff ? 'observe' : (bubbleEnforcementChoices[question.id] ?? enforcementChoice),
-      onEnforcementChange: (nextValue) => setQuestionEnforcementChoice(question.id, nextValue),
+        question.id === '1' && policyOff ? 'observe' : (bubbleEnforcementChoices[question.id] ?? enforcementChoice),
+      onEnforcementChange: (nextValue) => {
+        setBubbleEnforcementChoices((current) => ({ ...current, [question.id]: nextValue }));
+        onEnforcementChange(nextValue);
+      },
     };
   });
 
@@ -10210,16 +10236,20 @@ function ManageWorkspacePanel({
   const workspaceScopeValues = targetOptions.some((option) => option.id === 'portal')
     ? FAMILY_DEVICE_SCOPE_VALUES
     : undefined;
+  const workspaceSelectionSlots = useMemo(
+    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, sharedTargetSelection),
+    [runtimeDeviceSlots, sharedTargetSelection]
+  );
   const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() =>
     sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection)
   );
   const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>(() =>
-    reportSelectedSlotValue(runtimeDeviceSlots, sharedTargetSelection.device)
+    reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection)
   );
   useEffect(() => {
     setWorkspaceTarget(sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection));
-    setWorkspaceSelectedDeviceValue(reportSelectedSlotValue(runtimeDeviceSlots, sharedTargetSelection.device));
-  }, [activeNavLabel, kind, runtimeDeviceSlots, selectedControlName, sharedTargetSelection, targetOptions]);
+    setWorkspaceSelectedDeviceValue(reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection));
+  }, [activeNavLabel, kind, selectedControlName, sharedTargetSelection, targetOptions, workspaceSelectionSlots]);
   const activeTab =
     tabs.find((tab) => tab.id === activeTabId) ?? tabs.find((tab) => tab.id === defaultTabId) ?? tabs[0];
   const activeTabKey = activeTab?.id ?? defaultTabId;
@@ -10251,10 +10281,10 @@ function ManageWorkspacePanel({
   const targetSurfaceEnabled = targetOptions.length > 0;
   const workspaceSlots = useMemo(
     () =>
-      runtimeDeviceSlots.length > 0
-        ? runtimeDeviceSlots
+      workspaceSelectionSlots.length > 0
+        ? workspaceSelectionSlots
         : reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS),
-    [runtimeDeviceSlots]
+    [workspaceSelectionSlots]
   );
   const workspacePortalIds = useMemo(
     () => workspaceSlots.filter((slot) => slot.device).map((slot) => slot.value),
@@ -10390,20 +10420,18 @@ function ManageWorkspacePanel({
                   const nextTarget =
                     nextScopeValue === 'parent' ? 'perDevice' : nextScopeValue === 'portal' ? 'portal' : 'family';
                   setWorkspaceTarget(nextTarget);
+                  const nextSelection = workspaceSelectedSlot
+                    ? selectedManageTargetSelectionForSlot(sharedTargetSelection, workspaceSelectedSlot)
+                    : sharedTargetSelection;
                   onSharedTargetChange?.({
-                    ...sharedTargetSelection,
+                    ...nextSelection,
                     scope: nextTarget === 'perDevice' ? 'perDevice' : 'global',
-                    device: selectedDeviceIdentity(workspaceSelectedSlot) || sharedTargetSelection.device,
                   });
                 }}
                 onChange={(choice) => {
                   setWorkspaceTarget('perDevice');
                   setWorkspaceSelectedDeviceValue(choice.value);
-                  onSharedTargetChange?.({
-                    ...sharedTargetSelection,
-                    scope: 'perDevice',
-                    device: selectedDeviceIdentity(choice),
-                  });
+                  onSharedTargetChange?.(selectedManageTargetSelectionForSlot(sharedTargetSelection, choice));
                 }}
                 config={manageDeviceGridConfig(workspaceAvailableW, workspaceSelectorH, {
                   statusOrder: {
@@ -10905,13 +10933,14 @@ function ManageTargetPanel({
           aria-pressed={targetSelection.scope === option.scope}
           onClick={(event) => {
             event.stopPropagation();
+            const selectedSlot = runtimeDeviceSlots ? reportSelectedSlot(runtimeDeviceSlots, targetSelection) : undefined;
+            const nextSelection =
+              option.scope === 'perDevice' && selectedSlot
+                ? selectedManageTargetSelectionForSlot(targetSelection, selectedSlot)
+                : targetSelection;
             onTargetChange({
-              ...targetSelection,
+              ...nextSelection,
               scope: option.scope,
-              device:
-                option.scope === 'perDevice'
-                  ? (deviceChoices.find((device) => device === targetSelection.device) ?? '')
-                  : targetSelection.device,
             });
           }}
           onKeyDown={(event) => {
@@ -10976,7 +11005,16 @@ function ManageTargetPanel({
                 selected={targetSelection.device === choice}
                 tone={index === 1 ? 'gold' : index === 2 ? 'purple' : 'cyan'}
                 themeColor={themeColor}
-                onSelect={() => onTargetChange({ ...targetSelection, device: choice, scope: 'perDevice' })}
+                onSelect={() => {
+                  const selectedSlot = runtimeDeviceSlots?.find(
+                    (slot) => slot.label === choice || slot.device?.name === choice
+                  );
+                  onTargetChange(
+                    selectedSlot
+                      ? selectedManageTargetSelectionForSlot(targetSelection, selectedSlot)
+                      : { ...targetSelection, scope: 'perDevice', device: choice, deviceId: '' }
+                  );
+                }}
                 cfg={cfg}
               />
             );
@@ -11148,10 +11186,8 @@ function ManageControlPanel({
   const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
   const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.status !== 'empty') ?? null;
   const preferredLanPairingSelectedSlot = useMemo(
-    () =>
-      lanPairingSlots.find((slot) => selectedDeviceIdentity(slot) === targetSelection.device) ??
-      firstLanPairingSelectableSlot,
-    [firstLanPairingSelectableSlot, lanPairingSlots, targetSelection.device]
+    () => reportSelectedSlot(lanPairingSlots, targetSelection) ?? firstLanPairingSelectableSlot,
+    [firstLanPairingSelectableSlot, lanPairingSlots, targetSelection]
   );
   useEffect(() => {
     if (!isLanPairingPanel || !preferredLanPairingSelectedSlot) return;
@@ -11160,10 +11196,11 @@ function ManageControlPanel({
   }, [isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots, preferredLanPairingSelectedSlot]);
   useEffect(() => {
     if (!isLanPairingPanel || !lanPairingSelectedSlot) return;
+    const selectedDeviceId = lanPairingSelectedSlot.value;
     const selectedDevice = selectedDeviceIdentity(lanPairingSelectedSlot);
     if (!selectedDevice) return;
-    if (targetSelection.scope === 'perDevice' && targetSelection.device === selectedDevice) return;
-    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDevice });
+    if (targetSelection.scope === 'perDevice' && targetSelection.deviceId === selectedDeviceId) return;
+    onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, lanPairingSelectedSlot));
   }, [isLanPairingPanel, lanPairingSelectedSlot, onTargetChange, targetSelection]);
   const openLanPairingDeviceEditDialog = useCallback(
     (choice: DeviceSlot) => {
@@ -11171,7 +11208,7 @@ function ManageControlPanel({
       setLanPairingEditSlot(choice);
       setLanPairingHouseholdNameDraft(lanPairingHouseholdNameDraftFor(choice));
       setLanPairingDeviceKindDraft(lanPairingDeviceKindDraftFor(choice));
-      onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
+      onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
       setLastAction(`${choice.label} edit`);
       setSyncStatus('Editing device identity');
     },
@@ -11322,14 +11359,24 @@ function ManageControlPanel({
   );
   const reportScopeValue = targetSelection.scope === 'perDevice' ? 'device' : 'family';
   const reportFamilyScope = reportScopeValue !== 'device';
-  const reportSlots = runtimeDeviceSlots;
+  const reportSelectionSlots = useMemo(
+    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, targetSelection),
+    [runtimeDeviceSlots, targetSelection]
+  );
+  const reportSlots = useMemo(
+    () =>
+      reportSelectionSlots.length > 0
+        ? reportSelectionSlots
+        : reportPlanSeatSlots(reportPlanSeatLimit),
+    [reportPlanSeatLimit, reportSelectionSlots]
+  );
   const reportPortalIds = useMemo(
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
   );
   const reportSelectedValue =
-    reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? '') : '';
-  const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
+    reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection) ?? '') : '';
+  const reportSelectedDeviceSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
   const activityReportFiles = activityUiIntent.reportFiles;
   const activityReportSelectedFile =
     activityReportFiles.find((file) => file.id === activityReportSelectedFileId) ?? activityReportFiles[0] ?? null;
@@ -11460,7 +11507,7 @@ function ManageControlPanel({
   );
   const activityReportViewerTarget =
     activityReportViewerReport?.targetLabel ??
-    (reportFamilyScope ? 'Family' : (reportSelectedSlot?.label ?? 'Select a device'));
+    (reportFamilyScope ? 'Family' : (reportSelectedDeviceSlot?.label ?? 'Select a device'));
   const activityReportViewerState = activityReportViewerReport?.saved
     ? `Saved JSON: ${activityReportViewerReport.fileName}`
     : activityReportViewerReport
@@ -11482,7 +11529,7 @@ function ManageControlPanel({
   const activityMonitorRows = activityRowsFromReadModels(
     effectiveActivityManageTabId,
     reportScopeValue,
-    reportSelectedSlot,
+    reportSelectedDeviceSlot,
     activityReportFrequencyLabel,
     activityReportOverrideLabel,
     syncStatus,
@@ -11519,21 +11566,19 @@ function ManageControlPanel({
                   setLanPairingSelectedSlot(choice);
                   if (choice.status === 'unsupported') {
                     onTargetChange?.({
-                      ...targetSelection,
-                      scope: 'perDevice',
-                      device: selectedDeviceIdentity(choice),
+                      ...selectedManageTargetSelectionForSlot(targetSelection, choice),
                     });
                     setLastAction(`${choice.label} cannot run the child agent`);
                     setSyncStatus('Unsupported LAN device');
                     return;
                   }
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   setLastAction(`${choice.label} selected`);
                   setSyncStatus('Draft changed');
                 }}
                 onAddToPortal={(choice) => {
                   setLanPairingSelectedSlot(choice);
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   const payload = lanPairingAddDeviceCommandPayload(choice);
                   if (!payload) {
                     setLastAction(`${choice.label} has no controllable LAN route`);
@@ -11957,16 +12002,12 @@ function ManageControlPanel({
                 scopeIcons={FAMILY_DEVICE_SCOPE_ICONS}
                 onScopeChange={(nextScopeValue) => {
                   const nextScope = nextScopeValue === 'parent' ? 'perDevice' : 'global';
-                  onTargetChange?.({
-                    ...targetSelection,
-                    scope: nextScope,
-                    device: targetSelection.device,
-                  });
+                  onTargetChange?.({ ...targetSelection, scope: nextScope });
                   setLastAction(nextScope === 'perDevice' ? 'Per-device reports selected' : 'Family reports selected');
                   setSyncStatus('Report scope changed');
                 }}
                 onChange={(choice) => {
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   setLastAction(`${choice.label} report target`);
                   setSyncStatus('Report target changed');
                 }}
@@ -16207,12 +16248,7 @@ function MainBoard({
     [activeNavLabel, selectedControlName]
   );
   const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(
-    () =>
-      readStoredManageTargetSelection() ?? {
-        scope: 'perDevice',
-        device: '',
-        browser: 'Chrome',
-      }
+    () => readStoredManageTargetSelection() ?? defaultManageTargetSelection()
   );
   useEffect(() => {
     writeStoredManageTargetSelection(manageTargetSelection);
@@ -16229,12 +16265,17 @@ function MainBoard({
     const defaultDevice = isLanPairingManageTitle(manageCurrentSpec.title)
       ? ''
       : manageDefaultDeviceSelection(manageCurrentSpec, manageRuntimeDeviceSlots);
+    const defaultDeviceId = defaultDevice;
     const defaultBrowser = manageBrowserTargets[0]?.label ?? 'All targets';
     setManageTargetSelection((current) => {
       const preservePerDeviceReportScope =
-        isReportsManageTitle(manageCurrentSpec.title) && current.scope === 'perDevice' && current.device.length > 0;
+        isReportsManageTitle(manageCurrentSpec.title) &&
+        current.scope === 'perDevice' &&
+        (current.deviceId.length > 0 || current.device.length > 0);
       const preservePerDeviceWorkspaceScope =
-        manageWorkspaceSupportsPerDevice && current.scope === 'perDevice' && current.device.length > 0;
+        manageWorkspaceSupportsPerDevice &&
+        current.scope === 'perDevice' &&
+        (current.deviceId.length > 0 || current.device.length > 0);
       const nextScope =
         contextChanged && (preservePerDeviceReportScope || preservePerDeviceWorkspaceScope)
           ? 'perDevice'
@@ -16243,23 +16284,40 @@ function MainBoard({
             : current.scope;
       const deviceChoicesAvailable =
         manageDeviceChoices(manageCurrentSpec.devices, manageRuntimeDeviceSlots).length > 0;
-      const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current.device);
+      const currentSelectedSlot = reportSelectedSlot(manageRuntimeDeviceSlots, current);
+      const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current);
       const nextDevice =
         nextScope !== 'perDevice'
           ? defaultDevice
-          : currentDeviceAvailable || (current.device.length > 0 && !deviceChoicesAvailable)
-            ? current.device
+          : currentSelectedSlot
+            ? selectedDeviceIdentity(currentSelectedSlot)
+            : currentDeviceAvailable || (current.device.length > 0 && !deviceChoicesAvailable)
+              ? current.device
+              : defaultDevice;
+      const nextDeviceId =
+        nextScope !== 'perDevice'
+          ? defaultDeviceId
+          : currentSelectedSlot
+            ? currentSelectedSlot.value
+            : currentDeviceAvailable || (current.deviceId.length > 0 && !deviceChoicesAvailable)
+              ? current.deviceId
             : defaultDevice;
       const nextBrowser =
         !contextChanged && manageBrowserTargets.some((target) => target.label === current.browser)
           ? current.browser
           : defaultBrowser;
-      if (current.scope === nextScope && current.device === nextDevice && current.browser === nextBrowser) {
+      if (
+        current.scope === nextScope &&
+        current.device === nextDevice &&
+        current.deviceId === nextDeviceId &&
+        current.browser === nextBrowser
+      ) {
         return current;
       }
       return {
         scope: nextScope,
         device: nextDevice,
+        deviceId: nextDeviceId,
         browser: nextBrowser,
       };
     });

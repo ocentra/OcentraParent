@@ -10,9 +10,14 @@ import {
   inspectWindowsPreviewArtifact,
   normalizeSha256,
   parseChecksumLine,
+  PackageLifecycleProofError,
   sha256File,
 } from '../release/windows/package-lifecycle-artifacts.mjs';
 import { buildLifecycleDecision } from '../release/windows/package-lifecycle-runner.mjs';
+import {
+  parseServiceFailureActions,
+  parseServiceFailureFlag,
+} from '../release/windows/package-lifecycle-host.mjs';
 
 test('Windows package lifecycle artifact verification checks manifest, MSI hashes, and sidecars', () => {
   const tempRoot = mkdtempSync(join(tmpdir(), 'ocentra-parent-windows-proof-'));
@@ -117,6 +122,63 @@ test('Windows package lifecycle checksum parser accepts release sidecar format',
     fileName: 'ocentra-parent-agent-windows-x64-latest.msi',
     sha256: checksum,
   });
+});
+
+test('Windows package lifecycle parses service-manager restart actions as respawn proof input', () => {
+  const parsed = parseServiceFailureActions(`
+[SC] QueryServiceConfig2 SUCCESS
+
+SERVICE_NAME: OcentraParentAgent
+        RESET_PERIOD (in seconds)    : 86400
+        REBOOT_MESSAGE               :
+        COMMAND_LINE                 :
+        FAILURE_ACTIONS              : RESTART -- Delay = 10000 milliseconds.
+                                       RESTART -- Delay = 30000 milliseconds.
+                                       NONE -- Delay = 0 milliseconds.
+`);
+
+  assert.equal(parsed.resetPeriodSeconds, 86400);
+  assert.deepEqual(parsed.actions, [
+    { delayMilliseconds: 10000, type: 'restart' },
+    { delayMilliseconds: 30000, type: 'restart' },
+    { delayMilliseconds: 0, type: 'none' },
+  ]);
+});
+
+test('Windows package lifecycle parses the service-manager failure-actions flag', () => {
+  assert.deepEqual(
+    parseServiceFailureFlag(`
+[SC] QueryServiceConfig2 SUCCESS
+
+SERVICE_NAME: OcentraParentAgent
+        FAILURE_ACTIONS_FLAG         : 0
+`),
+    { enabled: false }
+  );
+  assert.deepEqual(
+    parseServiceFailureFlag(`
+[SC] QueryServiceConfig2 SUCCESS
+
+SERVICE_NAME: OcentraParentAgent
+        FAILURE_ACTIONS_FLAG         : 1
+`),
+    { enabled: true }
+  );
+});
+
+test('Windows package lifecycle rejects malformed service-manager failure action lines', () => {
+  assert.throws(
+    () =>
+      parseServiceFailureActions(`
+[SC] QueryServiceConfig2 SUCCESS
+
+SERVICE_NAME: OcentraParentAgent
+        RESET_PERIOD (in seconds)    : 86400
+        FAILURE_ACTIONS              : RESTART
+`),
+    (error) =>
+      error instanceof PackageLifecycleProofError && error.code === 'failure-action-line-invalid'
+  );
 });
 
 function sampleManifest(version, artifactName, sha256) {

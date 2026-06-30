@@ -1,0 +1,37 @@
+use std::path::Path;
+
+const POLICY_CONTRACT_HELPERS_SOURCE_DIRECTORY: &str = "src";
+const POLICY_CONTRACT_HELPERS_TYPESCRIPT_CONTRACTS_PATH: &str =
+    "policy_contract_helpers_ts.contracts.txt";
+const POLICY_CONTRACT_HELPERS_TYPESCRIPT_HELPERS_PATH: &str =
+    "policy_contract_helpers_ts.helpers.txt";
+const POLICY_CONTRACT_HELPERS_TYPESCRIPT_READ_ERROR: &str =
+    "policy contract helpers TypeScript sidecar should be readable";
+
+fn result_or_unreachable<T, E>(value: Result<T, E>, context: &str) -> T {
+    match value {
+        Ok(value) => value,
+        Err(_) => unreachable!("{context}"),
+    }
+}
+
+fn read_policy_contract_helpers_typescript_sidecar(path: &str) -> String {
+    result_or_unreachable(
+        std::fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join(POLICY_CONTRACT_HELPERS_SOURCE_DIRECTORY)
+                .join(path),
+        ),
+        POLICY_CONTRACT_HELPERS_TYPESCRIPT_READ_ERROR,
+    )
+}
+
+pub fn policy_contract_helper_contracts_typescript() -> String {
+    read_policy_contract_helpers_typescript_sidecar(
+        POLICY_CONTRACT_HELPERS_TYPESCRIPT_CONTRACTS_PATH,
+    )
+}
+
+pub fn policy_contract_helper_helpers_typescript() -> String {
+    read_policy_contract_helpers_typescript_sidecar(POLICY_CONTRACT_HELPERS_TYPESCRIPT_HELPERS_PATH)
+}

@@ -1,3 +1,7 @@
+use ocentra_lan_core::lan_mdns_advertiser::current_platform_support;
+use ocentra_lan_core::lan_pairing::{
+    evaluate_lan_mdns_advertisement_lifecycle, LanMdnsAdvertisementLifecycleInput,
+};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
@@ -145,6 +149,12 @@ fn assert_runtime_support_surface(
     persistence_mode: &str,
     restart_behavior: &str,
 ) {
+    let expected_mdns =
+        evaluate_lan_mdns_advertisement_lifecycle(LanMdnsAdvertisementLifecycleInput {
+            desired_present: false,
+            running: false,
+            platform_support: current_platform_support(),
+        });
     assert_eq!(
         event.payload.get(constants::field::LAN_DISCOVERY_STATUS),
         Some(&LogFieldValue::String(
@@ -193,6 +203,44 @@ fn assert_runtime_support_surface(
         Some(&LogFieldValue::String(
             constants::lan_pairing::MANUAL_PROOF_GAPS.join(&constants::delimiter::LIST.to_string())
         ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_MDNS_ADVERTISEMENT_LIFECYCLE),
+        Some(&LogFieldValue::String(
+            expected_mdns.lifecycle_action.as_str().to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_MDNS_ADVERTISEMENT_SUPPORT),
+        Some(&LogFieldValue::String(
+            expected_mdns.platform_support.as_str().to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_MDNS_ADVERTISEMENT_CONFIRMATION),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_SIGNED_CHILD_AGENT_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::PRODUCTION_PROOF_STATE_MANUAL_REQUIRED.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_SIGNED_CHILD_AGENT_REPLAY_OBSERVED_COUNT),
+        Some(&LogFieldValue::Number(0.0))
     );
 }
 
@@ -313,6 +361,38 @@ pub(crate) fn assert_status_selected_route_trust(
     );
 }
 
+#[derive(Clone, Copy)]
+pub(crate) struct SelectedRouteCustodyExpectation<'a> {
+    pub(crate) authentication_state: &'a str,
+    pub(crate) selected_child_device_id: &'a str,
+    pub(crate) selected_route_id: &'a str,
+    pub(crate) trusted_device_ids: &'a str,
+    pub(crate) pairing_id: &'a str,
+    pub(crate) trust_state: &'a str,
+    pub(crate) stale_at: &'a str,
+    pub(crate) offline_at: &'a str,
+}
+
+pub(crate) fn assert_status_selected_route_custody(
+    event: &AgentEventEnvelope,
+    expectation: SelectedRouteCustodyExpectation<'_>,
+) {
+    assert_status_selection(
+        event,
+        expectation.authentication_state,
+        expectation.selected_child_device_id,
+        expectation.selected_route_id,
+        expectation.trusted_device_ids,
+    );
+    assert_status_selected_route_trust(
+        event,
+        expectation.pairing_id,
+        expectation.trust_state,
+        expectation.stale_at,
+        expectation.offline_at,
+    );
+}
+
 pub(crate) fn assert_rejection(event: &AgentEventEnvelope, reason: &str) {
     assert_rejection_with_audit(event, reason, constants::value::LAN_AUDIT_CONTROL_REJECTED);
 }
@@ -358,6 +438,7 @@ fn expected_authentication_state(reason: &str) -> &'static str {
         || reason == constants::value::LAN_REASON_WRONG_ORIGIN
         || reason == constants::value::LAN_REASON_WRONG_CONTROLLER
         || reason == constants::value::LAN_REASON_MALFORMED
+        || reason == constants::value::LAN_REASON_SIGNED_CHILD_AGENT_CONTEXT_UNAVAILABLE
     {
         constants::value::LAN_AUTH_UNAUTHENTICATED
     } else {

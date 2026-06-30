@@ -11,8 +11,6 @@ use ocentra_parent_agent_protocol::browser_managed::BrowserManagedState;
 use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::constants;
 
-#[cfg(test)]
-use ocentra_parent_agent_core::browser_managed_session::BrowserManagedLaunchPlan;
 use ocentra_parent_agent_core::{
     browser_managed_discovery::BrowserUnmanagedProcessObservation,
     browser_managed_session::BrowserManagedLaunch,
@@ -91,22 +89,6 @@ pub fn managed_profile_ready_status(
     let mut status = base_managed_status(checked_at);
     status.browser_family = Some(browser_family);
     status.browser_channel = Some(browser_channel);
-    apply_profile_store_entry(&mut status, profile_store_entry);
-    status
-}
-
-#[cfg(test)]
-pub fn launch_pending_status(
-    checked_at: String,
-    plan: BrowserManagedLaunchPlan,
-    profile_store_entry: BrowserManagedProfileStoreEntry,
-) -> BrowserManagedSessionStatus {
-    let mut status = base_managed_status(checked_at);
-    status.browser_family = Some(plan.browser_family);
-    status.browser_channel = Some(plan.browser_channel);
-    status.managed_state = BrowserManagedState::LaunchPending;
-    status.capability_status = BrowserCapabilityStatus::BridgeMissing;
-    status.degraded_reason = Some(constants::value::MANAGED_BROWSER_LAUNCH_PENDING.to_string());
     apply_profile_store_entry(&mut status, profile_store_entry);
     status
 }

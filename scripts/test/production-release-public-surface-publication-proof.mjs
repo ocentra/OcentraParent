@@ -19,15 +19,15 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(outputProofDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/production-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/production-release-public-status-proof.test.ts',
+      'tests/proof/production-release-public-status-proof.test.ts',
     ])
   );
   await runCommand(
@@ -35,9 +35,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/production-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/production-release-public-runtime-handoff.test.ts',
+      'tests/proof/production-release-public-runtime-handoff.test.ts',
     ])
   );
   await runCommand(
@@ -45,9 +45,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/production-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/production-release-public-docs-status.test.ts',
+      'tests/read-model/production-release-public-docs-status.test.ts',
     ])
   );
 

@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use super::deserialize_lan_schema_version_text;
 use crate::{
     LanPairingDeviceReachability, LanPairingProductionDiscoveryState, LanPairingRejectionReason,
     LanPairingTrustState,
@@ -98,6 +99,7 @@ pub enum V09ProductionDiscoveryHouseholdManualProofGate {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct V09ProductionDiscoveryHouseholdStateEvidence {
+    #[serde(deserialize_with = "deserialize_lan_schema_version_text")]
     pub schema_version: String,
     pub check: V09ProductionDiscoveryHouseholdCheck,
     pub source_state: V09ProductionDiscoveryHouseholdSourceState,
@@ -115,6 +117,7 @@ pub struct V09ProductionDiscoveryHouseholdStateEvidence {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct V09ProductionDiscoveryHouseholdManualChecklistItem {
+    #[serde(deserialize_with = "deserialize_lan_schema_version_text")]
     pub schema_version: String,
     pub gate: V09ProductionDiscoveryHouseholdManualProofGate,
     pub state: V09ProductionDiscoveryHouseholdProofState,
@@ -125,6 +128,7 @@ pub struct V09ProductionDiscoveryHouseholdManualChecklistItem {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct V09ProductionDiscoveryHouseholdProofReadModel {
+    #[serde(deserialize_with = "deserialize_lan_schema_version_text")]
     pub schema_version: String,
     pub checked_at: String,
     pub proof_boundary: V09ProductionDiscoveryHouseholdProofBoundary,

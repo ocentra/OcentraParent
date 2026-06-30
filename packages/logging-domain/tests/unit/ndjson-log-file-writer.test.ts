@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { writeLogEntry, writeSummary } from '../../src/test-log/ndjsonLogFileWriter';
+import { getDefaultLogRoot } from '../../src/test-log/ndjsonPaths';
 import { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
 describe('ndjson log file writer', () => {
@@ -17,28 +18,42 @@ describe('ndjson log file writer', () => {
   it('writes summary and entry files into the NDJSON tree', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-ndjson-writer-'));
     tempDirs.push(tempDir);
+    const previousLogDir = process.env.OCENTRA_PARENT_LOG_DIR;
+    process.env.OCENTRA_PARENT_LOG_DIR = tempDir;
 
-    writeSummary(
-      {
-        scope: TestLogScope.ParentTest,
-        runType: 'single',
-        suiteType: 'unit',
-      },
-      'file-key' as never,
-      'summary-line\n' as never
-    );
+    try {
+      writeSummary(
+        {
+          scope: TestLogScope.ParentTest,
+          runType: 'single',
+          suiteType: 'unit',
+        },
+        'file-key' as never,
+        'summary-line\n' as never
+      );
 
-    writeLogEntry(
-      {
-        scope: TestLogScope.ParentTest,
-        runType: 'single',
-        suiteType: 'unit',
-      },
-      'file-key' as never,
-      'Test Entry' as never,
-      '{"message":"first"}\n'
-    );
+      writeLogEntry(
+        {
+          scope: TestLogScope.ParentTest,
+          runType: 'single',
+          suiteType: 'unit',
+        },
+        'file-key' as never,
+        'Test Entry' as never,
+        '{"message":"first"}\n'
+      );
 
-    expect(true).toBe(true);
+      const root = getDefaultLogRoot();
+      const summaryPath = path.join(root, 'test-logs', 'parent-test', 'single', 'unit', 'file-key.ndjson');
+      const entryPath = path.join(root, 'test-logs', 'parent-test', 'single', 'unit', 'test-entry.ndjson');
+      expect(fs.readFileSync(summaryPath, 'utf8')).toContain('summary-line');
+      expect(fs.readFileSync(entryPath, 'utf8')).toContain('"message":"first"');
+    } finally {
+      if (previousLogDir == null) {
+        delete process.env.OCENTRA_PARENT_LOG_DIR;
+      } else {
+        process.env.OCENTRA_PARENT_LOG_DIR = previousLogDir;
+      }
+    }
   });
 });

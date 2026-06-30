@@ -4,9 +4,18 @@ import {
   AppInstallPurchaseApprovalContractProofReadModel,
   AppInstallPurchaseApprovalProofKnownGaps,
 } from './app-install-purchase-approval-proof';
+import { AppInstallPurchaseApprovalContractRuntime } from './generated/app-install-purchase-approval-contracts';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { appInstallPurchaseRuntimeProofIsHonest } from './app-install-purchase-runtime-proof-rules';
+import {
+  buildAppInstallPurchaseRuntimeChildDeliveryRowGenerated,
+  buildAppInstallPurchaseRuntimePlatformArtifactRowGenerated,
+  buildAppInstallPurchaseRuntimeReportIntegrationRowGenerated,
+  buildAppInstallPurchaseRuntimeStatusReadinessRowGenerated,
+  summarizeAppInstallPurchaseRuntimeProofGenerated,
+} from './generated/app-install-purchase-proof-helpers';
 const RuntimeSchemaVersion = 'app-install-purchase-runtime-proof';
+const SourceApprovalContractProofVersion = AppInstallPurchaseApprovalContractRuntime.SchemaVersion;
 const RuntimeBoundary =
   'runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking';
 const RuntimeTimestamp = '2026-06-03T22:35:00.000Z';
@@ -141,7 +150,7 @@ const AppInstallPurchaseRuntimeStatusReadinessRowBaseSchema = Schema.Struct({
 
 const AppInstallPurchaseRuntimeProofBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeProofSchemaVersionSchema,
-  sourceContractSchemaVersion: Schema.Literal('app-install-purchase-approval-contract-proof'),
+  sourceContractSchemaVersion: Schema.Literal(SourceApprovalContractProofVersion),
   platformRuntimeArtifacts: Schema.Array(AppInstallPurchaseRuntimePlatformArtifactRowBaseSchema),
   childDeliveryBoundaries: Schema.Array(AppInstallPurchaseRuntimeChildDeliveryRowBaseSchema),
   reportIntegrationBoundaries: Schema.Array(AppInstallPurchaseRuntimeReportIntegrationRowBaseSchema),
@@ -172,7 +181,7 @@ export const AppInstallPurchaseRuntimeProofKnownGaps = [
 
 export const AppInstallPurchaseRuntimeProofReadModel = AppInstallPurchaseRuntimeProofSchema.parse({
   schemaVersion: RuntimeSchemaVersion,
-  sourceContractSchemaVersion: AppInstallPurchaseApprovalContractProofReadModel.schemaVersion,
+  sourceContractSchemaVersion: SourceApprovalContractProofVersion,
   platformRuntimeArtifacts:
     AppInstallPurchaseApprovalContractProofReadModel.platformSourceMetadata.map(runtimePlatformArtifactRow),
   childDeliveryBoundaries: AppInstallPurchaseApprovalContractProofReadModel.childFacingStates.map(childDeliveryRow),
@@ -185,121 +194,32 @@ export const AppInstallPurchaseRuntimeProofReadModel = AppInstallPurchaseRuntime
 });
 
 export function summarizeAppInstallPurchaseRuntimeProof(proof: AppInstallPurchaseRuntimeProof) {
-  return {
-    platformRows: proof.platformRuntimeArtifacts.length,
-    childDeliveryRows: proof.childDeliveryBoundaries.length,
-    reportIntegrationRows: proof.reportIntegrationBoundaries.length,
-    statusReadinessRows: proof.statusReadinessBoundaries.length,
-    boundaryOnlyRows: proof.platformRuntimeArtifacts.filter((row) => row.runtimeClaimState === 'boundary-only').length,
-    unavailablePlatformRows: proof.platformRuntimeArtifacts.filter(
-      (row) => row.storeMetadataArtifactState === 'platform-unavailable'
-    ).length,
-    statusReadinessOnlyRows: proof.statusReadinessBoundaries.filter(
-      (row) => row.statusReadinessClaim === 'runtime-status-readiness-only'
-    ).length,
-    statusReaderImplementedRows: proof.statusReadinessBoundaries.filter(
-      (row) => row.runtimeStatusReaderClaim !== 'not-implemented'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseRuntimeProofGenerated(proof);
 }
 
 function runtimePlatformArtifactRow(
   sourceRow: (typeof AppInstallPurchaseApprovalContractProofReadModel.platformSourceMetadata)[number]
 ) {
-  const packageRow = AppInstallPurchaseApprovalContractProofReadModel.packageSourceArtifacts.find(
-    (row) => row.platform === sourceRow.platform && row.storeSurface === sourceRow.storeSurface
+  return buildAppInstallPurchaseRuntimePlatformArtifactRowGenerated(
+    sourceRow,
+    AppInstallPurchaseApprovalContractProofReadModel.packageSourceArtifacts,
+    RuntimeSchemaVersion,
+    RuntimeBoundary
   );
-  if (packageRow === undefined) {
-    throw new Error(`missing package-source artifact row for ${sourceRow.platform}:${sourceRow.storeSurface}`);
-  }
-  return {
-    schemaVersion: RuntimeSchemaVersion,
-    platform: sourceRow.platform,
-    storeSurface: sourceRow.storeSurface,
-    platformSourceRowId: sourceRow.sourceRowId,
-    packageSourceArtifactRowId: packageRow.artifactRowId,
-    storeMetadataArtifactState:
-      sourceRow.metadataState === 'unavailable' ? 'platform-unavailable' : 'requires-platform-artifact',
-    packageSourceArtifactState: packageSourceRuntimeState(packageRow.artifactStatus),
-    childPendingDeliveryState: sourceRow.metadataState === 'unavailable' ? 'unavailable' : 'manual-required',
-    childResultDeliveryState: sourceRow.metadataState === 'unavailable' ? 'unavailable' : 'manual-required',
-    reportIntegrationState: 'manual-required',
-    runtimeClaimState: 'boundary-only',
-    requiredProofRefs: [...sourceRow.requiredArtifacts, ...packageRow.requiredArtifacts],
-    reportRefs:
-      sourceRow.limitationReportRef === (packageRow.limitationReportRef as unknown)
-        ? [sourceRow.limitationReportRef]
-        : [sourceRow.limitationReportRef, packageRow.limitationReportRef],
-    claimBoundary: RuntimeBoundary,
-  } as const;
-}
-
-function packageSourceRuntimeState(
-  artifactStatus: (typeof AppInstallPurchaseApprovalContractProofReadModel.packageSourceArtifacts)[number]['artifactStatus']
-) {
-  if (artifactStatus === 'unavailable') {
-    return 'platform-unavailable';
-  }
-  if (artifactStatus === 'device-proof-required') {
-    return 'requires-device-proof-artifact';
-  }
-  return 'requires-package-source-artifact';
 }
 
 function childDeliveryRow(state: (typeof AppInstallPurchaseApprovalContractProofReadModel.childFacingStates)[number]) {
-  return {
-    schemaVersion: RuntimeSchemaVersion,
-    childStateId: state.childStateId,
-    requestId: state.requestId,
-    requestKind: state.requestKind,
-    platform: state.platform,
-    childVisibleStatus: state.childVisibleStatus,
-    sourceApprovalState: state.sourceApprovalState,
-    deliveryState: state.deliveryState,
-    runtimeDeliveryClaim: 'not-delivered',
-    auditEventRefs: state.auditEventRefs.map((event) => event.auditEventId),
-    reportRefs: state.reportRefs,
-    claimBoundary: RuntimeBoundary,
-  } as const;
+  return buildAppInstallPurchaseRuntimeChildDeliveryRowGenerated(state, RuntimeSchemaVersion, RuntimeBoundary);
 }
 
 function reportIntegrationRow(
   row: (typeof AppInstallPurchaseApprovalContractProofReadModel.auditReportIntegration)[number]
 ) {
-  return {
-    schemaVersion: RuntimeSchemaVersion,
-    surface: row.surface,
-    integrationState: row.integrationState,
-    runtimeReportClaim: 'not-delivered',
-    auditEventRefs: row.auditEventRefs.map((event) => event.auditEventId),
-    reportRefs: row.reportRefs,
-    claimBoundary: RuntimeBoundary,
-  } as const;
+  return buildAppInstallPurchaseRuntimeReportIntegrationRowGenerated(row, RuntimeSchemaVersion, RuntimeBoundary);
 }
 
 function statusReadinessRow(
   state: (typeof AppInstallPurchaseApprovalContractProofReadModel.childFacingStates)[number]
 ) {
-  return {
-    schemaVersion: RuntimeSchemaVersion,
-    statusReadinessRowId: `app-install-status-readiness-${state.childVisibleStatus}`,
-    sourceChildStateId: state.childStateId,
-    sourceRequestId: state.requestId,
-    requestKind: state.requestKind,
-    platform: state.platform,
-    childVisibleStatus: state.childVisibleStatus,
-    sourceApprovalState: state.sourceApprovalState,
-    sourceDeliveryState: state.deliveryState,
-    sourceRuntimeDeliveryClaim: 'not-delivered',
-    statusReadinessClaim: 'runtime-status-readiness-only',
-    runtimeStatusReaderClaim: 'not-implemented',
-    childDeliveryClaim: 'not-delivered',
-    reportRuntimeDeliveryClaim: 'not-delivered',
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    appBlockingClaim: 'not-claimed',
-    auditEventRefs: state.auditEventRefs.map((event) => event.auditEventId),
-    reportRefs: state.reportRefs,
-    claimBoundary: RuntimeBoundary,
-  } as const;
+  return buildAppInstallPurchaseRuntimeStatusReadinessRowGenerated(state, RuntimeSchemaVersion, RuntimeBoundary);
 }

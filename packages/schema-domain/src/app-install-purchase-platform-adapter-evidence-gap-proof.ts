@@ -2,6 +2,12 @@ import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@oc
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProviderStoreApiExecutionProofReadModel } from './app-install-purchase-provider-store-api-execution-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchasePlatformAdapterEvidenceGapRowGenerated,
+  platformAdapterEvidenceGapProofIsHonestGenerated,
+  platformAdapterEvidenceGapRowIsHonestGenerated,
+  summarizeAppInstallPurchasePlatformAdapterEvidenceGapProofGenerated,
+} from './generated/app-install-purchase-platform-evidence-helpers';
 
 const ProofVersion = 'app-install-purchase-platform-adapter-evidence-gap-proof';
 const SourceProviderStoreApiExecutionProofVersion = 'app-install-purchase-provider-store-api-execution-proof';
@@ -189,120 +195,21 @@ export const AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel =
 export function summarizeAppInstallPurchasePlatformAdapterEvidenceGapProof(
   proof: AppInstallPurchasePlatformAdapterEvidenceGapProof
 ) {
-  return {
-    platformAdapterEvidenceGapRows: proof.platformAdapterEvidenceGapRows.length,
-    adapterEvidenceGapRows: proof.platformAdapterEvidenceGapRows.filter(
-      (row) => row.platformAdapterEvidenceGapState === 'adapter-evidence-gap'
-    ).length,
-    manualAdapterEvidenceRequiredRows: proof.platformAdapterEvidenceGapRows.filter(
-      (row) => row.platformAdapterEvidenceGapState === 'manual-adapter-evidence-required'
-    ).length,
-    platformUnavailableRows: proof.platformAdapterEvidenceGapRows.filter(
-      (row) => row.platformAdapterEvidenceGapState === 'platform-unavailable'
-    ).length,
-    blockedBeforeClaimRows: proof.platformAdapterEvidenceGapRows.filter(
-      (row) => row.platformAdapterEvidenceGapState === 'blocked-before-claim'
-    ).length,
-    realAdapterEvidenceRows: proof.platformAdapterEvidenceGapRows.filter(
-      (row) => row.realPlatformAdapterEvidenceState !== 'no-real-adapter-evidence-attached'
-    ).length,
-    adapterImplementedRows: proof.platformAdapterEvidenceGapRows.filter(
-      (row) => row.platformAdapterClaim !== 'not-implemented'
-    ).length,
-    productClaimApprovedRows: proof.platformAdapterEvidenceGapRows.filter(
-      (row) => row.productClaimApprovalClaim !== 'not-claimed'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchasePlatformAdapterEvidenceGapProofGenerated(proof);
 }
 
 function platformAdapterEvidenceGapRow(
   sourceRow: (typeof AppInstallPurchaseProviderStoreApiExecutionProofReadModel.providerStoreApiExecutionRows)[number]
 ) {
   const platformReadinessRow = matchingPlatformProofReadinessRow(sourceRow.platform);
-  return {
-    schemaVersion: ProofVersion,
-    platformAdapterEvidenceGapRowId: `app-install-platform-adapter-evidence-gap-${sourceRow.platform}-${sourceRow.storeSurface}`,
-    sourceProviderStoreApiExecutionProofVersion: SourceProviderStoreApiExecutionProofVersion,
-    sourceProviderStoreApiExecutionRowId: sourceRow.providerStoreApiExecutionRowId,
-    sourceProviderStoreApiExecutionState: sourceRow.providerStoreApiExecutionState,
-    sourcePlatformProofReadinessProofVersion: SourcePlatformProofReadinessProofVersion,
-    sourcePlatformProofReadinessState: platformReadinessRow.platformProofReadinessState,
-    platform: sourceRow.platform,
-    storeSurface: sourceRow.storeSurface,
-    platformAdapterEvidenceGapState: platformAdapterEvidenceGapState(sourceRow, platformReadinessRow),
-    providerStoreApiExecutionEvidenceRefs: sourceRow.providerApiExecutionEvidenceRefs,
-    requiredPlatformAdapterEvidenceRefs: platformAdapterEvidenceRefs(sourceRow, platformReadinessRow),
-    requiredManualPlatformEvidenceRefs: uniqueRefs([
-      ...sourceRow.manualPlatformEvidenceRefs,
-      ...platformReadinessRow.requiredManualEvidenceRefs,
-    ]),
-    requiredProviderCredentialRefs: sourceRow.providerCredentialRequirementRefs,
-    requiredPortalTestRefs: sourceRow.requiredPortalTestRefs,
-    requiredChildDeliveryRefs: sourceRow.requiredChildDeliveryRefs,
-    blockerRefs: uniqueRefs([...sourceRow.blockerRefs, ...sourceRow.requiredPlatformAdapterRefs]),
-    auditEventRefs: sourceRow.auditEventRefs,
-    reportRuntimeRefs: sourceRow.reportRuntimeRefs,
-    realPlatformAdapterEvidenceState: 'no-real-adapter-evidence-attached',
-    productClaimApprovalClaim: 'not-claimed',
-    googlePlayExecutionClaim: 'not-executed',
-    appleAppStoreExecutionClaim: 'not-executed',
-    microsoftStoreExecutionClaim: 'not-executed',
-    billingProviderContactClaim: 'not-executed',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformInterceptionClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    childDeviceDeliveryClaim: 'not-delivered',
-    runtimeWriterDeliveryClaim: 'not-delivered',
-    runtimeReportDeliveryClaim: 'not-delivered',
-    portalApprovalUiClaim: 'not-claimed',
-    portalReportUiClaim: 'not-claimed',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: Boundary,
-    evaluatedAt: UpdatedAt,
-  } as const;
-}
-
-function platformAdapterEvidenceGapState(
-  sourceRow: (typeof AppInstallPurchaseProviderStoreApiExecutionProofReadModel.providerStoreApiExecutionRows)[number],
-  platformReadinessRow: (typeof AppInstallPurchasePlatformProofReadinessProofReadModel.platformProofReadinessRows)[number]
-): (typeof PlatformAdapterEvidenceGapStates)[number] {
-  if (
-    sourceRow.providerStoreApiExecutionState === 'unavailable' ||
-    platformReadinessRow.platformProofReadinessState === 'unavailable'
-  ) {
-    return 'platform-unavailable';
-  }
-  if (
-    sourceRow.providerStoreApiExecutionState === 'blocked-before-claim' ||
-    platformReadinessRow.platformProofReadinessState === 'policy-blocked'
-  ) {
-    return 'blocked-before-claim';
-  }
-  if (sourceRow.providerStoreApiExecutionState === 'manual-required') {
-    return 'manual-adapter-evidence-required';
-  }
-  return 'adapter-evidence-gap';
-}
-
-function platformAdapterEvidenceRefs(
-  sourceRow: (typeof AppInstallPurchaseProviderStoreApiExecutionProofReadModel.providerStoreApiExecutionRows)[number],
-  platformReadinessRow: (typeof AppInstallPurchasePlatformProofReadinessProofReadModel.platformProofReadinessRows)[number]
-) {
-  const refs = {
-    windows: ['windows-app-install-adapter-manual-proof', 'windows-store-source-adapter-boundary-proof'],
-    macos: ['macos-app-install-adapter-manual-proof', 'macos-receipt-signing-adapter-proof'],
-    linux: ['linux-package-manager-source-adapter-proof'],
-    android: ['android-device-owner-managed-profile-adapter-proof', 'google-play-policy-adapter-proof'],
-    ios: ['ios-family-controls-adapter-entitlement-proof', 'apple-review-platform-adapter-proof'],
-  } as const;
-  return uniqueRefs([
-    ...sourceRow.requiredPlatformAdapterRefs,
-    ...platformReadinessRow.requiredManualEvidenceRefs,
-    ...refs[sourceRow.platform],
-  ]);
+  return buildAppInstallPurchasePlatformAdapterEvidenceGapRowGenerated(
+    sourceRow,
+    platformReadinessRow,
+    SourceProviderStoreApiExecutionProofVersion,
+    SourcePlatformProofReadinessProofVersion,
+    Boundary,
+    UpdatedAt
+  );
 }
 
 function matchingPlatformProofReadinessRow(platform: string) {
@@ -319,108 +226,20 @@ function platformAdapterEvidenceGapRowIsHonest(row: PlatformAdapterEvidenceGapRo
   return (
     row.sourceProviderStoreApiExecutionProofVersion === SourceProviderStoreApiExecutionProofVersion &&
     row.sourcePlatformProofReadinessProofVersion === SourcePlatformProofReadinessProofVersion &&
-    platformAdapterEvidenceGapStateMatchesSource(row) &&
-    platformAdapterEvidenceRefsAreComplete(row) &&
-    platformAdapterEvidenceClaimsStayUnimplemented(row) &&
-    BoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
-  );
-}
-
-function platformAdapterEvidenceGapStateMatchesSource(row: PlatformAdapterEvidenceGapRowCandidate): boolean {
-  if (
-    row.sourceProviderStoreApiExecutionState === 'unavailable' ||
-    row.sourcePlatformProofReadinessState === 'unavailable'
-  ) {
-    return row.platformAdapterEvidenceGapState === 'platform-unavailable';
-  }
-  if (
-    row.sourceProviderStoreApiExecutionState === 'blocked-before-claim' ||
-    row.sourcePlatformProofReadinessState === 'policy-blocked'
-  ) {
-    return row.platformAdapterEvidenceGapState === 'blocked-before-claim';
-  }
-  if (row.sourceProviderStoreApiExecutionState === 'manual-required') {
-    return row.platformAdapterEvidenceGapState === 'manual-adapter-evidence-required';
-  }
-  return row.platformAdapterEvidenceGapState === 'adapter-evidence-gap';
-}
-
-function platformAdapterEvidenceRefsAreComplete(row: PlatformAdapterEvidenceGapRowCandidate): boolean {
-  return (
-    row.sourceProviderStoreApiExecutionRowId.length > 0 &&
-    row.sourcePlatformProofReadinessProofVersion === SourcePlatformProofReadinessProofVersion &&
-    row.providerStoreApiExecutionEvidenceRefs.length > 0 &&
-    row.requiredPlatformAdapterEvidenceRefs.length > 0 &&
-    row.requiredManualPlatformEvidenceRefs.length > 0 &&
-    row.requiredProviderCredentialRefs.length > 0 &&
-    row.requiredPortalTestRefs.length > 0 &&
-    row.requiredChildDeliveryRefs.length > 0 &&
-    row.blockerRefs.length > 0 &&
-    row.auditEventRefs.length > 0 &&
-    row.reportRuntimeRefs.length > 0
-  );
-}
-
-function platformAdapterEvidenceClaimsStayUnimplemented(row: PlatformAdapterEvidenceGapRowCandidate): boolean {
-  return (
-    row.realPlatformAdapterEvidenceState === 'no-real-adapter-evidence-attached' &&
-    platformAdapterEvidenceProviderClaimsStayUnimplemented(row) &&
-    platformAdapterEvidencePlatformClaimsStayUnimplemented(row) &&
-    platformAdapterEvidenceDeliveryClaimsStayUnimplemented(row) &&
-    platformAdapterEvidencePortalAndCustodyClaimsStayUnimplemented(row)
-  );
-}
-
-function platformAdapterEvidenceProviderClaimsStayUnimplemented(row: PlatformAdapterEvidenceGapRowCandidate): boolean {
-  return (
-    row.productClaimApprovalClaim === 'not-claimed' &&
-    row.googlePlayExecutionClaim === 'not-executed' &&
-    row.appleAppStoreExecutionClaim === 'not-executed' &&
-    row.microsoftStoreExecutionClaim === 'not-executed' &&
-    row.billingProviderContactClaim === 'not-executed' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed'
-  );
-}
-
-function platformAdapterEvidencePlatformClaimsStayUnimplemented(row: PlatformAdapterEvidenceGapRowCandidate): boolean {
-  return row.platformInterceptionClaim === 'not-claimed' && row.platformAdapterClaim === 'not-implemented';
-}
-
-function platformAdapterEvidenceDeliveryClaimsStayUnimplemented(row: PlatformAdapterEvidenceGapRowCandidate): boolean {
-  return (
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.runtimeReportDeliveryClaim === 'not-delivered' &&
-    row.appBlockingClaim === 'not-claimed'
-  );
-}
-
-function platformAdapterEvidencePortalAndCustodyClaimsStayUnimplemented(
-  row: PlatformAdapterEvidenceGapRowCandidate
-): boolean {
-  return (
-    row.portalApprovalUiClaim === 'not-claimed' &&
-    row.portalReportUiClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
+    platformAdapterEvidenceGapRowIsHonestGenerated(row, BoundaryFragments)
   );
 }
 
 function platformAdapterEvidenceGapProofIsHonest(proof: AppInstallPurchasePlatformAdapterEvidenceGapProof): boolean {
-  const keys = new Set(proof.platformAdapterEvidenceGapRows.map((row) => `${row.platform}:${row.storeSurface}`));
-  const states = new Set(proof.platformAdapterEvidenceGapRows.map((row) => row.platformAdapterEvidenceGapState));
-  const nonClaims = new Set(proof.nonClaims);
   return (
-    proof.platformAdapterEvidenceGapRows.length === StoreSurfaces.length &&
-    keys.size === proof.platformAdapterEvidenceGapRows.length &&
-    PlatformAdapterEvidenceGapStates.every((state) => states.has(state)) &&
-    NonClaims.every((claim) => nonClaims.has(claim)) &&
-    proof.platformAdapterEvidenceGapRows.every(platformAdapterEvidenceGapRowIsHonest) &&
-    proof.knownGaps.length > 0
+    proof.sourceProviderStoreApiExecutionProofVersion === SourceProviderStoreApiExecutionProofVersion &&
+    proof.sourcePlatformProofReadinessProofVersion === SourcePlatformProofReadinessProofVersion &&
+    platformAdapterEvidenceGapProofIsHonestGenerated(
+      proof,
+      StoreSurfaces,
+      PlatformAdapterEvidenceGapStates,
+      NonClaims
+    ) &&
+    proof.platformAdapterEvidenceGapRows.every(platformAdapterEvidenceGapRowIsHonest)
   );
-}
-
-function uniqueRefs(refs: readonly string[]) {
-  return Array.from(new Set(refs));
 }

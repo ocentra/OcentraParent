@@ -16,10 +16,24 @@
 
 ## Checklist Interpretation
 
-- This file is truth-synced on 2026-06-17.
-- Historical checkbox counts and historical `[~]` progress markers are not authoritative.
-- `01-20` are the only live execution rows.
-- `21-25` are frozen follow-on material and do not drive current completion claims.
+- This file is truth-synced on 2026-06-28.
+- Historical checkbox counts and historical `[~]` progress markers are not
+  authoritative.
+- `01-25` are the live execution rows for the active LAN plan scope.
+- `21-25` are active follow-on rows with mixed current state. Rows `21`, `22`,
+  and `24` are locally complete with their own proof; rows `23` and `25`
+  remain partial/manual. No row counts as PR-ready without its own current
+  Rust-first ownership, organized tests where applicable, and proof.
+- Rust-owned schema/protocol/service/runtime crates are authoritative for
+  contracts, business logic, read models, and route snapshots. TS is
+  presentation-only.
+- Legacy `packages/lan-domain` evidence is historical reconciliation input
+  only; it does not re-own current LAN truth and must not be used as a forward
+  execution target.
+- Placeholder test folders and `.gitkeep` files never count as coverage; use
+  real crate/package test groups.
+- Forward LAN closure requires organized Rust crate `tests/` groups for logic
+  and proof, with TS test ownership limited to real UI/presentation surfaces.
 
 ## Slice A Evidence
 
@@ -27,7 +41,7 @@
 
 - Proof root: `output/lan-plan-proof/00-plan-model-reconciliation/`
 - Source snapshot: `output/lan-plan-proof/00-plan-model-reconciliation/00-source-snapshot.md`
-- Validation log: `output/lan-plan-proof/00-plan-model-reconciliation/01-lan-domain-validation.log`
+- Validation log: `output/lan-plan-proof/00-plan-model-reconciliation/01-lan-domain-validation.log` (legacy package validation; not current ownership authority)
 - Truth-sync notes: `output/lan-plan-proof/00-plan-model-reconciliation/02-plan-truth-sync.md`
 - Missing proof inventory: `output/lan-plan-proof/00-plan-model-reconciliation/03-missing-proof-inventory.md`
 
@@ -45,33 +59,38 @@
 
 | Workpack | Current state | Closability after Slice A | Evidence now | Remaining gate |
 | --- | --- | --- | --- | --- |
-| `01` | partial | locally closable next | `packages/lan-domain/src/lan-pairing.ts`; Slice A validation log | broader contract/read-model closure |
-| `02` | partial | locally closable next | service-backed LAN add-device read model exists and canonical known-device records now persist in trusted-registry JSON with merged evidence timing | fuller evidence/device-store closure |
-| `03` | partial | locally closable next | Rust local-identity selection now persists gateway/DNS/DHCP/broadcast/IPv6 interface-map fields into `LanDiscoveryScanPlan` and scan-history metadata under focused proof | manual override, ignored-interface reason codes, and per-evidence selected-interface proof |
-| `04` | partial | locally closable next on Windows/Linux | Windows and Linux Rust neighbor parsing now covers IPv6 representation plus malformed/incomplete/duplicate-row proof under `network_inventory` tests | timestamped normalized evidence shape, fixture corpus, and macOS/manual proof |
-| `05` | open | locally executable next | no implementation claimed | targeted ARP implementation and proof |
-| `06` | partial | locally closable next | bounded active IPv4 stimulation, durable active-refresh/service-probe suppression, and sidecar scan-plan metadata exist | packet IO abstraction and duplicate reply proof |
-| `07` | open | locally executable next | no implementation claimed | passive listener implementation and packet proof |
-| `08` | open/manual | locally executable next | no implementation claimed | mDNS/DNS-SD implementation and proof |
-| `09` | open/manual | locally executable next | no implementation claimed | SSDP/UPnP implementation and proof |
-| `10` | partial | locally closable next | weak-source fencing exists in current source matrix | real query adapters if full closure is desired |
-| `11` | open | locally executable next | no implementation claimed | bounded service probing implementation and proof |
-| `12` | partial | locally closable next | Rust MAC parsing, local OUI/vendor evidence, randomized/private warning, and malformed/multicast rejection exist | richer classifier closure and broader proof regeneration |
-| `13` | partial | locally closable next | household-device spine/source merge exists | broader dedupe closure |
-| `14` | partial | locally closable next | explainable labels/status exist | fuller classifier closure |
-| `15` | partial | locally closable next, then physical/manual-bound | service-backed device-store/read-model paths exist; trusted-registry JSON now persists canonical known-device records, scan sidecar persists continuity and durable scan-suppression truth, stale restart read-model recovery is tested, and scan-plan metadata persists | broader restart durability and real household proof |
-| `16` | partial | locally closable next, then physical/manual-bound | read-model and diagnostics surface exists | replay/event proof and real artifact regeneration |
-| `17` | open | locally executable next | no implementation claimed | parent/child mDNS advertisements and packet proof |
-| `18` | partial/manual | physical/manual-bound for final closure | signed hello/heartbeat rows exist as contracts/read-model labels | real signed artifacts and real device proof |
-| `19` | partial | locally closable next, then physical/manual-bound | assignment/revoke/audit surfaces exist | restart and negative-route proof |
-| `20` | partial/manual | mixed local plus physical/manual final gate | `output/lan-plan-proof/01-lan-b1-proof-regeneration/`; Workpack 20 proof note | portal/service-backed consumer proof, real signed artifacts, and remaining physical/manual proof |
+| `01` | complete | local proof | Rust-owned LAN contract families, fail-closed schema-version guards, explicit signed-child and mDNS contract surfaces, discovery-evidence and route-snapshot payload coverage, and focused protocol contract drift validation are locally green without reintroducing TS-owned contract truth. | no remaining local Rust/test blocker in the owned W01 slice |
+| `02` | complete | local proof | service-backed LAN add-device read model, canonical known-device persistence, merged evidence timing, distinct source-backed evidence rows, and paired-child/router scan-truth enrichment reran green on 2026-06-28 across focused `agent-core`, `agent-service`, and scoped architecture validation | no remaining local Rust/test blocker in the owned W02 slice |
+| `03` | complete | local proof | shared Rust local-identity selection now captures gateway/DNS/DHCP/broadcast/IPv6-prefix fields, manual interface choice, ignored-interface reasons, and selected-interface attribution through scan-plan and history serialization under focused proof | no local code gap; later work owns broader household/manual proof |
+| `04` | partial/manual | local proof plus platform/manual proof | Windows/Linux/macOS neighbor normalization is now locally code-complete with IPv4/IPv6 parsing, malformed/incomplete/duplicate handling, and downstream `observed_at` propagation under green 2026-06-28 reruns | live macOS/manual platform proof |
+| `05` | complete | local proof | targeted ARP refresh is locally complete as bounded Rust host-refresh with selected-interface/local-subnet scoping, persisted scan metadata, throttling proof, and packet-IO reply handling | no local code gap; later work owns broader household/manual proof |
+| `06` | complete | local proof | bounded active IPv4 stimulation is locally complete with gateway/router suppression, durable active-refresh and service-probe suppression truth reuse, scan-plan metadata persistence, and duplicate-reply proof | no local code gap; later work owns broader household/manual proof |
+| `07` | partial/manual | local proof plus packet/manual proof | passive ARP/DHCP/mDNS/SSDP/WS-Discovery/LLMNR/NetBIOS/SNMP-response hint evidence now surfaces through Rust read models and passive history, and the local code path reran green on 2026-06-28 | long-running DHCP listener proof plus broader packet/platform/manual artifacts |
+| `08` | partial/manual | local implementation plus packet proof | Rust-owned mDNS/DNS-SD discovery is locally complete with bounded service enumeration, PTR/SRV/TXT/A/AAAA parsing, hostile-name sanitization, and hint-only agent handling covered by focused tests | broader packet/manual proof |
+| `09` | partial/manual | local implementation plus packet proof | Rust-owned SSDP/UPnP discovery is locally complete with bounded `M-SEARCH`, private-only descriptor fetch rules, router-visible/non-enrollable handling, and malformed/timeout/oversize rejection | broader packet/manual proof |
+| `10` | complete | local proof | NetBIOS/LLMNR/reverse-DNS name recovery is locally proven as weak name-only evidence, does not upgrade child identity, and now has a real scoped source-matrix validation target again under green 2026-06-28 reruns | no remaining local weak-name Rust/test blocker in the owned W10 slice |
+| `11` | partial/manual | local proof plus manual gate | bounded HTTP/HTTPS identity probing, TLS subject capture, bounded WSD/SNMP identity queries, and passive-history bridging for allowed SNMP replies exist in Rust and reran green on 2026-06-28 across the owned Rust/protocol surfaces | optional/manual-gated OS-fingerprint proof plus broader live household/manual proof |
+| `12` | complete | local proof | Rust MAC parsing, OUI/vendor evidence, randomized/private warnings, multicast/malformed rejection, and weak-only confidence downgrade are locally green | no local code gap; later classifier work owns richer cross-source closure |
+| `13` | complete | local proof | household-device spine/source merge now carries install-id and pairing-id as strong evidence through protocol, service, inventory, and canonical merge paths, and the current merge path already emits explicit `dedupe-decision`, `score`, and `reasons` outputs under green 2026-06-28 reruns | no remaining local Rust/test blocker in the owned W13 slice |
+| `14` | complete | local proof | weighted Rust classification, explicit reasons/confidence, router/unsupported/unknown states, non-child boundaries, focused portal labels, and refreshed `/devices` Rust-snapshot proof are locally green | broader installability or physical/manual claims remain later work |
+| `15` | complete | local proof | durable device-store/read-model behavior is locally green with trusted-registry persistence, continuity and scan-suppression truth reuse, stale/offline restart recovery, router visibility without enrollability, and scan-plan sidecar metadata persistence | no local code gap; real household/manual proof remains later work |
+| `16` | partial/manual | local proof then physical/manual proof | LAN read-model and diagnostics surfaces are locally green through parent-runtime route snapshots, subscribed route-event buffering into the portal shell, `/devices`, network-evidence, LAN policy-target rendering, signed-discovery relay/cache/manual-proof projection, explicit `agent-offline` history-state serialization, focused Playwright/runtime/schema proof, Rust host-bridge duplicate-event suppression, portal replay-buffer dedupe for repeated subscribed batches, persisted scan-history continuity, pairing or heartbeat history rows, focused portal LAN snapshot consumers, and backend `agent-service` LAN runtime event-chain streaming | richer network-flow evidence breadth, browser-side replay consumption of the new backend stream, plus physical/manual artifacts |
+| `17` | partial/manual | local proof plus packet/manual proof | parent/child mDNS advertisement contracts, packet encoding, lifecycle evaluation, goodbye handling, and agent-service sync tests are locally complete and green as hint-only discovery | signed-child confirmation plus broader Android/iOS/macOS manual multicast/background proof |
+| `18` | partial/manual | physical/manual-bound for final closure | local Rust/core signed hello and heartbeat verification is green across fail-closed drift, replay/expiry/wrong-family rejection, manual-required projections, focused portal rendering, and green 2026-06-28 reruns across `lan-core`, `agent-service`, `agent-protocol`, and scoped architecture validation | explicit iOS/manual platform evidence plus second-device artifacts |
+| `19` | partial/manual | local proof plus physical/manual proof | assignment/revoke/audit behavior is locally green across route trust, rename, ignore/restore, restart recovery, restart readback of the live child canonical id, route select, revoke evidence, selected-route LAN command dispatch, and the current `/devices` Playwright path | broader physical/manual topology artifacts |
+| `20` | partial/manual | mixed local plus physical/manual final gate | `output/lan-plan-proof/01-lan-b1-proof-regeneration/`; refreshed 2026-06-28 source-matrix proof rerun; current visual proof root under `test-results/v0-9-lan-source-matrix-plan-completion/`; B1/B2 remain proof-routing/test-truth slices only | real physical/manual household artifacts, portal/service-backed consumer proof breadth, and remaining physical/manual proof |
 
-## Frozen Follow-On Rows
+## Active Follow-On Rows
 
 | Workpack | State | Reason |
 | --- | --- | --- |
-| `21` | frozen | non-authoritative rewrite material |
-| `22` | frozen | non-authoritative rewrite material |
-| `23` | frozen | non-authoritative rewrite material |
-| `24` | frozen | household/setup/account UI handoff work, outside current LAN execution model |
-| `25` | frozen | later rollout wrapper, outside current LAN execution model |
+| `21` | complete | Rust-first LAN contract boundary truth is synced to the current family/schema owner and focused validation |
+| `22` | complete | LAN state/gap map is synced to current Rust/runtime/UI truth instead of stale TS-first assumptions |
+| `23` | partial/manual | current pairing/route proof truth is locally green across Rust/service/read-model tests; physical/manual topology artifacts remain open |
+| `24` | complete | household/setup/account handoff truth is green on the current Windows portal/runtime proof path; TS remains presentation-only |
+| `25` | partial/manual | rollout wrapper truth is synced to active `01-25` scope and current focused validations; manual-only LAN proof still gates full closure |
+
+Rows `21-25` remain active scope, but only `23` and `25` are currently open.
+Keep all follow-on rows aligned to the current Rust-first ownership and
+organized-test model before using them for implementation, completion, or PR
+gates.

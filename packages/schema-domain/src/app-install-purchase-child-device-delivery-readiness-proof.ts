@@ -3,6 +3,12 @@ import { AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel } from
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
 import { AppInstallPurchasePlatformLimitationActionProofReadModel } from './app-install-purchase-platform-limitation-action-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  buildAppInstallPurchaseChildDeviceDeliveryReadinessRowGenerated,
+  childDeviceDeliveryReadinessProofIsHonestGenerated,
+  childDeviceDeliveryReadinessRowIsHonestGenerated,
+  summarizeAppInstallPurchaseChildDeviceDeliveryReadinessProofGenerated,
+} from './generated/app-install-purchase-delivery-runtime-helpers';
 const ChildDeviceDeliveryReadinessProofVersion = 'app-install-purchase-child-device-delivery-readiness-proof';
 const SourceChildDeviceDeliveryRuntimeWriterProofVersion =
   'app-install-purchase-child-device-delivery-runtime-writer-proof';
@@ -155,24 +161,7 @@ export const AppInstallPurchaseChildDeviceDeliveryReadinessProofReadModel =
 export function summarizeAppInstallPurchaseChildDeviceDeliveryReadinessProof(
   proof: AppInstallPurchaseChildDeviceDeliveryReadinessProof
 ) {
-  return {
-    childDeviceDeliveryReadinessRows: proof.childDeviceDeliveryReadinessRows.length,
-    deliveryEvidenceReadyRows: proof.childDeviceDeliveryReadinessRows.filter(
-      (row) => row.childDeviceDeliveryReadinessState === 'delivery-evidence-ready'
-    ).length,
-    manualProofRequiredRows: proof.childDeviceDeliveryReadinessRows.filter(
-      (row) => row.childDeviceDeliveryReadinessState === 'manual-proof-required'
-    ).length,
-    platformUnavailableRows: proof.childDeviceDeliveryReadinessRows.filter(
-      (row) => row.childDeviceDeliveryReadinessState === 'platform-unavailable'
-    ).length,
-    policyBlockedRows: proof.childDeviceDeliveryReadinessRows.filter(
-      (row) => row.childDeviceDeliveryReadinessState === 'policy-blocked'
-    ).length,
-    childDeviceDeliveredRows: proof.childDeviceDeliveryReadinessRows.filter(
-      (row) => row.childDeviceDeliveryClaim !== 'not-delivered'
-    ).length,
-  } as const;
+  return summarizeAppInstallPurchaseChildDeviceDeliveryReadinessProofGenerated(proof);
 }
 
 function childDeviceDeliveryReadinessRow(
@@ -185,78 +174,28 @@ function childDeviceDeliveryReadinessRow(
   if (!adapterRow) {
     throw new Error(`Missing package-source adapter execution row for ${row.platform}`);
   }
-  return {
-    schemaVersion: ChildDeviceDeliveryReadinessProofVersion,
-    childDeviceDeliveryReadinessRowId: `child-device-delivery-readiness-${row.platform}`,
-    platform: row.platform,
-    childDeviceDeliveryReadinessState: childDeviceDeliveryReadinessState(row.platform),
-    sourceChildDeviceDeliveryRuntimeWriterProofVersion: SourceChildDeviceDeliveryRuntimeWriterProofVersion,
-    sourceChildDeliveryRuntimeWriterRowIds:
-      AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel.childDeviceDeliveryRuntimeWriterRows.map(
-        (childRow) => childRow.childDeviceDeliveryRuntimeWriterRowId
-      ),
-    sourcePackageSourceAdapterExecutionProofVersion: SourcePackageSourceAdapterExecutionProofVersion,
-    sourcePackageSourceAdapterExecutionRowId: adapterRow.packageSourceAdapterExecutionRowId,
-    sourcePlatformLimitationActionProofVersion: SourcePlatformLimitationActionProofVersion,
-    sourcePlatformLimitationActionRowId: row.platformLimitationActionRowId,
-    requiredDeliveryProofRefs: [
-      ...adapterRow.requiredProofRefs,
-      row.parentLimitationActionRef,
-      `child-device-delivery-proof-required-${row.platform}`,
-    ],
-    parentVisibleStatusRefs: [...row.parentVisibleReportStatusRefs, row.parentLimitationActionRef],
-    childDeviceDeliveryClaim: 'not-delivered',
-    runtimeWriterExecutionClaim: 'not-executed',
-    runtimeWriterDeliveryClaim: 'not-delivered',
-    providerApiExecutionClaim: 'not-executed',
-    storeIntegrationClaim: 'not-claimed',
-    platformAdapterClaim: 'not-implemented',
-    appBlockingClaim: 'not-claimed',
-    childDataCustody: 'no-child-activity-data',
-    ocentraHostedFamilyDataCustodyClaim: 'not-claimed',
-    claimBoundary: ChildDeviceDeliveryReadinessBoundary,
-    recordedAt: ChildDeviceDeliveryReadinessTimestamp,
-  };
-}
-
-function childDeviceDeliveryReadinessState(platform: string) {
-  if (platform === 'windows') return 'delivery-evidence-ready';
-  if (platform === 'macos') return 'manual-proof-required';
-  if (platform === 'linux') return 'platform-unavailable';
-  return 'policy-blocked';
+  return buildAppInstallPurchaseChildDeviceDeliveryReadinessRowGenerated(
+    row,
+    adapterRow,
+    SourceChildDeviceDeliveryRuntimeWriterProofVersion,
+    AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel.childDeviceDeliveryRuntimeWriterRows.map(
+      (childRow) => childRow.childDeviceDeliveryRuntimeWriterRowId
+    ),
+    SourcePackageSourceAdapterExecutionProofVersion,
+    SourcePlatformLimitationActionProofVersion,
+    ChildDeviceDeliveryReadinessBoundary,
+    ChildDeviceDeliveryReadinessTimestamp
+  );
 }
 
 function childDeviceDeliveryReadinessRowIsHonest(row: ChildDeviceDeliveryReadinessRowCandidate) {
-  return (
-    row.sourceChildDeliveryRuntimeWriterRowIds.length >= 4 &&
-    row.requiredDeliveryProofRefs.length > 0 &&
-    row.parentVisibleStatusRefs.length > 0 &&
-    childDeviceDeliveryReadinessClaimsAreHonest(row) &&
-    ChildDeviceDeliveryReadinessBoundaryFragments.every((fragment) => row.claimBoundary.includes(fragment))
-  );
-}
-
-function childDeviceDeliveryReadinessClaimsAreHonest(row: ChildDeviceDeliveryReadinessRowCandidate) {
-  return (
-    row.childDeviceDeliveryClaim === 'not-delivered' &&
-    row.runtimeWriterExecutionClaim === 'not-executed' &&
-    row.runtimeWriterDeliveryClaim === 'not-delivered' &&
-    row.providerApiExecutionClaim === 'not-executed' &&
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.appBlockingClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data' &&
-    row.ocentraHostedFamilyDataCustodyClaim === 'not-claimed'
-  );
+  return childDeviceDeliveryReadinessRowIsHonestGenerated(row, ChildDeviceDeliveryReadinessBoundaryFragments);
 }
 
 function childDeviceDeliveryReadinessProofIsHonest(proof: AppInstallPurchaseChildDeviceDeliveryReadinessProof) {
-  const platforms = new Set(proof.childDeviceDeliveryReadinessRows.map((row) => row.platform));
-  return (
-    platforms.size === 5 &&
-    ChildDeviceDeliveryReadinessStates.every((state) =>
-      proof.childDeviceDeliveryReadinessRows.some((row) => row.childDeviceDeliveryReadinessState === state)
-    ) &&
-    ChildDeviceDeliveryReadinessNonClaims.every((claim) => proof.nonClaims.includes(claim))
+  return childDeviceDeliveryReadinessProofIsHonestGenerated(
+    proof,
+    ChildDeviceDeliveryReadinessStates,
+    ChildDeviceDeliveryReadinessNonClaims
   );
 }

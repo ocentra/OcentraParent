@@ -7,104 +7,52 @@ import {
   BrowserControlSectionIdSchema,
 } from './browser-control-identifiers';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  GeneratedBrowserControlFullCatalogCapabilityStateValues,
+  GeneratedBrowserControlFullCatalogCardKindValues,
+  GeneratedBrowserControlFullCatalogControlKindValues,
+  GeneratedBrowserControlFullCatalogEffectStatusValues,
+  GeneratedBrowserControlFullCatalogRuntimeOwnerValues,
+  GeneratedBrowserControlFullCatalogSectionKindValues,
+  GeneratedBrowserControlFullCatalogSelectionModeValues,
+  GeneratedBrowserControlFullCatalogSidePanelCategoryValues,
+  GeneratedBrowserControlFullCatalogUiTabValues,
+} from './generated/browser-policy-control-catalog-contracts';
 
 export const BrowserControlFullCatalogControlKindSchema = withParser(
-  Schema.Literal(
-    'toggle',
-    'single-choice',
-    'multi-choice',
-    'number',
-    'duration',
-    'schedule',
-    'rule-list',
-    'target-list',
-    'retention',
-    'action-list',
-    'read-only-status'
-  )
+  Schema.Literal(...GeneratedBrowserControlFullCatalogControlKindValues)
 );
 
 export const BrowserControlFullCatalogEffectStatusSchema = withParser(
-  Schema.Literal(
-    'already-represented',
-    'needs-effect-wiring',
-    'represented-by-existing-policy-shape',
-    'manual-required',
-    'unavailable',
-    'future-gap',
-    'degraded',
-    'permission-required',
-    'permission-limited',
-    'proof-required'
-  )
+  Schema.Literal(...GeneratedBrowserControlFullCatalogEffectStatusValues)
 );
 
 export const BrowserControlFullCatalogRuntimeOwnerSchema = withParser(
-  Schema.Literal(
-    'portal-only',
-    'parent-domain',
-    'agent-protocol',
-    'rust-service',
-    'child-agent',
-    'os-adapter',
-    'manual-proof',
-    'parent-owned-storage',
-    'local-ai-runtime'
-  )
+  Schema.Literal(...GeneratedBrowserControlFullCatalogRuntimeOwnerValues)
 );
 
 export const BrowserControlFullCatalogCapabilityStateSchema = withParser(
-  Schema.Literal(
-    'available',
-    'disabled',
-    'unsupported',
-    'permission-required',
-    'permission-limited',
-    'protected',
-    'degraded',
-    'manual-required',
-    'future-gap',
-    'unavailable'
-  )
+  Schema.Literal(...GeneratedBrowserControlFullCatalogCapabilityStateValues)
 );
 
-export const BrowserControlFullCatalogSidePanelCategorySchema = withParser(Schema.Literal('browser'));
+export const BrowserControlFullCatalogSidePanelCategorySchema = withParser(
+  Schema.Literal(...GeneratedBrowserControlFullCatalogSidePanelCategoryValues)
+);
 
 export const BrowserControlFullCatalogUiTabSchema = withParser(
-  Schema.Literal(
-    'rules',
-    'schedule',
-    'approvals',
-    'enforcement',
-    'audit',
-    'evidence',
-    'setup',
-    'reports',
-    'platform',
-    'data',
-    'ai'
-  )
+  Schema.Literal(...GeneratedBrowserControlFullCatalogUiTabValues)
 );
 
 export const BrowserControlFullCatalogCardKindSchema = withParser(
-  Schema.Literal(
-    'single-choice-compact',
-    'single-choice-many',
-    'multi-choice-normal',
-    'multi-choice-many',
-    'toggle',
-    'schedule-card',
-    'rule-list-card',
-    'target-list-card',
-    'retention-card',
-    'status-card'
-  )
+  Schema.Literal(...GeneratedBrowserControlFullCatalogCardKindValues)
 );
 
-export const BrowserControlFullCatalogSelectionModeSchema = withParser(Schema.Literal('single', 'multi'));
+export const BrowserControlFullCatalogSelectionModeSchema = withParser(
+  Schema.Literal(...GeneratedBrowserControlFullCatalogSelectionModeValues)
+);
 
 export const BrowserControlFullCatalogSectionKindSchema = withParser(
-  Schema.Literal('setting-section', 'rule-dimension-section', 'candidate-mvp-section', 'planning-gap-section')
+  Schema.Literal(...GeneratedBrowserControlFullCatalogSectionKindValues)
 );
 
 export const BrowserControlFullCatalogOptionSchema = withParser(

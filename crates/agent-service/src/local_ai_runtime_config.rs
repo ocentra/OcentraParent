@@ -98,16 +98,6 @@ impl LocalAiRuntimeConfigSnapshot {
         }
     }
 
-    #[cfg(test)]
-    pub fn with_acceleration(
-        mut self,
-        runtime_device: Option<String>,
-        gpu_layers: Option<String>,
-    ) -> Self {
-        self.acceleration = LocalAiRuntimeAccelerationConfig::basic(runtime_device, gpu_layers);
-        self
-    }
-
     pub(crate) fn with_acceleration_config(
         mut self,
         acceleration: LocalAiRuntimeAccelerationConfig,
@@ -152,17 +142,7 @@ impl LocalAiRuntimeConfigSnapshot {
         self.generation_max_tokens
     }
 
-    #[cfg(test)]
-    pub fn gpu_layers(&self) -> Option<&str> {
-        self.acceleration.gpu_layers.as_deref()
-    }
-
     pub(crate) fn acceleration(&self) -> &LocalAiRuntimeAccelerationConfig {
         &self.acceleration
-    }
-
-    #[cfg(test)]
-    pub fn runtime_device(&self) -> Option<&str> {
-        self.acceleration.runtime_device.as_deref()
     }
 }

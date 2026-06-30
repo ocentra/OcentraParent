@@ -15,11 +15,18 @@ import {
   BrowserControlFieldValueSchema,
   BrowserControlKindSchema,
   BrowserControlSchemaKnownWritesToPathSchema,
-  BrowserControlWritesToPath,
   type BrowserControlFieldValue,
   type BrowserControlSchemaKnownWritesToPath,
 } from '@ocentra-parent/schema-domain/browser-control-values';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  GeneratedBrowserControlManifestDefaults,
+  browserControlConditionsAreMetGenerated,
+  browserControlFieldDefaultMatchesOptionsGenerated,
+  browserControlFieldIdsAreUniqueGenerated,
+  browserControlSectionIdsAreUniqueGenerated,
+  browserControlWritesToIsKnownGenerated,
+} from './generated/browser-policy-control-catalog-helpers';
 
 export const BrowserControlFieldOptionSchema = withParser(
   Schema.Struct({
@@ -41,7 +48,7 @@ export const BrowserControlConditionSchema = withParser(
   }).pipe(
     Schema.filter(
       (condition) =>
-        browserControlWritesToIsKnown(condition.writesTo) ||
+        browserControlWritesToIsKnownGenerated(condition.writesTo) ||
         'Expected browser-control conditions to use a known writesTo path'
     )
   )
@@ -60,18 +67,16 @@ export const BrowserControlAuthoringFieldBaseSchema = Schema.Struct({
   required: Schema.Boolean,
 });
 
-type BrowserControlAuthoringFieldCandidate = Infer<typeof BrowserControlAuthoringFieldBaseSchema>;
-
 export const BrowserControlAuthoringFieldSchema = withParser(
   BrowserControlAuthoringFieldBaseSchema.pipe(
     Schema.filter(
       (field) =>
-        browserControlWritesToIsKnown(field.writesTo) ||
+        browserControlWritesToIsKnownGenerated(field.writesTo) ||
         'Expected browser-control authoring fields to use a known writesTo path'
     ),
     Schema.filter(
       (field) =>
-        browserControlFieldDefaultMatchesOptions(field) ||
+        browserControlFieldDefaultMatchesOptionsGenerated(field) ||
         'Expected option-backed browser controls to include their default value in options'
     )
   )
@@ -85,13 +90,12 @@ export const BrowserControlAuthoringSectionBaseSchema = Schema.Struct({
   fields: Schema.Array(BrowserControlAuthoringFieldSchema),
 });
 
-type BrowserControlAuthoringSectionCandidate = Infer<typeof BrowserControlAuthoringSectionBaseSchema>;
-
 export const BrowserControlAuthoringSectionSchema = withParser(
   BrowserControlAuthoringSectionBaseSchema.pipe(
     Schema.filter(
       (section) =>
-        browserControlFieldIdsAreUnique(section.fields) || 'Expected browser-control authoring field ids to be unique'
+        browserControlFieldIdsAreUniqueGenerated(section.fields) ||
+        'Expected browser-control authoring field ids to be unique'
     )
   )
 );
@@ -107,7 +111,8 @@ export const BrowserControlAuthoringManifestSchema = withParser(
   BrowserControlAuthoringManifestBaseSchema.pipe(
     Schema.filter(
       (manifest) =>
-        browserControlSectionIdsAreUnique(manifest.sections) || 'Expected browser-control section ids to be unique'
+        browserControlSectionIdsAreUniqueGenerated(manifest.sections) ||
+        'Expected browser-control section ids to be unique'
     )
   )
 );
@@ -119,69 +124,19 @@ export type BrowserControlAuthoringSection = Infer<typeof BrowserControlAuthorin
 export type BrowserControlAuthoringManifest = Infer<typeof BrowserControlAuthoringManifestSchema>;
 
 export const BrowserControlManifestDefaults = {
-  ManifestId: BrowserControlManifestIdSchema.parse('browser-control-authoring-v1'),
-  Section: {
-    Management: BrowserControlSectionIdSchema.parse('browser-management'),
-    BrowserDiscovery: BrowserControlSectionIdSchema.parse('browser-discovery'),
-    ManagedBrowser: BrowserControlSectionIdSchema.parse('managed-browser'),
-    UnmanagedBrowser: BrowserControlSectionIdSchema.parse('unmanaged-browser'),
-    UrlTabEvidence: BrowserControlSectionIdSchema.parse('url-tab-evidence'),
-    WebRules: BrowserControlSectionIdSchema.parse('web-rules'),
-    Budgets: BrowserControlSectionIdSchema.parse('budgets'),
-    BrowserGames: BrowserControlSectionIdSchema.parse('browser-games'),
-    Downloads: BrowserControlSectionIdSchema.parse('downloads'),
-    Approvals: BrowserControlSectionIdSchema.parse('approvals'),
-    Reports: BrowserControlSectionIdSchema.parse('reports'),
-    Audit: BrowserControlSectionIdSchema.parse('audit'),
-  },
-  Field: {
-    Enabled: BrowserControlFieldIdSchema.parse('browser.enabled'),
-    ExecutionMode: BrowserControlFieldIdSchema.parse('browser.executionMode'),
-    DefaultPosture: BrowserControlFieldIdSchema.parse('browser.defaultPosture'),
-    ManagementMode: BrowserControlFieldIdSchema.parse('browser.managementMode'),
-    DiscoveryScanInstalledBrowsers: BrowserControlFieldIdSchema.parse('discovery.scanInstalledBrowsers'),
-    DiscoveryScanRunningBrowsers: BrowserControlFieldIdSchema.parse('discovery.scanRunningBrowsers'),
-    DiscoveryDetectUnmanagedBrowsers: BrowserControlFieldIdSchema.parse('discovery.detectUnmanagedBrowsers'),
-    ManagedBrowserMode: BrowserControlFieldIdSchema.parse('managedBrowser.mode'),
-    ManagedBrowserAllowedFamilies: BrowserControlFieldIdSchema.parse('managedBrowser.allowedFamilies'),
-    ManagedBrowserLaunchMode: BrowserControlFieldIdSchema.parse('managedBrowser.launchMode'),
-    ManagedBrowserProfileMode: BrowserControlFieldIdSchema.parse('managedBrowser.profileMode'),
-    ManagedBrowserBridgeRequirements: BrowserControlFieldIdSchema.parse('managedBrowser.bridgeRequirements'),
-    ManagedBrowserIntegrationMechanisms: BrowserControlFieldIdSchema.parse('managedBrowser.integrationMechanisms'),
-    ManagedBrowserPolicyWriterControls: BrowserControlFieldIdSchema.parse('managedBrowser.policyWriterControls'),
-    ManagedBrowserPolicyWriterFallback: BrowserControlFieldIdSchema.parse('managedBrowser.policyWriterFallback'),
-    UnmanagedBrowserMode: BrowserControlFieldIdSchema.parse('unmanagedBrowser.mode'),
-    UnmanagedBrowserGraceSeconds: BrowserControlFieldIdSchema.parse('unmanagedBrowser.graceSeconds'),
-    UnmanagedBrowserAllowRecoverLaunchUrl: BrowserControlFieldIdSchema.parse('unmanagedBrowser.allowRecoverLaunchUrl'),
-    UnmanagedBrowserClassificationTargets: BrowserControlFieldIdSchema.parse('unmanagedBrowser.classificationTargets'),
-    EvidenceUrlScope: BrowserControlFieldIdSchema.parse('evidence.urlScope'),
-    RequiredProof: BrowserControlFieldIdSchema.parse('evidence.requiredProof'),
-    WhenProofUnavailable: BrowserControlFieldIdSchema.parse('evidence.whenProofUnavailable'),
-    EvidenceNeverCollect: BrowserControlFieldIdSchema.parse('evidence.neverCollect'),
-    AllowedTargetTypes: BrowserControlFieldIdSchema.parse('rules.allowedTargetTypes'),
-    AllowedActions: BrowserControlFieldIdSchema.parse('rules.allowedActions'),
-    RuleItems: BrowserControlFieldIdSchema.parse('rules.items'),
-    UrlAllowList: BrowserControlFieldIdSchema.parse('rules.urlAllowList'),
-    UrlBlockList: BrowserControlFieldIdSchema.parse('rules.urlBlockList'),
-    BudgetsEnabled: BrowserControlFieldIdSchema.parse('budgets.enabled'),
-    DailyBudgetMinutes: BrowserControlFieldIdSchema.parse('budgets.defaultDailyMinutes'),
-    BudgetCountingMode: BrowserControlFieldIdSchema.parse('budgets.countingMode'),
-    BrowserGameEducationalMode: BrowserControlFieldIdSchema.parse('browserGames.educationalGameMode'),
-    BrowserGameUnknownMode: BrowserControlFieldIdSchema.parse('browserGames.unknownGameMode'),
-    BrowserGameCloudGamingApproval: BrowserControlFieldIdSchema.parse('browserGames.cloudGamingApproval'),
-    BrowserGamePurchaseAccountApproval: BrowserControlFieldIdSchema.parse('browserGames.purchaseAccountApproval'),
-    BrowserGameUnblockedPortalMode: BrowserControlFieldIdSchema.parse('browserGames.unblockedPortalMode'),
-    BrowserGameWebglCanvasMode: BrowserControlFieldIdSchema.parse('browserGames.webglCanvasMode'),
-    BrowserGameDailyBudgetMinutes: BrowserControlFieldIdSchema.parse('browserGames.defaultDailyMinutes'),
-    DownloadMode: BrowserControlFieldIdSchema.parse('downloads.mode'),
-    DownloadBlockedTypes: BrowserControlFieldIdSchema.parse('downloads.blockedTypes'),
-    ApprovalRequiredFor: BrowserControlFieldIdSchema.parse('approvals.requiredFor'),
-    ApprovalUnansweredDefault: BrowserControlFieldIdSchema.parse('approvals.unansweredDefault'),
-    ReportVisibleFields: BrowserControlFieldIdSchema.parse('reports.visibleFields'),
-    RetentionExactUrl: BrowserControlFieldIdSchema.parse('retention.exactUrl'),
-    CustodyAllowedUses: BrowserControlFieldIdSchema.parse('custody.allowedUses'),
-    AuditRequiredFields: BrowserControlFieldIdSchema.parse('audit.requiredFields'),
-  },
+  ManifestId: BrowserControlManifestIdSchema.parse(GeneratedBrowserControlManifestDefaults.ManifestId),
+  Section: Object.fromEntries(
+    Object.entries(GeneratedBrowserControlManifestDefaults.Section).map(([key, value]) => [
+      key,
+      BrowserControlSectionIdSchema.parse(value),
+    ])
+  ) as { readonly [K in keyof typeof GeneratedBrowserControlManifestDefaults.Section]: BrowserControlSectionId },
+  Field: Object.fromEntries(
+    Object.entries(GeneratedBrowserControlManifestDefaults.Field).map(([key, value]) => [
+      key,
+      BrowserControlFieldIdSchema.parse(value),
+    ])
+  ) as { readonly [K in keyof typeof GeneratedBrowserControlManifestDefaults.Field]: BrowserControlFieldId },
 } as const;
 
 export const decodeBrowserControlAuthoringManifest = Schema.decodeUnknownSync(BrowserControlAuthoringManifestSchema);
@@ -191,7 +146,7 @@ export function browserControlVisibleSectionIds(
   values: Record<string, BrowserControlFieldValue>
 ): BrowserControlSectionId[] {
   return manifest.sections
-    .filter((section) => browserControlConditionsAreMet(section.visibleWhen, values))
+    .filter((section) => browserControlConditionsAreMetGenerated(section.visibleWhen, values))
     .map((section) => section.sectionId);
 }
 
@@ -207,73 +162,4 @@ export function browserControlManifestAllowsWritesTo(
   writesTo: BrowserControlSchemaKnownWritesToPath
 ): boolean {
   return manifest.sections.some((section) => section.fields.some((field) => field.writesTo === writesTo));
-}
-
-const BrowserControlKnownWritesToPaths = new Set(
-  Object.values(BrowserControlWritesToPath).map((value) => String(value))
-);
-
-function browserControlConditionsAreMet(
-  conditions: ReadonlyArray<BrowserControlCondition>,
-  values: Record<string, BrowserControlFieldValue>
-): boolean {
-  return conditions.every((condition) => browserControlConditionIsMet(condition, values));
-}
-
-function browserControlConditionIsMet(
-  condition: BrowserControlCondition,
-  values: Record<string, BrowserControlFieldValue>
-): boolean {
-  if (condition.kind === 'default-posture') {
-    return values[BrowserControlWritesToPath.DefaultPosture] === condition.defaultPosture;
-  }
-  if (condition.writesTo === null) {
-    return false;
-  }
-  const actual = values[condition.writesTo];
-  if (condition.kind === 'equals') {
-    return actual === condition.expectedValue;
-  }
-  if (condition.kind === 'not-equals' || condition.kind === 'notEquals') {
-    return actual !== condition.expectedValue;
-  }
-  if (Array.isArray(actual) && typeof condition.expectedValue === 'string') {
-    return condition.kind === 'includes'
-      ? actual.includes(condition.expectedValue)
-      : !actual.includes(condition.expectedValue);
-  }
-  return false;
-}
-
-function browserControlFieldDefaultMatchesOptions(field: BrowserControlAuthoringFieldCandidate): boolean {
-  if (
-    field.controlKind === 'toggle' ||
-    field.controlKind === 'boolean' ||
-    field.controlKind === 'number' ||
-    field.controlKind === 'duration' ||
-    field.controlKind === 'schedule' ||
-    field.controlKind === 'rule-list' ||
-    field.controlKind === 'target-list' ||
-    field.controlKind === 'action-list' ||
-    field.controlKind === 'readonly-status' ||
-    field.controlKind === 'read-only-status'
-  ) {
-    return true;
-  }
-  if (Array.isArray(field.defaultValue)) {
-    return field.defaultValue.every((value) => field.options.some((optionItem) => optionItem.value === value));
-  }
-  return field.options.some((optionItem) => optionItem.value === field.defaultValue);
-}
-
-function browserControlWritesToIsKnown(writesTo: BrowserControlSchemaKnownWritesToPath | null): boolean {
-  return writesTo === null || BrowserControlKnownWritesToPaths.has(String(writesTo));
-}
-
-function browserControlFieldIdsAreUnique(fields: ReadonlyArray<BrowserControlAuthoringFieldCandidate>): boolean {
-  return new Set(fields.map((field) => field.fieldId)).size === fields.length;
-}
-
-function browserControlSectionIdsAreUnique(sections: ReadonlyArray<BrowserControlAuthoringSectionCandidate>): boolean {
-  return new Set(sections.map((section) => section.sectionId)).size === sections.length;
 }

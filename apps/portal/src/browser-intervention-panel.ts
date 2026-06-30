@@ -1,16 +1,14 @@
-import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import type {
   BrowserInterventionReadModel,
   BrowserInterventionRow,
 } from '@ocentra-parent/schema-domain/browser-intervention-schemas';
 import type { ActivityEvidenceId } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import type { LogFieldValue } from '@ocentra-parent/schema-domain/logging-contracts';
-import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodeParentPortalDetailValue, type ParentPortalDetailValue } from '../generated/parent-ui-bridge';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 
@@ -115,34 +113,34 @@ function emptyMessage(messageText: PortalDisplayText): HTMLElement {
   return message;
 }
 
-function eventStatus(event: AgentEventEnvelope | null): PortalDetailValue {
+function eventStatus(event: PortalLiveActivityState['browserInterventionEvent']): ParentPortalDetailValue {
   if (event === null) {
     return notReported();
   }
-  return decodePortalDetailValue(event.severity);
+  return decodeParentPortalDetailValue(event.severity ?? resolvePortalDevText(PortalDevTextToken.NotReported));
 }
 
-function eventReason(event: AgentEventEnvelope | null): PortalDetailValue {
+function eventReason(event: PortalLiveActivityState['browserInterventionEvent']): ParentPortalDetailValue {
   if (event === null) {
     return notReported();
   }
-  return detailFromValue(event.payload[AgentProtocolDefaults.Field.Reason]);
+  return detailFromValue(event.payload?.[AgentProtocolDefaults.Field.Reason]);
 }
 
-function detailFromValue(value: LogFieldValue | undefined): PortalDetailValue {
+function detailFromValue(value: unknown): ParentPortalDetailValue {
   if (value === undefined || value === null) {
     return notReported();
   }
-  return decodePortalDetailValue(String(value));
+  return decodeParentPortalDetailValue(String(value));
 }
 
-function detailFromList(values: readonly ActivityEvidenceId[] | undefined): PortalDetailValue {
+function detailFromList(values: readonly ActivityEvidenceId[] | undefined): ParentPortalDetailValue {
   if (values === undefined || values.length === 0) {
     return notReported();
   }
-  return decodePortalDetailValue(values.join(AgentProtocolDefaults.Delimiter.List));
+  return decodeParentPortalDetailValue(values.join(AgentProtocolDefaults.Delimiter.List));
 }
 
-function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
+function notReported(): ParentPortalDetailValue {
+  return decodeParentPortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
 }

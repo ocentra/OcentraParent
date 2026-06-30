@@ -1,32 +1,47 @@
 import type { ReactElement } from 'react';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
 import {
-  createSetupFirstRunPanelIntent,
-  type SetupFirstRunPanelCard,
-  type SetupFirstRunPanelDetail,
-} from '@ocentra-parent/portal-domain/setup-first-run-panel';
-import { isPortalSetupFirstRunRoute } from '@ocentra-parent/portal-domain/routes';
-import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+  isParentSetupFirstRunRoute,
+  type ParentRouteId,
+  type ParentSetupFirstRunPanelCardSnapshot,
+  type ParentSetupFirstRunPanelDetailSnapshot,
+  type ParentSetupFirstRunPanelSnapshot,
+} from '../generated/parent-ui-bridge';
 
-export function shouldRenderSetupFirstRunRoute(route: PortalRouteValue): boolean {
-  return isPortalSetupFirstRunRoute(route);
+export function shouldRenderSetupFirstRunRoute(route: ParentRouteId): boolean {
+  return isParentSetupFirstRunRoute(route);
 }
 
-export function SetupFirstRunRoutePanel(): ReactElement {
-  const intent = createSetupFirstRunPanelIntent();
+export function SetupFirstRunRoutePanel({
+  panel,
+}: {
+  readonly panel: ParentSetupFirstRunPanelSnapshot | null;
+}): ReactElement {
+  if (panel === null) {
+    return (
+      <section aria-label="Start route unavailable" className={PortalDom.Classes.TrackingStatusOverlay}>
+        <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+          <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+            <p className={PortalDom.Classes.ProductEyebrow}>Setup route</p>
+            <h2>Start route unavailable</h2>
+            <p>Parent Rust snapshot unavailable for the setup-first-run route.</p>
+          </header>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
-      aria-label={intent.title}
+      aria-label={panel.title}
       className={PortalDom.Classes.TrackingStatusOverlay}
       data-ocentra-setup-proof="first-run-route"
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{panel.eyebrow}</p>
+          <h2>{panel.title}</h2>
+          <p>{panel.body}</p>
         </header>
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
@@ -35,12 +50,12 @@ export function SetupFirstRunRoutePanel(): ReactElement {
         >
           <SetupFirstRunCard
             card={{
-              title: decodeDisplayText('State machine summary'),
-              summary: intent.summary,
-              details: intent.summaryDetails,
+              title: panel.summaryCardTitle,
+              summary: panel.summary,
+              details: panel.summaryDetails,
             }}
           />
-          {intent.cards.map((card, index) => (
+          {panel.cards.map((card, index) => (
             <SetupFirstRunCard key={`${String(card.title)}:${index}`} card={card} />
           ))}
         </div>
@@ -49,7 +64,11 @@ export function SetupFirstRunRoutePanel(): ReactElement {
   );
 }
 
-function SetupFirstRunCard({ card }: { readonly card: SetupFirstRunPanelCard }): ReactElement {
+function SetupFirstRunCard({
+  card,
+}: {
+  readonly card: ParentSetupFirstRunPanelCardSnapshot;
+}): ReactElement {
   return (
     <article className={setupCardClassName()}>
       <h2>{card.title}</h2>
@@ -59,7 +78,11 @@ function SetupFirstRunCard({ card }: { readonly card: SetupFirstRunPanelCard }):
   );
 }
 
-function SetupFirstRunDetails({ details }: { readonly details: readonly SetupFirstRunPanelDetail[] }): ReactElement {
+function SetupFirstRunDetails({
+  details,
+}: {
+  readonly details: readonly ParentSetupFirstRunPanelDetailSnapshot[];
+}): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
       {details.map((detail, index) => (
@@ -69,7 +92,11 @@ function SetupFirstRunDetails({ details }: { readonly details: readonly SetupFir
   );
 }
 
-function SetupFirstRunDetail({ detail }: { readonly detail: SetupFirstRunPanelDetail }): ReactElement {
+function SetupFirstRunDetail({
+  detail,
+}: {
+  readonly detail: ParentSetupFirstRunPanelDetailSnapshot;
+}): ReactElement {
   return (
     <div>
       <dt>{detail.label}</dt>

@@ -1,92 +1,74 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-const RequiredRequestKinds = ['install', 'purchase', 'subscription'] as const;
-const RequiredPackageSourceFields = [
-  'package-identifier',
-  'installer-source',
-  'publisher-or-developer',
-  'version-or-build',
-  'signature-or-receipt',
-  'source-captured-at',
-] as const;
-const RequiredPackageSourceRows = [
-  {
-    platform: 'windows',
-    storeSurface: 'microsoft-store',
-    packageSourceKind: 'windows-store-package-identity',
-    artifactStatus: 'manual-required',
-    approvalPathState: 'manual-required',
-  },
-  {
-    platform: 'macos',
-    storeSurface: 'mac-app-store',
-    packageSourceKind: 'macos-bundle-receipt',
-    artifactStatus: 'manual-required',
-    approvalPathState: 'manual-required',
-  },
-  {
-    platform: 'linux',
-    storeSurface: 'linux-package-manager',
-    packageSourceKind: 'linux-package-manager-record',
-    artifactStatus: 'unavailable',
-    approvalPathState: 'unavailable',
-  },
-  {
-    platform: 'android',
-    storeSurface: 'google-play',
-    packageSourceKind: 'android-package-source-record',
-    artifactStatus: 'device-proof-required',
-    approvalPathState: 'manual-required',
-  },
-  {
-    platform: 'ios',
-    storeSurface: 'apple-app-store',
-    packageSourceKind: 'ios-app-source-record',
-    artifactStatus: 'device-proof-required',
-    approvalPathState: 'manual-required',
-  },
-] as const;
+import {
+  AppInstallPurchaseApprovalContractRuntime,
+  GeneratedAppInstallPurchaseApprovalInterceptionClaims,
+  GeneratedAppInstallPurchaseApprovalPackageSourceApprovalPathStates,
+  GeneratedAppInstallPurchaseApprovalPackageSourceArtifactEvidenceClaims,
+  GeneratedAppInstallPurchaseApprovalPackageSourceArtifactStatuses,
+  GeneratedAppInstallPurchaseApprovalPackageSourceChildDataCustodyStates,
+  GeneratedAppInstallPurchaseApprovalPackageSourceFields,
+  GeneratedAppInstallPurchaseApprovalPackageSourceKinds,
+  GeneratedAppInstallPurchaseApprovalPlatformAdapterClaims,
+  GeneratedAppInstallPurchaseApprovalRequestKinds,
+  GeneratedAppInstallPurchaseApprovalStoreIntegrationClaims,
+  type GeneratedAppInstallPurchaseApprovalStoreSurface,
+} from './generated/app-install-purchase-approval-contracts';
+import {
+  appInstallPurchaseApprovalPackageSourceArtifactRowIsHonestGenerated,
+  appInstallPurchaseApprovalPackageSourceArtifactRowsAreCompleteGenerated,
+} from './generated/app-install-purchase-proof-helpers';
 
+const RequiredRequestKinds = GeneratedAppInstallPurchaseApprovalRequestKinds;
+const RequiredPackageSourceFields = GeneratedAppInstallPurchaseApprovalPackageSourceFields;
 const AppInstallPurchaseApprovalPackageSourceSchemaVersionSchema = withParser(
-  Schema.Literal('app-install-purchase-approval-contract-proof')
+  Schema.Literal(AppInstallPurchaseApprovalContractRuntime.SchemaVersion)
 );
+const PackageSourceStoreSurfaces = [
+  'google-play',
+  'apple-app-store',
+  'mac-app-store',
+  'microsoft-store',
+  'linux-package-manager',
+] as const satisfies readonly GeneratedAppInstallPurchaseApprovalStoreSurface[];
+const PackageSourceKinds = GeneratedAppInstallPurchaseApprovalPackageSourceKinds;
+const PackageSourceApprovalPathStates = GeneratedAppInstallPurchaseApprovalPackageSourceApprovalPathStates;
+const PackageSourceArtifactStatuses = GeneratedAppInstallPurchaseApprovalPackageSourceArtifactStatuses;
+const PackageSourceArtifactEvidenceClaims =
+  GeneratedAppInstallPurchaseApprovalPackageSourceArtifactEvidenceClaims;
+const PackageSourceStoreIntegrationClaims = GeneratedAppInstallPurchaseApprovalStoreIntegrationClaims;
+const PackageSourcePlatformAdapterClaims = GeneratedAppInstallPurchaseApprovalPlatformAdapterClaims;
+const PackageSourceInterceptionClaims = GeneratedAppInstallPurchaseApprovalInterceptionClaims;
+const PackageSourceChildDataCustodyStates =
+  GeneratedAppInstallPurchaseApprovalPackageSourceChildDataCustodyStates;
 const AppInstallPurchaseApprovalPackageSourceRequestKindSchema = withParser(
-  Schema.Literal('install', 'purchase', 'subscription')
+  Schema.Literal(...RequiredRequestKinds)
 );
 const AppInstallPurchaseApprovalPackageSourceStoreSurfaceSchema = withParser(
-  Schema.Literal('google-play', 'apple-app-store', 'mac-app-store', 'microsoft-store', 'linux-package-manager')
+  Schema.Literal(...PackageSourceStoreSurfaces)
 );
-const AppInstallPurchaseApprovalPackageSourceKindSchema = withParser(
-  Schema.Literal(
-    'windows-store-package-identity',
-    'macos-bundle-receipt',
-    'linux-package-manager-record',
-    'android-package-source-record',
-    'ios-app-source-record'
-  )
-);
+const AppInstallPurchaseApprovalPackageSourceKindSchema = withParser(Schema.Literal(...PackageSourceKinds));
 export const AppInstallPurchaseApprovalPackageSourceArtifactStatusSchema = withParser(
-  Schema.Literal('manual-required', 'device-proof-required', 'unavailable')
+  Schema.Literal(...PackageSourceArtifactStatuses)
 );
 const AppInstallPurchaseApprovalPackageSourceApprovalPathStateSchema = withParser(
-  Schema.Literal('manual-required', 'unavailable')
+  Schema.Literal(...PackageSourceApprovalPathStates)
 );
-const AppInstallPurchaseApprovalPackageSourceFieldSchema = withParser(
-  Schema.Literal(
-    'package-identifier',
-    'installer-source',
-    'publisher-or-developer',
-    'version-or-build',
-    'signature-or-receipt',
-    'source-captured-at'
-  )
+const AppInstallPurchaseApprovalPackageSourceFieldSchema = withParser(Schema.Literal(...RequiredPackageSourceFields));
+const AppInstallPurchaseApprovalPackageSourceArtifactClaimSchema = withParser(
+  Schema.Literal(...PackageSourceArtifactEvidenceClaims)
 );
-const AppInstallPurchaseApprovalPackageSourceArtifactClaimSchema = withParser(Schema.Literal('not-attached'));
-const AppInstallPurchaseApprovalPackageSourceStoreIntegrationClaimSchema = withParser(Schema.Literal('not-claimed'));
-const AppInstallPurchaseApprovalPackageSourcePlatformAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
-const AppInstallPurchaseApprovalPackageSourceInterceptionClaimSchema = withParser(Schema.Literal('not-claimed'));
+const AppInstallPurchaseApprovalPackageSourceStoreIntegrationClaimSchema = withParser(
+  Schema.Literal(...PackageSourceStoreIntegrationClaims)
+);
+const AppInstallPurchaseApprovalPackageSourcePlatformAdapterClaimSchema = withParser(
+  Schema.Literal(...PackageSourcePlatformAdapterClaims)
+);
+const AppInstallPurchaseApprovalPackageSourceInterceptionClaimSchema = withParser(
+  Schema.Literal(...PackageSourceInterceptionClaims)
+);
 const AppInstallPurchaseApprovalPackageSourceChildDataCustodySchema = withParser(
-  Schema.Literal('no-child-activity-data')
+  Schema.Literal(...PackageSourceChildDataCustodyStates)
 );
 
 const AppInstallPurchaseApprovalPackageSourceArtifactRowIdSchema = brandedNonEmptyStringSchema(
@@ -142,7 +124,7 @@ export const AppInstallPurchaseApprovalPackageSourceArtifactRowSchema = withPars
   AppInstallPurchaseApprovalPackageSourceArtifactRowBaseSchema.pipe(
     Schema.filter(
       (row) =>
-        packageSourceArtifactRowIsHonest(row) ||
+        appInstallPurchaseApprovalPackageSourceArtifactRowIsHonestGenerated(row) ||
         'Expected package-source artifact rows to require platform proof without attaching real child-device artifacts or claiming store integration'
     )
   )
@@ -155,129 +137,7 @@ export type AppInstallPurchaseApprovalPackageSourceArtifactRow = Infer<
 export function appInstallPurchaseApprovalPackageSourceArtifactRowsAreComplete(
   rows: ReadonlyArray<AppInstallPurchaseApprovalPackageSourceArtifactRow>
 ): boolean {
-  const rowKeys = new Set(rows.map((row) => packageSourceKey(row)));
-  return (
-    rows.length === RequiredPackageSourceRows.length &&
-    RequiredPackageSourceRows.every((source) => {
-      const row = rows.find((entry) => packageSourceKey(entry) === packageSourceKey(source));
-      return row !== undefined && packageSourceRowMatchesExpectedState(row, source);
-    }) &&
-    rowKeys.size === rows.length &&
-    rows.every((row) => packageSourceArtifactRowIsHonest(row))
+  return appInstallPurchaseApprovalPackageSourceArtifactRowsAreCompleteGenerated(
+    rows satisfies ReadonlyArray<AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate>
   );
-}
-
-function packageSourceArtifactRowIsHonest(row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate): boolean {
-  return (
-    packageSourceClaimsStayContractOnly(row) &&
-    rowRequestCoverageIsComplete(row) &&
-    rowPackageSourceFieldsAreExplicit(row) &&
-    rowStoreSurfaceMatchesPackageSource(row) &&
-    rowArtifactStatusMatchesApprovalPath(row)
-  );
-}
-
-function packageSourceClaimsStayContractOnly(
-  row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate
-): boolean {
-  return (
-    row.requiredArtifacts.length > 0 &&
-    packageSourceEvidenceIsNotAttached(row) &&
-    packageSourceNonClaimsAreExplicit(row) &&
-    packageSourceClaimBoundaryIsExplicit(row)
-  );
-}
-
-function packageSourceEvidenceIsNotAttached(row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate): boolean {
-  return (
-    row.artifactEvidenceClaim === 'not-attached' && row.artifactEvidencePath === null && row.artifactCapturedAt === null
-  );
-}
-
-function packageSourceNonClaimsAreExplicit(row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate): boolean {
-  return (
-    row.storeIntegrationClaim === 'not-claimed' &&
-    row.platformAdapterClaim === 'not-implemented' &&
-    row.interceptionClaim === 'not-claimed' &&
-    row.childDataCustody === 'no-child-activity-data'
-  );
-}
-
-function packageSourceClaimBoundaryIsExplicit(
-  row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate
-): boolean {
-  return (
-    row.claimBoundary.includes('contract proof') &&
-    row.claimBoundary.includes('no store integration') &&
-    row.claimBoundary.includes('no platform adapter') &&
-    row.claimBoundary.includes('no real install or purchase interception') &&
-    row.claimBoundary.includes('no child activity data')
-  );
-}
-
-function rowRequestCoverageIsComplete(row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate): boolean {
-  return arrayContainsEvery(row.requestKindCoverage, RequiredRequestKinds) && arrayIsUnique(row.requestKindCoverage);
-}
-
-function rowPackageSourceFieldsAreExplicit(row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate): boolean {
-  return (
-    row.packageSourceFieldsRequired.length === RequiredPackageSourceFields.length &&
-    row.packageSourceFieldsAttached.length === 0 &&
-    arrayContainsEvery(row.packageSourceFieldsRequired, RequiredPackageSourceFields) &&
-    arrayIsUnique(row.packageSourceFieldsRequired)
-  );
-}
-
-function rowStoreSurfaceMatchesPackageSource(
-  row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate
-): boolean {
-  if (row.storeSurface === 'microsoft-store') {
-    return row.packageSourceKind === 'windows-store-package-identity';
-  }
-  if (row.storeSurface === 'mac-app-store') {
-    return row.packageSourceKind === 'macos-bundle-receipt';
-  }
-  if (row.storeSurface === 'linux-package-manager') {
-    return row.packageSourceKind === 'linux-package-manager-record';
-  }
-  if (row.storeSurface === 'google-play') {
-    return row.packageSourceKind === 'android-package-source-record';
-  }
-  return row.packageSourceKind === 'ios-app-source-record';
-}
-
-function rowArtifactStatusMatchesApprovalPath(
-  row: AppInstallPurchaseApprovalPackageSourceArtifactRowCandidate
-): boolean {
-  if (row.approvalPathState === 'unavailable') {
-    return row.artifactStatus === 'unavailable';
-  }
-  return row.artifactStatus === 'manual-required' || row.artifactStatus === 'device-proof-required';
-}
-
-function packageSourceRowMatchesExpectedState(
-  row: AppInstallPurchaseApprovalPackageSourceArtifactRow,
-  expected: (typeof RequiredPackageSourceRows)[number]
-): boolean {
-  return (
-    row.packageSourceKind === expected.packageSourceKind &&
-    row.artifactStatus === expected.artifactStatus &&
-    row.approvalPathState === expected.approvalPathState
-  );
-}
-
-function arrayContainsEvery<T extends string>(values: readonly T[], requiredValues: readonly T[]): boolean {
-  const valueSet = new Set(values);
-  return requiredValues.every((value) => valueSet.has(value));
-}
-
-function arrayIsUnique<T extends string>(values: readonly T[]): boolean {
-  return new Set(values).size === values.length;
-}
-
-function packageSourceKey(input: {
-  readonly platform: (typeof RequiredPackageSourceRows)[number]['platform'];
-  readonly storeSurface: (typeof RequiredPackageSourceRows)[number]['storeSurface'];
-}): string {
-  return `${input.platform}:${input.storeSurface}`;
 }

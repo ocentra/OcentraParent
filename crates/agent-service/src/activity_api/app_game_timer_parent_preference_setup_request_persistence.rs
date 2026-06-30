@@ -34,6 +34,8 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequestResult;
 use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
 
+use crate::json_contract::serialize_json_string;
+
 macro_rules! provider_setup_audit_event {
     ($command:expr, $result:expr, $field:ident, $status:expr) => {
         provider_audit_activity_event($command, $result, &$result.$field, $status)
@@ -258,9 +260,7 @@ fn child_runtime_delivery_receipt_pending_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING
             .to_string(),
-        LogFieldValue::String(serde_json::to_string(result).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })),
+        LogFieldValue::String(serialize_json_string(result)),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -321,9 +321,7 @@ fn child_runtime_delivery_receipt_requirement_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT
             .to_string(),
-        LogFieldValue::String(serde_json::to_string(result).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })),
+        LogFieldValue::String(serialize_json_string(result)),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -386,9 +384,7 @@ fn child_runtime_delivery_dispatch_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH
             .to_string(),
-        LogFieldValue::String(serde_json::to_string(result).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })),
+        LogFieldValue::String(serialize_json_string(result)),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -449,9 +445,7 @@ fn child_runtime_delivery_queue_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE
             .to_string(),
-        LogFieldValue::String(serde_json::to_string(result).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })),
+        LogFieldValue::String(serialize_json_string(result)),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -512,9 +506,7 @@ fn child_runtime_delivery_handoff_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF
             .to_string(),
-        LogFieldValue::String(serde_json::to_string(result).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })),
+        LogFieldValue::String(serialize_json_string(result)),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -574,9 +566,7 @@ fn mutation_receipt_activity_event(
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT.to_string(),
-        LogFieldValue::String(serde_json::to_string(result).unwrap_or_else(|error| {
-            panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        })),
+        LogFieldValue::String(serialize_json_string(result)),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -627,8 +617,7 @@ fn action_result_activity_event(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
 ) -> ActivityEvent {
     let row = action_result_row(command, result);
-    let row_json = serde_json::to_string(&row)
-        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES));
+    let row_json = serialize_json_string(&row);
     let AppGameControlActionResult {
         result_id,
         result_status,

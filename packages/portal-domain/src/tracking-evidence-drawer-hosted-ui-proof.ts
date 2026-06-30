@@ -4,7 +4,7 @@ import {
   decodePortalDetailValue,
   type PortalDetailValue,
   type TrackingStatusProofArtifact,
-} from '@ocentra-parent/schema-domain/portal-contracts';
+} from './portal-contract-adapter';
 import { PortalDetails } from './details';
 import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 

@@ -62,7 +62,7 @@ async function main() {
       'Agent service derives category candidate counts from existing inventory category candidates',
       'Agent service keeps unknown, possible-game, and launcher-game-candidate rows manual-required for review',
       'The existing policy readiness command consumes these rows from the service-backed app/game read model without portal scanning or adapter execution',
-      'Portal-domain renders category candidate and unknown-review rows/counts in the parent-safe policy-readiness intent',
+      'Portal route snapshots render category candidate and unknown-review rows/counts in the parent-safe policy-readiness surface',
     ],
     claimsNotProved: [
       'finished parent approval UI',
@@ -81,8 +81,8 @@ async function main() {
       servicePayload: 'crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs',
       servicePayloadTest: 'crates/agent-service/src/activity_api/app_game_policy_readiness_payload_tests.rs',
       serviceCommandTest: 'crates/agent-service/src/activity_api/app_game_policy_readiness_service_tests.rs',
-      portalDomainIntent: 'packages/portal-domain/src/app-game-policy-readiness-panel.ts',
-      portalDomainUnitTest: 'packages/portal-domain/tests/unit/app-game-policy-readiness-panel.test.ts',
+      portalRoutePanel: 'apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx',
+      portalBridgeGuard: 'apps/portal/tests/parent-ui-bridge.test.ts',
       portalRouteTest: 'apps/portal/tests/app-game-policy-readiness-panel.test.ts',
     },
   };
@@ -118,7 +118,7 @@ async function writeProofPack(proof) {
       '- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-policy-readiness-panel: PASS',
       '- The parser accepts categoryCandidate and unknownReview rows and rejects adapterDispatchClaimed=true.',
-      '- The app portal route surface renders category/unknown rows and counts without adapter dispatch claims.',
+      '- The app portal route snapshot surface renders category/unknown rows and counts without adapter dispatch claims.',
       '',
     ].join('\n'),
     'utf8'

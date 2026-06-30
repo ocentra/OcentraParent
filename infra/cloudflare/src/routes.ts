@@ -1,11 +1,4 @@
-export type AuthState =
-  | 'public'
-  | 'parent-session-required'
-  | 'trusted-parent-device-required'
-  | 'admin-required'
-  | 'support-required'
-  | 'provider-webhook-signature-required'
-  | 'internal-queue-only';
+import type { AuthState, RouteAuditRule } from './auth/model.js';
 
 export type RouteMethod = 'GET' | 'POST';
 
@@ -16,6 +9,7 @@ export interface RouteManifestEntry {
   handlerKey: string;
   requestModel: string;
   responseModel: string;
+  auditRule: RouteAuditRule;
   auditEvent: string;
   proofIdFamily: string;
 }
@@ -28,6 +22,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'health',
     requestModel: 'none',
     responseModel: 'HealthStatusResponse',
+    auditRule: 'public-observability',
     auditEvent: 'cloudflare.health.read',
     proofIdFamily: 'cloudflare-control.worker-entrypoint',
   },
@@ -38,6 +33,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'pricing-public',
     requestModel: 'BillingPricingPublicRequest',
     responseModel: 'BillingPricingPublicResponse',
+    auditRule: 'public-observability',
     auditEvent: 'billing.pricing.read',
     proofIdFamily: 'payment-route.cloudflare-prerequisite',
   },
@@ -48,6 +44,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-status',
     requestModel: 'BillingStatusRequest',
     responseModel: 'BillingStatusResponse',
+    auditRule: 'parent-session-read',
     auditEvent: 'billing.status.read',
     proofIdFamily: 'cloudflare-control.portal-to-worker-smoke',
   },
@@ -58,6 +55,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-checkout',
     requestModel: 'BillingCheckoutRequest',
     responseModel: 'BillingCheckoutResponse',
+    auditRule: 'parent-session-write',
     auditEvent: 'billing.checkout.create',
     proofIdFamily: 'payment-route.checkout',
   },
@@ -68,6 +66,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-portal',
     requestModel: 'BillingPortalRequest',
     responseModel: 'BillingPortalResponse',
+    auditRule: 'parent-session-write',
     auditEvent: 'billing.portal.open',
     proofIdFamily: 'payment-route.portal',
   },
@@ -78,6 +77,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-invoices',
     requestModel: 'BillingInvoicesRequest',
     responseModel: 'BillingInvoicesResponse',
+    auditRule: 'parent-session-read',
     auditEvent: 'billing.invoices.read',
     proofIdFamily: 'payment-route.invoices',
   },
@@ -88,6 +88,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-change-plan',
     requestModel: 'BillingChangePlanRequest',
     responseModel: 'BillingChangePlanResponse',
+    auditRule: 'parent-session-write',
     auditEvent: 'billing.plan.change',
     proofIdFamily: 'payment-route.plan-change',
   },
@@ -98,6 +99,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-cancel',
     requestModel: 'BillingCancelRequest',
     responseModel: 'BillingCancelResponse',
+    auditRule: 'parent-session-write',
     auditEvent: 'billing.subscription.cancel',
     proofIdFamily: 'payment-route.cancellation',
   },
@@ -108,6 +110,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-referrals',
     requestModel: 'BillingReferralsRequest',
     responseModel: 'BillingReferralsResponse',
+    auditRule: 'parent-session-read',
     auditEvent: 'billing.referrals.read',
     proofIdFamily: 'payment-route.referrals',
   },
@@ -118,6 +121,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-referral-invite',
     requestModel: 'BillingReferralInviteRequest',
     responseModel: 'BillingReferralInviteResponse',
+    auditRule: 'parent-session-write',
     auditEvent: 'billing.referrals.invite',
     proofIdFamily: 'payment-route.referrals',
   },
@@ -128,6 +132,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-entitlement-snapshot',
     requestModel: 'BillingEntitlementSnapshotRequest',
     responseModel: 'BillingEntitlementSnapshotResponse',
+    auditRule: 'trusted-parent-device-read',
     auditEvent: 'billing.entitlement.snapshot',
     proofIdFamily: 'payment-route.entitlement-snapshot',
   },
@@ -138,6 +143,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-license-check',
     requestModel: 'BillingLicenseCheckRequest',
     responseModel: 'BillingLicenseCheckResponse',
+    auditRule: 'trusted-parent-device-write',
     auditEvent: 'billing.license.check',
     proofIdFamily: 'payment-route.license-check',
   },
@@ -148,6 +154,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'billing-manual-invoice',
     requestModel: 'BillingManualInvoiceRequest',
     responseModel: 'BillingManualInvoiceResponse',
+    auditRule: 'support-write',
     auditEvent: 'billing.manual-invoice.create',
     proofIdFamily: 'payment-route.support-admin',
   },
@@ -158,6 +165,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'stripe-webhook',
     requestModel: 'StripeWebhookRequest',
     responseModel: 'WebhookAckResponse',
+    auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.stripe',
     proofIdFamily: 'payment-route.webhook-stripe',
   },
@@ -168,6 +176,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'razorpay-webhook',
     requestModel: 'RazorpayWebhookRequest',
     responseModel: 'WebhookAckResponse',
+    auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.razorpay',
     proofIdFamily: 'payment-route.webhook-razorpay',
   },
@@ -178,6 +187,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'paypal-webhook',
     requestModel: 'PayPalWebhookRequest',
     responseModel: 'WebhookAckResponse',
+    auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.paypal',
     proofIdFamily: 'payment-route.webhook-paypal',
   },
@@ -188,6 +198,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'apple-webhook',
     requestModel: 'AppleWebhookRequest',
     responseModel: 'WebhookAckResponse',
+    auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.apple',
     proofIdFamily: 'payment-route.webhook-apple',
   },
@@ -198,6 +209,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'google-webhook',
     requestModel: 'GoogleWebhookRequest',
     responseModel: 'WebhookAckResponse',
+    auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.google',
     proofIdFamily: 'payment-route.webhook-google',
   },
@@ -208,6 +220,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'admin-billing-accounts',
     requestModel: 'AdminBillingAccountsRequest',
     responseModel: 'AdminBillingAccountsResponse',
+    auditRule: 'support-read',
     auditEvent: 'billing.admin.accounts.read',
     proofIdFamily: 'payment-route.support-admin',
   },
@@ -218,6 +231,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'admin-billing-invoices',
     requestModel: 'AdminBillingInvoicesRequest',
     responseModel: 'AdminBillingInvoicesResponse',
+    auditRule: 'support-read',
     auditEvent: 'billing.admin.invoices.read',
     proofIdFamily: 'payment-route.support-admin',
   },
@@ -228,6 +242,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'admin-billing-refunds',
     requestModel: 'AdminBillingRefundRequest',
     responseModel: 'AdminBillingRefundResponse',
+    auditRule: 'admin-write',
     auditEvent: 'billing.admin.refund.create',
     proofIdFamily: 'payment-route.refunds',
   },
@@ -238,6 +253,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'admin-billing-disputes',
     requestModel: 'AdminBillingDisputesRequest',
     responseModel: 'AdminBillingDisputesResponse',
+    auditRule: 'admin-read',
     auditEvent: 'billing.admin.disputes.read',
     proofIdFamily: 'payment-route.disputes',
   },
@@ -248,6 +264,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'admin-billing-referrals',
     requestModel: 'AdminBillingReferralsRequest',
     responseModel: 'AdminBillingReferralsResponse',
+    auditRule: 'admin-read',
     auditEvent: 'billing.admin.referrals.read',
     proofIdFamily: 'payment-route.referrals',
   },
@@ -258,6 +275,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'admin-billing-reconciliation',
     requestModel: 'AdminBillingReconciliationRequest',
     responseModel: 'AdminBillingReconciliationResponse',
+    auditRule: 'internal-queue',
     auditEvent: 'billing.admin.reconciliation.run',
     proofIdFamily: 'payment-route.reconciliation',
   },
@@ -268,6 +286,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
     handlerKey: 'admin-billing-audit',
     requestModel: 'AdminBillingAuditRequest',
     responseModel: 'AdminBillingAuditResponse',
+    auditRule: 'admin-read',
     auditEvent: 'billing.admin.audit.read',
     proofIdFamily: 'payment-route.audit',
   },

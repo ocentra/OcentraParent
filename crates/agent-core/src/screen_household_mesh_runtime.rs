@@ -19,10 +19,10 @@ use crate::{
     screen_household_mesh_runtime_state::custody_label,
 };
 
-pub(crate) type ScreenHouseholdMeshEventPayload = ProtocolScreenHouseholdMeshEventPayload;
-pub(crate) type ScreenHouseholdMeshInput =
+pub type ScreenHouseholdMeshEventPayload = ProtocolScreenHouseholdMeshEventPayload;
+pub type ScreenHouseholdMeshInput =
     ocentra_parent_agent_protocol::screen_evidence::screen_household_mesh_input::ScreenHouseholdMeshInput;
-pub(crate) type ScreenHouseholdMeshResultSubmission =
+pub type ScreenHouseholdMeshResultSubmission =
     ocentra_parent_agent_protocol::screen_evidence::screen_household_mesh_input::ScreenHouseholdMeshResultSubmission;
 
 #[derive(Clone, Debug)]

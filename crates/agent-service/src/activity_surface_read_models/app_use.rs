@@ -28,6 +28,7 @@ use super::shared::{
 };
 use source::AppUseReadModelSource;
 
+#[path = "app_use/source.rs"]
 mod source;
 
 pub(crate) fn app_use_read_model<T>(

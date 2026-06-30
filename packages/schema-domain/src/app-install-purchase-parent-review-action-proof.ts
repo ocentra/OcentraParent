@@ -4,14 +4,15 @@ import {
   AppInstallPurchaseApprovalRequestKindSchema,
   AppInstallPurchaseApprovalStateSchema,
 } from './app-install-purchase-approval';
+import { AppInstallPurchaseApprovalContractRuntime } from './generated/app-install-purchase-approval-contracts';
 import { AppInstallPurchaseApprovalContractProofReadModel } from './app-install-purchase-approval-proof';
 import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-install-purchase-approved-api-entitlement-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ParentReviewActionProofVersion = 'app-install-purchase-parent-review-action-proof';
-const SourceApprovalContractProofVersion = 'app-install-purchase-approval-contract-proof';
-const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
-const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';
+const SourceApprovalContractProofVersion = AppInstallPurchaseApprovalContractRuntime.SchemaVersion;
+const SourceApprovedApiEntitlementProofVersion = AppInstallPurchaseApprovedApiEntitlementProofReadModel.schemaVersion;
+const SourceReportRuntimeProofVersion = AppInstallPurchaseReportRuntimeProofReadModel.schemaVersion;
 const ParentReviewActionTimestamp = '2026-06-05T04:05:00.000Z';
 const ParentReviewActionClaimBoundary =
   'parent review action proof only; no portal approval UI no parent action runtime delivery no store integration no provider API execution no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception no child activity data not generic app blocking no Ocentra-hosted family data custody';

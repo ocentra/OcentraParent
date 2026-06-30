@@ -32,11 +32,16 @@ import {
   visibilityConditionsFor,
 } from './browser-control-full-catalog-metadata';
 import {
+  sectionKindForTitleGenerated,
+  GeneratedBrowserControlFullCatalogTabOrder,
+  GeneratedBrowserControlFullCatalogTabTitles,
+  uiTabForSectionGenerated,
+} from './generated/browser-policy-control-catalog-helpers';
+import {
   BrowserControlFullCatalogSchema,
   type BrowserControlFullCatalog,
   type BrowserControlFullCatalogGroup,
   type BrowserControlFullCatalogSection,
-  type BrowserControlFullCatalogSectionKind,
   type BrowserControlFullCatalogSetting,
   type BrowserControlFullCatalogSettingSeed,
   type BrowserControlFullCatalogTab,
@@ -55,34 +60,6 @@ type SectionDraft = Omit<BrowserControlFullCatalogSection, 'groups'> & {
 type TabDraft = Omit<BrowserControlFullCatalogTab, 'sections'> & {
   readonly sections: Map<string, SectionDraft>;
 };
-
-const BrowserControlFullCatalogTabOrder = [
-  'enforcement',
-  'rules',
-  'schedule',
-  'approvals',
-  'evidence',
-  'reports',
-  'data',
-  'audit',
-  'ai',
-  'setup',
-  'platform',
-] as const satisfies readonly BrowserControlFullCatalogUiTab[];
-
-const BrowserControlFullCatalogTabTitles = {
-  enforcement: 'Enforcement',
-  rules: 'Rules',
-  schedule: 'Schedule',
-  approvals: 'Approvals',
-  evidence: 'Evidence',
-  reports: 'Reports',
-  data: 'Data',
-  audit: 'Audit',
-  ai: 'AI',
-  setup: 'Setup',
-  platform: 'Platform',
-} as const satisfies Record<BrowserControlFullCatalogUiTab, string>;
 
 export const BrowserControlFullCatalogSettingSeeds: readonly BrowserControlFullCatalogSettingSeed[] = [
   ...BrowserControlFullCatalogData0,
@@ -131,7 +108,7 @@ function buildTabs(seeds: readonly BrowserControlFullCatalogSettingSeed[]): Brow
     tab.sections.set(setting.sectionId, section);
     tabs.set(setting.uiTab, tab);
   }
-  return BrowserControlFullCatalogTabOrder.filter((tabId) => tabs.has(tabId)).map((tabId) =>
+  return GeneratedBrowserControlFullCatalogTabOrder.filter((tabId) => tabs.has(tabId)).map((tabId) =>
     finalizeTab(tabs.get(tabId) as TabDraft)
   );
 }
@@ -141,7 +118,7 @@ function buildSetting(seed: BrowserControlFullCatalogSettingSeed): BrowserContro
   const optionsForSetting = optionsFromSourceText(sourceText);
   const selectionMode = selectionModeFor(sourceText, optionsForSetting);
   const question = questionFromSourceText(sourceText);
-  const uiTab = uiTabForSection(sectionTitle);
+  const uiTab = uiTabForSectionGenerated(sectionTitle) as BrowserControlFullCatalogUiTab;
   return {
     sidePanelCategory: BrowserControlFullCatalogSidePanelCategory,
     sectionId: BrowserControlSectionIdSchema.parse(sectionId),
@@ -192,8 +169,8 @@ function getTabDraft(
   }
   return {
     tabId,
-    title: BrowserControlFullCatalogTabTitles[tabId],
-    sourceOrder: BrowserControlFullCatalogTabOrder.indexOf(tabId) + 1,
+    title: GeneratedBrowserControlFullCatalogTabTitles[tabId],
+    sourceOrder: GeneratedBrowserControlFullCatalogTabOrder.indexOf(tabId) + 1,
     sections: new Map(),
   };
 }
@@ -213,7 +190,7 @@ function getSectionDraft(
     title,
     sourceOrder,
     uiTab,
-    sectionKind: sectionKindForTitle(title),
+    sectionKind: sectionKindForTitleGenerated(title),
     groups: new Map(),
   };
 }
@@ -260,52 +237,6 @@ function finalizeGroup(group: GroupDraft): BrowserControlFullCatalogGroup {
   };
 }
 
-function sectionKindForTitle(sectionTitle: string): BrowserControlFullCatalogSectionKind {
-  if (sectionTitle === 'Global Rule Dimensions') {
-    return 'rule-dimension-section';
-  }
-  if (sectionTitle === 'Candidate MVP Setting Set') {
-    return 'candidate-mvp-section';
-  }
-  if (sectionTitle === 'Gaps To Decide Before UI Contracts') {
-    return 'planning-gap-section';
-  }
-  return 'setting-section';
-}
-
-function uiTabForSection(sectionTitle: string): BrowserControlFullCatalogUiTab {
-  if (/Rule|Search|Video|Conflict/u.test(sectionTitle)) {
-    return 'rules';
-  }
-  if (/Schedule|Time Budget/u.test(sectionTitle)) {
-    return 'schedule';
-  }
-  if (/Approval|Override|Notifications/u.test(sectionTitle)) {
-    return 'approvals';
-  }
-  if (/Evidence|Never-Collect/u.test(sectionTitle)) {
-    return 'evidence';
-  }
-  if (/Report|Portal Display|Child-Facing/u.test(sectionTitle)) {
-    return 'reports';
-  }
-  if (/Custody|Retention/u.test(sectionTitle)) {
-    return 'data';
-  }
-  if (/Audit/u.test(sectionTitle)) {
-    return 'audit';
-  }
-  if (/AI/u.test(sectionTitle)) {
-    return 'ai';
-  }
-  if (/Platform/u.test(sectionTitle)) {
-    return 'platform';
-  }
-  if (/Setup|Provisioning/u.test(sectionTitle)) {
-    return 'setup';
-  }
-  return 'enforcement';
-}
 
 function bySourceOrder<T extends { readonly sourceOrder: number }>(left: T, right: T): number {
   return left.sourceOrder - right.sourceOrder;

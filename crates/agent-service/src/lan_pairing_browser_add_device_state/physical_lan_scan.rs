@@ -1,8 +1,8 @@
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::{
-    discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression,
-    plan_lan_discovery_scan_with_active_refresh_suppression, LanDiscoveryRefreshMode,
-    LanNetworkInventoryDevice,
+    discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer,
+    plan_lan_discovery_scan_with_active_refresh_suppression,
+    targeted_arp_refresh_evidence_for_scan, LanDiscoveryRefreshMode, LanNetworkInventoryDevice,
 };
 use ocentra_lan_core::read_model::discovered_devices_from_network_inventory;
 use ocentra_parent_agent_protocol::constants;
@@ -13,42 +13,80 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
     LanHouseholdDeviceDecision,
 };
-use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentCommandName};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentRoute,
+};
 
 use crate::lan_pairing::LanPairingRuntime;
 
 use super::scan_history::{
-    load_scan_history_snapshot, save_scan_history, LanScanHistoryMetadata, LanScanHistorySnapshot,
+    load_scan_history_snapshot, recent_previous_scan_agent_truth_devices, save_scan_history,
+    scan_history_is_recent, LanScanHistoryMetadata, LanScanHistorySnapshot,
 };
 use super::{household_device_decisions, known_household_devices, trusted_device_registry};
 
-pub(super) fn network_devices_for_command(
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(crate) struct LanNetworkDeviceScanResult {
+    pub(crate) devices: Vec<LanNetworkInventoryDevice>,
+    pub(crate) previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    pub(crate) current_scan_snapshot: Option<LanScanHistorySnapshot>,
+    pub(crate) reused_recent_snapshot: bool,
+}
+
+pub(crate) fn network_device_scan_result_for_command(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
-) -> Vec<LanNetworkInventoryDevice> {
+) -> LanNetworkDeviceScanResult {
+    let now = Utc::now();
+    let previous_scan_snapshot = load_scan_history_snapshot(runtime);
+    if let Some(scan_result) =
+        cached_localhost_status_scan_result(command, previous_scan_snapshot.clone(), now)
+    {
+        return scan_result;
+    }
+
     if command_uses_physical_lan_scan(&command.command) {
-        let now = Utc::now();
-        let previous_scan_snapshot = load_scan_history_snapshot(runtime);
+        if let Some(previous_devices) =
+            cached_status_snapshot_devices(command, previous_scan_snapshot.as_ref(), now)
+        {
+            return LanNetworkDeviceScanResult {
+                devices: previous_devices,
+                current_scan_snapshot: previous_scan_snapshot.clone(),
+                previous_scan_snapshot,
+                reused_recent_snapshot: true,
+            };
+        }
         let previous_devices = previous_scan_snapshot
             .as_ref()
             .map(|snapshot| snapshot.devices.as_slice())
             .unwrap_or_default();
         let scan_truth = scan_truth_context(runtime, previous_scan_snapshot.as_ref(), now);
         let refresh_mode = refresh_mode_for_command(&command.command);
-        let scan_plan = plan_lan_discovery_scan_with_active_refresh_suppression(
+        let mut scan_plan = plan_lan_discovery_scan_with_active_refresh_suppression(
             &scan_truth.identity_hint_devices,
-            &previous_devices,
+            previous_devices,
             refresh_mode,
             &scan_truth.scan_suppression_devices,
         );
-        let devices =
-            discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression(
-                &scan_truth.identity_hint_devices,
-                &previous_devices,
-                refresh_mode,
-                &scan_truth.scan_suppression_devices,
-                &scan_truth.scan_suppression_devices,
-            );
+        scan_plan.targeted_arp_refresh_evidence = targeted_arp_refresh_evidence_for_scan(
+            previous_devices,
+            refresh_mode,
+            &scan_truth.scan_suppression_devices,
+        );
+        let inventory_refresh_mode = inventory_refresh_mode_after_targeted_refresh(refresh_mode);
+        let selected_interface_scope = scan_plan.selected_interface.as_deref();
+        let allowed_snmp_response_observer = |payload: &[u8]| {
+            let _ = runtime.record_allowed_snmp_probe_response_packet(payload);
+        };
+        let devices = discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer(
+            &scan_truth.identity_hint_devices,
+            previous_devices,
+            inventory_refresh_mode,
+            &scan_truth.scan_suppression_devices,
+            &scan_truth.scan_suppression_devices,
+            selected_interface_scope,
+            Some(&allowed_snmp_response_observer),
+        );
         save_scan_history(
             runtime,
             &devices,
@@ -60,20 +98,80 @@ pub(super) fn network_devices_for_command(
                 scan_plan,
             }),
         );
-        return devices;
+        let current_scan_snapshot = load_scan_history_snapshot(runtime);
+        return LanNetworkDeviceScanResult {
+            devices: current_scan_snapshot
+                .as_ref()
+                .map(|snapshot| snapshot.devices.clone())
+                .unwrap_or(devices),
+            previous_scan_snapshot,
+            current_scan_snapshot,
+            reused_recent_snapshot: false,
+        };
     }
-    Vec::new()
+    LanNetworkDeviceScanResult::default()
 }
 
-struct LanScanTruthContext {
-    identity_hint_devices: Vec<LanPairingDeviceRef>,
-    scan_suppression_devices: Vec<LanPairingDeviceRef>,
-    paired_registry_truth_count: u32,
-    recent_previous_agent_truth_count: u32,
-    durable_household_truth_count: u32,
+pub(super) fn refresh_network_device_scan_history(
+    runtime: &LanPairingRuntime,
+    command: &AgentCommandEnvelope,
+) -> LanNetworkDeviceScanResult {
+    network_device_scan_result_for_command(runtime, command)
 }
 
-fn scan_truth_context(
+pub(crate) fn cached_localhost_status_scan_result(
+    command: &AgentCommandEnvelope,
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> Option<LanNetworkDeviceScanResult> {
+    if command.command != AgentCommandName::AgentLanPairingStatusGet
+        || command.target.route != AgentRoute::Localhost
+    {
+        return None;
+    }
+
+    let Some(snapshot) = previous_scan_snapshot else {
+        return Some(LanNetworkDeviceScanResult::default());
+    };
+    if !scan_history_is_recent(&snapshot.updated_at, now) {
+        return Some(LanNetworkDeviceScanResult {
+            previous_scan_snapshot: Some(snapshot),
+            ..LanNetworkDeviceScanResult::default()
+        });
+    }
+
+    Some(LanNetworkDeviceScanResult {
+        devices: snapshot.devices.clone(),
+        previous_scan_snapshot: Some(snapshot.clone()),
+        current_scan_snapshot: Some(snapshot),
+        reused_recent_snapshot: true,
+    })
+}
+
+pub(crate) fn cached_status_snapshot_devices(
+    command: &AgentCommandEnvelope,
+    previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> Option<Vec<LanNetworkInventoryDevice>> {
+    if command.command != AgentCommandName::AgentLanPairingStatusGet
+        || command.target.route != AgentRoute::Localhost
+    {
+        return None;
+    }
+    let previous_scan_snapshot = previous_scan_snapshot?;
+    scan_history_is_recent(&previous_scan_snapshot.updated_at, now)
+        .then(|| previous_scan_snapshot.devices.clone())
+}
+
+pub(crate) struct LanScanTruthContext {
+    pub(crate) identity_hint_devices: Vec<LanPairingDeviceRef>,
+    pub(crate) scan_suppression_devices: Vec<LanPairingDeviceRef>,
+    pub(crate) paired_registry_truth_count: u32,
+    pub(crate) recent_previous_agent_truth_count: u32,
+    pub(crate) durable_household_truth_count: u32,
+}
+
+pub(crate) fn scan_truth_context(
     runtime: &LanPairingRuntime,
     previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
     now: DateTime<Utc>,
@@ -81,9 +179,9 @@ fn scan_truth_context(
     let trusted_registry = trusted_device_registry(runtime);
     let stored_known_household_devices = known_household_devices(runtime);
     let household_decisions = household_device_decisions(runtime);
-    let mut identity_hint_devices = paired_child_devices(&trusted_registry);
+    let mut identity_hint_devices = trusted_scan_truth_devices(runtime);
     let paired_registry_truth_count =
-        u32::try_from(identity_hint_devices.len()).unwrap_or(u32::MAX);
+        u32::try_from(trusted_registry_count(runtime)).unwrap_or(u32::MAX);
     let historical_devices = recent_previous_scan_agent_truth_devices(previous_scan_snapshot, now);
     let recent_previous_agent_truth_count =
         u32::try_from(historical_devices.len()).unwrap_or(u32::MAX);
@@ -111,73 +209,23 @@ fn scan_truth_context(
     }
 }
 
-fn paired_child_devices(
-    trusted_registry: &[LanTrustedDeviceRegistryEntry],
-) -> Vec<LanPairingDeviceRef> {
-    trusted_registry
-        .iter()
-        .filter(|entry| {
-            entry.trust_state == LanPairingTrustState::Paired && entry.revoked_at.is_none()
-        })
-        .map(|entry| entry.child_device.clone())
-        .collect()
+fn trusted_registry_count(runtime: &LanPairingRuntime) -> usize {
+    runtime
+        .registry
+        .lock()
+        .map(|registry| registry.trusted_device_count())
+        .unwrap_or_default()
 }
 
-fn recent_previous_scan_agent_truth_devices(
-    previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
-    now: DateTime<Utc>,
-) -> Vec<LanPairingDeviceRef> {
-    let Some(previous_scan_snapshot) = previous_scan_snapshot else {
-        return Vec::new();
-    };
-    if !scan_history_is_recent(&previous_scan_snapshot.updated_at, now) {
-        return Vec::new();
-    }
-    previous_scan_snapshot
-        .devices
-        .iter()
-        .filter(|device| historical_agent_truth_should_suppress_probe(device))
-        .map(previous_scan_truth_device)
-        .collect()
+fn trusted_scan_truth_devices(runtime: &LanPairingRuntime) -> Vec<LanPairingDeviceRef> {
+    runtime
+        .registry
+        .lock()
+        .map(|registry| registry.scan_truth_devices())
+        .unwrap_or_default()
 }
 
-fn scan_history_is_recent(updated_at: &str, now: DateTime<Utc>) -> bool {
-    DateTime::parse_from_rfc3339(updated_at)
-        .map(|parsed| {
-            let parsed = parsed.with_timezone(&Utc);
-            parsed <= now
-                && now.signed_duration_since(parsed)
-                    <= Duration::seconds(
-                        constants::lan_pairing::LAN_PREVIOUS_SCAN_AGENT_TRUTH_REUSE_WINDOW_SECONDS,
-                    )
-        })
-        .unwrap_or(false)
-}
-
-fn historical_agent_truth_should_suppress_probe(device: &LanNetworkInventoryDevice) -> bool {
-    matches!(
-        device.agent_status.as_deref(),
-        Some(constants::lan_pairing::LOCAL_AGENT_STATUS)
-            | Some(constants::lan_pairing::SERVICE_IDENTITY_PROBE_AGENT_STATUS)
-    )
-}
-
-fn previous_scan_truth_device(device: &LanNetworkInventoryDevice) -> LanPairingDeviceRef {
-    let mut truth_device = LanPairingDeviceRef::new(
-        device.device_id.clone(),
-        None,
-        device.label.clone(),
-        device.platform.clone(),
-    );
-    truth_device.ip_address = Some(device.ip_address.clone());
-    truth_device.mac_address = Some(device.mac_address.clone());
-    truth_device.hostname = device.hostname.clone();
-    truth_device.network_interface = device.network_interface.clone();
-    truth_device.agent_status = device.agent_status.clone();
-    truth_device
-}
-
-fn durable_household_scan_suppression_devices(
+pub(crate) fn durable_household_scan_suppression_devices(
     stored_known_household_devices: &[LanCanonicalHouseholdDevice],
     previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
     trusted_registry: &[LanTrustedDeviceRegistryEntry],
@@ -186,7 +234,6 @@ fn durable_household_scan_suppression_devices(
     let mut devices = stored_known_household_devices
         .iter()
         .filter(|device| household_device_should_suppress_redundant_scan_work(device))
-        .cloned()
         .filter_map(household_scan_suppression_device)
         .collect::<Vec<_>>();
 
@@ -204,8 +251,8 @@ fn durable_household_scan_suppression_devices(
         &previous_scan_snapshot.updated_at,
     );
     for device in historical_devices
-        .into_iter()
-        .filter(household_device_should_suppress_redundant_scan_work)
+        .iter()
+        .filter(|device| household_device_should_suppress_redundant_scan_work(device))
         .filter_map(household_scan_suppression_device)
     {
         push_unique_scan_truth_device(&mut devices, device);
@@ -227,9 +274,9 @@ fn household_device_should_suppress_redundant_scan_work(
 }
 
 fn household_scan_suppression_device(
-    device: LanCanonicalHouseholdDevice,
+    device: &LanCanonicalHouseholdDevice,
 ) -> Option<LanPairingDeviceRef> {
-    let platform = scan_suppression_platform(&device);
+    let platform = scan_suppression_platform(device);
     let mut truth_device = LanPairingDeviceRef::new(
         device.canonical_device_id.clone(),
         None,
@@ -282,7 +329,7 @@ fn scan_session_id(now: DateTime<Utc>) -> String {
     format!("lan-scan-{}", now.timestamp_millis())
 }
 
-fn command_uses_physical_lan_scan(command: &AgentCommandName) -> bool {
+pub(crate) fn command_uses_physical_lan_scan(command: &AgentCommandName) -> bool {
     matches!(
         command,
         AgentCommandName::AgentLanPairingStatusGet
@@ -291,7 +338,7 @@ fn command_uses_physical_lan_scan(command: &AgentCommandName) -> bool {
     )
 }
 
-fn refresh_mode_for_command(command: &AgentCommandName) -> LanDiscoveryRefreshMode {
+pub(crate) fn refresh_mode_for_command(command: &AgentCommandName) -> LanDiscoveryRefreshMode {
     match command {
         AgentCommandName::AgentLanPairingBrowserDiscoveryScan
         | AgentCommandName::AgentLanPairingAddDeviceRequest => {
@@ -302,349 +349,12 @@ fn refresh_mode_for_command(command: &AgentCommandName) -> LanDiscoveryRefreshMo
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use chrono::{Duration, SecondsFormat, Utc};
-    use ocentra_lan_core::network_inventory::LanDiscoveryRefreshMode;
-    use ocentra_parent_agent_protocol::lan_pairing::{
-        LanPairingDeviceReachability, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
-        LanPairingTrustState,
-    };
-    use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-        LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
-        LanCanonicalHouseholdDeviceConfidence, LanCanonicalHouseholdDeviceSource,
-        LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdRoleState,
-        LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface,
-        LanChildAgentInventoryPacket, LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
-    };
-    use ocentra_parent_agent_protocol::transport::AgentCommandName;
-
-    use super::{
-        command_uses_physical_lan_scan, durable_household_scan_suppression_devices,
-        recent_previous_scan_agent_truth_devices, refresh_mode_for_command, scan_history_is_recent,
-        scan_truth_context,
-    };
-    use crate::lan_pairing::LanPairingRuntime;
-    use crate::lan_pairing_browser_add_device_state::scan_history::LanScanHistorySnapshot;
-    use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
-    use ocentra_parent_agent_protocol::constants;
-
-    #[test]
-    fn status_and_scan_commands_keep_physical_lan_inventory_enabled() {
-        assert!(command_uses_physical_lan_scan(
-            &AgentCommandName::AgentLanPairingStatusGet
-        ));
-        assert!(command_uses_physical_lan_scan(
-            &AgentCommandName::AgentLanPairingBrowserDiscoveryScan
-        ));
-        assert!(command_uses_physical_lan_scan(
-            &AgentCommandName::AgentLanPairingAddDeviceRequest
-        ));
-    }
-
-    #[test]
-    fn unrelated_lan_commands_do_not_trigger_physical_lan_inventory() {
-        assert!(!command_uses_physical_lan_scan(
-            &AgentCommandName::AgentLanPairingControllerLeaseRenew
-        ));
-    }
-
-    #[test]
-    fn recent_previous_scan_child_truth_is_reused_for_probe_suppression_only() {
-        let now = Utc::now();
-        let snapshot = LanScanHistorySnapshot {
-            schema_version: 1,
-            updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-            metadata: None,
-            devices: vec![previous_scan_device(
-                constants::lan_pairing::LOCAL_AGENT_STATUS,
-            )],
-        };
-
-        let devices = recent_previous_scan_agent_truth_devices(Some(&snapshot), now);
-
-        assert_eq!(devices.len(), 1);
-        assert_eq!(
-            devices[0].agent_status.as_deref(),
-            Some(constants::lan_pairing::LOCAL_AGENT_STATUS)
-        );
-        assert_eq!(
-            devices[0].mac_address.as_deref(),
-            Some(constants::lan_pairing::TEST_LAN_MAC)
-        );
-    }
-
-    #[test]
-    fn stale_previous_scan_child_truth_does_not_suppress_probe_forever() {
-        let now = Utc::now();
-        let stale_updated_at = (now
-            - Duration::seconds(
-                constants::lan_pairing::LAN_PREVIOUS_SCAN_AGENT_TRUTH_REUSE_WINDOW_SECONDS + 1,
-            ))
-        .to_rfc3339_opts(SecondsFormat::Millis, true);
-        let snapshot = LanScanHistorySnapshot {
-            schema_version: 1,
-            updated_at: stale_updated_at,
-            metadata: None,
-            devices: vec![previous_scan_device(
-                constants::lan_pairing::LOCAL_AGENT_STATUS,
-            )],
-        };
-
-        assert!(recent_previous_scan_agent_truth_devices(Some(&snapshot), now).is_empty());
-    }
-
-    #[test]
-    fn invalid_history_timestamp_is_not_treated_as_recent() {
-        assert!(!scan_history_is_recent("not-a-timestamp", Utc::now()));
-    }
-
-    #[test]
-    fn status_reads_stay_passive_while_browser_scan_and_add_device_refresh_actively() {
-        assert_eq!(
-            refresh_mode_for_command(&AgentCommandName::AgentLanPairingStatusGet),
-            LanDiscoveryRefreshMode::Passive
-        );
-        assert_eq!(
-            refresh_mode_for_command(&AgentCommandName::AgentLanPairingBrowserDiscoveryScan),
-            LanDiscoveryRefreshMode::ActiveSubnetRefresh
-        );
-        assert_eq!(
-            refresh_mode_for_command(&AgentCommandName::AgentLanPairingAddDeviceRequest),
-            LanDiscoveryRefreshMode::ActiveSubnetRefresh
-        );
-    }
-
-    #[test]
-    fn previous_router_truth_becomes_scan_suppression_without_upgrading_identity_truth() {
-        let now = Utc::now();
-        let snapshot = LanScanHistorySnapshot {
-            schema_version: 2,
-            updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-            metadata: None,
-            devices: vec![router_scan_device()],
-        };
-
-        let devices = durable_household_scan_suppression_devices(&[], Some(&snapshot), &[], &[]);
-
-        assert_eq!(devices.len(), 1);
-        assert_eq!(
-            devices[0].mac_address.as_deref(),
-            Some(constants::lan_pairing::TEST_ROUTER_MAC)
-        );
-        assert_eq!(
-            devices[0].ip_address.as_deref(),
-            Some(constants::lan_pairing::TEST_ROUTER_IP)
-        );
-    }
-
-    #[test]
-    fn ignored_previous_household_device_becomes_scan_suppression_truth() {
-        let now = Utc::now();
-        let snapshot = LanScanHistorySnapshot {
-            schema_version: 2,
-            updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-            metadata: None,
-            devices: vec![previous_scan_device(
-                constants::lan_pairing::LOCAL_AGENT_STATUS,
-            )],
-        };
-        let decisions = vec![LanHouseholdDeviceDecision {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            action_id: constants::lan_pairing::HOUSEHOLD_ACTION_ID.to_string(),
-            action_kind: LanHouseholdDeviceActionKind::Ignore,
-            canonical_device_id: canonical_device_id_for_mac(constants::lan_pairing::TEST_LAN_MAC),
-            child_profile_id: None,
-            display_name: None,
-            device_kind: None,
-            parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
-            decided_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-            revoked_at: None,
-        }];
-
-        let devices =
-            durable_household_scan_suppression_devices(&[], Some(&snapshot), &[], &decisions);
-
-        assert_eq!(devices.len(), 1);
-        assert_eq!(
-            devices[0].mac_address.as_deref(),
-            Some(constants::lan_pairing::TEST_LAN_MAC)
-        );
-    }
-
-    #[test]
-    fn stored_known_router_truth_suppresses_scan_work_without_scan_history() {
-        let devices =
-            durable_household_scan_suppression_devices(&[stored_known_router()], None, &[], &[]);
-
-        assert_eq!(devices.len(), 1);
-        assert_eq!(
-            devices[0].mac_address.as_deref(),
-            Some(constants::lan_pairing::TEST_ROUTER_MAC)
-        );
-    }
-
-    #[test]
-    fn stored_known_child_agent_truth_feeds_identity_and_scan_context_without_scan_history() {
-        let runtime = LanPairingRuntime::empty();
-        {
-            let mut registry = runtime
-                .registry
-                .lock()
-                .unwrap_or_else(|_| unreachable!("registry lock available for test"));
-            let changed = registry.merge_known_household_devices(vec![stored_known_child_agent()]);
-            assert!(changed);
-        }
-
-        let context = scan_truth_context(&runtime, None, Utc::now());
-
-        assert_eq!(context.identity_hint_devices.len(), 1);
-        assert_eq!(context.durable_household_truth_count, 1);
-        assert_eq!(context.scan_suppression_devices.len(), 1);
-        assert_eq!(
-            context.identity_hint_devices[0].mac_address.as_deref(),
-            Some(constants::lan_pairing::TEST_LAN_MAC)
-        );
-        assert_eq!(
-            context.scan_suppression_devices[0].mac_address.as_deref(),
-            Some(constants::lan_pairing::TEST_LAN_MAC)
-        );
-        assert_eq!(
-            context.scan_suppression_devices[0].ip_address.as_deref(),
-            Some(constants::lan_pairing::TEST_LAN_IP)
-        );
-    }
-
-    fn previous_scan_device(agent_status: &str) -> LanNetworkInventoryDevice {
-        LanNetworkInventoryDevice {
-            device_id: "lan-device-1".to_string(),
-            label: "GameDev".to_string(),
-            platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-            ip_address: constants::lan_pairing::TEST_LAN_IP.to_string(),
-            mac_address: constants::lan_pairing::TEST_LAN_MAC.to_string(),
-            hostname: Some(constants::lan_pairing::TEST_HOSTNAME.to_string()),
-            network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
-            reachability: LanPairingDeviceReachability::Online,
-            agent_status: Some(agent_status.to_string()),
-            scan_sources: vec![
-                constants::lan_pairing::LAN_SCAN_SOURCE_SERVICE_IDENTITY_PROBE.to_string(),
-            ],
-            used_previous_scan_hint: false,
-        }
-    }
-
-    fn router_scan_device() -> LanNetworkInventoryDevice {
-        LanNetworkInventoryDevice {
-            device_id: "lan-router-1".to_string(),
-            label: "Home Router".to_string(),
-            platform: constants::lan_pairing::PLATFORM_ROUTER.to_string(),
-            ip_address: constants::lan_pairing::TEST_ROUTER_IP.to_string(),
-            mac_address: constants::lan_pairing::TEST_ROUTER_MAC.to_string(),
-            hostname: Some("home-router".to_string()),
-            network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
-            reachability: LanPairingDeviceReachability::Online,
-            agent_status: None,
-            scan_sources: vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            used_previous_scan_hint: false,
-        }
-    }
-
-    fn canonical_device_id_for_mac(mac_address: &str) -> String {
-        let mut canonical_device_id =
-            String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
-        canonical_device_id.push_str(
-            &mac_address
-                .chars()
-                .filter(|character| character.is_ascii_alphanumeric())
-                .flat_map(char::to_lowercase)
-                .collect::<String>(),
-        );
-        canonical_device_id
-    }
-
-    fn stored_known_router() -> LanCanonicalHouseholdDevice {
-        LanCanonicalHouseholdDevice {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            canonical_device_id: canonical_device_id_for_mac(
-                constants::lan_pairing::TEST_ROUTER_MAC,
-            ),
-            display_name: "Home Router".to_string(),
-            classification: LanCanonicalHouseholdDeviceClassification::NetworkInfrastructure,
-            role_badges: Vec::new(),
-            enrollable: false,
-            discovery_state: LanPairingProductionDiscoveryState::Discovered,
-            trust_state: LanPairingTrustState::Unpaired,
-            route_id: None,
-            route_state: LanCanonicalHouseholdRouteState::Unavailable,
-            network_mode: LanPairingNetworkMode::LocalNetwork,
-            source_labels: vec![LanCanonicalHouseholdDeviceSource::NetworkNeighbor],
-            network_identity: LanCanonicalHouseholdNetworkIdentity {
-                hostname: Some("home-router".to_string()),
-                ip_addresses: vec![constants::lan_pairing::TEST_ROUTER_IP.to_string()],
-                mac_address: Some(constants::lan_pairing::TEST_ROUTER_MAC.to_string()),
-                mac_vendor: Some("Example Vendor".to_string()),
-                network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
-                reachability: LanPairingDeviceReachability::Online,
-                confidence: LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor,
-                stale_at: None,
-                offline_at: None,
-                evidence_records: Vec::new(),
-            },
-            child_agent_inventory: None,
-            policy_target_surfaces: vec![
-                LanCanonicalHouseholdSurface::Devices,
-                LanCanonicalHouseholdSurface::Network,
-            ],
-        }
-    }
-
-    fn stored_known_child_agent() -> LanCanonicalHouseholdDevice {
-        LanCanonicalHouseholdDevice {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            canonical_device_id: canonical_device_id_for_mac(constants::lan_pairing::TEST_LAN_MAC),
-            display_name: "GameDev".to_string(),
-            classification: LanCanonicalHouseholdDeviceClassification::ChildAgent,
-            role_badges: Vec::new(),
-            enrollable: true,
-            discovery_state: LanPairingProductionDiscoveryState::Discovered,
-            trust_state: LanPairingTrustState::Unpaired,
-            route_id: Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string()),
-            route_state: LanCanonicalHouseholdRouteState::LocalNetwork,
-            network_mode: LanPairingNetworkMode::LocalNetwork,
-            source_labels: vec![LanCanonicalHouseholdDeviceSource::LocalService],
-            network_identity: LanCanonicalHouseholdNetworkIdentity {
-                hostname: Some(constants::lan_pairing::TEST_HOSTNAME.to_string()),
-                ip_addresses: vec![constants::lan_pairing::TEST_LAN_IP.to_string()],
-                mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
-                mac_vendor: Some("Example Vendor".to_string()),
-                network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
-                reachability: LanPairingDeviceReachability::Online,
-                confidence: LanCanonicalHouseholdDeviceConfidence::AgentConfirmed,
-                stale_at: None,
-                offline_at: None,
-                evidence_records: Vec::new(),
-            },
-            child_agent_inventory: Some(LanChildAgentInventoryPacket {
-                device_name: "GameDev".to_string(),
-                platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-                os: "Windows".to_string(),
-                cpu_model: None,
-                cpu_cores: None,
-                memory_total: None,
-                gpu_model: None,
-                gpu_driver: None,
-                gpu_memory: None,
-                nvidia_smi: None,
-                network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
-                capabilities: vec!["screen".to_string()],
-                role_state: LanCanonicalHouseholdRoleState::Implemented,
-                route_state: LanCanonicalHouseholdRouteState::LocalNetwork,
-                pairing_trust_state: LanPairingTrustState::Unpaired,
-            }),
-            policy_target_surfaces: vec![
-                LanCanonicalHouseholdSurface::Devices,
-                LanCanonicalHouseholdSurface::Screen,
-            ],
-        }
+pub(crate) fn inventory_refresh_mode_after_targeted_refresh(
+    refresh_mode: LanDiscoveryRefreshMode,
+) -> LanDiscoveryRefreshMode {
+    if refresh_mode == LanDiscoveryRefreshMode::ActiveSubnetRefresh {
+        LanDiscoveryRefreshMode::Passive
+    } else {
+        refresh_mode
     }
 }

@@ -3,9 +3,6 @@ use std::{
     sync::Arc,
 };
 
-#[cfg(test)]
-use std::sync::Mutex;
-
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason;
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateRequest;
@@ -37,24 +34,12 @@ pub(crate) struct BrowserPolicyRuntime {
 
 #[derive(Clone, Debug)]
 enum BrowserPolicyPersistence {
-    #[cfg(test)]
-    InMemory(Arc<Mutex<BrowserPolicyStoredState>>),
     LocalJson(PathBuf),
 }
 
 impl BrowserPolicyRuntime {
     pub(crate) fn from_env() -> Self {
         Self::for_store_path(browser_policy_store_path_from_env())
-    }
-
-    #[cfg(test)]
-    pub(crate) fn in_memory() -> Self {
-        Self {
-            persistence: BrowserPolicyPersistence::InMemory(Arc::new(Mutex::new(
-                BrowserPolicyStoredState::empty(),
-            ))),
-            io_lock: Arc::new(AsyncMutex::new(())),
-        }
     }
 
     pub(crate) fn for_store_path(path: impl AsRef<Path>) -> Self {
@@ -400,13 +385,6 @@ impl BrowserPolicyRuntime {
 
     async fn read_state(&self) -> Result<BrowserPolicyStoredState, BrowserPolicyStoreError> {
         match &self.persistence {
-            #[cfg(test)]
-            BrowserPolicyPersistence::InMemory(state) => {
-                state.lock().map(|state| state.clone()).map_err(|error| {
-                    let _ = error;
-                    BrowserPolicyStoreError::Unavailable
-                })
-            }
             BrowserPolicyPersistence::LocalJson(path) => read_browser_policy_state(path).await,
         }
     }
@@ -416,16 +394,6 @@ impl BrowserPolicyRuntime {
         state: &BrowserPolicyStoredState,
     ) -> Result<(), BrowserPolicyStoreError> {
         match &self.persistence {
-            #[cfg(test)]
-            BrowserPolicyPersistence::InMemory(current) => current
-                .lock()
-                .map(|mut current| {
-                    *current = state.clone();
-                })
-                .map_err(|error| {
-                    let _ = error;
-                    BrowserPolicyStoreError::Unavailable
-                }),
             BrowserPolicyPersistence::LocalJson(path) => {
                 write_browser_policy_state(path, state).await
             }

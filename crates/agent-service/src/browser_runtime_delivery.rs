@@ -1,54 +1,13 @@
 use ocentra_parent_agent_core::browser_event_runtime::BrowserRuntimeInput;
-#[cfg(test)]
-use ocentra_parent_agent_core::browser_event_runtime::{
-    publish_browser_runtime_chain_for_input, BrowserRuntimeReport,
-};
 use ocentra_parent_agent_protocol::activity::{
     policy_preview::PolicyPreviewReadModel, policy_preview::PolicyPreviewReadModelRow,
 };
 use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
-#[cfg(test)]
-use ocentra_parent_agent_protocol::browser::{BrowserRuntimeEventPayload, BrowserRuntimePhase};
 use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::browser_read_model::{
     BrowserEvidenceReadModel, BrowserTabEvidence,
 };
 use ocentra_parent_agent_protocol::constants;
-
-#[cfg(test)]
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub(crate) struct BrowserRuntimeServiceDeliveryReport {
-    pub(crate) observed_rows: usize,
-    pub(crate) delivered_rows: usize,
-    pub(crate) failed_rows: usize,
-    pub(crate) publish_reports: usize,
-    pub(crate) stored_events: usize,
-    pub(crate) dead_letters: usize,
-    pub(crate) exact_url_rows: usize,
-    pub(crate) manual_required_rows: usize,
-    pub(crate) intervention_command_events: usize,
-    pub(crate) read_model_projection_events: usize,
-}
-
-#[cfg(test)]
-pub(crate) async fn deliver_browser_runtime_for_read_model(
-    read_model: &BrowserEvidenceReadModel,
-) -> BrowserRuntimeServiceDeliveryReport {
-    let mut delivery = BrowserRuntimeServiceDeliveryReport {
-        observed_rows: read_model.rows.len(),
-        ..BrowserRuntimeServiceDeliveryReport::default()
-    };
-
-    for row in &read_model.rows {
-        let input = browser_runtime_input_from_row(read_model, row);
-        match publish_browser_runtime_chain_for_input(input).await {
-            Ok(report) => delivery.record_success(row, &report),
-            Err(_) => delivery.failed_rows += 1,
-        }
-    }
-
-    delivery
-}
 
 pub(crate) fn browser_runtime_input_from_row(
     read_model: &BrowserEvidenceReadModel,
@@ -104,25 +63,6 @@ pub(crate) fn browser_runtime_input_from_row_with_policy_preview(
     input
 }
 
-#[cfg(test)]
-impl BrowserRuntimeServiceDeliveryReport {
-    fn record_success(&mut self, row: &BrowserTabEvidence, report: &BrowserRuntimeReport) {
-        self.delivered_rows += 1;
-        self.publish_reports += report.publish_reports.len();
-        self.stored_events += report.stored_events.len();
-        self.dead_letters += report.dead_letters.len();
-        if row_has_exact_url_boundary(row) {
-            self.exact_url_rows += 1;
-        } else {
-            self.manual_required_rows += 1;
-        }
-        self.intervention_command_events +=
-            count_phase(report, BrowserRuntimePhase::InterventionCommandIssued);
-        self.read_model_projection_events +=
-            count_phase(report, BrowserRuntimePhase::ReadModelProjected);
-    }
-}
-
 fn read_model_ref(
     read_model: &BrowserEvidenceReadModel,
     row: &BrowserTabEvidence,
@@ -172,18 +112,4 @@ fn action_intent_id_from_policy_decision(preview: &PolicyPreviewReadModelRow) ->
     let mut value = String::from(constants::browser::ACTION_INTENT_ID_PREFIX);
     value.push_str(&preview.decision.decision_id);
     value
-}
-
-#[cfg(test)]
-fn count_phase(report: &BrowserRuntimeReport, phase: BrowserRuntimePhase) -> usize {
-    report
-        .stored_events
-        .iter()
-        .filter(|event| {
-            event
-                .decode::<BrowserRuntimeEventPayload>()
-                .map(|envelope| envelope.payload.phase == phase)
-                .unwrap_or(false)
-        })
-        .count()
 }

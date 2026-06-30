@@ -9,6 +9,8 @@ use ocentra_parent_agent_core::browser_event_runtime::BrowserRuntimeReport;
 use ocentra_parent_agent_protocol::browser::BrowserRuntimeEventPayload;
 use ocentra_parent_agent_protocol::constants;
 
+use crate::json_contract::serialize_json_value;
+
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct BrowserRuntimeServiceStreamEntry {
     pub(crate) runtime_event_name: String,
@@ -224,8 +226,7 @@ fn insert_payload_field<T: Serialize>(fields: &mut Map<String, Value>, field_nam
 }
 
 fn payload_json_value<T: Serialize>(value: T) -> Value {
-    serde_json::to_value(value)
-        .unwrap_or_else(|error| panic!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
+    serialize_json_value(value)
 }
 
 fn event_ref(correlation_id: &str, runtime_event_name: &str) -> String {

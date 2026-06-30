@@ -5,7 +5,7 @@ use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;
 
-pub(crate) struct AppGameStoreRow {
+pub struct AppGameStoreRow {
     pub event_id: String,
     pub observed_at: String,
     pub kind: String,
@@ -15,7 +15,7 @@ pub(crate) struct AppGameStoreRow {
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
-pub(crate) fn app_game_rows(
+pub fn app_game_rows(
     connection: &Connection,
     limit: u64,
 ) -> Result<Vec<AppGameStoreRow>, ActivityStoreError> {

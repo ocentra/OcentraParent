@@ -1,27 +1,38 @@
 import type { ReactElement } from 'react';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { isPortalScreenSummaryRoute } from '@ocentra-parent/portal-domain/routes';
 import {
-  createScreenSummaryPanelIntent,
-  type ScreenSummaryPanelDetail,
-  type ScreenSummaryPanelIntent,
-} from '@ocentra-parent/portal-domain/screen-summary-panel';
-import type { PortalLiveActivityState } from './live-activity-state';
+  isParentScreenSummaryRoute,
+  type ParentRouteId,
+  type ParentScreenSummaryPanelDetailSnapshot,
+  type ParentScreenSummaryPanelSnapshot,
+} from '../generated/parent-ui-bridge';
 
-export function shouldRenderScreenSummaryRoute(route: PortalRouteValue): boolean {
-  return isPortalScreenSummaryRoute(route);
+export function shouldRenderScreenSummaryRoute(route: ParentRouteId): boolean {
+  return isParentScreenSummaryRoute(route);
 }
 
+const EMPTY_SCREEN_SUMMARY_PANEL: ParentScreenSummaryPanelSnapshot = {
+  eyebrow: 'Activity kind',
+  title: 'Screen analysis',
+  body: 'Stored activity',
+  loadState: 'Unavailable',
+  summaryDetails: [
+    { label: PortalDetails.Status, value: 'Unavailable' },
+    { label: PortalDetails.ProductClaim, value: 'No family setting is configured for this area yet.' },
+  ],
+  rows: [],
+  emptyMessage: 'No recent activity is available yet.',
+  productClaim: 'No family setting is configured for this area yet.',
+};
+
 export function ScreenSummaryRoutePanel({
-  liveActivity,
+  panel,
 }: {
-  readonly liveActivity: PortalLiveActivityState;
+  readonly panel: ParentScreenSummaryPanelSnapshot | null;
 }): ReactElement {
-  const intent = createScreenSummaryPanelIntent(liveActivity.activityScreenReadModel);
+  const resolvedPanel = panel ?? EMPTY_SCREEN_SUMMARY_PANEL;
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.ScreenAnalysis)}
@@ -29,34 +40,34 @@ export function ScreenSummaryRoutePanel({
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
         </header>
-        <ScreenSummaryCards intent={intent} />
+        <ScreenSummaryCards panel={resolvedPanel} />
       </div>
     </section>
   );
 }
 
-function ScreenSummaryCards({ intent }: { readonly intent: ScreenSummaryPanelIntent }): ReactElement {
+function ScreenSummaryCards({ panel }: { readonly panel: ParentScreenSummaryPanelSnapshot }): ReactElement {
   return (
     <div
       className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
         PortalDom.Classes.ClassNameSeparator
       )}
     >
-      <ScreenSummaryCard title={PortalDetails.Status} details={intent.summaryDetails} />
-      {intent.rows.length === 0 ? (
+      <ScreenSummaryCard title={PortalDetails.Status} details={panel.summaryDetails} />
+      {panel.rows.length === 0 ? (
         <ScreenSummaryCard
-          title={intent.emptyMessage}
+          title={panel.emptyMessage}
           details={[
-            { label: PortalDetails.Status, value: intent.loadState },
-            { label: PortalDetails.ProductClaim, value: intent.productClaim },
+            { label: PortalDetails.Status, value: panel.loadState },
+            { label: PortalDetails.ProductClaim, value: panel.productClaim },
           ]}
         />
       ) : null}
-      {intent.rows.map((row) => (
+      {panel.rows.map((row) => (
         <ScreenSummaryCard key={String(row.title)} title={row.title} details={row.details} />
       ))}
     </div>
@@ -67,8 +78,8 @@ function ScreenSummaryCard({
   details,
   title,
 }: {
-  readonly details: readonly ScreenSummaryPanelDetail[];
-  readonly title: PortalDisplayText;
+  readonly details: readonly ParentScreenSummaryPanelDetailSnapshot[];
+  readonly title: string;
 }): ReactElement {
   return (
     <article className={screenSummaryCardClassName()}>
@@ -86,8 +97,8 @@ function ScreenSummaryDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>

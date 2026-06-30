@@ -5,12 +5,6 @@ import {
   AppGameCategoryRiskPolicyRouteFamily,
   AppGameCategoryRiskPolicyRouteSourceKind,
   AppGameCategoryRiskPolicyRoutingState,
-  appGameCategoryRiskPolicyRouteActionMatchesCandidate,
-  appGameCategoryRiskPolicyRouteKeepsSoftBoundary,
-  appGameCategoryRiskPolicyRouteLocalAiRequiresDigest,
-  appGameCategoryRiskPolicyRouteManualReviewRequiresManualState,
-  appGameCategoryRiskPolicyRouteTargetMatchesFamily,
-  appGameCategoryRiskPolicyRouteUsesCategoryProof,
 } from './app-game-category-risk-policy-routing-rules';
 import { AppGamePolicyCompilerEvidenceSchema, AppGamePolicyTargetRefSchema } from './app-game-policy-target-compiler';
 import {
@@ -20,6 +14,14 @@ import {
 import { PolicyActionSchema } from './policy';
 import { ParentEvidenceReferenceSchema } from './family-references';
 import { ParentContractSchemaVersionSchema } from './family-reference-primitives';
+import {
+  generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate,
+  generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary,
+  generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest,
+  generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState,
+  generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily,
+  generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof,
+} from './generated/policy-control-helpers';
 
 export const AppGameCategoryRiskPolicyRouteIdSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicyRouteId');
 export const AppGameCategoryCandidateRefSchema = brandedNonEmptyStringSchema('AppGameCategoryCandidateRef');
@@ -70,42 +72,42 @@ export const AppGameCategoryRiskPolicyRouteSchema = withParser(
     .pipe(
       Schema.filter(
         (route) =>
-          appGameCategoryRiskPolicyRouteTargetMatchesFamily(route) ||
+          generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily(route) ||
           'Expected app/game category policy routes to target matching category families'
       )
     )
     .pipe(
       Schema.filter(
         (route) =>
-          appGameCategoryRiskPolicyRouteUsesCategoryProof(route) ||
+          generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof(route) ||
           'Expected app/game category policy routes to carry active category proof and supporting evidence'
       )
     )
     .pipe(
       Schema.filter(
         (route) =>
-          appGameCategoryRiskPolicyRouteActionMatchesCandidate(route) ||
+          generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate(route) ||
           'Expected app/game category policy route actions to match candidate actions'
       )
     )
     .pipe(
       Schema.filter(
         (route) =>
-          appGameCategoryRiskPolicyRouteKeepsSoftBoundary(route) ||
+          generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary(route) ||
           'Expected app/game category policy routes to avoid hard adapter actions'
       )
     )
     .pipe(
       Schema.filter(
         (route) =>
-          appGameCategoryRiskPolicyRouteManualReviewRequiresManualState(route) ||
+          generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState(route) ||
           'Expected manual-review category routes to stay manual-required'
       )
     )
     .pipe(
       Schema.filter(
         (route) =>
-          appGameCategoryRiskPolicyRouteLocalAiRequiresDigest(route) ||
+          generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest(route) ||
           'Expected local-AI category policy routes to cite an AI digest ref'
       )
     )

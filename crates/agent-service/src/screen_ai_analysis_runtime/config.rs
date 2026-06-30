@@ -189,14 +189,6 @@ impl ScreenOcrRedactionPolicy {
 }
 
 impl ScreenAiAnalysisCycleClock {
-    #[cfg(test)]
-    pub(crate) fn from_parts(epoch_seconds: u64, timestamp: String) -> Self {
-        Self {
-            epoch_seconds,
-            timestamp,
-        }
-    }
-
     pub(crate) fn from_system_time() -> Self {
         Self {
             epoch_seconds: std::time::SystemTime::now()

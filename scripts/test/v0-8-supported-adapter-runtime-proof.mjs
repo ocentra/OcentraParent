@@ -19,16 +19,6 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/enforcement-domain',
-      '--',
-      'v0-8-supported-adapter-runtime-proof',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
       'enforcement-supported-adapter-runtime-proof-adapter',
@@ -62,7 +52,6 @@ async function main() {
     proofLabels,
     evidence: {
       tsRuntimeContract: 'packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts',
-      tsRuntimeContractTest: 'packages/enforcement-domain/tests/unit/v0-8-supported-adapter-runtime-proof.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       tsProtocolAdapterTest:
         'packages/agent-protocol-domain/tests/unit/enforcement-supported-adapter-runtime-proof-adapter.test.ts',

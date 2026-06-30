@@ -23,6 +23,7 @@ pub(crate) fn local_agent_discovery_device() -> LanBrowserAddDeviceDiscoveryDevi
     device.hostname = Some(constants::lan_pairing::TEST_HOSTNAME.to_string());
     device.network_interface = Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string());
     device.agent_status = Some(constants::lan_pairing::LOCAL_AGENT_STATUS.to_string());
+    device.install_id = Some("fixture-install-local-agent".to_string());
     discovery_device(device, LanPairingDiscoveryRuntimeStatus::WebsocketDirect)
 }
 
@@ -118,6 +119,8 @@ pub(crate) fn household_restore_decision(canonical_device_id: &str) -> LanHouseh
 pub(crate) fn expected_test_mac_canonical_id() -> String {
     let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
     id.push_str(&compact(constants::lan_pairing::TEST_LAN_MAC));
+    id.push('-');
+    id.push_str(&compact(constants::lan_pairing::LOCAL_AGENT_DEVICE_ID));
     id
 }
 
@@ -153,6 +156,7 @@ fn discovery_device(
         discovered_at: constants::lan_pairing::OBSERVED_AT.to_string(),
         child_device,
         agent_peer_id: constants::lan_pairing::PARENT_PEER_ID.to_string(),
+        pairing_id: None,
         route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
         network_mode: LanPairingNetworkMode::LocalNetwork,
         reachability: LanPairingDeviceReachability::Online,
@@ -161,16 +165,19 @@ fn discovery_device(
         discovery_state: LanPairingProductionDiscoveryState::Discovered,
         evidence_sources,
         hint_sources: Vec::new(),
+        service_identity_probe_evidence: Vec::new(),
     }
 }
 
 fn trusted_child_device() -> LanPairingDeviceRef {
-    LanPairingDeviceRef::new(
+    let mut device = LanPairingDeviceRef::new(
         constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
         None,
         constants::lan_pairing::LOCAL_AGENT_LABEL.to_string(),
         constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-    )
+    );
+    device.install_id = Some("fixture-install-trusted-child".to_string());
+    device
 }
 
 fn parent_device() -> LanPairingDeviceRef {

@@ -18,13 +18,13 @@ await main();
 async function main() {
   await mkdir(schedulerDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/notification-domain',
+      '@ocentra-parent/schema-domain',
       '--',
       'tests/unit/notification-local-outbox-scheduler-proof.test.ts',
     ])
@@ -77,10 +77,9 @@ async function main() {
       schemas: 'packages/schema-domain/src/notification-local-outbox-scheduler-proof-schemas.ts',
       guards: 'packages/schema-domain/src/notification-local-outbox-scheduler-proof-guards.ts',
       values: 'packages/schema-domain/src/notification-local-outbox-scheduler-proof-values.ts',
-      contractTest: 'packages/notification-domain/tests/unit/notification-local-outbox-scheduler-proof.test.ts',
+      contractTest: 'packages/schema-domain/tests/unit/notification-local-outbox-scheduler-proof.test.ts',
       builtModule: 'packages/schema-domain/dist/notification-local-outbox-scheduler-proof.js',
       packageExport: '@ocentra-parent/schema-domain/notification-local-outbox-scheduler-proof',
-      retiredLocalOwnerPackage: '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/notifications.md',
       checklistDoc: 'docs/product-capability-checklist.md',

@@ -2002,7 +2002,7 @@ export const BrowserControlFullCatalogData4: readonly BrowserControlFullCatalogS
     'browser-catalog-gaps-to-decide-before-ui-contracts-gaps-to-decide-before-ui-contracts-001',
     1015,
     1340,
-    'Do browser settings live in `parent-domain`, `activity-domain`, `agent-protocol-domain`, or a new policy-domain package?',
+    'Do browser settings live in `rust-parent-runtime`, `activity-domain`, `agent-protocol-domain`, or a new policy-domain package?',
   ],
   [
     'browser-catalog-gaps-to-decide-before-ui-contracts',

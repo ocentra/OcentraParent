@@ -4,10 +4,12 @@ use ocentra_billing_core::billing_subscription::{
     BillingAccountMatchState, BillingAggregateId, BillingCollectionRecoveryState,
     BillingDisputeLifecycleState, BillingEntitlementScope, BillingEntitlementTransitionState,
     BillingEntitlementUpdateRequirement, BillingEntitlementWriteState,
-    BillingManualReviewRequirement, BillingProviderDuplicateState,
-    BillingProviderEventDecisionState, BillingProviderEventId, BillingProviderEventKind,
-    BillingProviderSignatureState, BillingProviderWebhookEvent,
+    BillingManualReviewRequirement, BillingProviderChannel, BillingProviderEventDecisionState,
+    BillingProviderEventId, BillingProviderEventKind, BillingProviderIdempotencyState,
+    BillingProviderMode, BillingProviderOrderingState, BillingProviderPayloadParseState,
+    BillingProviderReplayState, BillingProviderSignatureState, BillingProviderWebhookEvent,
     BillingProviderWebhookReceivedEvent, BillingRefundLifecycleState, BillingSubscriptionStatus,
+    BillingTestLiveBoundaryState,
 };
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::expect_value::ExpectValue;
@@ -28,10 +30,16 @@ fn provider_event(
     BillingProviderWebhookEvent {
         event_id: BillingProviderEventId::parse(BILLING_PROVIDER_EVENT_ID)
             .expect_value("billing provider event id"),
+        provider: BillingProviderChannel::Stripe,
+        mode: BillingProviderMode::Live,
         event_kind: BillingProviderEventKind::SubscriptionUpdated,
         signature_state,
-        duplicate_state: BillingProviderDuplicateState::Fresh,
+        payload_parse_state: BillingProviderPayloadParseState::Parsed,
+        idempotency_state: BillingProviderIdempotencyState::Fresh,
+        replay_state: BillingProviderReplayState::Fresh,
+        ordering_state: BillingProviderOrderingState::InOrder,
         account_match_state: BillingAccountMatchState::Matched,
+        test_live_boundary_state: BillingTestLiveBoundaryState::Isolated,
         subscription_status,
         collection_recovery_state,
         refund_state,

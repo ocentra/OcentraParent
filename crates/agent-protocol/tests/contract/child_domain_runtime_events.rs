@@ -134,12 +134,12 @@ fn child_domain_event_type_deserialization_rejects_unknown_protocol_text() {
         "policyEvaluationRequirement": "required"
     });
 
-    let result = serde_json::from_value::<ChildDomainObservedEvent>(payload);
+    let error = match serde_json::from_value::<ChildDomainObservedEvent>(payload) {
+        Ok(_) => unreachable!("unknown protocol text must fail deserialization"),
+        Err(error) => error,
+    };
 
-    assert_eq!(
-        result.unwrap_err().classify(),
-        serde_json::error::Category::Data
-    );
+    assert_eq!(error.classify(), serde_json::error::Category::Data);
 }
 
 #[test]

@@ -1,6 +1,3 @@
-#[cfg(test)]
-use std::path::PathBuf;
-
 #[cfg(windows)]
 use ocentra_parent_agent_core::activity_store_app_game::{
     live_windows_foreground_window_journal_event, live_windows_inventory_journal_events_with_limit,
@@ -8,14 +5,8 @@ use ocentra_parent_agent_core::activity_store_app_game::{
     live_windows_registry_inventory_journal_events_with_limit,
     live_windows_store_package_journal_events_with_limit,
 };
-#[cfg(test)]
-use ocentra_parent_agent_core::activity_store_app_game::{
-    live_windows_inventory_journal_events_from_roots,
-    live_windows_registry_inventory_journal_events_from_roots,
-    live_windows_store_package_journal_events_from_roots,
-};
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
-#[cfg(any(windows, test))]
+#[cfg(windows)]
 use ocentra_parent_agent_protocol::constants;
 
 use super::ActivityCaptureError;
@@ -120,49 +111,4 @@ pub(super) fn live_registry_inventory_events(
     _limit: usize,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(Vec::new())
-}
-
-#[cfg(test)]
-pub(super) fn live_inventory_events_from_roots(
-    observed_at: &str,
-    roots: &[PathBuf],
-    limit: usize,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_inventory_journal_events_from_roots(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at,
-        roots,
-        limit,
-    )?)
-}
-
-#[cfg(test)]
-pub(super) fn live_registry_inventory_events_from_roots(
-    observed_at: &str,
-    roots: &[PathBuf],
-    limit: usize,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_registry_inventory_journal_events_from_roots(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at,
-        roots,
-        limit,
-    )?)
-}
-
-#[cfg(test)]
-pub(super) fn live_store_package_events_from_roots(
-    observed_at: &str,
-    roots: &[PathBuf],
-    limit: usize,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_store_package_journal_events_from_roots(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at,
-        roots,
-        limit,
-    )?)
 }

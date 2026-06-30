@@ -27,7 +27,7 @@ use crate::{
     },
 };
 
-pub(crate) type ScreenRuntimeEventPayload = ProtocolScreenRuntimeEventPayload;
+pub type ScreenRuntimeEventPayload = ProtocolScreenRuntimeEventPayload;
 
 #[derive(Clone, Debug)]
 pub struct ScreenRuntimeReport {

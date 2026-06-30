@@ -17,10 +17,10 @@ import {
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelNoClaimFlags,
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelState,
   RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelNonClaims,
-  type AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateValue,
   appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelCountsMatch,
   appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelHasNoRuntimeClaims,
-  appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelMatchesHandoff,
+  appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateForHandoff,
+  countAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRows,
 } from './app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 
@@ -182,21 +182,7 @@ export function buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadMod
     rows,
     nativeAppRowCount: handoff.nativeAppRowCount,
     nativeGameRowCount: handoff.nativeGameRowCount,
-    serviceReadModelProofRequiredCount: rows.filter(
-      (row) =>
-        row.serviceReadinessReadModelState ===
-        AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelState.ServiceReadModelProofRequired
-    ).length,
-    blockedBySourceFreshnessCount: rows.filter(
-      (row) =>
-        row.serviceReadinessReadModelState ===
-        AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelState.BlockedBySourceFreshness
-    ).length,
-    blockedByCompilerDecisionCount: rows.filter(
-      (row) =>
-        row.serviceReadinessReadModelState ===
-        AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelState.BlockedByCompilerDecision
-    ).length,
+    ...countAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRows(rows),
     serviceReadinessReadModelNonClaims: RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelNonClaims,
     ...AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelNoClaimFlags,
   });
@@ -206,7 +192,10 @@ function buildServiceReadinessReadModelRow(
   options: AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelOptions,
   handoffRow: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRow
 ): AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRow {
-  const serviceReadinessReadModelState = readModelStateForHandoff(handoffRow);
+  const serviceReadinessReadModelState =
+    appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateForHandoff(
+      handoffRow.serviceReadinessHandoffState
+    );
 
   return AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowSchema.parse({
     schemaVersion: options.schemaVersion,
@@ -228,22 +217,6 @@ function buildServiceReadinessReadModelRow(
     ...AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelNoClaimFlags,
     generatedAt: options.generatedAt,
   });
-}
-
-function readModelStateForHandoff(
-  handoffRow: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRow
-): AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateValue {
-  for (const state of Object.values(AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelState)) {
-    if (
-      appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelMatchesHandoff(
-        handoffRow.serviceReadinessHandoffState,
-        state
-      )
-    ) {
-      return state;
-    }
-  }
-  return AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelState.BlockedByCompilerDecision;
 }
 
 export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModel = Schema.decodeUnknownSync(

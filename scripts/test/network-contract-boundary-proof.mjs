@@ -6,7 +6,7 @@ const proofRoot = join('output', 'network-plan-proof', '03-contract-boundary-and
 mkdirSync(proofRoot, { recursive: true });
 
 const commands = [
-  npmCommand('shared-network-contract-tests', [
+  npmCommand('schema-domain-contract-tests', [
     'run',
     'test',
     '--workspace',
@@ -14,21 +14,7 @@ const commands = [
     '--',
     'network-contracts.test.ts',
   ]),
-  npmCommand('network-domain-flow-tests', [
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/network-domain',
-    '--',
-    'network-flow.test.ts',
-  ]),
   npmCommand('schema-domain-build', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']),
-  npmCommand('network-domain-build', ['run', 'build', '--workspace', '@ocentra-parent/network-domain']),
-  {
-    name: 'source-shape',
-    command: 'node',
-    args: ['scripts/check-source-shape.mjs', 'packages/network-domain'],
-  },
 ];
 
 const sourceSnapshot = [
@@ -45,12 +31,11 @@ const sourceSnapshot = [
   'Inspected source paths:',
   '',
   '- packages/schema-domain/src/network-flow.ts',
-  '- packages/network-domain/package.json',
   '- packages/schema-domain/src/network-contracts.ts',
   '- packages/schema-domain/tests/unit/network-contracts.test.ts',
-  '- packages/network-domain/tests/unit/network-flow.test.ts',
+  '- packages/schema-domain/package.json',
   '',
-  'Ownership target: shared network contracts and flow/read-model schemas now live only under schema-domain; network-domain stops exporting the duplicate flow owner.',
+  'Ownership target: shared network contracts and flow/read-model schemas now live only under schema-domain.',
 ];
 writeFileSync(join(proofRoot, '00-source-snapshot.md'), `${sourceSnapshot.join('\n')}\n`);
 
@@ -59,7 +44,7 @@ const commandResults = commands.map((entry) => runCommand(entry));
 const networkContractsSource = readFileSync('packages/schema-domain/src/network-contracts.ts', 'utf8');
 const networkFlowSource = readFileSync('packages/schema-domain/src/network-flow.ts', 'utf8');
 const networkContractTests = readFileSync('packages/schema-domain/tests/unit/network-contracts.test.ts', 'utf8');
-const networkPackageJson = readFileSync('packages/network-domain/package.json', 'utf8');
+const schemaPackageJson = JSON.parse(readFileSync('packages/schema-domain/package.json', 'utf8'));
 
 const assertions = [
   ['flow-evidence-schema', networkContractsSource.includes('ActivityNetworkFlowEvidenceSchema')],
@@ -67,7 +52,8 @@ const assertions = [
   ['classification-schema', networkContractsSource.includes('ActivityNetworkActivityClassificationSchema')],
   ['evidence-grade-schema', networkContractsSource.includes("Schema.Literal('A', 'B', 'C', 'D')")],
   ['policy-action-schema', networkContractsSource.includes('ActivityNetworkPolicyActionSchema')],
-  ['network-domain-flow-export-removed', !networkPackageJson.includes('"./network-flow"')],
+  ['schema-domain-network-flow-export-present', Boolean(schemaPackageJson.exports['./network-flow'])],
+  ['schema-domain-network-contracts-export-present', Boolean(schemaPackageJson.exports['./network-contracts'])],
   ['network-flow-central-owner-has-no-local-contract-import', !networkFlowSource.includes('./network-contracts')],
   ['unsupported-exact-url-negative-test', networkContractTests.includes("unsupportedClaimAttempts: ['exact-url']")],
   ['adapter-authorization-negative-test', networkContractTests.includes('adapterCallAuthorized: true')],
@@ -138,7 +124,7 @@ function runCommand(entry) {
     shell: false,
   });
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
-  const logName = entry.name === 'shared-network-contract-tests' ? '01-contract-proof.log' : `${entry.name}.log`;
+  const logName = entry.name === 'schema-domain-contract-tests' ? '01-contract-proof.log' : `${entry.name}.log`;
   writeFileSync(join(proofRoot, logName), output);
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}`);

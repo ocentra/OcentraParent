@@ -1,17 +1,15 @@
 import {
-  DevLogBridge,
-  DevLogEndpoint,
-  DevLogHttp,
-  DevLogIdPrefix,
-  LogLevel,
-  LogSource,
-  decodeLogEntryId,
-  decodeLogTimestamp,
-  type DevLogEntry,
-  type LogFields,
-  type LogMessage,
-  type StackTrace,
-} from '@ocentra-parent/schema-domain/logging-contracts';
+  GeneratedDevLogBridge as DevLogBridge,
+  GeneratedDevLogEndpoint as DevLogEndpoint,
+  GeneratedDevLogHttp as DevLogHttp,
+  GeneratedDevLogIdPrefix as DevLogIdPrefix,
+  GeneratedLogLevel as LogLevel,
+  type GeneratedLogMessage as LogMessage,
+  GeneratedLogSource as LogSource,
+  type GeneratedDevLogEntry as DevLogEntry,
+  type GeneratedLogFields as LogFields,
+  type GeneratedStackTrace as StackTrace,
+} from '@ocentra-parent/schema-domain/generated/logging-contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
@@ -380,8 +378,8 @@ function buildPortalLoggerConfiguration(
 function createPortalCompatibilityEntry(message: LogMessage, fields: LogFields): DevLogEntry {
   return {
     schemaVersion: 1,
-    id: decodeLogEntryId(`${DevLogIdPrefix.Portal}${createPortalLogToken()}`),
-    timestamp: decodeLogTimestamp(new Date().toISOString()),
+    id: `${DevLogIdPrefix.Portal}${createPortalLogToken()}`,
+    timestamp: new Date().toISOString(),
     level: LogLevel.Info,
     source: LogSource.Portal,
     message,

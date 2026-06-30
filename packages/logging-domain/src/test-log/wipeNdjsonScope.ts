@@ -1,13 +1,12 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import type {
   RunType,
-  StoredTestLogLine,
   TestLogScope,
   TestSuiteType,
 } from '@ocentra-parent/schema-domain/test-log/types';
 import { getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
+import { matchesGeneratedWipeEntry } from '../generated/local-test-log';
 
 export interface WipeNdjsonScopeOptions {
   readonly scope: TestLogScope;
@@ -22,33 +21,6 @@ export interface WipeNdjsonScopeResult {
   readonly deletedEntries: number;
   readonly deletedFiles: string[];
   readonly rewrittenFiles: string[];
-}
-
-function matchesFile(entry: StoredTestLogLine, filePath: string): boolean {
-  if (entry.filePath === filePath) {
-    return true;
-  }
-
-  return entry.file === path.basename(filePath);
-}
-
-function matchesEntry(entry: StoredTestLogLine, options: WipeNdjsonScopeOptions): boolean {
-  if (entry.scope !== options.scope) {
-    return false;
-  }
-  if (options.runType != null && entry.runType !== options.runType) {
-    return false;
-  }
-  if (options.suiteType != null && entry.suiteType !== options.suiteType) {
-    return false;
-  }
-  if (options.runId != null && entry.runId !== options.runId) {
-    return false;
-  }
-  if (options.filePath != null && !matchesFile(entry, options.filePath)) {
-    return false;
-  }
-  return true;
 }
 
 export function wipeNdjsonScope(options: WipeNdjsonScopeOptions): WipeNdjsonScopeResult {
@@ -68,7 +40,7 @@ export function wipeNdjsonScope(options: WipeNdjsonScopeOptions): WipeNdjsonScop
   for (const filePath of listNdjsonFiles(scopeDir)) {
     const entries = readTestLogEntriesFromFile(filePath);
     const keptEntries = entries.filter((entry) => {
-      const remove = matchesEntry(entry, options);
+      const remove = matchesGeneratedWipeEntry(entry, options);
       if (remove) {
         deletedEntries += 1;
       }

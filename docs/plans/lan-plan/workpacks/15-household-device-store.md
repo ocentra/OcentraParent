@@ -80,19 +80,20 @@ not own separate truth.
 
 ## Requirement Checklist
 
-- [ ] Persist device records, evidence, manual name, assigned child, trusted
+- [x] Persist device records, evidence, manual name, assigned child, trusted
   state, ignored state, revoked state, online state, first-seen, and
-  last-seen. Manual name/device type persistence for LAN-discovered
-  neighbors is proved; broader state coverage remains open.
-- [ ] Preserve parent decisions across rescan and restart. Portal refresh and
-  service readback are proved for rename/type, and previous-scan continuity is
-  now persisted/replayed as weak evidence; full restart coverage remains open.
-- [ ] Support migrations and safe fallback to unpaired state when registry proof
+  last-seen. Current local proof covers known-household persistence, manual
+  decision recovery, stale/offline restoration, and durable evidence merge
+  timing.
+- [x] Preserve parent decisions across rescan and restart. Current local proof
+  covers rename/type readback, selected-route recovery, known-device restart
+  recovery, and previous-scan continuity as weak evidence only.
+- [x] Support migrations and safe fallback to unpaired state when registry proof
       is unavailable.
-- [ ] Keep routers and unsupported devices visible but non-enrollable.
-- [ ] Expose custody/source labels for local, LAN, cache, unavailable, and
-      manual-required states. Previous-scan continuity is now explicit in the
-      LAN read model as a weak source label rather than hidden fallback state.
+- [x] Keep routers and unsupported devices visible but non-enrollable.
+- [x] Expose custody/source labels for local, LAN, cache, unavailable, and
+      manual-required states. Previous-scan continuity is explicit in the LAN
+      read model as a weak source label rather than hidden fallback state.
 
 ## Acceptance And Proof
 
@@ -104,18 +105,16 @@ not own separate truth.
 
 Current proof:
 
-- `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md`
-- `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-identity-persisted.png`
-- `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-update-gated.png`
-- Focused Rust proof: `cargo test -p ocentra-lan-core network_inventory`
-- Focused Rust proof: `cargo test -p ocentra-parent-agent-core trusted_device_registry`
+- `output/lan-plan-proof/15-household-device-store/01-local-validation.md`
+- Focused Rust proof: `cargo test -p ocentra-lan-core network_inventory -- --nocapture`
 - Focused Rust proof:
-  `cargo test -p ocentra-parent-agent-service lan_pairing_browser_runtime`
+  `cargo test -p ocentra-parent-agent-core trusted_device_registry -- --nocapture`
 - Focused Rust proof:
-  `cargo test -p ocentra-parent-agent-service physical_lan_scan`
-- Restart/runtime proof now explicitly covers stale read-model restoration from
-  `knownHouseholdDevices`, and scan-suppression proof now covers stored
-  child-agent truth in addition to paired and router truth.
+  `cargo test -p ocentra-parent-agent-service lan_pairing_browser_runtime -- --nocapture`
+- Restart/runtime proof now explicitly covers stale and offline read-model
+  restoration from `knownHouseholdDevices`, migration and fail-closed trusted
+  registry recovery, router-visible/non-enrollable handling, and
+  scan-suppression truth for stored child-agent, paired, and router devices.
 
 ## Parallel Ownership Notes
 

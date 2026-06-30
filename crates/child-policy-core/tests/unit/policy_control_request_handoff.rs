@@ -205,15 +205,27 @@ fn grant_modify_deny_and_expire_resolution_shape_is_correct() {
     )
     .expect_value("grant resolution");
     assert_eq!(granted.request.status, PolicyRequestStatus::Approved);
-    let granted_override = granted
-        .temporary_override
-        .as_ref()
-        .expect("grant resolution temporary override");
-    assert_eq!(granted_override.source_request_id, request.request_id);
-    assert_eq!(granted_override.approved_bonus_minutes, None);
     assert_eq!(
-        granted_override.audit_reference_ids,
-        vec![audit_ref("audit-parent-decision")]
+        granted
+            .temporary_override
+            .as_ref()
+            .map(|override_value| override_value.source_request_id.clone()),
+        Some(request.request_id.clone())
+    );
+    assert_eq!(
+        granted
+            .temporary_override
+            .as_ref()
+            .and_then(|override_value| override_value.approved_bonus_minutes)
+            .map(|approved_bonus_minutes| approved_bonus_minutes.value()),
+        Some(30)
+    );
+    assert_eq!(
+        granted
+            .temporary_override
+            .as_ref()
+            .map(|override_value| override_value.audit_reference_ids.clone()),
+        Some(vec![audit_ref("audit-parent-decision")])
     );
 
     let modified = resolve_policy_control_request_handoff(

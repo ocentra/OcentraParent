@@ -35,8 +35,9 @@ AI is an evidence consumer and evaluator, not a capture owner, policy authority,
 Module roles:
 
 ```text
-schema-domain: canonical shared AI schema, brands, parsers, literals, context/result/runtime/reference shapes, and encoded-shape owner when AI contracts cross package, crate, app, or plan boundaries.
-ai-domain: TypeScript package identity, helper/projection tests, and focused AI-domain validation surface; it must not re-own canonical shared AI contracts now centralized in schema-domain.
+crates/schema or the owning Rust crate: canonical shared AI schema, brands, parsers, literals, context/result/runtime/reference shapes, route/action/read-model DTOs, and encoded-shape owner when AI contracts cross package, crate, app, or plan boundaries.
+schema-domain: temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+ai-domain: TypeScript package identity, helper/projection tests, and focused AI-domain validation surface; it must not re-own canonical shared AI contracts now centralized in Rust-owned schema surfaces.
 child-ai-core: child-local AI runtime/evaluator boundary; it validates local context, provider results, and accepted AI output before policy can consume it.
 screen-ai-core: screen AI worker/router boundary for screen-analysis jobs; it consumes screen evidence references and must not own general screen capture or retention.
 agent-protocol and agent-service: protocol/transport boundaries only when a selected workpack names wire/service proof.
@@ -49,7 +50,7 @@ LAN/remote plans: provider/job transport or remote-assistant handoff surfaces on
 Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
 
 ```text
-canonical schema-domain AI, evidence, policy-reference, family-reference, protocol, capability, and logging shapes
+Rust-owned canonical AI, evidence, policy-reference, family-reference, protocol, capability, and logging shapes plus generated DTOs or temporary edge decoders
 neutral event/evidence/logging/protocol primitives
 approved public ai-domain helper exports when the selected workpack names ai-domain as helper/projection scope
 approved Rust parity/runtime crates when the selected workpack names Rust proof
@@ -61,12 +62,12 @@ Forbidden direct imports:
 ```text
 sibling feature owner packages or crates for browser, screen, tracking, network, app/game, policy, enforcement, LAN, or remote runtime behavior
 private source files from another plan's owning package/crate
-peer feature contracts when the shared shape should live in schema-domain or another neutral boundary
+peer feature contracts when the shared shape should live in crates/schema or another neutral Rust-owned boundary
 AI runtime calls that scrape browser/screen/network/tracking/app state directly instead of consuming evidence/read-model/request results
 policy or enforcement internals to turn a model label into an action without deterministic policy handoff
 ```
 
-If AI needs more context from browser, screen, tracking, network, app/game, LAN, or remote surfaces, it must use typed evidence, read models, commands, events, requests, provider jobs, or proof handoffs. If a shape is shared by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+If AI needs more context from browser, screen, tracking, network, app/game, LAN, or remote surfaces, it must use typed evidence, read models, commands, events, requests, provider jobs, or proof handoffs. If a shape is shared by multiple feature owners, place or consume it through `crates/schema` or another neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete. Do not solve cross-plan behavior by importing another feature's runtime internals.
 
 ## Default read order
 

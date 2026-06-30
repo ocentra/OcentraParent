@@ -1,41 +1,7 @@
 import * as TrackingContracts from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
-import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
-import {
-  AgentEvent,
-  isAgentProtocolLogText,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-
-export function defaultAgentTrackingRetentionSettingsWriteRequest(): TrackingContracts.AgentTrackingRetentionSettingsWriteRequest {
-  return TrackingContracts.AgentTrackingRetentionSettingsWriteRequestSchema.parse({
-    schemaVersion: AgentProtocolSchemaVersion,
-    commandId: TrackingContracts.AgentTrackingRetentionSettingsWriteDefaults.CommandId,
-    settingsKind: TrackingContracts.AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
-    requestedRetentionWindowHours: 168,
-    requestedDeleteAfterAlertResolutionState:
-      TrackingContracts.AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved,
-    requestedParentExportState: TrackingContracts.AgentTrackingParentExportState.NotPrepared,
-    requestedRemoteSyncState: TrackingContracts.AgentTrackingRemoteSyncState.Disabled,
-    requestedRemoteAiState: TrackingContracts.AgentTrackingRemoteAiState.Disabled,
-    sourceWriterIntentRefs: [TrackingContracts.AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
-    sourceReadModelProofRefs: TrackingContracts.AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
-  });
-}
-
-export function defaultAgentTrackingConfigUpdateRequest(): TrackingContracts.AgentTrackingConfigUpdateRequest {
-  const retentionSettings = defaultAgentTrackingRetentionSettingsWriteRequest();
-  return TrackingContracts.AgentTrackingConfigUpdateRequestSchema.parse({
-    commandId: retentionSettings.commandId,
-    runtimeConfig: {
-      trackingEnabledState: TrackingContracts.AgentTrackingRuntimeEnabledState.Enabled,
-      trackingMode: TrackingContracts.AgentTrackingRuntimeMode.ObserveOnly,
-      aiBoundaryMode: TrackingContracts.AgentTrackingAiBoundaryMode.RequestWhenUncertain,
-      notificationMode: TrackingContracts.AgentTrackingNotificationMode.ParentPortalOnly,
-    },
-    retentionSettings,
-  });
-}
+import { parseJsonPayloadFieldEvent } from './protocol-event-payload.js';
 
 export type AgentTrackingRetentionSettingsWriteResultFailureReason =
   | 'wrong-event'
@@ -64,30 +30,19 @@ export type AgentTrackingRetentionSettingsWriteResultParseResult =
 export function parseAgentTrackingRetentionSettingsWriteResultEvent(
   event: AgentEventEnvelope
 ): AgentTrackingRetentionSettingsWriteResultParseResult {
-  if (event.event !== AgentEvent.ActivityTrackingRetentionSettingsWriteReported) {
-    return adapterFailure('wrong-event');
-  }
-
-  const raw = event.payload[AgentProtocolDefaults.Field.ActivityTrackingRetentionSettingsWriteResult];
-  if (!isAgentProtocolLogText(raw)) {
-    return adapterFailure('missing-json-field');
-  }
-
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(raw);
-  } catch {
-    return adapterFailure('invalid-json');
-  }
-
-  const parsed = TrackingContracts.AgentTrackingRetentionSettingsWriteResultSchema.safeParse(decoded);
-  if (!parsed.success) {
-    return adapterFailure('invalid-payload');
+  const parsed = parseJsonPayloadFieldEvent(
+    event,
+    AgentEvent.ActivityTrackingRetentionSettingsWriteReported,
+    AgentProtocolDefaults.Field.ActivityTrackingRetentionSettingsWriteResult,
+    TrackingContracts.AgentTrackingRetentionSettingsWriteResultSchema
+  );
+  if (!parsed.ok) {
+    return adapterFailure(parsed.reason);
   }
 
   return {
     parseState: AgentTrackingRetentionSettingsWriteResultParseState.Parsed,
-    value: parsed.data,
+    value: parsed.value,
   };
 }
 

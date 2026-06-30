@@ -19,15 +19,6 @@ pub(crate) struct LocalAiRuntimeAccelerationConfig {
 }
 
 impl LocalAiRuntimeAccelerationConfig {
-    #[cfg(test)]
-    pub(crate) fn basic(runtime_device: Option<String>, gpu_layers: Option<String>) -> Self {
-        Self {
-            runtime_device,
-            gpu_layers,
-            ..Self::default()
-        }
-    }
-
     pub(crate) fn from_environment() -> Self {
         Self {
             runtime_device: env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE),

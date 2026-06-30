@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { IMPLEMENTED_HANDLER_KEYS } from '../../src/index.js';
+import { validateAuthBoundaryRoute, type AuthState, type RouteAuditRule } from '../../src/auth/model.js';
 import { ROUTE_MANIFEST } from '../../src/routes.js';
 
 const EXPECTED_AUTH_ROUTES = new Map([
@@ -35,6 +35,14 @@ const EXPECTED_ADMIN_ROUTES = new Map([
   ['GET /admin/billing/audit', 'admin-required'],
 ] as const);
 
+const EXPECTED_ROUTE_KEYS = [
+  'GET /health',
+  'GET /public/pricing',
+  ...EXPECTED_AUTH_ROUTES.keys(),
+  ...EXPECTED_ADMIN_ROUTES.keys(),
+  ...EXPECTED_WEBHOOK_ROUTES,
+].sort();
+
 const ALLOWED_ROUTE_PATTERNS = [
   /^\/health$/u,
   /^\/public\/pricing$/u,
@@ -47,6 +55,11 @@ describe('ROUTE_MANIFEST', () => {
   it('keeps route and method pairs unique', () => {
     const routeKeys = ROUTE_MANIFEST.map((route) => `${route.method} ${route.path}`);
     assert.equal(new Set(routeKeys).size, routeKeys.length);
+  });
+
+  it('keeps the manifest route list exact instead of allowing extra worker-only route strings to drift in', () => {
+    const routeKeys = ROUTE_MANIFEST.map((route) => `${route.method} ${route.path}`).sort();
+    assert.deepEqual(routeKeys, EXPECTED_ROUTE_KEYS);
   });
 
   it('pins every public, auth, webhook, and admin billing route to the expected auth state', () => {
@@ -73,6 +86,7 @@ describe('ROUTE_MANIFEST', () => {
       assert.match(route.handlerKey, /.+/u);
       assert.match(route.requestModel, /.+/u);
       assert.match(route.responseModel, /.+/u);
+      assert.match(route.auditRule, /.+/u);
       assert.match(route.auditEvent, /.+/u);
       assert.match(route.proofIdFamily, /.+/u);
     }
@@ -99,10 +113,30 @@ describe('ROUTE_MANIFEST', () => {
     }
   });
 
-  it('does not expose implemented handlers outside the manifest', () => {
-    const manifestHandlerKeys = new Set(ROUTE_MANIFEST.map((route) => route.handlerKey));
-    for (const handlerKey of IMPLEMENTED_HANDLER_KEYS) {
-      assert.ok(manifestHandlerKeys.has(handlerKey));
+  it('keeps every declared route inside the explicit auth-boundary guardrails', () => {
+    for (const route of ROUTE_MANIFEST) {
+      assert.equal(validateAuthBoundaryRoute(route), null, `${route.method} ${route.path} must remain boundary-valid`);
     }
+  });
+
+  it('rejects naked private routes and admin-support routes without explicit audit rules', () => {
+    const supportRoute = ROUTE_MANIFEST.find((route) => route.path === '/admin/billing/accounts');
+    assert.ok(supportRoute);
+
+    const nakedPrivateRoute = {
+      ...supportRoute,
+      authState: 'public' as AuthState,
+      auditRule: 'public-observability' as RouteAuditRule,
+    };
+    const missingAuditRuleRoute = {
+      ...supportRoute,
+      auditRule: 'public-observability' as RouteAuditRule,
+    };
+
+    assert.equal(validateAuthBoundaryRoute(nakedPrivateRoute), 'naked-private-route');
+    assert.equal(
+      validateAuthBoundaryRoute(missingAuditRuleRoute),
+      'admin-support-routes-require-audit-rule'
+    );
   });
 });

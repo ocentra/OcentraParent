@@ -77,41 +77,44 @@ must not depend on tracking product types.
 
 ## TypeScript Ownership
 
-TypeScript is a portal/protocol/read-model contract mirror for tracking, not
-the final runtime decision engine. Current buckets:
+TypeScript is presentation and migration support for tracking, not contract or
+runtime authority. Current buckets:
 
-- `packages/tracking-domain` is the current canonical TypeScript owner for
-  tracking evidence, geofence, expected-place, local place, retention, read
-  model, event contracts, and proof-accounting helpers.
-- `packages/agent-protocol-domain` for portal/agent WebSocket command and
-  event contract mirrors.
-- `packages/parent-domain` keeps parent policy/product/readiness contracts and
-  a large tracking proof/readiness shadow surface. Treat it as a migration and
-  proof boundary, not the canonical tracking runtime owner.
-- `packages/activity-domain` still matters where shared activity query schemas
-  and broader evidence-store contracts are already consumed, but it is no
-  longer the canonical tracking TypeScript owner.
+- `packages/tracking-domain` is a transitional helper/projection and
+  proof-accounting surface. Do not add new canonical tracking evidence,
+  geofence, place, retention, read-model, event, or policy truth there.
+- `packages/schema-domain` and `packages/agent-protocol-domain` are temporary
+  edge decoder/dev protocol mirrors until Rust-owned generated DTOs and Rust
+  protocol consumers replace them.
+- `packages/parent-domain` and `packages/activity-domain` keep only
+  migration/proof surfaces or presentation-safe helpers until Rust owners expose
+  replacements.
 - `packages/endpoint-domain`, `packages/portal-domain`, and
-  `packages/text-domain` for routes, DOM ids, command ids, and display text
-  tokens used by portal surfaces.
-- `apps/portal` renders service-backed tracking read models and sends typed
-  parent intents only.
+  `packages/text-domain` may keep presentation-only route/DOM/dev descriptor
+  and display text helpers when they do not encode product state.
+- `apps/portal` renders Rust-owned/generated tracking snapshots and dispatches
+  generated Rust-owned actions or explicit dev transport commands only.
 - `scripts/test/tracking-*.mjs`, hosted proof helpers, artifact inventories,
   handoff proofs, blocker proofs, and closure proofs are proof/accounting
   harnesses. Do not move or expand them as runtime code.
 
 ## Rust Ownership
 
-Rust-facing protocol shapes belong in `crates/agent-protocol` only after the
-Rust-crossing contract is explicit and test-backed. Runtime tracking behavior
-belongs in Rust before portal proof or TypeScript helper expansion.
+Cross-boundary tracking DTOs, route snapshots, action/result shapes, and
+generated bridge artifacts belong in `crates/schema` unless a narrower Rust
+domain/runtime crate owns a crate-local shape. Runtime tracking behavior belongs
+in Rust before portal proof or TypeScript helper expansion.
 
 - `crates/tracking-core` is the current runtime owner for tracking state
   helpers, local durable state, read-model guards, location validation,
   geofence/expected-place evaluation, nearby-place decisions, retention
   application, and portal notification candidate logic.
+- `crates/schema` owns shared tracking DTO shape when the value crosses the
+  parent UI bridge, route snapshot, action/result, or generated TypeScript
+  boundary.
 - `crates/agent-protocol` owns Rust tracking structs, constants, command names,
-  event names, field names, and state labels.
+  event names, field names, and state labels only for protocol/transport
+  surfaces that are not schema-wide DTOs.
 - `crates/agent-service` owns WebSocket/API transport and event response
   construction only. Source-adjacent service tracking tests are allowed only for
   private binary-service transport seams until those seams move behind an

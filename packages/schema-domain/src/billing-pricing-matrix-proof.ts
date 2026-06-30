@@ -295,6 +295,10 @@ function pricingPlan(
     planId,
     displayTextToken: `billing.plan.${planId}`,
     activeState: 'active',
+    parentPortalAccess: {
+      includedParentPortalCount: 1,
+      extraParentSlotState: 'manual-required',
+    },
     deviceLimit,
     featureEntitlements,
     retentionExportAllowance: {

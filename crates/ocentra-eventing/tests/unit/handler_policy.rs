@@ -24,7 +24,9 @@ async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
         async move {
             let previous = attempts.fetch_add(1, Ordering::SeqCst);
             if previous == 0 {
-                Err(EventingError::empty_value("retryable_handler_failure"))
+                Err(EventingError::EmptyValue {
+                    field: "retryable_handler_failure",
+                })
             } else {
                 Ok(())
             }

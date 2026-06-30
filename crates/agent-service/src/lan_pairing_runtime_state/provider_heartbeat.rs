@@ -24,34 +24,4 @@ impl LanPairingRuntime {
             Some(LanPairingDeviceReachability::Offline | LanPairingDeviceReachability::Stale)
         )
     }
-
-    #[cfg(test)]
-    pub fn mark_lan_ai_provider_heartbeat_stale_for_test(&self, observed_at: &str) {
-        self.record_lan_ai_provider_heartbeat_state_for_test(
-            observed_at,
-            LanPairingDeviceReachability::Stale,
-        );
-    }
-
-    #[cfg(test)]
-    pub fn mark_lan_ai_provider_heartbeat_offline_for_test(&self, observed_at: &str) {
-        self.record_lan_ai_provider_heartbeat_state_for_test(
-            observed_at,
-            LanPairingDeviceReachability::Offline,
-        );
-    }
-
-    #[cfg(test)]
-    fn record_lan_ai_provider_heartbeat_state_for_test(
-        &self,
-        observed_at: &str,
-        reachability: LanPairingDeviceReachability,
-    ) {
-        if let Ok(mut state) = self.lan_ai_provider_heartbeat.lock() {
-            *state = Some(LanAiProviderHeartbeatState {
-                observed_at: observed_at.to_string(),
-                reachability,
-            });
-        }
-    }
 }

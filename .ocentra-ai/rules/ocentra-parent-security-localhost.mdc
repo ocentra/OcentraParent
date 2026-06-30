@@ -10,10 +10,12 @@ Localhost is a boundary, not a trust guarantee. LAN mode is a larger boundary an
 
 ## Base Assumptions
 
-- Every portal command is untrusted input.
-- Every WebSocket payload is untrusted input.
+- Every portal action/command is untrusted input.
+- Every HostBridge, DevWebHostBridge, endpoint, or WebSocket payload is
+  untrusted input.
 - Child-device local users may try to stop, confuse, or bypass the service.
-- Parent portal access will later cross device and network boundaries.
+- Parent UI access crosses packaged desktop, mobile, dev-web, device, and
+  network boundaries.
 - Internal APIs must still parse and reject invalid input.
 
 ## Current v0 Security Scope
@@ -25,7 +27,7 @@ Allowed now:
 - no secret logging
 - explicit disconnected state
 - explicit loopback versus LAN bind mode
-- allowlisted browser origins for local-network HTTP and WebSocket access
+- allowlisted origins for local-network HTTP and dev WebSocket access
 - local smoke tests
 - repo secret scan
 
@@ -34,7 +36,8 @@ Allowed now:
 - Default dev must remain loopback-only.
 - Non-loopback binds require an explicit enable flag.
 - Do not use permissive CORS for exposed agent endpoints.
-- WebSocket upgrades with an `Origin` header must pass the same allowlist as HTTP.
+- WebSocket upgrades with an `Origin` header must pass the same allowlist as
+  HTTP when WebSocket is used by dev or Rust-owned runtime transport.
 - LAN smoke tests must exercise real service bind behavior, not just config parsing.
 
 Not allowed without a separate plan:

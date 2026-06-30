@@ -11,6 +11,7 @@ const ownerPathPatterns = [
   /^crates\/ocentra-network-evidence\/src\//u,
   /^crates\/agent-updater\/src\//u,
   /^crates\/logging-core\/src\//u,
+  /^crates\/schema\/src\//u,
   /^crates\/[^/]+-(?:core|adapter|runtime)\/src\//u,
 ];
 const lineAllowPatterns = [

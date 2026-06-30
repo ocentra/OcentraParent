@@ -30,7 +30,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 pub mod protocol_rows;
-pub(crate) mod read_model;
+pub mod read_model;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum AppGameJournalSqliteIngestError {

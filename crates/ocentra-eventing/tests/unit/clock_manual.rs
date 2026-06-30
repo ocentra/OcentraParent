@@ -181,7 +181,9 @@ async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
             async move {
                 handler_attempts.fetch_add(1, Ordering::SeqCst);
                 handler_clock.sleep(Duration::from_millis(1)).await;
-                Err(EventingError::empty_value("manual_clock_deadline_retry"))
+                Err(EventingError::EmptyValue {
+                    field: "manual_clock_deadline_retry",
+                })
             }
         },
     )

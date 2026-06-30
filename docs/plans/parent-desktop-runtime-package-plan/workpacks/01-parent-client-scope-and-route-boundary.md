@@ -66,5 +66,6 @@ These are proof-routing fields, not implementation code prescriptions.
 ## Completion
 
 - Proof root: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/`
-- Status: route boundary is documented, but `WORKPACK_INDEX.md` still marks WP01 open. Keep WP01 open until proof artifacts, checklist rows, and PLAN_STATE are reconciled.
-- Notes: canonical parent-client scope, route bridge separation, setup-install handoff boundary, portal shell UX handoff, and compatibility note are documented in the plan-local route docs.
+- Status: complete. Proof artifacts, checklist rows, and plan/index state are now aligned.
+- Focused validation: route/proof boundary content checks passed and `git diff --check` passed on the touched WP01 route/proof files.
+- Notes: canonical parent-client scope, Rust-first route-bridge ownership, setup-install handoff boundary, portal shell UX handoff, and compatibility-only historical folder path are documented in the plan-local route docs and proof root.

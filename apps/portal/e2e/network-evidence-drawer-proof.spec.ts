@@ -1,15 +1,17 @@
 import { expect, test } from '@playwright/test';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { PortalRoute } from '@ocentra-parent/schema-domain/portal-contracts';
-import { NetworkEvidenceDrawerProof } from '../tests/network-evidence-drawer-proof-fixture';
+import { ParentRoute } from '../generated/parent-ui-bridge';
+import { NetworkEvidenceDrawerProof } from '../tests/fixtures/network/network-evidence-drawer-proof-fixture';
 
 test.setTimeout(120_000);
 
 const shellReadyTimeoutMs = 90_000;
 
 test('network evidence drawer renders service-backed refs without unsupported claims', async ({ page }) => {
+  const evidenceRefs = `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`;
+
   await page.goto('/#/commands');
-  await expect(page.getByRole('heading', { exact: true, name: 'Controls' })).toBeVisible({
+  await expect(page.getByRole('heading', { exact: true, name: 'Device controls' })).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
   const networkCommand = page.getByRole('button', { exact: true, name: 'Refresh network activity' });
@@ -29,19 +31,21 @@ test('network evidence drawer renders service-backed refs without unsupported cl
     ([hashPrefix, route]) => {
       window.location.hash = `${hashPrefix}${route}`;
     },
-    [PortalDom.HashPrefix, PortalRoute.ProofPanels] as const
+    [PortalDom.HashPrefix, ParentRoute.ProofPanels] as const
   );
   await page.getByRole('button', { exact: true, name: 'Network activity' }).click();
   const networkPanel = page.getByRole('region', { name: 'Network activity' });
   await expect(networkPanel).toBeVisible({ timeout: shellReadyTimeoutMs });
-  await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.evidenceId)).toBeVisible({
-    timeout: shellReadyTimeoutMs,
-  });
-  await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.journalEvidenceId)).toBeVisible({
+  await expect(networkPanel.getByText(evidenceRefs, { exact: true })).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
   await expect(networkPanel.getByText('Exact URL claim')).toBeVisible({ timeout: shellReadyTimeoutMs });
   await expect(networkPanel.getByText('Not reported').first()).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('LAN source matrix')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('Matrix coverage')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('Policy targets')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('Relay cache')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('Recent LAN events')).toBeVisible({ timeout: shellReadyTimeoutMs });
   await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.expected.domainEvidenceRef)).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });

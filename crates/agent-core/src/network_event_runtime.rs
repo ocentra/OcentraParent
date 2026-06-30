@@ -17,8 +17,8 @@ use ocentra_parent_agent_protocol::network_flow::{
     NetworkRuntimeEventPayload as ProtocolNetworkRuntimeEventPayload, NetworkRuntimePhase,
 };
 
-pub(crate) mod broker_delivery;
-pub(crate) mod queue;
+pub mod broker_delivery;
+pub mod queue;
 mod refs;
 pub mod remote_delivery_cross_process_custody_readiness;
 pub mod remote_delivery_cross_process_custody_readiness_types;
@@ -30,8 +30,7 @@ pub mod remote_delivery_dispatch_readiness;
 pub mod remote_delivery_dispatch_readiness_types;
 pub mod remote_delivery_durable_envelope;
 pub mod remote_delivery_durable_envelope_types;
-#[cfg(test)]
-pub(crate) mod remote_delivery_event_chain_journal;
+pub mod remote_delivery_event_chain_journal;
 pub mod remote_delivery_event_chain_journal_types;
 mod remote_delivery_event_chain_store;
 pub mod remote_delivery_external_cross_process_transport;
@@ -49,12 +48,11 @@ pub mod remote_delivery_receipt_ledger_types;
 pub mod remote_delivery_status;
 pub mod remote_delivery_transport_dispatch_state;
 pub mod remote_delivery_transport_dispatch_state_types;
-#[cfg(test)]
-pub(crate) mod review;
+pub mod review;
 
 use refs::NetworkRuntimeChainRefs;
 
-pub(crate) type NetworkRuntimeEventPayload = ProtocolNetworkRuntimeEventPayload;
+pub type NetworkRuntimeEventPayload = ProtocolNetworkRuntimeEventPayload;
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeReport {
@@ -225,7 +223,6 @@ fn event_custody(observation: &NetworkObservation) -> EventCustody {
     }
 }
 
-#[cfg(test)]
 fn network_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
     let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
     if let Some(domain) = &payload.destination_domain {

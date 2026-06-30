@@ -24,31 +24,31 @@
 
 ## WP01 Parent Client Scope And Route Boundary
 
-- [ ] Canonical parent-client scope documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
-- [ ] Historical desktop-only path compatibility documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
-- [ ] Child agent runtime excluded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`.
-- [ ] Setup-install handoff documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/02-manual-required-gap-register.md`.
-- [ ] Portal shell UX handoff documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
-- [ ] No product-readiness overclaim recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`.
-- [ ] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
-- [ ] Focused commands pass or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
-- [ ] Workpack completion section filled. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
-- [ ] PLAN_STATE updated if state changed. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
+- [x] Canonical parent-client scope documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [x] Historical desktop-only path compatibility documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [x] Child agent runtime excluded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`.
+- [x] Setup-install handoff documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/02-manual-required-gap-register.md`.
+- [x] Portal shell UX handoff documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [x] No product-readiness overclaim recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`.
+- [x] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
+- [x] Focused commands pass or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [x] PLAN_STATE updated if state changed. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
 
 ## WP02 Parent Web Portal Distribution
 
-- [ ] Parent web build path defined.
-- [ ] Route ownership documented.
-- [ ] Auth/cache/env separation documented.
-- [ ] Hosted route does not claim child-agent execution.
-- [ ] Build/test proof exists or blocker recorded.
-- [ ] Deployment/preview blocker recorded if missing.
-- [ ] Required proof artifacts written.
-- [ ] Workpack completion section filled.
-- [ ] No production web-ready overclaim made.
-- [ ] Setup handoff remains separate.
-- [ ] Parent data/source labels preserved.
-- [ ] Route sync updated if state changed.
+- [x] Parent web build path defined. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
+- [x] Route ownership documented. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`.
+- [x] Auth/cache/env separation documented. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/01-negative-case-proof.md`.
+- [x] Hosted route does not claim child-agent execution. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
+- [x] Build/test proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
+- [x] Deployment/preview blocker recorded if missing. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
+- [x] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`.
+- [x] No production web-ready overclaim made. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
+- [x] Setup handoff remains separate. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
+- [x] Parent data/source labels preserved. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`.
+- [x] Route sync updated if state changed. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
 
 ## WP03 Parent Desktop Shell Package
 
@@ -97,18 +97,18 @@
 
 ## WP06 Parent Local Service Route Bridge
 
-- [ ] Parent client route bridge boundary defined.
-- [ ] Local-service authority remains service-owned.
-- [ ] Portal route does not execute child-device work.
-- [ ] Request/response contract proof exists or blocker recorded.
-- [ ] Failure/degraded states visible.
-- [ ] Required proof artifacts written.
-- [ ] Workpack completion section filled.
-- [ ] No setup-complete claim made.
-- [ ] No child-agent runtime claim made.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Route sync updated if state changed.
-- [ ] Manual-required gaps visible.
+- [x] Parent client route bridge boundary defined. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/00-scope-summary.md`.
+- [x] Local-service authority remains service-owned. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/01-negative-case-proof.md`.
+- [x] Portal route does not execute child-device work. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/01-negative-case-proof.md`.
+- [x] Request/response contract proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/16-validation-commands.log`.
+- [x] Failure/degraded states visible. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/16-validation-commands.log`.
+- [x] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md`.
+- [x] No setup-complete claim made. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/02-manual-required-gap-register.md`.
+- [x] No child-agent runtime claim made. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/02-manual-required-gap-register.md`.
+- [x] Focused commands pass or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/16-validation-commands.log`.
+- [x] Route sync updated if state changed. Proof: `docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md`, `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/16-validation-commands.log`.
+- [x] Manual-required gaps visible. Proof: `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/02-manual-required-gap-register.md`.
 
 ## WP07 Parent Client Signing Store Matrix
 
@@ -127,33 +127,33 @@
 
 ## WP08 Parent Client Update Rollback
 
-- [ ] Update channel state defined.
-- [ ] Rollback path defined.
-- [ ] Checksum/integrity proof exists or blocker recorded.
-- [ ] SBOM proof exists or blocker recorded.
-- [ ] Failed update state visible.
-- [ ] Required proof artifacts written.
-- [ ] Workpack completion section filled.
-- [ ] No update-ready claim without rollback proof.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Manual-required gaps visible.
-- [ ] Setup handoff remains separate.
-- [ ] PLAN_STATE updated if state changed.
+- [x] Update channel state defined. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/00-scope-summary.md`, `test-results/parent-desktop-release-support-proof/proof.json`.
+- [x] Rollback path defined. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/01-negative-case-proof.md`, `test-results/parent-desktop-release-support-proof/proof.json`.
+- [x] Checksum/integrity proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/00-scope-summary.md`, `test-results/parent-desktop-release-support-proof/proof.json`.
+- [x] SBOM proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/16-validation-commands.log`.
+- [x] Failed update state visible. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/01-negative-case-proof.md`, `test-results/parent-desktop-release-support-proof/proof.json`.
+- [x] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md`.
+- [x] No update-ready claim without rollback proof. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/01-negative-case-proof.md`.
+- [x] Focused commands pass or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/16-validation-commands.log`.
+- [x] Manual-required gaps visible. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/02-manual-required-gap-register.md`, `test-results/parent-desktop-release-support-proof/proof.json`.
+- [x] Setup handoff remains separate. Proof: `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/02-manual-required-gap-register.md`.
+- [x] PLAN_STATE updated if state changed. Proof: `docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md`, `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/16-validation-commands.log`.
 
 ## WP09 Parent Client Launch Smoke Matrix
 
-- [ ] Launch smoke matrix defined by artifact/platform.
-- [ ] Web launch proof exists or blocker recorded.
-- [ ] Desktop launch proof exists or blocker recorded.
-- [ ] Android launch proof exists or blocker recorded.
-- [ ] iOS launch proof exists or blocker recorded.
-- [ ] Manual-required gaps visible.
-- [ ] Required proof artifacts written.
-- [ ] Workpack completion section filled.
-- [ ] Launch smoke is not product-readiness claim.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Route sync updated if state changed.
-- [ ] PLAN_STATE updated if state changed.
+- [x] Launch smoke matrix defined by artifact/platform. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`.
+- [x] Web launch proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/03-web-launch-smoke.log`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
+- [x] Desktop launch proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/04-desktop-launch-smoke.log`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
+- [x] Android launch proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/05-parent-mobile-launch-smoke.log`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
+- [x] iOS launch proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/05-parent-mobile-launch-smoke.log`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
+- [x] Manual-required gaps visible. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/02-manual-required-gap-register.md`.
+- [x] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/03-web-launch-smoke.log`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/04-desktop-launch-smoke.log`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/05-parent-mobile-launch-smoke.log`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md`.
+- [x] Launch smoke is not product-readiness claim. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/01-negative-case-proof.md`.
+- [x] Focused commands pass or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
+- [x] Route sync updated if state changed. Proof: `docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
+- [x] PLAN_STATE updated if state changed. Proof: `docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md`, `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/16-validation-commands.log`.
 
 ## WP10 Setup Handoff Contracts
 

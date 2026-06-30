@@ -1,37 +1,54 @@
 import type { ReactElement } from 'react';
-import { PortalDom, PortalEnvironment } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
-  createBrowserParentExplanationPanelIntent,
-  type BrowserParentExplanationPanelDetail,
-  type BrowserParentExplanationPanelIntent,
-  type BrowserParentExplanationPanelRow,
-} from '@ocentra-parent/portal-domain/browser-parent-explanation-panel';
-import { isPortalBrowserParentSurfaceRoute } from '@ocentra-parent/portal-domain/routes';
-import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/schema-domain/portal-contracts';
-export function shouldRenderBrowserParentExplanationRoute(route: PortalRouteValue): boolean {
-  return isPortalBrowserParentSurfaceRoute(route);
+  isParentBrowserParentSurfaceRoute,
+  type ParentBrowserPanelDetailSnapshot,
+  type ParentBrowserPanelRowSnapshot,
+  type ParentBrowserPanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
+
+export function shouldRenderBrowserParentExplanationRoute(route: ParentRouteId): boolean {
+  return isParentBrowserParentSurfaceRoute(route);
 }
 
-export function BrowserParentExplanationRoutePanel(): ReactElement {
-  const intent = createBrowserParentExplanationPanelIntent(browserParentExplanationProofInput());
+export function BrowserParentExplanationRoutePanel({
+  panel,
+}: {
+  readonly panel: ParentBrowserPanelSnapshot | null;
+}): ReactElement {
+  if (panel === null) {
+    return (
+      <section aria-label="Browser route unavailable" className={PortalDom.Classes.TrackingStatusOverlay}>
+        <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+          <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+            <p className={PortalDom.Classes.ProductEyebrow}>Browser route</p>
+            <h2>Browser route unavailable</h2>
+            <p>Parent Rust snapshot unavailable for the browser parent explanation route.</p>
+          </header>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
+    <section aria-label={panel.title} className={PortalDom.Classes.TrackingStatusOverlay}>
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{panel.eyebrow}</p>
+          <h2>{panel.title}</h2>
+          <p>{panel.body}</p>
         </header>
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <BrowserParentExplanationSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <BrowserParentExplanationEmptyCard intent={intent} />
+          <BrowserParentExplanationSummaryCard panel={panel} />
+          {panel.rows.length === 0 ? (
+            <BrowserParentExplanationEmptyCard panel={panel} />
           ) : (
-            intent.rows.map((row) => <BrowserParentExplanationRowCard key={row.key} row={row} />)
+            panel.rows.map((row) => <BrowserParentExplanationRowCard key={row.key} row={row} />)
           )}
         </div>
       </div>
@@ -40,32 +57,36 @@ export function BrowserParentExplanationRoutePanel(): ReactElement {
 }
 
 function BrowserParentExplanationSummaryCard({
-  intent,
+  panel,
 }: {
-  readonly intent: BrowserParentExplanationPanelIntent;
+  readonly panel: ParentBrowserPanelSnapshot;
 }): ReactElement {
   return (
     <article className={cardClassName()}>
-      <h2>{intent.summary}</h2>
-      <BrowserParentExplanationDetails details={intent.metrics} />
+      <h2>{panel.summary}</h2>
+      <BrowserParentExplanationDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
 function BrowserParentExplanationEmptyCard({
-  intent,
+  panel,
 }: {
-  readonly intent: BrowserParentExplanationPanelIntent;
+  readonly panel: ParentBrowserPanelSnapshot;
 }): ReactElement {
   return (
     <article className={cardClassName()}>
-      <h2>{intent.emptyMessage}</h2>
-      <BrowserParentExplanationDetails details={intent.metrics} />
+      <h2>{panel.emptyMessage}</h2>
+      <BrowserParentExplanationDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function BrowserParentExplanationRowCard({ row }: { readonly row: BrowserParentExplanationPanelRow }): ReactElement {
+function BrowserParentExplanationRowCard({
+  row,
+}: {
+  readonly row: ParentBrowserPanelRowSnapshot;
+}): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{row.title}</h2>
@@ -77,30 +98,18 @@ function BrowserParentExplanationRowCard({ row }: { readonly row: BrowserParentE
 function BrowserParentExplanationDetails({
   details,
 }: {
-  readonly details: readonly BrowserParentExplanationPanelDetail[];
+  readonly details: readonly ParentBrowserPanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <div key={`${detail.label}:${detail.value}`}>
+      {details.map((detail, index) => (
+        <div key={`${detail.label}:${index}`}>
           <dt>{detail.label}</dt>
           <dd>{detail.value}</dd>
         </div>
       ))}
     </dl>
   );
-}
-
-function browserParentExplanationProofInput(): unknown {
-  const proofValue = import.meta.env[PortalEnvironment.BrowserParentExplanationProofBundle];
-  if (typeof proofValue !== 'string' || proofValue.trim().length === 0) {
-    return null;
-  }
-  try {
-    return JSON.parse(proofValue) as unknown;
-  } catch {
-    return null;
-  }
 }
 
 function cardClassName(): string {

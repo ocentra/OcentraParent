@@ -1,3 +1,5 @@
+/* thin adapter over Rust-generated app-install purchase approval contracts */
+
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   appInstallPurchaseApprovalContractProofIsHonest,
@@ -10,6 +12,43 @@ import {
   storeMetadataFreshnessIsConsistent,
 } from './app-install-purchase-approval-rules';
 import {
+  AppInstallPurchaseApprovalContractRuntime,
+  GeneratedAppInstallPurchaseApprovalAuditEventKinds,
+  GeneratedAppInstallPurchaseApprovalAuditReportSurfaces,
+  GeneratedAppInstallPurchaseApprovalBillingEntitlementClaims,
+  GeneratedAppInstallPurchaseApprovalChildFacingStatuses,
+  GeneratedAppInstallPurchaseApprovalDecisionActions,
+  GeneratedAppInstallPurchaseApprovalExpiryStates,
+  GeneratedAppInstallPurchaseApprovalInterceptionClaims,
+  GeneratedAppInstallPurchaseApprovalNonClaims,
+  GeneratedAppInstallPurchaseApprovalPlatformAdapterClaims,
+  GeneratedAppInstallPurchaseApprovalPortalUiClaims,
+  GeneratedAppInstallPurchaseApprovalProofIntegrationStates,
+  GeneratedAppInstallPurchaseApprovalPurchaseKinds,
+  GeneratedAppInstallPurchaseApprovalRequestKinds,
+  GeneratedAppInstallPurchaseApprovalRuntimeBlockingSeparations,
+  GeneratedAppInstallPurchaseApprovalStates,
+  GeneratedAppInstallPurchaseApprovalStoreIntegrationClaims,
+  GeneratedAppInstallPurchaseApprovalStoreMetadataFreshnessStates,
+  GeneratedAppInstallPurchaseApprovalStoreSurfaces,
+  GeneratedAppInstallPurchaseApprovalSubscriptionPeriods,
+  GeneratedAppInstallPurchaseApprovalSupportStates,
+  type GeneratedAppInstallPurchaseApprovalContractProof,
+  type GeneratedAppInstallPurchaseApprovalDecision,
+  type GeneratedAppInstallPurchaseApprovalDecisionAction,
+  type GeneratedAppInstallPurchaseApprovalNonClaim,
+  type GeneratedAppInstallPurchaseApprovalPlatformSupportRow,
+  type GeneratedAppInstallPurchaseApprovalRequestKind,
+  type GeneratedAppInstallPurchaseApprovalState,
+  type GeneratedAppInstallPurchaseApprovalStoreMetadata,
+  type GeneratedAppInstallPurchaseApprovalStoreMetadataFreshness,
+  type GeneratedAppInstallPurchaseApprovalStoreSurface,
+  type GeneratedAppInstallPurchaseApprovalSupportState,
+  type GeneratedAppInstallRequest,
+  type GeneratedPurchaseRequest,
+  type GeneratedAppInstallPurchaseApprovalStateSnapshot,
+} from './generated/app-install-purchase-approval-contracts';
+import {
   ChildProfileReferenceSchema,
   FamilyReferenceSchema,
   ParentActionReferenceSchema,
@@ -21,93 +60,70 @@ import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from './app
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppInstallPurchaseApprovalSchemaVersionSchema = withParser(
-  Schema.Literal('app-install-purchase-approval-contract-proof')
+  Schema.Literal(AppInstallPurchaseApprovalContractRuntime.SchemaVersion)
 );
 export const AppInstallPurchaseApprovalRequestKindSchema = withParser(
-  Schema.Literal('install', 'purchase', 'subscription')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalRequestKinds)
 );
 export const AppInstallPurchaseApprovalStoreSurfaceSchema = withParser(
-  Schema.Literal(
-    'google-play',
-    'apple-app-store',
-    'mac-app-store',
-    'microsoft-store',
-    'linux-package-manager',
-    'parent-manual-entry',
-    'unknown-store'
-  )
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalStoreSurfaces)
 );
 export const AppInstallPurchaseApprovalStoreMetadataFreshnessSchema = withParser(
-  Schema.Literal('fresh', 'stale', 'unknown', 'manual-required', 'unavailable')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalStoreMetadataFreshnessStates)
 );
 export const AppInstallPurchaseApprovalMetadataSourceStateSchema = withParser(
-  Schema.Literal('supported', 'manual-required', 'unavailable')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalSupportStates)
 );
 export const AppInstallPurchaseApprovalDecisionActionSchema = withParser(
-  Schema.Literal('approve', 'deny', 'time-box', 'review-needed')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalDecisionActions)
 );
 export const AppInstallPurchaseApprovalStateSchema = withParser(
-  Schema.Literal('pending-parent-review', 'approved', 'denied', 'time-box-active', 'expired', 'review-needed')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalStates)
 );
 export const AppInstallPurchaseApprovalExpiryStateSchema = withParser(
-  Schema.Literal('not-expiring', 'time-box-active', 'expired', 'review-needed')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalExpiryStates)
 );
 export const AppInstallPurchaseApprovalPlatformSupportStateSchema = withParser(
-  Schema.Literal('supported', 'manual-required', 'unavailable')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalSupportStates)
 );
 export const AppInstallPurchaseApprovalPurchaseKindSchema = withParser(
-  Schema.Literal('one-time-purchase', 'in-app-purchase', 'subscription')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalPurchaseKinds)
 );
 export const AppInstallPurchaseApprovalSubscriptionPeriodSchema = withParser(
-  Schema.Literal('weekly', 'monthly', 'annual', 'unknown')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalSubscriptionPeriods)
 );
 const AppInstallPurchaseApprovalChildFacingStatusSchema = withParser(
-  Schema.Literal(
-    'pending-parent-review-visible',
-    'approved-visible',
-    'denied-visible',
-    'time-box-visible',
-    'review-needed-visible'
-  )
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalChildFacingStatuses)
 );
 const AppInstallPurchaseApprovalAuditReportSurfaceSchema = withParser(
-  Schema.Literal(
-    'request-audit-history',
-    'parent-decision-audit-history',
-    'child-facing-state-report',
-    'platform-limitation-report'
-  )
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalAuditReportSurfaces)
 );
 const AppInstallPurchaseApprovalProofIntegrationStateSchema = withParser(
-  Schema.Literal('contract-only', 'manual-required', 'unavailable')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalProofIntegrationStates)
 );
 export const AppInstallPurchaseApprovalAuditEventKindSchema = withParser(
-  Schema.Literal(
-    'request-recorded',
-    'metadata-source-evaluated',
-    'parent-decision-recorded',
-    'approval-expired',
-    'platform-limitation-recorded'
-  )
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalAuditEventKinds)
 );
 export const AppInstallPurchaseApprovalNonClaimSchema = withParser(
-  Schema.Literal(
-    'no-store-integration',
-    'no-billing-entitlement-logic',
-    'no-portal-ui',
-    'no-platform-adapter',
-    'no-store-policy-bypass',
-    'no-real-install-or-purchase-interception',
-    'not-generic-app-blocking'
-  )
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalNonClaims)
 );
-export const AppInstallPurchaseApprovalStoreIntegrationClaimSchema = withParser(Schema.Literal('not-claimed'));
-export const AppInstallPurchaseApprovalBillingEntitlementClaimSchema = withParser(Schema.Literal('not-claimed'));
-export const AppInstallPurchaseApprovalPortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const AppInstallPurchaseApprovalPlatformAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const AppInstallPurchaseApprovalInterceptionClaimSchema = withParser(Schema.Literal('not-claimed'));
+export const AppInstallPurchaseApprovalStoreIntegrationClaimSchema = withParser(
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalStoreIntegrationClaims)
+);
+export const AppInstallPurchaseApprovalBillingEntitlementClaimSchema = withParser(
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalBillingEntitlementClaims)
+);
+export const AppInstallPurchaseApprovalPortalUiClaimSchema = withParser(
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalPortalUiClaims)
+);
+export const AppInstallPurchaseApprovalPlatformAdapterClaimSchema = withParser(
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalPlatformAdapterClaims)
+);
+export const AppInstallPurchaseApprovalInterceptionClaimSchema = withParser(
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalInterceptionClaims)
+);
 export const AppInstallPurchaseApprovalRuntimeBlockingSeparationSchema = withParser(
-  Schema.Literal('separate-from-generic-app-blocking')
+  Schema.Literal(...GeneratedAppInstallPurchaseApprovalRuntimeBlockingSeparations)
 );
 
 const AppInstallPurchaseApprovalRequestIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalRequestId');
@@ -379,30 +395,42 @@ const AppInstallPurchaseApprovalContractProofBaseSchema = Schema.Struct({
   updatedAt: ParentTimestampSchema,
 });
 
-export type AppInstallPurchaseApprovalStoreMetadata = Infer<typeof AppInstallPurchaseApprovalStoreMetadataBaseSchema>;
-export type AppInstallPurchaseApprovalStateSnapshot = Infer<typeof AppInstallPurchaseApprovalStateSnapshotBaseSchema>;
-export type PurchaseRequest = Infer<typeof PurchaseRequestBaseSchema>;
-export type AppInstallPurchaseApprovalDecision = Infer<typeof AppInstallPurchaseApprovalDecisionBaseSchema>;
+export type AppInstallPurchaseApprovalStoreMetadata = Infer<typeof AppInstallPurchaseApprovalStoreMetadataBaseSchema> &
+  GeneratedAppInstallPurchaseApprovalStoreMetadata;
+export type AppInstallPurchaseApprovalStateSnapshot = Infer<typeof AppInstallPurchaseApprovalStateSnapshotBaseSchema> &
+  GeneratedAppInstallPurchaseApprovalStateSnapshot;
+export type PurchaseRequest = Infer<typeof PurchaseRequestBaseSchema> & GeneratedPurchaseRequest;
+export type AppInstallPurchaseApprovalDecision = Infer<typeof AppInstallPurchaseApprovalDecisionBaseSchema> &
+  GeneratedAppInstallPurchaseApprovalDecision;
 export type AppInstallPurchaseApprovalPlatformSupportRow = Infer<
   typeof AppInstallPurchaseApprovalPlatformSupportRowBaseSchema
->;
+> &
+  GeneratedAppInstallPurchaseApprovalPlatformSupportRow;
 export type AppInstallPurchaseApprovalContractProofCandidate = Infer<
   typeof AppInstallPurchaseApprovalContractProofBaseSchema
 >;
 
-export type AppInstallPurchaseApprovalRequestKind = Infer<typeof AppInstallPurchaseApprovalRequestKindSchema>;
-export type AppInstallPurchaseApprovalStoreSurface = Infer<typeof AppInstallPurchaseApprovalStoreSurfaceSchema>;
+export type AppInstallPurchaseApprovalRequestKind = Infer<typeof AppInstallPurchaseApprovalRequestKindSchema> &
+  GeneratedAppInstallPurchaseApprovalRequestKind;
+export type AppInstallPurchaseApprovalStoreSurface = Infer<typeof AppInstallPurchaseApprovalStoreSurfaceSchema> &
+  GeneratedAppInstallPurchaseApprovalStoreSurface;
 export type AppInstallPurchaseApprovalStoreMetadataFreshness = Infer<
   typeof AppInstallPurchaseApprovalStoreMetadataFreshnessSchema
->;
-export type AppInstallPurchaseApprovalDecisionAction = Infer<typeof AppInstallPurchaseApprovalDecisionActionSchema>;
-export type AppInstallPurchaseApprovalState = Infer<typeof AppInstallPurchaseApprovalStateSchema>;
+> &
+  GeneratedAppInstallPurchaseApprovalStoreMetadataFreshness;
+export type AppInstallPurchaseApprovalDecisionAction = Infer<typeof AppInstallPurchaseApprovalDecisionActionSchema> &
+  GeneratedAppInstallPurchaseApprovalDecisionAction;
+export type AppInstallPurchaseApprovalState = Infer<typeof AppInstallPurchaseApprovalStateSchema> &
+  GeneratedAppInstallPurchaseApprovalState;
 export type AppInstallPurchaseApprovalPlatformSupportState = Infer<
   typeof AppInstallPurchaseApprovalPlatformSupportStateSchema
->;
-export type AppInstallPurchaseApprovalNonClaim = Infer<typeof AppInstallPurchaseApprovalNonClaimSchema>;
-export type AppInstallRequest = Infer<typeof AppInstallRequestSchema>;
-export type AppInstallPurchaseApprovalContractProof = Infer<typeof AppInstallPurchaseApprovalContractProofBaseSchema>;
+> &
+  GeneratedAppInstallPurchaseApprovalSupportState;
+export type AppInstallPurchaseApprovalNonClaim = Infer<typeof AppInstallPurchaseApprovalNonClaimSchema> &
+  GeneratedAppInstallPurchaseApprovalNonClaim;
+export type AppInstallRequest = Infer<typeof AppInstallRequestSchema> & GeneratedAppInstallRequest;
+export type AppInstallPurchaseApprovalContractProof = Infer<typeof AppInstallPurchaseApprovalContractProofBaseSchema> &
+  GeneratedAppInstallPurchaseApprovalContractProof;
 
 export const AppInstallPurchaseApprovalContractProofSchema = withParser(
   AppInstallPurchaseApprovalContractProofBaseSchema.pipe(

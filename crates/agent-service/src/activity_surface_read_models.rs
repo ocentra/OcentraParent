@@ -14,12 +14,11 @@ use crate::activity_surface_read_model_states::{
     unavailable_network_read_model, unavailable_screen_read_model,
 };
 
-#[cfg(test)]
-mod app_game_boundary_evidence_tests;
-#[cfg(test)]
-mod app_game_source_status_tests;
+#[path = "activity_surface_read_models/app_use.rs"]
 pub(crate) mod app_use;
+#[path = "activity_surface_read_models/games.rs"]
 pub(crate) mod games;
+#[path = "activity_surface_read_models/shared.rs"]
 mod shared;
 
 use shared::row_device_id;

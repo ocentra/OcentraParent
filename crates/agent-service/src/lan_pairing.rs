@@ -3,30 +3,19 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+#[path = "lan_pairing/authority.rs"]
 pub(crate) mod authority;
+#[path = "lan_pairing/controller_lease.rs"]
 pub(crate) mod controller_lease;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing/controller_lease.rs"]
-mod controller_lease_tests;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing/device_roles.rs"]
-mod device_roles_tests;
+#[path = "lan_pairing/lan_ai_job.rs"]
 pub(crate) mod lan_ai_job;
+#[path = "lan_pairing/lan_ai_job_lease_events.rs"]
 pub(crate) mod lan_ai_job_lease_events;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing/lan_ai_job_lease.rs"]
-mod lan_ai_job_lease_tests;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing/lan_ai_job.rs"]
-mod lan_ai_job_tests;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing/lan_ai_provider_heartbeat.rs"]
-mod lan_ai_provider_heartbeat_tests;
+#[path = "lan_pairing/lan_ai_route_metadata.rs"]
 pub(crate) mod lan_ai_route_metadata;
-#[cfg(test)]
-#[path = "../tests/unit/lan_pairing/lan_ai_route_metadata.rs"]
-mod lan_ai_route_metadata_tests;
 
+use ocentra_lan_core::lan_pairing::LanSignedChildAgentReplayGuard;
+use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState;
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
@@ -51,7 +40,9 @@ use crate::{
         selected_route_audit_fields,
     },
     lan_pairing_browser_runtime::{browser_add_device_request_event, browser_discovery_scan_event},
-    lan_pairing_payload::{is_challenge_request, parse_intent, parse_pairing_proof},
+    lan_pairing_payload::{
+        is_challenge_request, parse_intent, parse_pairing_proof, parse_signed_child_agent_envelope,
+    },
     lan_pairing_runtime_state::{
         job_leases::LanAiJobLeaseState, provider_heartbeat::LanAiProviderHeartbeatState,
     },
@@ -73,10 +64,15 @@ pub struct LanPairingRuntime {
     pub(crate) registry: Arc<Mutex<TrustedDeviceRegistry>>,
     pub(crate) challenges: Arc<Mutex<Vec<LanPairingChallengeState>>>,
     pub(crate) controller_lease: Arc<Mutex<Option<LanControllerLeaseState>>>,
+    pub(crate) signed_child_agent_replay_guard: Arc<Mutex<LanSignedChildAgentReplayGuard>>,
+    pub(crate) passive_discovery_listener_state: Arc<Mutex<LanPassiveDiscoveryListenerState>>,
     pub(crate) lan_ai_provider_heartbeat: Arc<Mutex<Option<LanAiProviderHeartbeatState>>>,
     pub(crate) lan_ai_job_leases: Arc<Mutex<Vec<LanAiJobLeaseState>>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
     pub(crate) local_child_device_id: Option<String>,
+    pub(crate) signed_child_agent_parent_device_id: Option<String>,
+    pub(crate) signed_child_agent_family_hash: Option<String>,
+    pub(crate) signed_child_agent_route_id: String,
     pub(crate) device_roles: DeviceRoleRuntimeReadModel,
     pub(crate) lan_ai_provider_capabilities: Vec<String>,
 }
@@ -126,6 +122,13 @@ pub async fn route_lan_command(
         };
     }
 
+    if command.command == AgentCommandName::AgentLanRuntimeEventChainStreamGet {
+        return LanCommandDecision::Continue {
+            command,
+            audit_fields: None,
+        };
+    }
+
     if command.command == AgentCommandName::AgentLanPairingProofSubmit {
         return LanCommandDecision::Respond(submit_pairing_proof(runtime, origin, command).await);
     }
@@ -148,6 +151,14 @@ pub async fn route_lan_command(
 
     if command.command == AgentCommandName::AgentLanPairingAddDeviceRequest {
         return LanCommandDecision::Respond(browser_add_device_request_event(
+            &runtime,
+            origin.as_deref(),
+            command,
+        ));
+    }
+
+    if command.command == AgentCommandName::AgentLanPairingSignedChildAgentObserve {
+        return LanCommandDecision::Respond(signed_child_agent_observed(
             &runtime,
             origin.as_deref(),
             command,
@@ -266,6 +277,9 @@ fn lan_pairing_status_get(
     if is_challenge_request(&command.payload) {
         return pairing_challenge_status_event(&runtime, observed_origin, command);
     }
+    if command.payload.is_empty() {
+        return pairing_status_event(&runtime, command);
+    }
     let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
@@ -309,6 +323,30 @@ fn lan_pairing_route_revoke(
     };
     drop(origin);
     drop(runtime);
+    event
+}
+
+fn signed_child_agent_observed(
+    runtime: &LanPairingRuntime,
+    origin: Option<&str>,
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let envelope = match parse_signed_child_agent_envelope(&command.payload) {
+        Ok(envelope) => envelope,
+        Err(reason) => return rejection_event(command, &reason, None, origin),
+    };
+    let claim = match runtime.observe_signed_child_agent_envelope(&envelope, &timestamp_now()) {
+        Ok(claim) => claim,
+        Err(reason) => return rejection_event(command, &reason, None, origin),
+    };
+    let mut event = pairing_status_event(runtime, command);
+    event.event_id = constants::lan_pairing::EVENT_SIGNED_CHILD_AGENT_REPORTED.to_string();
+    event.event = AgentEventName::AgentLanPairingSignedChildAgentReported;
+    event
+        .payload
+        .extend(crate::lan_pairing_audit::signed_child_agent_audit_fields(
+            &claim,
+        ));
     event
 }
 
@@ -423,6 +461,7 @@ fn select_pairing_result(
                 &intent.expires_at,
             );
             if selected.is_ok() {
+                let _ = registry.clear_selected_route_reachability();
                 runtime.persist_registry(&registry);
             }
             selected
