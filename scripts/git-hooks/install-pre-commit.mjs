@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const hook = `#!/bin/sh
-node scripts/security/scan-staged-secrets.mjs
+node scripts/enforcer/run-ocentra-enforcer.mjs check secrets --staged
 if [ $? -ne 0 ]; then
   echo "[security] Pre-commit hook rejected this commit due to secret detection."
   exit 1

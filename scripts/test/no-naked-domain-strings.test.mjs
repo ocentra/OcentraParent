@@ -47,7 +47,7 @@ test('naked domain string guard skips Rust-generated DTO folders', () => {
     const result = runGuard(root);
 
     assert.equal(result.status, 0);
-    assert.match(result.stdout, /No manual string brands or naked domain string aliases found/u);
+    assert.match(result.stdout, /Ocentra Enforcer check no-naked-domain-strings passed/u);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

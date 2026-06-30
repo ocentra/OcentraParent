@@ -25,6 +25,10 @@ function runScanner(cwd, args = []) {
   });
 }
 
+function combinedOutput(result) {
+  return `${result.stdout}\n${result.stderr}`;
+}
+
 function runGit(cwd, args) {
   return spawnSync('git', args, {
     cwd,
@@ -44,7 +48,8 @@ test('repository secret scan rejects forbidden sensitive filenames', () => {
     const result = runScanner(root, ['--repo']);
 
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /\.env: forbidden sensitive file path/u);
+    assert.match(combinedOutput(result), /\.env:1: error SEC-1\.2/u);
+    assert.match(combinedOutput(result), /Reason: forbidden sensitive file path/u);
   });
 });
 
@@ -57,7 +62,8 @@ test('staged secret scan rejects forbidden sensitive filenames', () => {
     const result = runScanner(root);
 
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /\.env: forbidden sensitive file path/u);
+    assert.match(combinedOutput(result), /\.env:1: error SEC-1\.2/u);
+    assert.match(combinedOutput(result), /Reason: forbidden sensitive file path/u);
   });
 });
 
@@ -68,7 +74,7 @@ test('repository secret scan allows environment templates while still scanning t
     const result = runScanner(root, ['--repo']);
 
     assert.equal(result.status, 0);
-    assert.match(result.stdout, /Secret scan passed for 1 file\(s\)\./u);
+    assert.match(result.stdout, /Ocentra Enforcer check secrets passed/u);
   });
 });
 
@@ -85,7 +91,7 @@ test('staged secret scan allows risk-benefit proof slugs', () => {
     const result = runScanner(root);
 
     assert.equal(result.status, 0);
-    assert.match(result.stdout, /Secret scan passed for 1 file\(s\)\./u);
+    assert.match(result.stdout, /Ocentra Enforcer check secrets passed/u);
   });
 });
 
@@ -98,6 +104,7 @@ test('staged secret scan rejects OpenAI keys at token boundaries', () => {
     const result = runScanner(root);
 
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /secret\.md: OpenAI key/u);
+    assert.match(combinedOutput(result), /secret\.md:1: error SEC-1\.1/u);
+    assert.match(combinedOutput(result), /Reason: OpenAI key found/u);
   });
 });

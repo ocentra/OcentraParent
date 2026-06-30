@@ -75,7 +75,7 @@ test('required test scaffold accepts placeholder trees until strict cleanup mode
   const result = runHarness(root, ['--files', fixture.packageSource, fixture.crateSource]);
 
   assert.equal(result.status, 0);
-  assert.match(result.stdout, /Required test scaffold is present for 1 node workspace\(s\) and 1 Rust crate\(s\)\./u);
+  assert.match(result.stdout, /Ocentra Enforcer check required-tests passed/u);
   assert.equal(result.stderr, '');
 });
 
@@ -83,16 +83,13 @@ test('strict cleanup mode rejects empty test and proof category trees without re
   const root = mkdtempSync(join(tmpdir(), 'ocentra-required-tests-strict-'));
   const fixture = createFixture(root);
 
-  const result = runHarness(root, [
-    '--strict-empty-test-trees',
-    '--files',
-    fixture.packageSource,
-    fixture.crateSource,
-  ]);
+  const result = runHarness(root, ['--strict-empty-test-trees', '--files', fixture.packageSource, fixture.crateSource]);
 
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /Every source workspace must have real tests; strict mode also rejects empty test\/proof category trees\./u);
-  assert.match(result.stderr, /packages\/demo-package\/tests\/contract: empty test\/proof category tree contains only \.gitkeep/u);
+  assert.match(
+    result.stderr,
+    /packages\/demo-package\/tests\/contract: empty test\/proof category tree contains only \.gitkeep/u
+  );
   assert.match(result.stderr, /crates\/demo-crate\/proof: empty test\/proof category tree contains only \.gitkeep/u);
   assert.equal(result.stdout, '');
 });

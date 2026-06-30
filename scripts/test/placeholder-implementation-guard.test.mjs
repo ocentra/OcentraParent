@@ -34,7 +34,7 @@ test('placeholder guard allows Rust serde attributes that use approved temporary
     });
 
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /Placeholder implementation guard passed/u);
+    assert.match(result.stdout, /Ocentra Enforcer check placeholder-implementation passed/u);
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -65,7 +65,7 @@ test('placeholder guard still rejects temporary markers in real comments', () =>
     });
 
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /temporary markers are forbidden/u);
+    assert.match(result.stderr, /temporary marker found in production source/u);
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

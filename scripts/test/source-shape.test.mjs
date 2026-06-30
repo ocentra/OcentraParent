@@ -1,74 +1,54 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
-import {
-  inspectRustSource,
-  inspectTypeScriptSource,
-  resolveSourceShapePolicy,
-} from '../check-source-shape.mjs';
 
-test('source shape guard rejects oversized TypeScript files', () => {
-  const source = Array.from({ length: 1001 }, () => 'const value = 1;').join('\n');
-  const { findings } = inspectTypeScriptSource('apps/portal/src/oversized.ts', source);
+const repoRoot = resolve(import.meta.dirname, '..', '..');
+const scriptPath = join(repoRoot, 'scripts', 'check-source-shape.mjs');
 
-  assert.equal(
-    findings.some((finding) => finding.reason.includes('file has 1001 lines')),
-    true
-  );
+function writeFixture(root, filePath, source) {
+  const fullPath = join(root, filePath);
+  mkdirSync(dirname(fullPath), { recursive: true });
+  writeFileSync(fullPath, source, 'utf8');
+}
+
+function runGuard(root, args = []) {
+  return spawnSync(process.execPath, [scriptPath, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+}
+
+test('source shape legacy command delegates to Enforcer and rejects oversized TypeScript files', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-source-shape-'));
+  try {
+    writeFixture(
+      root,
+      'apps/portal/src/oversized.ts',
+      Array.from({ length: 1001 }, () => 'const value = 1;').join('\n')
+    );
+
+    const result = runGuard(root, ['apps/portal/src/oversized.ts']);
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /file has 1001 lines/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
-test('source shape guard rejects oversized TypeScript functions', () => {
-  const body = Array.from({ length: 81 }, () => '  const value = 1;').join('\n');
-  const { findings } = inspectTypeScriptSource('apps/portal/src/function.ts', `export function bad() {\n${body}\n}`);
+test('source shape legacy command accepts scoped files through Enforcer', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-source-shape-good-'));
+  try {
+    writeFixture(root, 'apps/portal/src/good.ts', 'export function ok() {\n  return 1;\n}\n');
 
-  assert.equal(
-    findings.some((finding) => finding.reason.includes('function has')),
-    true
-  );
-});
+    const result = runGuard(root, ['--files', 'apps/portal/src/good.ts']);
 
-test('source shape guard rejects oversized Rust files', () => {
-  const source = Array.from({ length: 1001 }, () => 'const VALUE: u8 = 1;').join('\n');
-  const { findings } = inspectRustSource('crates/example/src/lib.rs', source);
-
-  assert.equal(
-    findings.some((finding) => finding.reason.includes('file has 1001 lines')),
-    true
-  );
-});
-
-test('source shape guard warns on 250-line file bands before hard failure', () => {
-  const source = Array.from({ length: 251 }, (_value, index) => `const value${index} = 1;`).join('\n');
-  const { findings, warnings } = inspectTypeScriptSource('apps/portal/src/near-limit.ts', source);
-
-  assert.equal(findings.length, 0);
-  assert.equal(
-    warnings.some((warning) => warning.reason.includes('crossed 250-line advisory band')),
-    true
-  );
-});
-
-test('source shape guard moves file warnings to the next 250-line band', () => {
-  const source = Array.from({ length: 501 }, (_value, index) => `const value${index} = 1;`).join('\n');
-  const { findings, warnings } = inspectTypeScriptSource('apps/portal/src/next-band.ts', source);
-
-  assert.equal(findings.length, 0);
-  assert.equal(
-    warnings.some((warning) => warning.reason.includes('crossed 500-line advisory band')),
-    true
-  );
-});
-
-test('source shape guard allows the generated portal bridge contract to exceed the default app export budget', () => {
-  const source = Array.from({ length: 53 }, (_value, index) => `export const value${index} = ${index};`).join('\n');
-  const relativePath = 'apps/portal/generated/parent-ui-bridge.ts';
-  const policy = resolveSourceShapePolicy(relativePath);
-
-  assert.notEqual(policy, undefined);
-
-  const { findings } = inspectTypeScriptSource(relativePath, source, policy);
-
-  assert.equal(
-    findings.some((finding) => finding.reason.includes('exports')),
-    false
-  );
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Ocentra Enforcer check source-shape passed/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

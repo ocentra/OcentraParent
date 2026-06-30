@@ -246,10 +246,19 @@ function buildScopedValidations(scopeArgs) {
     }
   }
 
-  validations.push(['npm', ['run', 'lint:generated-artifacts']]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'generated-artifacts', '--tracked', ...scopeArgs],
+  ]);
   validations.push(['npm', ['run', 'lint:architecture', '--', ...scopeArgs]]);
-  validations.push([process.execPath, ['scripts/check-no-zod-source.mjs', ...scopeArgs]]);
-  validations.push([process.execPath, ['scripts/check-no-naked-domain-strings.mjs', ...scopeArgs]]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-zod-source', ...scopeArgs],
+  ]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-naked-domain-strings', ...scopeArgs],
+  ]);
   if (touchesPortalApp) {
     validations.push([process.execPath, ['scripts/check-no-app-string-literals.mjs', ...scopeArgs]]);
     validations.push([process.execPath, ['scripts/check-portal-route-panel-contracts.mjs', ...scopeArgs]]);
@@ -257,16 +266,31 @@ function buildScopedValidations(scopeArgs) {
   if (touchesPortalVendor) {
     validations.push([process.execPath, ['scripts/check-vendor-portal-asset-imports.mjs', ...scopeArgs]]);
   }
-  validations.push([process.execPath, ['scripts/check-required-tests.mjs', ...scopeArgs]]);
-  validations.push([process.execPath, ['scripts/check-single-source-contracts.mjs', ...scopeArgs]]);
-  validations.push([process.execPath, ['scripts/check-no-test-doubles.mjs', ...scopeArgs]]);
-  validations.push([process.execPath, ['scripts/check-cross-platform-script-commands.mjs', ...scopeArgs]]);
-  validations.push([process.execPath, ['scripts/check-source-shape.mjs', ...scopeArgs]]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'required-tests', ...scopeArgs],
+  ]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'single-source-contracts', ...scopeArgs],
+  ]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-test-doubles', ...scopeArgs],
+  ]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'cross-platform-script-commands', ...scopeArgs],
+  ]);
+  validations.push([
+    process.execPath,
+    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'source-shape', ...scopeArgs],
+  ]);
   if (touchesLoggingDomain) {
     validations.push(['npm', ['run', 'lint:logging-parity']]);
   }
   if (touchesRuleIndexSurface) {
-    validations.push([process.execPath, ['scripts/check-ai-rule-index.mjs']]);
+    validations.push([process.execPath, ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'ai-rule-index']]);
   }
 
   if (workspaceFilters.length > 0) {
