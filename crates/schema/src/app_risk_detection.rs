@@ -11,11 +11,7 @@ macro_rules! app_risk_detection_identifier {
         impl $name {
             pub fn parse(value: impl Into<String>) -> Option<Self> {
                 let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
+                (!value.trim().is_empty()).then_some(Self(value))
             }
 
             pub fn as_str(&self) -> &str {
@@ -26,6 +22,23 @@ macro_rules! app_risk_detection_identifier {
         impl Display for $name {
             fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
                 formatter.write_str(self.as_str())
+            }
+        }
+    };
+}
+
+macro_rules! app_risk_detection_string_enum {
+    ($name:ident { $($variant:ident = $value:literal),+ $(,)? }) => {
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+        #[repr(u8)]
+        pub enum $name {
+            $(#[serde(rename = $value)] $variant,)+
+        }
+
+        impl $name {
+            pub const fn as_str(&self) -> &'static str {
+                const VALUES: &[&str] = &[$($value),+];
+                VALUES[*self as usize]
             }
         }
     };
@@ -97,257 +110,85 @@ pub struct ParentEvidenceReference {
     pub observed_at: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ParentEvidenceReferenceKind {
-    #[serde(rename = "activity-event")]
-    ActivityEvent,
-}
+app_risk_detection_string_enum!(ParentEvidenceReferenceKind {
+    ActivityEvent = "activity-event",
+});
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ParentPlatform {
-    #[serde(rename = "windows")]
-    Windows,
-    #[serde(rename = "linux")]
-    Linux,
-    #[serde(rename = "macos")]
-    Macos,
-    #[serde(rename = "android")]
-    Android,
-    #[serde(rename = "ios")]
-    Ios,
-}
+app_risk_detection_string_enum!(ParentPlatform {
+    Windows = "windows",
+    Linux = "linux",
+    Macos = "macos",
+    Android = "android",
+    Ios = "ios",
+});
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionRiskSignal {
-    #[serde(rename = "vpnProxy")]
-    VpnProxy,
-    #[serde(rename = "remoteDesktop")]
-    RemoteDesktop,
-    #[serde(rename = "downloadTorrent")]
-    DownloadTorrent,
-    #[serde(rename = "installerUpdater")]
-    InstallerUpdater,
-    #[serde(rename = "aiChatbot")]
-    AiChatbot,
-    #[serde(rename = "socialVideoMessaging")]
-    SocialVideoMessaging,
-    #[serde(rename = "unknownRisk")]
-    UnknownRisk,
-}
+app_risk_detection_string_enum!(AppRiskDetectionRiskSignal {
+    VpnProxy = "vpnProxy",
+    RemoteDesktop = "remoteDesktop",
+    DownloadTorrent = "downloadTorrent",
+    InstallerUpdater = "installerUpdater",
+    AiChatbot = "aiChatbot",
+    SocialVideoMessaging = "socialVideoMessaging",
+    UnknownRisk = "unknownRisk",
+});
 
-impl AppRiskDetectionRiskSignal {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::VpnProxy => APP_RISK_DETECTION_RISK_SIGNAL_VPN_PROXY,
-            Self::RemoteDesktop => APP_RISK_DETECTION_RISK_SIGNAL_REMOTE_DESKTOP,
-            Self::DownloadTorrent => APP_RISK_DETECTION_RISK_SIGNAL_DOWNLOAD_TORRENT,
-            Self::InstallerUpdater => APP_RISK_DETECTION_RISK_SIGNAL_INSTALLER_UPDATER,
-            Self::AiChatbot => APP_RISK_DETECTION_RISK_SIGNAL_AI_CHATBOT,
-            Self::SocialVideoMessaging => APP_RISK_DETECTION_RISK_SIGNAL_SOCIAL_VIDEO_MESSAGING,
-            Self::UnknownRisk => APP_RISK_DETECTION_RISK_SIGNAL_UNKNOWN_RISK,
-        }
-    }
-}
+app_risk_detection_string_enum!(AppRiskDetectionSourceKind {
+    KnownCatalog = "knownCatalog",
+    ExecutableName = "executableName",
+    PublisherMetadata = "publisherMetadata",
+    ExecutableHash = "executableHash",
+    LocalAiDigest = "localAiDigest",
+    ParentOverride = "parentOverride",
+});
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionSourceKind {
-    #[serde(rename = "knownCatalog")]
-    KnownCatalog,
-    #[serde(rename = "executableName")]
-    ExecutableName,
-    #[serde(rename = "publisherMetadata")]
-    PublisherMetadata,
-    #[serde(rename = "executableHash")]
-    ExecutableHash,
-    #[serde(rename = "localAiDigest")]
-    LocalAiDigest,
-    #[serde(rename = "parentOverride")]
-    ParentOverride,
-}
+app_risk_detection_string_enum!(AppRiskDetectionCandidateState {
+    CatalogMatch = "catalogMatch",
+    HeuristicCandidate = "heuristicCandidate",
+    AiCandidate = "aiCandidate",
+    ParentReviewCandidate = "parentReviewCandidate",
+    ParentDisplayOverride = "parentDisplayOverride",
+});
 
-impl AppRiskDetectionSourceKind {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::KnownCatalog => APP_RISK_DETECTION_SOURCE_KIND_KNOWN_CATALOG,
-            Self::ExecutableName => APP_RISK_DETECTION_SOURCE_KIND_EXECUTABLE_NAME,
-            Self::PublisherMetadata => APP_RISK_DETECTION_SOURCE_KIND_PUBLISHER_METADATA,
-            Self::ExecutableHash => APP_RISK_DETECTION_SOURCE_KIND_EXECUTABLE_HASH,
-            Self::LocalAiDigest => APP_RISK_DETECTION_SOURCE_KIND_LOCAL_AI_DIGEST,
-            Self::ParentOverride => APP_RISK_DETECTION_SOURCE_KIND_PARENT_OVERRIDE,
-        }
-    }
-}
+app_risk_detection_string_enum!(AppRiskDetectionPublisherTrustState {
+    KnownPublisher = "knownPublisher",
+    UnknownPublisher = "unknownPublisher",
+    MissingPublisher = "missingPublisher",
+    UnverifiedPublisher = "unverifiedPublisher",
+    ParentTrusted = "parentTrusted",
+});
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionCandidateState {
-    #[serde(rename = "catalogMatch")]
-    CatalogMatch,
-    #[serde(rename = "heuristicCandidate")]
-    HeuristicCandidate,
-    #[serde(rename = "aiCandidate")]
-    AiCandidate,
-    #[serde(rename = "parentReviewCandidate")]
-    ParentReviewCandidate,
-    #[serde(rename = "parentDisplayOverride")]
-    ParentDisplayOverride,
-}
+app_risk_detection_string_enum!(AppRiskDetectionPolicyCandidateAction {
+    None = "none",
+    Observe = "observe",
+    Warn = "warn",
+    AskParent = "askParent",
+    ManualReview = "manualReview",
+});
 
-impl AppRiskDetectionCandidateState {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::CatalogMatch => APP_RISK_DETECTION_CANDIDATE_STATE_CATALOG_MATCH,
-            Self::HeuristicCandidate => APP_RISK_DETECTION_CANDIDATE_STATE_HEURISTIC_CANDIDATE,
-            Self::AiCandidate => APP_RISK_DETECTION_CANDIDATE_STATE_AI_CANDIDATE,
-            Self::ParentReviewCandidate => {
-                APP_RISK_DETECTION_CANDIDATE_STATE_PARENT_REVIEW_CANDIDATE
-            }
-            Self::ParentDisplayOverride => {
-                APP_RISK_DETECTION_CANDIDATE_STATE_PARENT_DISPLAY_OVERRIDE
-            }
-        }
-    }
-}
+app_risk_detection_string_enum!(AppRiskDetectionConfidenceBand {
+    High = "high",
+    Medium = "medium",
+    Low = "low",
+    Review = "review",
+});
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionPublisherTrustState {
-    #[serde(rename = "knownPublisher")]
-    KnownPublisher,
-    #[serde(rename = "unknownPublisher")]
-    UnknownPublisher,
-    #[serde(rename = "missingPublisher")]
-    MissingPublisher,
-    #[serde(rename = "unverifiedPublisher")]
-    UnverifiedPublisher,
-    #[serde(rename = "parentTrusted")]
-    ParentTrusted,
-}
+app_risk_detection_string_enum!(AppRiskDetectionPolicyTargetKind {
+    RiskApp = "risk-app",
+});
 
-impl AppRiskDetectionPublisherTrustState {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::KnownPublisher => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_KNOWN_PUBLISHER,
-            Self::UnknownPublisher => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_UNKNOWN_PUBLISHER,
-            Self::MissingPublisher => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_MISSING_PUBLISHER,
-            Self::UnverifiedPublisher => {
-                APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_UNVERIFIED_PUBLISHER
-            }
-            Self::ParentTrusted => APP_RISK_DETECTION_PUBLISHER_TRUST_STATE_PARENT_TRUSTED,
-        }
-    }
-}
+app_risk_detection_string_enum!(AppRiskDetectionAskParentRouting {
+    Available = "available",
+    ManualReview = "manual-review",
+    NotRouted = "not-routed",
+});
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionPolicyCandidateAction {
-    #[serde(rename = "none")]
-    None,
-    #[serde(rename = "observe")]
-    Observe,
-    #[serde(rename = "warn")]
-    Warn,
-    #[serde(rename = "askParent")]
-    AskParent,
-    #[serde(rename = "manualReview")]
-    ManualReview,
-}
+app_risk_detection_string_enum!(AppRiskDetectionSurfaceState {
+    RiskDisclosureReady = "riskdisclosure-ready",
+});
 
-impl AppRiskDetectionPolicyCandidateAction {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::None => APP_RISK_DETECTION_POLICY_ACTION_NONE,
-            Self::Observe => APP_RISK_DETECTION_POLICY_ACTION_OBSERVE,
-            Self::Warn => APP_RISK_DETECTION_POLICY_ACTION_WARN,
-            Self::AskParent => APP_RISK_DETECTION_POLICY_ACTION_ASK_PARENT,
-            Self::ManualReview => APP_RISK_DETECTION_POLICY_ACTION_MANUAL_REVIEW,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionConfidenceBand {
-    #[serde(rename = "high")]
-    High,
-    #[serde(rename = "medium")]
-    Medium,
-    #[serde(rename = "low")]
-    Low,
-    #[serde(rename = "review")]
-    Review,
-}
-
-impl AppRiskDetectionConfidenceBand {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::High => APP_RISK_DETECTION_CONFIDENCE_BAND_HIGH,
-            Self::Medium => APP_RISK_DETECTION_CONFIDENCE_BAND_MEDIUM,
-            Self::Low => APP_RISK_DETECTION_CONFIDENCE_BAND_LOW,
-            Self::Review => APP_RISK_DETECTION_CONFIDENCE_BAND_REVIEW,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionPolicyTargetKind {
-    #[serde(rename = "risk-app")]
-    RiskApp,
-}
-
-impl AppRiskDetectionPolicyTargetKind {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::RiskApp => APP_RISK_DETECTION_POLICY_TARGET_KIND_RISK_APP,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionAskParentRouting {
-    #[serde(rename = "available")]
-    Available,
-    #[serde(rename = "manual-review")]
-    ManualReview,
-    #[serde(rename = "not-routed")]
-    NotRouted,
-}
-
-impl AppRiskDetectionAskParentRouting {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::Available => APP_RISK_DETECTION_ASK_PARENT_ROUTING_AVAILABLE,
-            Self::ManualReview => APP_RISK_DETECTION_ASK_PARENT_ROUTING_MANUAL_REVIEW,
-            Self::NotRouted => APP_RISK_DETECTION_ASK_PARENT_ROUTING_NOT_ROUTED,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionSurfaceState {
-    #[serde(rename = "riskdisclosure-ready")]
-    RiskDisclosureReady,
-}
-
-impl AppRiskDetectionSurfaceState {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::RiskDisclosureReady => APP_RISK_DETECTION_SURFACE_STATE_RISK_DISCLOSURE_READY,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AppRiskDetectionNoContentClaimState {
-    #[serde(rename = "no-content-captured")]
-    NoContentCaptured,
-}
-
-impl AppRiskDetectionNoContentClaimState {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::NoContentCaptured => {
-                APP_RISK_DETECTION_NO_CONTENT_CLAIM_STATE_NO_CONTENT_CAPTURED
-            }
-        }
-    }
-}
+app_risk_detection_string_enum!(AppRiskDetectionNoContentClaimState {
+    NoContentCaptured = "no-content-captured",
+});
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -590,28 +431,21 @@ fn risk_candidate(input: RiskCandidateInput) -> AppRiskDetectionCandidate {
         parent_override,
     } = input;
 
-    let candidate_state = match source_kind {
-        AppRiskDetectionSourceKind::KnownCatalog => AppRiskDetectionCandidateState::CatalogMatch,
-        AppRiskDetectionSourceKind::LocalAiDigest => AppRiskDetectionCandidateState::AiCandidate,
-        AppRiskDetectionSourceKind::ParentOverride => {
-            AppRiskDetectionCandidateState::ParentDisplayOverride
-        }
-        AppRiskDetectionSourceKind::ExecutableName
-        | AppRiskDetectionSourceKind::PublisherMetadata
-        | AppRiskDetectionSourceKind::ExecutableHash => {
-            AppRiskDetectionCandidateState::HeuristicCandidate
-        }
-    };
-
-    let ask_parent_routing = match policy_candidate_action {
-        AppRiskDetectionPolicyCandidateAction::AskParent => {
-            AppRiskDetectionAskParentRouting::Available
-        }
-        AppRiskDetectionPolicyCandidateAction::ManualReview => {
-            AppRiskDetectionAskParentRouting::ManualReview
-        }
-        _ => AppRiskDetectionAskParentRouting::NotRouted,
-    };
+    const CANDIDATE_STATE_BY_SOURCE_KIND: [AppRiskDetectionCandidateState; 6] = [
+        AppRiskDetectionCandidateState::CatalogMatch,
+        AppRiskDetectionCandidateState::HeuristicCandidate,
+        AppRiskDetectionCandidateState::HeuristicCandidate,
+        AppRiskDetectionCandidateState::HeuristicCandidate,
+        AppRiskDetectionCandidateState::AiCandidate,
+        AppRiskDetectionCandidateState::ParentDisplayOverride,
+    ];
+    const ASK_PARENT_ROUTING_BY_ACTION: [AppRiskDetectionAskParentRouting; 5] = [
+        AppRiskDetectionAskParentRouting::NotRouted,
+        AppRiskDetectionAskParentRouting::NotRouted,
+        AppRiskDetectionAskParentRouting::NotRouted,
+        AppRiskDetectionAskParentRouting::Available,
+        AppRiskDetectionAskParentRouting::ManualReview,
+    ];
 
     AppRiskDetectionCandidate {
         schema_version: APP_RISK_DETECTION_SCHEMA_VERSION.to_owned(),
@@ -621,7 +455,7 @@ fn risk_candidate(input: RiskCandidateInput) -> AppRiskDetectionCandidate {
         identity_ref,
         risk_signal,
         source_kind,
-        candidate_state,
+        candidate_state: CANDIDATE_STATE_BY_SOURCE_KIND[source_kind as usize],
         publisher_trust_state,
         confidence,
         confidence_band,
@@ -631,15 +465,13 @@ fn risk_candidate(input: RiskCandidateInput) -> AppRiskDetectionCandidate {
             observed_at: GENERATED_AT.to_owned(),
         }],
         source_refs: source_refs.unwrap_or_else(|| {
-            vec![app_risk_detection_source_ref(format!(
-                "source-{candidate_id}"
-            ))]
+            vec![app_risk_detection_source_ref(format!("source-{candidate_id}"))]
         }),
         local_ai_digest_ref,
         parent_override,
         policy_candidate_action,
         policy_target_kind: AppRiskDetectionPolicyTargetKind::RiskApp,
-        ask_parent_routing,
+        ask_parent_routing: ASK_PARENT_ROUTING_BY_ACTION[policy_candidate_action as usize],
         not_direct_enforcement: true,
         no_content_claim: true,
         surface_disclosure: AppRiskDetectionSurfaceDisclosure {
