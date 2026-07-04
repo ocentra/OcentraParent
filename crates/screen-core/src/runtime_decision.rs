@@ -11,7 +11,8 @@ use serde::{Deserialize, Serialize};
 use crate::{screen_observed_event, ScreenObservationIntent};
 #[path = "runtime_decision_ids.rs"]
 mod ids;
-use ids::{ScreenAggregateId, ScreenRuntimeDecisionId};
+pub type ScreenAggregateId = ids::ScreenAggregateId;
+pub type ScreenRuntimeDecisionId = ids::ScreenRuntimeDecisionId;
 
 const SCREEN_SCHEMA_VERSION: u16 = 1;
 const SCREEN_RUNTIME_DECISION_RECORDED_EVENT_TYPE: &str = "screen.runtime.decision-recorded";
