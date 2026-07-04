@@ -53,44 +53,37 @@ const approvalStateByBonusState = {
   [AppGameTimeBudgetBonusState.Denied]: AppGameTimeBudgetApprovalState.Denied,
   [AppGameTimeBudgetBonusState.Expired]: AppGameTimeBudgetApprovalState.Expired,
 } as const;
+const runtimeModeRecommendedActions = {
+  [AppGameTimeBudgetRuntimeMode.DryRunPreview]: AppGameTimeBudgetRecommendedAction.TimeLimitDryRun,
+  [AppGameTimeBudgetRuntimeMode.WarnOnly]: AppGameTimeBudgetRecommendedAction.Warn,
+  [AppGameTimeBudgetRuntimeMode.AskParent]: AppGameTimeBudgetRecommendedAction.AskParent,
+  [AppGameTimeBudgetRuntimeMode.ManualRequired]: AppGameTimeBudgetRecommendedAction.ManualRequired,
+} as const satisfies Record<AppGameTimeBudgetRuntimeModeValue, AppGameTimeBudgetRecommendedActionValue>;
+const handoffStateByRecommendedAction = {
+  [AppGameTimeBudgetRecommendedAction.TimeLimitDryRun]: AppGameTimeBudgetHandoffState.DryRunOnly,
+  [AppGameTimeBudgetRecommendedAction.ManualRequired]: AppGameTimeBudgetHandoffState.ManualRequired,
+  [AppGameTimeBudgetRecommendedAction.Warn]: AppGameTimeBudgetHandoffState.Disabled,
+  [AppGameTimeBudgetRecommendedAction.AskParent]: AppGameTimeBudgetHandoffState.Disabled,
+  [AppGameTimeBudgetRecommendedAction.Observe]: AppGameTimeBudgetHandoffState.Disabled,
+} as const;
+const usesDryRunTimer = (recommendedAction: AppGameTimeBudgetRecommendedActionValue) =>
+  recommendedAction === AppGameTimeBudgetRecommendedAction.TimeLimitDryRun;
 
 const recommendedActionForExceededBudget = (
   input: AppGameTimeBudgetRuntimeEvaluationInput
-): AppGameTimeBudgetRecommendedActionValue => {
-  if (input.bonusGrant.bonusState === AppGameTimeBudgetBonusState.Requested) {
-    return AppGameTimeBudgetRecommendedAction.AskParent;
-  }
+): AppGameTimeBudgetRecommendedActionValue =>
+  input.bonusGrant.bonusState === AppGameTimeBudgetBonusState.Requested
+    ? AppGameTimeBudgetRecommendedAction.AskParent
+    : runtimeModeRecommendedActions[input.runtimeMode];
 
-  switch (input.runtimeMode) {
-    case AppGameTimeBudgetRuntimeMode.WarnOnly:
-      return AppGameTimeBudgetRecommendedAction.Warn;
-    case AppGameTimeBudgetRuntimeMode.AskParent:
-      return AppGameTimeBudgetRecommendedAction.AskParent;
-    case AppGameTimeBudgetRuntimeMode.ManualRequired:
-      return AppGameTimeBudgetRecommendedAction.ManualRequired;
-    case AppGameTimeBudgetRuntimeMode.DryRunPreview:
-      return AppGameTimeBudgetRecommendedAction.TimeLimitDryRun;
-  }
-};
-
-const handoffStateForAction = (recommendedAction: AppGameTimeBudgetRecommendedActionValue) => {
-  switch (recommendedAction) {
-    case AppGameTimeBudgetRecommendedAction.TimeLimitDryRun:
-      return AppGameTimeBudgetHandoffState.DryRunOnly;
-    case AppGameTimeBudgetRecommendedAction.ManualRequired:
-      return AppGameTimeBudgetHandoffState.ManualRequired;
-    case AppGameTimeBudgetRecommendedAction.Warn:
-    case AppGameTimeBudgetRecommendedAction.AskParent:
-    case AppGameTimeBudgetRecommendedAction.Observe:
-      return AppGameTimeBudgetHandoffState.Disabled;
-  }
-};
+const handoffStateForAction = (recommendedAction: AppGameTimeBudgetRecommendedActionValue) =>
+  handoffStateByRecommendedAction[recommendedAction];
 
 const timerStateForAction = (
   input: AppGameTimeBudgetRuntimeEvaluationInput,
   recommendedAction: AppGameTimeBudgetRecommendedActionValue
 ) => {
-  if (recommendedAction !== AppGameTimeBudgetRecommendedAction.TimeLimitDryRun) {
+  if (!usesDryRunTimer(recommendedAction)) {
     return AppGameTimeBudgetTimerState.NotRequired;
   }
 
@@ -121,6 +114,7 @@ export const buildAppGameTimeBudgetRuntimeDecision = (
   const recommendedAction = budgetExceeded
     ? recommendedActionForExceededBudget(input)
     : AppGameTimeBudgetRecommendedAction.Observe;
+  const usesDryRunTimerRefs = usesDryRunTimer(recommendedAction);
 
   return AppGameTimeBudgetDryRunDecisionSchema.parse({
     schemaVersion: input.schemaVersion,
@@ -140,7 +134,7 @@ export const buildAppGameTimeBudgetRuntimeDecision = (
     dryRun: true,
     enforcementHandoffState: handoffStateForAction(recommendedAction),
     timerState: timerStateForAction(input, recommendedAction),
-    timerRefs: recommendedAction === AppGameTimeBudgetRecommendedAction.TimeLimitDryRun ? input.timerRefs : [],
+    timerRefs: usesDryRunTimerRefs ? input.timerRefs : [],
     auditRefs: input.auditRefs,
     evidenceReferences: evidenceReferencesFor(input),
     evaluatedAt: input.evaluatedAt,

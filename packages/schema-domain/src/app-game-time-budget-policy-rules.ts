@@ -118,26 +118,38 @@ type DecisionLike = {
 
 const allAppTargets = [AppGameTimeBudgetTargetKind.AllNativeApps] as const;
 const allGameTargets = [AppGameTimeBudgetTargetKind.AllNativeGames] as const;
+const appGameTimeBudgetTargetKindsAllowingNullRef = new Set<TargetKindValue>([...allAppTargets, ...allGameTargets]);
+const sessionMatchesOwnTargetRef = (session: SessionLike, target: TargetLike) => session.targetRef === target.targetRef;
+const sessionMatchesCategoryRef = (session: SessionLike, target: TargetLike) => session.categoryRef === target.targetRef;
+const sessionMatchesRiskSignalRef = (session: SessionLike, target: TargetLike) => session.riskSignalRef === target.targetRef;
+const appGameTimeBudgetSessionMatchers = {
+  [AppGameTimeBudgetTargetKind.AllNativeApps]: (session: SessionLike) =>
+    session.sessionKind === AppGameTimeBudgetSessionKind.NativeAppSession,
+  [AppGameTimeBudgetTargetKind.NativeApp]: sessionMatchesOwnTargetRef,
+  [AppGameTimeBudgetTargetKind.AppCategory]: sessionMatchesCategoryRef,
+  [AppGameTimeBudgetTargetKind.RiskApp]: sessionMatchesRiskSignalRef,
+  [AppGameTimeBudgetTargetKind.AllNativeGames]: (session: SessionLike) =>
+    session.sessionKind === AppGameTimeBudgetSessionKind.NativeGameSession,
+  [AppGameTimeBudgetTargetKind.NativeGame]: sessionMatchesOwnTargetRef,
+  [AppGameTimeBudgetTargetKind.GameCategory]: sessionMatchesCategoryRef,
+} satisfies Record<TargetKindValue, (session: SessionLike, target: TargetLike) => boolean>;
+const recommendedActionDecisionValidators = {
+  [AppGameTimeBudgetRecommendedAction.Observe]: () => false,
+  [AppGameTimeBudgetRecommendedAction.Warn]: (decision: DecisionLike) =>
+    decision.enforcementHandoffState === AppGameTimeBudgetHandoffState.Disabled,
+  [AppGameTimeBudgetRecommendedAction.AskParent]: (decision: DecisionLike) =>
+    decision.approvalState === AppGameTimeBudgetApprovalState.Pending,
+  [AppGameTimeBudgetRecommendedAction.TimeLimitDryRun]: (decision: DecisionLike) =>
+    decision.enforcementHandoffState === AppGameTimeBudgetHandoffState.DryRunOnly,
+  [AppGameTimeBudgetRecommendedAction.ManualRequired]: (decision: DecisionLike) =>
+    decision.enforcementHandoffState === AppGameTimeBudgetHandoffState.ManualRequired,
+} satisfies Record<RecommendedActionValue, (decision: DecisionLike) => boolean>;
 
 export const appGameTimeBudgetTargetAllowsNullRef = (target: TargetLike) =>
-  [...allAppTargets, ...allGameTargets].some((targetKind) => targetKind === target.targetKind);
+  appGameTimeBudgetTargetKindsAllowingNullRef.has(target.targetKind);
 
-export const appGameTimeBudgetSessionMatchesTarget = (session: SessionLike, target: TargetLike) => {
-  switch (target.targetKind) {
-    case AppGameTimeBudgetTargetKind.AllNativeApps:
-      return session.sessionKind === AppGameTimeBudgetSessionKind.NativeAppSession;
-    case AppGameTimeBudgetTargetKind.AllNativeGames:
-      return session.sessionKind === AppGameTimeBudgetSessionKind.NativeGameSession;
-    case AppGameTimeBudgetTargetKind.NativeApp:
-    case AppGameTimeBudgetTargetKind.NativeGame:
-      return session.targetRef === target.targetRef;
-    case AppGameTimeBudgetTargetKind.AppCategory:
-    case AppGameTimeBudgetTargetKind.GameCategory:
-      return session.categoryRef === target.targetRef;
-    case AppGameTimeBudgetTargetKind.RiskApp:
-      return session.riskSignalRef === target.targetRef;
-  }
-};
+export const appGameTimeBudgetSessionMatchesTarget = (session: SessionLike, target: TargetLike) =>
+  appGameTimeBudgetSessionMatchers[target.targetKind](session, target);
 
 export const appGameTimeBudgetSessionDurationMs = (session: SessionLike, durationSource: DurationSourceValue) =>
   durationSource === AppGameTimeBudgetDurationSource.ForegroundDuration
@@ -222,18 +234,7 @@ export const appGameTimeBudgetRecommendedActionMatchesDecision = (decision: Deci
     return decision.recommendedAction === AppGameTimeBudgetRecommendedAction.Observe;
   }
 
-  switch (decision.recommendedAction) {
-    case AppGameTimeBudgetRecommendedAction.Warn:
-      return decision.enforcementHandoffState === AppGameTimeBudgetHandoffState.Disabled;
-    case AppGameTimeBudgetRecommendedAction.AskParent:
-      return decision.approvalState === AppGameTimeBudgetApprovalState.Pending;
-    case AppGameTimeBudgetRecommendedAction.TimeLimitDryRun:
-      return decision.enforcementHandoffState === AppGameTimeBudgetHandoffState.DryRunOnly;
-    case AppGameTimeBudgetRecommendedAction.ManualRequired:
-      return decision.enforcementHandoffState === AppGameTimeBudgetHandoffState.ManualRequired;
-    case AppGameTimeBudgetRecommendedAction.Observe:
-      return false;
-  }
+  return recommendedActionDecisionValidators[decision.recommendedAction](decision);
 };
 
 export const appGameTimeBudgetTimerStateIsAuditable = (decision: DecisionLike) =>
