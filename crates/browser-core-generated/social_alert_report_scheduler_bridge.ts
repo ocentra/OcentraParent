@@ -5,7 +5,13 @@ import {
   NotificationLocalOutboxSchedulerRecordSchema,
   RequiredNotificationLocalOutboxSchedulerNonClaims,
   type NotificationLocalOutboxSchedulerRecord,
-} from '@ocentra-parent/schema-domain/notification-local-outbox';
+} from './social_alert_report_scheduler_bridge_support';
+import {
+  countRows,
+  schedulerStatusForOutboxBridgeRow,
+  socialAlertReportSchedulerBridgeReadModelCountsMatch,
+  socialAlertReportSchedulerBridgeRowIsHonest,
+} from './social_alert_report_scheduler_bridge_helpers';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -49,7 +55,7 @@ export const SocialAlertReportSchedulerBridgeRowSchema = withParser(
   SocialAlertReportSchedulerBridgeRowBaseSchema.pipe(
     Schema.filter(
       (row) =>
-        rowIsHonest(row) ||
+        socialAlertReportSchedulerBridgeRowIsHonest(row) ||
         'Expected social alert/report scheduler bridge rows to schedule only linked local outbox records and keep manual/unavailable rows unscheduled'
     )
   )
@@ -87,7 +93,10 @@ export const SocialAlertReportSchedulerBridgeReadModelSchema = withParser(
   SocialAlertReportSchedulerBridgeReadModelBaseSchema.pipe(
     Schema.filter(
       (readModel) =>
-        readModelIsHonest(readModel) ||
+        socialAlertReportSchedulerBridgeReadModelCountsMatch(
+          readModel,
+          RequiredNotificationLocalOutboxSchedulerNonClaims
+        ) ||
         'Expected social alert/report scheduler bridge counts and non-claims to match scheduled manual and unavailable rows'
     )
   )
@@ -142,7 +151,9 @@ export function buildSocialAlertReportSchedulerBridgeReadModel(
 }
 
 export function serializeSocialAlertReportSchedulerJsonl(readModel: SocialAlertReportSchedulerBridgeReadModel): string {
-  const records = readModel.rows.flatMap((row) => (row.schedulerRecord === null ? [] : [row.schedulerRecord]));
+  const records = readModel.rows
+    .map((row) => row.schedulerRecord)
+    .filter((record): record is NotificationLocalOutboxSchedulerRecord => record !== null);
   return `${records.map((record) => JSON.stringify(record)).join('\n')}\n`;
 }
 
@@ -217,37 +228,3 @@ function schedulerRecordForOutboxRecord(
       'alert id, social reason, evidence ref, explanation ref, scheduler due marker, parent action link',
   });
 }
-
-function schedulerStatusForOutboxBridgeRow(
-  row: SocialAlertReportLocalOutboxBridgeRow
-): SocialAlertReportSchedulerBridgeStatus {
-  return row.status === SocialAlertReportLocalOutboxBridgeStatus.Linked
-    ? SocialAlertReportSchedulerBridgeStatus.ScheduledLocal
-    : row.status === SocialAlertReportLocalOutboxBridgeStatus.Unavailable
-      ? SocialAlertReportSchedulerBridgeStatus.Unavailable
-      : SocialAlertReportSchedulerBridgeStatus.ManualRequired;
-}
-
-function rowIsHonest(row: Infer<typeof SocialAlertReportSchedulerBridgeRowBaseSchema>): boolean {
-  if (row.status === SocialAlertReportSchedulerBridgeStatus.ScheduledLocal) {
-    return row.schedulerRecord !== null && row.sourceOutboxRecordRef !== null && row.blockedReasonRefs.length === 0;
-  }
-  return row.schedulerRecord === null && row.sourceOutboxRecordRef === null && row.blockedReasonRefs.length > 0;
-}
-
-function readModelIsHonest(readModel: Infer<typeof SocialAlertReportSchedulerBridgeReadModelBaseSchema>): boolean {
-  return (
-    readModel.scheduledRecordCount ===
-      countRows(readModel.rows, SocialAlertReportSchedulerBridgeStatus.ScheduledLocal) &&
-    readModel.unscheduledManualRequiredCount ===
-      countRows(readModel.rows, SocialAlertReportSchedulerBridgeStatus.ManualRequired) &&
-    readModel.unscheduledUnavailableCount ===
-      countRows(readModel.rows, SocialAlertReportSchedulerBridgeStatus.Unavailable) &&
-    RequiredNotificationLocalOutboxSchedulerNonClaims.every((claim) => readModel.schedulerNonClaims.includes(claim))
-  );
-}
-
-const countRows = (
-  rows: ReadonlyArray<{ readonly status: SocialAlertReportSchedulerBridgeStatus }>,
-  status: SocialAlertReportSchedulerBridgeStatus
-): number => rows.filter((row) => row.status === status).length;
