@@ -65,3 +65,17 @@ macro_rules! parent_owned_sync_string_enum_as_strs {
         $(parent_owned_sync_string_enum_as_str!($name { $($variant => $value,)+ });)+
     };
 }
+
+macro_rules! parent_owned_sync_string_enum_as_str_values {
+    ($($name:ident { variants: [$($variant:ident),+ $(,)?], values: [$($value:expr),+ $(,)?] $(,)? }),+ $(,)?) => {
+        $(
+            impl $name {
+                pub fn as_str(&self) -> &'static str {
+                    const VALUES: &[&str] = &[$($value),+];
+                    let _ = stringify!($($variant),+);
+                    VALUES[*self as usize]
+                }
+            }
+        )+
+    };
+}

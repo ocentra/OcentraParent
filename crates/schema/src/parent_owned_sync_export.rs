@@ -216,31 +216,60 @@ parent_owned_sync_text_identifiers!(
     ParentOwnedSyncDeleteRequestRef,
 );
 
-parent_owned_sync_string_enum_as_strs!(ParentOwnedSyncProviderMode {
-    GoogleDriveAppdata => PROVIDER_MODE_GOOGLE_DRIVE_APPDATA,
-    GoogleDrivePickerFile => PROVIDER_MODE_GOOGLE_DRIVE_PICKER_FILE,
-    OnedriveApproot => PROVIDER_MODE_ONEDRIVE_APPROOT,
-    OnedriveParentSelectedFolder => PROVIDER_MODE_ONEDRIVE_PARENT_SELECTED_FOLDER,
-    IcloudDriveAppContainer => PROVIDER_MODE_ICLOUD_DRIVE_APP_CONTAINER,
-    IcloudDriveParentSelectedLocation => PROVIDER_MODE_ICLOUD_DRIVE_PARENT_SELECTED_LOCATION,
-    DropboxAppFolder => PROVIDER_MODE_DROPBOX_APP_FOLDER,
-    DropboxParentSelectedFolder => PROVIDER_MODE_DROPBOX_PARENT_SELECTED_FOLDER,
-    NasFolder => PROVIDER_MODE_NAS_FOLDER,
-    LocalFolder => PROVIDER_MODE_LOCAL_FOLDER,
-    Disabled => PROVIDER_MODE_DISABLED,
-});
-
-parent_owned_sync_string_enum_as_strs!(ParentOwnedSyncProviderStatus {
-    Ready => PROVIDER_STATUS_READY,
-    ManualRequired => PROVIDER_STATUS_MANUAL_REQUIRED,
-    Revoked => PROVIDER_STATUS_REVOKED,
-    WrongAccount => PROVIDER_STATUS_WRONG_ACCOUNT,
-    FolderUnavailable => PROVIDER_STATUS_FOLDER_UNAVAILABLE,
-    PartialUpload => PROVIDER_STATUS_PARTIAL_UPLOAD,
-    Disconnected => PROVIDER_STATUS_DISCONNECTED,
-    Disabled => PROVIDER_STATUS_DISABLED,
-    NotConfigured => PROVIDER_STATUS_NOT_CONFIGURED,
-});
+parent_owned_sync_string_enum_as_str_values!(
+    ParentOwnedSyncProviderMode {
+        variants: [
+            GoogleDriveAppdata,
+            GoogleDrivePickerFile,
+            OnedriveApproot,
+            OnedriveParentSelectedFolder,
+            IcloudDriveAppContainer,
+            IcloudDriveParentSelectedLocation,
+            DropboxAppFolder,
+            DropboxParentSelectedFolder,
+            NasFolder,
+            LocalFolder,
+            Disabled,
+        ],
+        values: [
+            PROVIDER_MODE_GOOGLE_DRIVE_APPDATA,
+            PROVIDER_MODE_GOOGLE_DRIVE_PICKER_FILE,
+            PROVIDER_MODE_ONEDRIVE_APPROOT,
+            PROVIDER_MODE_ONEDRIVE_PARENT_SELECTED_FOLDER,
+            PROVIDER_MODE_ICLOUD_DRIVE_APP_CONTAINER,
+            PROVIDER_MODE_ICLOUD_DRIVE_PARENT_SELECTED_LOCATION,
+            PROVIDER_MODE_DROPBOX_APP_FOLDER,
+            PROVIDER_MODE_DROPBOX_PARENT_SELECTED_FOLDER,
+            PROVIDER_MODE_NAS_FOLDER,
+            PROVIDER_MODE_LOCAL_FOLDER,
+            PROVIDER_MODE_DISABLED,
+        ],
+    },
+    ParentOwnedSyncProviderStatus {
+        variants: [
+            Ready,
+            ManualRequired,
+            Revoked,
+            WrongAccount,
+            FolderUnavailable,
+            PartialUpload,
+            Disconnected,
+            Disabled,
+            NotConfigured,
+        ],
+        values: [
+            PROVIDER_STATUS_READY,
+            PROVIDER_STATUS_MANUAL_REQUIRED,
+            PROVIDER_STATUS_REVOKED,
+            PROVIDER_STATUS_WRONG_ACCOUNT,
+            PROVIDER_STATUS_FOLDER_UNAVAILABLE,
+            PROVIDER_STATUS_PARTIAL_UPLOAD,
+            PROVIDER_STATUS_DISCONNECTED,
+            PROVIDER_STATUS_DISABLED,
+            PROVIDER_STATUS_NOT_CONFIGURED,
+        ],
+    },
+);
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
