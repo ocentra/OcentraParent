@@ -9,31 +9,25 @@ use crate::screen_intelligence_router::{
 pub(crate) fn screen_managed_browser_structured_extraction_is_consistent(
     value: &ScreenManagedBrowserStructuredExtraction,
 ) -> bool {
-    if screen_managed_browser_structured_extraction_has_invalid_static_shape(value) {
-        return false;
-    }
-    if value.extraction_state == ScreenStructuredExtractionState::EnoughForPolicy {
-        return screen_managed_browser_structured_extraction_ready_for_policy(value);
-    }
-    screen_managed_browser_structured_extraction_needs_screenshot_matches_state(value)
+    !screen_managed_browser_structured_extraction_has_invalid_static_shape(value)
+        && (value.extraction_state != ScreenStructuredExtractionState::EnoughForPolicy
+            || screen_managed_browser_structured_extraction_ready_for_policy(value))
+        && (value.extraction_state == ScreenStructuredExtractionState::EnoughForPolicy
+            || screen_managed_browser_structured_extraction_needs_screenshot_matches_state(value))
 }
 
 pub(crate) fn screen_intelligence_route_request_is_consistent(
     value: &ScreenIntelligenceRouteRequest,
 ) -> bool {
-    if !screen_intelligence_route_request_capture_scopes_are_supported(value) {
-        return false;
-    }
-    screen_intelligence_route_request_structured_extraction_is_consistent(value)
+    screen_intelligence_route_request_capture_scopes_are_supported(value)
+        && screen_intelligence_route_request_structured_extraction_is_consistent(value)
 }
 
 pub(crate) fn screen_intelligence_route_decision_is_consistent(
     value: &ScreenIntelligenceRouteDecision,
 ) -> bool {
-    if !screen_intelligence_route_decision_base_is_consistent(value) {
-        return false;
-    }
-    screen_intelligence_route_decision_matches_route_kind(value)
+    screen_intelligence_route_decision_base_is_consistent(value)
+        && screen_intelligence_route_decision_matches_route_kind(value)
 }
 
 pub(crate) fn plan_screen_intelligence_route(
@@ -212,13 +206,7 @@ fn route_kind_for(request: &ScreenIntelligenceRouteRequest) -> ScreenIntelligenc
     if !request.parent_allows_screen_capture {
         return ScreenIntelligenceRouteKind::ManualRequired;
     }
-    capture_route_kind_for(preferred_capture_scope(&request.allowed_capture_scopes))
-}
-
-fn capture_route_kind_for(
-    capture_scope: Option<&ScreenCaptureScope>,
-) -> ScreenIntelligenceRouteKind {
-    match capture_scope {
+    match preferred_capture_scope(&request.allowed_capture_scopes) {
         Some(ScreenCaptureScope::ActiveWindow) => {
             ScreenIntelligenceRouteKind::ScreenCaptureActiveWindow
         }

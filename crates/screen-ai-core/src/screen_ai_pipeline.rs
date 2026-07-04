@@ -20,8 +20,6 @@ pub(crate) const SCREEN_AI_PIPELINE_EVALUATION_REQUESTED_EVENT_TYPE: &str =
 pub(crate) const SCREEN_AI_PIPELINE_DECISION_RECORDED_EVENT_TYPE: &str =
     "screen-ai.pipeline-decision.recorded";
 pub(crate) const SCREEN_AI_IDEMPOTENCY_SEPARATOR: &str = ":";
-pub(crate) const SCREEN_AI_DECISION_PREFIX: &str = "screen-ai-decision:";
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScreenAiTriggerSource {
     #[serde(rename = "app")]
