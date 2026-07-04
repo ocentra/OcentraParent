@@ -8,11 +8,6 @@ import {
   type ParentDesktopReleaseSupportOperation,
   type ParentDesktopReleaseSupportSigningSurface,
 } from '../../src/parent-desktop-release-support';
-import {
-  ParentOwnedLocalExportRuntimeKnownGaps,
-  RequiredParentOwnedLocalExportRuntimeNonClaims,
-  RequiredParentOwnedLocalExportRuntimeStates,
-} from '../../src/parent-owned-local-export-runtime-values';
 
 const IncidentHandoffFixture = {
   metadata: {
@@ -116,6 +111,61 @@ const IncidentHandoffFixture = {
     productionSlaState: 'manual-required',
     nonClaims: ['no support backend upload', 'no Ocentra-hosted child data custody', 'no billing or public account'],
   },
+} as const;
+
+const RollbackChannels = ['scaffold', 'unsigned-preview', 'signature-required', 'production'] as const;
+
+const RollbackUpdateAvailabilityState = {
+  scaffold: 'unavailable',
+  'unsigned-preview': 'available',
+  'signature-required': 'manual-required',
+  production: 'manual-required',
+} as const;
+
+const RollbackChecksumState = {
+  scaffold: 'unavailable',
+  'unsigned-preview': 'verified',
+  'signature-required': 'verified',
+  production: 'manual-required',
+} as const;
+
+const RollbackSignatureState = {
+  scaffold: 'unavailable',
+  'unsigned-preview': 'manual-required',
+  'signature-required': 'manual-required',
+  production: 'manual-required',
+} as const;
+
+const RollbackState = {
+  scaffold: 'rollback-unavailable',
+  'unsigned-preview': 'rollback-unavailable',
+  'signature-required': 'manual-required',
+  production: 'manual-required',
+} as const;
+
+const RollbackAvailabilityState = {
+  scaffold: 'unavailable',
+  'unsigned-preview': 'unavailable',
+  'signature-required': 'manual-required',
+  production: 'manual-required',
+} as const;
+
+const RollbackEvidenceState = {
+  scaffold: 'recorded',
+  'unsigned-preview': 'recorded',
+  'signature-required': 'manual-required',
+  production: 'manual-required',
+} as const;
+
+const RollbackProofRequirement = {
+  scaffold:
+    'scaffold channel requires teardown or revert evidence and manual proof before rollback execution or failure status claim',
+  'unsigned-preview':
+    'unsigned-preview channel requires teardown or revert evidence and manual proof before rollback execution or failure status claim',
+  'signature-required':
+    'signature-required channel requires teardown or revert evidence and manual proof before rollback execution or failure status claim',
+  production:
+    'production channel requires signed production update channel and manual proof before rollback execution teardown or revert evidence',
 } as const;
 
 const RuntimeReadModel = {
@@ -278,25 +328,6 @@ describe('parent release-support contract rejection paths', () => {
 
     expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(leakedUrl).success).toBe(false);
     expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(leakedCommandLine).success).toBe(false);
-  });
-});
-
-describe('parent-owned local export value surfaces centralized in schema-domain', () => {
-  it('preserves the required runtime states, non-claims, and known gaps', () => {
-    expect(RequiredParentOwnedLocalExportRuntimeStates).toEqual([
-      'export-queued',
-      'export-running',
-      'export-written',
-      'delete-requested',
-      'delete-confirmed',
-      'delete-failed',
-      'offline-queued',
-      'manual-required',
-    ]);
-    expect(RequiredParentOwnedLocalExportRuntimeNonClaims).toContain('no-ocentra-family-data-custody');
-    expect(ParentOwnedLocalExportRuntimeKnownGaps).toContain(
-      'Retention scheduler and parent-visible status controls remain future work before broader product export/delete claims.'
-    );
   });
 });
 
@@ -495,64 +526,19 @@ function updaterRollbackRunbookProof() {
 }
 
 function updaterRollbackRows() {
-  return (['scaffold', 'unsigned-preview', 'signature-required', 'production'] as const).map((channel) => ({
+  return RollbackChannels.map((channel) => ({
     channel,
-    updateAvailabilityState: updaterRollbackUpdateAvailabilityState(channel),
-    checksumState: updaterRollbackChecksumState(channel),
-    signatureState: updaterRollbackSignatureState(channel),
-    rollbackState: updaterRollbackRollbackState(channel),
-    rollbackAvailabilityState: updaterRollbackRollbackAvailabilityState(channel),
-    teardownEvidenceState: updaterRollbackEvidenceState(channel),
-    revertEvidenceState: updaterRollbackEvidenceState(channel),
+    updateAvailabilityState: RollbackUpdateAvailabilityState[channel],
+    checksumState: RollbackChecksumState[channel],
+    signatureState: RollbackSignatureState[channel],
+    rollbackState: RollbackState[channel],
+    rollbackAvailabilityState: RollbackAvailabilityState[channel],
+    teardownEvidenceState: RollbackEvidenceState[channel],
+    revertEvidenceState: RollbackEvidenceState[channel],
     failureStatusState: 'manual-required',
     manualRequiredState: 'manual-required',
-    proofRequirement:
-      channel === 'production'
-        ? 'production channel requires signed production update channel and manual proof before rollback execution teardown or revert evidence'
-        : `${channel} channel requires teardown or revert evidence and manual proof before rollback execution or failure status claim`,
+    proofRequirement: RollbackProofRequirement[channel],
   }));
-}
-
-function updaterRollbackUpdateAvailabilityState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
-  if (channel === 'unsigned-preview') {
-    return 'available';
-  }
-
-  if (channel === 'scaffold') {
-    return 'unavailable';
-  }
-
-  return 'manual-required';
-}
-
-function updaterRollbackChecksumState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
-  if (channel === 'unsigned-preview' || channel === 'signature-required') {
-    return 'verified';
-  }
-
-  if (channel === 'scaffold') {
-    return 'unavailable';
-  }
-
-  return 'manual-required';
-}
-
-function updaterRollbackSignatureState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
-  return channel === 'scaffold' ? 'unavailable' : 'manual-required';
-}
-
-function updaterRollbackRollbackState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
-  return channel === 'scaffold' || channel === 'unsigned-preview' ? 'rollback-unavailable' : 'manual-required';
-}
-
-function updaterRollbackRollbackAvailabilityState(
-  channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production'
-) {
-  return channel === 'scaffold' || channel === 'unsigned-preview' ? 'unavailable' : 'manual-required';
-}
-
-function updaterRollbackEvidenceState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
-  return channel === 'scaffold' || channel === 'unsigned-preview' ? 'recorded' : 'manual-required';
 }
 
 function manualRunbook() {

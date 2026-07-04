@@ -1601,18 +1601,6 @@
       "import": "./dist/family-web-route-map-values.js",
       "types": "./dist/family-web-route-map-values.d.ts"
     },
-    "./game-control-catalog": {
-      "import": "./dist/game-control-catalog.js",
-      "types": "./dist/game-control-catalog.d.ts"
-    },
-    "./game-control-catalog-data": {
-      "import": "./dist/game-control-catalog-data.js",
-      "types": "./dist/game-control-catalog-data.d.ts"
-    },
-    "./game-control-catalog-schema": {
-      "import": "./dist/game-control-catalog-schema.js",
-      "types": "./dist/game-control-catalog-schema.d.ts"
-    },
     "./household-ai-provider-advertisement-heartbeat-proof": {
       "import": "./dist/household-ai-provider-advertisement-heartbeat-proof.js",
       "types": "./dist/household-ai-provider-advertisement-heartbeat-proof.d.ts"
@@ -1920,14 +1908,6 @@
     "./parent-mobile-service-bridge-runtime": {
       "import": "./dist/parent-mobile-service-bridge-runtime.js",
       "types": "./dist/parent-mobile-service-bridge-runtime.d.ts"
-    },
-    "./parent-owned-local-export-runtime": {
-      "import": "./dist/parent-owned-local-export-runtime.js",
-      "types": "./dist/parent-owned-local-export-runtime.d.ts"
-    },
-    "./parent-owned-local-export-runtime-values": {
-      "import": "./dist/parent-owned-local-export-runtime-values.js",
-      "types": "./dist/parent-owned-local-export-runtime-values.d.ts"
     },
     "./parent-owned-sync-export": {
       "import": "./dist/parent-owned-sync-export.js",

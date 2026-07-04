@@ -24,15 +24,11 @@ export const DeleteExecutorReadModel = DeleteExecutorReadModelSchema.parse({
     'production-distribution-support-feature-doc',
     'data-custody-delete-executor-boundary',
     'production-support-data-export-delete-lifecycle-proof',
-    'parent-owned-local-export-runtime-proof',
   ],
   rows: [
     deleteExecutorRow('local-output-delete-request-recorded', 'local-export-output', 'delete-request-recorded', {
       custodyBoundary: 'parent-owned-local-output-only',
-      sourceProofRefs: [
-        'production-support-data-export-delete-lifecycle-proof',
-        'parent-owned-local-export-runtime-proof',
-      ],
+      sourceProofRefs: ['production-support-data-export-delete-lifecycle-proof'],
     }),
     deleteExecutorRow(
       'local-output-delete-executor-manual-required',
@@ -44,7 +40,7 @@ export const DeleteExecutorReadModel = DeleteExecutorReadModelSchema.parse({
           'filesystem delete executor smoke proof required before local output deletion execution claim',
           'durable audit persistence proof required before production delete executor readiness claim',
         ],
-        sourceProofRefs: ['parent-owned-local-export-runtime-proof'],
+        sourceProofRefs: ['production-support-data-export-delete-lifecycle-proof'],
       }
     ),
     deleteExecutorRow('support-backend-payload-delete-blocked', 'support-backend-payload', 'blocked-before-runtime', {
