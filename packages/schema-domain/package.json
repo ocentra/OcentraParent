@@ -1681,10 +1681,6 @@
       "import": "./dist/local-ai-activity-memory-graph-read.js",
       "types": "./dist/local-ai-activity-memory-graph-read.d.ts"
     },
-    "./local-ai-classifier-read-model-manual-report-proof": {
-      "import": "./dist/local-ai-classifier-read-model-manual-report-proof.js",
-      "types": "./dist/local-ai-classifier-read-model-manual-report-proof.d.ts"
-    },
     "./local-ai-context-builder": {
       "import": "./dist/local-ai-context-builder.js",
       "types": "./dist/local-ai-context-builder.d.ts"
@@ -1700,10 +1696,6 @@
     "./local-ai-contract-completeness-proof": {
       "import": "./dist/local-ai-contract-completeness-proof.js",
       "types": "./dist/local-ai-contract-completeness-proof.d.ts"
-    },
-    "./local-ai-deterministic-classifier-proof": {
-      "import": "./dist/local-ai-deterministic-classifier-proof.js",
-      "types": "./dist/local-ai-deterministic-classifier-proof.d.ts"
     },
     "./local-ai-graph-reference-contract-proof": {
       "import": "./dist/local-ai-graph-reference-contract-proof.js",
@@ -1892,22 +1884,6 @@
     "./parent-desktop-release-support-incident-guards": {
       "import": "./dist/parent-desktop-release-support-incident-guards.js",
       "types": "./dist/parent-desktop-release-support-incident-guards.d.ts"
-    },
-    "./parent-mobile-controller-observer-handoff-runtime": {
-      "import": "./dist/parent-mobile-controller-observer-handoff-runtime.js",
-      "types": "./dist/parent-mobile-controller-observer-handoff-runtime.d.ts"
-    },
-    "./parent-mobile-runtime": {
-      "import": "./dist/parent-mobile-runtime.js",
-      "types": "./dist/parent-mobile-runtime.d.ts"
-    },
-    "./parent-mobile-runtime-capability-statuses": {
-      "import": "./dist/parent-mobile-runtime-capability-statuses.js",
-      "types": "./dist/parent-mobile-runtime-capability-statuses.d.ts"
-    },
-    "./parent-mobile-service-bridge-runtime": {
-      "import": "./dist/parent-mobile-service-bridge-runtime.js",
-      "types": "./dist/parent-mobile-service-bridge-runtime.d.ts"
     },
     "./parent-owned-sync-export": {
       "import": "./dist/parent-owned-sync-export.js",
@@ -2904,30 +2880,6 @@
     "./v0-8-supported-adapter-runtime-proof": {
       "import": "./dist/v0-8-supported-adapter-runtime-proof.js",
       "types": "./dist/v0-8-supported-adapter-runtime-proof.d.ts"
-    },
-    "./v0-9-household-discovery-mobile-controller-product-proof": {
-      "import": "./dist/v0-9-household-discovery-mobile-controller-product-proof.js",
-      "types": "./dist/v0-9-household-discovery-mobile-controller-product-proof.d.ts"
-    },
-    "./v0-9-household-lan-pairing-proof": {
-      "import": "./dist/v0-9-household-lan-pairing-proof.js",
-      "types": "./dist/v0-9-household-lan-pairing-proof.d.ts"
-    },
-    "./v0-9-household-multi-device-proof-gates": {
-      "import": "./dist/v0-9-household-multi-device-proof-gates.js",
-      "types": "./dist/v0-9-household-multi-device-proof-gates.d.ts"
-    },
-    "./v0-9-household-physical-proof-artifact-gate": {
-      "import": "./dist/v0-9-household-physical-proof-artifact-gate.js",
-      "types": "./dist/v0-9-household-physical-proof-artifact-gate.d.ts"
-    },
-    "./v0-9-mobile-controller-discovery-runtime": {
-      "import": "./dist/v0-9-mobile-controller-discovery-runtime.js",
-      "types": "./dist/v0-9-mobile-controller-discovery-runtime.d.ts"
-    },
-    "./v0-9-mobile-controller-observer-runtime": {
-      "import": "./dist/v0-9-mobile-controller-observer-runtime.js",
-      "types": "./dist/v0-9-mobile-controller-observer-runtime.d.ts"
     },
     "./v0-9-production-discovery-household-proof": {
       "import": "./dist/v0-9-production-discovery-household-proof.js",
