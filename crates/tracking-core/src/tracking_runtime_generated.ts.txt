@@ -1,47 +1,3 @@
-import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
-import type { TrackingLocationEvidence } from '@ocentra-parent/schema-domain/tracking-evidence';
-import {
-  type TrackingExpectedPlaceExceptionState,
-  type TrackingExpectedPlaceDecision,
-  type TrackingExpectedPlaceSchedule,
-  type TrackingGeofenceRule,
-  type TrackingGeofenceTransition,
-} from '@ocentra-parent/schema-domain/tracking-geofence';
-import { TrackingReasonCodeSchema } from '@ocentra-parent/schema-domain/tracking-primitives';
-
-export interface TrackingGeofenceEvaluationInput {
-  readonly transitionId: TrackingGeofenceTransition['transitionId'];
-  readonly observedAt: TrackingGeofenceTransition['observedAt'];
-  readonly rule: TrackingGeofenceRule;
-  readonly location: TrackingLocationEvidence;
-  readonly wasInside: boolean;
-}
-
-export interface TrackingExpectedPlaceEvaluationInput {
-  readonly decisionId: TrackingExpectedPlaceDecision['decisionId'];
-  readonly observedAt: TrackingExpectedPlaceDecision['observedAt'];
-  readonly schedule: TrackingExpectedPlaceSchedule;
-  readonly location: TrackingLocationEvidence;
-  readonly transition: TrackingGeofenceTransition;
-}
-
-const EarthRadiusMeters = 6_371_008.8;
-const HalfCircleDegrees = 180;
-const RadiansPerDegree = Math.PI / HalfCircleDegrees;
-type TrackingReasonCode = ReturnType<typeof TrackingReasonCodeSchema.parse>;
-const ManualReviewCapabilityStatuses: ReadonlySet<TrackingLocationEvidence['capabilityStatus']> = new Set([
-  'stale',
-  'last-known',
-  'offline-last-known-only',
-  'permission-required',
-  'background-permission-required',
-  'approximate-only',
-  'manual-required',
-  'unavailable',
-  'adapter-error',
-  'disabled-by-parent',
-] as const);
-
 export function evaluateTrackingGeofenceTransitionGenerated(input: TrackingGeofenceEvaluationInput) {
   const distanceMeters = distanceFromRule(input.rule, input.location);
   const reasonCodes: TrackingReasonCode[] = [];
@@ -167,8 +123,4 @@ function reasonCodeForExpectedPlaceException(exceptionState: TrackingExpectedPla
     resolved: 'expected-place-exception-resolved',
     suppressed: 'expected-place-exception-suppressed',
   } as const)[exceptionState];
-}
-
-function reasonCode(value: unknown) {
-  return TrackingReasonCodeSchema.parse(value);
 }

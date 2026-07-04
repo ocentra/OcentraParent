@@ -1,5 +1,9 @@
 pub fn tracking_runtime_generated_typescript() -> String {
-    include_str!("tracking_runtime_generated.ts.txt").to_owned()
+    [
+        include_str!("tracking_runtime_generated_contracts.ts.txt"),
+        include_str!("tracking_runtime_generated.ts.txt"),
+    ]
+    .join("\n\n")
 }
 
 pub fn tracking_retention_runtime_generated_typescript() -> String {

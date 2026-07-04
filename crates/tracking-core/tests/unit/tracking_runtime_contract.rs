@@ -12,6 +12,24 @@ fn tracking_runtime_contract_stays_rust_owned_and_replaces_schema_domain_owner()
     );
     assert_eq!(
         source
+            .matches("@ocentra-parent/schema-domain/tracking-evidence';")
+            .count(),
+        0
+    );
+    assert_eq!(
+        source
+            .matches("@ocentra-parent/schema-domain/tracking-geofence';")
+            .count(),
+        0
+    );
+    assert_eq!(
+        source
+            .matches("@ocentra-parent/schema-domain/tracking-primitives';")
+            .count(),
+        0
+    );
+    assert_eq!(
+        source
             .matches("export interface TrackingGeofenceEvaluationInput {")
             .count(),
         1
@@ -22,4 +40,5 @@ fn tracking_runtime_contract_stays_rust_owned_and_replaces_schema_domain_owner()
             .count(),
         1
     );
+    assert_eq!(source.matches("type TrackingReasonCode =").count(), 1);
 }
