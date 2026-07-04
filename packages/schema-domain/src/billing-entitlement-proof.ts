@@ -68,9 +68,7 @@ export function summarizeBillingFailureStates(
     'validation-failed': 0,
   };
   for (const failureState of failureStates) {
-    if (failureState.failureKind in counts) {
-      counts[failureState.failureKind] += 1;
-    }
+    counts[failureState.failureKind] += 1;
   }
   return counts;
 }
@@ -330,21 +328,20 @@ function representativeInvoiceLifecycleRow(
   contractProof: SharedBillingEntitlementContractProof,
   invoiceProof: BillingInvoiceTaxRefundDisputeProof
 ): BillingInvoiceTaxRefundDisputeRow {
-  if (contractProof.entitlementSnapshot.failureState?.parentVisibleState === 'manual-review') {
-    return requiredInvoiceLifecycleRow(invoiceProof, 'billing-tax-manual-support');
-  }
+  const subscriptionStatusBoundaryIds = {
+    grace: 'billing-invoice-grace',
+    'past-due': 'billing-invoice-unpaid',
+    cancelled: 'billing-invoice-cancel-immediate',
+    expired: 'billing-invoice-cancel-immediate',
+  } as const;
+  const boundaryId =
+    contractProof.entitlementSnapshot.failureState?.parentVisibleState === 'manual-review'
+      ? 'billing-tax-manual-support'
+      : subscriptionStatusBoundaryIds[
+          contractProof.entitlementSnapshot.subscriptionStatus as keyof typeof subscriptionStatusBoundaryIds
+        ] ?? 'billing-invoice-active';
 
-  switch (contractProof.entitlementSnapshot.subscriptionStatus) {
-    case 'grace':
-      return requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-grace');
-    case 'past-due':
-      return requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-unpaid');
-    case 'cancelled':
-    case 'expired':
-      return requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-cancel-immediate');
-    default:
-      return requiredInvoiceLifecycleRow(invoiceProof, 'billing-invoice-active');
-  }
+  return requiredInvoiceLifecycleRow(invoiceProof, boundaryId);
 }
 
 function requiredInvoiceLifecycleRow(
