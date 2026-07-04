@@ -1,49 +1,57 @@
 use std::collections::BTreeMap;
-use std::fmt::{Display, Formatter};
 
 use serde::{Deserialize, Serialize};
 
-macro_rules! logging_text_identifier {
-    ($name:ident) => {
-        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-        #[serde(transparent)]
-        pub struct $name(String);
+mod logging_contracts_source;
+mod logging_contracts_text;
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Option<Self> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
-            }
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct AgentDeviceId(String);
 
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct AgentHostname(String);
 
-        impl Display for $name {
-            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
-}
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct AgentPlatform(String);
 
-logging_text_identifier!(AgentDeviceId);
-logging_text_identifier!(AgentHostname);
-logging_text_identifier!(AgentPlatform);
-logging_text_identifier!(AgentServiceVersion);
-logging_text_identifier!(LogEntryId);
-logging_text_identifier!(LogTimestamp);
-logging_text_identifier!(LogMessage);
-logging_text_identifier!(LogRunId);
-logging_text_identifier!(LogLaneId);
-logging_text_identifier!(LogCommandId);
-logging_text_identifier!(LogCorrelationId);
-logging_text_identifier!(StackTrace);
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct AgentServiceVersion(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogEntryId(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogTimestamp(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogMessage(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogRunId(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogLaneId(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogCommandId(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogCorrelationId(String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct StackTrace(String);
 
 pub const LOG_SCHEMA_VERSION: u16 = 1;
 pub const LOG_SNAPSHOT_SCHEMA_VERSION: u16 = 1;
@@ -180,6 +188,12 @@ impl From<BTreeMap<String, LogFieldValue>> for LogFields {
     }
 }
 
+impl std::iter::FromIterator<(String, LogFieldValue)> for LogFields {
+    fn from_iter<T: IntoIterator<Item = (String, LogFieldValue)>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
 impl From<&str> for LogFieldValue {
     fn from(value: &str) -> Self {
         Self::String(value.to_owned())
@@ -201,30 +215,6 @@ impl From<bool> for LogFieldValue {
 impl From<f64> for LogFieldValue {
     fn from(value: f64) -> Self {
         Self::Number(value)
-    }
-}
-
-impl IntoIterator for LogFields {
-    type Item = (String, LogFieldValue);
-    type IntoIter = std::collections::btree_map::IntoIter<String, LogFieldValue>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.into_iter()
-    }
-}
-
-impl<'a> IntoIterator for &'a LogFields {
-    type Item = (&'a String, &'a LogFieldValue);
-    type IntoIter = std::collections::btree_map::Iter<'a, String, LogFieldValue>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
-    }
-}
-
-impl std::iter::FromIterator<(String, LogFieldValue)> for LogFields {
-    fn from_iter<T: IntoIterator<Item = (String, LogFieldValue)>>(iter: T) -> Self {
-        Self(iter.into_iter().collect())
     }
 }
 
@@ -264,18 +254,6 @@ impl LogSource {
     pub const CODEX_FILE_PREFIX: &str = "codex";
     pub const VALIDATION_FILE_PREFIX: &str = "validation";
     pub const RUST_TEST_FILE_PREFIX: &str = "rust-test";
-
-    pub fn compat_file_prefix(&self) -> &str {
-        match self {
-            Self::AgentService => Self::AGENT_SERVICE_FILE_PREFIX,
-            Self::DevServer => Self::DEV_SERVER_FILE_PREFIX,
-            Self::LocalApi => Self::LOCAL_API_FILE_PREFIX,
-            Self::Portal => Self::PORTAL_FILE_PREFIX,
-            Self::Codex => Self::CODEX_FILE_PREFIX,
-            Self::Validation => Self::VALIDATION_FILE_PREFIX,
-            Self::RustTest => Self::RUST_TEST_FILE_PREFIX,
-        }
-    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
