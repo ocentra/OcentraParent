@@ -199,12 +199,12 @@ function classifyStatus({ surfaceName, realTests, emptyScaffolds, inlineSrcTests
 
 function formatMarkdown(rows) {
   const header = [
-    '| Surface | Kind | Real tests | Empty scaffolds | Inline src tests | Status | Notes |',
-    '| --- | --- | ---: | ---: | ---: | --- | --- |',
+    '| Surface | Kind | Real tests | Inline src tests | TS src | TS tests | TS generated | Status | Notes |',
+    '| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |',
   ];
   const lines = rows.map((row) => {
     const notes = row.notes.length > 0 ? row.notes.join(', ') : '-';
-    return `| \`${row.surface}\` | ${row.kind} | ${row.realTests} | ${row.emptyScaffolds} | ${row.inlineSrcTests} | ${row.status} | ${notes} |`;
+    return `| \`${row.surface}\` | ${row.kind} | ${row.realTests} | ${row.inlineSrcTests} | ${row.tsSourceFiles} | ${row.tsTestFiles} | ${row.tsGeneratedFiles} | ${row.status} | ${notes} |`;
   });
   return header.concat(lines).join('\n');
 }
@@ -231,6 +231,16 @@ async function buildRow(surface) {
   let realTests = 0;
   let emptyScaffolds = 0;
   let inlineSrcTests = 0;
+  let tsSourceFiles = 0;
+  let tsTestFiles = 0;
+  let tsGeneratedFiles = 0;
+  let tsScriptFiles = 0;
+
+  const typeScriptBuckets = await countTypeScriptBuckets(surface.surfacePath);
+  tsSourceFiles = typeScriptBuckets.source;
+  tsTestFiles = typeScriptBuckets.tests;
+  tsGeneratedFiles = typeScriptBuckets.generated;
+  tsScriptFiles = typeScriptBuckets.scripts;
 
   if (surface.rootName === 'crates') {
     realTests += await countRustTests(testsRoot);
@@ -255,6 +265,12 @@ async function buildRow(surface) {
   if (surface.surfaceName.endsWith('-generated')) {
     notes.push('generated-support-folder');
   }
+  if (tsScriptFiles > 0) {
+    notes.push(`ts-scripts:${tsScriptFiles}`);
+  }
+  if (emptyScaffolds > 0) {
+    notes.push(`empty-scaffolds:${emptyScaffolds}`);
+  }
 
   return {
     surface: surface.relativePath.replaceAll(path.sep, '/'),
@@ -262,6 +278,10 @@ async function buildRow(surface) {
     realTests,
     emptyScaffolds,
     inlineSrcTests,
+    tsSourceFiles,
+    tsTestFiles,
+    tsGeneratedFiles,
+    tsScriptFiles,
     status: classifyStatus({
       surfaceName: surface.surfaceName,
       realTests,
@@ -270,6 +290,44 @@ async function buildRow(surface) {
     }),
     notes,
   };
+}
+
+async function countTypeScriptBuckets(surfacePath) {
+  const files = (await walkFiles(surfacePath)).filter((filePath) => {
+    const normalized = filePath.split(path.sep).join('/');
+    return (
+      /\.(ts|tsx|mts|cts)$/u.test(filePath) &&
+      !normalized.includes('/node_modules/') &&
+      !normalized.includes('/.turbo/') &&
+      !normalized.includes('/target/')
+    );
+  });
+
+  let source = 0;
+  let tests = 0;
+  let generated = 0;
+  let scripts = 0;
+
+  for (const filePath of files) {
+    const normalized = filePath.split(path.sep).join('/');
+    if (normalized.includes('/tests/') || normalized.includes('/e2e/')) {
+      tests += 1;
+      continue;
+    }
+    if (normalized.includes('/dist/') || normalized.includes('/generated/')) {
+      generated += 1;
+      continue;
+    }
+    if (normalized.includes('/scripts/')) {
+      scripts += 1;
+      continue;
+    }
+    if (normalized.includes('/src/')) {
+      source += 1;
+    }
+  }
+
+  return { source, tests, generated, scripts };
 }
 
 async function main() {
