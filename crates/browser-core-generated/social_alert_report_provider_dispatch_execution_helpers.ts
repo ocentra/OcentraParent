@@ -1,9 +1,9 @@
 /* generated support for crates/browser-core/src/social_alert_report_provider_dispatch_execution.rs */
 
-import type { NotificationLocalOutboxRecord } from '@ocentra-parent/schema-domain/notification-local-outbox';
 import type {
   SocialAlertReportProviderReceiptBoundaryRow,
 } from '@ocentra-parent/schema-domain/social-alert-report-provider-receipt-boundary-proof';
+import type { NotificationLocalOutboxRecord } from './social_alert_report_local_outbox_bridge_support';
 import type {
   SocialAlertReportProviderDispatchExecutionReadModel,
   SocialAlertReportProviderDispatchExecutionRow,

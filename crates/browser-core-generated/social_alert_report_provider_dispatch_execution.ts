@@ -2,10 +2,6 @@
 
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
-  NotificationLocalOutboxRecordSchema,
-  type NotificationLocalOutboxRecord,
-} from '@ocentra-parent/schema-domain/notification-local-outbox';
-import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
@@ -17,6 +13,10 @@ import {
   type SocialAlertReportProviderReceiptBoundaryRow,
 } from '@ocentra-parent/schema-domain/social-alert-report-provider-receipt-boundary-proof';
 import { V3NotificationProviderChannelSchema } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
+import {
+  NotificationLocalOutboxRecordSchema,
+  type NotificationLocalOutboxRecord,
+} from './social_alert_report_local_outbox_bridge_support';
 import { SocialAlertReportReferenceSchema } from './social_alert_report_provider_dispatch_execution_support';
 import {
   countRows,

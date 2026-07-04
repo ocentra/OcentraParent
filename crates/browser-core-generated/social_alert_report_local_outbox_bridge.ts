@@ -3,12 +3,10 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxRecordSchema,
-  type NotificationLocalOutboxRecord,
-} from '@ocentra-parent/schema-domain/notification-local-outbox';
-import {
   SocialAlertReportDeliveryClaimState,
   SocialAlertReportIntentSchema,
   SocialAlertReportIntentStatus,
+  type NotificationLocalOutboxRecord,
   type SocialAlertReportIntent,
 } from './social_alert_report_local_outbox_bridge_support';
 import {

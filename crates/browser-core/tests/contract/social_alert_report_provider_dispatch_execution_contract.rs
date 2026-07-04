@@ -12,9 +12,21 @@ fn social_alert_report_provider_dispatch_execution_stays_rust_owned_without_inte
     );
     assert_eq!(
         source
+            .matches("@ocentra-parent/schema-domain/notification-local-outbox';")
+            .count(),
+        0
+    );
+    assert_eq!(
+        source
             .matches(
                 "import { SocialAlertReportReferenceSchema } from './social_alert_report_provider_dispatch_execution_support';"
             )
+            .count(),
+        1
+    );
+    assert_eq!(
+        source
+            .matches("} from './social_alert_report_local_outbox_bridge_support';")
             .count(),
         1
     );

@@ -2,16 +2,28 @@
 
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
+  FamilyReferenceSchema,
+  ParentActionReferenceSchema,
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from '@ocentra-parent/schema-domain/family-references';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   SocialAuditExplanationEventIdSchema,
   SocialAuditExplanationSnapshotIdSchema,
 } from '@ocentra-parent/schema-domain/social-audit-explanation-read-model-values';
 import { SocialDashboardPanelIdSchema } from '@ocentra-parent/schema-domain/social-dashboard-ux-values';
-import { V3NotificationProviderChannelSchema } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
+import {
+  V3NotificationProviderChannelSchema,
+  V3NotificationRuleReasonCodeSchema,
+} from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
+import {
+  notificationEnvelopeIsSafe,
+  notificationOutboxRecordIsSafe,
+} from './social_alert_report_local_outbox_bridge_record_honesty';
 
 export const SocialAlertReportIntentStatus = {
   IntentOnly: 'intent-only',
@@ -25,6 +37,15 @@ export const SocialAlertReportDeliveryClaimState = {
   LocalOutboxOnly: 'local-outbox-only',
   ManualRequired: 'manual-required',
 } as const;
+
+const RequiredNotificationLocalOutboxStates = [
+  'queued-local',
+  'deferred-quiet-hours',
+  'retry-scheduled',
+  'dead-lettered',
+  'receipt-required',
+  'manual-required',
+] as const;
 
 export const SocialAlertReportPrioritySchema = withParser(Schema.Literal('info', 'attention', 'urgent'));
 export const SocialAlertReportReasonCodeSchema = withParser(
@@ -63,6 +84,21 @@ export const SocialAlertReportIntentStatusSchema = withParser(
 export const SocialAlertReportDeliveryClaimStateSchema = withParser(
   Schema.Literal(...Object.values(SocialAlertReportDeliveryClaimState))
 );
+export const NotificationLocalOutboxStateSchema = withParser(
+  Schema.Literal(...RequiredNotificationLocalOutboxStates)
+);
+export const NotificationLocalOutboxDeliveryClaimStateSchema = withParser(
+  Schema.Literal('local-outbox-only', 'provider-receipt-required', 'manual-required')
+);
+export const NotificationLocalOutboxEntryIdSchema = withParser(
+  brandedNonEmptyStringSchema('NotificationLocalOutboxEntryId')
+);
+export const NotificationLocalOutboxReferenceSchema = withParser(
+  brandedNonEmptyStringSchema('NotificationLocalOutboxReference')
+);
+export const NotificationLocalOutboxPayloadPreviewSchema = withParser(
+  brandedNonEmptyStringSchema('NotificationLocalOutboxPayloadPreview')
+);
 
 const SocialAlertReportRefsSchema = Schema.Array(SocialAlertReportReferenceSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social alert/report refs')
@@ -76,6 +112,49 @@ const SocialAlertReportExplanationEventRefsSchema = Schema.Array(SocialAuditExpl
 const SocialAlertReportDashboardPanelRefsSchema = Schema.Array(SocialDashboardPanelIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social alert/report dashboard refs')
 );
+const NotificationOutboxRetryCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
+const NotificationLocalOutboxMinimalAlertEnvelopeBaseSchema = Schema.Struct({
+  alertRef: NotificationLocalOutboxReferenceSchema,
+  family: FamilyReferenceSchema,
+  device: ParentDeviceReferenceSchema,
+  parentAction: ParentActionReferenceSchema,
+  severity: SocialAlertReportPrioritySchema,
+  reasonCode: V3NotificationRuleReasonCodeSchema,
+  providerChannel: V3NotificationProviderChannelSchema,
+  evidenceRefs: Schema.Array(ParentEvidenceReferenceSchema),
+  policyRefs: Schema.Array(NotificationLocalOutboxReferenceSchema),
+  auditRefs: Schema.Array(NotificationLocalOutboxReferenceSchema),
+  payloadTemplateRef: NotificationLocalOutboxReferenceSchema,
+  providerPayloadPreview: NotificationLocalOutboxPayloadPreviewSchema,
+  sensitiveDetailMinimized: Schema.Boolean,
+  rawChildEvidenceIncluded: Schema.Boolean,
+  rawUrlOrTitleIncluded: Schema.Boolean,
+  rawMessageTextIncluded: Schema.Boolean,
+  screenshotOrReportIncluded: Schema.Boolean,
+});
+const NotificationLocalOutboxRecordBaseSchema = Schema.Struct({
+  entryId: NotificationLocalOutboxEntryIdSchema,
+  state: NotificationLocalOutboxStateSchema,
+  envelope: Schema.suspend(() => NotificationLocalOutboxMinimalAlertEnvelopeSchema),
+  outboxFileRef: NotificationLocalOutboxReferenceSchema,
+  localDataPathRef: NotificationLocalOutboxReferenceSchema,
+  deliveryClaimState: NotificationLocalOutboxDeliveryClaimStateSchema,
+  visibleAfterAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  retryAttemptCount: NotificationOutboxRetryCountSchema,
+  quietHoursRef: Schema.Union(NotificationLocalOutboxReferenceSchema, Schema.Null),
+  retryPolicyRef: Schema.Union(NotificationLocalOutboxReferenceSchema, Schema.Null),
+  deadLetterRef: Schema.Union(NotificationLocalOutboxReferenceSchema, Schema.Null),
+  providerReceiptRef: Schema.Union(NotificationLocalOutboxReferenceSchema, Schema.Null),
+  manualProofRequirements: Schema.Array(NotificationLocalOutboxReferenceSchema),
+  manualActionRequired: Schema.Boolean,
+  providerDeliveryAttempted: Schema.Boolean,
+  providerDeliveryObserved: Schema.Boolean,
+  providerReceiptIngested: Schema.Boolean,
+  providerCredentialsStored: Schema.Boolean,
+  cloudRoutingClaimed: Schema.Boolean,
+  parentNotificationUiClaimed: Schema.Boolean,
+  sensitiveProviderMetadataStored: Schema.Boolean,
+});
 
 export const SocialAlertReportIntentSchema = withParser(
   Schema.Struct({
@@ -98,5 +177,24 @@ export const SocialAlertReportIntentSchema = withParser(
     deliveryClaimState: SocialAlertReportDeliveryClaimStateSchema,
   })
 );
+export const NotificationLocalOutboxMinimalAlertEnvelopeSchema = withParser(
+  NotificationLocalOutboxMinimalAlertEnvelopeBaseSchema.pipe(
+    Schema.filter(
+      (envelope) =>
+        notificationEnvelopeIsSafe(envelope) ||
+        'Expected local notification outbox envelopes to carry minimal refs only, without raw child evidence, URLs, titles, message text, screenshots, reports, or forbidden payload fragments'
+    )
+  )
+);
+export const NotificationLocalOutboxRecordSchema = withParser(
+  NotificationLocalOutboxRecordBaseSchema.pipe(
+    Schema.filter(
+      (record) =>
+        notificationOutboxRecordIsSafe(record) ||
+        'Expected local outbox records to be filesystem/local-data-path refs only, with coherent defer/retry/dead-letter/receipt/manual states and no provider delivery or sensitive metadata claims'
+    )
+  )
+);
 
 export type SocialAlertReportIntent = Infer<typeof SocialAlertReportIntentSchema>;
+export type NotificationLocalOutboxRecord = Infer<typeof NotificationLocalOutboxRecordSchema>;
