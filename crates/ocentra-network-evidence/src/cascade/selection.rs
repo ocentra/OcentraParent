@@ -1,4 +1,4 @@
-use super::{score, NetworkCascadeSource, NetworkCascadeSignalStrength};
+use super::{score, NetworkCascadeSignalStrength, NetworkCascadeSource};
 
 pub(super) fn strongest_source(sources: &[NetworkCascadeSource]) -> Option<&NetworkCascadeSource> {
     sources

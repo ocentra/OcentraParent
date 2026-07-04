@@ -226,4 +226,3 @@ fn compact(value: impl Into<TestString>) -> TestString {
         .flat_map(char::to_lowercase)
         .collect()
 }
-

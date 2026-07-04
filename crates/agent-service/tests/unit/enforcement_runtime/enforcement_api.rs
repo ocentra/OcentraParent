@@ -9,13 +9,13 @@ use ocentra_parent_agent_core::{
         EnforcementBoundaryOutcome,
     },
 };
-use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::activity::ActivityEventKind;
 use ocentra_parent_agent_protocol::activity::ActivityObserver;
 use ocentra_parent_agent_protocol::activity::ActivitySource;
 use ocentra_parent_agent_protocol::activity::ActivitySubject;
 use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement::EnforcementAdapterKind;
@@ -92,11 +92,8 @@ async fn execute_enforcement_command(
         .map_err(TestText::from_display)?;
     let authorization = authorize_enforcement_boundary(request.input.clone())
         .map_err(|error| TestText::from_display(error.as_protocol_str()))?;
-    let before_action_outcome = journal_before_action_outcome(
-        &request,
-        &authorization.action,
-        &observed_at.to_string(),
-    );
+    let before_action_outcome =
+        journal_before_action_outcome(&request, &authorization.action, &observed_at.to_string());
     record_enforcement_audit(&request, &before_action_outcome, &paths).await?;
     let completed_at = TestText::from_display(timestamp_now());
     let adapter_outcome = authorization
@@ -207,9 +204,7 @@ fn enforcement_activity_event(
     })
 }
 
-fn enforcement_journal_fields(
-    outcome: &EnforcementBoundaryOutcome,
-) -> Result<LogFields, TestText> {
+fn enforcement_journal_fields(outcome: &EnforcementBoundaryOutcome) -> Result<LogFields, TestText> {
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::POLICY_DECISION_ID.to_string(),
@@ -329,9 +324,7 @@ fn enforcement_report_payload(
     Ok(payload)
 }
 
-fn optional_timer_event(
-    outcome: &EnforcementBoundaryOutcome,
-) -> Result<LogFieldValue, TestText> {
+fn optional_timer_event(outcome: &EnforcementBoundaryOutcome) -> Result<LogFieldValue, TestText> {
     serialize_optional_json(outcome.timer_event.as_ref())
 }
 

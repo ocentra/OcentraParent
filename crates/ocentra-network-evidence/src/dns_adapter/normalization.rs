@@ -1,8 +1,8 @@
+use super::{redirects, refs};
 use super::{
     NetworkDnsAdapterAction, NetworkDnsAdapterArtifactRefs, NetworkDnsAdapterProofError,
     NetworkDnsAdapterProofInput, NetworkDnsAdapterRequiredArtifact, NormalizedDnsAdapterInput,
 };
-use super::{refs, redirects};
 
 pub(super) fn normalize_dns_adapter_input(
     input: &NetworkDnsAdapterProofInput,
@@ -19,7 +19,10 @@ pub(super) fn normalize_dns_adapter_input(
             input.policy_mapping.local_ai_result_ref.as_deref(),
         )?,
         target_domain: redirects::normalized_target_domain(&input.target_domain)?,
-        redirect_target_domain: redirects::normalized_redirect_target(input.requested_action, input)?,
+        redirect_target_domain: redirects::normalized_redirect_target(
+            input.requested_action,
+            input,
+        )?,
     })
 }
 

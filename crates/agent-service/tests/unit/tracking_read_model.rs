@@ -11,12 +11,12 @@ pub mod test_support;
 
 #[path = "../support/activity_report_env_lock.rs"]
 mod activity_report_env_lock;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
 #[path = "../../src/event_builder.rs"]
 mod event_builder;
 #[path = "../../src/fields.rs"]
 mod fields;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
 #[path = "../../src/time.rs"]
 mod time;
 #[path = "../../src/websocket/tracking_retention_settings_write.rs"]

@@ -9,10 +9,10 @@ mod test_text;
 #[path = "../support/command_dispatch_test_support.rs"]
 pub mod test_support;
 
-#[path = "../../src/activity_payload.rs"]
-mod activity_payload;
 #[path = "../support/activity_api/mod.rs"]
 mod activity_api;
+#[path = "../../src/activity_payload.rs"]
+mod activity_payload;
 #[path = "../support/activity_report_env_lock.rs"]
 mod activity_report_env_lock;
 #[path = "../../src/activity_store_path.rs"]
@@ -39,11 +39,11 @@ mod app_game_timer_parent_surface_action_results;
 #[path = "../../src/activity_api/app_game_timer_parent_surface_payload.rs"]
 mod app_game_timer_parent_surface_payload;
 
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
-use ocentra_parent_agent_protocol::constants;
 
 fn activity_store_error_event(
     command: AgentCommandEnvelope,

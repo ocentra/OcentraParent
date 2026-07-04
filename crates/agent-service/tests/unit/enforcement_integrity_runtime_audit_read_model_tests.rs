@@ -1,9 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::collections::BTreeMap;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::v08_enforcement_integrity_runtime_audit as proof;
@@ -60,31 +60,52 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
         5
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Succeeded),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::Succeeded
+        ),
         1
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Failed),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::Failed
+        ),
         2
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Unavailable),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::Unavailable
+        ),
         3
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Expired),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::Expired
+        ),
         1
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::RolledBack),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::RolledBack
+        ),
         1
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Superseded),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::Superseded
+        ),
         1
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::NoOp),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::NoOp
+        ),
         1
     );
     assert_eq!(
@@ -95,11 +116,17 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
         2
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Unsupported),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::Unsupported
+        ),
         1
     );
     assert_eq!(
-        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::ObserveOnly),
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::ObserveOnly
+        ),
         1
     );
     assert_eq!(
@@ -348,7 +375,10 @@ fn integrity_count(
     *counts.get(&state).unwrap_or(&0)
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &TestStr) -> Result<&'a TestStr, TestString> {
+fn string_payload_field<'a>(
+    event: &'a AgentEventEnvelope,
+    field: &TestStr,
+) -> Result<&'a TestStr, TestString> {
     match event.payload.get(field) {
         Some(LogFieldValue::String(value)) => Ok(value.as_str()),
         _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
@@ -358,4 +388,3 @@ fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &TestStr) -> R
 fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
-

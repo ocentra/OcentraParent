@@ -1,6 +1,4 @@
-use super::{
-    NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionRequiredArtifact,
-};
+use super::{NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionRequiredArtifact};
 use crate::live_capture::NetworkLiveCaptureProofState;
 
 pub(super) fn missing_artifacts(

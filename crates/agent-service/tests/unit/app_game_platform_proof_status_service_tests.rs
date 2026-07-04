@@ -26,9 +26,11 @@ async fn platform_proof_status_command_reports_live_read_model() {
         event.event,
         AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported
     );
-    let read_model = platform_proof_status_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = platform_proof_status_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         read_model.read_model_id,

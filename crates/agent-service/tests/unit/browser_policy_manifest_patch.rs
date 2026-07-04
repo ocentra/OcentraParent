@@ -90,8 +90,9 @@ mod clippy_linkage {
 
     #[test]
     fn browser_policy_manifest_helpers_are_linked() {
-        let policy =
-            default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+        let policy = default_browser_policy_for_test(
+            crate::test_support::default_browser_policy_id_for_test(),
+        );
         let effective_policy = crate::test_invariants::require_ok(
             crate::browser_policy_compiler::compile_browser_policy(
                 &policy,
@@ -165,7 +166,8 @@ mod clippy_linkage {
 
 #[test]
 fn browser_policy_manifest_patch_smoke_uses_store_state_helpers() {
-    let policy = default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+    let policy =
+        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
     let effective_policy = crate::test_invariants::require_ok(
         compile_browser_policy(
             &policy,

@@ -1,8 +1,8 @@
-use std::path::PathBuf as TestPathBuf;
-use std::primitive::str as TestStr;
-use std::ffi::OsString as TestOsString;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use std::ffi::OsString as TestOsString;
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
 
 use crate::{
     local_ai_chat_generation_args::llama_acceleration_args,
@@ -155,10 +155,7 @@ fn acceleration_config_from_environment_parses_safe_gpu_controls() {
     assert!(!config.uses_gpu_runtime());
 }
 
-fn execution_config(
-    binary: TestPathBuf,
-    model: TestPathBuf,
-) -> LocalAiRuntimeConfigSnapshot {
+fn execution_config(binary: TestPathBuf, model: TestPathBuf) -> LocalAiRuntimeConfigSnapshot {
     LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
         Some(binary),
         Some(model),
@@ -176,4 +173,3 @@ fn restore_env_var(env_var_name: &TestStr, value: Option<TestOsString>) {
         None => std::env::remove_var(env_var_name),
     }
 }
-

@@ -1,6 +1,11 @@
-use super::{CommandEvidenceFlags, NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind};
+use super::{
+    CommandEvidenceFlags, NetworkLinuxNftablesLabCommandEvidence,
+    NetworkLinuxNftablesLabCommandKind,
+};
 
-pub(super) fn command_flags(evidence: &[NetworkLinuxNftablesLabCommandEvidence]) -> CommandEvidenceFlags {
+pub(super) fn command_flags(
+    evidence: &[NetworkLinuxNftablesLabCommandEvidence],
+) -> CommandEvidenceFlags {
     CommandEvidenceFlags {
         create_table: has_kind(evidence, NetworkLinuxNftablesLabCommandKind::CreateTable),
         create_chain: has_kind(evidence, NetworkLinuxNftablesLabCommandKind::CreateChain),

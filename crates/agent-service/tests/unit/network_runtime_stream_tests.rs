@@ -1,7 +1,7 @@
-use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::fs::remove_file;
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use crate::test_text::TestText;
 use ocentra_parent_agent_core::{
@@ -420,4 +420,3 @@ fn cleanup_path(path: &TestPathBuf) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
-

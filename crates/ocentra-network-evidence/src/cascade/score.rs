@@ -1,4 +1,4 @@
-use super::{NetworkCascadeSource, NetworkCascadeSourceKind, NetworkCascadeSignalStrength};
+use super::{NetworkCascadeSignalStrength, NetworkCascadeSource, NetworkCascadeSourceKind};
 use crate::dns::types::NetworkEvidenceGrade;
 
 pub(super) fn source_score(source: &NetworkCascadeSource) -> u16 {

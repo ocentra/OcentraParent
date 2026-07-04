@@ -278,4 +278,3 @@ fn test_path(suffix: TestText) -> TestPathBuf {
     path.push(suffix.as_str());
     path
 }
-

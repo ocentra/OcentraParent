@@ -1,6 +1,4 @@
-use super::{
-    NetworkLinuxNftablesLabExecutionError, NetworkLinuxNftablesLabUnsupportedClaims,
-};
+use super::{NetworkLinuxNftablesLabExecutionError, NetworkLinuxNftablesLabUnsupportedClaims};
 
 pub(super) fn reject_unsupported_claims(
     claims: &NetworkLinuxNftablesLabUnsupportedClaims,

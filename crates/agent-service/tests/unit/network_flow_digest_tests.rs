@@ -1,5 +1,3 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
@@ -8,6 +6,8 @@ use ocentra_parent_agent_protocol::network_flow::{
 };
 use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::network_flow_digest_for_test;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 #[test]
 fn network_flow_digest_rolls_up_processes_destinations_and_evidence_refs() {
@@ -178,4 +178,3 @@ fn test_network_evidence_id(suffix: &TestStr) -> TestString {
     evidence_id.push_str(suffix);
     evidence_id
 }
-

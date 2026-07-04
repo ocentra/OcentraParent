@@ -1,6 +1,6 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::collections::BTreeMap;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
@@ -243,4 +243,3 @@ fn policy_count(counts: &BTreeMap<&'static TestStr, usize>, state: &'static Test
 fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
-

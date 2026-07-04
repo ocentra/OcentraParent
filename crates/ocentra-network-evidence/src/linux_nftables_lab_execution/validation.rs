@@ -8,12 +8,12 @@ use crate::linux_adapter_gate::{
     NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState, NetworkLinuxAdapterKind,
 };
 
-mod commands;
 mod claims;
+mod commands;
 mod gate;
 mod normalization;
-mod state;
 mod refs;
+mod state;
 
 pub struct NormalizedLabExecutionInput {
     pub lab_ref: String,
@@ -54,5 +54,11 @@ pub fn execution_state(
     evidence: &[NetworkLinuxNftablesLabCommandEvidence],
     flags: CommandEvidenceFlags,
 ) -> Result<NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabExecutionError> {
-    state::execution_state(wsl_host_observed, root_permission_observed, nft_tool_observed, evidence, flags)
+    state::execution_state(
+        wsl_host_observed,
+        root_permission_observed,
+        nft_tool_observed,
+        evidence,
+        flags,
+    )
 }

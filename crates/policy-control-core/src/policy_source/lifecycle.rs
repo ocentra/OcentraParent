@@ -5,9 +5,9 @@ use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
 
 use super::names::{
-    duplicate_source_truth_value, missing_audit_reference_for_status_value,
-    policy_status_name, replacement_policy_version_must_be_newer_value,
-    restored_policy_version_must_be_older_value, stale_policy_version_value,
+    duplicate_source_truth_value, missing_audit_reference_for_status_value, policy_status_name,
+    replacement_policy_version_must_be_newer_value, restored_policy_version_must_be_older_value,
+    stale_policy_version_value,
 };
 use super::validation::{
     assert_actor_authority_matches_document, assert_rollback_ref_matches_document,
@@ -17,7 +17,7 @@ use super::{
     CompiledDomainPolicyArtifact, ParentPolicyDocumentId, ParentPolicySourceDocument,
     PolicyActorId, PolicyAuditEvent, PolicyAuditReferenceId, PolicyConsumerDomain,
     PolicyEnforcementResultArtifact, PolicyEnforcementResultState, PolicyHouseholdId,
-    PolicyRollbackRef, PolicySourceActorState, PolicySourceActorAuthority,
+    PolicyRollbackRef, PolicySourceActorAuthority, PolicySourceActorState,
     PolicySourceCompatibilityReport, PolicySourceStatus, PolicyVersion,
 };
 
@@ -80,7 +80,9 @@ pub(crate) fn supersede_parent_policy_source_document(
     superseded.status = PolicySourceStatus::Superseded;
     superseded.superseded_by_policy_version = Some(replacement_policy_version);
     superseded.rollback_ref = None;
-    superseded.audit_reference_ids.push(supersede_audit_reference_id);
+    superseded
+        .audit_reference_ids
+        .push(supersede_audit_reference_id);
     validate_parent_policy_source_document(&superseded)?;
     Ok(superseded)
 }
@@ -98,7 +100,9 @@ pub(crate) fn rollback_parent_policy_source_document(
     rolled_back.status = PolicySourceStatus::RolledBack;
     rolled_back.superseded_by_policy_version = None;
     rolled_back.rollback_ref = Some(rollback_ref.clone());
-    rolled_back.audit_reference_ids.push(rollback_audit_reference_id);
+    rolled_back
+        .audit_reference_ids
+        .push(rollback_audit_reference_id);
     validate_parent_policy_source_document(&rolled_back)?;
     Ok(rolled_back)
 }
@@ -140,14 +144,15 @@ pub(crate) fn latest_policy_audit_event(
     source: &ParentPolicySourceDocument,
 ) -> Result<PolicyAuditEvent, EventingError> {
     validate_parent_policy_source_document(source)?;
-    let audit_reference_id = source
-        .audit_reference_ids
-        .last()
-        .cloned()
-        .ok_or_else(|| EventingError::InvalidValue {
-            field: policy_control::source::FIELD_AUDIT_REFERENCE_IDS,
-            value: missing_audit_reference_for_status_value(source.status),
-        })?;
+    let audit_reference_id =
+        source
+            .audit_reference_ids
+            .last()
+            .cloned()
+            .ok_or_else(|| EventingError::InvalidValue {
+                field: policy_control::source::FIELD_AUDIT_REFERENCE_IDS,
+                value: missing_audit_reference_for_status_value(source.status),
+            })?;
 
     Ok(PolicyAuditEvent {
         audit_reference_id,
@@ -294,7 +299,10 @@ fn assert_supersede_audit_reference_is_unique(
     current: &ParentPolicySourceDocument,
     supersede_audit_reference_id: PolicyAuditReferenceId,
 ) -> Result<(), EventingError> {
-    if current.audit_reference_ids.contains(&supersede_audit_reference_id) {
+    if current
+        .audit_reference_ids
+        .contains(&supersede_audit_reference_id)
+    {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_AUDIT_REFERENCE_ID,
             value: supersede_audit_reference_id.as_str().to_string(),
@@ -308,7 +316,10 @@ fn assert_rollback_audit_reference_is_unique(
     current: &ParentPolicySourceDocument,
     rollback_audit_reference_id: PolicyAuditReferenceId,
 ) -> Result<(), EventingError> {
-    if current.audit_reference_ids.contains(&rollback_audit_reference_id) {
+    if current
+        .audit_reference_ids
+        .contains(&rollback_audit_reference_id)
+    {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_AUDIT_REFERENCE_ID,
             value: rollback_audit_reference_id.as_str().to_string(),

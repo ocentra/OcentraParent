@@ -437,4 +437,3 @@ fn completed_result(message_id: &TestStr) -> LocalAiChatGenerationResult {
         unavailable_reason: None,
     }
 }
-

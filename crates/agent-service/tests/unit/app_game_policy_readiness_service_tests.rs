@@ -1,10 +1,10 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::fs::remove_file;
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -72,9 +72,11 @@ async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = policy_readiness_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_POLICY_READINESS_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = policy_readiness_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_POLICY_READINESS_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     drop(store);
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
@@ -280,4 +282,3 @@ fn cleanup_path(path: &TestPathBuf) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
-

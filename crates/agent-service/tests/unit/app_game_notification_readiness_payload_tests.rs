@@ -1,7 +1,6 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     AppGameEvidenceClaim, AppGameIdentity, AppGameServiceReadModel,
@@ -35,6 +34,7 @@ use ocentra_parent_agent_protocol::app_game_notification_readiness::{
     APP_GAME_NOTIFICATION_READINESS_STATUS_READY,
 };
 use ocentra_parent_agent_protocol::constants;
+use std::primitive::str as TestStr;
 
 use crate::test_invariants::{
     require_json_decode, require_log_string_field, require_ok, require_some,
@@ -423,4 +423,3 @@ fn string_payload<'a>(
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
-

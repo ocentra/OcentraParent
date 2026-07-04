@@ -20,9 +20,11 @@ async fn social_audit_explanation_command_reports_service_backed_snapshot_rows()
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = social_audit_explanation_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = social_audit_explanation_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,

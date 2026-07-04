@@ -1,10 +1,10 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::fs::remove_file;
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -73,9 +73,11 @@ async fn child_runtime_transport_receipt_command_reports_live_read_model() {
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = child_runtime_transport_receipt_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = child_runtime_transport_receipt_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     drop(store);
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
@@ -244,4 +246,3 @@ fn cleanup_path(path: &std::path::Path) {
     let _ = remove_file(path.with_extension(constants::activity_store::WAL_FILE_EXTENSION));
     let _ = remove_file(path.with_extension(constants::activity_store::SHM_FILE_EXTENSION));
 }
-

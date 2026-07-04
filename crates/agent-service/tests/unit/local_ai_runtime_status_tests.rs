@@ -1,4 +1,3 @@
-use std::path::PathBuf as TestPathBuf;
 use crate::test_text::TestText;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -7,6 +6,7 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
     AgentRoute,
 };
+use std::path::PathBuf as TestPathBuf;
 use std::{
     fs,
     path::TestPathBuf,
@@ -206,10 +206,12 @@ async fn local_ai_runtime_status_report_links_environment_and_payload_helpers() 
         .starts_with(constants::event_id::LOCAL_AI_RUNTIME_STATUS_REPORTED));
     assert!(event
         .payload
-        .get(constants::field::LOCAL_AI_RUNTIME_PROVIDER_PROOF_READ_MODEL).is_some());
+        .get(constants::field::LOCAL_AI_RUNTIME_PROVIDER_PROOF_READ_MODEL)
+        .is_some());
     assert!(event
         .payload
-        .get(constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID).is_some());
+        .get(constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID)
+        .is_some());
     let _ = local_ai_runtime_is_executable(&LocalAiRuntimeConfigSnapshot::unconfigured());
 }
 
@@ -267,4 +269,3 @@ fn status_command() -> AgentCommandEnvelope {
         payload: LogFields::new(),
     }
 }
-

@@ -1,5 +1,3 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
@@ -8,6 +6,8 @@ use ocentra_parent_agent_protocol::network_flow::{
 };
 use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::prove_network_product_path_for_read_model_for_test;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 #[test]
 fn stored_network_flow_rows_drive_product_path_refs_without_enforcement() {
@@ -236,4 +236,3 @@ fn test_network_evidence_id() -> TestString {
     evidence_id.push_str(constants::activity_store::TEST_NETWORK_EVENT_ID);
     evidence_id
 }
-

@@ -93,14 +93,12 @@ const SELECTED_LOCAL_EVENT_LOOKUPS: [SelectedLocalEventLookup; 13] = [
 ];
 
 pub(crate) fn bridge_message_type_for_local_event(event_type: &str) -> Option<&'static str> {
-    LOCAL_EVENT_TYPE_LOOKUPS
-        .iter()
-        .find_map(|lookup| {
-            (lookup.event_type == event_type)
-                .then(|| local_event_ref(lookup.local_event_kind))
-                .flatten()
-                .and_then(lan_message_type_for_ref)
-        })
+    LOCAL_EVENT_TYPE_LOOKUPS.iter().find_map(|lookup| {
+        (lookup.event_type == event_type)
+            .then(|| local_event_ref(lookup.local_event_kind))
+            .flatten()
+            .and_then(lan_message_type_for_ref)
+    })
 }
 
 pub(crate) fn bridge_local_event_kind_for_local_event(
@@ -112,11 +110,9 @@ pub(crate) fn bridge_local_event_kind_for_local_event(
 }
 
 pub(crate) fn local_event_ref(event_kind: HouseholdMeshLocalEventKind) -> Option<&'static str> {
-    SELECTED_LOCAL_EVENT_LOOKUPS
-        .iter()
-        .find_map(|lookup| {
-            (lookup.local_event_kind == event_kind).then_some(lookup.local_event_ref)
-        })
+    SELECTED_LOCAL_EVENT_LOOKUPS.iter().find_map(|lookup| {
+        (lookup.local_event_kind == event_kind).then_some(lookup.local_event_ref)
+    })
 }
 
 pub(crate) fn lan_message_type_for_ref(local_event_ref: &str) -> Option<&'static str> {

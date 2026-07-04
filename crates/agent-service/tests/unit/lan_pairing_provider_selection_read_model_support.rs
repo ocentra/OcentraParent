@@ -3,9 +3,8 @@ use crate::app::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 use ocentra_parent_agent_protocol::constants;
 #[cfg(test)]
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanAiProviderRoutingState, LanPairingDeviceReachability,
-    LanPairingProductionDiscoveryState, LanPairingRejectionReason, LanPairingTrustState,
-    LanSelectedRouteTarget,
+    LanAiProviderRoutingState, LanPairingDeviceReachability, LanPairingProductionDiscoveryState,
+    LanPairingRejectionReason, LanPairingTrustState, LanSelectedRouteTarget,
 };
 #[cfg(test)]
 use ocentra_parent_agent_protocol::lan_pairing_provider_selection::{

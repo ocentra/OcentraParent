@@ -1,9 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::ffi::OsString as TestOsString;
 use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
-use std::ffi::OsString as TestOsString;
 use std::{
     fs,
     path::{Path, TestPathBuf},
@@ -225,4 +225,3 @@ fn restore_env_var(env_var_name: &TestStr, value: Option<TestOsString>) {
         None => std::env::remove_var(env_var_name),
     }
 }
-

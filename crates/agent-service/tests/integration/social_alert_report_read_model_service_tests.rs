@@ -21,9 +21,11 @@ async fn social_alert_report_command_reports_service_backed_intent_rows() {
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = social_alert_report_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = social_alert_report_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,

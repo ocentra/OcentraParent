@@ -59,8 +59,9 @@ mod clippy_linkage {
 
     #[tokio::test]
     async fn browser_policy_compiler_helpers_are_linked() {
-        let policy =
-            default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+        let policy = default_browser_policy_for_test(
+            crate::test_support::default_browser_policy_id_for_test(),
+        );
         let effective_policy = require_ok(
             crate::browser_policy_compiler::compile_browser_policy(
                 &policy,
@@ -230,7 +231,8 @@ fn assert_browser_policy_roundtrip_helpers(
 
 #[tokio::test]
 async fn browser_policy_compiler_smoke_uses_runtime_support_store_and_json_helpers() {
-    let policy = default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+    let policy =
+        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
     let effective_policy = require_ok(
         crate::browser_policy_compiler::compile_browser_policy(
             &policy,

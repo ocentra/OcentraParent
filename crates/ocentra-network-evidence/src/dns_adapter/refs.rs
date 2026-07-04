@@ -32,9 +32,9 @@ pub(super) fn normalized_artifact_ref(
     artifact: NetworkDnsAdapterRequiredArtifact,
 ) -> Result<Option<String>, NetworkDnsAdapterProofError> {
     match value {
-        Some(raw) => normalize_ref(raw)
-            .map(Some)
-            .ok_or(NetworkDnsAdapterProofError::EmptyRequiredArtifactRef(artifact)),
+        Some(raw) => normalize_ref(raw).map(Some).ok_or(
+            NetworkDnsAdapterProofError::EmptyRequiredArtifactRef(artifact),
+        ),
         None => Ok(None),
     }
 }

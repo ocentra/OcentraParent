@@ -20,11 +20,19 @@ fn browser_evidence_payload_uses_degraded_reason_field() {
     let payload = browser_evidence_payload::browser_evidence_read_model_payload(&read_model());
 
     assert_eq!(
-        crate::test_invariants::log_field(&payload, constants::field::DEGRADED_REASON, constants::error::AGENT_EVENT_SERIALIZES),
+        crate::test_invariants::log_field(
+            &payload,
+            constants::field::DEGRADED_REASON,
+            constants::error::AGENT_EVENT_SERIALIZES
+        ),
         LogFieldValue::String(constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS.to_string())
     );
     assert_eq!(
-        crate::test_invariants::log_field(&payload, constants::field::ACTIVE_PROOF_SOURCE, constants::error::AGENT_EVENT_SERIALIZES),
+        crate::test_invariants::log_field(
+            &payload,
+            constants::field::ACTIVE_PROOF_SOURCE,
+            constants::error::AGENT_EVENT_SERIALIZES
+        ),
         LogFieldValue::String(constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY.to_string())
     );
     assert_eq!(payload.get(constants::field::REASON), None);

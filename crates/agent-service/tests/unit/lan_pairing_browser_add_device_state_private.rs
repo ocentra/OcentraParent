@@ -435,8 +435,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
     assert_previous_event_chain(&rows);
 }
 
-fn update_and_reachability_scan_fixture(
-) -> (
+fn update_and_reachability_scan_fixture() -> (
     LanNetworkDeviceScanResult,
     TestText,
     LanNetworkInventoryDevice,

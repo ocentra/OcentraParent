@@ -1,5 +1,3 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use ocentra_lan_core::lan_mdns_advertiser::current_platform_support;
 use ocentra_lan_core::lan_pairing::{
     evaluate_lan_mdns_advertisement_lifecycle, LanMdnsAdvertisementLifecycleInput,
@@ -8,6 +6,8 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 type TestText = TestString;
 
@@ -471,4 +471,3 @@ fn expected_authentication_state(reason: TestText) -> &'static TestStr {
         constants::value::LAN_AUTH_PAIRED
     }
 }
-

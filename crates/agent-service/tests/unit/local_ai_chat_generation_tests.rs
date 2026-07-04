@@ -174,4 +174,3 @@ fn generation_command() -> AgentCommandEnvelope {
         payload: LogFields::new(),
     }
 }
-

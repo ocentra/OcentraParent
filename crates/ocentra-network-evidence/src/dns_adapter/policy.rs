@@ -1,6 +1,6 @@
 use super::{
-    NetworkDnsAdapterBoundaryReason, NetworkDnsAdapterCapabilityState,
-    NetworkDnsAdapterProofState, NetworkDnsAdapterProofInput, NetworkDnsAdapterRequiredArtifact,
+    NetworkDnsAdapterBoundaryReason, NetworkDnsAdapterCapabilityState, NetworkDnsAdapterProofInput,
+    NetworkDnsAdapterProofState, NetworkDnsAdapterRequiredArtifact,
 };
 use crate::{NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMode};
 

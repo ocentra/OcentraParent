@@ -46,16 +46,6 @@ macro_rules! declare_agent_service_unit_root_basic_harness {
         mod fields;
         #[path = "../../src/json_contract.rs"]
         mod json_contract;
-        #[path = "../../src/network_flow_digest.rs"]
-        mod network_flow_digest;
-        #[path = "../../src/network_flow_digest_indicators.rs"]
-        mod network_flow_digest_indicators;
-        #[path = "../../src/network_flow_digest_rollups.rs"]
-        mod network_flow_digest_rollups;
-        #[path = "../../src/network_runtime_stream_event_payloads.rs"]
-        mod network_runtime_stream_event_payloads;
-        #[path = "../../src/network_runtime_stream_event_values.rs"]
-        mod network_runtime_stream_event_values;
         #[path = "../../src/local_ai_cache_root.rs"]
         mod local_ai_cache_root;
         #[path = "../../src/local_ai_chat_generation.rs"]
@@ -112,10 +102,20 @@ macro_rules! declare_agent_service_unit_root_basic_harness {
         mod local_ai_runtime_status;
         #[path = "../../src/local_ai_runtime_status_unavailable.rs"]
         mod local_ai_runtime_status_unavailable;
+        #[path = "../../src/network_flow_digest.rs"]
+        mod network_flow_digest;
+        #[path = "../../src/network_flow_digest_indicators.rs"]
+        mod network_flow_digest_indicators;
+        #[path = "../../src/network_flow_digest_rollups.rs"]
+        mod network_flow_digest_rollups;
         #[path = "../../src/network_product_path_bridge.rs"]
         mod network_product_path_bridge;
         #[path = "../../src/network_runtime_delivery.rs"]
         mod network_runtime_delivery;
+        #[path = "../../src/network_runtime_stream_event_payloads.rs"]
+        mod network_runtime_stream_event_payloads;
+        #[path = "../../src/network_runtime_stream_event_values.rs"]
+        mod network_runtime_stream_event_values;
         #[path = "../../src/network_runtime_stream_events.rs"]
         mod network_runtime_stream_events;
         #[path = "../../src/network_runtime_stream_payload.rs"]

@@ -21,9 +21,11 @@ async fn social_parent_notification_delivery_command_reports_service_backed_read
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = read_model_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = read_model_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,

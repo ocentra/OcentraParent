@@ -1,6 +1,4 @@
-use super::{
-    NetworkDnsAdapterArtifactRefs, NetworkDnsAdapterRequiredArtifact,
-};
+use super::{NetworkDnsAdapterArtifactRefs, NetworkDnsAdapterRequiredArtifact};
 
 pub(super) fn missing_required_artifacts(
     artifacts: &NetworkDnsAdapterArtifactRefs,

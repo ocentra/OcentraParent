@@ -305,4 +305,3 @@ fn test_path(suffix: TestText) -> TestPathBuf {
     path.push(name);
     path
 }
-

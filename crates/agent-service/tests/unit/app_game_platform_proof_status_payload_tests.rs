@@ -1,7 +1,6 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE;
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
@@ -17,6 +16,7 @@ use ocentra_parent_agent_protocol::constants::{
 };
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
+use std::primitive::str as TestStr;
 
 use crate::test_invariants::{require_json_decode, require_log_string_field, require_some};
 
@@ -95,7 +95,11 @@ fn platform_row<'a>(
     )
 }
 
-fn assert_refs(row: &AppGamePlatformProofStatusRow, proof_refs: &[&TestStr], open_gaps: &[&TestStr]) {
+fn assert_refs(
+    row: &AppGamePlatformProofStatusRow,
+    proof_refs: &[&TestStr],
+    open_gaps: &[&TestStr],
+) {
     for proof_ref in proof_refs {
         assert!(row.proof_refs.iter().any(|value| value == proof_ref));
     }
@@ -103,4 +107,3 @@ fn assert_refs(row: &AppGamePlatformProofStatusRow, proof_refs: &[&TestStr], ope
         assert!(row.open_gaps.iter().any(|value| value == open_gap));
     }
 }
-

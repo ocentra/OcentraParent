@@ -1,8 +1,6 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow,
@@ -34,6 +32,8 @@ use ocentra_parent_agent_protocol::AppGameChildRuntimeTransportReceiptReadModel;
 use ocentra_parent_agent_protocol::AppGameChildRuntimeTransportReceiptRow;
 use ocentra_parent_agent_protocol::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_ID;
 use ocentra_parent_agent_protocol::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use crate::test_invariants::{require_json_decode, require_log_string_field, require_ok};
 
@@ -453,4 +453,3 @@ fn local_db_ref(evidence_id: &TestStr) -> ActivityEvidenceRef {
         uri: None,
     }
 }
-

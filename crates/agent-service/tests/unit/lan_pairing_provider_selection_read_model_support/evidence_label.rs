@@ -9,10 +9,16 @@ pub(super) fn evidence_label_for_selected(
         (None, _) | (_, Some(LanPairingRejectionReason::Anonymous)) => {
             super::constants::value::LAN_REASON_ANONYMOUS
         }
-        (_, Some(LanPairingRejectionReason::Offline)) => super::constants::value::LAN_REASON_OFFLINE,
+        (_, Some(LanPairingRejectionReason::Offline)) => {
+            super::constants::value::LAN_REASON_OFFLINE
+        }
         (_, Some(LanPairingRejectionReason::Stale)) => super::constants::value::LAN_REASON_STALE,
-        (_, Some(LanPairingRejectionReason::Revoked)) => super::constants::value::LAN_REASON_REVOKED,
-        (_, Some(LanPairingRejectionReason::Expired)) => super::constants::value::LAN_REASON_EXPIRED,
+        (_, Some(LanPairingRejectionReason::Revoked)) => {
+            super::constants::value::LAN_REASON_REVOKED
+        }
+        (_, Some(LanPairingRejectionReason::Expired)) => {
+            super::constants::value::LAN_REASON_EXPIRED
+        }
         (_, Some(LanPairingRejectionReason::LanAiProviderUnavailable)) => {
             super::constants::value::LAN_REASON_LAN_AI_PROVIDER_UNAVAILABLE
         }

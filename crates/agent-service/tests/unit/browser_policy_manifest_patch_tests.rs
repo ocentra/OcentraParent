@@ -2,8 +2,8 @@
 mod test_invariants;
 
 use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
 use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_parent_agent_protocol::browser_policy_sections::{
@@ -210,7 +210,8 @@ async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
 
 #[tokio::test]
 async fn browser_policy_store_and_runtime_support_helpers_round_trip_state() {
-    let policy = default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+    let policy =
+        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
     let effective_policy = require_ok(
         compile_browser_policy(
             &policy,

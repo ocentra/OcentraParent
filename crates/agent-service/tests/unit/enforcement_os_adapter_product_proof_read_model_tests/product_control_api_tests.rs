@@ -1,5 +1,3 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineReadModel;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
@@ -15,6 +13,8 @@ use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 type TestResult = Result<(), TestString>;
 
@@ -90,7 +90,10 @@ fn command_envelope() -> AgentCommandEnvelope {
     }
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &TestStr) -> Result<&'a TestStr, TestString> {
+fn string_payload_field<'a>(
+    event: &'a AgentEventEnvelope,
+    field: &TestStr,
+) -> Result<&'a TestStr, TestString> {
     match event.payload.get(field) {
         Some(LogFieldValue::String(value)) => Ok(value.as_str()),
         _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
@@ -107,4 +110,3 @@ fn number_payload_field(event: &AgentEventEnvelope, field: &TestStr) -> Result<f
 fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
-

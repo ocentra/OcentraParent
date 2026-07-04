@@ -20,9 +20,11 @@ async fn app_game_adapter_dispatch_preflight_command_reports_service_backed_read
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = adapter_dispatch_preflight_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = adapter_dispatch_preflight_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,

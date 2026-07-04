@@ -35,9 +35,11 @@ async fn retention_settings_write_command_reports_service_backed_transport_bound
         crate::test_text::TestText::from_display(body),
     )
     .await;
-    let write_result = write_result_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
-    )?;
+    let write_result = write_result_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ))?;
 
     assert_eq!(
         event.event,
@@ -53,9 +55,11 @@ async fn retention_settings_write_command_reports_service_backed_transport_bound
 #[tokio::test]
 async fn retention_settings_write_report_builder_emits_observability_payload() -> TestResult {
     let event = build_tracking_retention_settings_write_report(command_envelope()?).await;
-    let write_result = write_result_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
-    )?;
+    let write_result = write_result_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ))?;
 
     assert_eq!(
         event.event,
@@ -178,9 +182,11 @@ async fn retention_settings_write_command_rejects_missing_typed_request_payload(
         crate::test_text::TestText::from_display(body),
     )
     .await;
-    let write_result = write_result_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
-    )?;
+    let write_result = write_result_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ))?;
 
     assert_eq!(
         event.event,

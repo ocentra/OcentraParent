@@ -1,6 +1,4 @@
-use super::{
-    constants, name, DnsQuestion, DnsQueryType, NetworkReplayError,
-};
+use super::{constants, name, DnsQueryType, DnsQuestion, NetworkReplayError};
 
 pub(super) fn parse_questions(
     payload: &[u8],

@@ -81,7 +81,10 @@ pub(crate) fn assert_rollback_ref_matches_document(
 pub(crate) fn assert_source_status_can_compile(
     status: PolicySourceStatus,
 ) -> Result<(), EventingError> {
-    if matches!(status, PolicySourceStatus::Draft | PolicySourceStatus::Preview) {
+    if matches!(
+        status,
+        PolicySourceStatus::Draft | PolicySourceStatus::Preview
+    ) {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_STATUS,
             value: policy_status_name(status).to_string(),
@@ -110,7 +113,10 @@ fn assert_write_surface_can_author_source_truth(
 fn assert_actor_role_can_author_source_truth(
     role: ParentPolicyActorRole,
 ) -> Result<(), EventingError> {
-    if matches!(role, ParentPolicyActorRole::Parent | ParentPolicyActorRole::CoParent) {
+    if matches!(
+        role,
+        ParentPolicyActorRole::Parent | ParentPolicyActorRole::CoParent
+    ) {
         return Ok(());
     }
 
@@ -147,12 +153,13 @@ fn assert_status_lifecycle_refs(
 fn assert_superseded_status_lifecycle_refs(
     document: &ParentPolicySourceDocument,
 ) -> Result<(), EventingError> {
-    let replacement_policy_version = document.superseded_by_policy_version.ok_or_else(|| {
-        EventingError::InvalidValue {
-            field: policy_control::source::FIELD_SUPERSEDED_BY_POLICY_VERSION,
-            value: policy_status_name(document.status).to_string(),
-        }
-    })?;
+    let replacement_policy_version =
+        document
+            .superseded_by_policy_version
+            .ok_or_else(|| EventingError::InvalidValue {
+                field: policy_control::source::FIELD_SUPERSEDED_BY_POLICY_VERSION,
+                value: policy_status_name(document.status).to_string(),
+            })?;
 
     if replacement_policy_version.value() <= document.policy_version.value() {
         return Err(EventingError::InvalidValue {
@@ -177,12 +184,14 @@ fn assert_superseded_status_lifecycle_refs(
 fn assert_rolled_back_status_lifecycle_refs(
     document: &ParentPolicySourceDocument,
 ) -> Result<(), EventingError> {
-    let rollback_ref = document.rollback_ref.as_ref().ok_or_else(|| {
-        EventingError::InvalidValue {
-            field: policy_control::source::FIELD_ROLLED_BACK_POLICY_VERSION,
-            value: policy_status_name(document.status).to_string(),
-        }
-    })?;
+    let rollback_ref =
+        document
+            .rollback_ref
+            .as_ref()
+            .ok_or_else(|| EventingError::InvalidValue {
+                field: policy_control::source::FIELD_ROLLED_BACK_POLICY_VERSION,
+                value: policy_status_name(document.status).to_string(),
+            })?;
     assert_rollback_ref_matches_document(document, rollback_ref)?;
 
     if document.superseded_by_policy_version.is_some() {
@@ -293,7 +302,10 @@ fn assert_schedule_window(schedule: &PolicyScheduleWindow) -> Result<(), Eventin
         policy_control::source::FIELD_SCHEDULE_STARTS_AT,
         &schedule.starts_at,
     )?;
-    assert_local_time(policy_control::source::FIELD_SCHEDULE_ENDS_AT, &schedule.ends_at)?;
+    assert_local_time(
+        policy_control::source::FIELD_SCHEDULE_ENDS_AT,
+        &schedule.ends_at,
+    )?;
     assert_schedule_time_budget(&schedule.time_budget)?;
     Ok(())
 }
@@ -348,9 +360,7 @@ fn assert_rule_schedule_ref(
     Ok(())
 }
 
-fn assert_schedule_time_budget(
-    budget: &PolicyScheduleTimeBudget,
-) -> Result<(), EventingError> {
+fn assert_schedule_time_budget(budget: &PolicyScheduleTimeBudget) -> Result<(), EventingError> {
     assert_schedule_time_budget_basics(budget)?;
     assert_schedule_time_budget_effective_until(budget)?;
     assert_schedule_time_budget_reset(budget)?;
@@ -536,5 +546,8 @@ fn assert_active_policy_has_rules(
 }
 
 fn policy_status_requires_audit_refs(status: PolicySourceStatus) -> bool {
-    !matches!(status, PolicySourceStatus::Draft | PolicySourceStatus::Preview)
+    !matches!(
+        status,
+        PolicySourceStatus::Draft | PolicySourceStatus::Preview
+    )
 }

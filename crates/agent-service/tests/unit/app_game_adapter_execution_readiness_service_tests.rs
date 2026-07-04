@@ -20,9 +20,11 @@ async fn app_game_adapter_execution_readiness_command_reports_service_backed_rea
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = adapter_execution_readiness_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let read_model = adapter_execution_readiness_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,

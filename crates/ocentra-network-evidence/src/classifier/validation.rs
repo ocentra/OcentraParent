@@ -1,6 +1,4 @@
-use super::{
-    NetworkActivityClassifierInput, NetworkClassifierError,
-};
+use super::{NetworkActivityClassifierInput, NetworkClassifierError};
 
 pub(super) fn validate_input(
     input: &NetworkActivityClassifierInput,

@@ -1,10 +1,10 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::fs::remove_file;
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_PARENT_PLATFORM_WINDOWS;
@@ -62,7 +62,8 @@ async fn app_game_adapter_dispatch_result_command_returns_typed_event() {
     );
     assert!(event
         .payload
-        .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL).is_some());
+        .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL)
+        .is_some());
 }
 
 #[tokio::test]
@@ -413,4 +414,3 @@ fn cleanup_paths(paths: &EnforcementJournalPaths) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
-

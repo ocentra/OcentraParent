@@ -1,5 +1,3 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -10,6 +8,8 @@ use ocentra_parent_agent_protocol::transport::AgentPeer;
 use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use crate::{
     local_ai_chat_generation_request::parse_generation_request,
@@ -123,4 +123,3 @@ fn command_with_payload(payload: LogFields) -> AgentCommandEnvelope {
 fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
-

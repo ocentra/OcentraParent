@@ -1,6 +1,6 @@
 use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
 use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::{error::Error, fs::remove_file, io::Error as IoError, path::Path};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -39,9 +39,11 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() -> Tes
         let event =
             handle_local_command_text_for_test(crate::test_text::TestText::from_display(body))
                 .await;
-        let read_model = tracking_read_model_payload(
-            &crate::test_invariants::log_field(&event.payload, constants::field::ACTIVITY_TRACKING_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-        )?;
+        let read_model = tracking_read_model_payload(&crate::test_invariants::log_field(
+            &event.payload,
+            constants::field::ACTIVITY_TRACKING_READ_MODEL,
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ))?;
 
         assert_eq!(
             event.event,
@@ -307,4 +309,3 @@ fn cleanup_path(path: &Path) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
-

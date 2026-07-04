@@ -9,15 +9,15 @@ use ocentra_eventing::ids::{
 use ocentra_eventing::topology::EventTopologyFamilyVariant;
 use ocentra_parent_agent_protocol::constants::policy_control;
 
+use super::{
+    PolicyEvent, PolicyEventApplyOutcome, PolicyEventDeadLetterReason, PolicyEventKind,
+    PolicyEventReplayRecord, PolicyEventScope,
+};
 use crate::policy_delivery::PolicyDeliveryId;
 use crate::policy_request::{PolicyApprovalId, PolicyOverrideId, PolicyRequestId};
 use crate::policy_source::{
     ParentPolicyDocumentId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain,
     PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
-};
-use super::{
-    PolicyEvent, PolicyEventApplyOutcome, PolicyEventDeadLetterReason, PolicyEventKind,
-    PolicyEventReplayRecord, PolicyEventScope,
 };
 
 const POLICY_EVENT_SCHEMA_VERSION_VALUE: u16 = 1;
@@ -39,9 +39,7 @@ pub(crate) fn policy_event_redacted_summary(event: &PolicyEvent) -> String {
     value
 }
 
-pub(crate) fn policy_event_event_type(
-    event: &PolicyEvent,
-) -> Result<EventType, EventingError> {
+pub(crate) fn policy_event_event_type(event: &PolicyEvent) -> Result<EventType, EventingError> {
     EventType::parse(event.kind.event_type_name())
 }
 
@@ -85,7 +83,8 @@ pub(crate) fn policy_event_family_namespace() -> Result<EventNamespace, Eventing
     EventNamespace::parse(POLICY_EVENT_NAMESPACE_VALUE)
 }
 
-pub(crate) fn policy_event_family_variants() -> Result<Vec<EventTopologyFamilyVariant>, EventingError> {
+pub(crate) fn policy_event_family_variants(
+) -> Result<Vec<EventTopologyFamilyVariant>, EventingError> {
     let family = policy_event_family_namespace()?;
     super::POLICY_EVENT_KINDS
         .iter()
@@ -119,11 +118,9 @@ pub(crate) fn apply_policy_event_replay(
 
     match next.sequence.value().cmp(&current.last_sequence.value()) {
         std::cmp::Ordering::Less => Ok(PolicyEventApplyOutcome::Stale(current.clone())),
-        std::cmp::Ordering::Equal => apply_equal_sequence_replay(
-            current,
-            next,
-            next_idempotency_key,
-        ),
+        std::cmp::Ordering::Equal => {
+            apply_equal_sequence_replay(current, next, next_idempotency_key)
+        }
         std::cmp::Ordering::Greater => Ok(PolicyEventApplyOutcome::Advanced(
             advanced_replay_record(next, next_aggregate_key, next_idempotency_key)?,
         )),
@@ -311,7 +308,12 @@ fn policy_event_idempotency_key_value(event: &PolicyEvent) -> Result<String, Eve
     value.push('|');
     value.push_str(&join_audit_reference_ids(&event.audit_reference_ids));
     value.push('|');
-    value.push_str(event.reason_code.as_ref().map_or("none", PolicyReasonCode::as_str));
+    value.push_str(
+        event
+            .reason_code
+            .as_ref()
+            .map_or("none", PolicyReasonCode::as_str),
+    );
     value.push('|');
     value.push_str(
         event
@@ -555,7 +557,10 @@ fn aggregate_key_value(parts: &[&str]) -> String {
     value
 }
 
-fn conflicting_replay_value(sequence: super::PolicyEventSequence, last_event_type: &EventType) -> String {
+fn conflicting_replay_value(
+    sequence: super::PolicyEventSequence,
+    last_event_type: &EventType,
+) -> String {
     let mut value =
         String::from(policy_control::delivery::VALUE_CONFLICTING_REPLAY_FOR_SEQUENCE_PREFIX);
     value.push_str(&sequence.value().to_string());

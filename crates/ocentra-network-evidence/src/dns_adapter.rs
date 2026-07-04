@@ -7,10 +7,10 @@ use crate::{
 };
 
 mod artifacts;
-mod refs;
 mod normalization;
-mod redirects;
 mod policy;
+mod redirects;
+mod refs;
 mod validation;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

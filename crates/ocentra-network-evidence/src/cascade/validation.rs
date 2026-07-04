@@ -13,9 +13,9 @@ pub(super) fn validate_cascade_input(
         if source.exact_url_available
             && source.source_kind != NetworkCascadeSourceKind::ManagedBrowserExactUrl
         {
-            return Err(NetworkEvidenceCascadeError::UnsupportedNetworkExactUrlClaim(
-                source.source_kind,
-            ));
+            return Err(
+                NetworkEvidenceCascadeError::UnsupportedNetworkExactUrlClaim(source.source_kind),
+            );
         }
     }
     Ok(())

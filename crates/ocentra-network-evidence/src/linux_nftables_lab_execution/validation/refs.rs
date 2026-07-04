@@ -1,4 +1,6 @@
-use crate::lab_execution_common::{is_test_net_remote_address as is_test_net_remote_address_impl, normalize_ref};
+use crate::lab_execution_common::{
+    is_test_net_remote_address as is_test_net_remote_address_impl, normalize_ref,
+};
 
 use super::{
     NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind,
@@ -18,8 +20,8 @@ pub(super) fn normalize_lab_ref(
 pub(super) fn normalize_table_name(
     value: &str,
 ) -> Result<String, NetworkLinuxNftablesLabExecutionError> {
-    let table_name = normalize_required(value)
-        .ok_or(NetworkLinuxNftablesLabExecutionError::EmptyTableName)?;
+    let table_name =
+        normalize_required(value).ok_or(NetworkLinuxNftablesLabExecutionError::EmptyTableName)?;
     if !table_name.starts_with("ocentra_parent_lab_") {
         return Err(NetworkLinuxNftablesLabExecutionError::UnsafeTableName);
     }
@@ -29,8 +31,8 @@ pub(super) fn normalize_table_name(
 pub(super) fn normalize_chain_name(
     value: &str,
 ) -> Result<String, NetworkLinuxNftablesLabExecutionError> {
-    let chain_name = normalize_required(value)
-        .ok_or(NetworkLinuxNftablesLabExecutionError::EmptyChainName)?;
+    let chain_name =
+        normalize_required(value).ok_or(NetworkLinuxNftablesLabExecutionError::EmptyChainName)?;
     if !chain_name.starts_with("ocentra_parent_lab_") {
         return Err(NetworkLinuxNftablesLabExecutionError::UnsafeChainName);
     }

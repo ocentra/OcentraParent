@@ -1,7 +1,7 @@
 use super::{LanAiProviderRoutingState, LanPairingDeviceReachability};
 use super::{
-    LanPairingProductionDiscoveryState, LanPairingTrustState, LanProviderSelectionLifecycleState,
-    LanSelectedRouteTarget, LanPairingRuntime,
+    LanPairingProductionDiscoveryState, LanPairingRuntime, LanPairingTrustState,
+    LanProviderSelectionLifecycleState, LanSelectedRouteTarget,
 };
 use std::string::String as TestString;
 

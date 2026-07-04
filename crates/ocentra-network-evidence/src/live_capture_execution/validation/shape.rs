@@ -1,4 +1,7 @@
-use super::{NetworkLiveCaptureExecutionError, NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionSource};
+use super::{
+    NetworkLiveCaptureExecutionError, NetworkLiveCaptureExecutionInput,
+    NetworkLiveCaptureExecutionSource,
+};
 
 pub(super) fn validate_input(
     input: &NetworkLiveCaptureExecutionInput,

@@ -172,7 +172,8 @@ pub fn plan_network_linux_adapter_gate(
     let normalized = normalization::normalize_linux_adapter_gate_input(&input)?;
     let artifacts = artifacts::normalize_artifact_refs(&input)?;
     let missing_required_artifacts = artifacts::missing_required_artifacts(&artifacts);
-    let boundary_reasons = boundary::boundary_reasons(&input, missing_required_artifacts.is_empty());
+    let boundary_reasons =
+        boundary::boundary_reasons(&input, missing_required_artifacts.is_empty());
     let gate_state = state::gate_state(
         input.research_only,
         input.capability_state,

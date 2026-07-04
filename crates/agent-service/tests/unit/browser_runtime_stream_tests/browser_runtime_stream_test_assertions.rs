@@ -1,5 +1,3 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
@@ -7,6 +5,8 @@ use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 use serde_json::Value;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use crate::browser_runtime_stream_payload::BrowserRuntimeServiceStreamReport;
 use crate::test_invariants::{require_json_decode, require_some};
@@ -169,4 +169,3 @@ fn payload_string_refs(payload: &LogFields, field_name: &TestStr) -> Vec<TestStr
 
     require_json_decode(encoded_refs, constants::error::AGENT_EVENT_SERIALIZES)
 }
-

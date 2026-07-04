@@ -297,7 +297,10 @@ fn replace_command(
     )
 }
 
-fn patch_command(base_revision_id: &TestStr, patches: &[BrowserPolicyPatch]) -> AgentCommandEnvelope {
+fn patch_command(
+    base_revision_id: &TestStr,
+    patches: &[BrowserPolicyPatch],
+) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPatch,
         serde_json::json!({

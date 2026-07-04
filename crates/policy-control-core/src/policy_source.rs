@@ -453,7 +453,11 @@ pub fn rollback_parent_policy_source_document(
     rollback_ref: &PolicyRollbackRef,
     rollback_audit_reference_id: PolicyAuditReferenceId,
 ) -> Result<ParentPolicySourceDocument, EventingError> {
-    lifecycle::rollback_parent_policy_source_document(current, rollback_ref, rollback_audit_reference_id)
+    lifecycle::rollback_parent_policy_source_document(
+        current,
+        rollback_ref,
+        rollback_audit_reference_id,
+    )
 }
 
 pub fn compile_domain_policy_artifact(

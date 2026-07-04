@@ -1,4 +1,7 @@
-use super::{NetworkLinuxAdapterGateBoundaryReason, NetworkLinuxAdapterGateState, NetworkLinuxAdapterCapabilityState};
+use super::{
+    NetworkLinuxAdapterCapabilityState, NetworkLinuxAdapterGateBoundaryReason,
+    NetworkLinuxAdapterGateState,
+};
 
 pub(super) fn gate_state(
     research_only: bool,

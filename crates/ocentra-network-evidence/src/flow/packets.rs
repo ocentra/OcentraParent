@@ -1,11 +1,10 @@
 use crate::flow::{NetworkFlowError, NetworkFlowPacket, NetworkFlowProtocol};
-use crate::packet::{
-    parse_network_packet,
-    types::TransportPacketMetadata,
-};
+use crate::packet::{parse_network_packet, types::TransportPacketMetadata};
 use crate::pcap::parse_pcap_packets;
 
-pub(super) fn flow_packets_from_pcap(bytes: &[u8]) -> Result<Vec<NetworkFlowPacket>, NetworkFlowError> {
+pub(super) fn flow_packets_from_pcap(
+    bytes: &[u8],
+) -> Result<Vec<NetworkFlowPacket>, NetworkFlowError> {
     let packets = parse_pcap_packets(bytes).map_err(NetworkFlowError::Pcap)?;
     let mut flow_packets = Vec::new();
     for packet in packets {

@@ -48,9 +48,15 @@ pub(super) fn browser_policy_computed_flag(
 }
 
 const BROWSER_POLICY_COMPUTED_FLAG_EVALUATORS: &[(&str, fn(&BrowserPolicyAnswerMap) -> bool)] = &[
-    ("policyIsOff", |answers| browser_policy_root_answer(answers) == "off"),
-    ("policyIsOn", |answers| browser_policy_root_answer(answers) == "on"),
-    ("policyPaused", |answers| browser_policy_root_answer(answers) == "paused"),
+    ("policyIsOff", |answers| {
+        browser_policy_root_answer(answers) == "off"
+    }),
+    ("policyIsOn", |answers| {
+        browser_policy_root_answer(answers) == "on"
+    }),
+    ("policyPaused", |answers| {
+        browser_policy_root_answer(answers) == "paused"
+    }),
     (
         "emergencyOverrideActive",
         browser_policy_emergency_override_active,
@@ -61,11 +67,15 @@ const BROWSER_POLICY_COMPUTED_FLAG_EVALUATORS: &[(&str, fn(&BrowserPolicyAnswerM
             || browser_policy_has(answers, "6.1", "limit-time")
             || browser_policy_has(answers, "8.1", "limit")
     }),
-    ("downloadsSelected", |answers| browser_policy_has(answers, "5.1", "downloads")),
+    ("downloadsSelected", |answers| {
+        browser_policy_has(answers, "5.1", "downloads")
+    }),
     ("searchSelected", |answers| {
         browser_policy_has_any(answers, "5.1", &["search-terms", "safe-search"])
     }),
-    ("videoSelected", |answers| browser_policy_has(answers, "5.1", "video")),
+    ("videoSelected", |answers| {
+        browser_policy_has(answers, "5.1", "video")
+    }),
     (
         "exactEvidenceSelected",
         browser_policy_exact_evidence_selected,
@@ -110,7 +120,10 @@ const BROWSER_POLICY_COMPUTED_FLAG_EVALUATORS: &[(&str, fn(&BrowserPolicyAnswerM
         "storedBrowserDataExists",
         browser_policy_stored_browser_data_exists,
     ),
-    ("browserGamesRelevant", browser_policy_browser_games_relevant),
+    (
+        "browserGamesRelevant",
+        browser_policy_browser_games_relevant,
+    ),
 ];
 
 fn browser_policy_computed_flag_evaluators(

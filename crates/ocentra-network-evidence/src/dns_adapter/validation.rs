@@ -1,6 +1,4 @@
-use super::{
-    NetworkDnsAdapterProofError, NetworkDnsAdapterProofInput,
-};
+use super::{NetworkDnsAdapterProofError, NetworkDnsAdapterProofInput};
 
 pub(super) fn reject_unsupported_claims(
     input: &NetworkDnsAdapterProofInput,

@@ -1,6 +1,6 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use serde_json::{Map, Value};
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::{io::Error as IoError, path::Path};
 
 use ocentra_parent_agent_protocol::constants;
@@ -284,4 +284,3 @@ fn complete_generation(output_text: TestString) -> LocalAiChatGenerationResult {
         unavailable_reason: None,
     }
 }
-

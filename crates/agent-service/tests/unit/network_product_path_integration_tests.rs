@@ -1,5 +1,5 @@
-use std::string::String as TestString;
 use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::{error::Error, io::Error as IoError};
 
 use ocentra_parent_agent_core::{
@@ -245,4 +245,3 @@ fn assert_payload_ref_equals(
 fn product_path_ref(prefix: &TestStr, evidence_id: &TestStr) -> TestString {
     format!("{prefix}{evidence_id}")
 }
-

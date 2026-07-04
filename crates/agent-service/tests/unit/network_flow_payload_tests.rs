@@ -1,5 +1,5 @@
-use std::string::String as TestString;
 use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::{error::Error, io::Error as IoError};
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
@@ -321,4 +321,3 @@ fn row_ref(prefix: &TestStr) -> TestString {
     value.push_str(&test_network_evidence_id());
     value
 }
-
