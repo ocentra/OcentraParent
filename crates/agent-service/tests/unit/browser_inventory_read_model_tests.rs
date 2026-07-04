@@ -1,8 +1,8 @@
-use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::ffi::OsString as TestOsString;
 use std::path::Path;
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_parent_agent_core::browser_managed_discovery::BrowserUnmanagedProcessObservation;
@@ -203,7 +203,8 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
         .lock()
         .await;
     let _ = browser_policy_store_path_from_env();
-    let policy = default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+    let policy =
+        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
     let effective_policy = require_ok(
         compile_browser_policy(
             &policy,
@@ -238,8 +239,7 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
 
     let runtime_root = temp_service_inventory_root();
     let previous_browser_path = std::env::var_os(constants::env_var::MANAGED_BROWSER_EXECUTABLE);
-    let previous_profile_dir =
-        std::env::var_os(constants::env_var::MANAGED_BROWSER_PROFILE_DIR);
+    let previous_profile_dir = std::env::var_os(constants::env_var::MANAGED_BROWSER_PROFILE_DIR);
     let expected_browser_path = runtime_root.join("managed-browser.exe");
     let expected_profile_root = runtime_root.join("managed-browser-profile");
     std::env::set_var(

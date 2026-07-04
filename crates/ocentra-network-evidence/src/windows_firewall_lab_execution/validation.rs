@@ -1,3 +1,6 @@
+mod execution;
+mod normalization;
+
 use super::types::{
     NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabCommandKind,
     NetworkWindowsFirewallLabExecutionError, NetworkWindowsFirewallLabExecutionInput,
@@ -98,102 +101,26 @@ pub fn execution_state(
 fn validate_adapter_proof(
     adapter_proof: &NetworkWindowsFirewallAdapterProof,
 ) -> Result<(), NetworkWindowsFirewallLabExecutionError> {
-    if adapter_proof.proof_state != NetworkWindowsFirewallProofState::ApplyReady
-        || !adapter_proof.adapter_apply_authorized
-    {
-        return Err(NetworkWindowsFirewallLabExecutionError::AdapterProofNotApplyReady);
-    }
-    if adapter_proof.target_kind != NetworkWindowsFirewallTargetKind::RemoteAddress {
-        return Err(NetworkWindowsFirewallLabExecutionError::UnsupportedTargetKind);
-    }
-    Ok(())
+    normalization::validate_adapter_proof(adapter_proof)
 }
 
 fn reject_unsupported_claims(
     claims: &NetworkWindowsFirewallLabUnsupportedClaims,
 ) -> Result<(), NetworkWindowsFirewallLabExecutionError> {
-    if claims.production_enforcement_claimed {
-        return Err(NetworkWindowsFirewallLabExecutionError::ProductionEnforcementClaimRejected);
-    }
-    if claims.persistent_rule_claimed {
-        return Err(NetworkWindowsFirewallLabExecutionError::PersistentRuleClaimRejected);
-    }
-    if claims.exact_url_claimed {
-        return Err(NetworkWindowsFirewallLabExecutionError::ExactUrlClaimRejected);
-    }
-    if claims.decrypted_payload_claimed {
-        return Err(NetworkWindowsFirewallLabExecutionError::DecryptedPayloadClaimRejected);
-    }
-    if claims.page_content_claimed {
-        return Err(NetworkWindowsFirewallLabExecutionError::PageContentClaimRejected);
-    }
-    if claims.policy_engine_execution_claimed {
-        return Err(NetworkWindowsFirewallLabExecutionError::PolicyEngineExecutionClaimRejected);
-    }
-    if claims.enforcement_command_published {
-        return Err(NetworkWindowsFirewallLabExecutionError::EnforcementCommandPublishedRejected);
-    }
-    Ok(())
+    normalization::reject_unsupported_claims(claims)
 }
 
 fn normalize_command_evidence(
     evidence: Vec<NetworkWindowsFirewallLabCommandEvidence>,
 ) -> Result<Vec<NetworkWindowsFirewallLabCommandEvidence>, NetworkWindowsFirewallLabExecutionError>
 {
-    let mut normalized = Vec::new();
-    for mut command in evidence {
-        if has_kind(&normalized, command.kind) {
-            return Err(
-                NetworkWindowsFirewallLabExecutionError::DuplicateCommandEvidence(command.kind),
-            );
-        }
-        command.command_ref = normalize_ref(&command.command_ref).ok_or(
-            NetworkWindowsFirewallLabExecutionError::EmptyCommandRef(command.kind),
-        )?;
-        command.output_sha256 = normalize_ref(&command.output_sha256)
-            .ok_or(NetworkWindowsFirewallLabExecutionError::EmptyCommandOutputHash(command.kind))?;
-        normalized.push(command);
-    }
-    Ok(normalized)
+    normalization::normalize_command_evidence(evidence)
 }
 
 fn validate_successful_execution(
     evidence: &[NetworkWindowsFirewallLabCommandEvidence],
 ) -> Result<(), NetworkWindowsFirewallLabExecutionError> {
-    let apply = command(evidence, NetworkWindowsFirewallLabCommandKind::ApplyRule)?;
-    let verify_present = command(
-        evidence,
-        NetworkWindowsFirewallLabCommandKind::VerifyRulePresent,
-    )?;
-    let rollback = command(evidence, NetworkWindowsFirewallLabCommandKind::RollbackRule)?;
-    let verify_removed = command(
-        evidence,
-        NetworkWindowsFirewallLabCommandKind::VerifyRuleRemoved,
-    )?;
-    for command in [apply, verify_present, rollback, verify_removed] {
-        if command.exit_status != 0 {
-            return Err(
-                NetworkWindowsFirewallLabExecutionError::CommandEvidenceFailure(command.kind),
-            );
-        }
-    }
-    if !verify_present.rule_present_after_command {
-        return Err(NetworkWindowsFirewallLabExecutionError::ApplyRuleNotObserved);
-    }
-    if verify_removed.rule_present_after_command {
-        return Err(NetworkWindowsFirewallLabExecutionError::RollbackRuleStillPresent);
-    }
-    Ok(())
-}
-
-fn command(
-    evidence: &[NetworkWindowsFirewallLabCommandEvidence],
-    kind: NetworkWindowsFirewallLabCommandKind,
-) -> Result<&NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabExecutionError> {
-    evidence
-        .iter()
-        .find(|command| command.kind == kind)
-        .ok_or(NetworkWindowsFirewallLabExecutionError::MissingCommandEvidence(kind))
+    execution::validate_successful_execution(evidence)
 }
 
 fn has_kind(

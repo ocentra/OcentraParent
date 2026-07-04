@@ -1,5 +1,5 @@
-use std::path::PathBuf as TestPathBuf;
 use std::fs::remove_file;
+use std::path::PathBuf as TestPathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use chrono::SecondsFormat;
@@ -236,4 +236,3 @@ fn sample_scan_metadata() -> LanScanHistoryMetadata {
         },
     }
 }
-

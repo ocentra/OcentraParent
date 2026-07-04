@@ -61,11 +61,19 @@ fn browser_runtime_harness_links_status_variants_and_inventory_payload() {
     };
     let payload = browser_payload::browser_inventory_read_model_payload(&read_model);
     assert_eq!(
-        crate::test_invariants::log_field(&payload, ocentra_parent_agent_protocol::constants::field::RETURNED, constants::error::AGENT_EVENT_SERIALIZES),
+        crate::test_invariants::log_field(
+            &payload,
+            ocentra_parent_agent_protocol::constants::field::RETURNED,
+            constants::error::AGENT_EVENT_SERIALIZES
+        ),
         ocentra_parent_agent_protocol::logging::LogFieldValue::Number(0.0)
     );
     assert_eq!(
-        crate::test_invariants::log_field(&payload, ocentra_parent_agent_protocol::constants::field::BROWSER_FAMILY, constants::error::AGENT_EVENT_SERIALIZES),
+        crate::test_invariants::log_field(
+            &payload,
+            ocentra_parent_agent_protocol::constants::field::BROWSER_FAMILY,
+            constants::error::AGENT_EVENT_SERIALIZES
+        ),
         ocentra_parent_agent_protocol::logging::LogFieldValue::Null(())
     );
 }

@@ -443,7 +443,8 @@ fn temp_registry_path() -> TestPathBuf {
 
 fn canonical_device_id_for_mac(mac_address: impl Into<TestString>) -> TestString {
     let mac_address = mac_address;
-    let mut canonical_device_id = TestString::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
+    let mut canonical_device_id =
+        TestString::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
     canonical_device_id.push_str(
         &mac_address
             .chars()
@@ -495,4 +496,3 @@ fn stored_offline_known_router() -> LanCanonicalHouseholdDevice {
     device.network_identity.offline_at = Some(STORED_OFFLINE_AT.to_string());
     device
 }
-

@@ -11,10 +11,12 @@ pub mod test_support;
 
 #[path = "../support/activity_report_env_lock.rs"]
 mod activity_report_env_lock;
-#[path = "browser_inventory_read_model_tests.rs"]
-mod browser_inventory_read_model_tests;
 #[path = "../../src/browser_inventory_read_model.rs"]
 mod browser_inventory_read_model;
+#[path = "browser_inventory_read_model_tests.rs"]
+mod browser_inventory_read_model_tests;
+#[path = "../../src/browser_payload.rs"]
+mod browser_payload;
 #[path = "../../src/browser_policy_compiler.rs"]
 mod browser_policy_compiler;
 #[path = "../../src/browser_policy_compiler_assessment.rs"]
@@ -23,8 +25,6 @@ mod browser_policy_compiler_assessment;
 mod browser_policy_runtime_support;
 #[path = "../../src/browser_policy_store.rs"]
 mod browser_policy_store;
-#[path = "../../src/browser_payload.rs"]
-mod browser_payload;
 #[path = "../../src/browser_runtime_paths.rs"]
 mod browser_runtime_paths;
 #[path = "../../src/browser_runtime_status.rs"]
@@ -94,8 +94,9 @@ mod clippy_linkage {
     }
 
     fn linked_browser_policy_state() -> (TestString, BrowserPolicyStoredState) {
-        let policy =
-            default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+        let policy = default_browser_policy_for_test(
+            crate::test_support::default_browser_policy_id_for_test(),
+        );
         let effective_policy = require_ok(
             crate::browser_policy_compiler::compile_browser_policy(
                 &policy,

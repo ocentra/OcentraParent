@@ -537,4 +537,3 @@ fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentC
         LogFields::new(),
     )
 }
-

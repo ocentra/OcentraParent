@@ -8,15 +8,23 @@ import {
   BrowserAnalysisPrioritySchema,
   BrowserAnalysisTimeoutDispositionSchema,
 } from '@ocentra-parent/schema-domain/browser-ai-analysis-queue-values';
+import { nonEmptyArraySchema, optionalSchema } from './browser-ai-schema-shared';
+import {
+  browserAnalysisJobIsConsistent,
+  browserAnalysisTimeoutPolicyIsConsistent,
+  timeoutDispositionFor,
+  timeoutMsFor,
+} from './browser-ai-analysis-queue-rules';
 
 const PositiveTimeoutMsSchema = Schema.Number.pipe(
   Schema.int(),
   Schema.filter((value) => value > 0 || 'Expected positive timeout milliseconds')
 );
-const QueueEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
-  Schema.filter((value) => value.length > 0 || 'Expected at least one analysis queue evidence id')
+const QueueEvidenceIdsSchema = nonEmptyArraySchema(
+  ActivityEvidenceIdSchema,
+  'Expected at least one analysis queue evidence id'
 );
-const OptionalAnalysisResultSchema = Schema.Union(BrowserUrlAiAnalysisResultSchema, Schema.Null);
+const OptionalAnalysisResultSchema = optionalSchema(BrowserUrlAiAnalysisResultSchema);
 
 export const BrowserAnalysisQueueSchemaVersion = 1;
 
@@ -107,66 +115,3 @@ export function createBrowserAnalysisQueuedJob(
 
 export type BrowserAnalysisTimeoutPolicy = Infer<typeof BrowserAnalysisTimeoutPolicySchema>;
 export type BrowserAnalysisJob = Infer<typeof BrowserAnalysisJobSchema>;
-
-function browserAnalysisTimeoutPolicyIsConsistent(value: Infer<typeof BrowserAnalysisTimeoutPolicyBaseSchema>) {
-  if (value.priority === 'p0-strict-hold') {
-    return value.timeoutMs <= 3000 && value.timeoutDisposition === 'parent-policy-fallback';
-  }
-  if (value.priority === 'p1-active-unknown-video') {
-    return value.timeoutMs <= 15000 && value.timeoutDisposition === 'warn-or-ask';
-  }
-  if (value.priority === 'p2-active-normal-url') {
-    return value.timeoutMs <= 15000 && value.timeoutDisposition === 'background-only';
-  }
-  return value.timeoutDisposition === 'wait-or-degrade';
-}
-
-function browserAnalysisJobIsConsistent(value: Infer<typeof BrowserAnalysisJobBaseSchema>) {
-  if (analysisQueueJobClaimsAuthority(value) || value.priority !== value.timeoutPolicy.priority) {
-    return false;
-  }
-  if (value.status === 'completed') {
-    return value.result !== null && value.result.requestId === value.input.requestId;
-  }
-  return value.result === null;
-}
-
-function analysisQueueJobClaimsAuthority(value: Infer<typeof BrowserAnalysisJobBaseSchema>) {
-  return (
-    !value.timeoutPolicyOwnedByParent ||
-    value.workerRuntimeClaimed ||
-    value.finalPolicyActionClaimed ||
-    value.enforcementActionClaimed
-  );
-}
-
-function timeoutMsFor(priority: BrowserAnalysisPriority) {
-  switch (priority) {
-    case 'p0-strict-hold':
-      return 3000;
-    case 'p1-active-unknown-video':
-    case 'p2-active-normal-url':
-      return 15000;
-    case 'p3-background-review':
-      return 60000;
-    case 'p4-memory-refresh':
-      return 120000;
-    case 'p5-report-enrichment':
-      return 300000;
-  }
-}
-
-function timeoutDispositionFor(priority: BrowserAnalysisPriority) {
-  switch (priority) {
-    case 'p0-strict-hold':
-      return 'parent-policy-fallback';
-    case 'p1-active-unknown-video':
-      return 'warn-or-ask';
-    case 'p2-active-normal-url':
-      return 'background-only';
-    case 'p3-background-review':
-    case 'p4-memory-refresh':
-    case 'p5-report-enrichment':
-      return 'wait-or-degrade';
-  }
-}

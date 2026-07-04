@@ -1,4 +1,3 @@
-use std::string::String as TestString;
 use ocentra_parent_agent_core::browser_windows_inventory::windows_browser_inventory_observations;
 use ocentra_parent_agent_core::browser_windows_package_inventory::windows_browser_package_observations;
 use ocentra_parent_agent_core::browser_windows_package_source::live_windows_browser_package_entries_with_limit;
@@ -6,6 +5,7 @@ use ocentra_parent_agent_core::process_capture::ProcessObservation;
 use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryReadModel;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::{constants, BrowserPolicyValue};
+use std::string::String as TestString;
 
 use crate::test_text::TestText;
 

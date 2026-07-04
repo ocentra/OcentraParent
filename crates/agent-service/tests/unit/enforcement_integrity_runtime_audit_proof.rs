@@ -1,6 +1,6 @@
 use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
 use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
 use ocentra_parent_agent_protocol::constants::v08_enforcement_integrity_runtime_audit as proof;
@@ -148,7 +148,9 @@ fn claim_flags(entry: &V08EnforcementIntegrityRuntimeAuditEntry) -> Value {
     })
 }
 
-fn count_results(entries: &[V08EnforcementIntegrityRuntimeAuditEntry]) -> BTreeMap<TestString, usize> {
+fn count_results(
+    entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
+) -> BTreeMap<TestString, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts.entry(protocol_text(entry.result)).or_default() += 1;
         counts
@@ -227,8 +229,8 @@ fn protocol_text<T: serde::Serialize>(value: T) -> TestString {
         serde_json::to_string(&value),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
-        .trim_matches('"')
-        .to_owned()
+    .trim_matches('"')
+    .to_owned()
 }
 
 fn assert_row_summary(
@@ -258,7 +260,10 @@ fn proof_artifact_path() -> TestPathBuf {
 
 fn write_proof_summary(proof_artifact: &TestPathBuf, summary: &Value) {
     if let Some(parent) = proof_artifact.parent() {
-        require_ok(fs::create_dir_all(parent), constants::error::AGENT_EVENT_SERIALIZES);
+        require_ok(
+            fs::create_dir_all(parent),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
     }
 
     let serialized_summary = require_ok(
@@ -312,4 +317,3 @@ fn summary_rows<'a>(summary: &'a Value, key: &TestStr) -> &'a [Value] {
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
-
