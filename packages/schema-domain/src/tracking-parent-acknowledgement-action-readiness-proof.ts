@@ -132,9 +132,101 @@ type TrackingParentAcknowledgementActionReadModelInput = Infer<
 >;
 type TrackingParentAcknowledgementActionState = Infer<typeof TrackingParentAcknowledgementActionStateSchema>;
 type TrackingParentAcknowledgementActionKind = Infer<typeof TrackingParentAcknowledgementActionKindSchema>;
+type TrackingAcknowledgementState = TrackingAcknowledgement['state'];
 type TrackingPolicyAuditRef = Infer<typeof TrackingPolicyAuditRefSchema>;
 
 const decodeTrackingPolicyAuditRef = Schema.decodeUnknownSync(TrackingPolicyAuditRefSchema);
+
+const TrackingParentAcknowledgementActionReadyStates: readonly TrackingParentAcknowledgementActionState[] = [
+  'acknowledgement-action-ready',
+  'child-check-in-request-ready',
+  'escalation-review-ready',
+] as const;
+
+const TrackingParentAcknowledgementRecordedStates: readonly TrackingParentAcknowledgementActionState[] = [
+  'acknowledgement-recorded',
+  'exception-active',
+  'false-alarm-recorded',
+] as const;
+
+const TrackingParentAcknowledgementStateMap: Partial<
+  Record<TrackingAcknowledgementState, TrackingParentAcknowledgementActionState>
+> = {
+  'acknowledged-safe': 'acknowledgement-recorded',
+  'false-alarm': 'false-alarm-recorded',
+  expected: 'exception-active',
+  'holiday-mode': 'exception-active',
+  'trip-exception': 'exception-active',
+};
+
+const TrackingParentAcknowledgementPrimaryActionMap: Partial<
+  Record<TrackingAcknowledgementState, TrackingParentAcknowledgementActionKind>
+> = {
+  expected: 'mark-expected',
+  'holiday-mode': 'holiday-exception',
+  'trip-exception': 'trip-exception',
+  'false-alarm': 'mark-false-alarm',
+};
+
+const TrackingParentAcknowledgementPrimaryActionByState: Partial<
+  Record<TrackingParentAcknowledgementActionState, TrackingParentAcknowledgementActionKind>
+> = {
+  'child-check-in-request-ready': 'request-child-check-in',
+  'escalation-review-ready': 'escalate-manual-review',
+};
+
+const TrackingParentAcknowledgementManualProofRequirementsByState = {
+  'acknowledgement-action-ready': [
+    'rendered-portal-acknowledgement-ui-proof-required',
+    'live-service-mutation-proof-required',
+    'provider-delivery-proof-required',
+    'physical-device-proof-required',
+  ],
+  'acknowledgement-recorded': [
+    'live-service-mutation-proof-required',
+    'rendered-portal-acknowledgement-ui-proof-required',
+  ],
+  'exception-active': ['live-service-mutation-proof-required', 'rendered-portal-acknowledgement-ui-proof-required'],
+  'false-alarm-recorded': [
+    'live-service-mutation-proof-required',
+    'rendered-portal-acknowledgement-ui-proof-required',
+  ],
+  'child-check-in-request-ready': [
+    'rendered-portal-acknowledgement-ui-proof-required',
+    'live-service-mutation-proof-required',
+    'provider-delivery-proof-required',
+    'physical-device-proof-required',
+  ],
+  'escalation-review-ready': [
+    'rendered-portal-acknowledgement-ui-proof-required',
+    'live-service-mutation-proof-required',
+    'provider-delivery-proof-required',
+    'physical-device-proof-required',
+  ],
+  'manual-required': [
+    'rendered-portal-acknowledgement-ui-proof-required',
+    'live-service-mutation-proof-required',
+    'provider-delivery-proof-required',
+    'physical-device-proof-required',
+  ],
+} as const satisfies Record<TrackingParentAcknowledgementActionState, readonly string[]>;
+
+const TrackingParentAcknowledgementRowFalseClaims = [
+  'renderedPortalAcknowledgementUiClaimed',
+  'liveServiceMutationClaimed',
+  'providerDeliveryClaimed',
+  'childDeviceRuntimeClaimed',
+  'physicalDeviceProofClaimed',
+] as const;
+
+const TrackingParentAcknowledgementReadModelFalseClaims = [
+  'renderedPortalAcknowledgementUiClaimed',
+  'liveServiceMutationClaimed',
+  'providerDeliveryClaimed',
+  'childDeviceRuntimeClaimed',
+  'physicalDeviceProofClaimed',
+  'productClaimReady',
+] as const;
 
 export type TrackingParentAcknowledgementActionReadinessOptions = {
   readonly generatedAt: string;
@@ -185,7 +277,7 @@ function trackingParentAcknowledgementActionRowForAlert(
   const decision = decisionForAlert(readModel, alert);
   const escalation = escalationForAlert(readModel, alert);
   const actionState = actionStateFor(alert, acknowledgement, decision, escalation);
-  const primaryAction = primaryActionFor(actionState, acknowledgement, decision);
+  const primaryAction = primaryActionFor(actionState, acknowledgement);
 
   return TrackingParentAcknowledgementActionRowSchema.parse({
     rowId: `tracking-parent-acknowledgement-action-${alert.alertId}`,
@@ -263,20 +355,13 @@ function actionStateForAcknowledgement(
   if (acknowledgement === null) {
     return null;
   }
-  if (acknowledgement.state === 'acknowledged-safe') {
-    return 'acknowledgement-recorded';
-  }
-  if (acknowledgement.state === 'false-alarm') {
-    return 'false-alarm-recorded';
-  }
-  if (acknowledgementStateIsException(acknowledgement.state)) {
-    return 'exception-active';
-  }
-  return null;
-}
 
-function acknowledgementStateIsException(state: string): boolean {
-  return state === 'expected' || state === 'holiday-mode' || state === 'trip-exception';
+  const actionState =
+    TrackingParentAcknowledgementStateMap[
+      acknowledgement.state as keyof typeof TrackingParentAcknowledgementStateMap
+    ];
+
+  return actionState ?? null;
 }
 
 function alertNeedsManualReview(alert: TrackingAlertIntent, escalation: TrackingEscalationChain | null): boolean {
@@ -285,20 +370,18 @@ function alertNeedsManualReview(alert: TrackingAlertIntent, escalation: Tracking
 
 function primaryActionFor(
   state: TrackingParentAcknowledgementActionState,
-  acknowledgement: TrackingAcknowledgement | null,
-  decision: TrackingPolicyDecision | null
+  acknowledgement: TrackingAcknowledgement | null
 ): TrackingParentAcknowledgementActionKind {
-  if (state === 'child-check-in-request-ready' || decision?.action === 'ask-child-check-in') {
-    return 'request-child-check-in';
-  }
-  if (state === 'escalation-review-ready') {
-    return 'escalate-manual-review';
-  }
-  const acknowledgementAction = primaryActionForAcknowledgement(acknowledgement);
-  if (acknowledgementAction !== null) {
-    return acknowledgementAction;
-  }
-  return 'acknowledge-safe';
+  const stateAction =
+    TrackingParentAcknowledgementPrimaryActionByState[
+      state as keyof typeof TrackingParentAcknowledgementPrimaryActionByState
+    ];
+
+  return (
+    stateAction ??
+    primaryActionForAcknowledgement(acknowledgement) ??
+    'acknowledge-safe'
+  );
 }
 
 function primaryActionForAcknowledgement(
@@ -307,19 +390,13 @@ function primaryActionForAcknowledgement(
   if (acknowledgement === null) {
     return null;
   }
-  if (acknowledgement.state === 'expected') {
-    return 'mark-expected';
-  }
-  if (acknowledgement.state === 'holiday-mode') {
-    return 'holiday-exception';
-  }
-  if (acknowledgement.state === 'trip-exception') {
-    return 'trip-exception';
-  }
-  if (acknowledgement.state === 'false-alarm') {
-    return 'mark-false-alarm';
-  }
-  return null;
+
+  const acknowledgementAction =
+    TrackingParentAcknowledgementPrimaryActionMap[
+      acknowledgement.state as keyof typeof TrackingParentAcknowledgementPrimaryActionMap
+    ];
+
+  return acknowledgementAction ?? null;
 }
 
 function allowedActionsFor(
@@ -356,15 +433,7 @@ function auditRefsFor(
 }
 
 function manualProofRequirementsFor(state: TrackingParentAcknowledgementActionState): readonly string[] {
-  if (state === 'acknowledgement-recorded' || state === 'exception-active' || state === 'false-alarm-recorded') {
-    return ['live-service-mutation-proof-required', 'rendered-portal-acknowledgement-ui-proof-required'];
-  }
-  return [
-    'rendered-portal-acknowledgement-ui-proof-required',
-    'live-service-mutation-proof-required',
-    'provider-delivery-proof-required',
-    'physical-device-proof-required',
-  ];
+  return TrackingParentAcknowledgementManualProofRequirementsByState[state];
 }
 
 function countRows(
@@ -381,11 +450,7 @@ function trackingParentAcknowledgementActionRowIsHonest(row: TrackingParentAckno
     row.auditRefs.length > 0 &&
     row.allowedActions.length > 0 &&
     (!row.severity.includes('critical') || row.stillAlertForCritical) &&
-    row.renderedPortalAcknowledgementUiClaimed === false &&
-    row.liveServiceMutationClaimed === false &&
-    row.providerDeliveryClaimed === false &&
-    row.childDeviceRuntimeClaimed === false &&
-    row.physicalDeviceProofClaimed === false
+    TrackingParentAcknowledgementRowFalseClaims.every((claim) => row[claim] === false)
   );
 }
 
@@ -395,20 +460,9 @@ function trackingParentAcknowledgementActionReadModelIsHonest(
   return (
     readModel.rows.length > 0 &&
     readModel.readinessNonClaims.length === RequiredTrackingParentAcknowledgementActionNonClaims.length &&
-    readModel.actionReadyCount ===
-      countRows(readModel.rows, [
-        'acknowledgement-action-ready',
-        'child-check-in-request-ready',
-        'escalation-review-ready',
-      ]) &&
-    readModel.recordedCount ===
-      countRows(readModel.rows, ['acknowledgement-recorded', 'exception-active', 'false-alarm-recorded']) &&
+    readModel.actionReadyCount === countRows(readModel.rows, TrackingParentAcknowledgementActionReadyStates) &&
+    readModel.recordedCount === countRows(readModel.rows, TrackingParentAcknowledgementRecordedStates) &&
     readModel.manualRequiredCount === countRows(readModel.rows, ['manual-required']) &&
-    readModel.renderedPortalAcknowledgementUiClaimed === false &&
-    readModel.liveServiceMutationClaimed === false &&
-    readModel.providerDeliveryClaimed === false &&
-    readModel.childDeviceRuntimeClaimed === false &&
-    readModel.physicalDeviceProofClaimed === false &&
-    readModel.productClaimReady === false
+    TrackingParentAcknowledgementReadModelFalseClaims.every((claim) => readModel[claim] === false)
   );
 }

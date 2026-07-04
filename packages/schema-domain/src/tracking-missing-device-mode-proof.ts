@@ -151,6 +151,60 @@ type TrackingMissingDeviceStatusSnapshotInput = Infer<typeof TrackingMissingDevi
 type TrackingMissingDeviceUiStateInput = Infer<typeof TrackingMissingDeviceUiStateBaseSchema>;
 type TrackingMissingDeviceModeProofRowInput = Infer<typeof TrackingMissingDeviceModeProofRowBaseSchema>;
 type TrackingMissingDeviceModeProofReadModelInput = Infer<typeof TrackingMissingDeviceModeProofReadModelBaseSchema>;
+type TrackingMissingDeviceCaseState = TrackingMissingDeviceCase['state'];
+
+const TrackingMissingDeviceContactStateByCaseState: Partial<
+  Record<TrackingMissingDeviceCaseState, TrackingMissingDeviceContactState>
+> = {
+  offline: 'powered-off',
+  'last-known-only': 'offline',
+  'manual-required': 'unknown',
+};
+
+const TrackingMissingDevicePrimaryBadgeByCaseState: Partial<
+  Record<TrackingMissingDeviceCaseState, TrackingMissingDeviceUiStateInput['primaryBadge']>
+> = {
+  offline: 'offline',
+  'manual-required': 'manual-required',
+  'contact-requested': 'contact-requested',
+};
+
+const TrackingMissingDeviceSecondaryBadgesByCaseState: Partial<
+  Record<TrackingMissingDeviceCaseState, TrackingMissingDeviceUiStateInput['secondaryBadges']>
+> = {
+  offline: ['last-known', 'battery-throttled'],
+  'manual-required': ['last-known'],
+  'contact-requested': ['last-known', 'offline'],
+};
+
+const TrackingMissingDeviceHeadlineByCaseState: Partial<Record<TrackingMissingDeviceCaseState, string>> = {
+  offline: 'tracking-missing-device-headline-powered-off-last-known',
+  'manual-required': 'tracking-missing-device-headline-platform-manual-required',
+  'contact-requested': 'tracking-missing-device-headline-contact-requested',
+};
+
+const TrackingMissingDeviceDetailByCaseState: Partial<Record<TrackingMissingDeviceCaseState, string>> = {
+  offline: 'tracking-missing-device-detail-last-known-contact-battery-network',
+  'manual-required': 'tracking-missing-device-detail-os-lost-mode-proof-required',
+  'contact-requested': 'tracking-missing-device-detail-parent-action-queued',
+};
+
+const TrackingMissingDeviceActionKindsByCaseState: Partial<
+  Record<TrackingMissingDeviceCaseState, TrackingMissingDeviceUiStateInput['actionKinds']>
+> = {
+  'manual-required': ['review-last-known', 'manual-platform-proof'],
+  'contact-requested': ['review-last-known', 'call-child', 'mark-found'],
+};
+
+const TrackingMissingDeviceBatteryPercentByCaseState: Partial<Record<TrackingMissingDeviceCaseState, number | null>> = {
+  offline: 9,
+  'manual-required': null,
+};
+
+const TrackingMissingDevicePendingUploadCountByCaseState: Partial<Record<TrackingMissingDeviceCaseState, number>> = {
+  offline: 1,
+  'contact-requested': 1,
+};
 
 export function buildTrackingMissingDeviceModeProofReadModel(
   options: TrackingMissingDeviceModeProofOptions,
@@ -225,8 +279,8 @@ function statusSnapshotForCase(missingCase: TrackingMissingDeviceCase) {
     connectivityEvidenceRef: statusRef,
     pendingUploadEvidenceRef: `tracking-device-pending-upload-${caseId}`,
     lastContactAt: observedAt,
-    batteryPercent: state === 'offline' ? 9 : state === 'manual-required' ? null : 38,
-    pendingUploadCount: state === 'contact-requested' || state === 'offline' ? 1 : 0,
+    batteryPercent: TrackingMissingDeviceBatteryPercentByCaseState[state] ?? 38,
+    pendingUploadCount: TrackingMissingDevicePendingUploadCountByCaseState[state] ?? 0,
     degraded: state !== 'open',
   });
 }
@@ -257,80 +311,34 @@ function uiStateForCase(
 }
 
 function contactStateFor(state: TrackingMissingDeviceCase['state']): TrackingMissingDeviceContactState {
-  if (state === 'offline') {
-    return 'powered-off';
-  }
-  if (state === 'last-known-only') {
-    return 'offline';
-  }
-  if (state === 'manual-required') {
-    return 'unknown';
-  }
-  return 'online';
+  return TrackingMissingDeviceContactStateByCaseState[state] ?? 'online';
 }
 
 function primaryBadgeFor(state: TrackingMissingDeviceCase['state']): TrackingMissingDeviceUiStateInput['primaryBadge'] {
-  if (state === 'offline') {
-    return 'offline';
-  }
-  if (state === 'manual-required') {
-    return 'manual-required';
-  }
-  if (state === 'contact-requested') {
-    return 'contact-requested';
-  }
-  return 'last-known';
+  return TrackingMissingDevicePrimaryBadgeByCaseState[state] ?? 'last-known';
 }
 
 function secondaryBadgesFor(
   state: TrackingMissingDeviceCase['state']
 ): TrackingMissingDeviceUiStateInput['secondaryBadges'] {
-  if (state === 'offline') {
-    return ['last-known', 'battery-throttled'];
-  }
-  if (state === 'manual-required') {
-    return ['last-known'];
-  }
-  if (state === 'contact-requested') {
-    return ['last-known', 'offline'];
-  }
-  return ['offline'];
+  return TrackingMissingDeviceSecondaryBadgesByCaseState[state] ?? ['offline'];
 }
 
 function headlineTokenFor(state: TrackingMissingDeviceCase['state']): string {
-  if (state === 'offline') {
-    return 'tracking-missing-device-headline-powered-off-last-known';
-  }
-  if (state === 'manual-required') {
-    return 'tracking-missing-device-headline-platform-manual-required';
-  }
-  if (state === 'contact-requested') {
-    return 'tracking-missing-device-headline-contact-requested';
-  }
-  return 'tracking-missing-device-headline-last-known-only';
+  return TrackingMissingDeviceHeadlineByCaseState[state] ?? 'tracking-missing-device-headline-last-known-only';
 }
 
 function detailTokenFor(state: TrackingMissingDeviceCase['state']): string {
-  if (state === 'offline') {
-    return 'tracking-missing-device-detail-last-known-contact-battery-network';
-  }
-  if (state === 'manual-required') {
-    return 'tracking-missing-device-detail-os-lost-mode-proof-required';
-  }
-  if (state === 'contact-requested') {
-    return 'tracking-missing-device-detail-parent-action-queued';
-  }
-  return 'tracking-missing-device-detail-no-current-location-claim';
+  return TrackingMissingDeviceDetailByCaseState[state] ?? 'tracking-missing-device-detail-no-current-location-claim';
 }
 
 function actionKindsFor(state: TrackingMissingDeviceCase['state']): TrackingMissingDeviceUiStateInput['actionKinds'] {
-  if (state === 'manual-required') {
-    return ['review-last-known', 'manual-platform-proof'];
-  }
-  if (state === 'contact-requested') {
-    return ['review-last-known', 'call-child', 'mark-found'];
-  }
-  return ['review-last-known', 'ask-child-check-in', 'call-child', 'mark-found'];
+  return TrackingMissingDeviceActionKindsByCaseState[state] ?? [
+    'review-last-known',
+    'ask-child-check-in',
+    'call-child',
+    'mark-found',
+  ];
 }
 
 function trackingMissingDeviceModeProofRowIsHonest(row: TrackingMissingDeviceModeProofRowInput): boolean {

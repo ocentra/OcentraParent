@@ -143,19 +143,20 @@ type TrackingPolicyAuditRef = Infer<typeof TrackingPolicyAuditRefSchema>;
 
 const decodeTrackingPolicyAuditRef = Schema.decodeUnknownSync(TrackingPolicyAuditRefSchema);
 
-const TrackingChildCheckInTimeoutEscalationReadyStates = [
+const TrackingChildCheckInTimeoutEscalationReadyStates: readonly TrackingChildCheckInTimeoutState[] = [
   'help-response-escalation-ready',
   'call-parent-response-escalation-ready',
   'expired-timeout-escalation-ready',
   'manual-required',
-] as const satisfies readonly TrackingChildCheckInTimeoutState[];
+] as const;
 
 const TrackingChildCheckInTimeoutResponseStateMap = {
   safe: 'safe-response-recorded',
   'share-location-if-permitted': 'safe-response-recorded',
   help: 'help-response-escalation-ready',
   'call-parent': 'call-parent-response-escalation-ready',
-} as const satisfies Partial<Record<TrackingChildCheckInTimeoutResponseKind, TrackingChildCheckInTimeoutState>>;
+  'no-response': undefined,
+} as const satisfies Record<TrackingChildCheckInTimeoutResponseKind, TrackingChildCheckInTimeoutState | undefined>;
 
 const TrackingChildCheckInTimeoutAlertOutcomeByState = {
   'waiting-for-child': 'awaiting-child-response',

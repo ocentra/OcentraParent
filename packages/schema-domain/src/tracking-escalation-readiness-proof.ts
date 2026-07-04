@@ -122,27 +122,27 @@ type TrackingPolicyAuditRef = Infer<typeof TrackingPolicyAuditRefSchema>;
 
 const decodeTrackingPolicyAuditRef = Schema.decodeUnknownSync(TrackingPolicyAuditRefSchema);
 
-const TrackingEscalationWaitingStates = [
+const TrackingEscalationWaitingStates: readonly TrackingEscalationReadinessState[] = [
   'waiting-for-parent',
   'waiting-for-child',
-] as const satisfies readonly TrackingEscalationReadinessState[];
+] as const;
 
-const TrackingEscalationResolvedStates = [
+const TrackingEscalationResolvedStates: readonly TrackingEscalationReadinessState[] = [
   'resolved-by-parent-acknowledgement',
   'resolved-by-child-check-in',
-] as const satisfies readonly TrackingEscalationReadinessState[];
+] as const;
 
-const TrackingEscalationManualStates = [
+const TrackingEscalationManualStates: readonly TrackingEscalationReadinessState[] = [
   'second-guardian-required',
   'critical-multi-channel-manual-required',
   'manual-required',
   'unavailable',
-] as const satisfies readonly TrackingEscalationReadinessState[];
+] as const;
 
-const TrackingEscalationCriticalAllowedStates = [
+const TrackingEscalationCriticalAllowedStates: readonly TrackingEscalationReadinessState[] = [
   'critical-multi-channel-manual-required',
   'resolved-by-child-check-in',
-] as const satisfies readonly TrackingEscalationReadinessState[];
+] as const;
 
 const TrackingEscalationGuardianActionRefsByState = {
   'waiting-for-parent': [],

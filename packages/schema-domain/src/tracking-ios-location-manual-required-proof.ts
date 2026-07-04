@@ -186,6 +186,7 @@ type TrackingIosLocationManualRequiredProofRowCandidate = Infer<
 type TrackingIosLocationManualRequiredProofReadModelCandidate = Infer<
   typeof TrackingIosLocationManualRequiredProofReadModelBaseSchema
 >;
+type TrackingIosLocationManualRequiredCase = Infer<typeof TrackingIosLocationManualRequiredCaseSchema>;
 
 export const TrackingIosLocationManualRequiredProofReadModelSchema = withParser(
   TrackingIosLocationManualRequiredProofReadModelBaseSchema.pipe(
@@ -228,6 +229,91 @@ export const RequiredTrackingIosLocationRuntimeArtifactRefs = [
   'output/tracking-plan-proof/ios-region-monitoring/visit-events.ndjson',
   'output/tracking-plan-proof/ios-region-monitoring/background-terminated-relaunch-result.json',
   'output/tracking-plan-proof/ios-region-monitoring/authority-entitlement-approval.json',
+] as const;
+
+const TrackingIosLocationStatusTokenByCase = {
+  'when-in-use-authorization-manual-required': 'tracking-ios-when-in-use-authorization-manual-required',
+  'foreground-sample-manual-required': 'tracking-ios-foreground-sample-manual-required',
+  'denied-restricted-services-disabled-manual-required': 'tracking-ios-degraded-location-state-manual-required',
+  'always-authorization-manual-required': 'tracking-ios-always-authorization-manual-required',
+  'region-transition-manual-required': 'tracking-ios-region-transition-manual-required',
+  'significant-change-visit-manual-required': 'tracking-ios-significant-change-visit-manual-required',
+  'background-terminated-relaunch-manual-required':
+    'tracking-ios-background-terminated-relaunch-manual-required',
+} as const satisfies Record<TrackingIosLocationManualRequiredCase, string>;
+
+const TrackingIosLocationMissingProofReasonRefsByCase = {
+  'when-in-use-authorization-manual-required': ['tracking-ios-when-in-use-authorization-not-captured'],
+  'foreground-sample-manual-required': ['tracking-ios-foreground-location-sample-not-captured'],
+  'denied-restricted-services-disabled-manual-required': [
+    'tracking-ios-denied-restricted-state-not-captured',
+    'tracking-ios-services-disabled-state-not-captured',
+  ],
+  'always-authorization-manual-required': ['tracking-ios-always-authorization-not-captured'],
+  'region-transition-manual-required': ['tracking-ios-region-transition-not-captured'],
+  'significant-change-visit-manual-required': [
+    'tracking-ios-significant-change-not-captured',
+    'tracking-ios-visit-event-not-captured',
+  ],
+  'background-terminated-relaunch-manual-required': [
+    'tracking-ios-background-delivery-not-captured',
+    'tracking-ios-terminated-relaunch-not-captured',
+  ],
+} as const satisfies Record<TrackingIosLocationManualRequiredCase, readonly string[]>;
+
+const TrackingIosLocationRowOverclaimChecks = {
+  'when-in-use-authorization-manual-required': (row: TrackingIosLocationManualRequiredProofRowCandidate) =>
+    !row.whenInUseAuthorizationObserved,
+  'foreground-sample-manual-required': (row: TrackingIosLocationManualRequiredProofRowCandidate) =>
+    !row.foregroundLocationSampleCaptured,
+  'denied-restricted-services-disabled-manual-required': (row: TrackingIosLocationManualRequiredProofRowCandidate) =>
+    !row.deniedRestrictedStateCaptured && !row.locationServicesDisabledStateCaptured,
+  'always-authorization-manual-required': (row: TrackingIosLocationManualRequiredProofRowCandidate) =>
+    !row.alwaysAuthorizationObserved && !row.entitlementProofObserved,
+  'region-transition-manual-required': (row: TrackingIosLocationManualRequiredProofRowCandidate) =>
+    row.regionTransitionCount === 0,
+  'significant-change-visit-manual-required': (row: TrackingIosLocationManualRequiredProofRowCandidate) =>
+    row.significantChangeEventCount === 0 && row.visitEventCount === 0,
+  'background-terminated-relaunch-manual-required': (row: TrackingIosLocationManualRequiredProofRowCandidate) =>
+    !row.backgroundDeliveryObserved && !row.terminatedRelaunchObserved,
+} as const satisfies Record<
+  TrackingIosLocationManualRequiredCase,
+  (row: TrackingIosLocationManualRequiredProofRowCandidate) => boolean
+>;
+
+const TrackingIosLocationReadModelFalseClaims = [
+  'whenInUseAuthorizationClaimed',
+  'foregroundLocationSampleClaimed',
+  'deniedRestrictedStateClaimed',
+  'servicesDisabledStateClaimed',
+  'alwaysAuthorizationClaimed',
+  'regionMonitoringClaimed',
+  'significantChangeClaimed',
+  'visitEventClaimed',
+  'backgroundLocationDeliveryClaimed',
+  'terminatedRelaunchClaimed',
+  'entitlementProofClaimed',
+  'notificationDeliveryClaimed',
+  'providerDeliveryClaimed',
+  'physicalDeviceProofClaimed',
+  'authorityProofClaimed',
+  'productReadyIosTrackingClaimed',
+] as const;
+
+const TrackingIosLocationRowFalseClaims = [
+  'whenInUseAuthorizationClaimed',
+  'foregroundLocationSampleClaimed',
+  'deniedRestrictedStateClaimed',
+  'servicesDisabledStateClaimed',
+  'alwaysAuthorizationClaimed',
+  'regionMonitoringClaimed',
+  'significantChangeClaimed',
+  'visitEventClaimed',
+  'backgroundLocationDeliveryClaimed',
+  'terminatedRelaunchClaimed',
+  'entitlementProofClaimed',
+  'physicalDeviceProofClaimed',
+  'productReadyIosTrackingClaimed',
 ] as const;
 
 export function buildTrackingIosLocationManualRequiredProofReadModel(
@@ -337,47 +423,11 @@ function claimStateFor(input: TrackingIosLocationManualRequiredInputRow) {
 }
 
 function parentVisibleStatusTokenFor(input: TrackingIosLocationManualRequiredInputRow): string {
-  if (input.caseKind === 'when-in-use-authorization-manual-required') {
-    return 'tracking-ios-when-in-use-authorization-manual-required';
-  }
-  if (input.caseKind === 'foreground-sample-manual-required') {
-    return 'tracking-ios-foreground-sample-manual-required';
-  }
-  if (input.caseKind === 'denied-restricted-services-disabled-manual-required') {
-    return 'tracking-ios-degraded-location-state-manual-required';
-  }
-  if (input.caseKind === 'always-authorization-manual-required') {
-    return 'tracking-ios-always-authorization-manual-required';
-  }
-  if (input.caseKind === 'region-transition-manual-required') {
-    return 'tracking-ios-region-transition-manual-required';
-  }
-  if (input.caseKind === 'significant-change-visit-manual-required') {
-    return 'tracking-ios-significant-change-visit-manual-required';
-  }
-  return 'tracking-ios-background-terminated-relaunch-manual-required';
+  return TrackingIosLocationStatusTokenByCase[input.caseKind];
 }
 
 function missingProofReasonRefsFor(input: TrackingIosLocationManualRequiredInputRow): readonly string[] {
-  if (input.caseKind === 'when-in-use-authorization-manual-required') {
-    return ['tracking-ios-when-in-use-authorization-not-captured'];
-  }
-  if (input.caseKind === 'foreground-sample-manual-required') {
-    return ['tracking-ios-foreground-location-sample-not-captured'];
-  }
-  if (input.caseKind === 'denied-restricted-services-disabled-manual-required') {
-    return ['tracking-ios-denied-restricted-state-not-captured', 'tracking-ios-services-disabled-state-not-captured'];
-  }
-  if (input.caseKind === 'always-authorization-manual-required') {
-    return ['tracking-ios-always-authorization-not-captured'];
-  }
-  if (input.caseKind === 'region-transition-manual-required') {
-    return ['tracking-ios-region-transition-not-captured'];
-  }
-  if (input.caseKind === 'significant-change-visit-manual-required') {
-    return ['tracking-ios-significant-change-not-captured', 'tracking-ios-visit-event-not-captured'];
-  }
-  return ['tracking-ios-background-delivery-not-captured', 'tracking-ios-terminated-relaunch-not-captured'];
+  return TrackingIosLocationMissingProofReasonRefsByCase[input.caseKind];
 }
 
 function trackingIosLocationManualRequiredProofReadModelIsHonest(
@@ -443,24 +493,7 @@ function readModelNonClaimsAreHonest(readModel: TrackingIosLocationManualRequire
     RequiredTrackingIosLocationManualRequiredProofNonClaims.every((nonClaim) =>
       readModel.proofNonClaims.includes(nonClaim)
     ) &&
-    [
-      readModel.whenInUseAuthorizationClaimed,
-      readModel.foregroundLocationSampleClaimed,
-      readModel.deniedRestrictedStateClaimed,
-      readModel.servicesDisabledStateClaimed,
-      readModel.alwaysAuthorizationClaimed,
-      readModel.regionMonitoringClaimed,
-      readModel.significantChangeClaimed,
-      readModel.visitEventClaimed,
-      readModel.backgroundLocationDeliveryClaimed,
-      readModel.terminatedRelaunchClaimed,
-      readModel.entitlementProofClaimed,
-      readModel.notificationDeliveryClaimed,
-      readModel.providerDeliveryClaimed,
-      readModel.physicalDeviceProofClaimed,
-      readModel.authorityProofClaimed,
-      readModel.productReadyIosTrackingClaimed,
-    ].every((claim) => claim === false)
+    TrackingIosLocationReadModelFalseClaims.every((claim) => readModel[claim] === false)
   );
 }
 
@@ -477,43 +510,11 @@ function rowDerivedStateMatches(row: TrackingIosLocationManualRequiredProofRowCa
 }
 
 function rowCaseDoesNotOverclaim(row: TrackingIosLocationManualRequiredProofRowCandidate): boolean {
-  if (row.caseKind === 'when-in-use-authorization-manual-required') {
-    return !row.whenInUseAuthorizationObserved;
-  }
-  if (row.caseKind === 'foreground-sample-manual-required') {
-    return !row.foregroundLocationSampleCaptured;
-  }
-  if (row.caseKind === 'denied-restricted-services-disabled-manual-required') {
-    return !row.deniedRestrictedStateCaptured && !row.locationServicesDisabledStateCaptured;
-  }
-  if (row.caseKind === 'always-authorization-manual-required') {
-    return !row.alwaysAuthorizationObserved && !row.entitlementProofObserved;
-  }
-  if (row.caseKind === 'region-transition-manual-required') {
-    return row.regionTransitionCount === 0;
-  }
-  if (row.caseKind === 'significant-change-visit-manual-required') {
-    return row.significantChangeEventCount === 0 && row.visitEventCount === 0;
-  }
-  return !row.backgroundDeliveryObserved && !row.terminatedRelaunchObserved;
+  return TrackingIosLocationRowOverclaimChecks[row.caseKind](row);
 }
 
 function rowRuntimeClaimsAreFalse(row: TrackingIosLocationManualRequiredProofRowCandidate): boolean {
-  return [
-    row.whenInUseAuthorizationClaimed,
-    row.foregroundLocationSampleClaimed,
-    row.deniedRestrictedStateClaimed,
-    row.servicesDisabledStateClaimed,
-    row.alwaysAuthorizationClaimed,
-    row.regionMonitoringClaimed,
-    row.significantChangeClaimed,
-    row.visitEventClaimed,
-    row.backgroundLocationDeliveryClaimed,
-    row.terminatedRelaunchClaimed,
-    row.entitlementProofClaimed,
-    row.physicalDeviceProofClaimed,
-    row.productReadyIosTrackingClaimed,
-  ].every((claim) => claim === false);
+  return TrackingIosLocationRowFalseClaims.every((claim) => row[claim] === false);
 }
 
 function countRows(
