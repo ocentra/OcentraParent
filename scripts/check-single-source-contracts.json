@@ -454,28 +454,6 @@
       ]
     },
     {
-      "name": "screen-ai-enforcement-handoff-event-names",
-      "ownerPath": "crates/screen-ai-core/src/screen_ai_enforcement_handoff_guard.rs",
-      "scanRoots": ["apps", "packages", "scripts", "crates"],
-      "mirrors": [
-        {
-          "path": "packages/schema-domain/src/screen-ai-enforcement-handoff-guard-proof.ts",
-          "values": [
-            {
-              "name": "accepted",
-              "sourceObjectPath": "ScreenAiEnforcementHandoffEventNameLiteral.Accepted"
-            }
-          ]
-        }
-      ],
-      "values": [
-        {
-          "name": "accepted",
-          "rustConst": "SCREEN_AI_ENFORCEMENT_HANDOFF_ACCEPTED_EVENT_TYPE"
-        }
-      ]
-    },
-    {
       "name": "activity-event-kind-rust-constants",
       "ownerPath": "crates/agent-protocol/src/constants/activity_event_kind.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],

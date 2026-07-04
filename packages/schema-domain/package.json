@@ -1985,10 +1985,6 @@
       "import": "./dist/screen-ai-browser-trigger-proof.js",
       "types": "./dist/screen-ai-browser-trigger-proof.d.ts"
     },
-    "./screen-ai-enforcement-handoff-guard-proof": {
-      "import": "./dist/screen-ai-enforcement-handoff-guard-proof.js",
-      "types": "./dist/screen-ai-enforcement-handoff-guard-proof.d.ts"
-    },
     "./screen-ai-memory-graph-source-guard-proof": {
       "import": "./dist/screen-ai-memory-graph-source-guard-proof.js",
       "types": "./dist/screen-ai-memory-graph-source-guard-proof.d.ts"

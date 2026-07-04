@@ -282,36 +282,5 @@ fn evidence_includes(
 }
 
 pub fn screen_ai_enforcement_handoff_guard_generated_typescript() -> String {
-    r#"/* generated from crates/screen-ai-core/src/screen_ai_enforcement_handoff_guard.rs */
-
-import type {
-  ScreenAiEnforcementHandoffGuardInput,
-  ScreenAiEnforcementHandoffGuardPayload,
-} from '@ocentra-parent/schema-domain/screen-ai-enforcement-handoff-guard-proof';
-
-export function buildScreenAiEnforcementHandoffGuardPayloadGenerated(
-  input: ScreenAiEnforcementHandoffGuardInput
-): ScreenAiEnforcementHandoffGuardPayload {
-  return {
-    schemaVersion: input.schemaVersion,
-    payloadId: input.payloadId,
-    generatedAt: input.generatedAt,
-    sourcePolicyDecision: input.sourcePolicyDecision,
-    parentPolicyRule: input.parentPolicyRule,
-    requestedAction: input.requestedAction,
-    confidenceState: input.confidenceState,
-    handoffMode: input.handoffMode,
-    summaryReference: input.inputMaterial.summaryReference,
-    localAiResultReference: input.inputMaterial.localAiResultReference,
-    auditReference: input.inputMaterial.auditReference,
-    auditEvent: input.auditEvent,
-    rawPixelsIncluded: false,
-    rawModelTextIncluded: false,
-    rawScreenshotRetained: false,
-    localAiAuthorityClaimed: false,
-    claimBoundary: input.claimBoundary,
-  };
-}
-"#
-    .to_string()
+    include_str!("screen_ai_enforcement_handoff_guard.ts.txt").to_string()
 }

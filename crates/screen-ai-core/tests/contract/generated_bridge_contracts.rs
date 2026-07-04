@@ -3,6 +3,8 @@ use ocentra_screen_ai_core::{
     screen_family_ai_hub_routing::screen_family_ai_hub_routing_generated_typescript,
     screen_intelligence_router::screen_intelligence_router_generated_typescript,
 };
+#[path = "screen_ai_enforcement_handoff_guard_contract.rs"]
+mod screen_ai_enforcement_handoff_guard_contract;
 
 #[test]
 fn screen_generated_helpers_remain_rust_owned_and_marked() {
