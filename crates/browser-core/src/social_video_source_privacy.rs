@@ -5,7 +5,6 @@ pub fn social_video_source_privacy_typescript() -> String {
 const SOCIAL_VIDEO_SOURCE_PRIVACY_TYPESCRIPT: &str = r#"/* generated from crates/browser-core/src/social_video_source_privacy.rs */
 
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
-import { SocialVideoSourcePrivacyEvidenceIdSchema } from '@ocentra-parent/schema-domain/agent-social-video-source-privacy';
 import {
   BrowserAiConfidenceSchema,
   BrowserAiDegradedStateSchema,
@@ -27,6 +26,9 @@ const SourcePrivacySourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSche
 );
 
 export const SocialVideoSourcePrivacySchemaVersion = 1;
+export const SocialVideoSourcePrivacyEvidenceIdSchema = withParser(
+  brandedNonEmptyStringSchema('SocialVideoSourcePrivacyEvidenceId')
+);
 export const SocialVideoParentProvidedTargetRefSchema = withParser(
   brandedNonEmptyStringSchema('SocialVideoParentProvidedTargetRef')
 );

@@ -113,10 +113,6 @@
       "import": "./dist/agent-social-video-source-custody-settings.js",
       "types": "./dist/agent-social-video-source-custody-settings.d.ts"
     },
-    "./agent-social-video-source-privacy": {
-      "import": "./dist/agent-social-video-source-privacy.js",
-      "types": "./dist/agent-social-video-source-privacy.d.ts"
-    },
     "./agent-tracking-read-model": {
       "import": "./dist/agent-tracking-read-model.js",
       "types": "./dist/agent-tracking-read-model.d.ts"

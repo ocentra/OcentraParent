@@ -1,11 +1,14 @@
 import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
-import { SocialVideoSourcePrivacyEvidenceIdSchema } from './agent-social-video-source-privacy';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
   ActivitySubjectIdSchema,
   ActivityTimestampSchema,
 } from './evidence-primitives';
+
+const SocialVideoSourcePrivacyEvidenceIdSchema = withParser(
+  brandedNonEmptyStringSchema('SocialVideoSourcePrivacyEvidenceId')
+);
 
 const OptionalSourceCustodyRefsSchema = Schema.Array(NonEmptyStringSchema);
 const SourceCustodyEvidenceRefsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(

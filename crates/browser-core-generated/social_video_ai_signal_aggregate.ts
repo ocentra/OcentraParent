@@ -33,13 +33,24 @@ import {
   ActivitySubjectIdSchema,
   ActivityTimestampSchema,
 } from '@ocentra-parent/schema-domain/evidence-primitives';
-import { SocialVideoSourcePrivacyEvidenceIdSchema } from '@ocentra-parent/schema-domain/agent-social-video-source-privacy';
 import {
+  SocialVideoSourcePrivacyEvidenceIdSchema,
   SocialVideoPermittedDownstreamUseSchema,
   SocialVideoSourcePrivacySummarySchema,
   SocialVideoSourcePrivacyTargetKindSchema,
   type SocialVideoSourcePrivacySummary,
 } from './social-video-source-privacy';
+import {
+  actionCandidateRefsForGate,
+  aggregateSourceEvidenceIds,
+  socialVideoAiSignalAggregateInputIsConsistent,
+} from './social_video_ai_signal_aggregate_input_helpers';
+import {
+  aggregateConfidenceForInput,
+  aggregateDegradedStateForInput,
+  aggregateStateForInput,
+  socialVideoAiSignalAggregateIsConsistent,
+} from './social_video_ai_signal_aggregate_state_helpers';
 const SocialVideoAggregateEvidenceRefsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social/video aggregate source evidence refs')
 );
@@ -132,9 +143,6 @@ export type SocialVideoAiSignalAggregate = Infer<typeof SocialVideoAiSignalAggre
 export type SocialVideoAiSignalAggregateInput = Infer<typeof SocialVideoAiSignalAggregateInputSchema>;
 export type SocialVideoAiSignalAggregateState = Infer<typeof SocialVideoAiSignalAggregateStateSchema>;
 
-type SocialVideoAiSignalAggregateCandidate = Infer<typeof SocialVideoAiSignalAggregateBaseSchema>;
-type SocialVideoAiSignalAggregateInputCandidate = Infer<typeof SocialVideoAiSignalAggregateInputBaseSchema>;
-
 export function buildSocialVideoAiSignalAggregate(
   input: SocialVideoAiSignalAggregateInput
 ): SocialVideoAiSignalAggregate {
@@ -175,232 +183,4 @@ export function buildSocialVideoAiSignalAggregate(
     uiRenderedClaimed: false,
     enforcementClaimed: false,
   });
-}
-
-function socialVideoAiSignalAggregateInputIsConsistent(value: SocialVideoAiSignalAggregateInputCandidate) {
-  return (
-    aggregateAiResultMatchesSourcePrivacy(value.sourcePrivacySummary, value.socialAiAnalysisResult) &&
-    aggregateSignalSetMatchesAiResult(
-      value.sourcePrivacySummary,
-      value.socialAiAnalysisResult,
-      value.riskBenefitSignalSet
-    ) &&
-    aggregateRouteGateMatchesSourcePrivacy(value.sourcePrivacySummary, value.routeGatePlan)
-  );
-}
-
-function aggregateAiResultMatchesSourcePrivacy(
-  sourcePrivacySummary: SocialVideoSourcePrivacySummary,
-  socialAiAnalysisResult: BrowserSocialAiAnalysisResult | null
-) {
-  if (socialAiAnalysisResult === null) {
-    return true;
-  }
-  return (
-    sourcePrivacySummary.permittedDownstreamUses.includes('ai-analysis-input') &&
-    socialAiAnalysisResult.platform === sourcePrivacySummary.platform &&
-    refListIncludes(socialAiAnalysisResult.sourceEvidenceIds, sourcePrivacySummary.sourcePrivacyEvidenceId) &&
-    refListIncludes(sourcePrivacySummary.socialRouteEvidenceIds, socialAiAnalysisResult.socialRouteEvidenceId)
-  );
-}
-
-function aggregateSignalSetMatchesAiResult(
-  sourcePrivacySummary: SocialVideoSourcePrivacySummary,
-  socialAiAnalysisResult: BrowserSocialAiAnalysisResult | null,
-  riskBenefitSignalSet: BrowserSocialRiskBenefitSignalSet | null
-) {
-  if (riskBenefitSignalSet === null) {
-    return true;
-  }
-  if (socialAiAnalysisResult === null) {
-    return false;
-  }
-  return (
-    riskBenefitSignalSet.socialAiAnalysisId === socialAiAnalysisResult.analysisId &&
-    riskBenefitSignalSet.socialRouteEvidenceId === socialAiAnalysisResult.socialRouteEvidenceId &&
-    refListIncludes(riskBenefitSignalSet.sourceEvidenceIds, sourcePrivacySummary.sourcePrivacyEvidenceId)
-  );
-}
-
-function aggregateRouteGateMatchesSourcePrivacy(
-  sourcePrivacySummary: SocialVideoSourcePrivacySummary,
-  routeGatePlan: BrowserSocialFeedVideoRouteGatePlan | null
-) {
-  if (routeGatePlan === null) {
-    return true;
-  }
-  return (
-    sourcePrivacySummary.permittedDownstreamUses.includes('policy-candidate-input') &&
-    refListIncludes(routeGatePlan.sourceEvidenceIds, sourcePrivacySummary.sourcePrivacyEvidenceId) &&
-    refListIncludes(sourcePrivacySummary.socialRouteEvidenceIds, routeGatePlan.socialRouteEvidenceId) &&
-    routeGateMetadataMatchesSourcePrivacy(sourcePrivacySummary, routeGatePlan)
-  );
-}
-
-function routeGateMetadataMatchesSourcePrivacy(
-  sourcePrivacySummary: SocialVideoSourcePrivacySummary,
-  routeGatePlan: BrowserSocialFeedVideoRouteGatePlan
-) {
-  return (
-    routeGatePlan.videoMetadataEvidenceId === null ||
-    refListIncludes(sourcePrivacySummary.socialVideoMetadataEvidenceIds, routeGatePlan.videoMetadataEvidenceId)
-  );
-}
-
-function socialVideoAiSignalAggregateIsConsistent(value: SocialVideoAiSignalAggregateCandidate) {
-  return (
-    !aggregateClaimsForbiddenState(value) &&
-    aggregateStateIsConsistent(value) &&
-    aggregateCandidateRefsAreConsistent(value)
-  );
-}
-
-function aggregateClaimsForbiddenState(value: SocialVideoAiSignalAggregateCandidate) {
-  return (
-    value.rawContentCaptured ||
-    value.rawMessageContentCaptured ||
-    value.rawVideoCaptured ||
-    value.screenshotCaptured ||
-    value.connectorTokenStored ||
-    value.connectorApiCalled ||
-    value.nativeAppControlClaimed ||
-    value.finalPolicyDecisionClaimed ||
-    value.alertDeliveryClaimed ||
-    value.uiRenderedClaimed ||
-    value.enforcementClaimed
-  );
-}
-
-function aggregateStateIsConsistent(value: SocialVideoAiSignalAggregateCandidate) {
-  if (value.aggregateState === 'candidate-ready') {
-    return aggregateCandidateReadyStateIsConsistent(value);
-  }
-  if (value.aggregateState === 'manual-required') {
-    return aggregateManualRequiredStateIsConsistent(value);
-  }
-  if (value.aggregateState === 'unavailable') {
-    return aggregateUnavailableStateIsConsistent(value);
-  }
-  return aggregateDegradedStateIsConsistent(value);
-}
-
-function aggregateCandidateReadyStateIsConsistent(value: SocialVideoAiSignalAggregateCandidate) {
-  return (
-    value.degradedState === 'none' &&
-    value.confidence !== 'unknown' &&
-    value.socialAiAnalysisIds.length > 0 &&
-    value.socialRiskBenefitSignalSetIds.length > 0 &&
-    value.routeGatePlanIds.length > 0 &&
-    value.permittedDownstreamUses.includes('ai-analysis-input') &&
-    value.permittedDownstreamUses.includes('policy-candidate-input')
-  );
-}
-
-function aggregateManualRequiredStateIsConsistent(value: SocialVideoAiSignalAggregateCandidate) {
-  return value.degradedState === 'manual-required' && value.confidence === 'unknown';
-}
-
-function aggregateUnavailableStateIsConsistent(value: SocialVideoAiSignalAggregateCandidate) {
-  return value.degradedState === 'unavailable' && !value.permittedDownstreamUses.includes('policy-candidate-input');
-}
-
-function aggregateDegradedStateIsConsistent(value: SocialVideoAiSignalAggregateCandidate) {
-  return value.degradedState === 'degraded' && value.confidence !== 'high';
-}
-
-function aggregateCandidateRefsAreConsistent(value: SocialVideoAiSignalAggregateCandidate) {
-  if (value.routeGatePlanIds.length === 0) {
-    return value.actionCandidateRefs.length === 0;
-  }
-  return value.actionCandidateRefs.length > 0 && value.socialRouteEvidenceIds.length > 0;
-}
-
-function aggregateSourceEvidenceIds(value: SocialVideoAiSignalAggregateInputCandidate) {
-  return uniqueRefs(
-    value.sourcePrivacySummary.sourceEvidenceIds,
-    [value.sourcePrivacySummary.sourcePrivacyEvidenceId],
-    value.socialAiAnalysisResult?.sourceEvidenceIds ?? [],
-    value.riskBenefitSignalSet?.sourceEvidenceIds ?? [],
-    value.routeGatePlan?.sourceEvidenceIds ?? []
-  );
-}
-
-function actionCandidateRefsForGate(routeGatePlan: BrowserSocialFeedVideoRouteGatePlan | null) {
-  if (routeGatePlan === null) {
-    return [];
-  }
-  const refs: Array<unknown> = [];
-  if (routeGatePlan.policyDecisionCandidateRef !== null) {
-    refs.push(routeGatePlan.policyDecisionCandidateRef);
-  }
-  if (routeGatePlan.parentApprovalRequestRef !== null) {
-    refs.push(routeGatePlan.parentApprovalRequestRef);
-  }
-  if (routeGatePlan.timeLimitCandidateRef !== null) {
-    refs.push(routeGatePlan.timeLimitCandidateRef);
-  }
-  return refs;
-}
-
-function aggregateStateForInput(value: SocialVideoAiSignalAggregateInputCandidate) {
-  if (value.sourcePrivacySummary.degradedState === 'manual-required') {
-    return 'manual-required';
-  }
-  if (value.sourcePrivacySummary.degradedState === 'unavailable') {
-    return 'unavailable';
-  }
-  if (
-    value.socialAiAnalysisResult === null ||
-    value.riskBenefitSignalSet === null ||
-    value.routeGatePlan === null ||
-    value.socialAiAnalysisResult.degradedState !== 'none' ||
-    value.riskBenefitSignalSet.degradedState !== 'none' ||
-    value.routeGatePlan.routeGateState !== 'planned'
-  ) {
-    return 'degraded';
-  }
-  return 'candidate-ready';
-}
-
-function aggregateConfidenceForInput(value: SocialVideoAiSignalAggregateInputCandidate) {
-  return (
-    value.riskBenefitSignalSet?.confidence ??
-    value.socialAiAnalysisResult?.confidence ??
-    value.sourcePrivacySummary.confidence
-  );
-}
-
-function aggregateDegradedStateForInput(value: SocialVideoAiSignalAggregateInputCandidate) {
-  if (value.sourcePrivacySummary.degradedState !== 'none') {
-    return value.sourcePrivacySummary.degradedState;
-  }
-  if (
-    value.socialAiAnalysisResult?.degradedState !== undefined &&
-    value.socialAiAnalysisResult.degradedState !== 'none'
-  ) {
-    return value.socialAiAnalysisResult.degradedState;
-  }
-  if (value.riskBenefitSignalSet?.degradedState !== undefined && value.riskBenefitSignalSet.degradedState !== 'none') {
-    return value.riskBenefitSignalSet.degradedState;
-  }
-  if (value.socialAiAnalysisResult === null || value.riskBenefitSignalSet === null || value.routeGatePlan === null) {
-    return 'degraded';
-  }
-  return 'none';
-}
-
-function refListIncludes(values: ReadonlyArray<unknown>, expected: unknown) {
-  return values.some((value) => value === expected);
-}
-
-function uniqueRefs(...valueGroups: ReadonlyArray<ReadonlyArray<unknown>>) {
-  const refs: Array<unknown> = [];
-  for (const valueGroup of valueGroups) {
-    for (const value of valueGroup) {
-      if (!refs.includes(value)) {
-        refs.push(value);
-      }
-    }
-  }
-  return refs;
 }
