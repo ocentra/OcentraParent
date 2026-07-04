@@ -1,9 +1,11 @@
-use std::fmt::{Display, Formatter};
+use serde::{Deserialize, Serialize};
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
+#[macro_use]
+mod macros;
+mod enum_types;
 mod identifiers;
 mod sample;
+mod text_types;
 
 pub const EXPORT_IMPORT_BACKUP_RECOVERY_SCHEMA_VERSION: &str =
     "export-import-backup-recovery-proof";
@@ -128,175 +130,29 @@ const EXPORT_IMPORT_NEGATIVE_REASON_ALL_EXPIRED: &str =
 const EXPORT_IMPORT_NEGATIVE_REASON_DUPLICATE_DEVICE: &str =
     "Source device would duplicate an existing local device record.";
 
-macro_rules! export_import_text_identifier {
-    ($name:ident) => {
-        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-        #[serde(transparent)]
-        pub struct $name(String);
+pub type ExportImportBundleType = enum_types::ExportImportBundleType;
+pub type ExportImportDataClass = enum_types::ExportImportDataClass;
+pub type ExportImportEncryptionMode = enum_types::ExportImportEncryptionMode;
+pub type ExportImportIntegrityMode = enum_types::ExportImportIntegrityMode;
+pub type ExportImportProofTier = enum_types::ExportImportProofTier;
+pub type ExportImportSectionRetentionState = enum_types::ExportImportSectionRetentionState;
+pub type ExportImportMigrationState = enum_types::ExportImportMigrationState;
+pub type ExportImportPreflightState = enum_types::ExportImportPreflightState;
+pub type ExportImportSectionDecisionState = enum_types::ExportImportSectionDecisionState;
+pub type ExportImportRestoreApplyState = enum_types::ExportImportRestoreApplyState;
+pub type ExportImportNonClaim = enum_types::ExportImportNonClaim;
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Option<Self> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl Display for $name {
-            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
-}
-
-macro_rules! export_import_string_enum {
-    ($name:ident { $($variant:ident => $value:ident),+ $(,)? }) => {
-        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-        pub enum $name {
-            $(
-                $variant,
-            )+
-        }
-
-        impl $name {
-            pub fn as_str(&self) -> &'static str {
-                match self {
-                    $(Self::$variant => $value,)+
-                }
-            }
-        }
-
-        impl Serialize for $name {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: Serializer,
-            {
-                serializer.serialize_str(self.as_str())
-            }
-        }
-
-        impl<'de> Deserialize<'de> for $name {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: Deserializer<'de>,
-            {
-                let value = String::deserialize(deserializer)?;
-                match value.as_str() {
-                    $(candidate if candidate == $value => Ok(Self::$variant),)+
-                    _ => Err(serde::de::Error::custom(format!("invalid {}: {}", stringify!($name), value))),
-                }
-            }
-        }
-    };
-}
-
-export_import_string_enum!(ExportImportBundleType {
-    Export => EXPORT_IMPORT_BUNDLE_TYPE_EXPORT,
-    Backup => EXPORT_IMPORT_BUNDLE_TYPE_BACKUP,
-    ImportPreview => EXPORT_IMPORT_BUNDLE_TYPE_IMPORT_PREVIEW,
-    Restore => EXPORT_IMPORT_BUNDLE_TYPE_RESTORE,
-    Support => EXPORT_IMPORT_BUNDLE_TYPE_SUPPORT,
-});
-
-export_import_string_enum!(ExportImportDataClass {
-    ConfigMetadata => EXPORT_IMPORT_DATA_CLASS_CONFIG_METADATA,
-    AccountMetadata => EXPORT_IMPORT_DATA_CLASS_ACCOUNT_METADATA,
-    PolicyHistory => EXPORT_IMPORT_DATA_CLASS_POLICY_HISTORY,
-    DeviceRegistry => EXPORT_IMPORT_DATA_CLASS_DEVICE_REGISTRY,
-    EvidenceJournal => EXPORT_IMPORT_DATA_CLASS_EVIDENCE_JOURNAL,
-    Logs => EXPORT_IMPORT_DATA_CLASS_LOGS,
-    Screenshots => EXPORT_IMPORT_DATA_CLASS_SCREENSHOTS,
-    NetworkArtifacts => EXPORT_IMPORT_DATA_CLASS_NETWORK_ARTIFACTS,
-    AiOutputs => EXPORT_IMPORT_DATA_CLASS_AI_OUTPUTS,
-    Reports => EXPORT_IMPORT_DATA_CLASS_REPORTS,
-    Notifications => EXPORT_IMPORT_DATA_CLASS_NOTIFICATIONS,
-    BillingReferences => EXPORT_IMPORT_DATA_CLASS_BILLING_REFERENCES,
-});
-
-export_import_string_enum!(ExportImportEncryptionMode {
-    PerClassEnvelopeEncrypted => EXPORT_IMPORT_ENCRYPTION_MODE_PER_CLASS_ENVELOPE_ENCRYPTED,
-});
-
-export_import_string_enum!(ExportImportIntegrityMode {
-    ManifestAndPayloadHashes => EXPORT_IMPORT_INTEGRITY_MODE_MANIFEST_AND_PAYLOAD_HASHES,
-});
-
-export_import_string_enum!(ExportImportProofTier {
-    ContractOnly => EXPORT_IMPORT_PROOF_TIER_CONTRACT_ONLY,
-    RuntimeValidated => EXPORT_IMPORT_PROOF_TIER_RUNTIME_VALIDATED,
-    ManualRequired => EXPORT_IMPORT_PROOF_TIER_MANUAL_REQUIRED,
-});
-
-export_import_string_enum!(ExportImportSectionRetentionState {
-    Active => EXPORT_IMPORT_SECTION_RETENTION_STATE_ACTIVE,
-    Expired => EXPORT_IMPORT_SECTION_RETENTION_STATE_EXPIRED,
-    Tombstoned => EXPORT_IMPORT_SECTION_RETENTION_STATE_TOMBSTONED,
-});
-
-export_import_string_enum!(ExportImportMigrationState {
-    NotRequired => EXPORT_IMPORT_MIGRATION_STATE_NOT_REQUIRED,
-    RequiredSupported => EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_SUPPORTED,
-    RequiredUnsupported => EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_UNSUPPORTED,
-});
-
-export_import_string_enum!(ExportImportPreflightState {
-    AcceptedPreview => EXPORT_IMPORT_PREFLIGHT_STATE_ACCEPTED_PREVIEW,
-    PartialPreview => EXPORT_IMPORT_PREFLIGHT_STATE_PARTIAL_PREVIEW,
-    RejectedSchemaVersion => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_SCHEMA_VERSION,
-    RejectedMigrationUnsupported => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_MIGRATION_UNSUPPORTED,
-    RejectedWrongHousehold => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_WRONG_HOUSEHOLD,
-    RejectedWrongKey => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_WRONG_KEY,
-    RejectedCorruptBundle => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_CORRUPT_BUNDLE,
-    RejectedExpiredRetention => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_EXPIRED_RETENTION,
-    RejectedDuplicateDevice => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_DUPLICATE_DEVICE,
-    RejectedTombstoneConflict => EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_TOMBSTONE_CONFLICT,
-});
-
-export_import_string_enum!(ExportImportSectionDecisionState {
-    Accepted => EXPORT_IMPORT_SECTION_DECISION_STATE_ACCEPTED,
-    RejectedExpiredRetention => EXPORT_IMPORT_SECTION_DECISION_STATE_REJECTED_EXPIRED_RETENTION,
-    RejectedTombstonePreserved => EXPORT_IMPORT_SECTION_DECISION_STATE_REJECTED_TOMBSTONE_PRESERVED,
-    RejectedDuplicateDevice => EXPORT_IMPORT_SECTION_DECISION_STATE_REJECTED_DUPLICATE_DEVICE,
-});
-
-export_import_string_enum!(ExportImportRestoreApplyState {
-    NotApplied => EXPORT_IMPORT_RESTORE_APPLY_STATE_NOT_APPLIED,
-    ApplyPending => EXPORT_IMPORT_RESTORE_APPLY_STATE_APPLY_PENDING,
-    Applied => EXPORT_IMPORT_RESTORE_APPLY_STATE_APPLIED,
-    Partial => EXPORT_IMPORT_RESTORE_APPLY_STATE_PARTIAL,
-    WrongHousehold => EXPORT_IMPORT_RESTORE_APPLY_STATE_WRONG_HOUSEHOLD,
-    WrongKey => EXPORT_IMPORT_RESTORE_APPLY_STATE_WRONG_KEY,
-    Corrupt => EXPORT_IMPORT_RESTORE_APPLY_STATE_CORRUPT,
-    Blocked => EXPORT_IMPORT_RESTORE_APPLY_STATE_BLOCKED,
-});
-
-export_import_string_enum!(ExportImportNonClaim {
-    NoProviderRuntime => EXPORT_IMPORT_NON_CLAIM_NO_PROVIDER_RUNTIME,
-    NoAutoApply => EXPORT_IMPORT_NON_CLAIM_NO_AUTO_APPLY,
-    NoDefaultSupportDecrypt => EXPORT_IMPORT_NON_CLAIM_NO_DEFAULT_SUPPORT_DECRYPT,
-    NoTsBusinessOwner => EXPORT_IMPORT_NON_CLAIM_NO_TS_BUSINESS_OWNER,
-    NoLanOwnership => EXPORT_IMPORT_NON_CLAIM_NO_LAN_OWNERSHIP,
-});
-
-export_import_text_identifier!(ExportImportContractVersion);
-export_import_text_identifier!(ExportImportBundleId);
-export_import_text_identifier!(ExportImportHouseholdId);
-export_import_text_identifier!(ExportImportDeviceId);
-export_import_text_identifier!(ExportImportKeyRef);
-export_import_text_identifier!(ExportImportPayloadRef);
-export_import_text_identifier!(ExportImportIntegrityRef);
-export_import_text_identifier!(ExportImportTombstoneCursor);
-export_import_text_identifier!(ExportImportTimestamp);
-export_import_text_identifier!(ExportImportProductVersion);
-export_import_text_identifier!(ExportImportMigrationRef);
+pub type ExportImportContractVersion = text_types::ExportImportContractVersion;
+pub type ExportImportBundleId = text_types::ExportImportBundleId;
+pub type ExportImportHouseholdId = text_types::ExportImportHouseholdId;
+pub type ExportImportDeviceId = text_types::ExportImportDeviceId;
+pub type ExportImportKeyRef = text_types::ExportImportKeyRef;
+pub type ExportImportPayloadRef = text_types::ExportImportPayloadRef;
+pub type ExportImportIntegrityRef = text_types::ExportImportIntegrityRef;
+pub type ExportImportTombstoneCursor = text_types::ExportImportTombstoneCursor;
+pub type ExportImportTimestamp = text_types::ExportImportTimestamp;
+pub type ExportImportProductVersion = text_types::ExportImportProductVersion;
+pub type ExportImportMigrationRef = text_types::ExportImportMigrationRef;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

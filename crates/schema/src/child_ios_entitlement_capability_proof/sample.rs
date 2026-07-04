@@ -1,3 +1,7 @@
+use super::constants::{
+    CHILD_IOS_ENTITLEMENT_BUNDLE_ID, CHILD_IOS_ENTITLEMENT_CLASS_NAME,
+    CHILD_IOS_ENTITLEMENT_UPDATED_AT,
+};
 use super::identifiers::{boundary, bundle_id, class_name, requirement, timestamp};
 use super::*;
 

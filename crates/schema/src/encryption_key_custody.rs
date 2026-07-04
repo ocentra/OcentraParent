@@ -339,16 +339,8 @@ key_custody_string_enums!(
         ]
     },
     RecoveryMode {
-        variants: [
-            ManualRequired,
-            ParentOwnedRecovery,
-            NotSupported,
-        ],
-        values: [
-            "manualRequired",
-            "parent-owned-recovery",
-            "notSupported",
-        ]
+        variants: [ManualRequired, ParentOwnedRecovery, NotSupported,],
+        values: ["manualRequired", "parent-owned-recovery", "notSupported",]
     },
     DecryptDecisionState {
         variants: [

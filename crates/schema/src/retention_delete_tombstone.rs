@@ -1,10 +1,11 @@
-use std::fmt::{Display, Formatter};
-
 use serde::{Deserialize, Serialize};
 
+mod enum_types;
 mod identifiers;
 mod policy_rows;
 mod sample_rows;
+mod text_types_core;
+mod text_types_refs;
 
 use self::identifiers::{action_ref, actor_id, contract_version, family_id, request_id, timestamp};
 
@@ -115,152 +116,25 @@ const RETENTION_DELETE_EXPECT_REPLAY_REF: &str = "replay ref";
 const RETENTION_DELETE_EXPECT_PROOF_REF: &str = "proof ref";
 const RETENTION_DELETE_EXPECT_TIMESTAMP: &str = "timestamp";
 
-macro_rules! retention_delete_text_identifier {
-    ($name:ident) => {
-        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-        #[serde(transparent)]
-        pub struct $name(String);
+pub type RetentionDeleteActorRole = enum_types::RetentionDeleteActorRole;
+pub type RetentionDeleteState = enum_types::RetentionDeleteState;
+pub type RetentionDeleteDataClass = enum_types::RetentionDeleteDataClass;
+pub type RetentionDeleteSourceOfTruth = enum_types::RetentionDeleteSourceOfTruth;
+pub type RetentionDeleteRetentionClass = enum_types::RetentionDeleteRetentionClass;
+pub type RetentionDeleteAuditMode = enum_types::RetentionDeleteAuditMode;
+pub type RetentionDeleteDerivedBoundary = enum_types::RetentionDeleteDerivedBoundary;
+pub type RetentionDeleteNonClaim = enum_types::RetentionDeleteNonClaim;
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Option<Self> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl Display for $name {
-            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
-}
-
-macro_rules! retention_delete_string_enum {
-    ($name:ident { $($variant:ident => $value:expr),+ $(,)? }) => {
-        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-        pub enum $name {
-            $($variant,)+
-        }
-
-        impl $name {
-            pub fn as_str(&self) -> &'static str {
-                match self {
-                    $(Self::$variant => $value,)+
-                }
-            }
-        }
-
-        impl Serialize for $name {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: serde::Serializer,
-            {
-                serializer.serialize_str(self.as_str())
-            }
-        }
-
-        impl<'de> Deserialize<'de> for $name {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                let value = String::deserialize(deserializer)?;
-                $(if value == $value { return Ok(Self::$variant); })+
-                Err(serde::de::Error::unknown_variant(value.as_str(), &[$($value,)+]))
-            }
-        }
-    };
-}
-
-retention_delete_string_enum!(RetentionDeleteActorRole {
-    Parent => RETENTION_DELETE_ACTOR_ROLE_PARENT,
-    Guardian => RETENTION_DELETE_ACTOR_ROLE_GUARDIAN,
-    Support => RETENTION_DELETE_ACTOR_ROLE_SUPPORT,
-    System => RETENTION_DELETE_ACTOR_ROLE_SYSTEM,
-});
-
-retention_delete_string_enum!(RetentionDeleteState {
-    DeleteRequested => RETENTION_DELETE_STATE_DELETE_REQUESTED,
-    DeleteValidated => RETENTION_DELETE_STATE_DELETE_VALIDATED,
-    TombstoneWritten => RETENTION_DELETE_STATE_TOMBSTONE_WRITTEN,
-    LocalRedacted => RETENTION_DELETE_STATE_LOCAL_REDACTED,
-    PropagationPending => RETENTION_DELETE_STATE_PROPAGATION_PENDING,
-    Propagated => RETENTION_DELETE_STATE_PROPAGATED,
-    ReplayProtected => RETENTION_DELETE_STATE_REPLAY_PROTECTED,
-    AuditRetained => RETENTION_DELETE_STATE_AUDIT_RETAINED,
-    HardDeleted => RETENTION_DELETE_STATE_HARD_DELETED,
-});
-
-retention_delete_string_enum!(RetentionDeleteDataClass {
-    ConfigMetadata => RETENTION_DELETE_DATA_CLASS_CONFIG_METADATA,
-    AccountMetadata => RETENTION_DELETE_DATA_CLASS_ACCOUNT_METADATA,
-    PolicyHistory => RETENTION_DELETE_DATA_CLASS_POLICY_HISTORY,
-    EvidenceJournal => RETENTION_DELETE_DATA_CLASS_EVIDENCE_JOURNAL,
-    Logs => RETENTION_DELETE_DATA_CLASS_LOGS,
-    Screenshots => RETENTION_DELETE_DATA_CLASS_SCREENSHOTS,
-    NetworkArtifacts => RETENTION_DELETE_DATA_CLASS_NETWORK_ARTIFACTS,
-    AiOutputs => RETENTION_DELETE_DATA_CLASS_AI_OUTPUTS,
-    Reports => RETENTION_DELETE_DATA_CLASS_REPORTS,
-    Notifications => RETENTION_DELETE_DATA_CLASS_NOTIFICATIONS,
-    BillingReferences => RETENTION_DELETE_DATA_CLASS_BILLING_REFERENCES,
-});
-
-retention_delete_string_enum!(RetentionDeleteSourceOfTruth {
-    HouseholdControlPlane => RETENTION_DELETE_SOURCE_OF_TRUTH_HOUSEHOLD_CONTROL_PLANE,
-    AccountControlPlane => RETENTION_DELETE_SOURCE_OF_TRUTH_ACCOUNT_CONTROL_PLANE,
-    BillingControlPlane => RETENTION_DELETE_SOURCE_OF_TRUTH_BILLING_CONTROL_PLANE,
-    ChildDeviceLocalJournal => RETENTION_DELETE_SOURCE_OF_TRUTH_CHILD_DEVICE_LOCAL_JOURNAL,
-    ChildDeviceLocalEvidence => RETENTION_DELETE_SOURCE_OF_TRUTH_CHILD_DEVICE_LOCAL_EVIDENCE,
-    ParentOwnedOutput => RETENTION_DELETE_SOURCE_OF_TRUTH_PARENT_OWNED_OUTPUT,
-    NotificationService => RETENTION_DELETE_SOURCE_OF_TRUTH_NOTIFICATION_SERVICE,
-});
-
-retention_delete_string_enum!(RetentionDeleteRetentionClass {
-    ActiveWindow => RETENTION_DELETE_RETENTION_CLASS_ACTIVE_WINDOW,
-    DeleteRequested => RETENTION_DELETE_RETENTION_CLASS_DELETE_REQUESTED,
-    DeleteConfirmed => RETENTION_DELETE_RETENTION_CLASS_DELETE_CONFIRMED,
-    AuditMinimal => RETENTION_DELETE_RETENTION_CLASS_AUDIT_MINIMAL,
-    HardDeleted => RETENTION_DELETE_RETENTION_CLASS_HARD_DELETED,
-});
-
-retention_delete_string_enum!(RetentionDeleteAuditMode {
-    MinimalRefOnly => RETENTION_DELETE_AUDIT_MODE_MINIMAL_REF_ONLY,
-    ExternalRetained => RETENTION_DELETE_AUDIT_MODE_EXTERNAL_RETAINED,
-});
-
-retention_delete_string_enum!(RetentionDeleteDerivedBoundary {
-    RedactedDerivedOnly => RETENTION_DELETE_DERIVED_BOUNDARY_REDACTED_DERIVED_ONLY,
-    BlockedFromDerivedOutputs =>
-        RETENTION_DELETE_DERIVED_BOUNDARY_BLOCKED_FROM_DERIVED_OUTPUTS,
-});
-
-retention_delete_string_enum!(RetentionDeleteNonClaim {
-    NoUiHideOnly => RETENTION_DELETE_NON_CLAIM_NO_UI_HIDE_ONLY,
-    NoResurrection => RETENTION_DELETE_NON_CLAIM_NO_RESURRECTION,
-    NoPlainAuditPayload => RETENTION_DELETE_NON_CLAIM_NO_PLAIN_AUDIT_PAYLOAD,
-    NoTsBusinessOwner => RETENTION_DELETE_NON_CLAIM_NO_TS_BUSINESS_OWNER,
-    NoLanOwnership => RETENTION_DELETE_NON_CLAIM_NO_LAN_OWNERSHIP,
-});
-
-retention_delete_text_identifier!(RetentionDeleteContractVersion);
-retention_delete_text_identifier!(RetentionDeleteRequestId);
-retention_delete_text_identifier!(RetentionDeleteRowId);
-retention_delete_text_identifier!(RetentionDeleteFamilyId);
-retention_delete_text_identifier!(RetentionDeleteActorId);
-retention_delete_text_identifier!(RetentionDeleteActionRef);
-retention_delete_text_identifier!(RetentionDeleteTombstoneRef);
-retention_delete_text_identifier!(RetentionDeleteReplayRef);
-retention_delete_text_identifier!(RetentionDeleteProofRef);
-retention_delete_text_identifier!(RetentionDeleteTimestamp);
+pub type RetentionDeleteContractVersion = text_types_core::RetentionDeleteContractVersion;
+pub type RetentionDeleteRequestId = text_types_core::RetentionDeleteRequestId;
+pub type RetentionDeleteRowId = text_types_core::RetentionDeleteRowId;
+pub type RetentionDeleteFamilyId = text_types_core::RetentionDeleteFamilyId;
+pub type RetentionDeleteActorId = text_types_core::RetentionDeleteActorId;
+pub type RetentionDeleteActionRef = text_types_refs::RetentionDeleteActionRef;
+pub type RetentionDeleteTombstoneRef = text_types_refs::RetentionDeleteTombstoneRef;
+pub type RetentionDeleteReplayRef = text_types_refs::RetentionDeleteReplayRef;
+pub type RetentionDeleteProofRef = text_types_refs::RetentionDeleteProofRef;
+pub type RetentionDeleteTimestamp = text_types_refs::RetentionDeleteTimestamp;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

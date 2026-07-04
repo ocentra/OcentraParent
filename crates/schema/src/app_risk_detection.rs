@@ -465,7 +465,9 @@ fn risk_candidate(input: RiskCandidateInput) -> AppRiskDetectionCandidate {
             observed_at: GENERATED_AT.to_owned(),
         }],
         source_refs: source_refs.unwrap_or_else(|| {
-            vec![app_risk_detection_source_ref(format!("source-{candidate_id}"))]
+            vec![app_risk_detection_source_ref(format!(
+                "source-{candidate_id}"
+            ))]
         }),
         local_ai_digest_ref,
         parent_override,
