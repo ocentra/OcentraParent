@@ -24,18 +24,24 @@ fn signature_or_freshness_reason(
             Some(EntitlementCapabilityRejectionReason::InvalidSignature)
         }
         EntitlementSnapshotSignatureState::Trusted => {
-            match input.snapshot_context.freshness_state {
-                EntitlementSnapshotFreshnessState::Stale => {
-                    Some(EntitlementCapabilityRejectionReason::StaleSnapshot)
-                }
-                EntitlementSnapshotFreshnessState::Expired => {
-                    Some(EntitlementCapabilityRejectionReason::ExpiredSnapshot)
-                }
-                EntitlementSnapshotFreshnessState::Revoked => {
-                    Some(EntitlementCapabilityRejectionReason::RevokedSnapshot)
-                }
-                EntitlementSnapshotFreshnessState::Fresh => None,
-            }
+            freshness_reason(input.snapshot_context.freshness_state)
         }
+    }
+}
+
+fn freshness_reason(
+    state: EntitlementSnapshotFreshnessState,
+) -> Option<EntitlementCapabilityRejectionReason> {
+    match state {
+        EntitlementSnapshotFreshnessState::Stale => {
+            Some(EntitlementCapabilityRejectionReason::StaleSnapshot)
+        }
+        EntitlementSnapshotFreshnessState::Expired => {
+            Some(EntitlementCapabilityRejectionReason::ExpiredSnapshot)
+        }
+        EntitlementSnapshotFreshnessState::Revoked => {
+            Some(EntitlementCapabilityRejectionReason::RevokedSnapshot)
+        }
+        EntitlementSnapshotFreshnessState::Fresh => None,
     }
 }
