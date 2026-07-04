@@ -124,24 +124,29 @@ export const decodeBrowserGameApprovalDecision = Schema.decodeUnknownSync(Browse
 export type BrowserGameApprovalRequest = Infer<typeof BrowserGameApprovalRequestSchema>;
 export type BrowserGameApprovalDecision = Infer<typeof BrowserGameApprovalDecisionSchema>;
 
-const AccountRequestKinds: ReadonlyArray<BrowserGameApprovalRequestKind> = [
-  'game-account-creation',
-  'game-login',
-  'secondary-game-account',
-] as const;
-
-const PurchaseRequestKinds: ReadonlyArray<BrowserGameApprovalRequestKind> = [
-  'game-purchase',
-  'subscription-purchase',
-  'loot-box-purchase',
-  'virtual-currency-purchase',
-  'wallet-or-gambling-payment',
-] as const;
-
-const DownloadRequestKinds: ReadonlyArray<BrowserGameApprovalRequestKind> = [
-  'game-download',
-  'install-prompt',
-] as const;
+const BrowserGameApprovalRequestKindValidators = {
+  'game-account-creation': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('account-creation-route'),
+  'game-login': (request: BrowserGameApprovalRequestCandidate) => request.reasonCodes.includes('login-route'),
+  'secondary-game-account': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('secondary-account-route'),
+  'game-purchase': (request: BrowserGameApprovalRequestCandidate) => request.reasonCodes.includes('purchase-route'),
+  'subscription-purchase': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('subscription-route'),
+  'loot-box-purchase': (request: BrowserGameApprovalRequestCandidate) => request.reasonCodes.includes('loot-box-route'),
+  'virtual-currency-purchase': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('virtual-currency-route'),
+  'wallet-or-gambling-payment': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('wallet-payment-risk') || request.reasonCodes.includes('gambling-like-payment-risk'),
+  'game-download': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('download-or-install-route'),
+  'install-prompt': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('download-or-install-route'),
+  'cloud-gaming-start': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('cloud-gaming-route'),
+  'unknown-game-start': (request: BrowserGameApprovalRequestCandidate) =>
+    request.reasonCodes.includes('unknown-game-route'),
+} satisfies Record<BrowserGameApprovalRequestKind, (request: BrowserGameApprovalRequestCandidate) => boolean>;
 
 const BrowserGameApprovalRequestStateValidators = {
   'pending-contract-only': pendingApprovalRequestIsConsistent,
@@ -209,47 +214,7 @@ function browserGameApprovalDecisionIsConsistent(decision: BrowserGameApprovalDe
 }
 
 function browserGameApprovalRequestKindMatchesReasons(request: BrowserGameApprovalRequestCandidate): boolean {
-  if (AccountRequestKinds.includes(request.requestKind)) {
-    return browserGameAccountRequestKindMatchesReasons(request);
-  }
-  if (PurchaseRequestKinds.includes(request.requestKind)) {
-    return browserGamePurchaseRequestKindMatchesReasons(request);
-  }
-  if (DownloadRequestKinds.includes(request.requestKind)) {
-    return request.reasonCodes.includes('download-or-install-route');
-  }
-  if (request.requestKind === 'cloud-gaming-start') {
-    return request.reasonCodes.includes('cloud-gaming-route');
-  }
-  return request.reasonCodes.includes('unknown-game-route');
-}
-
-function browserGameAccountRequestKindMatchesReasons(request: BrowserGameApprovalRequestCandidate): boolean {
-  if (request.requestKind === 'game-account-creation') {
-    return request.reasonCodes.includes('account-creation-route');
-  }
-  if (request.requestKind === 'game-login') {
-    return request.reasonCodes.includes('login-route');
-  }
-  return request.reasonCodes.includes('secondary-account-route');
-}
-
-function browserGamePurchaseRequestKindMatchesReasons(request: BrowserGameApprovalRequestCandidate): boolean {
-  if (request.requestKind === 'subscription-purchase') {
-    return request.reasonCodes.includes('subscription-route');
-  }
-  if (request.requestKind === 'loot-box-purchase') {
-    return request.reasonCodes.includes('loot-box-route');
-  }
-  if (request.requestKind === 'virtual-currency-purchase') {
-    return request.reasonCodes.includes('virtual-currency-route');
-  }
-  if (request.requestKind === 'wallet-or-gambling-payment') {
-    return (
-      request.reasonCodes.includes('wallet-payment-risk') || request.reasonCodes.includes('gambling-like-payment-risk')
-    );
-  }
-  return request.reasonCodes.includes('purchase-route');
+  return BrowserGameApprovalRequestKindValidators[request.requestKind](request);
 }
 
 const BrowserGameApprovalRequestExecutionClaimFields = [
@@ -272,22 +237,24 @@ const BrowserGameApprovalRequestExecutionClaimFields = [
   'enforcementClaimed',
 ] as const satisfies ReadonlyArray<keyof BrowserGameApprovalRequestCandidate>;
 
+const BrowserGameApprovalDecisionExecutionClaimFields = [
+  'notificationDeliveredClaimed',
+  'uiRenderedClaimed',
+  'childNotifiedClaimed',
+  'policyDecisionClaimed',
+  'runtimeGateExecutedClaimed',
+  'accountCreatedClaimed',
+  'purchaseExecutedClaimed',
+  'launcherDownloadClaimed',
+  'nativeGameControlClaimed',
+  'cloudFrameAnalysisClaimed',
+  'enforcementClaimed',
+] as const satisfies ReadonlyArray<keyof BrowserGameApprovalDecisionCandidate>;
+
 function browserGameApprovalRequestClaimsExecution(request: BrowserGameApprovalRequestCandidate): boolean {
   return BrowserGameApprovalRequestExecutionClaimFields.some((field) => request[field] === true);
 }
 
 function browserGameApprovalDecisionClaimsExecution(decision: BrowserGameApprovalDecisionCandidate): boolean {
-  return (
-    decision.notificationDeliveredClaimed ||
-    decision.uiRenderedClaimed ||
-    decision.childNotifiedClaimed ||
-    decision.policyDecisionClaimed ||
-    decision.runtimeGateExecutedClaimed ||
-    decision.accountCreatedClaimed ||
-    decision.purchaseExecutedClaimed ||
-    decision.launcherDownloadClaimed ||
-    decision.nativeGameControlClaimed ||
-    decision.cloudFrameAnalysisClaimed ||
-    decision.enforcementClaimed
-  );
+  return BrowserGameApprovalDecisionExecutionClaimFields.some((field) => decision[field] === true);
 }
