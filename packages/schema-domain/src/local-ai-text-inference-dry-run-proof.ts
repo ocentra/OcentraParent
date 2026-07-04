@@ -7,7 +7,6 @@ import {
   LocalAiPromptVersionSchema,
   LocalAiUnknownState,
   type LocalAiDegradedStateSchema,
-  type LocalAiUnknownStateSchema,
 } from './ai-primitives';
 import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './ai-runtime';
 
@@ -91,6 +90,47 @@ export const LocalAiTextInferenceDryRunNonClaims = [
   decodeNonClaim('Raw prompt text is not retained; only typed evidence, rule, runtime, and trace refs are preserved.'),
 ] as const;
 
+type DryRunOutcomeScenario = 'runtime-unavailable' | 'missing-evidence' | 'candidate';
+
+const dryRunOutcomeDefinitions = {
+  'runtime-unavailable': {
+    action: PolicyAction.AskParent,
+    confidence: 0.2,
+    unknownState: LocalAiUnknownState.ModelUnavailable,
+    reasonCodes: [RuntimeUnavailableReasonCode],
+  },
+  'missing-evidence': {
+    action: PolicyAction.Unknown,
+    confidence: 0.15,
+    unknownState: LocalAiUnknownState.MissingEvidence,
+    reasonCodes: [MissingEvidenceReasonCode],
+  },
+  candidate: {
+    action: PolicyAction.Warn,
+    confidence: 0.62,
+    unknownState: LocalAiUnknownState.None,
+    reasonCodes: [CandidateReasonCode],
+  },
+} as const satisfies Record<
+  DryRunOutcomeScenario,
+  Pick<LocalAiSafetyResult, 'action' | 'confidence' | 'unknownState' | 'reasonCodes'>
+>;
+
+const dryRunStateDefinitions = {
+  'unavailable-dry-run': {
+    action: 'ask-parent',
+    unknownState: 'model-unavailable',
+  },
+  'degraded-dry-run': {
+    degradedStateRequired: true,
+    unknownStateAllowed: true,
+  },
+  'ready-dry-run': {
+    action: 'warn',
+    unknownState: 'none',
+  },
+} as const;
+
 export function runLocalAiTextInferenceDryRun(input: unknown): LocalAiTextInferenceDryRunResult {
   const parsed = LocalAiTextInferenceDryRunInputSchema.parse(input);
   const result = resultFor(parsed);
@@ -117,20 +157,32 @@ export function runLocalAiTextInferenceDryRun(input: unknown): LocalAiTextInfere
   });
 }
 
+function scenarioFor(unavailable: boolean, missingEvidence: boolean): DryRunOutcomeScenario {
+  if (unavailable) {
+    return 'runtime-unavailable';
+  }
+  if (missingEvidence) {
+    return 'missing-evidence';
+  }
+  return 'candidate';
+}
+
 function resultFor(parsed: LocalAiTextInferenceDryRunInput): LocalAiSafetyResult {
   const unavailable =
     parsed.modelRuntime.executionState === 'disabled' || parsed.modelRuntime.loadState === 'unavailable';
   const missingEvidence = parsed.evaluationInput.evidenceReferences.length === 0;
+  const scenario = scenarioFor(unavailable, missingEvidence);
+  const outcome = dryRunOutcomeDefinitions[scenario];
 
   return LocalAiSafetyResultSchema.parse({
     schemaVersion: ParentContractSchemaVersion.V0_6,
     resultId: `local-ai-text-dry-run-result:${parsed.evaluationInput.requestId}`,
     requestId: parsed.evaluationInput.requestId,
-    action: actionFor(unavailable, missingEvidence),
-    confidence: confidenceFor(unavailable, missingEvidence),
-    unknownState: unknownStateFor(unavailable, missingEvidence),
+    action: outcome.action,
+    confidence: outcome.confidence,
+    unknownState: outcome.unknownState,
     degradedState: degradedStateFor(parsed.modelRuntime, unavailable),
-    reasonCodes: reasonCodesFor(unavailable, missingEvidence),
+    reasonCodes: outcome.reasonCodes,
     explanationReference: `local-ai-text-dry-run-explanation:${parsed.evaluationInput.requestId}`,
     evidenceReferences: parsed.evaluationInput.evidenceReferences,
     parentRuleReferences: parsed.evaluationInput.parentRuleReferences,
@@ -142,36 +194,6 @@ function resultFor(parsed: LocalAiTextInferenceDryRunInput): LocalAiSafetyResult
   });
 }
 
-function actionFor(unavailable: boolean, missingEvidence: boolean): LocalAiSafetyResult['action'] {
-  if (unavailable) {
-    return PolicyAction.AskParent;
-  }
-  if (missingEvidence) {
-    return PolicyAction.Unknown;
-  }
-  return PolicyAction.Warn;
-}
-
-function confidenceFor(unavailable: boolean, missingEvidence: boolean): number {
-  if (unavailable) {
-    return 0.2;
-  }
-  if (missingEvidence) {
-    return 0.15;
-  }
-  return 0.62;
-}
-
-function unknownStateFor(unavailable: boolean, missingEvidence: boolean): typeof LocalAiUnknownStateSchema.Type {
-  if (unavailable) {
-    return LocalAiUnknownState.ModelUnavailable;
-  }
-  if (missingEvidence) {
-    return LocalAiUnknownState.MissingEvidence;
-  }
-  return LocalAiUnknownState.None;
-}
-
 function degradedStateFor(
   runtime: LocalModelRuntimeStatus,
   unavailable: boolean
@@ -180,16 +202,6 @@ function degradedStateFor(
     return LocalAiDegradedState.ProviderUnavailable;
   }
   return runtime.degradedState;
-}
-
-function reasonCodesFor(unavailable: boolean, missingEvidence: boolean): LocalAiSafetyResult['reasonCodes'] {
-  if (unavailable) {
-    return [RuntimeUnavailableReasonCode];
-  }
-  if (missingEvidence) {
-    return [MissingEvidenceReasonCode];
-  }
-  return [CandidateReasonCode];
 }
 
 function stateFor(runtime: LocalModelRuntimeStatus): LocalAiTextInferenceDryRunState {
@@ -245,17 +257,22 @@ function resultMatchesRuntimeBoundary(result: LocalAiTextInferenceDryRunResultCa
 }
 
 function resultStateMatchesOutcome(result: LocalAiTextInferenceDryRunResultCandidate): boolean {
-  if (result.state === 'unavailable-dry-run') {
-    return result.result.action === 'ask-parent' && result.result.unknownState === 'model-unavailable';
-  }
-
   if (result.state === 'degraded-dry-run') {
     return result.result.degradedState !== 'none' || result.result.unknownState !== 'none';
   }
 
   if (result.evidenceReferenceCount === 0) {
-    return result.result.action === 'unknown' && result.result.unknownState === 'missing-evidence';
+    const missingEvidenceOutcome = dryRunOutcomeDefinitions['missing-evidence'];
+    return (
+      result.result.action === missingEvidenceOutcome.action &&
+      result.result.unknownState === missingEvidenceOutcome.unknownState
+    );
   }
 
-  return result.result.action === 'warn' && result.result.unknownState === 'none';
+  const stateDefinition = dryRunStateDefinitions[result.state];
+
+  return (
+    result.result.action === stateDefinition.action &&
+    result.result.unknownState === stateDefinition.unknownState
+  );
 }
