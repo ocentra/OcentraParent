@@ -213,6 +213,53 @@ const requiredWindowsAppControlReadinessStates = [
   'failed',
 ] as const;
 
+const windowsAppControlStateExpectations = {
+  'readiness-check': {
+    policyMutationState: 'detect-only',
+    adminRequirement: 'administrator-required',
+    requiredRuleIdentityCount: 4,
+    requiredEventState: 'manual-proof-required',
+  },
+  'audit-only': {
+    policyMutationState: 'audit-only-visible',
+    adminRequirement: 'administrator-required',
+    requiredRuleIdentityCount: 4,
+    requiredEventState: 'audit-visible',
+  },
+  enforced: {
+    policyMutationState: 'create-update-manual-required',
+    adminRequirement: 'administrator-required',
+    requiredRuleIdentityCount: 4,
+    requiredEventState: 'rollback-visible',
+  },
+  'manual-required': {
+    policyMutationState: 'manual-setup-required',
+    adminRequirement: 'manual-operator-required',
+    requiredRuleIdentityCount: 4,
+    requiredEventState: 'manual-proof-required',
+  },
+  unavailable: {
+    policyMutationState: 'unavailable',
+    adminRequirement: 'service-permission-required',
+    requiredRuleIdentityCount: 0,
+    requiredEventState: 'unavailable',
+  },
+  failed: {
+    policyMutationState: 'failed',
+    adminRequirement: 'administrator-required',
+    requiredRuleIdentityCount: 4,
+    requiredEventState: 'failure-visible',
+  },
+} as const satisfies Record<
+  V08WindowsAppControlReadinessState,
+  {
+    policyMutationState: V08WindowsAppControlPolicyMutationState;
+    adminRequirement: V08WindowsAppControlAdminRequirement;
+    requiredRuleIdentityCount: number;
+    requiredEventState: V08WindowsAppControlEventState;
+  }
+>;
+
 function windowsAppControlProofStatesAreComplete(states: readonly V08WindowsAppControlProofStateCandidate[]): boolean {
   return requiredWindowsAppControlReadinessStates.every((state) =>
     states.some((candidate) => candidate.readinessState === state)
@@ -229,39 +276,22 @@ function windowsAppControlProofStateIsHonest(state: V08WindowsAppControlProofSta
     return false;
   }
 
-  switch (state.readinessState) {
-    case 'readiness-check':
-      return appControlStateMatches(state, 'detect-only', 'administrator-required', true, 'manual-proof-required');
-    case 'audit-only':
-      return appControlStateMatches(state, 'audit-only-visible', 'administrator-required', true, 'audit-visible');
-    case 'enforced':
-      return appControlStateMatches(
-        state,
-        'create-update-manual-required',
-        'administrator-required',
-        true,
-        'rollback-visible'
-      );
-    case 'manual-required':
-      return appControlStateMatches(
-        state,
-        'manual-setup-required',
-        'manual-operator-required',
-        true,
-        'manual-proof-required'
-      );
-    case 'unavailable':
-      return appControlStateMatches(state, 'unavailable', 'service-permission-required', false, 'unavailable');
-    case 'failed':
-      return appControlStateMatches(state, 'failed', 'administrator-required', true, 'failure-visible');
-  }
+  const expectation = windowsAppControlStateExpectations[state.readinessState];
+
+  return appControlStateMatches(
+    state,
+    expectation.policyMutationState,
+    expectation.adminRequirement,
+    expectation.requiredRuleIdentityCount,
+    expectation.requiredEventState
+  );
 }
 
 function appControlStateMatches(
   state: V08WindowsAppControlProofStateCandidate,
   policyMutationState: V08WindowsAppControlPolicyMutationState,
   adminRequirement: V08WindowsAppControlAdminRequirement,
-  requiresRuleIdentityKinds: boolean,
+  requiredRuleIdentityCount: number,
   requiredEventState: V08WindowsAppControlEventState
 ): boolean {
   return (
@@ -269,7 +299,7 @@ function appControlStateMatches(
     state.adminRequirement === adminRequirement &&
     state.eventStates.includes(requiredEventState) &&
     state.manualProofRequirements.length > 0 &&
-    (requiresRuleIdentityKinds ? state.ruleIdentityKinds.length === 4 : state.ruleIdentityKinds.length === 0)
+    state.ruleIdentityKinds.length === requiredRuleIdentityCount
   );
 }
 
@@ -296,26 +326,7 @@ function browserDomainAdapterEntryMatchesEvidenceExpectation(
   entry: V08BrowserDomainAdapterProofEntryCandidate,
   evidenceExpectation: BrowserDomainAdapterEvidenceExpectation
 ): boolean {
-  switch (evidenceExpectation) {
-    case 'linked-proof':
-      return (
-        entry.linkedProofCommands.length > 0 &&
-        entry.linkedProofArtifacts.length > 0 &&
-        entry.manualProofRequirements.length === 0
-      );
-    case 'linked-degraded-proof':
-      return (
-        entry.linkedProofCommands.length > 0 &&
-        entry.linkedProofArtifacts.length > 0 &&
-        entry.manualProofRequirements.length > 0
-      );
-    case 'manual-proof':
-      return (
-        entry.linkedProofCommands.length === 0 &&
-        entry.linkedProofArtifacts.length === 0 &&
-        entry.manualProofRequirements.length > 0
-      );
-  }
+  return browserDomainAdapterEvidenceExpectationValidators[evidenceExpectation](entry);
 }
 
 type BrowserDomainAdapterEvidenceExpectation = 'linked-proof' | 'linked-degraded-proof' | 'manual-proof';
@@ -330,6 +341,24 @@ type BrowserDomainAdapterSurfaceExpectation = {
   adapterExecutionState: V08BrowserDomainAdapterExecutionState;
   evidenceExpectation: BrowserDomainAdapterEvidenceExpectation;
 };
+
+const browserDomainAdapterEvidenceExpectationValidators = {
+  'linked-proof': (entry: V08BrowserDomainAdapterProofEntryCandidate) =>
+    entry.linkedProofCommands.length > 0 &&
+    entry.linkedProofArtifacts.length > 0 &&
+    entry.manualProofRequirements.length === 0,
+  'linked-degraded-proof': (entry: V08BrowserDomainAdapterProofEntryCandidate) =>
+    entry.linkedProofCommands.length > 0 &&
+    entry.linkedProofArtifacts.length > 0 &&
+    entry.manualProofRequirements.length > 0,
+  'manual-proof': (entry: V08BrowserDomainAdapterProofEntryCandidate) =>
+    entry.linkedProofCommands.length === 0 &&
+    entry.linkedProofArtifacts.length === 0 &&
+    entry.manualProofRequirements.length > 0,
+} satisfies Record<
+  BrowserDomainAdapterEvidenceExpectation,
+  (entry: V08BrowserDomainAdapterProofEntryCandidate) => boolean
+>;
 
 const browserDomainAdapterSurfaceExpectations: readonly BrowserDomainAdapterSurfaceExpectation[] = [
   {
