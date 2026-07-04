@@ -202,17 +202,15 @@ function updateStatesAreHonest(states: ReadonlyArray<ParentDesktopReleaseSupport
   return states.every(updateStateIsHonest);
 }
 
+const updateStateValidators = {
+  scaffold: scaffoldUpdateStateIsHonest,
+  'unsigned-preview': unsignedPreviewUpdateStateIsHonest,
+  'signature-required': signatureRequiredUpdateStateIsHonest,
+  production: productionUpdateStateIsHonest,
+} satisfies Record<ParentDesktopReleaseSupportUpdateState['channel'], (entry: ParentDesktopReleaseSupportUpdateState) => boolean>;
+
 function updateStateIsHonest(entry: ParentDesktopReleaseSupportUpdateState): boolean {
-  switch (entry.channel) {
-    case 'scaffold':
-      return scaffoldUpdateStateIsHonest(entry);
-    case 'unsigned-preview':
-      return unsignedPreviewUpdateStateIsHonest(entry);
-    case 'signature-required':
-      return signatureRequiredUpdateStateIsHonest(entry);
-    case 'production':
-      return productionUpdateStateIsHonest(entry);
-  }
+  return updateStateValidators[entry.channel](entry);
 }
 
 function scaffoldUpdateStateIsHonest(entry: ParentDesktopReleaseSupportUpdateState): boolean {
@@ -418,16 +416,15 @@ function updaterRollbackRowsAreHonest(rows: ReadonlyArray<UpdaterRollbackRow>): 
   );
 }
 
+const updaterRollbackRowValidators = {
+  scaffold: scaffoldRollbackRowIsHonest,
+  'unsigned-preview': unsignedPreviewRollbackRowIsHonest,
+  'signature-required': manualRollbackRowIsHonest,
+  production: manualRollbackRowIsHonest,
+} satisfies Record<UpdaterRollbackRow['channel'], (entry: UpdaterRollbackRow) => boolean>;
+
 function updaterRollbackRowIsHonest(entry: UpdaterRollbackRow): boolean {
-  switch (entry.channel) {
-    case 'scaffold':
-      return scaffoldRollbackRowIsHonest(entry);
-    case 'unsigned-preview':
-      return unsignedPreviewRollbackRowIsHonest(entry);
-    case 'signature-required':
-    case 'production':
-      return manualRollbackRowIsHonest(entry);
-  }
+  return updaterRollbackRowValidators[entry.channel](entry);
 }
 
 function scaffoldRollbackRowIsHonest(entry: UpdaterRollbackRow): boolean {
