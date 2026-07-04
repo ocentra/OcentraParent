@@ -65,22 +65,22 @@ fn adapter_capability_status_preserves_manual_followups_and_unavailable_rows() {
                 manual_entry(
                     NetworkPlatformClaimTarget::WindowsWfp,
                     NetworkPlatformClaimState::ManualRequired,
-                    "windows-wfp.administrator-permission",
+                    MissingArtifactCase::WindowsWfpAdministratorPermission,
                 ),
                 manual_entry(
                     NetworkPlatformClaimTarget::LinuxTun,
                     NetworkPlatformClaimState::Unavailable,
-                    "linux-adapter.permission",
+                    MissingArtifactCase::LinuxAdapterPermission,
                 ),
             ],
             vec![
                 followup(
                     NetworkPlatformClaimTarget::WindowsWfp,
-                    "windows-wfp.administrator-permission",
+                    MissingArtifactCase::WindowsWfpAdministratorPermission,
                 ),
                 followup(
                     NetworkPlatformClaimTarget::LinuxTun,
-                    "linux-adapter.permission",
+                    MissingArtifactCase::LinuxAdapterPermission,
                 ),
             ],
         )))
@@ -173,11 +173,24 @@ fn entry(
     }
 }
 
+#[derive(Clone, Copy)]
+enum MissingArtifactCase {
+    WindowsWfpAdministratorPermission,
+    LinuxAdapterPermission,
+}
+
 fn manual_entry(
     target: NetworkPlatformClaimTarget,
     claim_state: NetworkPlatformClaimState,
-    missing_artifact: &str,
+    missing_artifact: MissingArtifactCase,
 ) -> NetworkPlatformClaimEntry {
+    let missing_artifact = match missing_artifact {
+        MissingArtifactCase::WindowsWfpAdministratorPermission => {
+            "windows-wfp.administrator-permission"
+        }
+        MissingArtifactCase::LinuxAdapterPermission => "linux-adapter.permission",
+    };
+
     NetworkPlatformClaimEntry {
         adapter_capability_refs: Vec::new(),
         permission_or_entitlement_refs: Vec::new(),
@@ -189,8 +202,15 @@ fn manual_entry(
 
 fn followup(
     target: NetworkPlatformClaimTarget,
-    missing_artifact: &str,
+    missing_artifact: MissingArtifactCase,
 ) -> NetworkPlatformClaimManualFollowup {
+    let missing_artifact = match missing_artifact {
+        MissingArtifactCase::WindowsWfpAdministratorPermission => {
+            "windows-wfp.administrator-permission"
+        }
+        MissingArtifactCase::LinuxAdapterPermission => "linux-adapter.permission",
+    };
+
     NetworkPlatformClaimManualFollowup {
         target,
         missing_required_artifacts: vec![missing_artifact.to_owned()],

@@ -5,8 +5,8 @@ use ocentra_network_evidence::managed_browser::*;
 #[test]
 fn managed_browser_correlation_uses_browser_url_for_matching_domain() {
     let correlation = correlate_managed_browser_activity(ManagedBrowserCorrelationInput {
-        network_flow: network_flow(Some("video.example.test")),
-        managed_browser: Some(browser_evidence("video.example.test")),
+        network_flow: network_flow(Some(DomainCase::Video)),
+        managed_browser: Some(browser_evidence(DomainCase::Video)),
     })
     .expect_value("matching managed browser evidence should confirm exact url");
 
@@ -33,7 +33,7 @@ fn managed_browser_correlation_uses_browser_url_for_matching_domain() {
 #[test]
 fn managed_browser_correlation_keeps_network_domain_without_exact_url() {
     let correlation = correlate_managed_browser_activity(ManagedBrowserCorrelationInput {
-        network_flow: network_flow(Some("video.example.test")),
+        network_flow: network_flow(Some(DomainCase::Video)),
         managed_browser: None,
     })
     .expect_value("network domain alone should remain domain-only");
@@ -58,8 +58,8 @@ fn managed_browser_correlation_keeps_network_domain_without_exact_url() {
 #[test]
 fn managed_browser_correlation_rejects_mismatched_browser_domain() {
     let correlation = correlate_managed_browser_activity(ManagedBrowserCorrelationInput {
-        network_flow: network_flow(Some("video.example.test")),
-        managed_browser: Some(browser_evidence("social.example.test")),
+        network_flow: network_flow(Some(DomainCase::Video)),
+        managed_browser: Some(browser_evidence(DomainCase::Social)),
     })
     .expect_value("mismatched browser evidence should not confirm url");
 
@@ -98,11 +98,11 @@ fn managed_browser_correlation_requires_browser_evidence_for_exact_url() {
 
 #[test]
 fn managed_browser_correlation_rejects_empty_browser_source_ref() {
-    let mut browser = browser_evidence("video.example.test");
+    let mut browser = browser_evidence(DomainCase::Video);
     browser.source_ref = " ".to_owned();
 
     let result = correlate_managed_browser_activity(ManagedBrowserCorrelationInput {
-        network_flow: network_flow(Some("video.example.test")),
+        network_flow: network_flow(Some(DomainCase::Video)),
         managed_browser: Some(browser),
     });
 
@@ -112,14 +112,33 @@ fn managed_browser_correlation_rejects_empty_browser_source_ref() {
     );
 }
 
-fn network_flow(domain: Option<&str>) -> NetworkManagedBrowserFlowEvidence {
+#[derive(Clone, Copy)]
+enum DomainCase {
+    Video,
+    Social,
+}
+
+fn network_flow(domain: Option<DomainCase>) -> NetworkManagedBrowserFlowEvidence {
+    let observed_domain = domain.map(|domain| {
+        match domain {
+            DomainCase::Video => "video.example.test",
+            DomainCase::Social => "social.example.test",
+        }
+        .to_owned()
+    });
+
     NetworkManagedBrowserFlowEvidence {
         flow_ref: "flow-1".to_owned(),
-        observed_domain: domain.map(str::to_owned),
+        observed_domain,
     }
 }
 
-fn browser_evidence(page_domain: &str) -> ManagedBrowserPageEvidence {
+fn browser_evidence(page_domain: DomainCase) -> ManagedBrowserPageEvidence {
+    let page_domain = match page_domain {
+        DomainCase::Video => "video.example.test",
+        DomainCase::Social => "social.example.test",
+    };
+
     ManagedBrowserPageEvidence {
         browser_ref: "managed-browser-1".to_owned(),
         tab_ref: "tab-1".to_owned(),

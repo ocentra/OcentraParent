@@ -303,12 +303,19 @@ fn apply_ready_input(
     requested_action: NetworkActionResultRequestedAction,
     target_kind: NetworkActionResultTargetKind,
 ) -> NetworkActionResultInput {
+    let target_ref = match target_kind {
+        NetworkActionResultTargetKind::Domain => " domain-target-ref-53 ",
+        NetworkActionResultTargetKind::IpEndpoint => " ip-target-ref-53 ",
+        NetworkActionResultTargetKind::Process => " process-target-ref-53 ",
+        NetworkActionResultTargetKind::App => " app-target-ref-53 ",
+    };
+
     NetworkActionResultInput {
         action_result_ref: " network-action-result-53 ".to_owned(),
         policy_mapping: policy_mapping(NetworkEvidenceGrade::A, NetworkEvidencePolicyAction::Block),
         requested_action,
         target_kind,
-        target_ref: target_ref_for(target_kind).to_owned(),
+        target_ref: target_ref.to_owned(),
         capability_state: NetworkActionResultCapabilityState::Supported,
         adapter_proof_state: NetworkActionResultAdapterProofState::ApplyReady,
         adapter_proof_ref: Some(" adapter-proof-ref-53 ".to_owned()),
@@ -321,15 +328,6 @@ fn apply_ready_input(
         page_content_claimed: false,
         host_mutation_claimed: false,
         enforcement_command_published: false,
-    }
-}
-
-fn target_ref_for(target_kind: NetworkActionResultTargetKind) -> &'static str {
-    match target_kind {
-        NetworkActionResultTargetKind::Domain => " domain-target-ref-53 ",
-        NetworkActionResultTargetKind::IpEndpoint => " ip-target-ref-53 ",
-        NetworkActionResultTargetKind::Process => " process-target-ref-53 ",
-        NetworkActionResultTargetKind::App => " app-target-ref-53 ",
     }
 }
 
