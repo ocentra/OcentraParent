@@ -85,7 +85,10 @@ pub fn parse_stack_trace(stack_trace: &str) -> Vec<StackFrame> {
 }
 
 pub fn stack_trace_runtime_typescript() -> &'static str {
-    STACK_TRACE_RUNTIME_TYPESCRIPT
+    include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../logging-core-generated/stack_trace_runtime.ts"
+    ))
 }
 
 fn parse_frame_line(line: &str) -> Option<StackFrame> {
@@ -190,6 +193,3 @@ fn trim_windows_file_url_prefix(pathname: &str) -> String {
         })
         .map_or_else(|| pathname.to_owned(), |rest| rest.to_owned())
 }
-
-const STACK_TRACE_RUNTIME_TYPESCRIPT: &str =
-    include_str!("../../../packages/logging-domain/src/stack-trace-runtime.ts");

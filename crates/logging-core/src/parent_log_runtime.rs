@@ -207,8 +207,8 @@ pub fn has_stale_run_info_conflict(
 }
 
 pub fn parent_log_runtime_typescript() -> &'static str {
-    PARENT_LOG_RUNTIME_TYPESCRIPT
+    include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../logging-core-generated/parent_log_runtime.ts"
+    ))
 }
-
-const PARENT_LOG_RUNTIME_TYPESCRIPT: &str =
-    include_str!("../../../packages/logging-domain/src/parent-log-runtime.ts");
