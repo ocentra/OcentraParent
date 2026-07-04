@@ -340,6 +340,68 @@ export const PolicyEventScope = {
   }),
 } as const;
 
+const EMPTY_POLICY_EVENT_SUMMARY_FLAGS = Object.freeze([]) as readonly string[];
+
+const POLICY_EVENT_SUMMARY_FLAGS_BY_KIND: Readonly<Partial<Record<PolicyEventKind, readonly string[]>>> = {
+  [PolicyEventKindLiteral.ManualRequired]: Object.freeze(['manual-required']),
+  [PolicyEventKindLiteral.DeadLetterRecorded]: Object.freeze(['dead-lettered']),
+};
+
+const POLICY_EVENT_AGGREGATE_PART_BUILDERS: Readonly<
+  Record<PolicyEventScopeKind, (scope: PolicyEventScope) => readonly string[]>
+> = {
+  [PolicyEventScopeLiteral.SourceDocument]: (rawScope) => {
+    const scope = rawScope as Infer<typeof PolicyEventSourceDocumentScopeSchema>;
+    return ['policy-source', scope.householdId, scope.sourceDocumentId, scope.policyVersion];
+  },
+  [PolicyEventScopeLiteral.Request]: (rawScope) => {
+    const scope = rawScope as Infer<typeof PolicyEventRequestScopeSchema>;
+    return ['policy-request', scope.householdId, scope.requestId, scope.policyVersion];
+  },
+  [PolicyEventScopeLiteral.Approval]: (rawScope) => {
+    const scope = rawScope as Infer<typeof PolicyEventApprovalScopeSchema>;
+    return ['policy-approval', scope.householdId, scope.approvalId, scope.requestId, scope.policyVersion];
+  },
+  [PolicyEventScopeLiteral.Override]: (rawScope) => {
+    const scope = rawScope as Infer<typeof PolicyEventOverrideScopeSchema>;
+    return [
+      'policy-override',
+      scope.householdId,
+      scope.overrideId,
+      scope.approvalId,
+      scope.requestId,
+      scope.policyVersion,
+    ];
+  },
+  [PolicyEventScopeLiteral.Delivery]: (rawScope) => {
+    const scope = rawScope as Infer<typeof PolicyEventDeliveryScopeSchema>;
+    return [
+      'policy-delivery',
+      scope.householdId,
+      scope.deliveryId,
+      scope.childProfileId,
+      scope.deviceId,
+      scope.domain,
+      scope.policyVersion,
+    ];
+  },
+  [PolicyEventScopeLiteral.Rollback]: (rawScope) => {
+    const scope = rawScope as Infer<typeof PolicyEventRollbackScopeSchema>;
+    return [
+      'policy-rollback',
+      scope.householdId,
+      scope.rollbackRef.rolledBackDocumentId,
+      scope.rollbackRef.rolledBackPolicyVersion,
+      scope.rollbackRef.restoredDocumentId,
+      scope.rollbackRef.restoredPolicyVersion,
+    ];
+  },
+  [PolicyEventScopeLiteral.Audit]: (rawScope) => {
+    const scope = rawScope as Infer<typeof PolicyEventAuditScopeSchema>;
+    return ['policy-audit', scope.householdId, scope.auditReferenceId, scope.sourceDocumentId, scope.policyVersion];
+  },
+};
+
 export function policyEventSchemaVersion(): PolicyEventSchemaVersion {
   return PolicyEventSchemaVersionSchema.parse(1);
 }
@@ -379,18 +441,12 @@ export function policyEventIdempotencyKey(event: PolicyEvent): PolicyEventIdempo
 }
 
 export function policyEventRedactedSummary(event: Pick<PolicyEvent, 'kind' | 'scope' | 'sequence'>): string {
-  const value = [
+  return [
     `policy-event kind=${event.kind}`,
     `scope=${policyEventScopeFamily(event.scope)}`,
     `sequence=${event.sequence}`,
-  ];
-  if (event.kind === PolicyEventKind.ManualRequired) {
-    value.push('manual-required');
-  }
-  if (event.kind === PolicyEventKind.DeadLetterRecorded) {
-    value.push('dead-lettered');
-  }
-  return value.join(' ');
+    ...(POLICY_EVENT_SUMMARY_FLAGS_BY_KIND[event.kind] ?? EMPTY_POLICY_EVENT_SUMMARY_FLAGS),
+  ].join(' ');
 }
 
 export function parsePolicyEvent(input: unknown): PolicyEvent {
@@ -491,31 +547,12 @@ const POLICY_EVENT_REASON_CODE_BY_KIND: Readonly<Partial<Record<PolicyEventKind,
 };
 
 function policyEventIsConsistent(event: Infer<typeof PolicyEventBaseSchema>): boolean {
-  if (policyEventScopeFamily(event.scope) !== policyEventExpectedScopeFamily(event.kind)) {
-    return false;
-  }
-
-  if (!hasUniqueAuditReferenceIds(event.auditReferenceIds)) {
-    return false;
-  }
-
-  if (policyEventKindRequiresReason(event.kind)) {
-    if (event.reasonCode !== policyEventKindReasonCodeValue(event.kind)) {
-      return false;
-    }
-  } else if (event.reasonCode !== null) {
-    return false;
-  }
-
-  if ((event.kind === PolicyEventKind.DeadLetterRecorded) !== (event.deadLetterReason !== null)) {
-    return false;
-  }
-
-  if (event.deadLetterReason !== null && event.kind !== PolicyEventKind.DeadLetterRecorded) {
-    return false;
-  }
-
-  return true;
+  return (
+    policyEventScopeFamily(event.scope) === policyEventExpectedScopeFamily(event.kind) &&
+    hasUniqueAuditReferenceIds(event.auditReferenceIds) &&
+    policyEventHasExpectedReasonCode(event) &&
+    policyEventHasExpectedDeadLetterState(event)
+  );
 }
 
 function policyEventEnvelopeIsConsistent(envelope: Infer<typeof PolicyEventEnvelopeBaseSchema>): boolean {
@@ -535,65 +572,18 @@ function policyEventExpectedScopeFamily(kind: PolicyEventKind): PolicyEventScope
   return POLICY_EVENT_SCOPE_FAMILY_BY_KIND[kind];
 }
 
-function policyEventKindRequiresReason(kind: PolicyEventKind): boolean {
-  return POLICY_EVENT_REASON_CODE_BY_KIND[kind] !== undefined;
-}
-
-function policyEventKindReasonCodeValue(kind: PolicyEventKind): string {
-  return POLICY_EVENT_REASON_CODE_BY_KIND[kind] ?? 'policy-event';
+function policyEventHasExpectedReasonCode(event: Pick<PolicyEvent, 'kind' | 'reasonCode'>): boolean {
+  return event.reasonCode === (POLICY_EVENT_REASON_CODE_BY_KIND[event.kind] ?? null);
 }
 
 function policyEventAggregateKeyValue(scope: PolicyEventScope): string {
-  switch (scope.scope) {
-    case PolicyEventScopeLiteral.SourceDocument:
-      return joinPolicyEventKey(['policy-source', scope.householdId, scope.sourceDocumentId, scope.policyVersion]);
-    case PolicyEventScopeLiteral.Request:
-      return joinPolicyEventKey(['policy-request', scope.householdId, scope.requestId, scope.policyVersion]);
-    case PolicyEventScopeLiteral.Approval:
-      return joinPolicyEventKey([
-        'policy-approval',
-        scope.householdId,
-        scope.approvalId,
-        scope.requestId,
-        scope.policyVersion,
-      ]);
-    case PolicyEventScopeLiteral.Override:
-      return joinPolicyEventKey([
-        'policy-override',
-        scope.householdId,
-        scope.overrideId,
-        scope.approvalId,
-        scope.requestId,
-        scope.policyVersion,
-      ]);
-    case PolicyEventScopeLiteral.Delivery:
-      return joinPolicyEventKey([
-        'policy-delivery',
-        scope.householdId,
-        scope.deliveryId,
-        scope.childProfileId,
-        scope.deviceId,
-        scope.domain,
-        scope.policyVersion,
-      ]);
-    case PolicyEventScopeLiteral.Rollback:
-      return joinPolicyEventKey([
-        'policy-rollback',
-        scope.householdId,
-        scope.rollbackRef.rolledBackDocumentId,
-        scope.rollbackRef.rolledBackPolicyVersion,
-        scope.rollbackRef.restoredDocumentId,
-        scope.rollbackRef.restoredPolicyVersion,
-      ]);
-    case PolicyEventScopeLiteral.Audit:
-      return joinPolicyEventKey([
-        'policy-audit',
-        scope.householdId,
-        scope.auditReferenceId,
-        scope.sourceDocumentId,
-        scope.policyVersion,
-      ]);
-  }
+  return joinPolicyEventKey(POLICY_EVENT_AGGREGATE_PART_BUILDERS[scope.scope](scope));
+}
+
+function policyEventHasExpectedDeadLetterState(
+  event: Pick<PolicyEvent, 'kind' | 'deadLetterReason'>
+): boolean {
+  return (event.kind === PolicyEventKind.DeadLetterRecorded) === (event.deadLetterReason !== null);
 }
 
 function policyEventIdempotencyKeyValue(event: PolicyEvent): string {
