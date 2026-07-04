@@ -47,7 +47,7 @@ pub fn social_managed_browser_policy_execution_typescript() -> String {
 
 const SOCIAL_MANAGED_BROWSER_POLICY_EXECUTION_TYPESCRIPT: &str = r#"/* generated from crates/browser-core/src/social_managed_browser_policy_execution.rs */
 
-import type { SocialParentPolicyDecisionCandidate } from '@ocentra-parent/schema-domain/social-policy-compiler';
+import type { SocialParentPolicyDecisionCandidate } from './social_policy_compiler_contract';
 
 export const SocialManagedBrowserPolicyExecutionTemplate = {
   executionState: 'managed-browser-intervention-executed',

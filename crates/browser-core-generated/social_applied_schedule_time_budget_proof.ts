@@ -3,12 +3,16 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
+  socialAppliedScheduleTimeBudgetHasRequiredNonClaims,
+  summarizeSocialAppliedScheduleTimeBudgetRows,
+} from './social_applied_schedule_time_budget_helpers';
+import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentEvidenceReferenceIdSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { SocialParentPolicyDecisionCandidateSchema } from '@ocentra-parent/schema-domain/social-policy-compiler';
+import { SocialParentPolicyDecisionCandidateSchema } from './social_policy_compiler_contract';
 import {
   SocialParentPolicyDecisionCandidateIdSchema,
   SocialParentPolicyScheduleStateSchema,
@@ -238,19 +242,11 @@ export const SocialAppliedScheduleTimeBudgetProofReadModel = SocialAppliedSchedu
 export function summarizeSocialAppliedScheduleTimeBudgetProof(
   readModel: SocialAppliedScheduleTimeBudgetProofReadModel
 ) {
-  return {
-    totalRows: readModel.rows.length,
-    parentOwnedApplicationEvaluatedRows: readModel.rows.filter(
-      (row) => row.applicationState === SocialAppliedScheduleTimeBudgetState.ParentOwnedApplicationEvaluated
-    ).length,
-    manualRequiredRows: readModel.rows.filter(
-      (row) => row.applicationState === SocialAppliedScheduleTimeBudgetState.ManualRequired
-    ).length,
-    runtimeScheduleAppliedClaimed: readModel.rows.some((row) => row.runtimeScheduleAppliedClaimed),
-    runtimeTimeBudgetAppliedClaimed: readModel.rows.some((row) => row.runtimeTimeBudgetAppliedClaimed),
-    browserRuntimeGateExecutedClaimed: readModel.rows.some((row) => row.browserRuntimeGateExecutedClaimed),
-    enforcementClaimed: readModel.rows.some((row) => row.enforcementClaimed),
-  };
+  return summarizeSocialAppliedScheduleTimeBudgetRows(
+    readModel.rows,
+    SocialAppliedScheduleTimeBudgetState.ParentOwnedApplicationEvaluated,
+    SocialAppliedScheduleTimeBudgetState.ManualRequired
+  );
 }
 
 function socialAppliedScheduleTimeBudgetRowIsCoherent(row: SocialAppliedScheduleTimeBudgetCandidate): boolean {
@@ -306,12 +302,5 @@ function socialAppliedScheduleTimeBudgetManualRowIsCoherent(row: SocialAppliedSc
 function socialAppliedScheduleTimeBudgetReadModelHasRequiredNonClaims(readModel: {
   readonly nonClaims: ReadonlyArray<SocialAppliedScheduleReference>;
 }): boolean {
-  const nonClaims = new Set(readModel.nonClaims);
-  return (
-    nonClaims.has(RequiredNonClaims.NoRuntimeAppliedSchedule) &&
-    nonClaims.has(RequiredNonClaims.NoRuntimeAppliedTimeBudget) &&
-    nonClaims.has(RequiredNonClaims.NoBrowserRuntimeGate) &&
-    nonClaims.has(RequiredNonClaims.NoFinalPolicyExecution) &&
-    nonClaims.has(RequiredNonClaims.NoEnforcement)
-  );
+  return socialAppliedScheduleTimeBudgetHasRequiredNonClaims(readModel.nonClaims);
 }

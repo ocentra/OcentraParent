@@ -59,7 +59,7 @@ const SOCIAL_POLICY_CANDIDATE_COMPILER_TYPESCRIPT: &str = r#"/* generated from c
 import type {
   SocialParentPolicyCompilerInput,
   SocialParentPolicyDecisionCandidate,
-} from '@ocentra-parent/schema-domain/social-policy-compiler';
+} from './social_policy_compiler_contract';
 
 export const SocialPolicyDecisionTemplates = {
   'contract-only': {

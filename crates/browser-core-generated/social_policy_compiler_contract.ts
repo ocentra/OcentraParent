@@ -1,4 +1,6 @@
-import { type Infer, Schema, withParser } from './effect';
+/* generated from crates/browser-core/src/social_policy_compiler_contract.rs */
+
+import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   ChildProfileIdSchema,
   FamilyIdSchema,
@@ -6,8 +8,8 @@ import {
   ParentDeviceIdSchema,
   ParentPolicyVersionSchema,
   ParentTimestampSchema,
-} from './family-reference-primitives';
-import { PolicyCompilerCapabilityStateSchema } from './policy-compiler';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { PolicyCompilerCapabilityStateSchema } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   SocialParentPolicyActionCandidateSchema,
   SocialParentPolicyCompilerModeSchema,
@@ -23,8 +25,8 @@ import {
   SocialPolicyScheduleRefsSchema,
   SocialPolicySignalSetRefsSchema,
   SocialPolicyTimeBudgetRefsSchema,
-} from './social-policy-compiler-values';
-import type { SocialParentPolicyReasonCodeSchema } from './social-policy-compiler-values';
+} from '@ocentra-parent/schema-domain/social-policy-compiler-values';
+import type { SocialParentPolicyReasonCodeSchema } from '@ocentra-parent/schema-domain/social-policy-compiler-values';
 
 const SocialParentPolicyCompilerInputBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,

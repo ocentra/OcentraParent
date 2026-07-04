@@ -2301,10 +2301,6 @@
       "import": "./dist/social-platform-connector-authorization-values.js",
       "types": "./dist/social-platform-connector-authorization-values.d.ts"
     },
-    "./social-policy-compiler": {
-      "import": "./dist/social-policy-compiler.js",
-      "types": "./dist/social-policy-compiler.d.ts"
-    },
     "./social-policy-compiler-values": {
       "import": "./dist/social-policy-compiler-values.js",
       "types": "./dist/social-policy-compiler-values.d.ts"

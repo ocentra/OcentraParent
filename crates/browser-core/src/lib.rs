@@ -18,6 +18,7 @@ pub mod social_alert_report_scheduler_bridge;
 pub mod social_applied_schedule_time_budget_proof;
 pub mod social_managed_browser_policy_execution;
 pub mod social_policy_candidate_compiler;
+pub mod social_policy_compiler_contract;
 pub mod social_video_ai_signal_aggregate;
 pub mod social_video_source_privacy;
 
