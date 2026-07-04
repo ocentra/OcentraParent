@@ -1,9 +1,5 @@
-use super::{
-    NetworkParentNotificationCandidateError, NetworkParentNotificationSeverity,
-};
-use crate::{
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMode,
-};
+use super::{NetworkParentNotificationCandidateError, NetworkParentNotificationSeverity};
+use crate::{NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMode};
 
 pub(super) fn severity_for(
     mapping: &NetworkEvidencePolicyMapping,

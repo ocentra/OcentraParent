@@ -1,6 +1,6 @@
 use super::{
-    NetworkAnalyzerAlertRecord, NetworkSignatureAlertFixtureRow, NetworkSignatureAlertIngestionError,
-    NetworkSignatureAlertSource, NetworkSignatureAlertState,
+    NetworkAnalyzerAlertRecord, NetworkSignatureAlertFixtureRow,
+    NetworkSignatureAlertIngestionError, NetworkSignatureAlertSource, NetworkSignatureAlertState,
 };
 
 pub(super) fn normalize_records(
