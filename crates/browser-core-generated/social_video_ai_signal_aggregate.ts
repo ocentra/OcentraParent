@@ -2,21 +2,13 @@
 
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {
-  BrowserAiConfidenceSchema,
-  BrowserAiDegradedStateSchema,
-  BrowserAiRecommendedPolicyInputSchema,
-} from '@ocentra-parent/schema-domain/browser-ai-analysis-values';
-import { BrowserCustodyLabelSchema } from '@ocentra-parent/schema-domain/browser-schemas';
-import {
   BrowserSocialAiAnalysisResultSchema,
   type BrowserSocialAiAnalysisResult,
 } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-schemas';
-import { BrowserSocialAiAnalysisIdSchema } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-values';
 import {
   BrowserSocialFeedVideoRouteGatePlanSchema,
   type BrowserSocialFeedVideoRouteGatePlan,
 } from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
-import { BrowserSocialFeedVideoRouteGatePlanIdSchema } from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate-values';
 import {
   BrowserSocialPlatformSchema,
   BrowserSocialRouteEvidenceIdSchema,
@@ -25,8 +17,6 @@ import {
   BrowserSocialRiskBenefitSignalSetSchema,
   type BrowserSocialRiskBenefitSignalSet,
 } from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
-import { BrowserSocialRiskBenefitSignalSetIdSchema } from '@ocentra-parent/schema-domain/browser-social-riskbenefit-values';
-import { BrowserSocialVideoMetadataEvidenceIdSchema } from '@ocentra-parent/schema-domain/browser-social-video-metadata';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
@@ -40,6 +30,16 @@ import {
   SocialVideoSourcePrivacyTargetKindSchema,
   type SocialVideoSourcePrivacySummary,
 } from './social-video-source-privacy';
+import {
+  BrowserAiConfidenceSchema,
+  BrowserAiDegradedStateSchema,
+  BrowserAiRecommendedPolicyInputSchema,
+  BrowserCustodyLabelSchema,
+  BrowserSocialAiAnalysisIdSchema,
+  BrowserSocialFeedVideoRouteGatePlanIdSchema,
+  BrowserSocialRiskBenefitSignalSetIdSchema,
+  BrowserSocialVideoMetadataEvidenceIdSchema,
+} from './social_video_ai_signal_aggregate_support';
 import {
   actionCandidateRefsForGate,
   aggregateSourceEvidenceIds,
