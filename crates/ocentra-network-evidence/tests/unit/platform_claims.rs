@@ -33,6 +33,8 @@ use ocentra_network_evidence::{
     },
 };
 
+struct Suffix(&'static str);
+
 #[test]
 fn platform_claim_manifest_names_fixture_platform_permission_and_device_refs() {
     let proof = build_network_platform_claim_manifest(NetworkPlatformClaimManifestInput {
@@ -126,7 +128,7 @@ fn platform_claim_manifest_reports_unavailable_states_without_execution() {
             plan_network_linux_adapter_gate(NetworkLinuxAdapterGateInput {
                 capability_state: NetworkLinuxAdapterCapabilityState::Unavailable,
                 permission_proof_ref: None,
-                ..linux_input_for(NetworkLinuxAdapterKind::Tun, "unavailable")
+                ..linux_input_for(NetworkLinuxAdapterKind::Tun, Suffix("unavailable"))
             })
             .expect_value("unavailable Linux adapter state should stay reportable"),
         )],
@@ -248,31 +250,37 @@ fn complete_platform_sources() -> Vec<NetworkPlatformClaimProofSource> {
         NetworkPlatformClaimProofSource::AppleNetworkExtension(
             plan_network_apple_network_extension_gate(apple_input_for(
                 NetworkAppleNetworkExtensionPlatform::MacOs,
-                "macos",
+                Suffix("macos"),
             ))
             .expect_value("complete Apple macOS input should build proof"),
         ),
         NetworkPlatformClaimProofSource::AppleNetworkExtension(
             plan_network_apple_network_extension_gate(apple_input_for(
                 NetworkAppleNetworkExtensionPlatform::Ios,
-                "ios",
+                Suffix("ios"),
             ))
             .expect_value("complete Apple iOS input should build proof"),
         ),
         NetworkPlatformClaimProofSource::LinuxAdapter(
             plan_network_linux_adapter_gate(linux_input_for(
                 NetworkLinuxAdapterKind::Nftables,
-                "nftables",
+                Suffix("nftables"),
             ))
             .expect_value("complete Linux nftables input should build proof"),
         ),
         NetworkPlatformClaimProofSource::LinuxAdapter(
-            plan_network_linux_adapter_gate(linux_input_for(NetworkLinuxAdapterKind::Ebpf, "ebpf"))
-                .expect_value("complete Linux eBPF input should build proof"),
+            plan_network_linux_adapter_gate(linux_input_for(
+                NetworkLinuxAdapterKind::Ebpf,
+                Suffix("ebpf"),
+            ))
+            .expect_value("complete Linux eBPF input should build proof"),
         ),
         NetworkPlatformClaimProofSource::LinuxAdapter(
-            plan_network_linux_adapter_gate(linux_input_for(NetworkLinuxAdapterKind::Tun, "tun"))
-                .expect_value("complete Linux TUN input should build proof"),
+            plan_network_linux_adapter_gate(linux_input_for(
+                NetworkLinuxAdapterKind::Tun,
+                Suffix("tun"),
+            ))
+            .expect_value("complete Linux TUN input should build proof"),
         ),
     ]
 }
@@ -386,28 +394,38 @@ fn android_input() -> NetworkAndroidVpnServiceGateInput {
 
 fn apple_input_for(
     platform: NetworkAppleNetworkExtensionPlatform,
-    suffix: &str,
+    suffix: Suffix,
 ) -> NetworkAppleNetworkExtensionGateInput {
     NetworkAppleNetworkExtensionGateInput {
-        apple_network_extension_gate_ref: format!("apple-network-extension-gate-ref-52-{suffix}"),
+        apple_network_extension_gate_ref: format!(
+            "apple-network-extension-gate-ref-52-{}",
+            suffix.0
+        ),
         policy_mapping: policy_mapping(),
         platform,
-        bundle_ref: format!("apple-bundle-ref-52-{suffix}"),
-        network_extension_ref: format!("apple-network-extension-ref-52-{suffix}"),
+        bundle_ref: format!("apple-bundle-ref-52-{}", suffix.0),
+        network_extension_ref: format!("apple-network-extension-ref-52-{}", suffix.0),
         capability_state: NetworkAppleNetworkExtensionCapabilityState::AppleDeviceReady,
-        developer_team_proof_ref: Some(format!("apple-developer-team-ref-52-{suffix}")),
-        entitlement_approval_proof_ref: Some(format!("apple-entitlement-ref-52-{suffix}")),
-        provisioning_profile_proof_ref: Some(format!("apple-provisioning-ref-52-{suffix}")),
-        signing_proof_ref: Some(format!("apple-signing-ref-52-{suffix}")),
-        device_or_testflight_proof_ref: Some(format!("apple-device-ref-52-{suffix}")),
+        developer_team_proof_ref: Some(format!("apple-developer-team-ref-52-{}", suffix.0)),
+        entitlement_approval_proof_ref: Some(format!("apple-entitlement-ref-52-{}", suffix.0)),
+        provisioning_profile_proof_ref: Some(format!("apple-provisioning-ref-52-{}", suffix.0)),
+        signing_proof_ref: Some(format!("apple-signing-ref-52-{}", suffix.0)),
+        device_or_testflight_proof_ref: Some(format!("apple-device-ref-52-{}", suffix.0)),
         network_extension_declaration_ref: Some(format!(
-            "apple-extension-declaration-ref-52-{suffix}"
+            "apple-extension-declaration-ref-52-{}",
+            suffix.0
         )),
-        extension_configuration_proof_ref: Some(format!("apple-extension-config-ref-52-{suffix}")),
-        rollback_plan_ref: Some(format!("apple-rollback-ref-52-{suffix}")),
-        audit_event_ref: Some(format!("apple-audit-ref-52-{suffix}")),
+        extension_configuration_proof_ref: Some(format!(
+            "apple-extension-config-ref-52-{}",
+            suffix.0
+        )),
+        rollback_plan_ref: Some(format!("apple-rollback-ref-52-{}", suffix.0)),
+        audit_event_ref: Some(format!("apple-audit-ref-52-{}", suffix.0)),
         supervision_required: true,
-        supervision_or_mdm_proof_ref: Some(format!("apple-supervision-mdm-ref-52-{suffix}")),
+        supervision_or_mdm_proof_ref: Some(format!(
+            "apple-supervision-mdm-ref-52-{}",
+            suffix.0
+        )),
         research_only: false,
         exact_url_claimed: false,
         decrypted_payload_claimed: false,
@@ -421,23 +439,23 @@ fn apple_input_for(
 
 fn linux_input_for(
     adapter_kind: NetworkLinuxAdapterKind,
-    suffix: &str,
+    suffix: Suffix,
 ) -> NetworkLinuxAdapterGateInput {
     NetworkLinuxAdapterGateInput {
-        linux_adapter_gate_ref: format!("linux-adapter-gate-ref-52-{suffix}"),
+        linux_adapter_gate_ref: format!("linux-adapter-gate-ref-52-{}", suffix.0),
         policy_mapping: policy_mapping(),
         adapter_kind,
-        distro_ref: format!("linux-distro-ref-52-{suffix}"),
-        kernel_ref: format!("linux-kernel-ref-52-{suffix}"),
+        distro_ref: format!("linux-distro-ref-52-{}", suffix.0),
+        kernel_ref: format!("linux-kernel-ref-52-{}", suffix.0),
         capability_state: NetworkLinuxAdapterCapabilityState::DistroReady,
-        distro_kernel_proof_ref: Some(format!("linux-distro-kernel-ref-52-{suffix}")),
-        permission_proof_ref: Some(format!("linux-permission-ref-52-{suffix}")),
-        adapter_api_capability_proof_ref: Some(format!("linux-api-capability-ref-52-{suffix}")),
-        adapter_plan_proof_ref: Some(format!("linux-adapter-plan-ref-52-{suffix}")),
-        service_manager_scope_proof_ref: Some(format!("linux-service-manager-ref-52-{suffix}")),
-        rollback_plan_ref: Some(format!("linux-rollback-ref-52-{suffix}")),
-        lab_result_artifact_ref: Some(format!("linux-lab-result-ref-52-{suffix}")),
-        audit_event_ref: Some(format!("linux-audit-ref-52-{suffix}")),
+        distro_kernel_proof_ref: Some(format!("linux-distro-kernel-ref-52-{}", suffix.0)),
+        permission_proof_ref: Some(format!("linux-permission-ref-52-{}", suffix.0)),
+        adapter_api_capability_proof_ref: Some(format!("linux-api-capability-ref-52-{}", suffix.0)),
+        adapter_plan_proof_ref: Some(format!("linux-adapter-plan-ref-52-{}", suffix.0)),
+        service_manager_scope_proof_ref: Some(format!("linux-service-manager-ref-52-{}", suffix.0)),
+        rollback_plan_ref: Some(format!("linux-rollback-ref-52-{}", suffix.0)),
+        lab_result_artifact_ref: Some(format!("linux-lab-result-ref-52-{}", suffix.0)),
+        audit_event_ref: Some(format!("linux-audit-ref-52-{}", suffix.0)),
         research_only: false,
         exact_url_claimed: false,
         decrypted_payload_claimed: false,

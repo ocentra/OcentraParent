@@ -4,6 +4,9 @@ use ocentra_network_evidence::cascade::*;
 use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::local_ai_queue::*;
 
+struct TriggerRef(&'static str);
+struct EvidenceRef(&'static str);
+
 #[test]
 fn local_ai_queue_enqueues_weak_network_bundle_with_refs_only() {
     let plan = plan_network_local_ai_queue(queue_input(weak_transfer_bundle()))
@@ -200,12 +203,12 @@ fn queue_input(bundle: NetworkCrossSliceEvidenceBundle) -> NetworkLocalAiQueueIn
 
 fn weak_transfer_bundle() -> NetworkCrossSliceEvidenceBundle {
     bundle(
-        "network-trigger-weak",
+        TriggerRef("network-trigger-weak"),
         source(
             NetworkCascadeSourceKind::TransferCandidate,
             NetworkCascadeSignalStrength::WeakHint,
             NetworkEvidenceGrade::D,
-            "transfer-hint-1",
+            EvidenceRef("transfer-hint-1"),
             false,
         ),
     )
@@ -213,12 +216,12 @@ fn weak_transfer_bundle() -> NetworkCrossSliceEvidenceBundle {
 
 fn weak_managed_browser_bundle() -> NetworkCrossSliceEvidenceBundle {
     bundle(
-        "network-trigger-managed-browser",
+        TriggerRef("network-trigger-managed-browser"),
         source(
             NetworkCascadeSourceKind::ManagedBrowserExactUrl,
             NetworkCascadeSignalStrength::WeakHint,
             NetworkEvidenceGrade::C,
-            "managed-browser-url-ref",
+            EvidenceRef("managed-browser-url-ref"),
             true,
         ),
     )
@@ -226,23 +229,23 @@ fn weak_managed_browser_bundle() -> NetworkCrossSliceEvidenceBundle {
 
 fn confirmed_domain_bundle() -> NetworkCrossSliceEvidenceBundle {
     bundle(
-        "network-trigger-confirmed",
+        TriggerRef("network-trigger-confirmed"),
         source(
             NetworkCascadeSourceKind::DomainCategory,
             NetworkCascadeSignalStrength::Confirmed,
             NetworkEvidenceGrade::B,
-            "domain-category-1",
+            EvidenceRef("domain-category-1"),
             false,
         ),
     )
 }
 
 fn bundle(
-    trigger_ref: &str,
+    trigger_ref: TriggerRef,
     source: NetworkCrossSliceEvidenceSource,
 ) -> NetworkCrossSliceEvidenceBundle {
     build_network_cross_slice_evidence_bundle(NetworkCrossSliceEvidenceBundleInput {
-        trigger_ref: trigger_ref.to_owned(),
+        trigger_ref: trigger_ref.0.to_owned(),
         sources: vec![source],
     })
     .expect_value("test bundle should be valid")
@@ -252,14 +255,14 @@ fn source(
     source_kind: NetworkCascadeSourceKind,
     signal_strength: NetworkCascadeSignalStrength,
     evidence_grade: NetworkEvidenceGrade,
-    evidence_ref: &str,
+    evidence_ref: EvidenceRef,
     exact_url_available: bool,
 ) -> NetworkCrossSliceEvidenceSource {
     NetworkCrossSliceEvidenceSource {
         source_kind,
         signal_strength,
         evidence_grade,
-        evidence_ref: evidence_ref.to_owned(),
+        evidence_ref: evidence_ref.0.to_owned(),
         exact_url_available,
         decrypted_payload_available: false,
         policy_action_authority: false,

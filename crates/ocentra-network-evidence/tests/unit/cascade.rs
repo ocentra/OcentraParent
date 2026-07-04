@@ -2,6 +2,8 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::cascade::*;
 use ocentra_network_evidence::dns::types::*;
 
+struct SourceRef(&'static str);
+
 #[test]
 fn cascade_router_prefers_managed_browser_exact_url_over_network_domain() {
     let decision = route_network_evidence_cascade(NetworkEvidenceCascadeInput {
@@ -9,13 +11,13 @@ fn cascade_router_prefers_managed_browser_exact_url_over_network_domain() {
             source(
                 NetworkCascadeSourceKind::DomainCategory,
                 NetworkCascadeSignalStrength::Confirmed,
-                "domain-category-1",
+                SourceRef("domain-category-1"),
                 false,
             ),
             source(
                 NetworkCascadeSourceKind::ManagedBrowserExactUrl,
                 NetworkCascadeSignalStrength::Confirmed,
-                "managed-browser-1",
+                SourceRef("managed-browser-1"),
                 true,
             ),
         ],
@@ -37,7 +39,7 @@ fn cascade_router_orders_next_checks_for_weak_hint() {
         sources: vec![source(
             NetworkCascadeSourceKind::TransferCandidate,
             NetworkCascadeSignalStrength::WeakHint,
-            "transfer-hint-1",
+            SourceRef("transfer-hint-1"),
             false,
         )],
     })
@@ -62,7 +64,7 @@ fn cascade_router_keeps_candidate_parent_review_manual() {
         sources: vec![source(
             NetworkCascadeSourceKind::TunnelIndicator,
             NetworkCascadeSignalStrength::Candidate,
-            "tunnel-candidate-1",
+            SourceRef("tunnel-candidate-1"),
             false,
         )],
     })
@@ -101,7 +103,7 @@ fn cascade_router_rejects_decrypted_payload_claim() {
     let mut source = source(
         NetworkCascadeSourceKind::DomainCategory,
         NetworkCascadeSignalStrength::Confirmed,
-        "domain-category-1",
+        SourceRef("domain-category-1"),
         false,
     );
     source.decrypted_payload_available = true;
@@ -122,7 +124,7 @@ fn cascade_router_rejects_network_exact_url_claim() {
         sources: vec![source(
             NetworkCascadeSourceKind::DomainCategory,
             NetworkCascadeSignalStrength::Confirmed,
-            "domain-category-1",
+            SourceRef("domain-category-1"),
             true,
         )],
     });
@@ -140,14 +142,14 @@ fn cascade_router_rejects_network_exact_url_claim() {
 fn source(
     source_kind: NetworkCascadeSourceKind,
     signal_strength: NetworkCascadeSignalStrength,
-    source_ref: &str,
+    source_ref: SourceRef,
     exact_url_available: bool,
 ) -> NetworkCascadeSource {
     NetworkCascadeSource {
         source_kind,
         signal_strength,
         evidence_grade: NetworkEvidenceGrade::C,
-        source_ref: source_ref.to_owned(),
+        source_ref: source_ref.0.to_owned(),
         exact_url_available,
         decrypted_payload_available: false,
         policy_action_authority: false,

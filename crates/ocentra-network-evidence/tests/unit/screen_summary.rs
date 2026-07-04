@@ -6,6 +6,9 @@ use ocentra_network_evidence::cascade::{
 use ocentra_network_evidence::dns::types::NetworkEvidenceGrade;
 use ocentra_network_evidence::screen_summary::*;
 
+struct TriggerRef(&'static str);
+struct EvidenceRef(&'static str);
+
 #[test]
 fn screen_summary_trigger_queues_when_recommended_enabled_and_custody_ready() {
     let plan = plan_network_screen_summary_trigger(input(weak_network_bundle()))
@@ -214,35 +217,35 @@ fn input(bundle: NetworkCrossSliceEvidenceBundle) -> NetworkScreenSummaryTrigger
 
 fn weak_network_bundle() -> NetworkCrossSliceEvidenceBundle {
     bundle(
-        "network-trigger-screen",
+        TriggerRef("network-trigger-screen"),
         NetworkCascadeSourceKind::TransferCandidate,
         NetworkCascadeSignalStrength::WeakHint,
-        "transfer-hint-1",
+        EvidenceRef("transfer-hint-1"),
     )
 }
 
 fn confirmed_domain_bundle() -> NetworkCrossSliceEvidenceBundle {
     bundle(
-        "network-trigger-confirmed",
+        TriggerRef("network-trigger-confirmed"),
         NetworkCascadeSourceKind::DomainCategory,
         NetworkCascadeSignalStrength::Confirmed,
-        "domain-category-1",
+        EvidenceRef("domain-category-1"),
     )
 }
 
 fn bundle(
-    trigger_ref: &str,
+    trigger_ref: TriggerRef,
     source_kind: NetworkCascadeSourceKind,
     signal_strength: NetworkCascadeSignalStrength,
-    evidence_ref: &str,
+    evidence_ref: EvidenceRef,
 ) -> NetworkCrossSliceEvidenceBundle {
     let bundle = build_network_cross_slice_evidence_bundle(NetworkCrossSliceEvidenceBundleInput {
-        trigger_ref: trigger_ref.to_owned(),
+        trigger_ref: trigger_ref.0.to_owned(),
         sources: vec![NetworkCrossSliceEvidenceSource {
             source_kind,
             signal_strength,
             evidence_grade: NetworkEvidenceGrade::D,
-            evidence_ref: evidence_ref.to_owned(),
+            evidence_ref: evidence_ref.0.to_owned(),
             exact_url_available: false,
             decrypted_payload_available: false,
             policy_action_authority: false,

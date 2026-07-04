@@ -26,15 +26,15 @@ pub(super) fn vpn_case() -> NetworkAiDetectionFixtureCase {
 
 pub(super) fn signature_tp_case() -> NetworkAiDetectionFixtureCase {
     NetworkAiDetectionFixtureCase {
-        detection_ref: "detect-signature-tp".to_owned(),
-        fixture_ref: "fixture-detect-signature-tp".to_owned(),
-        summary_ref: "summary-detect-signature-tp".to_owned(),
-        evidence_refs: vec!["evidence-detect-signature-tp".to_owned()],
-        analyzer_alert_refs: vec!["signature-alert-ref".to_owned()],
+        detection_ref: "detect-signature-1".to_owned(),
+        fixture_ref: "fixture-detect-signature-1".to_owned(),
+        summary_ref: "summary-detect-signature-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+        analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
         expected_label: NetworkAiDetectionLabel::SignatureThreat,
         predicted_label: NetworkAiDetectionLabel::SignatureThreat,
-        confidence_basis_points: 8_500,
-        baseline_confidence_basis_points: 8_500,
+        confidence_basis_points: 9_100,
+        baseline_confidence_basis_points: 8_900,
         risk_level: NetworkAiDetectionRiskLevel::Critical,
         input_kinds: vec![
             NetworkAiDetectionInputKind::SummaryRefs,
@@ -83,7 +83,7 @@ pub(super) fn vpn_fp_case() -> NetworkAiDetectionFixtureCase {
         expected_label: NetworkAiDetectionLabel::BenignExpected,
         predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
         confidence_basis_points: 8_600,
-        baseline_confidence_basis_points: 2_100,
+        baseline_confidence_basis_points: 2_300,
         risk_level: NetworkAiDetectionRiskLevel::High,
         input_kinds: vec![
             NetworkAiDetectionInputKind::SummaryRefs,

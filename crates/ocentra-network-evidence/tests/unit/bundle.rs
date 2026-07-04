@@ -5,6 +5,8 @@ use ocentra_network_evidence::cascade::{
 };
 use ocentra_network_evidence::dns::types::NetworkEvidenceGrade;
 
+struct EvidenceRef(&'static str);
+
 #[test]
 fn evidence_bundle_preserves_cross_slice_refs_without_action_authority() {
     let bundle = build_network_cross_slice_evidence_bundle(NetworkCrossSliceEvidenceBundleInput {
@@ -14,21 +16,21 @@ fn evidence_bundle_preserves_cross_slice_refs_without_action_authority() {
                 NetworkCascadeSourceKind::DomainCategory,
                 NetworkCascadeSignalStrength::Confirmed,
                 NetworkEvidenceGrade::B,
-                "domain-category-1",
+                EvidenceRef("domain-category-1"),
                 false,
             ),
             source(
                 NetworkCascadeSourceKind::ManagedBrowserExactUrl,
                 NetworkCascadeSignalStrength::Confirmed,
                 NetworkEvidenceGrade::B,
-                "managed-browser-1",
+                EvidenceRef("managed-browser-1"),
                 true,
             ),
             source(
                 NetworkCascadeSourceKind::ProcessAppCorrelation,
                 NetworkCascadeSignalStrength::Candidate,
                 NetworkEvidenceGrade::C,
-                "process-app-1",
+                EvidenceRef("process-app-1"),
                 false,
             ),
         ],
@@ -63,7 +65,7 @@ fn evidence_bundle_keeps_weak_signal_on_review_route() {
             NetworkCascadeSourceKind::TransferCandidate,
             NetworkCascadeSignalStrength::WeakHint,
             NetworkEvidenceGrade::D,
-            "transfer-hint-1",
+            EvidenceRef("transfer-hint-1"),
             false,
         )],
     })
@@ -93,14 +95,14 @@ fn evidence_bundle_deduplicates_refs_and_trims_trigger_ref() {
                 NetworkCascadeSourceKind::DomainCategory,
                 NetworkCascadeSignalStrength::Confirmed,
                 NetworkEvidenceGrade::C,
-                " duplicate-ref ",
+                EvidenceRef(" duplicate-ref "),
                 false,
             ),
             source(
                 NetworkCascadeSourceKind::TunnelIndicator,
                 NetworkCascadeSignalStrength::Candidate,
                 NetworkEvidenceGrade::C,
-                "duplicate-ref",
+                EvidenceRef("duplicate-ref"),
                 false,
             ),
         ],
@@ -119,7 +121,7 @@ fn evidence_bundle_rejects_network_only_exact_url_claim() {
             NetworkCascadeSourceKind::DomainCategory,
             NetworkCascadeSignalStrength::Confirmed,
             NetworkEvidenceGrade::B,
-            "domain-category-1",
+            EvidenceRef("domain-category-1"),
             true,
         )],
     });
@@ -140,7 +142,7 @@ fn evidence_bundle_rejects_decrypted_payload_or_action_authority() {
         NetworkCascadeSourceKind::DomainCategory,
         NetworkCascadeSignalStrength::Confirmed,
         NetworkEvidenceGrade::B,
-        "domain-category-1",
+        EvidenceRef("domain-category-1"),
         false,
     );
     decrypted.decrypted_payload_available = true;
@@ -157,7 +159,7 @@ fn evidence_bundle_rejects_decrypted_payload_or_action_authority() {
         NetworkCascadeSourceKind::ProcessAppCorrelation,
         NetworkCascadeSignalStrength::Confirmed,
         NetworkEvidenceGrade::B,
-        "process-app-1",
+        EvidenceRef("process-app-1"),
         false,
     );
     policy.policy_action_authority = true;
@@ -174,7 +176,7 @@ fn evidence_bundle_rejects_decrypted_payload_or_action_authority() {
         NetworkCascadeSourceKind::TunnelIndicator,
         NetworkCascadeSignalStrength::Confirmed,
         NetworkEvidenceGrade::C,
-        "tunnel-1",
+        EvidenceRef("tunnel-1"),
         false,
     );
     adapter.adapter_action_authority = true;
@@ -192,14 +194,14 @@ fn source(
     source_kind: NetworkCascadeSourceKind,
     signal_strength: NetworkCascadeSignalStrength,
     evidence_grade: NetworkEvidenceGrade,
-    evidence_ref: &str,
+    evidence_ref: EvidenceRef,
     exact_url_available: bool,
 ) -> NetworkCrossSliceEvidenceSource {
     NetworkCrossSliceEvidenceSource {
         source_kind,
         signal_strength,
         evidence_grade,
-        evidence_ref: evidence_ref.to_owned(),
+        evidence_ref: evidence_ref.0.to_owned(),
         exact_url_available,
         decrypted_payload_available: false,
         policy_action_authority: false,

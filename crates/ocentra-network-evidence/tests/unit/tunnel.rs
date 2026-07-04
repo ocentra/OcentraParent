@@ -1,6 +1,8 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::tunnel::*;
 
+struct SourceRef(&'static str);
+
 #[test]
 fn tunnel_classifier_flags_vpn_adapter_indicator_without_hidden_destination_claim() {
     let classification = classify_vpn_proxy_tunnel_activity(NetworkTunnelClassifierInput {
@@ -17,7 +19,7 @@ fn tunnel_classifier_flags_vpn_adapter_indicator_without_hidden_destination_clai
         NetworkTunnelKind::Vpn,
         NetworkTunnelBasis::VpnAdapterIndicator,
         91,
-        "adapter-route-1",
+        SourceRef("adapter-route-1"),
     );
 }
 
@@ -37,7 +39,7 @@ fn tunnel_classifier_flags_proxy_port_indicator() {
         NetworkTunnelKind::Proxy,
         NetworkTunnelBasis::ProxyPortIndicator,
         78,
-        "flow-port-1080",
+        SourceRef("flow-port-1080"),
     );
 }
 
@@ -115,12 +117,12 @@ fn assert_tunnel_classification(
     tunnel_kind: NetworkTunnelKind,
     basis: NetworkTunnelBasis,
     confidence_percent: u8,
-    source_ref: &str,
+    source_ref: SourceRef,
 ) {
     assert_eq!(classification.tunnel_kind, tunnel_kind);
     assert_eq!(classification.basis, basis);
     assert_eq!(classification.confidence_percent, confidence_percent);
-    assert_eq!(classification.evidence_refs, vec![source_ref.to_owned()]);
+    assert_eq!(classification.evidence_refs, vec![source_ref.0.to_owned()]);
     assert!(!classification.hidden_destination_claimed);
     assert!(!classification.exact_url_available);
     assert!(!classification.decrypted_payload_available);

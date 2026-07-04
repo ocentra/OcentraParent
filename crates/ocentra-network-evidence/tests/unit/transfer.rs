@@ -1,6 +1,8 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::transfer::*;
 
+struct SourceRef(&'static str);
+
 #[test]
 fn transfer_classifier_flags_remote_desktop_candidate() {
     let classification =
@@ -19,7 +21,7 @@ fn transfer_classifier_flags_remote_desktop_candidate() {
         NetworkTransferActivityKind::RemoteDesktop,
         NetworkTransferBasis::RemoteDesktopCandidate,
         83,
-        "flow-port-3389",
+        SourceRef("flow-port-3389"),
     );
 }
 
@@ -41,7 +43,7 @@ fn transfer_classifier_flags_torrent_candidate() {
         NetworkTransferActivityKind::Torrent,
         NetworkTransferBasis::TorrentCandidate,
         87,
-        "tracker-domain-1",
+        SourceRef("tracker-domain-1"),
     );
 }
 
@@ -63,7 +65,7 @@ fn transfer_classifier_flags_large_download_without_file_name_claim() {
         NetworkTransferActivityKind::LargeDownload,
         NetworkTransferBasis::LargeDownloadCandidate,
         74,
-        "flow-bytes-1",
+        SourceRef("flow-bytes-1"),
     );
     assert!(!classification.file_name_available);
 }
@@ -127,7 +129,7 @@ fn assert_transfer_classification(
     activity_kind: NetworkTransferActivityKind,
     basis: NetworkTransferBasis,
     confidence_percent: u8,
-    source_ref: &str,
+    source_ref: SourceRef,
 ) {
     assert_eq!(classification.activity_kind, activity_kind);
     assert_eq!(classification.basis, basis);
@@ -136,7 +138,7 @@ fn assert_transfer_classification(
         NetworkTransferUncertainty::CandidateNeedsConfirmation
     );
     assert_eq!(classification.confidence_percent, confidence_percent);
-    assert_eq!(classification.evidence_refs, vec![source_ref.to_owned()]);
+    assert_eq!(classification.evidence_refs, vec![source_ref.0.to_owned()]);
     assert!(!classification.exact_url_available);
     assert!(!classification.decrypted_payload_available);
     assert!(!classification.file_name_available);

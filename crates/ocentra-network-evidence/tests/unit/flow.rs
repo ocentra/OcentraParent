@@ -1,3 +1,5 @@
+use std::net::Ipv4Addr;
+
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::fixtures::dns_query_pcap_fixture;
@@ -6,8 +8,22 @@ use ocentra_network_evidence::flow::*;
 #[test]
 fn flow_aggregation_merges_reverse_direction_into_single_session() {
     let packets = vec![
-        flow_packet("192.168.1.25", 53_001, "203.0.113.7", 443, 1_000, 74),
-        flow_packet("203.0.113.7", 443, "192.168.1.25", 53_001, 1_500, 98),
+        flow_packet(
+            Ipv4Addr::new(192, 168, 1, 25),
+            53_001,
+            Ipv4Addr::new(203, 0, 113, 7),
+            443,
+            1_000,
+            74,
+        ),
+        flow_packet(
+            Ipv4Addr::new(203, 0, 113, 7),
+            443,
+            Ipv4Addr::new(192, 168, 1, 25),
+            53_001,
+            1_500,
+            98,
+        ),
     ];
 
     let sessions = aggregate_network_flows(&packets, 30_000_000);
@@ -27,9 +43,30 @@ fn flow_aggregation_merges_reverse_direction_into_single_session() {
 #[test]
 fn flow_aggregation_splits_same_tuple_after_idle_timeout() {
     let packets = vec![
-        flow_packet("192.168.1.25", 53_001, "203.0.113.7", 443, 1_000, 74),
-        flow_packet("203.0.113.7", 443, "192.168.1.25", 53_001, 1_500, 98),
-        flow_packet("192.168.1.25", 53_001, "203.0.113.7", 443, 9_000, 66),
+        flow_packet(
+            Ipv4Addr::new(192, 168, 1, 25),
+            53_001,
+            Ipv4Addr::new(203, 0, 113, 7),
+            443,
+            1_000,
+            74,
+        ),
+        flow_packet(
+            Ipv4Addr::new(203, 0, 113, 7),
+            443,
+            Ipv4Addr::new(192, 168, 1, 25),
+            53_001,
+            1_500,
+            98,
+        ),
+        flow_packet(
+            Ipv4Addr::new(192, 168, 1, 25),
+            53_001,
+            Ipv4Addr::new(203, 0, 113, 7),
+            443,
+            9_000,
+            66,
+        ),
     ];
 
     let sessions = aggregate_network_flows(&packets, 5_000);
@@ -59,16 +96,16 @@ fn flow_aggregation_uses_pcap_parser_packet_metadata() {
 }
 
 fn flow_packet(
-    source_ip: &str,
+    source_ip: Ipv4Addr,
     source_port: u16,
-    destination_ip: &str,
+    destination_ip: Ipv4Addr,
     destination_port: u16,
     observed_at_micros: u64,
     observed_bytes: usize,
 ) -> NetworkFlowPacket {
     NetworkFlowPacket {
-        source_ip: source_ip.to_owned(),
-        destination_ip: destination_ip.to_owned(),
+        source_ip: source_ip.to_string(),
+        destination_ip: destination_ip.to_string(),
         source_port,
         destination_port,
         protocol: NetworkFlowProtocol::Tcp,

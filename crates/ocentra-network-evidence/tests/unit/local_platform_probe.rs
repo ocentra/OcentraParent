@@ -3,6 +3,13 @@ use ocentra_network_evidence::adapter_capability_status::*;
 use ocentra_network_evidence::local_platform_probe::*;
 use ocentra_network_evidence::platform_claims::*;
 
+enum CapabilityRef {
+    Missing,
+    Present(&'static str),
+}
+
+struct EvidenceRef(&'static str);
+
 #[test]
 fn local_platform_probe_aligns_windows_android_linux_and_apple_status_rows() {
     let proof =
@@ -136,42 +143,42 @@ fn manifest() -> NetworkPlatformClaimManifestProof {
         entry(
             NetworkPlatformClaimTarget::WindowsFirewall,
             NetworkPlatformClaimState::DryRun,
-            Some("windows-firewall.profile-state-ref"),
+            CapabilityRef::Present("windows-firewall.profile-state-ref"),
         ),
         entry(
             NetworkPlatformClaimTarget::WindowsWfp,
             NetworkPlatformClaimState::ManualRequired,
-            None,
+            CapabilityRef::Missing,
         ),
         entry(
             NetworkPlatformClaimTarget::AndroidVpnService,
             NetworkPlatformClaimState::ManualRequired,
-            None,
+            CapabilityRef::Missing,
         ),
         entry(
             NetworkPlatformClaimTarget::LinuxNftables,
             NetworkPlatformClaimState::Ready,
-            Some("linux-adapter.nft-wsl-tool-ref"),
+            CapabilityRef::Present("linux-adapter.nft-wsl-tool-ref"),
         ),
         entry(
             NetworkPlatformClaimTarget::LinuxEbpf,
             NetworkPlatformClaimState::ManualRequired,
-            None,
+            CapabilityRef::Missing,
         ),
         entry(
             NetworkPlatformClaimTarget::LinuxTun,
             NetworkPlatformClaimState::ManualRequired,
-            None,
+            CapabilityRef::Missing,
         ),
         entry(
             NetworkPlatformClaimTarget::AppleNetworkExtensionMacOs,
             NetworkPlatformClaimState::Unavailable,
-            None,
+            CapabilityRef::Missing,
         ),
         entry(
             NetworkPlatformClaimTarget::AppleNetworkExtensionIos,
             NetworkPlatformClaimState::Unavailable,
-            None,
+            CapabilityRef::Missing,
         ),
     ];
     let manual_followups = entries
@@ -204,14 +211,19 @@ fn manifest() -> NetworkPlatformClaimManifestProof {
 fn entry(
     target: NetworkPlatformClaimTarget,
     claim_state: NetworkPlatformClaimState,
-    capability_ref: Option<&str>,
+    capability_ref: CapabilityRef,
 ) -> NetworkPlatformClaimEntry {
-    let missing_required_artifacts =
-        if capability_ref.is_some() && claim_state != NetworkPlatformClaimState::Unavailable {
-            Vec::new()
-        } else {
-            vec![format!("{target:?}.manual-artifact")]
-        };
+    let capability_ref = match capability_ref {
+        CapabilityRef::Missing => None,
+        CapabilityRef::Present(value) => Some(value),
+    };
+    let missing_required_artifacts = if capability_ref.is_some()
+        && claim_state != NetworkPlatformClaimState::Unavailable
+    {
+        Vec::new()
+    } else {
+        vec![format!("{target:?}.manual-artifact")]
+    };
     NetworkPlatformClaimEntry {
         target,
         claim_state,
@@ -237,56 +249,56 @@ fn expected_observations() -> Vec<NetworkLocalPlatformProbeObservation> {
             NetworkLocalPlatformProbeHost::Windows,
             NetworkLocalPlatformProbeState::ReadOnlyObserved,
             NetworkAdapterCapabilityStatusState::DryRun,
-            vec!["netsh-firewall-profile-state-ref"],
+            vec![EvidenceRef("netsh-firewall-profile-state-ref")],
         ),
         observation(
             NetworkPlatformClaimTarget::WindowsWfp,
             NetworkLocalPlatformProbeHost::Windows,
             NetworkLocalPlatformProbeState::ManualRequired,
             NetworkAdapterCapabilityStatusState::ManualRequired,
-            vec!["pktmon-driver-access-denied-ref"],
+            vec![EvidenceRef("pktmon-driver-access-denied-ref")],
         ),
         observation(
             NetworkPlatformClaimTarget::AndroidVpnService,
             NetworkLocalPlatformProbeHost::AndroidSdk,
             NetworkLocalPlatformProbeState::ManualRequired,
             NetworkAdapterCapabilityStatusState::ManualRequired,
-            vec!["android-sdk-adb-emulator-no-device-ref"],
+            vec![EvidenceRef("android-sdk-adb-emulator-no-device-ref")],
         ),
         observation(
             NetworkPlatformClaimTarget::LinuxNftables,
             NetworkLocalPlatformProbeHost::LinuxWsl,
             NetworkLocalPlatformProbeState::LabReady,
             NetworkAdapterCapabilityStatusState::DistroReady,
-            vec!["wsl-ubuntu-nft-ip-tcpdump-ref"],
+            vec![EvidenceRef("wsl-ubuntu-nft-ip-tcpdump-ref")],
         ),
         observation(
             NetworkPlatformClaimTarget::LinuxEbpf,
             NetworkLocalPlatformProbeHost::LinuxWsl,
             NetworkLocalPlatformProbeState::ManualRequired,
             NetworkAdapterCapabilityStatusState::ManualRequired,
-            vec!["wsl-bpftool-missing-ref"],
+            vec![EvidenceRef("wsl-bpftool-missing-ref")],
         ),
         observation(
             NetworkPlatformClaimTarget::LinuxTun,
             NetworkLocalPlatformProbeHost::LinuxWsl,
             NetworkLocalPlatformProbeState::ManualRequired,
             NetworkAdapterCapabilityStatusState::ManualRequired,
-            vec!["wsl-tun-manual-check-ref"],
+            vec![EvidenceRef("wsl-tun-manual-check-ref")],
         ),
         observation(
             NetworkPlatformClaimTarget::AppleNetworkExtensionMacOs,
             NetworkLocalPlatformProbeHost::MacOsCi,
             NetworkLocalPlatformProbeState::CiOnly,
             NetworkAdapterCapabilityStatusState::Unavailable,
-            vec!["windows-host-macos-ci-unavailable-ref"],
+            vec![EvidenceRef("windows-host-macos-ci-unavailable-ref")],
         ),
         observation(
             NetworkPlatformClaimTarget::AppleNetworkExtensionIos,
             NetworkLocalPlatformProbeHost::IosCi,
             NetworkLocalPlatformProbeState::CiOnly,
             NetworkAdapterCapabilityStatusState::Unavailable,
-            vec!["windows-host-ios-ci-unavailable-ref"],
+            vec![EvidenceRef("windows-host-ios-ci-unavailable-ref")],
         ),
     ]
 }
@@ -296,14 +308,14 @@ fn observation(
     host: NetworkLocalPlatformProbeHost,
     probe_state: NetworkLocalPlatformProbeState,
     capability_status: NetworkAdapterCapabilityStatusState,
-    evidence_refs: Vec<&str>,
+    evidence_refs: Vec<EvidenceRef>,
 ) -> NetworkLocalPlatformProbeObservation {
     NetworkLocalPlatformProbeObservation {
         target,
         host,
         probe_state,
         capability_status,
-        evidence_refs: evidence_refs.into_iter().map(ToOwned::to_owned).collect(),
+        evidence_refs: evidence_refs.into_iter().map(|value| value.0.to_owned()).collect(),
         read_only_probe_executed: probe_state == NetworkLocalPlatformProbeState::ReadOnlyObserved,
         adapter_execution_attempted: false,
         exact_url_claimed: false,

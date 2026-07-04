@@ -1,9 +1,14 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::readiness::*;
 
+enum ExternalAuditRef {
+    Missing,
+    Present(&'static str),
+}
+
 #[test]
 fn readiness_proof_accepts_internal_security_privacy_support_and_rollout_gates() {
-    let proof = evaluate_network_readiness_proof(readiness_input(false, None))
+    let proof = evaluate_network_readiness_proof(readiness_input(false, ExternalAuditRef::Missing))
         .expect_value("complete internal proof refs should pass");
 
     assert_eq!(
@@ -34,8 +39,9 @@ fn readiness_proof_accepts_internal_security_privacy_support_and_rollout_gates()
 
 #[test]
 fn readiness_proof_blocks_production_claim_without_external_signoff() {
-    let proof = evaluate_network_readiness_proof(readiness_input(true, None))
-        .expect_value("production claim without signoff should be represented as blocked");
+    let proof =
+        evaluate_network_readiness_proof(readiness_input(true, ExternalAuditRef::Missing))
+            .expect_value("production claim without signoff should be represented as blocked");
 
     assert_eq!(
         proof.readiness_state,
@@ -53,7 +59,7 @@ fn readiness_proof_blocks_production_claim_without_external_signoff() {
 fn readiness_proof_allows_production_ready_only_with_external_signoff() {
     let proof = evaluate_network_readiness_proof(readiness_input(
         true,
-        Some("external-pen-test-signoff-row50"),
+        ExternalAuditRef::Present("external-pen-test-signoff-row50"),
     ))
     .expect_value("external signoff should allow production-ready readiness state");
 
@@ -74,28 +80,28 @@ fn readiness_proof_rejects_default_upload_content_authority_and_commands() {
     assert_eq!(
         evaluate_network_readiness_proof(NetworkReadinessProofInput {
             default_remote_upload_claimed: true,
-            ..readiness_input(false, None)
+            ..readiness_input(false, ExternalAuditRef::Missing)
         }),
         Err(NetworkReadinessProofError::DefaultRemoteUploadClaimRejected)
     );
     assert_eq!(
         evaluate_network_readiness_proof(NetworkReadinessProofInput {
             exact_url_claimed: true,
-            ..readiness_input(false, None)
+            ..readiness_input(false, ExternalAuditRef::Missing)
         }),
         Err(NetworkReadinessProofError::ExactUrlClaimRejected)
     );
     assert_eq!(
         evaluate_network_readiness_proof(NetworkReadinessProofInput {
             adapter_authority_claimed: true,
-            ..readiness_input(false, None)
+            ..readiness_input(false, ExternalAuditRef::Missing)
         }),
         Err(NetworkReadinessProofError::AdapterAuthorityClaimRejected)
     );
     assert_eq!(
         evaluate_network_readiness_proof(NetworkReadinessProofInput {
             enforcement_command_claimed: true,
-            ..readiness_input(false, None)
+            ..readiness_input(false, ExternalAuditRef::Missing)
         }),
         Err(NetworkReadinessProofError::EnforcementCommandClaimRejected)
     );
@@ -109,7 +115,7 @@ fn readiness_proof_rejects_missing_hardening_support_and_rollout_refs() {
                 key_rotation_ref: " ".to_owned(),
                 ..hardening_proof()
             },
-            ..readiness_input(false, None)
+            ..readiness_input(false, ExternalAuditRef::Missing)
         }),
         Err(NetworkReadinessProofError::EmptyHardeningRef)
     );
@@ -119,7 +125,7 @@ fn readiness_proof_rejects_missing_hardening_support_and_rollout_refs() {
                 support_playbook_ref: " ".to_owned(),
                 ..support_proof()
             },
-            ..readiness_input(false, None)
+            ..readiness_input(false, ExternalAuditRef::Missing)
         }),
         Err(NetworkReadinessProofError::EmptySupportRef)
     );
@@ -129,7 +135,7 @@ fn readiness_proof_rejects_missing_hardening_support_and_rollout_refs() {
                 known_gap_signoff_ref: " ".to_owned(),
                 ..rollout_proof()
             },
-            ..readiness_input(false, None)
+            ..readiness_input(false, ExternalAuditRef::Missing)
         }),
         Err(NetworkReadinessProofError::EmptyRolloutRef)
     );
@@ -137,7 +143,7 @@ fn readiness_proof_rejects_missing_hardening_support_and_rollout_refs() {
 
 fn readiness_input(
     production_rollout_claimed: bool,
-    external_audit_or_pen_test_ref: Option<&str>,
+    external_audit_or_pen_test_ref: ExternalAuditRef,
 ) -> NetworkReadinessProofInput {
     NetworkReadinessProofInput {
         readiness_report_ref: "network-readiness-row50".to_owned(),
@@ -148,7 +154,10 @@ fn readiness_input(
         hardening: hardening_proof(),
         support: support_proof(),
         rollout: rollout_proof(),
-        external_audit_or_pen_test_ref: external_audit_or_pen_test_ref.map(str::to_owned),
+        external_audit_or_pen_test_ref: match external_audit_or_pen_test_ref {
+            ExternalAuditRef::Missing => None,
+            ExternalAuditRef::Present(value) => Some(value.to_owned()),
+        },
         production_rollout_claimed,
         default_remote_upload_claimed: false,
         raw_pcap_without_custody_claimed: false,

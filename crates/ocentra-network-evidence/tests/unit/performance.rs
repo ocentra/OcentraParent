@@ -1,11 +1,13 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::performance::*;
 
+struct ScenarioRef(&'static str);
+
 #[test]
 fn performance_benchmark_records_latency_throughput_resource_and_high_concurrency_metrics() {
     let proof = evaluate_network_performance_benchmark(benchmark_input(vec![
         metric_row(
-            "network-perf-safe",
+            ScenarioRef("network-perf-safe"),
             NetworkPerformanceScenarioType::Safe,
             NetworkPerformancePathState::DryRun,
             120,
@@ -13,7 +15,7 @@ fn performance_benchmark_records_latency_throughput_resource_and_high_concurrenc
             100,
         ),
         metric_row(
-            "network-perf-high-concurrency",
+            ScenarioRef("network-perf-high-concurrency"),
             NetworkPerformanceScenarioType::HighConcurrency,
             NetworkPerformancePathState::DryRun,
             2_400,
@@ -55,7 +57,7 @@ fn performance_benchmark_flags_latency_queue_resource_and_throughput_regressions
             queue_depth: 40,
             dropped_event_count: 3,
             ..metric_row(
-                "network-perf-regression",
+                ScenarioRef("network-perf-regression"),
                 NetworkPerformanceScenarioType::HighConcurrency,
                 NetworkPerformancePathState::Degraded,
                 1_500,
@@ -93,7 +95,7 @@ fn performance_benchmark_flags_latency_queue_resource_and_throughput_regressions
 fn performance_benchmark_preserves_manual_required_and_unavailable_paths() {
     let proof = evaluate_network_performance_benchmark(benchmark_input(vec![
         metric_row(
-            "network-perf-manual",
+            ScenarioRef("network-perf-manual"),
             NetworkPerformanceScenarioType::Suspicious,
             NetworkPerformancePathState::ManualRequired,
             400,
@@ -101,7 +103,7 @@ fn performance_benchmark_preserves_manual_required_and_unavailable_paths() {
             500,
         ),
         metric_row(
-            "network-perf-unavailable",
+            ScenarioRef("network-perf-unavailable"),
             NetworkPerformanceScenarioType::HighConcurrency,
             NetworkPerformancePathState::Unavailable,
             2_100,
@@ -187,7 +189,7 @@ fn benchmark_input(rows: Vec<NetworkPerformanceBenchmarkRow>) -> NetworkPerforma
 
 fn passing_high_concurrency_row() -> NetworkPerformanceBenchmarkRow {
     metric_row(
-        "network-perf-high-concurrency-passing",
+        ScenarioRef("network-perf-high-concurrency-passing"),
         NetworkPerformanceScenarioType::HighConcurrency,
         NetworkPerformancePathState::DryRun,
         2_100,
@@ -197,7 +199,7 @@ fn passing_high_concurrency_row() -> NetworkPerformanceBenchmarkRow {
 }
 
 fn metric_row(
-    scenario_ref: &str,
+    scenario_ref: ScenarioRef,
     scenario_type: NetworkPerformanceScenarioType,
     path_state: NetworkPerformancePathState,
     flow_count: u32,
@@ -205,7 +207,7 @@ fn metric_row(
     measurement_window_ms: u32,
 ) -> NetworkPerformanceBenchmarkRow {
     NetworkPerformanceBenchmarkRow {
-        scenario_ref: scenario_ref.to_owned(),
+        scenario_ref: scenario_ref.0.to_owned(),
         scenario_type,
         path_state,
         fixture_count: 10,
