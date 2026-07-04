@@ -1,10 +1,17 @@
-use std::fmt::{Display, Formatter};
-
-use serde::{Deserialize, Serialize};
-
+#[macro_export]
 macro_rules! ios_text_identifier {
     ($name:ident) => {
-        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+        #[derive(
+            Clone,
+            Debug,
+            Eq,
+            PartialEq,
+            Ord,
+            PartialOrd,
+            Hash,
+            ::serde::Serialize,
+            ::serde::Deserialize,
+        )]
         #[serde(transparent)]
         pub struct $name(String);
 
@@ -23,8 +30,8 @@ macro_rules! ios_text_identifier {
             }
         }
 
-        impl Display for $name {
-            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        impl ::core::fmt::Display for $name {
+            fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 formatter.write_str(self.as_str())
             }
         }

@@ -1,7 +1,4 @@
-use std::fmt::{Display, Formatter};
-
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-
+#[macro_export]
 macro_rules! ios_string_enum {
     ($name:ident { $($variant:ident => $const_ident:ident),+ $(,)? }) => {
         #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -37,34 +34,35 @@ macro_rules! ios_string_enum {
             }
         }
 
-        impl Display for $name {
-            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        impl ::core::fmt::Display for $name {
+            fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 formatter.write_str(self.as_str())
             }
         }
 
-        impl Serialize for $name {
+        impl ::serde::Serialize for $name {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
             where
-                S: Serializer,
+                S: ::serde::Serializer,
             {
                 serializer.serialize_str(self.as_str())
             }
         }
 
-        impl<'de> Deserialize<'de> for $name {
+        impl<'de> ::serde::Deserialize<'de> for $name {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
             where
-                D: Deserializer<'de>,
+                D: ::serde::Deserializer<'de>,
             {
-                let value = String::deserialize(deserializer)?;
+                let value = <String as ::serde::Deserialize>::deserialize(deserializer)?;
                 $name::parse(value.as_str())
-                    .ok_or_else(|| de::Error::unknown_variant(value.as_str(), $name::VARIANTS))
+                    .ok_or_else(|| ::serde::de::Error::unknown_variant(value.as_str(), $name::VARIANTS))
             }
         }
     };
 }
 
+#[macro_export]
 macro_rules! ios_string_enums {
     ($($name:ident { $($variant:ident => $const_ident:ident),+ $(,)? }),+ $(,)?) => {
         $(
