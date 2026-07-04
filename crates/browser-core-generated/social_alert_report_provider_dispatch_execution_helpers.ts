@@ -2,7 +2,7 @@
 
 import type {
   SocialAlertReportProviderReceiptBoundaryRow,
-} from '@ocentra-parent/schema-domain/social-alert-report-provider-receipt-boundary-proof';
+} from './social_alert_report_provider_receipt_boundary_support';
 import type { NotificationLocalOutboxRecord } from './social_alert_report_local_outbox_bridge_support';
 import type {
   SocialAlertReportProviderDispatchExecutionReadModel,

@@ -11,7 +11,7 @@ import {
   SocialAlertReportProviderReceiptBoundaryReadModelSchema,
   type SocialAlertReportProviderReceiptBoundaryReadModel,
   type SocialAlertReportProviderReceiptBoundaryRow,
-} from '@ocentra-parent/schema-domain/social-alert-report-provider-receipt-boundary-proof';
+} from './social_alert_report_provider_receipt_boundary_support';
 import { V3NotificationProviderChannelSchema } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
 import {
   NotificationLocalOutboxRecordSchema,
