@@ -10,12 +10,14 @@ import {
   BrowserAiRiskBenefitSourceSupportSchema,
   BrowserAiRiskBenefitTaxonomyVersionRefSchema,
   BrowserAiStructuredBenefitSignalSchema,
-  type BrowserAiStructuredContentCategory,
   BrowserAiStructuredContentCategorySchema,
   BrowserAiStructuredContentModifierSchema,
-  type BrowserAiStructuredRiskSignal,
   BrowserAiStructuredRiskSignalSchema,
 } from '@ocentra-parent/schema-domain/browser-ai-riskbenefit-model-values';
+import {
+  browserAiRiskBenefitAssessmentIsConsistent,
+  browserAiRiskBenefitTaxonomyIsConsistent,
+} from './browser-ai-riskbenefit-model-rules';
 
 const OptionalAnalysisIdSchema = Schema.Union(BrowserUrlAiAnalysisIdSchema, Schema.Null);
 const EvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
@@ -89,67 +91,3 @@ export const decodeBrowserAiRiskBenefitAssessment = Schema.decodeUnknownSync(Bro
 
 export type BrowserAiRiskBenefitTaxonomy = Infer<typeof BrowserAiRiskBenefitTaxonomySchema>;
 export type BrowserAiRiskBenefitAssessment = Infer<typeof BrowserAiRiskBenefitAssessmentSchema>;
-
-function browserAiRiskBenefitTaxonomyIsConsistent(value: Infer<typeof BrowserAiRiskBenefitTaxonomyBaseSchema>) {
-  return (
-    value.categories.includes('unknown') &&
-    value.benefitSignals.includes('unknown-benefit') &&
-    value.riskSignals.includes('unknown-risk')
-  );
-}
-
-function browserAiRiskBenefitAssessmentIsConsistent(value: Infer<typeof BrowserAiRiskBenefitAssessmentBaseSchema>) {
-  if (value.platformLabelUsedAsAuthority || value.finalPolicyActionClaimed || value.enforcementActionClaimed) {
-    return false;
-  }
-  if (!lowConfidenceStateIsExplicit(value)) {
-    return false;
-  }
-  if (!primaryCategoryHasMatchingEvidenceSignal(value)) {
-    return false;
-  }
-  return value.sourceSupport !== 'platform-label-only' || value.confidence !== 'high';
-}
-
-function lowConfidenceStateIsExplicit(value: Infer<typeof BrowserAiRiskBenefitAssessmentBaseSchema>) {
-  if (value.confidence !== 'low' && value.confidence !== 'unknown') {
-    return true;
-  }
-  return value.contentModifiers.includes('low-confidence') && value.uncertaintyReasons.length > 0;
-}
-
-function primaryCategoryHasMatchingEvidenceSignal(value: Infer<typeof BrowserAiRiskBenefitAssessmentBaseSchema>) {
-  if (value.primaryCategory === 'unknown') {
-    return value.confidence !== 'high' && value.riskSignals.includes('unknown-risk');
-  }
-  if (educationalCategoryHasBenefitSignal(value.primaryCategory)) {
-    return value.benefitSignals.some((signal) => signal !== 'neutral' && signal !== 'unknown-benefit');
-  }
-  const requiredRiskSignal = riskSignalForCategory(value.primaryCategory);
-  return requiredRiskSignal === null || value.riskSignals.includes(requiredRiskSignal);
-}
-
-function educationalCategoryHasBenefitSignal(category: BrowserAiStructuredContentCategory) {
-  return category === 'education' || category === 'homework' || category === 'research';
-}
-
-function riskSignalForCategory(category: BrowserAiStructuredContentCategory): BrowserAiStructuredRiskSignal | null {
-  switch (category) {
-    case 'adult':
-      return 'adult';
-    case 'violence':
-      return 'violence';
-    case 'self-harm':
-      return 'self-harm';
-    case 'drugs-alcohol':
-      return 'drugs-alcohol';
-    case 'gambling':
-      return 'gambling';
-    case 'hate-harassment':
-      return 'hate-harassment';
-    case 'misinformation':
-      return 'misinformation';
-    default:
-      return null;
-  }
-}

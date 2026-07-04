@@ -7,6 +7,10 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import { BrowserDomainSchema, BrowserPageTitleSchema, BrowserUrlSchema } from './browser-schemas';
+import {
+  browserUrlIntelligenceMemoryHitIsConsistent,
+  browserUrlShapeClassificationResultIsConsistent,
+} from './browser-url-intelligence-rules';
 
 export const BrowserUrlShapeSchemaVersion = 1;
 export const BrowserUrlIntelligenceMemorySchemaVersion = 1;
@@ -234,133 +238,3 @@ export type BrowserUrlIntelligenceMemoryDecisionKind = Infer<typeof BrowserUrlIn
 export type BrowserUrlIntelligenceMemoryStaleReason = Infer<typeof BrowserUrlIntelligenceMemoryStaleReasonSchema>;
 export type BrowserUrlIntelligenceMemoryKey = Infer<typeof BrowserUrlIntelligenceMemoryKeySchema>;
 export type BrowserUrlIntelligenceMemoryHit = Infer<typeof BrowserUrlIntelligenceMemoryHitSchema>;
-
-type BrowserUrlIntelligenceMemoryHitCandidate = Infer<typeof BrowserUrlIntelligenceMemoryHitBaseSchema>;
-type BrowserUrlIntelligenceMemoryHitValidator = (value: BrowserUrlIntelligenceMemoryHitCandidate) => boolean;
-
-const BrowserUrlIntelligenceMemoryHitValidators = {
-  hit: activeMemoryHitIsConsistent,
-  miss: missedMemoryHitIsConsistent,
-  stale: staleMemoryHitIsConsistent,
-  'manual-required': manualRequiredMemoryHitIsConsistent,
-} satisfies Record<BrowserUrlIntelligenceMemoryHitState, BrowserUrlIntelligenceMemoryHitValidator>;
-
-function browserUrlShapeClassificationResultIsConsistent(
-  value: Infer<typeof BrowserUrlShapeClassificationResultBaseSchema>
-) {
-  if (value.contentSemanticsClaimed || value.aiDecisionClaimed || value.policyDecisionClaimed) {
-    return false;
-  }
-  if (value.exactUrlEvidence !== (value.sourceKind === 'managed-browser-exact-url')) {
-    return false;
-  }
-  if (value.sourceKind === 'managed-browser-exact-url') {
-    return managedExactUrlShapeIsConsistent(value);
-  }
-  return nonExactUrlShapeIsConsistent(value);
-}
-
-function managedExactUrlShapeIsConsistent(value: Infer<typeof BrowserUrlShapeClassificationResultBaseSchema>) {
-  if (value.url === null || value.domain === null) {
-    return false;
-  }
-  if (value.targetKind === 'unknown') {
-    return value.confidence !== 'high';
-  }
-  return targetSpecificIdsAreConsistent(value);
-}
-
-function nonExactUrlShapeIsConsistent(value: Infer<typeof BrowserUrlShapeClassificationResultBaseSchema>) {
-  return (
-    value.targetKind === 'unknown' &&
-    value.platform === 'unknown' &&
-    value.confidence !== 'high' &&
-    value.platformIds.videoId === null &&
-    value.platformIds.channelId === null &&
-    value.platformIds.playlistId === null &&
-    value.platformIds.postId === null &&
-    value.platformIds.query === null &&
-    value.reasonCodes.includes(nonExactEvidenceReason(value.sourceKind))
-  );
-}
-
-function targetSpecificIdsAreConsistent(value: Infer<typeof BrowserUrlShapeClassificationResultBaseSchema>) {
-  if (
-    (value.platform === 'youtube' || value.platform === 'youtube-shorts' || value.platform === 'vimeo') &&
-    isVideoKind(value.targetKind)
-  ) {
-    return value.platformIds.videoId !== null;
-  }
-  if (value.targetKind === 'channel') {
-    return value.platformIds.channelId !== null;
-  }
-  if (value.targetKind === 'playlist') {
-    return value.platformIds.playlistId !== null;
-  }
-  if (value.targetKind === 'search') {
-    return value.platformIds.query !== null;
-  }
-  if (value.targetKind === 'social-post') {
-    return value.platformIds.postId !== null;
-  }
-  return true;
-}
-
-function isVideoKind(value: string) {
-  return value === 'video' || value === 'short-video';
-}
-
-function nonExactEvidenceReason(value: string) {
-  if (value === 'unmanaged-browser-process') {
-    return 'unmanaged-process-only';
-  }
-  if (value === 'network-domain') {
-    return 'network-domain-only';
-  }
-  return 'no-exact-evidence';
-}
-
-function browserUrlIntelligenceMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
-  return !value.canDirectlyEnforce && BrowserUrlIntelligenceMemoryHitValidators[value.hitState](value);
-}
-
-function missedMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
-  return (
-    value.decisionKind === 'no-hit' &&
-    value.sourceEvidenceIds.length === 0 &&
-    value.analysisRef === null &&
-    value.parentActionRef === null &&
-    value.policyVersionRef === null &&
-    value.expiresAt === null &&
-    value.staleReason === null &&
-    value.canDrivePolicyInput === false
-  );
-}
-
-function staleMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
-  return value.sourceEvidenceIds.length > 0 && value.staleReason !== null && value.canDrivePolicyInput === false;
-}
-
-function manualRequiredMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
-  return value.decisionKind === 'manual-required' && value.canDrivePolicyInput === false;
-}
-
-function activeMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
-  return (
-    value.sourceEvidenceIds.length > 0 &&
-    value.policyVersionRef !== null &&
-    value.expiresAt !== null &&
-    value.staleReason === null &&
-    value.canDrivePolicyInput &&
-    browserUrlIntelligenceMemoryHitHasDecisionSource(value)
-  );
-}
-
-function browserUrlIntelligenceMemoryHitHasDecisionSource(
-  value: Infer<typeof BrowserUrlIntelligenceMemoryHitBaseSchema>
-) {
-  if (value.decisionKind === 'known-blocked' || value.decisionKind === 'previously-denied') {
-    return value.parentActionRef !== null;
-  }
-  return value.analysisRef !== null || value.parentActionRef !== null;
-}
