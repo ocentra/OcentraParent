@@ -3,29 +3,29 @@ use ocentra_child_enforcement_core::tamper_uninstall_artifact_status::tamper_uni
 #[test]
 fn tamper_uninstall_artifact_status_generated_typescript_stays_rust_owned_and_self_contained() {
     let generated = tamper_uninstall_artifact_status_typescript();
-    let first_lines: Vec<&str> = generated.lines().take(11).collect();
-
+    assert!(generated.lines().any(
+        |line| line == "import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';"
+    ));
+    assert!(generated
+        .lines()
+        .any(|line| line == "} from './tamper_uninstall_artifact_status_support';"));
     assert_eq!(
-        first_lines,
-        vec![
-            "/* generated from crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs */",
-            "",
-            "import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';",
-            "import { ParentControlCapabilityName, ParentControlCapabilityStatus } from '@ocentra-parent/schema-domain/capabilities';",
-            "import type {",
-            "  ParentControlCapabilityNameSchema,",
-            "  ParentControlCapabilityStatusSchema,",
-            "  ParentControlPlatformSchema,",
-            "} from '@ocentra-parent/schema-domain/capabilities';",
-            "import {",
-            "  ParentContractSchemaVersion,",
-        ]
+        generated
+            .matches("@ocentra-parent/schema-domain/capabilities';")
+            .count(),
+        0
     );
     assert_eq!(
         generated
-            .lines()
-            .find(|line| *line == "  ParentContractSchemaVersionSchema,"),
-        Some("  ParentContractSchemaVersionSchema,")
+            .matches("@ocentra-parent/schema-domain/family-reference-primitives';")
+            .count(),
+        0
+    );
+    assert_eq!(
+        generated
+            .matches("@ocentra-parent/schema-domain/enforcement-proof-shape';")
+            .count(),
+        0
     );
     assert_eq!(
         generated

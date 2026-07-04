@@ -1,0 +1,61 @@
+/* generated support for crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs */
+
+import { brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+
+export const ParentControlPlatformSchema = withParser(Schema.Literal('windows', 'linux', 'macos', 'android', 'ios'));
+export const ParentControlCapabilityStatusSchema = withParser(Schema.Literal('manual-required'));
+export const ParentControlCapabilityNameSchema = withParser(
+  Schema.Literal(
+    'headless-agent-service',
+    'package-lifecycle',
+    'device-owner-policy',
+    'family-controls-entitlement'
+  )
+);
+
+export const ParentControlCapabilityStatus = {
+  ManualRequired: ParentControlCapabilityStatusSchema.parse('manual-required'),
+} as const;
+
+export const ParentControlCapabilityName = {
+  HeadlessAgentService: ParentControlCapabilityNameSchema.parse('headless-agent-service'),
+  PackageLifecycle: ParentControlCapabilityNameSchema.parse('package-lifecycle'),
+  DeviceOwnerPolicy: ParentControlCapabilityNameSchema.parse('device-owner-policy'),
+  FamilyControlsEntitlement: ParentControlCapabilityNameSchema.parse('family-controls-entitlement'),
+} as const;
+
+export const ParentContractSchemaVersionSchema = withParser(Schema.Literal('v0.6'));
+export const ParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
+export const ParentContractSchemaVersion = {
+  V0_6: ParentContractSchemaVersionSchema.parse('v0.6'),
+} as const;
+
+export function enforcementProofEntriesHaveUniqueField<Entry, Value extends string>(
+  entries: ReadonlyArray<Entry>,
+  valueForEntry: (entry: Entry) => Value
+): boolean {
+  return enforcementProofValuesAreUnique(entries.map(valueForEntry));
+}
+
+export function enforcementProofClaimFlagsAreUnset(flags: ReadonlyArray<boolean>): boolean {
+  return flags.every((flag) => flag === false);
+}
+
+export function enforcementProofRequiredUniqueValuesAreCovered<Value extends string>(
+  actualValues: ReadonlyArray<Value>,
+  requiredValues: ReadonlyArray<Value>
+): boolean {
+  return enforcementProofValuesAreUnique(actualValues) && enforcementProofRequiredValuesAreCovered(actualValues, requiredValues);
+}
+
+function enforcementProofValuesAreUnique<Value extends string>(values: ReadonlyArray<Value>): boolean {
+  return new Set(values).size === values.length;
+}
+
+function enforcementProofRequiredValuesAreCovered<Value extends string>(
+  actualValues: ReadonlyArray<Value>,
+  requiredValues: ReadonlyArray<Value>
+): boolean {
+  const actual = new Set(actualValues);
+  return requiredValues.every((value) => actual.has(value));
+}

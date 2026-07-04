@@ -1,22 +1,19 @@
 /* generated from crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs */
 
 import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
-import { ParentControlCapabilityName, ParentControlCapabilityStatus } from '@ocentra-parent/schema-domain/capabilities';
-import type {
+import {
+  ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
+  ParentControlCapabilityStatus,
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
-} from '@ocentra-parent/schema-domain/capabilities';
-import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/schema-domain/family-reference-primitives';
-import {
   enforcementProofClaimFlagsAreUnset,
   enforcementProofEntriesHaveUniqueField,
   enforcementProofRequiredUniqueValuesAreCovered,
-} from '@ocentra-parent/schema-domain/enforcement-proof-shape';
+} from './tamper_uninstall_artifact_status_support';
 
 const tamperUninstallArtifactText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
