@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
@@ -74,7 +76,7 @@ fn network_flow_digest_reports_direct_indicators_without_new_destination_guessin
     })]);
 
     let digest = network_flow_digest_for_test(&read_model);
-    let kinds: Vec<&str> = digest
+    let kinds: Vec<&TestStr> = digest
         .unusual_indicators
         .iter()
         .map(|indicator| indicator.kind.as_str())
@@ -159,20 +161,21 @@ fn observation(input: NetworkObservationInput) -> ActivityNetworkFlowObservation
 }
 
 struct NetworkObservationInput {
-    event_id: &'static str,
-    destination_domain: Option<&'static str>,
+    event_id: &'static TestStr,
+    destination_domain: Option<&'static TestStr>,
     destination_port: Option<u16>,
     process_id: Option<u64>,
-    process_name: Option<&'static str>,
+    process_name: Option<&'static TestStr>,
     connection_count: u64,
     bytes_sent: Option<u64>,
     bytes_received: Option<u64>,
-    evidence_id: String,
-    tcp_state: Option<&'static str>,
+    evidence_id: TestString,
+    tcp_state: Option<&'static TestStr>,
 }
 
-fn test_network_evidence_id(suffix: &str) -> String {
-    let mut evidence_id = String::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
+fn test_network_evidence_id(suffix: &TestStr) -> TestString {
+    let mut evidence_id = TestString::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(suffix);
     evidence_id
 }
+

@@ -1,6 +1,7 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     AppGameEvidenceClaim, AppGameIdentity, AppGameInventoryCategoryCandidate,
@@ -47,52 +48,52 @@ use super::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
 
-const APP_GAME_CONTROL_APPROVAL_STATE_APPROVED: &str = "approved";
-const APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED: &str = "process-terminated";
-const APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED: &str = "supported";
-const APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED: &str = "installed";
-const APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED: &str = "allowed";
-const APP_GAME_ENFORCEMENT_ROLLBACK_NOT_REQUIRED: &str = "not-required";
-const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
-const APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC: &str = "deterministic";
-const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
-const APP_GAME_INVENTORY_CATEGORY_GAME: &str = "game";
-const APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT: &str = "localAgent";
-const APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD: &str = "osInstalledRecord";
-const APP_GAME_INVENTORY_SOURCE_UNKNOWN: &str = "unknownSource";
-const APP_GAME_INVENTORY_STATE_DETECTABLE: &str = "detectable";
-const APP_GAME_INVENTORY_STATE_INSTALLED: &str = "installed";
-const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
-const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &str = "windows-applocker-proof";
-const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_POLICY_ACTION_BLOCK: &str = "block";
-const APP_GAME_TEST_ACTION_REFERENCE_ID: &str = "parent-action-app-game-1";
-const APP_GAME_TEST_ACTION_RESULT_ID: &str = "action-result-app-game-1";
-const APP_GAME_TEST_AUTHORITY_ID: &str = "authority-app-game-1";
-const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
-const APP_GAME_TEST_CHILD_PROFILE_ID: &str = "child-app-game-1";
-const APP_GAME_TEST_DECISION_ID: &str = "approval-decision-app-game-1";
-const APP_GAME_TEST_DEVICE_ID: &str = "device-windows-app-game-1";
-const APP_GAME_TEST_DEVICE_LABEL: &str = "Study PC";
-const APP_GAME_TEST_ENFORCEMENT_ACTION_ID: &str = "enforcement-action-app-game-1";
-const APP_GAME_TEST_ENFORCEMENT_RESULT_ID: &str = "enforcement-result-app-game-1";
-const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
-const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
-const APP_GAME_TEST_IDENTITY_ID: &str = "identity-ocentra-game";
-const APP_GAME_TEST_PARENT_ACTOR_ID: &str = "parent-actor-app-game-1";
-const APP_GAME_TEST_PLATFORM_MATRIX_ID: &str = "app-game-platform-authority-matrix";
-const APP_GAME_TEST_POLICY_VERSION: &str = "policy-version-app-game-1";
-const APP_GAME_TEST_REASON_PARENT_APPROVED: &str = "parent-approved";
-const APP_GAME_TEST_REQUEST_ID: &str = "approval-request-app-game-1";
-const APP_GAME_TEST_TARGET_ID: &str = "target-app-game-1";
-const APP_GAME_TEST_TARGET_VALUE: &str = "process:ocentra-game.exe";
-const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
-const APP_GAME_TEST_UNKNOWN_SOURCE_REF: &str = "source-display-only-unknown";
-const APP_GAME_TEST_WINDOWS_LIMITATION: &str =
+const APP_GAME_CONTROL_APPROVAL_STATE_APPROVED: &TestStr = "approved";
+const APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED: &TestStr = "process-terminated";
+const APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED: &TestStr = "supported";
+const APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED: &TestStr = "installed";
+const APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED: &TestStr = "allowed";
+const APP_GAME_ENFORCEMENT_ROLLBACK_NOT_REQUIRED: &TestStr = "not-required";
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
+const APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC: &TestStr = "deterministic";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &TestStr = "catalogMatched";
+const APP_GAME_INVENTORY_CATEGORY_GAME: &TestStr = "game";
+const APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT: &TestStr = "localAgent";
+const APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD: &TestStr = "osInstalledRecord";
+const APP_GAME_INVENTORY_SOURCE_UNKNOWN: &TestStr = "unknownSource";
+const APP_GAME_INVENTORY_STATE_DETECTABLE: &TestStr = "detectable";
+const APP_GAME_INVENTORY_STATE_INSTALLED: &TestStr = "installed";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &TestStr = "inventoryScan";
+const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &TestStr = "windows-applocker-proof";
+const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_POLICY_ACTION_BLOCK: &TestStr = "block";
+const APP_GAME_TEST_ACTION_REFERENCE_ID: &TestStr = "parent-action-app-game-1";
+const APP_GAME_TEST_ACTION_RESULT_ID: &TestStr = "action-result-app-game-1";
+const APP_GAME_TEST_AUTHORITY_ID: &TestStr = "authority-app-game-1";
+const APP_GAME_TEST_CATALOG_REF: &TestStr = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_CHILD_PROFILE_ID: &TestStr = "child-app-game-1";
+const APP_GAME_TEST_DECISION_ID: &TestStr = "approval-decision-app-game-1";
+const APP_GAME_TEST_DEVICE_ID: &TestStr = "device-windows-app-game-1";
+const APP_GAME_TEST_DEVICE_LABEL: &TestStr = "Study PC";
+const APP_GAME_TEST_ENFORCEMENT_ACTION_ID: &TestStr = "enforcement-action-app-game-1";
+const APP_GAME_TEST_ENFORCEMENT_RESULT_ID: &TestStr = "enforcement-result-app-game-1";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &TestStr = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &TestStr = "evidence-app-game-session-1";
+const APP_GAME_TEST_IDENTITY_ID: &TestStr = "identity-ocentra-game";
+const APP_GAME_TEST_PARENT_ACTOR_ID: &TestStr = "parent-actor-app-game-1";
+const APP_GAME_TEST_PLATFORM_MATRIX_ID: &TestStr = "app-game-platform-authority-matrix";
+const APP_GAME_TEST_POLICY_VERSION: &TestStr = "policy-version-app-game-1";
+const APP_GAME_TEST_REASON_PARENT_APPROVED: &TestStr = "parent-approved";
+const APP_GAME_TEST_REQUEST_ID: &TestStr = "approval-request-app-game-1";
+const APP_GAME_TEST_TARGET_ID: &TestStr = "target-app-game-1";
+const APP_GAME_TEST_TARGET_VALUE: &TestStr = "process:ocentra-game.exe";
+const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_UNKNOWN_SOURCE_REF: &TestStr = "source-display-only-unknown";
+const APP_GAME_TEST_WINDOWS_LIMITATION: &TestStr =
     "Broad installed-app blocking needs AppLocker or App Control proof before execution.";
-const APP_GAME_TEST_WINDOWS_ROW_ID: &str = "windows-block-launch-row";
+const APP_GAME_TEST_WINDOWS_ROW_ID: &TestStr = "windows-block-launch-row";
 
 #[test]
 fn app_game_policy_readiness_payload_reports_service_counts_with_source_dispatch() {
@@ -534,7 +535,7 @@ fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
     )
 }
 
-fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
+fn local_db_ref(evidence_id: &TestStr) -> ActivityEvidenceRef {
     ActivityEvidenceRef {
         evidence_id: evidence_id.to_string(),
         kind: ActivityEvidenceKind::LocalDbRow,
@@ -545,7 +546,7 @@ fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
 
 fn readiness_row<'a>(
     rows: &'a [AppGamePolicyReadinessRow],
-    readiness_kind: &str,
+    readiness_kind: &TestStr,
 ) -> &'a AppGamePolicyReadinessRow {
     require_some(
         rows.iter().find(|row| row.readiness_kind == readiness_kind),
@@ -555,10 +556,11 @@ fn readiness_row<'a>(
 
 fn string_payload<'a>(
     payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
-    field_name: &str,
-) -> &'a str {
+    field_name: &TestStr,
+) -> &'a TestStr {
     require_log_string_field(
         payload.get(field_name),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
+

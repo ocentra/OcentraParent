@@ -488,8 +488,8 @@ fn assert_paired_signed_route_custody(read_model: &Value) {
 }
 
 struct RouteSafetyExpectation {
-    check: &'static str,
-    expected_state: &'static str,
+    check: &'static TestStr,
+    expected_state: &'static TestStr,
 }
 
 fn assert_route_safety_state(read_model: &Value, expectation: RouteSafetyExpectation) {
@@ -537,3 +537,4 @@ fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentC
         LogFields::new(),
     )
 }
+

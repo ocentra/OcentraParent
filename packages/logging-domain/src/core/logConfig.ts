@@ -2,7 +2,7 @@ import path from 'node:path';
 import {
   GeneratedDevLogBridge as DevLogBridge,
   type GeneratedLogLevel as LogLevelValue,
-} from '../generated/logging-contracts';
+} from '../generated-logging-contracts';
 import {
   buildGeneratedParentLogConfig,
   isGeneratedDevOrTestEnvironment,

@@ -1,4 +1,12 @@
+mod refs;
+mod validation;
+
 use serde::{Deserialize, Serialize};
+
+use self::{
+    refs::{normalize_ref, normalized_summary_refs},
+    validation::{queue_status, validate_no_claims, validate_refs},
+};
 
 use crate::bundle::NetworkCrossSliceEvidenceBundle;
 use crate::dns::types::NetworkEvidenceGrade;
@@ -131,77 +139,4 @@ pub fn plan_network_local_ai_queue(
         policy_action_authority: false,
         adapter_action_authority: false,
     })
-}
-
-fn validate_refs(input: &NetworkLocalAiQueueInput) -> Result<(), NetworkLocalAiQueueError> {
-    if normalize_ref(&input.queue_job_ref).is_none() {
-        return Err(NetworkLocalAiQueueError::EmptyQueueJobRef);
-    }
-    if normalize_ref(&input.queue_ref).is_none() {
-        return Err(NetworkLocalAiQueueError::EmptyQueueRef);
-    }
-    if normalize_ref(&input.model_runtime_ref).is_none() {
-        return Err(NetworkLocalAiQueueError::EmptyModelRuntimeRef);
-    }
-    normalized_summary_refs(&input.summary_refs)?;
-    Ok(())
-}
-
-fn validate_no_claims(input: &NetworkLocalAiQueueInput) -> Result<(), NetworkLocalAiQueueError> {
-    if input.raw_network_payload_available {
-        return Err(NetworkLocalAiQueueError::RawNetworkPayloadRejected);
-    }
-    if input.page_content_available {
-        return Err(NetworkLocalAiQueueError::PageContentRejected);
-    }
-    if input.bundle.decrypted_payload_available {
-        return Err(NetworkLocalAiQueueError::DecryptedPayloadRejected);
-    }
-    if input.policy_action_authority || input.bundle.policy_action_authority {
-        return Err(NetworkLocalAiQueueError::PolicyAuthorityRejected);
-    }
-    if input.adapter_action_authority || input.bundle.adapter_action_authorized {
-        return Err(NetworkLocalAiQueueError::AdapterAuthorityRejected);
-    }
-    Ok(())
-}
-
-fn queue_status(input: &NetworkLocalAiQueueInput) -> NetworkLocalAiQueueStatus {
-    if !input.bundle.local_ai_review_recommended {
-        return NetworkLocalAiQueueStatus::NotRecommended;
-    }
-    if !input.local_ai_enabled {
-        return NetworkLocalAiQueueStatus::DisabledByParent;
-    }
-    if !input.model_runtime_available {
-        return NetworkLocalAiQueueStatus::ModelUnavailable;
-    }
-    if !input.queue_available {
-        return NetworkLocalAiQueueStatus::QueueUnavailable;
-    }
-    NetworkLocalAiQueueStatus::Queued
-}
-
-fn normalized_summary_refs(
-    summary_refs: &[String],
-) -> Result<Vec<String>, NetworkLocalAiQueueError> {
-    let mut refs = Vec::new();
-    for summary_ref in summary_refs {
-        let Some(normalized) = normalize_ref(summary_ref) else {
-            return Err(NetworkLocalAiQueueError::EmptySummaryRef);
-        };
-        if !refs.contains(&normalized) {
-            refs.push(normalized);
-        }
-    }
-    Ok(refs)
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
 }

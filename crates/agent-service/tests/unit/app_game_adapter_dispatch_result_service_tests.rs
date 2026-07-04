@@ -1,6 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
@@ -24,13 +27,13 @@ use super::app_game_adapter_dispatch_result_payload::{
     build_activity_app_game_adapter_dispatch_result_report_with_store_path,
 };
 
-const APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID: &str =
+const APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID: &TestStr =
     "app-game-adapter-dispatch-execute-command";
-const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_COMMAND_ID: &str =
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_COMMAND_ID: &TestStr =
     "app-game-adapter-dispatch-result-command";
-const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_DEVICE_ID: &str = "child-device";
-const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_PORTAL_PEER: &str = "portal-dev";
-const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_SENT_AT: &str = "2026-06-08T10:44:01Z";
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_DEVICE_ID: &TestStr = "child-device";
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_PORTAL_PEER: &TestStr = "portal-dev";
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_SENT_AT: &TestStr = "2026-06-08T10:44:01Z";
 
 #[tokio::test]
 async fn app_game_adapter_dispatch_result_command_returns_typed_event() {
@@ -382,11 +385,11 @@ fn temp_paths(suffix: TestText) -> EnforcementJournalPaths {
     }
 }
 
-fn temp_path(suffix: TestText, role: TestText, extension: TestText) -> std::path::PathBuf {
+fn temp_path(suffix: TestText, role: TestText, extension: TestText) -> TestPathBuf {
     let suffix = suffix;
     let role = role;
     let extension = extension;
-    let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::journal::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix.as_ref());
@@ -410,3 +413,4 @@ fn cleanup_paths(paths: &EnforcementJournalPaths) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
+

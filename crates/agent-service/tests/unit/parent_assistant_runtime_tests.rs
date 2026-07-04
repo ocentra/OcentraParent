@@ -3,13 +3,14 @@
 mod unit_root_basic_harness;
 declare_agent_service_unit_root_basic_harness!();
 
+use std::path::PathBuf as TestPathBuf;
 use crate::test_text::TestText;
 use std::string::String as TestString;
 use std::{
     error::Error,
     fs,
     io::Error as IoError,
-    path::{Path as TestPath, PathBuf as TestPathBuf},
+    path::{Path as TestPath, TestPathBuf as TestPathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -637,3 +638,4 @@ fn nanos_now() -> u128 {
 fn remove_temp_file(path: impl AsRef<TestPath>) {
     let _ = fs::remove_file(path.as_ref());
 }
+

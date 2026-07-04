@@ -1,6 +1,8 @@
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
 use std::{
     env, fs,
-    path::PathBuf,
+    path::TestPathBuf,
     sync::{Mutex, OnceLock},
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -21,15 +23,15 @@ fn dev_log_test_lock() -> &'static Mutex<()> {
     LOCK.get_or_init(|| Mutex::new(()))
 }
 
-fn require_ok<T, E>(result: Result<T, E>, message: &str) -> T {
+fn require_ok<T, E>(result: Result<T, E>, message: &TestStr) -> T {
     result.expect(message)
 }
 
-fn require_some<T>(value: Option<T>, message: &str) -> T {
+fn require_some<T>(value: Option<T>, message: &TestStr) -> T {
     value.expect(message)
 }
 
-fn temp_dev_log_dir() -> PathBuf {
+fn temp_dev_log_dir() -> TestPathBuf {
     let nanos = require_ok(
         SystemTime::now().duration_since(UNIX_EPOCH),
         "system time available",
@@ -105,7 +107,7 @@ fn write_agent_all_levels_emit_ndjson_lines() {
     let existing_log_scope = env::var_os(LOG_SCOPE_ENV);
     let temp_dir = existing_log_root
         .clone()
-        .map(PathBuf::from)
+        .map(TestPathBuf::from)
         .unwrap_or_else(temp_dev_log_dir);
     env::set_var(LOG_ROOT_ENV, &temp_dir);
     env::set_var(LOG_SCOPE_ENV, "parent-agent");
@@ -188,3 +190,4 @@ fn write_agent_all_levels_emit_ndjson_lines() {
         assert_eq!(row["fields"]["context"].as_str(), Some("hello-world"));
     }
 }
+

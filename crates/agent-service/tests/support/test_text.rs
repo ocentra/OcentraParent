@@ -1,12 +1,14 @@
 use std::{
     collections::BTreeMap,
     fmt::{self, Display},
+    primitive::str as TestStr,
+    string::String as TestString,
 };
 
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub(crate) struct TestText(pub(crate) String);
+pub(crate) struct TestText(pub(crate) TestString);
 
 impl TestText {
     pub(crate) fn from_display(value: impl Display) -> Self {
@@ -18,8 +20,8 @@ impl TestText {
     }
 }
 
-impl AsRef<str> for TestText {
-    fn as_ref(&self) -> &str {
+impl AsRef<TestStr> for TestText {
+    fn as_ref(&self) -> &TestStr {
         self.0.as_str()
     }
 }

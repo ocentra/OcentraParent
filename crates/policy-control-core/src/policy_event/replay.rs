@@ -284,12 +284,6 @@ fn kind_requires_reason(kind: PolicyEventKind) -> bool {
     )
 }
 
-impl PolicyEventKind {
-    pub fn reason_code_value(self) -> &'static str {
-        policy_event_kind_reason_code_value(self)
-    }
-}
-
 pub(crate) fn policy_event_kind_reason_code_value(kind: PolicyEventKind) -> &'static str {
     match kind {
         PolicyEventKind::DeliveryRejected => "delivery-rejected",
@@ -340,7 +334,9 @@ pub(crate) fn policy_event_scope_family_label(scope: &PolicyEventScope) -> &'sta
     }
 }
 
-fn policy_event_scope_aggregate_key(scope: &PolicyEventScope) -> Result<AggregateKey, EventingError> {
+pub(crate) fn policy_event_scope_aggregate_key(
+    scope: &PolicyEventScope,
+) -> Result<AggregateKey, EventingError> {
     AggregateKey::parse(policy_event_scope_aggregate_key_value(scope))
 }
 

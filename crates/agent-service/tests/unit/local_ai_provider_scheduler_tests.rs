@@ -1,6 +1,7 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::primitive::str as TestStr;
 use std::{
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -247,7 +248,7 @@ fn singleton_scheduler_and_queue_record_helpers_stay_linked() {
 }
 
 async fn observed_job_result(
-    message_id: &'static str,
+    message_id: &'static TestStr,
     active_jobs: Arc<AtomicUsize>,
     max_active_jobs: Arc<AtomicUsize>,
 ) -> LocalAiChatGenerationResult {
@@ -296,7 +297,7 @@ fn assert_idle_singleton_scheduler_status(scheduler: &LocalAiProviderSchedulerRu
 
 fn assert_idle_singleton_scheduler_status_for_device(
     scheduler: &LocalAiProviderSchedulerRuntime,
-    physical_device_id: &str,
+    physical_device_id: &TestStr,
 ) {
     let status = scheduler.status_snapshot();
     let status = if physical_device_id == constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL {
@@ -322,7 +323,7 @@ fn assert_idle_singleton_scheduler_status_for_device(
 
 fn spawn_observed_device_job(
     scheduler: Arc<LocalAiProviderSchedulerRuntime>,
-    physical_device_id: &'static str,
+    physical_device_id: &'static TestStr,
     runtime: LocalModelRuntimeStatus,
     active_jobs: Arc<AtomicUsize>,
     max_active_jobs: Arc<AtomicUsize>,
@@ -345,7 +346,7 @@ fn spawn_observed_job(
     scheduler: Arc<LocalAiProviderSchedulerRuntime>,
     runtime: LocalModelRuntimeStatus,
     job_class: LocalAiProviderSchedulerJobClass,
-    message_id: &'static str,
+    message_id: &'static TestStr,
     observed_jobs: Arc<TokioMutex<Vec<LocalAiProviderSchedulerJobClass>>>,
     started: Option<Arc<Notify>>,
     release: Option<Arc<Notify>>,
@@ -413,7 +414,7 @@ fn unavailable_runtime() -> LocalModelRuntimeStatus {
     runtime
 }
 
-fn completed_result(message_id: &str) -> LocalAiChatGenerationResult {
+fn completed_result(message_id: &TestStr) -> LocalAiChatGenerationResult {
     LocalAiChatGenerationResult {
         local_ai_result_id: {
             let mut value = constants::local_ai_runtime::RESULT_ID_PREFIX.to_string();
@@ -436,3 +437,4 @@ fn completed_result(message_id: &str) -> LocalAiChatGenerationResult {
         unavailable_reason: None,
     }
 }
+

@@ -1,5 +1,7 @@
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
 use std::{
-    path::PathBuf,
+    path::TestPathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -200,7 +202,7 @@ fn strict_dry_run_setting(version: u64) -> ScreenAnalysisParentSetting {
     }
 }
 
-fn temp_screen_settings_store_path(path_label: &str) -> PathBuf {
+fn temp_screen_settings_store_path(path_label: &TestStr) -> TestPathBuf {
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
@@ -216,3 +218,4 @@ fn temp_screen_settings_store_path(path_label: &str) -> PathBuf {
     path.push(file_name);
     path
 }
+

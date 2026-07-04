@@ -1,6 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_parent_agent_protocol::browser_policy_sections::{
@@ -623,7 +626,7 @@ fn proposal_rule() -> BrowserPolicyRule {
     }
 }
 
-fn policy_patch<T>(field_id: &str, writes_to: &str, value: T) -> BrowserPolicyPatch
+fn policy_patch<T>(field_id: &TestStr, writes_to: &TestStr, value: T) -> BrowserPolicyPatch
 where
     T: serde::Serialize,
 {
@@ -706,7 +709,7 @@ fn assert_rejected_event(
     assert_eq!(response.rejection_reason.as_ref(), Some(expected_reason));
 }
 
-fn serialize_test_json<T>(value: &T) -> String
+fn serialize_test_json<T>(value: &T) -> TestString
 where
     T: serde::Serialize + ?Sized,
 {
@@ -723,17 +726,18 @@ where
     )
 }
 
-fn parse_test_json<T>(text: &str) -> T
+fn parse_test_json<T>(text: &TestStr) -> T
 where
     T: serde::de::DeserializeOwned,
 {
     crate::test_invariants::require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn temp_policy_store_path(store_path_suffix: &str) -> std::path::PathBuf {
+fn temp_policy_store_path(store_path_suffix: &TestStr) -> TestPathBuf {
     let sequence = TEST_POLICY_STORE_COUNTER.fetch_add(1, Ordering::Relaxed);
     std::env::temp_dir().join(format!(
         "ocentra-browser-policy-manifest-{store_path_suffix}-{}-{sequence}.json",
         std::process::id(),
     ))
 }
+

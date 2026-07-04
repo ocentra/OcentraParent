@@ -1,3 +1,6 @@
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::ffi::OsString as TestOsString;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
 
@@ -153,8 +156,8 @@ fn acceleration_config_from_environment_parses_safe_gpu_controls() {
 }
 
 fn execution_config(
-    binary: std::path::PathBuf,
-    model: std::path::PathBuf,
+    binary: TestPathBuf,
+    model: TestPathBuf,
 ) -> LocalAiRuntimeConfigSnapshot {
     LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
         Some(binary),
@@ -167,9 +170,10 @@ fn execution_config(
     )
 }
 
-fn restore_env_var(env_var_name: &str, value: Option<std::ffi::OsString>) {
+fn restore_env_var(env_var_name: &TestStr, value: Option<TestOsString>) {
     match value {
         Some(previous) => std::env::set_var(env_var_name, previous),
         None => std::env::remove_var(env_var_name),
     }
 }
+

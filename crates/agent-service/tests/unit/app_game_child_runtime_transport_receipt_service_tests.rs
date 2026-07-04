@@ -1,6 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::fs::remove_file;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -41,15 +44,15 @@ use crate::{
     test_text::TestText,
 };
 
-const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
-const APP_GAME_TEST_EXECUTABLE_PATH_REF: &str = "path-ref-ocentra-fixture";
+const APP_GAME_TEST_CATALOG_REF: &TestStr = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_EXECUTABLE_PATH_REF: &TestStr = "path-ref-ocentra-fixture";
 const APP_GAME_TEST_PARENT_PROCESS_ID: u64 = 1000;
 const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
-const APP_GAME_TEST_PROCESS_IDENTITY: &str = "process-4242";
-const APP_GAME_TEST_PROCESS_NAME: &str = "ocentra-fixture.exe";
-const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-4242";
-const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
-const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_PROCESS_IDENTITY: &TestStr = "process-4242";
+const APP_GAME_TEST_PROCESS_NAME: &TestStr = "ocentra-fixture.exe";
+const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &TestStr = "runtime-evidence-process-4242";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &TestStr = "evidence-app-game-session-1";
+const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
 
 #[tokio::test]
 async fn child_runtime_transport_receipt_command_reports_live_read_model() {
@@ -214,9 +217,9 @@ fn local_db_ref(evidence_id: TestText) -> ActivityEvidenceRef {
     }
 }
 
-fn temp_path(suffix: TestText) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(
@@ -241,3 +244,4 @@ fn cleanup_path(path: &std::path::Path) {
     let _ = remove_file(path.with_extension(constants::activity_store::WAL_FILE_EXTENSION));
     let _ = remove_file(path.with_extension(constants::activity_store::SHM_FILE_EXTENSION));
 }
+

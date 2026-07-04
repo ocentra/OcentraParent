@@ -6,8 +6,8 @@
   "description": "Parent-local logging helpers and focused proof coverage over Rust-owned contracts.",
   "exports": {
     "./generated/logging-contracts": {
-      "import": "./dist/generated/logging-contracts.js",
-      "types": "./dist/generated/logging-contracts.d.ts"
+      "import": "./src/generated-logging-contracts.ts",
+      "types": "./src/generated-logging-contracts.ts"
     },
     "./logging-contracts": {
       "import": "./dist/logging-contracts.js",

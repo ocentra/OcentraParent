@@ -1,7 +1,9 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
 use std::{
     fs,
     io::Error as IoError,
-    path::PathBuf,
+    path::TestPathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -49,7 +51,7 @@ fn screen_foreground_key_prefers_real_window_id_and_rejects_degraded_state() {
         constants::activity_store::TEST_WINDOW_TITLE.to_string(),
         constants::activity_store::TEST_WINDOW_ID.to_string(),
     );
-    let mut expected = String::from(SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX);
+    let mut expected = TestString::from(SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX);
     expected.push_str(constants::activity_store::TEST_WINDOW_ID);
 
     assert_eq!(foreground_key(&active), Some(expected));
@@ -197,7 +199,7 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: TestText) -> PathBuf {
+fn test_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
@@ -207,3 +209,4 @@ fn test_path(suffix: TestText) -> PathBuf {
     path.push(suffix.as_str());
     path
 }
+

@@ -1,9 +1,11 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
 use std::{
     fs,
-    path::PathBuf,
+    path::TestPathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -557,7 +559,7 @@ fn evidence_context() -> ParentAssistantEvidenceContext {
     }
 }
 
-fn activity_report_document_json() -> String {
+fn activity_report_document_json() -> TestString {
     serialize_test_json(&ActivityReportDocument {
         schema_version: parent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: constants::activity_surface::REPORT_ID_DAILY.to_string(),
@@ -620,7 +622,7 @@ fn activity_report_document_json() -> String {
     })
 }
 
-fn unique_temp_dir() -> PathBuf {
+fn unique_temp_dir() -> TestPathBuf {
     let mut name = constants::parent_assistant::THREAD_STORAGE_DIR.to_string();
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&std::process::id().to_string());
@@ -637,3 +639,4 @@ fn unique_temp_dir() -> PathBuf {
     path.push(name);
     path
 }
+

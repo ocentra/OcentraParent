@@ -1,3 +1,6 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::fs::remove_file;
 
 use crate::test_text::TestText;
@@ -263,8 +266,8 @@ fn partial_metadata_row() -> ActivityNetworkFlowObservation {
 }
 
 fn row(
-    destination_domain: Option<String>,
-    process_name: Option<String>,
+    destination_domain: Option<TestString>,
+    process_name: Option<TestString>,
     process_id: Option<u64>,
 ) -> ActivityNetworkFlowObservation {
     ActivityNetworkFlowObservation {
@@ -329,7 +332,7 @@ fn network_activity_event() -> ActivityEvent {
     )
 }
 
-fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
+fn network_retention_deleted_event(deleted_event_id: &TestStr) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
@@ -395,9 +398,9 @@ fn stream_entries(payload: &LogFields) -> Vec<Value> {
     }
 }
 
-fn temp_path(suffix: TestText) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix.as_ref());
@@ -408,7 +411,7 @@ fn temp_path(suffix: TestText) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: &TestPathBuf) {
     let _ = remove_file(path);
     let mut wal_path = path.clone();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
@@ -417,3 +420,4 @@ fn cleanup_path(path: &std::path::PathBuf) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
+

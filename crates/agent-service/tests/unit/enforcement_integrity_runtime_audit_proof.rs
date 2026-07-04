@@ -1,3 +1,6 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
 use ocentra_parent_agent_protocol::constants::v08_enforcement_integrity_runtime_audit as proof;
@@ -191,7 +194,7 @@ fn claim_flags(entry: &V08EnforcementIntegrityRuntimeAuditEntry) -> Value {
     })
 }
 
-fn count_results(entries: &[V08EnforcementIntegrityRuntimeAuditEntry]) -> BTreeMap<String, usize> {
+fn count_results(entries: &[V08EnforcementIntegrityRuntimeAuditEntry]) -> BTreeMap<TestString, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts.entry(protocol_text(entry.result)).or_default() += 1;
         counts
@@ -200,7 +203,7 @@ fn count_results(entries: &[V08EnforcementIntegrityRuntimeAuditEntry]) -> BTreeM
 
 fn count_integrity_states(
     entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
-) -> BTreeMap<String, usize> {
+) -> BTreeMap<TestString, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
             .entry(protocol_text(entry.integrity_state))
@@ -265,7 +268,7 @@ fn count_negative_claims(
     })
 }
 
-fn protocol_text<T: serde::Serialize>(value: T) -> String {
+fn protocol_text<T: serde::Serialize>(value: T) -> TestString {
     serde_json::to_string(&value)
         .unwrap_or_else(|error| unreachable!("serialize protocol text: {error:?}"))
         .trim_matches('"')
@@ -274,10 +277,10 @@ fn protocol_text<T: serde::Serialize>(value: T) -> String {
 
 fn assert_row_summary(
     rows: &[Value],
-    audit_entry_id: &'static str,
-    result: &'static str,
-    integrity_state: &'static str,
-    manual_proof_requirements: &[&'static str],
+    audit_entry_id: &'static TestStr,
+    result: &'static TestStr,
+    integrity_state: &'static TestStr,
+    manual_proof_requirements: &[&'static TestStr],
 ) {
     let row = match rows
         .iter()
@@ -294,7 +297,8 @@ fn assert_row_summary(
     );
 }
 
-fn proof_artifact_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+fn proof_artifact_path() -> TestPathBuf {
+    TestPathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../test-results/tamper-integrity-audit-contract-proof/rust-proof.json")
 }
+

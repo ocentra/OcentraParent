@@ -1,10 +1,12 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
 use std::{
     fs::{self, remove_dir_all},
     io::Error as IoError,
-    path::PathBuf,
+    path::TestPathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -291,9 +293,9 @@ fn screen_queue_job_with_expiry(
     }
 }
 
-fn test_path(suffix: TestText) -> PathBuf {
+fn test_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
@@ -303,3 +305,4 @@ fn test_path(suffix: TestText) -> PathBuf {
     path.push(name);
     path
 }
+

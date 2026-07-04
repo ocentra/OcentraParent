@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::{error::Error, io::Error as IoError};
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
@@ -198,7 +200,7 @@ fn product_path_report() -> NetworkProductPathServiceProofReportForTest {
     }
 }
 
-fn assert_product_path_payload(payload: &std::collections::BTreeMap<String, LogFieldValue>) {
+fn assert_product_path_payload(payload: &std::collections::BTreeMap<TestString, LogFieldValue>) {
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_OBSERVED_ROWS),
         Some(&LogFieldValue::Number(1.0))
@@ -308,14 +310,15 @@ fn observation() -> ActivityNetworkFlowObservation {
     }
 }
 
-fn test_network_evidence_id() -> String {
-    let mut evidence_id = String::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
+fn test_network_evidence_id() -> TestString {
+    let mut evidence_id = TestString::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(constants::activity_store::TEST_NETWORK_EVENT_ID);
     evidence_id
 }
 
-fn row_ref(prefix: &str) -> String {
-    let mut value = String::from(prefix);
+fn row_ref(prefix: &TestStr) -> TestString {
+    let mut value = TestString::from(prefix);
     value.push_str(&test_network_evidence_id());
     value
 }
+

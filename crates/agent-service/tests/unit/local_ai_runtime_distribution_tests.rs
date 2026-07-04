@@ -1,6 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::path::PathBuf;
 
 use ocentra_parent_agent_protocol::constants;
@@ -161,7 +164,7 @@ fn extracted_runtime_path_uses_release_cache_directory() {
         LlamaRuntimeAcceleration::Vulkan,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     );
-    let mut cache_root = PathBuf::new();
+    let mut cache_root = TestPathBuf::new();
     cache_root.push(constants::local_ai_runtime::OCENTRA_PARENT_CACHE_DIR);
 
     let mut expected = cache_root.clone();
@@ -183,7 +186,7 @@ fn runtime_archive_path_uses_asset_name_under_runtime_cache() {
         LlamaRuntimeAcceleration::Vulkan,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
     );
-    let mut cache_root = PathBuf::new();
+    let mut cache_root = TestPathBuf::new();
     cache_root.push(constants::local_ai_runtime::OCENTRA_PARENT_CACHE_DIR);
     let mut expected = cache_root.clone();
     expected.push(constants::local_ai_runtime::LLAMA_CPP_CACHE_DIR);
@@ -192,14 +195,14 @@ fn runtime_archive_path_uses_asset_name_under_runtime_cache() {
     assert_eq!(distribution.archive_path(&cache_root), expected);
 }
 
-fn expected_asset_name(suffix: &str) -> String {
+fn expected_asset_name(suffix: &TestStr) -> TestString {
     let mut name = constants::local_ai_runtime::LLAMA_ASSET_PREFIX.to_string();
     name.push_str(constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG);
     name.push_str(suffix);
     name
 }
 
-fn expected_download_url(suffix: &str) -> String {
+fn expected_download_url(suffix: &TestStr) -> TestString {
     let asset_name = expected_asset_name(suffix);
     let mut url = constants::local_ai_runtime::LLAMA_CPP_RELEASE_DOWNLOAD_BASE_URL.to_string();
     url.push(constants::delimiter::SLASH);
@@ -212,10 +215,11 @@ fn expected_download_url(suffix: &str) -> String {
 fn selected_distribution(
     target: LocalAiRuntimeTarget,
     acceleration: LlamaRuntimeAcceleration,
-    release_tag: &str,
+    release_tag: &TestStr,
 ) -> crate::local_ai_runtime_distribution::LlamaRuntimeDistribution {
     require_some(
         select_llama_runtime_distribution(target, acceleration, release_tag),
         constants::error::LOCAL_AI_RUNTIME_SPAWNS,
     )
 }
+

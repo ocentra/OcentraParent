@@ -1,4 +1,4 @@
-import type { GeneratedLogLevel as LogLevelValue } from '../generated/logging-contracts';
+import type { GeneratedLogLevel as LogLevelValue } from '../generated-logging-contracts';
 import {
   createParentLogConfig,
   isDevOrTestEnvironment,

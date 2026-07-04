@@ -1,3 +1,5 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
 use std::io::Error as IoError;
 
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
@@ -180,9 +182,9 @@ fn history_list() -> ActivityHistoricalReportList {
     }
 }
 
-fn temp_report_root() -> std::path::PathBuf {
+fn temp_report_root() -> TestPathBuf {
     let mut path = std::env::temp_dir();
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&nanos_now().to_string());
@@ -192,7 +194,7 @@ fn temp_report_root() -> std::path::PathBuf {
     path
 }
 
-fn cleanup_report_root(path: &std::path::PathBuf) {
+fn cleanup_report_root(path: &TestPathBuf) {
     let _ = std::fs::remove_dir_all(path);
 }
 
@@ -201,3 +203,4 @@ fn nanos_now() -> u128 {
         .duration_since(std::time::UNIX_EPOCH)
         .map_or(0, |duration| duration.as_nanos())
 }
+

@@ -1,6 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::fs::{read_to_string, remove_file};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -723,7 +726,7 @@ fn assert_durable_outbox_boundary(result: &AppGameTimerParentPreferenceSetupRequ
 
 fn assert_persisted_setup_outbox(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-    outbox_jsonl: &str,
+    outbox_jsonl: &TestStr,
 ) {
     assert_eq!(
         result.durable_outbox_record_id,
@@ -791,7 +794,7 @@ fn assert_no_delivery_or_platform_claims(result: &AppGameTimerParentPreferenceSe
     assert!(!result.private_diagnostics_claimed);
 }
 
-fn setup_id(suffix: &str) -> String {
+fn setup_id(suffix: &TestStr) -> TestString {
     let mut setup_id =
         constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string();
     setup_id.push(constants::delimiter::HYPHEN);
@@ -845,9 +848,9 @@ fn request_payload(value: &LogFieldValue) -> AppGameTimerParentPreferenceSetupRe
     require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn temp_path(suffix: TestText) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix.as_ref());
@@ -862,14 +865,14 @@ fn temp_path(suffix: TestText) -> std::path::PathBuf {
     path
 }
 
-fn unique_suffix() -> String {
+fn unique_suffix() -> TestString {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|duration| duration.as_nanos().to_string())
-        .unwrap_or_else(|_| String::from("0"))
+        .unwrap_or_else(|_| TestString::from("0"))
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: &TestPathBuf) {
     let _ = remove_file(path);
     let mut wal_path = path.clone();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
@@ -881,3 +884,4 @@ fn cleanup_path(path: &std::path::PathBuf) {
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
     ));
 }
+

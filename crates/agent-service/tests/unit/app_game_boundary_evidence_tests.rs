@@ -1,3 +1,4 @@
+use std::primitive::str as TestStr;
 use std::error::Error;
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
@@ -35,59 +36,59 @@ use ocentra_parent_agent_service::test_support::{
     build_activity_games_read_model_for_test,
 };
 
-const APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY: &str = "unknownIdentityCandidate";
-const APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY: &str = "inventoryEvidence";
-const APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE: &str = "localModelUnavailable";
-const APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW: &str = "manualReview";
-const APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP: &str = "unknownApp";
-const APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE: &str = "providerUnavailable";
-const APP_GAME_CONTROL_DECISION_DENIED: &str = "denied";
-const APP_GAME_CONTROL_EVIDENCE_PROOF_LAUNCHER_ONLY: &str = "launcher-only";
-const APP_GAME_CONTROL_PERSISTENCE_NOT_PERSISTED: &str = "not-persisted";
-const APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED: &str = "installed";
-const APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED: &str = "allowed";
-const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
-const APP_GAME_FOREGROUND_NOT_CLAIMED: &str = "notClaimed";
-const APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC: &str = "deterministic";
-const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
-const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
-const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK: &str = "rollback-proof";
-const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &str = "windows-applocker-proof";
-const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_POLICY_ACTION_BLOCK: &str = "block";
-const APP_GAME_TEST_ACTION_REFERENCE_ID: &str = "parent-action-app-game-1";
-const APP_GAME_TEST_ACTION_RESULT_ID: &str = "action-result-app-game-1";
-const APP_GAME_TEST_AUTHORITY_ID: &str = "authority-app-game-1";
-const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
-const APP_GAME_TEST_CHILD_PROFILE_ID: &str = "child-app-game-1";
-const APP_GAME_TEST_CLASSIFIER_DIGEST_REF: &str = "classifier-digest-app-game-1";
-const APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF: &str = "classifier-evidence-app-game-1";
-const APP_GAME_TEST_CLASSIFIER_LABEL: &str = "Possible native game";
-const APP_GAME_TEST_CLASSIFIER_PROMPT_REF: &str = "prompt-app-game-classifier";
-const APP_GAME_TEST_CLASSIFIER_REASON_CODE: &str = "unknown-game-like";
-const APP_GAME_TEST_CLASSIFIER_RUNTIME_REF: &str = "local-ai-runtime-app-game";
-const APP_GAME_TEST_CLASSIFIER_RUN_ID: &str = "classifier-run-app-game-1";
-const APP_GAME_TEST_DECISION_ID: &str = "approval-decision-app-game-1";
-const APP_GAME_TEST_DEVICE_ID: &str = "device-windows-app-game-1";
-const APP_GAME_TEST_DEVICE_LABEL: &str = "Study PC";
-const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
-const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
-const APP_GAME_TEST_GAME_DISPLAY_LABEL: &str = "Ocentra Game Fixture";
-const APP_GAME_TEST_IDENTITY_ID: &str = "identity-ocentra-game";
-const APP_GAME_TEST_PARENT_ACTOR_ID: &str = "parent-actor-app-game-1";
-const APP_GAME_TEST_PLATFORM_MATRIX_ID: &str = "app-game-platform-authority-matrix";
-const APP_GAME_TEST_POLICY_VERSION: &str = "policy-version-app-game-1";
-const APP_GAME_TEST_REQUEST_ID: &str = "approval-request-app-game-1";
-const APP_GAME_TEST_SETTING_ID: &str = "app.enforcement.allowedActions";
-const APP_GAME_TEST_SETTING_PATH: &str = "/appPolicy/enforcement/allowedActions";
-const APP_GAME_TEST_TARGET_ID: &str = "target-app-game-1";
-const APP_GAME_TEST_TARGET_VALUE: &str = "process:ocentra-game.exe";
-const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
-const APP_GAME_TEST_WINDOWS_LIMITATION: &str =
+const APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY: &TestStr = "unknownIdentityCandidate";
+const APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY: &TestStr = "inventoryEvidence";
+const APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE: &TestStr = "localModelUnavailable";
+const APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW: &TestStr = "manualReview";
+const APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP: &TestStr = "unknownApp";
+const APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE: &TestStr = "providerUnavailable";
+const APP_GAME_CONTROL_DECISION_DENIED: &TestStr = "denied";
+const APP_GAME_CONTROL_EVIDENCE_PROOF_LAUNCHER_ONLY: &TestStr = "launcher-only";
+const APP_GAME_CONTROL_PERSISTENCE_NOT_PERSISTED: &TestStr = "not-persisted";
+const APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED: &TestStr = "installed";
+const APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED: &TestStr = "allowed";
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
+const APP_GAME_FOREGROUND_NOT_CLAIMED: &TestStr = "notClaimed";
+const APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC: &TestStr = "deterministic";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &TestStr = "catalogMatched";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &TestStr = "inventoryScan";
+const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK: &TestStr = "rollback-proof";
+const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &TestStr = "windows-applocker-proof";
+const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_POLICY_ACTION_BLOCK: &TestStr = "block";
+const APP_GAME_TEST_ACTION_REFERENCE_ID: &TestStr = "parent-action-app-game-1";
+const APP_GAME_TEST_ACTION_RESULT_ID: &TestStr = "action-result-app-game-1";
+const APP_GAME_TEST_AUTHORITY_ID: &TestStr = "authority-app-game-1";
+const APP_GAME_TEST_CATALOG_REF: &TestStr = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_CHILD_PROFILE_ID: &TestStr = "child-app-game-1";
+const APP_GAME_TEST_CLASSIFIER_DIGEST_REF: &TestStr = "classifier-digest-app-game-1";
+const APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF: &TestStr = "classifier-evidence-app-game-1";
+const APP_GAME_TEST_CLASSIFIER_LABEL: &TestStr = "Possible native game";
+const APP_GAME_TEST_CLASSIFIER_PROMPT_REF: &TestStr = "prompt-app-game-classifier";
+const APP_GAME_TEST_CLASSIFIER_REASON_CODE: &TestStr = "unknown-game-like";
+const APP_GAME_TEST_CLASSIFIER_RUNTIME_REF: &TestStr = "local-ai-runtime-app-game";
+const APP_GAME_TEST_CLASSIFIER_RUN_ID: &TestStr = "classifier-run-app-game-1";
+const APP_GAME_TEST_DECISION_ID: &TestStr = "approval-decision-app-game-1";
+const APP_GAME_TEST_DEVICE_ID: &TestStr = "device-windows-app-game-1";
+const APP_GAME_TEST_DEVICE_LABEL: &TestStr = "Study PC";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &TestStr = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &TestStr = "evidence-app-game-session-1";
+const APP_GAME_TEST_GAME_DISPLAY_LABEL: &TestStr = "Ocentra Game Fixture";
+const APP_GAME_TEST_IDENTITY_ID: &TestStr = "identity-ocentra-game";
+const APP_GAME_TEST_PARENT_ACTOR_ID: &TestStr = "parent-actor-app-game-1";
+const APP_GAME_TEST_PLATFORM_MATRIX_ID: &TestStr = "app-game-platform-authority-matrix";
+const APP_GAME_TEST_POLICY_VERSION: &TestStr = "policy-version-app-game-1";
+const APP_GAME_TEST_REQUEST_ID: &TestStr = "approval-request-app-game-1";
+const APP_GAME_TEST_SETTING_ID: &TestStr = "app.enforcement.allowedActions";
+const APP_GAME_TEST_SETTING_PATH: &TestStr = "/appPolicy/enforcement/allowedActions";
+const APP_GAME_TEST_TARGET_ID: &TestStr = "target-app-game-1";
+const APP_GAME_TEST_TARGET_VALUE: &TestStr = "process:ocentra-game.exe";
+const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_WINDOWS_LIMITATION: &TestStr =
     "Broad installed-app blocking needs AppLocker or App Control proof before execution.";
-const APP_GAME_TEST_WINDOWS_ROW_ID: &str = "windows-block-launch-row";
+const APP_GAME_TEST_WINDOWS_ROW_ID: &TestStr = "windows-block-launch-row";
 
 #[test]
 fn app_use_read_model_preserves_app_game_boundary_evidence_refs() -> Result<(), Box<dyn Error>> {
@@ -188,7 +189,7 @@ fn service_model() -> Result<AppGameServiceReadModel, Box<dyn Error>> {
     })
 }
 
-fn inventory_row(product_kind: &str, classification_state: &str) -> AppGameInventoryEvidenceRow {
+fn inventory_row(product_kind: &TestStr, classification_state: &TestStr) -> AppGameInventoryEvidenceRow {
     AppGameInventoryEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
         inventory_entry_id: APP_GAME_TEST_EVIDENCE_REF_ID.to_string(),
@@ -470,3 +471,4 @@ fn surface_request() -> ActivitySurfaceRequest {
         range_end: APP_GAME_TEST_TIMESTAMP.to_string(),
     }
 }
+

@@ -1,9 +1,11 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
 use std::{
     fs,
-    path::PathBuf,
+    path::TestPathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -38,7 +40,7 @@ use super::{
 use crate::test_invariants::{require_json_decode, require_ok, require_some};
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
-const SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE: &str = "{}\n";
+const SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE: &TestStr = "{}\n";
 
 #[test]
 fn screen_cadence_runtime_is_disabled_without_explicit_parent_setting() {
@@ -266,7 +268,7 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: TestText) -> PathBuf {
+fn test_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
@@ -276,3 +278,4 @@ fn test_path(suffix: TestText) -> PathBuf {
     path.push(suffix.as_str());
     path
 }
+

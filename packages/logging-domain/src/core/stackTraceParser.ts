@@ -1,4 +1,4 @@
-import type { GeneratedStackTrace as StackTrace } from '../generated/logging-contracts';
+import type { GeneratedStackTrace as StackTrace } from '../generated-logging-contracts';
 import {
   parseGeneratedStackTrace,
   type GeneratedStackFrame,

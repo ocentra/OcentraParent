@@ -1,3 +1,4 @@
+use std::path::PathBuf as TestPathBuf;
 use crate::test_text::TestText;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -8,7 +9,7 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use std::{
     fs,
-    path::PathBuf,
+    path::TestPathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -212,7 +213,7 @@ async fn local_ai_runtime_status_report_links_environment_and_payload_helpers() 
     let _ = local_ai_runtime_is_executable(&LocalAiRuntimeConfigSnapshot::unconfigured());
 }
 
-pub(crate) fn write_temp_file(prefix: TestText) -> PathBuf {
+pub(crate) fn write_temp_file(prefix: TestText) -> TestPathBuf {
     let path = unique_temp_path(prefix);
     require_ok(
         fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT),
@@ -221,11 +222,11 @@ pub(crate) fn write_temp_file(prefix: TestText) -> PathBuf {
     path
 }
 
-pub(crate) fn unused_temp_path() -> PathBuf {
+pub(crate) fn unused_temp_path() -> TestPathBuf {
     unique_temp_path(constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED)
 }
 
-fn unique_temp_path(prefix: TestText) -> PathBuf {
+fn unique_temp_path(prefix: TestText) -> TestPathBuf {
     let prefix = prefix;
     let mut name = prefix.as_ref().to_string();
     name.push(constants::delimiter::HYPHEN);
@@ -244,7 +245,7 @@ fn nanos_now() -> u128 {
         .as_nanos()
 }
 
-pub(crate) fn remove_temp_file(path: PathBuf) {
+pub(crate) fn remove_temp_file(path: TestPathBuf) {
     let _ = fs::remove_file(path);
 }
 
@@ -266,3 +267,4 @@ fn status_command() -> AgentCommandEnvelope {
         payload: LogFields::new(),
     }
 }
+

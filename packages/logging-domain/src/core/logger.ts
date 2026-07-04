@@ -4,7 +4,7 @@ import {
   GeneratedLogLevel as LogLevel,
   type GeneratedLogLevel as LogLevelValue,
   type GeneratedStackTrace as StackTrace,
-} from '../generated/logging-contracts';
+} from '../generated-logging-contracts';
 import {
   RunType,
   TestLogOrigin,

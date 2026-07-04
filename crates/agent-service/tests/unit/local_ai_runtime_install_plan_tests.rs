@@ -1,9 +1,12 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::ffi::OsString as TestOsString;
 use std::{
     fs,
-    path::{Path, PathBuf},
+    path::{Path, TestPathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -162,7 +165,7 @@ fn write_required_files(plan: &crate::local_ai_runtime_install_plan::LocalAiRunt
     );
 }
 
-fn write_file(path: &Path, contents: &str) {
+fn write_file(path: &Path, contents: &TestStr) {
     if let Some(parent) = path.parent() {
         assert!(fs::create_dir_all(parent).is_ok());
     }
@@ -183,17 +186,17 @@ fn gpu_acceleration_config() -> LocalAiRuntimeAccelerationConfig {
     }
 }
 
-fn runtime_binary_suffix() -> PathBuf {
+fn runtime_binary_suffix() -> TestPathBuf {
     Path::new(constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG)
         .join(constants::local_ai_runtime::LLAMA_CLI_EXECUTABLE_WINDOWS)
 }
 
-fn default_model_suffix() -> PathBuf {
+fn default_model_suffix() -> TestPathBuf {
     Path::new(constants::local_ai_runtime::LOCAL_AI_MODELS_CACHE_DIR)
         .join(constants::local_ai_runtime::DEFAULT_GEMMA_4_MODEL_FILE_NAME)
 }
 
-fn unique_cache_root() -> PathBuf {
+fn unique_cache_root() -> TestPathBuf {
     let mut path = std::env::temp_dir();
     path.push(constants::local_ai_runtime::OCENTRA_PARENT_CACHE_DIR);
     path.push(std::process::id().to_string());
@@ -207,9 +210,10 @@ fn unique_cache_root() -> PathBuf {
     path
 }
 
-fn restore_env_var(env_var_name: &str, value: Option<std::ffi::OsString>) {
+fn restore_env_var(env_var_name: &TestStr, value: Option<TestOsString>) {
     match value {
         Some(previous) => std::env::set_var(env_var_name, previous),
         None => std::env::remove_var(env_var_name),
     }
 }
+

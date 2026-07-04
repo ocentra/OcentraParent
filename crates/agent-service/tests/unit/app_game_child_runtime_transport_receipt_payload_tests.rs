@@ -1,6 +1,8 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow,
@@ -41,49 +43,49 @@ use super::app_game_child_runtime_transport_receipt_payload::{
     app_game_child_runtime_transport_receipt_read_model_from_service_model,
 };
 
-const GENERATED_AT: &str =
+const GENERATED_AT: &TestStr =
     constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_GENERATED_AT;
-const TEST_INVENTORY_ENTRY_ID: &str =
+const TEST_INVENTORY_ENTRY_ID: &TestStr =
     constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_INVENTORY_ENTRY_ID;
-const TEST_PERMISSION_LIMITED_RUNTIME_ID: &str =
+const TEST_PERMISSION_LIMITED_RUNTIME_ID: &TestStr =
     constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_PERMISSION_LIMITED_RUNTIME_ID;
-const TEST_PERMISSION_LIMITED_FOREGROUND_ID: &str =
+const TEST_PERMISSION_LIMITED_FOREGROUND_ID: &TestStr =
     constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_PERMISSION_LIMITED_FOREGROUND_ID;
-const TEST_UNAVAILABLE_INVENTORY_ENTRY_ID: &str =
+const TEST_UNAVAILABLE_INVENTORY_ENTRY_ID: &TestStr =
     constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_UNAVAILABLE_INVENTORY_ENTRY_ID;
-const APP_GAME_CONTROL_APPROVAL_STATE_APPROVED: &str = "approved";
-const APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED: &str = "process-terminated";
-const APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED: &str = "supported";
-const APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED: &str = "installed";
-const APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED: &str = "allowed";
-const APP_GAME_ENFORCEMENT_ROLLBACK_NOT_REQUIRED: &str = "not-required";
-const APP_GAME_POLICY_ACTION_BLOCK: &str = "block";
-const APP_GAME_TEST_ACTION_REFERENCE_ID: &str = "parent-action-app-game-1";
-const APP_GAME_TEST_ACTION_RESULT_ID: &str = "action-result-app-game-1";
-const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
-const APP_GAME_TEST_CHILD_PROFILE_ID: &str = "child-app-game-1";
-const APP_GAME_TEST_DECISION_ID: &str = "approval-decision-app-game-1";
-const APP_GAME_TEST_DEVICE_ID: &str = "device-windows-app-game-1";
-const APP_GAME_TEST_DEVICE_LABEL: &str = "Study PC";
-const APP_GAME_TEST_ENFORCEMENT_ACTION_ID: &str = "enforcement-action-app-game-1";
-const APP_GAME_TEST_ENFORCEMENT_RESULT_ID: &str = "enforcement-result-app-game-1";
-const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
-const APP_GAME_TEST_EXECUTABLE_PATH_REF: &str = "path-ref-ocentra-fixture";
-const APP_GAME_TEST_FOREGROUND_EVIDENCE_ID: &str = "foreground-evidence-window-4242";
-const APP_GAME_TEST_PARENT_ACTOR_ID: &str = "parent-actor-app-game-1";
+const APP_GAME_CONTROL_APPROVAL_STATE_APPROVED: &TestStr = "approved";
+const APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED: &TestStr = "process-terminated";
+const APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED: &TestStr = "supported";
+const APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED: &TestStr = "installed";
+const APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED: &TestStr = "allowed";
+const APP_GAME_ENFORCEMENT_ROLLBACK_NOT_REQUIRED: &TestStr = "not-required";
+const APP_GAME_POLICY_ACTION_BLOCK: &TestStr = "block";
+const APP_GAME_TEST_ACTION_REFERENCE_ID: &TestStr = "parent-action-app-game-1";
+const APP_GAME_TEST_ACTION_RESULT_ID: &TestStr = "action-result-app-game-1";
+const APP_GAME_TEST_CATALOG_REF: &TestStr = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_CHILD_PROFILE_ID: &TestStr = "child-app-game-1";
+const APP_GAME_TEST_DECISION_ID: &TestStr = "approval-decision-app-game-1";
+const APP_GAME_TEST_DEVICE_ID: &TestStr = "device-windows-app-game-1";
+const APP_GAME_TEST_DEVICE_LABEL: &TestStr = "Study PC";
+const APP_GAME_TEST_ENFORCEMENT_ACTION_ID: &TestStr = "enforcement-action-app-game-1";
+const APP_GAME_TEST_ENFORCEMENT_RESULT_ID: &TestStr = "enforcement-result-app-game-1";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &TestStr = "evidence-app-game-session-1";
+const APP_GAME_TEST_EXECUTABLE_PATH_REF: &TestStr = "path-ref-ocentra-fixture";
+const APP_GAME_TEST_FOREGROUND_EVIDENCE_ID: &TestStr = "foreground-evidence-window-4242";
+const APP_GAME_TEST_PARENT_ACTOR_ID: &TestStr = "parent-actor-app-game-1";
 const APP_GAME_TEST_PARENT_PROCESS_ID: u64 = 1000;
-const APP_GAME_TEST_POLICY_VERSION: &str = "policy-version-app-game-1";
+const APP_GAME_TEST_POLICY_VERSION: &TestStr = "policy-version-app-game-1";
 const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
-const APP_GAME_TEST_PROCESS_IDENTITY: &str = "process-4242";
-const APP_GAME_TEST_PROCESS_NAME: &str = "ocentra-fixture.exe";
-const APP_GAME_TEST_REASON_PARENT_APPROVED: &str = "parent-approved";
-const APP_GAME_TEST_REQUEST_ID: &str = "approval-request-app-game-1";
-const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-4242";
-const APP_GAME_TEST_TARGET_ID: &str = "target-app-game-1";
-const APP_GAME_TEST_TARGET_VALUE: &str = "process:ocentra-game.exe";
-const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
-const APP_GAME_TEST_WINDOW_REF: &str = "window-ref-4242";
-const APP_GAME_TEST_WINDOW_TITLE_REF: &str = "title-ref-4242";
+const APP_GAME_TEST_PROCESS_IDENTITY: &TestStr = "process-4242";
+const APP_GAME_TEST_PROCESS_NAME: &TestStr = "ocentra-fixture.exe";
+const APP_GAME_TEST_REASON_PARENT_APPROVED: &TestStr = "parent-approved";
+const APP_GAME_TEST_REQUEST_ID: &TestStr = "approval-request-app-game-1";
+const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &TestStr = "runtime-evidence-process-4242";
+const APP_GAME_TEST_TARGET_ID: &TestStr = "target-app-game-1";
+const APP_GAME_TEST_TARGET_VALUE: &TestStr = "process:ocentra-game.exe";
+const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_WINDOW_REF: &TestStr = "window-ref-4242";
+const APP_GAME_TEST_WINDOW_TITLE_REF: &TestStr = "title-ref-4242";
 
 #[test]
 fn child_runtime_transport_receipt_payload_serializes_parent_safe_status_model() {
@@ -149,8 +151,8 @@ fn child_runtime_transport_receipt_rows_come_from_service_model_runtime_sources(
 
 fn string_payload<'a>(
     payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
-    field_name: &str,
-) -> &'a str {
+    field_name: &TestStr,
+) -> &'a TestStr {
     require_log_string_field(
         payload.get(field_name),
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -169,7 +171,7 @@ fn transport_required_rows(
         .collect()
 }
 
-fn source_row_ids(read_model: &AppGameChildRuntimeTransportReceiptReadModel) -> Vec<String> {
+fn source_row_ids(read_model: &AppGameChildRuntimeTransportReceiptReadModel) -> Vec<TestString> {
     read_model
         .rows
         .iter()
@@ -443,7 +445,7 @@ fn unavailable_inventory_row() -> AppGameInventoryEvidenceRow {
     }
 }
 
-fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
+fn local_db_ref(evidence_id: &TestStr) -> ActivityEvidenceRef {
     ActivityEvidenceRef {
         evidence_id: evidence_id.to_string(),
         kind: ActivityEvidenceKind::LocalDbRow,
@@ -451,3 +453,4 @@ fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
         uri: None,
     }
 }
+

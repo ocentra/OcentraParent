@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::{error::Error, io::Error as IoError};
 
 use ocentra_parent_agent_core::{
@@ -92,7 +94,7 @@ fn product_path_network_event() -> ActivityEvent {
 
 fn assert_product_path_report_refs(
     product_path: &ocentra_parent_agent_service::test_support::NetworkProductPathServiceProofReportForTest,
-    evidence_id: &str,
+    evidence_id: &TestStr,
 ) {
     let analyzer_alert_ref = product_path_ref(
         constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX,
@@ -147,7 +149,7 @@ fn assert_product_path_report_refs(
 
 fn assert_product_path_payload_refs(
     payload: &ocentra_parent_agent_protocol::logging::LogFields,
-    evidence_id: &str,
+    evidence_id: &TestStr,
 ) -> TestResult {
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_PROVED_ROWS),
@@ -229,8 +231,8 @@ fn assert_product_path_payload_refs(
 
 fn assert_payload_ref_equals(
     payload: &ocentra_parent_agent_protocol::logging::LogFields,
-    field: &str,
-    expected: &str,
+    field: &TestStr,
+    expected: &TestStr,
 ) -> TestResult {
     assert_eq!(
         payload.get(field),
@@ -240,6 +242,7 @@ fn assert_payload_ref_equals(
     Ok(())
 }
 
-fn product_path_ref(prefix: &str, evidence_id: &str) -> String {
+fn product_path_ref(prefix: &TestStr, evidence_id: &TestStr) -> TestString {
     format!("{prefix}{evidence_id}")
 }
+

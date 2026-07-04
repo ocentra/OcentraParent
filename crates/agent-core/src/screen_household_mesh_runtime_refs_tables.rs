@@ -14,7 +14,7 @@ struct ScreenPhaseStateRow {
     policy_state: ScreenMeshPolicyState,
 }
 
-const SCREEN_PHASE_ROWS: [ScreenPhaseStateRow; 7] = [
+const SCREEN_PHASE_ROWS: [ScreenPhaseStateRow; 8] = [
     ScreenPhaseStateRow {
         phase: ScreenHouseholdMeshPhase::WorkQueued,
         previous_phase_ref: None,

@@ -172,7 +172,7 @@ impl PolicyEventScope {
     }
 
     pub fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        replay::policy_event_aggregate_key(self)
+        replay::policy_event_scope_aggregate_key(self)
     }
 }
 

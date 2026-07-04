@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::constants;
@@ -16,7 +18,7 @@ use crate::{
     test_invariants::require_some,
 };
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestString>;
 
 #[test]
 fn product_control_service_read_model_wires_runtime_sources() {
@@ -210,7 +212,7 @@ fn entry_for(
 
 fn count_claims(
     entries: &[V08EnforcementProductControlSpineEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<&'static TestStr, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
             .entry(entry.product_claim_state.as_protocol_str())
@@ -221,7 +223,7 @@ fn count_claims(
 
 fn count_policy_states(
     entries: &[V08EnforcementProductControlSpineEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<&'static TestStr, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
             .entry(entry.device_policy_state.as_protocol_str())
@@ -230,14 +232,15 @@ fn count_policy_states(
     })
 }
 
-fn claim_count(counts: &BTreeMap<&'static str, usize>, claim: &'static str) -> usize {
+fn claim_count(counts: &BTreeMap<&'static TestStr, usize>, claim: &'static TestStr) -> usize {
     *counts.get(claim).unwrap_or(&0)
 }
 
-fn policy_count(counts: &BTreeMap<&'static str, usize>, state: &'static str) -> usize {
+fn policy_count(counts: &BTreeMap<&'static TestStr, usize>, state: &'static TestStr) -> usize {
     *counts.get(state).unwrap_or(&0)
 }
 
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
+

@@ -1,3 +1,4 @@
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_core::browser_event_runtime::{
     request_browser_runtime_social_provider_receipt_status_for_input, BrowserRuntimeInput,
 };
@@ -245,6 +246,7 @@ fn assert_social_provider_durable_refs(report: &BrowserRuntimeServiceStreamRepor
     );
 }
 
-fn json_array_value(values: &[&str]) -> LogFieldValue {
+fn json_array_value(values: &[&TestStr]) -> LogFieldValue {
     LogFieldValue::String(crate::test_invariants::serialize_test_json(values))
 }
+

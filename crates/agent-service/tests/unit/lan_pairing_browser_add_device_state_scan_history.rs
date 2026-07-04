@@ -1,3 +1,4 @@
+use std::path::PathBuf as TestPathBuf;
 use std::fs::remove_file;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -118,7 +119,7 @@ fn legacy_snapshot_without_metadata_still_loads() {
     cleanup_test_files(&registry_path);
 }
 
-fn temp_registry_path() -> PathBuf {
+fn temp_registry_path() -> TestPathBuf {
     let unique_id = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
@@ -221,3 +222,4 @@ fn sample_scan_metadata() -> LanScanHistoryMetadata {
         },
     }
 }
+

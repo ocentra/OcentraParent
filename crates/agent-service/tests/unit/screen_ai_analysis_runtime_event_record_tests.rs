@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use serde_json::{Map, Value};
 
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
@@ -88,7 +90,7 @@ fn queued_image() -> QueuedScreenImage {
     }
 }
 
-fn local_ocr_output_text() -> String {
+fn local_ocr_output_text() -> TestString {
     let mut output = Map::new();
     output.insert(
         constants::field::SCREEN_SUMMARY.to_string(),
@@ -137,7 +139,7 @@ fn local_ocr_output_text() -> String {
     Value::Object(output).to_string()
 }
 
-fn complete_generation(output_text: String) -> LocalAiChatGenerationResult {
+fn complete_generation(output_text: TestString) -> LocalAiChatGenerationResult {
     LocalAiChatGenerationResult {
         local_ai_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
         runtime_reference_id: SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
@@ -156,10 +158,11 @@ fn complete_generation(output_text: String) -> LocalAiChatGenerationResult {
     }
 }
 
-fn string_value<'a>(event: &'a ActivityEvent, field: TestText) -> Option<&'a str> {
+fn string_value<'a>(event: &'a ActivityEvent, field: TestText) -> Option<&'a TestStr> {
     let field = field;
     match event.fields.get(field.as_str()) {
         Some(LogFieldValue::String(value)) => Some(value),
         _ => None,
     }
 }
+

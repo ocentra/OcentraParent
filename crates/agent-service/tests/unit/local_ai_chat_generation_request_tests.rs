@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -14,7 +16,7 @@ use crate::{
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
 };
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestString>;
 
 #[test]
 fn parse_generation_request_rejects_missing_prompt() {
@@ -77,7 +79,7 @@ fn parse_generation_request_rejects_invalid_model_id_field() {
     );
     payload.insert(
         constants::field::LOCAL_AI_MODEL_ID.to_string(),
-        LogFieldValue::String(String::new()),
+        LogFieldValue::String(TestString::new()),
     );
     let command = command_with_payload(payload);
     let config = LocalAiRuntimeConfigSnapshot::unconfigured();
@@ -88,7 +90,7 @@ fn parse_generation_request_rejects_invalid_model_id_field() {
     );
 }
 
-fn assert_request_error<T>(result: &Result<T, &'static str>, expected: &str) {
+fn assert_request_error<T>(result: &Result<T, &'static TestStr>, expected: &TestStr) {
     assert!(
         result.is_err(),
         "{}",
@@ -118,6 +120,7 @@ fn command_with_payload(payload: LogFields) -> AgentCommandEnvelope {
     }
 }
 
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
+

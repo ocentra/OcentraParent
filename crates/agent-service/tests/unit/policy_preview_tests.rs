@@ -1,3 +1,4 @@
+use std::string::String as TestString;
 use ocentra_parent_agent_protocol::activity::policy::{
     ParentActorReference, ParentActorRole, ParentEvidenceReference, ParentEvidenceReferenceKind,
     PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyRule, PolicyTarget,
@@ -30,7 +31,7 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
     assert_preview_payload_network_mapping(&payload);
 }
 
-fn assert_preview_payload_core(payload: &std::collections::BTreeMap<String, LogFieldValue>) {
+fn assert_preview_payload_core(payload: &std::collections::BTreeMap<TestString, LogFieldValue>) {
     assert_eq!(
         payload.get(constants::field::POLICY_PREVIEW_ID),
         Some(&LogFieldValue::String(policy::TEST_PREVIEW_ID.to_string()))
@@ -91,7 +92,7 @@ fn assert_preview_payload_core(payload: &std::collections::BTreeMap<String, LogF
     );
 }
 
-fn assert_preview_payload_review(payload: &std::collections::BTreeMap<String, LogFieldValue>) {
+fn assert_preview_payload_review(payload: &std::collections::BTreeMap<TestString, LogFieldValue>) {
     assert_eq!(
         payload.get(constants::field::POLICY_APPROVAL_ID),
         Some(&LogFieldValue::String("approval-1".to_string()))
@@ -135,7 +136,7 @@ fn assert_preview_payload_review(payload: &std::collections::BTreeMap<String, Lo
 }
 
 fn assert_preview_payload_network_mapping(
-    payload: &std::collections::BTreeMap<String, LogFieldValue>,
+    payload: &std::collections::BTreeMap<TestString, LogFieldValue>,
 ) {
     assert_eq!(
         payload.get(constants::field::NETWORK_EVIDENCE_GRADE),
@@ -290,3 +291,4 @@ fn parent_rule_context() -> LocalAiParentRuleContextRef {
         expires_at: None,
     }
 }
+

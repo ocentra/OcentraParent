@@ -125,8 +125,8 @@ pub(crate) fn household_restore_decision(
     }
 }
 
-pub(crate) fn expected_test_mac_canonical_id() -> String {
-    let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
+pub(crate) fn expected_test_mac_canonical_id() -> TestString {
+    let mut id = TestString::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
     id.push_str(&compact(constants::lan_pairing::TEST_LAN_MAC));
     id.push('-');
     id.push_str(&compact(constants::lan_pairing::LOCAL_AGENT_DEVICE_ID));
@@ -206,14 +206,14 @@ fn parent_device() -> LanPairingDeviceRef {
 
 fn expected_device_id_from_mac(mac: impl Into<TestString>) -> TestString {
     let mac = mac;
-    let mut id = String::from(constants::lan_pairing::NETWORK_NEIGHBOR_DEVICE_PREFIX);
+    let mut id = TestString::from(constants::lan_pairing::NETWORK_NEIGHBOR_DEVICE_PREFIX);
     id.push_str(&compact(mac));
     id
 }
 
 fn label_for_ip(ip: impl Into<TestString>) -> TestString {
     let ip = ip;
-    let mut label = String::from(constants::lan_pairing::NETWORK_NEIGHBOR_LABEL_PREFIX);
+    let mut label = TestString::from(constants::lan_pairing::NETWORK_NEIGHBOR_LABEL_PREFIX);
     label.push_str(&ip);
     label
 }
@@ -226,3 +226,4 @@ fn compact(value: impl Into<TestString>) -> TestString {
         .flat_map(char::to_lowercase)
         .collect()
 }
+

@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::error::Error;
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
@@ -27,26 +29,26 @@ use ocentra_parent_agent_service::test_support::{
     build_activity_games_read_model_for_test,
 };
 
-const APP_GAME_INVENTORY_STATE_DETECTABLE: &str = "detectable";
-const APP_GAME_LAUNCHER_KIND_STEAM: &str = "steam";
-const APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY: &str = "launcherOnly";
-const APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST: &str = "launcherManifest";
-const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
-const APP_GAME_TEST_EXECUTABLE_PATH_REF: &str = "path-ref-ocentra-fixture";
-const APP_GAME_TEST_FOREGROUND_EVIDENCE_ID: &str = "foreground-evidence-window-4242";
-const APP_GAME_TEST_GAME_DISPLAY_LABEL: &str = "Ocentra Game Fixture";
-const APP_GAME_TEST_LAUNCHER_EVIDENCE_ID: &str = "launcher-evidence-steam-only";
+const APP_GAME_INVENTORY_STATE_DETECTABLE: &TestStr = "detectable";
+const APP_GAME_LAUNCHER_KIND_STEAM: &TestStr = "steam";
+const APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY: &TestStr = "launcherOnly";
+const APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST: &TestStr = "launcherManifest";
+const APP_GAME_TEST_CATALOG_REF: &TestStr = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_EXECUTABLE_PATH_REF: &TestStr = "path-ref-ocentra-fixture";
+const APP_GAME_TEST_FOREGROUND_EVIDENCE_ID: &TestStr = "foreground-evidence-window-4242";
+const APP_GAME_TEST_GAME_DISPLAY_LABEL: &TestStr = "Ocentra Game Fixture";
+const APP_GAME_TEST_LAUNCHER_EVIDENCE_ID: &TestStr = "launcher-evidence-steam-only";
 const APP_GAME_TEST_LAUNCHER_PROCESS_ID: u64 = 5150;
-const APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY: &str = "process-5150";
-const APP_GAME_TEST_LAUNCHER_PROCESS_NAME: &str = "steam.exe";
-const APP_GAME_TEST_LAUNCHER_REF: &str = "launcher-ref-ocentra";
+const APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY: &TestStr = "process-5150";
+const APP_GAME_TEST_LAUNCHER_PROCESS_NAME: &TestStr = "steam.exe";
+const APP_GAME_TEST_LAUNCHER_REF: &TestStr = "launcher-ref-ocentra";
 const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
-const APP_GAME_TEST_PROCESS_IDENTITY: &str = "process-4242";
-const APP_GAME_TEST_PROCESS_NAME: &str = "ocentra-fixture.exe";
-const APP_GAME_TEST_REGISTRY_SOURCE_REF: &str = "source-registry-native-app";
-const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-4242";
-const APP_GAME_TEST_SECOND_SHORTCUT_SOURCE_REF: &str = "source-second-start-menu-shortcut";
-const APP_GAME_TEST_STORE_GAME_SOURCE_REF: &str = "source-store-package-game";
+const APP_GAME_TEST_PROCESS_IDENTITY: &TestStr = "process-4242";
+const APP_GAME_TEST_PROCESS_NAME: &TestStr = "ocentra-fixture.exe";
+const APP_GAME_TEST_REGISTRY_SOURCE_REF: &TestStr = "source-registry-native-app";
+const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &TestStr = "runtime-evidence-process-4242";
+const APP_GAME_TEST_SECOND_SHORTCUT_SOURCE_REF: &TestStr = "source-second-start-menu-shortcut";
+const APP_GAME_TEST_STORE_GAME_SOURCE_REF: &TestStr = "source-store-package-game";
 
 #[test]
 fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims() -> Result<(), Box<dyn Error>> {
@@ -123,9 +125,9 @@ fn games_read_model_groups_game_inventory_runtime_foreground_and_launcher_source
 
 fn assert_source_status(
     rows: &[ActivityAppGameSourceStatusRow],
-    source_kind: &str,
+    source_kind: &TestStr,
     row_count: u64,
-    last_observed_at: &str,
+    last_observed_at: &TestStr,
 ) -> Result<(), Box<dyn Error>> {
     let row = rows
         .iter()
@@ -238,11 +240,11 @@ fn service_foreground_rows() -> Vec<AppGameForegroundEvidenceRow> {
 }
 
 fn inventory_row(
-    source_kind: &str,
-    source_ref: &str,
-    observed_at: &str,
-    product_kind: &str,
-    classification_state: &str,
+    source_kind: &TestStr,
+    source_ref: &TestStr,
+    observed_at: &TestStr,
+    product_kind: &TestStr,
+    classification_state: &TestStr,
 ) -> AppGameInventoryEvidenceRow {
     AppGameInventoryEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -279,10 +281,10 @@ fn inventory_row(
 }
 
 fn runtime_row(
-    evidence_id: &str,
-    process_identity: &str,
-    observed_at: &str,
-    classification_state: &str,
+    evidence_id: &TestStr,
+    process_identity: &TestStr,
+    observed_at: &TestStr,
+    classification_state: &TestStr,
 ) -> AppGameRuntimeEvidenceRow {
     AppGameRuntimeEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -313,10 +315,10 @@ fn runtime_row(
 }
 
 fn foreground_row(
-    evidence_id: &str,
-    process_identity: &str,
-    observed_at: &str,
-    classification_state: &str,
+    evidence_id: &TestStr,
+    process_identity: &TestStr,
+    observed_at: &TestStr,
+    classification_state: &TestStr,
 ) -> AppGameForegroundEvidenceRow {
     AppGameForegroundEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -375,7 +377,7 @@ fn launcher_row() -> AppGameLauncherEvidenceRow {
     }
 }
 
-fn evidence_ref(evidence_id: &str) -> ActivityEvidenceRef {
+fn evidence_ref(evidence_id: &TestStr) -> ActivityEvidenceRef {
     ActivityEvidenceRef {
         evidence_id: evidence_id.to_string(),
         kind: ActivityEvidenceKind::LocalDbRow,
@@ -384,7 +386,7 @@ fn evidence_ref(evidence_id: &str) -> ActivityEvidenceRef {
     }
 }
 
-fn inventory_label(product_kind: &str) -> String {
+fn inventory_label(product_kind: &TestStr) -> TestString {
     if product_kind == APP_GAME_PRODUCT_NATIVE_GAME {
         APP_GAME_TEST_GAME_DISPLAY_LABEL.to_string()
     } else {
@@ -392,7 +394,7 @@ fn inventory_label(product_kind: &str) -> String {
     }
 }
 
-fn inventory_state(product_kind: &str) -> String {
+fn inventory_state(product_kind: &TestStr) -> TestString {
     if product_kind == APP_GAME_PRODUCT_NATIVE_GAME {
         APP_GAME_INVENTORY_STATE_DETECTABLE.to_string()
     } else {
@@ -413,3 +415,4 @@ fn surface_request() -> ActivitySurfaceRequest {
         range_end: constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string(),
     }
 }
+

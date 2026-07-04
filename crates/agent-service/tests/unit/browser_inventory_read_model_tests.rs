@@ -1,3 +1,7 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
+use std::ffi::OsString as TestOsString;
 use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -281,13 +285,13 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
 }
 
 fn browser_inventory_status_helpers_assertions(
-    missing_state: String,
-    profile_missing_state: Option<String>,
-    unmanaged_kind: Option<String>,
-    ready_state: String,
-    running_state: String,
-    disconnected_state: String,
-    errored_state: String,
+    missing_state: TestString,
+    profile_missing_state: Option<TestString>,
+    unmanaged_kind: Option<TestString>,
+    ready_state: TestString,
+    running_state: TestString,
+    disconnected_state: TestString,
+    errored_state: TestString,
     payload_state: Option<LogFieldValue>,
 ) {
     assert_eq!(
@@ -486,7 +490,7 @@ fn inventory_command() -> AgentCommandEnvelope {
     }
 }
 
-fn temp_service_inventory_root() -> std::path::PathBuf {
+fn temp_service_inventory_root() -> TestPathBuf {
     static TEMP_SERVICE_INVENTORY_COUNTER: AtomicU64 = AtomicU64::new(0);
 
     let sequence = TEMP_SERVICE_INVENTORY_COUNTER.fetch_add(1, Ordering::Relaxed);
@@ -499,7 +503,7 @@ fn temp_service_inventory_root() -> std::path::PathBuf {
     root
 }
 
-fn create_executable_fixture(path: &std::path::PathBuf) {
+fn create_executable_fixture(path: &TestPathBuf) {
     let parent = require_some(path.parent(), constants::error::BROWSER_BRIDGE_MAPS_TARGET);
     require_ok(
         std::fs::create_dir_all(parent),
@@ -511,7 +515,7 @@ fn create_executable_fixture(path: &std::path::PathBuf) {
     );
 }
 
-fn write_manifest(root: &Path, manifest: &str) {
+fn write_manifest(root: &Path, manifest: &TestStr) {
     if let Some(parent) = root.parent() {
         require_ok(
             std::fs::create_dir_all(parent),
@@ -533,9 +537,10 @@ fn write_manifest(root: &Path, manifest: &str) {
     );
 }
 
-fn restore_env_var(env_var_name: &str, value: Option<std::ffi::OsString>) {
+fn restore_env_var(env_var_name: &TestStr, value: Option<TestOsString>) {
     match value {
         Some(previous) => std::env::set_var(env_var_name, previous),
         None => std::env::remove_var(env_var_name),
     }
 }
+

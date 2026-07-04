@@ -1,6 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::fs::remove_file;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -43,12 +46,12 @@ use crate::{
     test_text::TestText,
 };
 
-const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
-const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
-const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
-const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
-const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
-const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &TestStr = "catalogMatched";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &TestStr = "inventoryScan";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &TestStr = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &TestStr = "evidence-app-game-session-1";
+const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
 
 #[tokio::test]
 async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows() {
@@ -239,7 +242,7 @@ fn policy_readiness_payload(value: &LogFieldValue) -> AppGamePolicyReadinessRead
 
 fn readiness_row<'a>(
     rows: &'a [ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessRow],
-    readiness_kind: &str,
+    readiness_kind: &TestStr,
 ) -> &'a ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessRow {
     require_some(
         rows.iter().find(|row| row.readiness_kind == readiness_kind),
@@ -247,9 +250,9 @@ fn readiness_row<'a>(
     )
 }
 
-fn temp_path(suffix: TestText) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(
@@ -268,7 +271,7 @@ fn temp_path(suffix: TestText) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: &TestPathBuf) {
     let _ = remove_file(path);
     let mut wal_path = path.clone();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
@@ -277,3 +280,4 @@ fn cleanup_path(path: &std::path::PathBuf) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
+

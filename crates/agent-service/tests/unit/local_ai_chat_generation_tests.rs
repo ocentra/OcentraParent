@@ -1,6 +1,7 @@
+use std::path::PathBuf as TestPathBuf;
 use std::{
     fs,
-    path::PathBuf,
+    path::TestPathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -123,7 +124,7 @@ async fn local_ai_chat_generation_report_links_request_and_payload_helpers() {
     );
 }
 
-fn write_temp_file(prefix: TestText) -> PathBuf {
+fn write_temp_file(prefix: TestText) -> TestPathBuf {
     let path = unique_temp_path(prefix);
     require_ok(
         fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT),
@@ -132,7 +133,7 @@ fn write_temp_file(prefix: TestText) -> PathBuf {
     path
 }
 
-fn unique_temp_path(prefix: TestText) -> PathBuf {
+fn unique_temp_path(prefix: TestText) -> TestPathBuf {
     let prefix = prefix;
     let mut name = prefix.as_ref().to_string();
     name.push(constants::delimiter::HYPHEN);
@@ -151,7 +152,7 @@ fn nanos_now() -> u128 {
         .as_nanos()
 }
 
-fn remove_temp_file(path: PathBuf) {
+fn remove_temp_file(path: TestPathBuf) {
     let _ = fs::remove_file(path);
 }
 
@@ -173,3 +174,4 @@ fn generation_command() -> AgentCommandEnvelope {
         payload: LogFields::new(),
     }
 }
+

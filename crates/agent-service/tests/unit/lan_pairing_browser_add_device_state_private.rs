@@ -1,3 +1,4 @@
+use std::string::String as TestString;
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
 use ocentra_lan_core::network_inventory::{LanDiscoveryRefreshMode, LanDiscoveryScanPlan};
 use ocentra_lan_core::read_model_builder::{
@@ -22,7 +23,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 use super::scan_history::{LanScanHistoryMetadata, LanScanHistorySnapshot};
 use super::{discovery_event_history_state, ordered_discovery_event_rows};
 
-type TestText = String;
+type TestText = TestString;
 use super::{
     network_neighbor_child_device,
     platform_data_available_for_scan_result_with_manual_required_override,
@@ -52,7 +53,7 @@ fn network_neighbor_child_device_omits_empty_mac_address() {
         label: "Office Printer".to_string(),
         platform: constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
         ip_address: "192.168.2.88".to_string(),
-        mac_address: String::new(),
+        mac_address: TestString::new(),
         hostname: Some("office-printer.local".to_string()),
         network_interface: None,
         observed_at: "2026-06-26T20:45:47.000Z".to_string(),
@@ -852,3 +853,4 @@ fn canonical_evidence_record() -> LanDiscoveryEvidenceRecord {
         note: None,
     }
 }
+

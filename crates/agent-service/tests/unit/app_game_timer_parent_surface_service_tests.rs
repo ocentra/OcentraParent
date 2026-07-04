@@ -61,12 +61,12 @@ use crate::{
     test_text::TestText,
 };
 
-const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
-const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
-const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
-const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
-const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
-const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &TestStr = "catalogMatched";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &TestStr = "inventoryScan";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &TestStr = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &TestStr = "evidence-app-game-session-1";
+const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
 
 #[tokio::test]
 async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
@@ -538,7 +538,7 @@ fn parent_evidence_fixture() -> ParentEvidenceReference {
 
 fn temp_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix.as_ref());
@@ -555,7 +555,7 @@ fn unique_suffix() -> TestString {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|duration| duration.as_nanos().to_string())
-        .unwrap_or_else(|_| String::from("0"))
+        .unwrap_or_else(|_| TestString::from("0"))
 }
 
 fn cleanup_path(path: impl AsRef<TestPath>) {
@@ -568,3 +568,4 @@ fn cleanup_path(path: impl AsRef<TestPath>) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
+

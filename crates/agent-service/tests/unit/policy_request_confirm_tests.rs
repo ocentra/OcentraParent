@@ -1,6 +1,9 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::{error::Error, fs::remove_file, io::Error as IoError};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -278,9 +281,9 @@ fn result_payload(
     }
 }
 
-fn temp_path(suffix: impl AsRef<str>) -> std::path::PathBuf {
+fn temp_path(suffix: impl AsRef<TestStr>) -> TestPathBuf {
     let suffix = suffix.as_ref();
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix);
@@ -291,7 +294,7 @@ fn temp_path(suffix: impl AsRef<str>) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: &TestPathBuf) {
     let _ = remove_file(path);
     let mut wal_path = path.clone();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
@@ -340,3 +343,4 @@ fn assert_confirmed_preview_result(result: &PolicyRequestAssistantPreviewConfirm
     );
     assert!(result.rejection_reason.as_deref().is_none());
 }
+

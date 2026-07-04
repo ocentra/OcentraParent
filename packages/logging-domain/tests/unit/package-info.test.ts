@@ -9,7 +9,7 @@ import {
 import {
   GeneratedDevLogMessage as DevLogMessage,
   GeneratedLogSource as LogSource,
-} from '../../src/generated/logging-contracts';
+} from '../../src/generated-logging-contracts';
 import { LoggingDomainPackage } from '../../src/package-info';
 
 const TestDirectory = dirname(fileURLToPath(import.meta.url));

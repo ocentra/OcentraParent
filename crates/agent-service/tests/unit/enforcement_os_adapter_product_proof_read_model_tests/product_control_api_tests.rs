@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineReadModel;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
@@ -14,7 +16,7 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestString>;
 
 #[tokio::test]
 async fn product_control_spine_dispatcher_returns_typed_runtime_read_model() -> TestResult {
@@ -61,7 +63,7 @@ async fn product_control_spine_dispatcher_returns_typed_runtime_read_model() -> 
     Ok(())
 }
 
-async fn send_product_control_command() -> Result<AgentEventEnvelope, String> {
+async fn send_product_control_command() -> Result<AgentEventEnvelope, TestString> {
     let body = ok(
         serde_json::to_string(&command_envelope()),
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -88,20 +90,21 @@ fn command_envelope() -> AgentCommandEnvelope {
     }
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> Result<&'a str, String> {
+fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &TestStr) -> Result<&'a TestStr, TestString> {
     match event.payload.get(field) {
         Some(LogFieldValue::String(value)) => Ok(value.as_str()),
         _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
 }
 
-fn number_payload_field(event: &AgentEventEnvelope, field: &str) -> Result<f64, String> {
+fn number_payload_field(event: &AgentEventEnvelope, field: &TestStr) -> Result<f64, TestString> {
     match event.payload.get(field) {
         Some(LogFieldValue::Number(value)) => Ok(*value),
         _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
 }
 
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
+

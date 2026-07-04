@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/logging_contracts.rs */
 
-import { Schema, brandedNonEmptyStringSchema, withParser } from '../effect';
+import { Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const LoggingContractRuntime = {
   SchemaVersion: 1,

@@ -157,10 +157,11 @@ it('product bridge guard: tracking status surfaces use Rust-generated panel snap
 });
 
 it('product bridge guard: portal dev logging uses Rust-generated logging DTO types at the TS edge', () => {
-  const schemaGeneratedLoggingEdgeSources = [
-    readFileSync(resolve(TestDirectory, '..', 'src/dev-logger.ts'), 'utf8'),
-    readFileSync(resolve(TestDirectory, '..', '..', '..', 'packages/portal-domain/src/dev-logger.ts'), 'utf8'),
-  ];
+  const appLoggingEdgeSource = readFileSync(resolve(TestDirectory, '..', 'src/dev-logger.ts'), 'utf8');
+  const portalDomainLoggingEdgeSource = readFileSync(
+    resolve(TestDirectory, '..', '..', '..', 'packages/portal-domain/src/dev-logger.ts'),
+    'utf8'
+  );
   const retiredSchemaLoggingContractsSpecifier =
     RetiredSchemaDomainGeneratedLoggingContractsSpecifier;
   const localGeneratedLoggingEdgeSource = readFileSync(
@@ -168,8 +169,7 @@ it('product bridge guard: portal dev logging uses Rust-generated logging DTO typ
     'utf8'
   );
 
-  for (const source of schemaGeneratedLoggingEdgeSources) {
-    expect(source).toContain('@ocentra-parent/logging-domain/generated/logging-contracts');
+  for (const source of [appLoggingEdgeSource, portalDomainLoggingEdgeSource]) {
     expect(source).not.toContain(retiredSchemaLoggingContractsSpecifier);
     expect(source).not.toContain(RetiredSchemaDomainLoggingContractsSpecifier);
     expect(source).not.toContain('decodeStackTrace');
@@ -177,7 +177,9 @@ it('product bridge guard: portal dev logging uses Rust-generated logging DTO typ
     expect(source).not.toContain('decodeLogTimestamp');
   }
 
-  expect(localGeneratedLoggingEdgeSource).toContain('../generated/logging-contracts');
+  expect(appLoggingEdgeSource).toContain('@ocentra-parent/logging-domain/generated/logging-contracts');
+  expect(portalDomainLoggingEdgeSource).toContain('@ocentra-parent/logging-domain/generated/logging-contracts');
+  expect(localGeneratedLoggingEdgeSource).toContain('../generated-logging-contracts');
   expect(localGeneratedLoggingEdgeSource).not.toContain(retiredSchemaLoggingContractsSpecifier);
   expect(localGeneratedLoggingEdgeSource).not.toContain(RetiredSchemaDomainLoggingContractsSpecifier);
   expect(localGeneratedLoggingEdgeSource).not.toContain('decodeStackTrace');

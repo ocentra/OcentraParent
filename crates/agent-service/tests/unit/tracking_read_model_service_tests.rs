@@ -1,3 +1,6 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::{error::Error, fs::remove_file, io::Error as IoError, path::Path};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -220,8 +223,8 @@ fn command_envelope() -> AgentCommandEnvelope {
 }
 
 fn tracking_activity_event(
-    event_id: &str,
-    observed_at: &str,
+    event_id: &TestStr,
+    observed_at: &TestStr,
     kind: ActivityEventKind,
     observer: ActivityObserver,
     subject_kind: ActivitySubjectKind,
@@ -272,7 +275,7 @@ fn tracking_read_model_payload(value: &LogFieldValue) -> Result<TrackingReadMode
 
 fn assert_count(
     counts: &[ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModelCount],
-    value: &str,
+    value: &TestStr,
     count: u64,
 ) {
     let actual = counts
@@ -282,9 +285,9 @@ fn assert_count(
     assert_eq!(actual, Some(count));
 }
 
-fn temp_path(suffix: impl AsRef<str>) -> std::path::PathBuf {
+fn temp_path(suffix: impl AsRef<TestStr>) -> TestPathBuf {
     let suffix = suffix.as_ref();
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix);
@@ -304,3 +307,4 @@ fn cleanup_path(path: &Path) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
+

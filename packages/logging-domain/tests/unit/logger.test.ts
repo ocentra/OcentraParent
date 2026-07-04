@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { GeneratedStackTrace as StackTrace } from '../../src/generated/logging-contracts';
+import type { GeneratedStackTrace as StackTrace } from '../../src/generated-logging-contracts';
 import { RunType, TestLogOrigin, TestLogScope } from '../../src/test-log/types';
 import { Logger } from '../../src/core/logger';
 import { getStackTrace } from '../../src/core/stackTrace';

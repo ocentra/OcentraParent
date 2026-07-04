@@ -26,7 +26,7 @@ import {
   type GeneratedLogFields,
   type GeneratedLogSnapshotState,
   type GeneratedLogTimestamp,
-} from './generated/logging-contracts';
+} from './generated-logging-contracts';
 
 export const AgentDeviceIdSchema = EventAgentDeviceIdSchema;
 export const AgentHostnameSchema = brandedNonEmptyStringSchema('AgentHostname');

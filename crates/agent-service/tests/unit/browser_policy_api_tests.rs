@@ -1,5 +1,8 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::{
-    path::PathBuf,
+    path::TestPathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -282,7 +285,7 @@ fn preview_command(policy_value: &BrowserPolicyValue) -> AgentCommandEnvelope {
 }
 
 fn replace_command(
-    base_revision_id: Option<&str>,
+    base_revision_id: Option<&TestStr>,
     policy_value: &BrowserPolicyValue,
 ) -> AgentCommandEnvelope {
     command_with_request(
@@ -297,7 +300,7 @@ fn replace_command(
     )
 }
 
-fn patch_command(base_revision_id: &str, patches: &[BrowserPolicyPatch]) -> AgentCommandEnvelope {
+fn patch_command(base_revision_id: &TestStr, patches: &[BrowserPolicyPatch]) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPatch,
         serde_json::json!({
@@ -477,13 +480,13 @@ fn valid_policy_browser_boundary() -> (
     )
 }
 
-fn stale_revision_id() -> String {
+fn stale_revision_id() -> TestString {
     let mut revision_id = constants::browser_policy::REVISION_PREFIX.to_string();
     revision_id.push_str(constants::browser_policy::UPDATE_STATUS_REJECTED);
     revision_id
 }
 
-fn temp_policy_store_path(store_path_suffix: &str) -> PathBuf {
+fn temp_policy_store_path(store_path_suffix: &TestStr) -> TestPathBuf {
     let stamp = require_ok(
         SystemTime::now().duration_since(UNIX_EPOCH),
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -501,16 +504,17 @@ fn temp_policy_store_path(store_path_suffix: &str) -> PathBuf {
     path
 }
 
-fn serialize_test_json<T>(value: &T) -> String
+fn serialize_test_json<T>(value: &T) -> TestString
 where
     T: serde::Serialize + ?Sized,
 {
     crate::test_invariants::serialize_test_json(value)
 }
 
-fn parse_test_json<T>(text: &str) -> T
+fn parse_test_json<T>(text: &TestStr) -> T
 where
     T: serde::de::DeserializeOwned,
 {
     crate::test_invariants::require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
+

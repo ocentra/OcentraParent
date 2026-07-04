@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use ocentra_lan_core::lan_mdns_advertiser::current_platform_support;
 use ocentra_lan_core::lan_pairing::{
     evaluate_lan_mdns_advertisement_lifecycle, LanMdnsAdvertisementLifecycleInput,
@@ -7,7 +9,7 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
-type TestText = String;
+type TestText = TestString;
 
 pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
     assert_accepted_control_for_intent(event, constants::lan_pairing::INTENT_ID);
@@ -382,14 +384,14 @@ pub(crate) fn assert_status_selected_route_trust(
 
 #[derive(Clone, Copy)]
 pub(crate) struct SelectedRouteCustodyExpectation<'a> {
-    pub(crate) authentication_state: &'a str,
-    pub(crate) selected_child_device_id: &'a str,
-    pub(crate) selected_route_id: &'a str,
-    pub(crate) trusted_device_ids: &'a str,
-    pub(crate) pairing_id: &'a str,
-    pub(crate) trust_state: &'a str,
-    pub(crate) stale_at: &'a str,
-    pub(crate) offline_at: &'a str,
+    pub(crate) authentication_state: &'a TestStr,
+    pub(crate) selected_child_device_id: &'a TestStr,
+    pub(crate) selected_route_id: &'a TestStr,
+    pub(crate) trusted_device_ids: &'a TestStr,
+    pub(crate) pairing_id: &'a TestStr,
+    pub(crate) trust_state: &'a TestStr,
+    pub(crate) stale_at: &'a TestStr,
+    pub(crate) offline_at: &'a TestStr,
 }
 
 pub(crate) fn assert_status_selected_route_custody(
@@ -448,7 +450,7 @@ pub(crate) fn assert_rejection_with_audit(
     );
 }
 
-fn expected_authentication_state(reason: TestText) -> &'static str {
+fn expected_authentication_state(reason: TestText) -> &'static TestStr {
     let reason: TestText = reason.into();
     let reason = reason.as_str();
     if reason == constants::value::LAN_REASON_ANONYMOUS
@@ -468,3 +470,4 @@ fn expected_authentication_state(reason: TestText) -> &'static str {
         constants::value::LAN_AUTH_PAIRED
     }
 }
+

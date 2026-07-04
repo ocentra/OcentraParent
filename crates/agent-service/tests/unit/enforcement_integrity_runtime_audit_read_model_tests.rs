@@ -1,6 +1,8 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::constants;
@@ -28,7 +30,7 @@ use ocentra_parent_agent_service::test_support::handle_local_command_text_for_te
 use super::enforcement_integrity_runtime_audit_read_model::v08_enforcement_integrity_runtime_audit_read_model;
 use crate::test_invariants::require_some;
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestString>;
 
 #[test]
 fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
@@ -223,7 +225,7 @@ async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read
     Ok(())
 }
 
-async fn send_supported_adapter_runtime_proof_command() -> Result<AgentEventEnvelope, String> {
+async fn send_supported_adapter_runtime_proof_command() -> Result<AgentEventEnvelope, TestString> {
     let body = ok(
         serde_json::to_string(&command_envelope()),
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -252,7 +254,7 @@ fn command_envelope() -> AgentCommandEnvelope {
 
 fn assert_entry_integrity(
     entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
-    audit_entry_id: &str,
+    audit_entry_id: &TestStr,
     integrity_state: V08EnforcementIntegrityRuntimeAuditIntegrityState,
 ) {
     let entry = require_some(
@@ -267,7 +269,7 @@ fn assert_entry_integrity(
 
 fn count_results(
     entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<&'static TestStr, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts.entry(result_name(entry.result)).or_default() += 1;
         counts
@@ -276,7 +278,7 @@ fn count_results(
 
 fn count_integrity_states(
     entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<&'static TestStr, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
             .entry(integrity_name(entry.integrity_state))
@@ -285,7 +287,7 @@ fn count_integrity_states(
     })
 }
 
-fn result_name(result: V08EnforcementIntegrityRuntimeAuditResult) -> &'static str {
+fn result_name(result: V08EnforcementIntegrityRuntimeAuditResult) -> &'static TestStr {
     match result {
         V08EnforcementIntegrityRuntimeAuditResult::Succeeded => proof::RESULT_SUCCEEDED,
         V08EnforcementIntegrityRuntimeAuditResult::Failed => proof::RESULT_FAILED,
@@ -300,7 +302,7 @@ fn result_name(result: V08EnforcementIntegrityRuntimeAuditResult) -> &'static st
     }
 }
 
-fn integrity_name(state: V08EnforcementIntegrityRuntimeAuditIntegrityState) -> &'static str {
+fn integrity_name(state: V08EnforcementIntegrityRuntimeAuditIntegrityState) -> &'static TestStr {
     match state {
         V08EnforcementIntegrityRuntimeAuditIntegrityState::Running => proof::INTEGRITY_RUNNING,
         V08EnforcementIntegrityRuntimeAuditIntegrityState::PermissionMissing => {
@@ -330,21 +332,22 @@ fn integrity_name(state: V08EnforcementIntegrityRuntimeAuditIntegrityState) -> &
     }
 }
 
-fn result_count(counts: &BTreeMap<&'static str, usize>, result: &'static str) -> usize {
+fn result_count(counts: &BTreeMap<&'static TestStr, usize>, result: &'static TestStr) -> usize {
     *counts.get(result).unwrap_or(&0)
 }
 
-fn integrity_count(counts: &BTreeMap<&'static str, usize>, state: &'static str) -> usize {
+fn integrity_count(counts: &BTreeMap<&'static TestStr, usize>, state: &'static TestStr) -> usize {
     *counts.get(state).unwrap_or(&0)
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> Result<&'a str, String> {
+fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &TestStr) -> Result<&'a TestStr, TestString> {
     match event.payload.get(field) {
         Some(LogFieldValue::String(value)) => Ok(value.as_str()),
         _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
     }
 }
 
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
+fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &TestStr) -> Result<T, TestString> {
     result.map_err(|error| format!("{context}: {error:?}"))
 }
+

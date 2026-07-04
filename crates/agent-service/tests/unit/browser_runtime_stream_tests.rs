@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use crate::test_text::TestText;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
@@ -70,7 +72,7 @@ use browser_runtime_stream_test_assertions::{
     assert_store_backed_stream_first_entry, assert_store_backed_stream_payload_header,
 };
 
-const BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS: [&str; 3] = [
+const BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS: [&TestStr; 3] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS,
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS,
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
@@ -84,7 +86,7 @@ macro_rules! assert_child_status_payload_empty {
             $payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS),
             Some(&LogFieldValue::Number(0.0))
         );
-        let empty_array = LogFieldValue::String(String::from("[]"));
+        let empty_array = LogFieldValue::String(TestString::from("[]"));
         for field in BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS {
             assert_eq!($payload.get(field), Some(&empty_array));
         }
@@ -275,7 +277,7 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
         {
-            let mut value = String::from(constants::browser::ACTION_INTENT_ID_PREFIX);
+            let mut value = TestString::from(constants::browser::ACTION_INTENT_ID_PREFIX);
             value.push_str(policy_constants::TEST_DECISION_ID);
             value
         }
@@ -648,7 +650,7 @@ fn first_entry_with_capability(entries: &[Value], capability: TestText) -> &Valu
 
 fn temp_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix.as_ref());
@@ -669,3 +671,4 @@ fn cleanup_path(path: impl AsRef<TestPath>) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
+

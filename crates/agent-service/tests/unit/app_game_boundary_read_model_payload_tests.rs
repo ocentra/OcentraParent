@@ -1,6 +1,7 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     self, AppGameEvidenceClaim, AppGameServiceReadModel,
@@ -17,20 +18,20 @@ use super::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
 };
 
-const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
-const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
-const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
-const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &str = "windows-applocker-proof";
-const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &str = "manual-required";
-const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
-const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
-const APP_GAME_TEST_PLATFORM_MATRIX_ID: &str = "app-game-platform-authority-matrix";
-const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
-const APP_GAME_TEST_WINDOWS_LIMITATION: &str =
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &TestStr = "catalogMatched";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &TestStr = "inventoryScan";
+const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &TestStr = "windows-applocker-proof";
+const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &TestStr = "manual-required";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &TestStr = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &TestStr = "evidence-app-game-session-1";
+const APP_GAME_TEST_PLATFORM_MATRIX_ID: &TestStr = "app-game-platform-authority-matrix";
+const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_WINDOWS_LIMITATION: &TestStr =
     "Broad installed-app blocking needs AppLocker or App Control proof before execution.";
-const APP_GAME_TEST_WINDOWS_ROW_ID: &str = "windows-block-launch-row";
+const APP_GAME_TEST_WINDOWS_ROW_ID: &TestStr = "windows-block-launch-row";
 
 #[test]
 fn app_game_boundary_payload_contains_dedicated_counts_and_citations() {
@@ -153,7 +154,7 @@ fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
     )
 }
 
-fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
+fn local_db_ref(evidence_id: &TestStr) -> ActivityEvidenceRef {
     ActivityEvidenceRef {
         evidence_id: evidence_id.to_string(),
         kind: ActivityEvidenceKind::LocalDbRow,
@@ -164,10 +165,11 @@ fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
 
 fn string_payload<'a>(
     payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
-    field_name: &str,
-) -> &'a str {
+    field_name: &TestStr,
+) -> &'a TestStr {
     require_log_string_field(
         payload.get(field_name),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
+

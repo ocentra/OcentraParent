@@ -1,3 +1,5 @@
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
 use std::{fs, path::PathBuf};
 
 use ocentra_parent_agent_protocol::constants;
@@ -46,7 +48,7 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
     let runtime = ScreenSettingsRuntime::for_store_path(&path);
     let strict = strict_dry_run_setting(2);
 
-    let accepted = runtime.handle_request(replace_request(None, &strict)).await;
+    let accepted = runtime.handle_request(replace_request(None, &TestStrict)).await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
     assert_eq!(
@@ -131,12 +133,12 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
 async fn screen_settings_runtime_rejects_stale_base_setting_version() {
     let runtime = test_runtime("stale-base-setting-version");
     let accepted = runtime
-        .handle_request(replace_request(None, &strict_dry_run_setting(2)))
+        .handle_request(replace_request(None, &TestStrict_dry_run_setting(2)))
         .await;
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
 
     let rejected = runtime
-        .handle_request(replace_request(Some(1), &strict_dry_run_setting(3)))
+        .handle_request(replace_request(Some(1), &TestStrict_dry_run_setting(3)))
         .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
@@ -197,9 +199,9 @@ fn replace_request(
     .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn test_store_path(store_suffix: crate::test_text::TestText) -> PathBuf {
+fn test_store_path(store_suffix: crate::test_text::TestText) -> TestPathBuf {
     let mut path = std::env::temp_dir();
-    let mut file_name = String::from(constants::screen_settings::TEST_STORE_FILE_PREFIX);
+    let mut file_name = TestString::from(constants::screen_settings::TEST_STORE_FILE_PREFIX);
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(store_suffix.0.as_str());
     file_name.push(constants::delimiter::HYPHEN);
@@ -214,3 +216,4 @@ fn test_store_path(store_suffix: crate::test_text::TestText) -> PathBuf {
 fn test_runtime(store_suffix: crate::test_text::TestText) -> ScreenSettingsRuntime {
     ScreenSettingsRuntime::for_store_path(test_store_path(store_suffix))
 }
+

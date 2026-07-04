@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
@@ -179,8 +181,8 @@ fn full_metadata_row() -> ActivityNetworkFlowObservation {
 }
 
 fn row(
-    destination_domain: Option<String>,
-    process_name: Option<String>,
+    destination_domain: Option<TestString>,
+    process_name: Option<TestString>,
     process_id: Option<u64>,
 ) -> ActivityNetworkFlowObservation {
     ActivityNetworkFlowObservation {
@@ -223,14 +225,15 @@ fn row(
     }
 }
 
-fn row_ref(prefix: &str) -> String {
-    let mut value = String::from(prefix);
+fn row_ref(prefix: &TestStr) -> TestString {
+    let mut value = TestString::from(prefix);
     value.push_str(&test_network_evidence_id());
     value
 }
 
-fn test_network_evidence_id() -> String {
-    let mut evidence_id = String::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
+fn test_network_evidence_id() -> TestString {
+    let mut evidence_id = TestString::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(constants::activity_store::TEST_NETWORK_EVENT_ID);
     evidence_id
 }
+

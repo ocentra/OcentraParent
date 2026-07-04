@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
@@ -9,7 +11,7 @@ use serde_json::Value;
 use crate::browser_runtime_stream_payload::BrowserRuntimeServiceStreamReport;
 use crate::test_invariants::require_some;
 
-const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&str; 4] = [
+const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&TestStr; 4] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS,
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS,
@@ -59,7 +61,7 @@ pub(super) fn assert_action_intent_handoff_payload_refs(payload: &LogFields) {
 pub(super) fn assert_child_status_report_refs(
     report: &BrowserRuntimeServiceStreamReport,
     payload: &LogFields,
-    expected_intent_fragment: &str,
+    expected_intent_fragment: &TestStr,
 ) {
     assert_eq!(report.action_intent_child_accepted_rows, 1);
     assert!(report.action_intent_child_command_refs[0].contains(expected_intent_fragment));
@@ -75,7 +77,7 @@ pub(super) fn assert_child_status_report_refs(
 
 pub(super) fn assert_payload_child_command_refs_include(
     payload: &LogFields,
-    expected_fragment: &str,
+    expected_fragment: &TestStr,
 ) {
     let child_command_refs = payload
         .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS)
@@ -147,9 +149,10 @@ pub(super) fn assert_store_backed_stream_child_status_and_no_execution(payload: 
     );
 }
 
-fn serialize_test_json<T>(value: &T) -> String
+fn serialize_test_json<T>(value: &T) -> TestString
 where
     T: serde::Serialize + ?Sized,
 {
     crate::test_invariants::serialize_test_json(value)
 }
+

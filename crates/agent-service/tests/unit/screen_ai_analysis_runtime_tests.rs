@@ -1,9 +1,11 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
 use std::{
     fs,
-    path::{Path, PathBuf},
+    path::{Path, TestPathBuf},
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -157,7 +159,7 @@ fn reset_test_path(path: &Path) {
     }
 }
 
-fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> String {
+fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> TestString {
     require_ok(
         record_captured_screen_image_to_paths(ScreenAiServiceCaptureRecord {
             paths: ScreenAiServiceCapturePaths {
@@ -324,7 +326,7 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: TestText) -> PathBuf {
+fn test_path(suffix: TestText) -> TestPathBuf {
     let suffix = suffix;
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
@@ -334,3 +336,4 @@ fn test_path(suffix: TestText) -> PathBuf {
     path.push(suffix.as_str());
     path
 }
+

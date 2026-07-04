@@ -39,7 +39,7 @@ use crate::{
     test_text::TestText,
 };
 
-const STORED_OFFLINE_AT: &str = "2026-06-02T00:00:00Z";
+const STORED_OFFLINE_AT: &TestStr = "2026-06-02T00:00:00Z";
 
 #[path = "lan_pairing_browser_runtime/persistent_read_model.rs"]
 mod persistent_read_model_tests;
@@ -418,7 +418,7 @@ fn local_agent_canonical_device_id() -> TestString {
             .chars()
             .filter(|character| character.is_ascii_alphanumeric())
             .flat_map(char::to_lowercase)
-            .collect::<String>(),
+            .collect::<TestString>(),
     );
     canonical_device_id
 }
@@ -442,13 +442,13 @@ fn temp_registry_path() -> TestPathBuf {
 
 fn canonical_device_id_for_mac(mac_address: impl Into<TestString>) -> TestString {
     let mac_address = mac_address;
-    let mut canonical_device_id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
+    let mut canonical_device_id = TestString::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
     canonical_device_id.push_str(
         &mac_address
             .chars()
             .filter(|character| character.is_ascii_alphanumeric())
             .flat_map(char::to_lowercase)
-            .collect::<String>(),
+            .collect::<TestString>(),
     );
     canonical_device_id
 }
@@ -494,3 +494,4 @@ fn stored_offline_known_router() -> LanCanonicalHouseholdDevice {
     device.network_identity.offline_at = Some(STORED_OFFLINE_AT.to_string());
     device
 }
+

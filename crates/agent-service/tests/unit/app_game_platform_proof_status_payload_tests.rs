@@ -1,6 +1,7 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::primitive::str as TestStr;
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE;
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
@@ -23,7 +24,7 @@ use super::app_game_platform_proof_status_payload::{
     app_game_platform_proof_status_payload, app_game_platform_proof_status_read_model,
 };
 
-const GENERATED_AT: &str = constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT;
+const GENERATED_AT: &TestStr = constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT;
 
 #[test]
 fn platform_proof_status_payload_serializes_parent_safe_status_model() {
@@ -76,8 +77,8 @@ fn platform_proof_status_payload_serializes_parent_safe_status_model() {
 
 fn string_payload<'a>(
     payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
-    field_name: &str,
-) -> &'a str {
+    field_name: &TestStr,
+) -> &'a TestStr {
     require_log_string_field(
         payload.get(field_name),
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -86,7 +87,7 @@ fn string_payload<'a>(
 
 fn platform_row<'a>(
     read_model: &'a AppGamePlatformProofStatusReadModel,
-    platform: &str,
+    platform: &TestStr,
 ) -> &'a AppGamePlatformProofStatusRow {
     require_some(
         read_model.rows.iter().find(|row| row.platform == platform),
@@ -94,7 +95,7 @@ fn platform_row<'a>(
     )
 }
 
-fn assert_refs(row: &AppGamePlatformProofStatusRow, proof_refs: &[&str], open_gaps: &[&str]) {
+fn assert_refs(row: &AppGamePlatformProofStatusRow, proof_refs: &[&TestStr], open_gaps: &[&TestStr]) {
     for proof_ref in proof_refs {
         assert!(row.proof_refs.iter().any(|value| value == proof_ref));
     }
@@ -102,3 +103,4 @@ fn assert_refs(row: &AppGamePlatformProofStatusRow, proof_refs: &[&str], open_ga
         assert!(row.open_gaps.iter().any(|value| value == open_gap));
     }
 }
+
