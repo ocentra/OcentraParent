@@ -10,7 +10,14 @@ import {
   SocialAlertReportIntentSchema,
   SocialAlertReportIntentStatus,
   type SocialAlertReportIntent,
-} from '@ocentra-parent/schema-domain/social-alert-report-intent';
+} from './social_alert_report_local_outbox_bridge_support';
+import {
+  countRows,
+  bridgeStatusForIntent,
+  socialAlertReportBridgeReadModelCountsMatch,
+  socialAlertReportBridgeRowIsHonest,
+  socialAlertReportReasonToProviderReason,
+} from './social_alert_report_local_outbox_bridge_helpers';
 import {
   FamilyReferenceSchema,
   type FamilyReference,
@@ -217,47 +224,4 @@ function localOutboxRecordForIntent(
     parentNotificationUiClaimed: false,
     sensitiveProviderMetadataStored: false,
   });
-}
-
-function socialAlertReportReasonToProviderReason(reasonCode: string) {
-  if (reasonCode === 'social-high-risk-signal' || reasonCode === 'social-feed-video-gate') {
-    return V3NotificationRuleReasonCodeSchema.parse('policy-violation');
-  }
-  if (reasonCode === 'social-capability-unavailable') {
-    return V3NotificationRuleReasonCodeSchema.parse('provider-failure');
-  }
-  return V3NotificationRuleReasonCodeSchema.parse('parent-request');
-}
-
-function socialAlertReportBridgeRowIsHonest(
-  row: Infer<typeof SocialAlertReportLocalOutboxBridgeRowBaseSchema>
-): boolean {
-  if (row.status === SocialAlertReportLocalOutboxBridgeStatus.Linked) {
-    return (
-      row.intent.intentStatus === SocialAlertReportIntentStatus.LocalOutboxEligible &&
-      row.intent.deliveryClaimState === SocialAlertReportDeliveryClaimState.LocalOutboxOnly &&
-      row.outboxRecord !== null &&
-      String(row.outboxRecord.entryId) === String(row.intent.localOutboxRecordRef) &&
-      row.blockedReasonRefs.length === 0
-    );
-  }
-  return row.outboxRecord === null && row.blockedReasonRefs.length > 0;
-}
-
-function socialAlertReportBridgeReadModelCountsMatch(
-  readModel: Infer<typeof SocialAlertReportLocalOutboxBridgeReadModelBaseSchema>
-): boolean {
-  return (
-    readModel.linkedRecordCount === countRows(readModel.rows, SocialAlertReportLocalOutboxBridgeStatus.Linked) &&
-    readModel.manualRequiredCount ===
-      countRows(readModel.rows, SocialAlertReportLocalOutboxBridgeStatus.ManualRequired) &&
-    readModel.unavailableCount === countRows(readModel.rows, SocialAlertReportLocalOutboxBridgeStatus.Unavailable)
-  );
-}
-
-function countRows(
-  rows: ReadonlyArray<{ readonly status: SocialAlertReportLocalOutboxBridgeStatus }>,
-  status: SocialAlertReportLocalOutboxBridgeStatus
-): number {
-  return rows.filter((row) => row.status === status).length;
 }
