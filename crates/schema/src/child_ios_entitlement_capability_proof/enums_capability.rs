@@ -1,3 +1,5 @@
+use crate::ios_string_enums;
+
 ios_string_enums!(ChildIosEntitlementParentCapability {
             PackageLifecycle => CHILD_IOS_ENTITLEMENT_PARENT_CAPABILITY_PACKAGE_LIFECYCLE,
             TypedProtocolBridge => CHILD_IOS_ENTITLEMENT_PARENT_CAPABILITY_TYPED_PROTOCOL_BRIDGE,

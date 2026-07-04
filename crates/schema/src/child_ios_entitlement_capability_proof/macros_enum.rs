@@ -66,7 +66,7 @@ macro_rules! ios_string_enum {
 macro_rules! ios_string_enums {
     ($($name:ident { $($variant:ident => $const_ident:ident),+ $(,)? }),+ $(,)?) => {
         $(
-            ios_string_enum!($name { $($variant => $const_ident,)+ });
+            $crate::ios_string_enum!($name { $($variant => $const_ident,)+ });
         )+
     };
 }

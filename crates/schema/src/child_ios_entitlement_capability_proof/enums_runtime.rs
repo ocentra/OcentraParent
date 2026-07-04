@@ -1,3 +1,5 @@
+use crate::ios_string_enums;
+
 ios_string_enums!(ChildIosEntitlementRuntimeOwner {
             IosXcodeProject => CHILD_IOS_ENTITLEMENT_RUNTIME_OWNER_IOS_XCODE_PROJECT,
             IosInfoPlist => CHILD_IOS_ENTITLEMENT_RUNTIME_OWNER_IOS_INFO_PLIST,
