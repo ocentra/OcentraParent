@@ -138,9 +138,103 @@ export type TrackingChildCheckInTimeoutReadModel = Infer<typeof TrackingChildChe
 type TrackingChildCheckInTimeoutRowInput = Infer<typeof TrackingChildCheckInTimeoutRowBaseSchema>;
 type TrackingChildCheckInTimeoutReadModelInput = Infer<typeof TrackingChildCheckInTimeoutReadModelBaseSchema>;
 type TrackingChildCheckInTimeoutState = Infer<typeof TrackingChildCheckInTimeoutStateSchema>;
+type TrackingChildCheckInTimeoutResponseKind = TrackingChildCheckInResponse['response'];
 type TrackingPolicyAuditRef = Infer<typeof TrackingPolicyAuditRefSchema>;
 
 const decodeTrackingPolicyAuditRef = Schema.decodeUnknownSync(TrackingPolicyAuditRefSchema);
+
+const TrackingChildCheckInTimeoutEscalationReadyStates = [
+  'help-response-escalation-ready',
+  'call-parent-response-escalation-ready',
+  'expired-timeout-escalation-ready',
+  'manual-required',
+] as const satisfies readonly TrackingChildCheckInTimeoutState[];
+
+const TrackingChildCheckInTimeoutResponseStateMap = {
+  safe: 'safe-response-recorded',
+  'share-location-if-permitted': 'safe-response-recorded',
+  help: 'help-response-escalation-ready',
+  'call-parent': 'call-parent-response-escalation-ready',
+} as const satisfies Partial<Record<TrackingChildCheckInTimeoutResponseKind, TrackingChildCheckInTimeoutState>>;
+
+const TrackingChildCheckInTimeoutAlertOutcomeByState = {
+  'waiting-for-child': 'awaiting-child-response',
+  'safe-response-recorded': 'alert-resolved-safe',
+  'help-response-escalation-ready': 'parent-review-required',
+  'call-parent-response-escalation-ready': 'parent-review-required',
+  'expired-timeout-escalation-ready': 'parent-review-required',
+  cancelled: 'alert-resolved-safe',
+  'manual-required': 'parent-review-required',
+} as const satisfies Record<
+  TrackingChildCheckInTimeoutState,
+  'awaiting-child-response' | 'alert-resolved-safe' | 'parent-review-required'
+>;
+
+const TrackingChildCheckInTimeoutEscalationBasisByState = {
+  'waiting-for-child': 'none',
+  'safe-response-recorded': 'none',
+  'help-response-escalation-ready': 'child-help-response',
+  'call-parent-response-escalation-ready': 'child-call-parent-response',
+  'expired-timeout-escalation-ready': 'expired-rule-only-timeout',
+  cancelled: 'none',
+  'manual-required': 'none',
+} as const satisfies Record<
+  TrackingChildCheckInTimeoutState,
+  'none' | 'child-help-response' | 'child-call-parent-response' | 'expired-rule-only-timeout'
+>;
+
+const TrackingChildCheckInTimeoutManualProofRequirementsByState = {
+  'waiting-for-child': [
+    'child-device-runtime-proof-required',
+    'rendered-child-device-ui-proof-required',
+  ],
+  'safe-response-recorded': [
+    'child-device-runtime-proof-required',
+    'rendered-child-device-ui-proof-required',
+  ],
+  'help-response-escalation-ready': [
+    'child-device-delivery-proof-required',
+    'provider-delivery-proof-required',
+    'timeout-worker-proof-required',
+    'physical-device-proof-required',
+  ],
+  'call-parent-response-escalation-ready': [
+    'child-device-delivery-proof-required',
+    'provider-delivery-proof-required',
+    'timeout-worker-proof-required',
+    'physical-device-proof-required',
+  ],
+  'expired-timeout-escalation-ready': [
+    'child-device-delivery-proof-required',
+    'provider-delivery-proof-required',
+    'timeout-worker-proof-required',
+    'physical-device-proof-required',
+  ],
+  cancelled: ['child-device-runtime-proof-required', 'rendered-child-device-ui-proof-required'],
+  'manual-required': [
+    'child-device-delivery-proof-required',
+    'provider-delivery-proof-required',
+    'timeout-worker-proof-required',
+    'physical-device-proof-required',
+  ],
+} as const satisfies Record<TrackingChildCheckInTimeoutState, readonly string[]>;
+
+const TrackingChildCheckInTimeoutRowFalseClaims = [
+  'childDeviceDeliveryRuntimeClaimed',
+  'childDeviceResponseRuntimeClaimed',
+  'renderedChildDeviceUiClaimed',
+  'providerDeliveryClaimed',
+  'liveLocationSampleRuntimeClaimed',
+  'physicalDeviceProofClaimed',
+] as const;
+
+const TrackingChildCheckInTimeoutReadModelFalseClaims = [
+  'childDeviceDeliveryRuntimeClaimed',
+  'renderedChildDeviceUiClaimed',
+  'providerDeliveryClaimed',
+  'physicalDeviceProofClaimed',
+  'productClaimReady',
+] as const;
 
 export type TrackingChildCheckInTimeoutReadinessOptions = {
   readonly generatedAt: string;
@@ -258,17 +352,12 @@ function resolutionStateFor(
   escalates: boolean,
   runtimeState: string
 ): TrackingChildCheckInTimeoutState {
+  const responseState = response === null ? undefined : TrackingChildCheckInTimeoutResponseStateMap[response.response];
   if (request.state === 'cancelled') {
     return 'cancelled';
   }
-  if (response?.response === 'safe' || response?.response === 'share-location-if-permitted') {
-    return 'safe-response-recorded';
-  }
-  if (response?.response === 'help') {
-    return 'help-response-escalation-ready';
-  }
-  if (response?.response === 'call-parent') {
-    return 'call-parent-response-escalation-ready';
+  if (responseState !== undefined) {
+    return responseState;
   }
   if (runtimeState === 'escalated' || escalates) {
     return 'expired-timeout-escalation-ready';
@@ -277,52 +366,26 @@ function resolutionStateFor(
 }
 
 function escalationStateEscalates(state: TrackingChildCheckInTimeoutState): boolean {
-  return (
-    state === 'help-response-escalation-ready' ||
-    state === 'call-parent-response-escalation-ready' ||
-    state === 'expired-timeout-escalation-ready' ||
-    state === 'manual-required'
-  );
+  return TrackingChildCheckInTimeoutEscalationReadyStates.includes(state);
 }
 
 function locationSampleStateFor(
   request: TrackingChildCheckInRequest,
   response: TrackingChildCheckInResponse | null
 ): 'requested-not-yet-attached' | 'attached-from-child-response' | 'not-attached' {
-  if (!request.includeLocationIfPermitted) {
-    return 'not-attached';
-  }
-  if (response?.locationEvidenceReference !== null && response !== null) {
-    return 'attached-from-child-response';
-  }
-  return 'requested-not-yet-attached';
+  return locationSampleStateFrom(request.includeLocationIfPermitted, response?.locationEvidenceReference !== null);
 }
 
 function alertOutcomeFor(
   state: TrackingChildCheckInTimeoutState
 ): 'awaiting-child-response' | 'alert-resolved-safe' | 'parent-review-required' {
-  if (state === 'safe-response-recorded' || state === 'cancelled') {
-    return 'alert-resolved-safe';
-  }
-  if (escalationStateEscalates(state)) {
-    return 'parent-review-required';
-  }
-  return 'awaiting-child-response';
+  return TrackingChildCheckInTimeoutAlertOutcomeByState[state];
 }
 
 function escalationBasisFor(
   state: TrackingChildCheckInTimeoutState
 ): 'none' | 'child-help-response' | 'child-call-parent-response' | 'expired-rule-only-timeout' {
-  if (state === 'help-response-escalation-ready') {
-    return 'child-help-response';
-  }
-  if (state === 'call-parent-response-escalation-ready') {
-    return 'child-call-parent-response';
-  }
-  if (state === 'expired-timeout-escalation-ready') {
-    return 'expired-rule-only-timeout';
-  }
-  return 'none';
+  return TrackingChildCheckInTimeoutEscalationBasisByState[state];
 }
 
 function evidenceReferenceIdsFor(
@@ -364,15 +427,7 @@ function parentActionRefsFor(
 }
 
 function manualProofRequirementsFor(state: TrackingChildCheckInTimeoutState): readonly string[] {
-  if (escalationStateEscalates(state)) {
-    return [
-      'child-device-delivery-proof-required',
-      'provider-delivery-proof-required',
-      'timeout-worker-proof-required',
-      'physical-device-proof-required',
-    ];
-  }
-  return ['child-device-runtime-proof-required', 'rendered-child-device-ui-proof-required'];
+  return TrackingChildCheckInTimeoutManualProofRequirementsByState[state];
 }
 
 function countRows(
@@ -405,14 +460,7 @@ function trackingChildCheckInTimeoutRowDerivedFieldsAreHonest(row: TrackingChild
 }
 
 function trackingChildCheckInTimeoutRowNonClaimsAreHonest(row: TrackingChildCheckInTimeoutRowInput): boolean {
-  return (
-    row.childDeviceDeliveryRuntimeClaimed === false &&
-    row.childDeviceResponseRuntimeClaimed === false &&
-    row.renderedChildDeviceUiClaimed === false &&
-    row.providerDeliveryClaimed === false &&
-    row.liveLocationSampleRuntimeClaimed === false &&
-    row.physicalDeviceProofClaimed === false
-  );
+  return TrackingChildCheckInTimeoutRowFalseClaims.every((claim) => row[claim] === false);
 }
 
 function trackingChildCheckInTimeoutReadModelIsHonest(readModel: TrackingChildCheckInTimeoutReadModelInput): boolean {
@@ -462,23 +510,24 @@ function trackingChildCheckInTimeoutReadModelCountsAreHonest(
 function trackingChildCheckInTimeoutReadModelNonClaimsAreHonest(
   readModel: TrackingChildCheckInTimeoutReadModelInput
 ): boolean {
-  return (
-    readModel.childDeviceDeliveryRuntimeClaimed === false &&
-    readModel.renderedChildDeviceUiClaimed === false &&
-    readModel.providerDeliveryClaimed === false &&
-    readModel.physicalDeviceProofClaimed === false &&
-    readModel.productClaimReady === false
-  );
+  return TrackingChildCheckInTimeoutReadModelFalseClaims.every((claim) => readModel[claim] === false);
+}
+
+function locationSampleStateFrom(
+  includeLocationIfPermitted: boolean,
+  hasLocationEvidence: boolean
+): 'requested-not-yet-attached' | 'attached-from-child-response' | 'not-attached' {
+  if (!includeLocationIfPermitted) {
+    return 'not-attached';
+  }
+  if (hasLocationEvidence) {
+    return 'attached-from-child-response';
+  }
+  return 'requested-not-yet-attached';
 }
 
 function locationSampleStateFromRow(
   row: TrackingChildCheckInTimeoutRowInput
 ): 'requested-not-yet-attached' | 'attached-from-child-response' | 'not-attached' {
-  if (!row.includeLocationIfPermitted) {
-    return 'not-attached';
-  }
-  if (row.locationEvidenceReferenceId !== null) {
-    return 'attached-from-child-response';
-  }
-  return 'requested-not-yet-attached';
+  return locationSampleStateFrom(row.includeLocationIfPermitted, row.locationEvidenceReferenceId !== null);
 }

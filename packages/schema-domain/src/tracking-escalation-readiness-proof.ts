@@ -122,6 +122,88 @@ type TrackingPolicyAuditRef = Infer<typeof TrackingPolicyAuditRefSchema>;
 
 const decodeTrackingPolicyAuditRef = Schema.decodeUnknownSync(TrackingPolicyAuditRefSchema);
 
+const TrackingEscalationWaitingStates = [
+  'waiting-for-parent',
+  'waiting-for-child',
+] as const satisfies readonly TrackingEscalationReadinessState[];
+
+const TrackingEscalationResolvedStates = [
+  'resolved-by-parent-acknowledgement',
+  'resolved-by-child-check-in',
+] as const satisfies readonly TrackingEscalationReadinessState[];
+
+const TrackingEscalationManualStates = [
+  'second-guardian-required',
+  'critical-multi-channel-manual-required',
+  'manual-required',
+  'unavailable',
+] as const satisfies readonly TrackingEscalationReadinessState[];
+
+const TrackingEscalationCriticalAllowedStates = [
+  'critical-multi-channel-manual-required',
+  'resolved-by-child-check-in',
+] as const satisfies readonly TrackingEscalationReadinessState[];
+
+const TrackingEscalationGuardianActionRefsByState = {
+  'waiting-for-parent': [],
+  'waiting-for-child': [],
+  'second-guardian-required': ['tracking-second-guardian-review'],
+  'critical-multi-channel-manual-required': [
+    'tracking-critical-multi-channel-review',
+    'tracking-critical-parent-call',
+  ],
+  'resolved-by-parent-acknowledgement': [],
+  'resolved-by-child-check-in': [],
+  'manual-required': [],
+  unavailable: [],
+} as const satisfies Record<TrackingEscalationReadinessState, readonly string[]>;
+
+const TrackingEscalationManualProofRequirementsByState = {
+  'waiting-for-parent': ['runtime-worker-proof-required', 'provider-delivery-proof-required'],
+  'waiting-for-child': ['runtime-worker-proof-required', 'provider-delivery-proof-required'],
+  'second-guardian-required': [
+    'parent-guardian-configuration-proof-required',
+    'provider-delivery-proof-required',
+    'parent-notification-ui-proof-required',
+    'physical-device-proof-required',
+  ],
+  'critical-multi-channel-manual-required': [
+    'parent-guardian-configuration-proof-required',
+    'provider-delivery-proof-required',
+    'parent-notification-ui-proof-required',
+    'physical-device-proof-required',
+  ],
+  'resolved-by-parent-acknowledgement': ['runtime-worker-proof-required', 'provider-delivery-proof-required'],
+  'resolved-by-child-check-in': ['runtime-worker-proof-required', 'provider-delivery-proof-required'],
+  'manual-required': [
+    'parent-guardian-configuration-proof-required',
+    'provider-delivery-proof-required',
+    'parent-notification-ui-proof-required',
+    'physical-device-proof-required',
+  ],
+  unavailable: [
+    'parent-guardian-configuration-proof-required',
+    'provider-delivery-proof-required',
+    'parent-notification-ui-proof-required',
+    'physical-device-proof-required',
+  ],
+} as const satisfies Record<TrackingEscalationReadinessState, readonly string[]>;
+
+const TrackingEscalationReadinessRowFalseClaims = [
+  'aiScheduledEscalation',
+  'emergencyServicesAutoContactClaimed',
+  'providerDeliveryClaimed',
+  'physicalDeviceProofClaimed',
+] as const;
+
+const TrackingEscalationReadinessReadModelFalseClaims = [
+  'emergencyServicesAutoContactClaimed',
+  'providerDeliveryClaimed',
+  'childDeviceDeliveryClaimed',
+  'physicalDeviceProofClaimed',
+  'productClaimReady',
+] as const;
+
 export type TrackingEscalationReadinessOptions = {
   readonly generatedAt: string;
   readonly readinessId: string;
@@ -217,42 +299,11 @@ function readinessStateForAlert(input: {
   readonly escalation: TrackingEscalationChain | null;
   readonly generatedAt: string;
 }): TrackingEscalationReadinessState {
-  if (input.acknowledgement !== null) {
-    const acknowledgementImpact = evaluateTrackingAcknowledgementImpact({
-      acknowledgement: input.acknowledgement,
-      alert: input.alert,
-      evaluatedAt: input.generatedAt,
-    });
-    if (acknowledgementImpact.suppressesParentAlert) {
-      return 'resolved-by-parent-acknowledgement';
-    }
-  }
-
-  if (input.checkInRequest !== null) {
-    const checkInResolution = resolveTrackingChildCheckIn({
-      evaluatedAt: input.generatedAt,
-      request: input.checkInRequest,
-      response: input.checkInResponse,
-    });
-    if (!checkInResolution.escalates && checkInResolution.state === 'answered') {
-      return 'resolved-by-child-check-in';
-    }
-    if (!checkInResolution.escalates) {
-      return 'waiting-for-child';
-    }
-  }
-
-  if (input.alert.severity === 'critical') {
-    return 'critical-multi-channel-manual-required';
-  }
-  if (input.alert.severity === 'urgent') {
-    return 'second-guardian-required';
-  }
-  if (input.escalation?.state === 'manual-required') {
-    return 'manual-required';
-  }
-
-  return 'waiting-for-parent';
+  return (
+    acknowledgementReadinessStateFor(input) ??
+    childCheckInReadinessStateFor(input) ??
+    severityReadinessStateFor(input.alert, input.escalation)
+  );
 }
 
 function acknowledgementForAlert(
@@ -311,40 +362,15 @@ function nextActionAtFor(
   state: TrackingEscalationReadinessState,
   escalation: TrackingEscalationChain | null
 ): string | null {
-  if (state === 'waiting-for-parent' || state === 'waiting-for-child') {
-    return escalation?.nextActionAt ?? null;
-  }
-  return null;
+  return TrackingEscalationWaitingStates.includes(state) ? escalation?.nextActionAt ?? null : null;
 }
 
 function guardianActionRefsFor(state: TrackingEscalationReadinessState, alert: TrackingAlertIntent): readonly string[] {
-  if (state === 'second-guardian-required') {
-    return [`tracking-second-guardian-review-${alert.alertId}`];
-  }
-  if (state === 'critical-multi-channel-manual-required') {
-    return [
-      `tracking-critical-multi-channel-review-${alert.alertId}`,
-      `tracking-critical-parent-call-${alert.alertId}`,
-    ];
-  }
-  return [];
+  return TrackingEscalationGuardianActionRefsByState[state].map((actionRef) => `${actionRef}-${alert.alertId}`);
 }
 
 function manualProofRequirementsFor(state: TrackingEscalationReadinessState): readonly string[] {
-  if (
-    state === 'second-guardian-required' ||
-    state === 'critical-multi-channel-manual-required' ||
-    state === 'manual-required' ||
-    state === 'unavailable'
-  ) {
-    return [
-      'parent-guardian-configuration-proof-required',
-      'provider-delivery-proof-required',
-      'parent-notification-ui-proof-required',
-      'physical-device-proof-required',
-    ];
-  }
-  return ['runtime-worker-proof-required', 'provider-delivery-proof-required'];
+  return TrackingEscalationManualProofRequirementsByState[state];
 }
 
 function reasonRefsFor(
@@ -371,42 +397,75 @@ function trackingEscalationReadinessRowIsHonest(row: TrackingEscalationReadiness
     row.evidenceReferenceIds.length > 0 &&
     row.policyDecisionRefs.length > 0 &&
     row.reasonRefs.length > 0 &&
-    row.aiScheduledEscalation === false &&
-    row.emergencyServicesAutoContactClaimed === false &&
-    row.providerDeliveryClaimed === false &&
-    row.physicalDeviceProofClaimed === false &&
+    TrackingEscalationReadinessRowFalseClaims.every((claim) => row[claim] === false) &&
     criticalRowsStayManual(row)
   );
 }
 
 function criticalRowsStayManual(row: TrackingEscalationReadinessRowInput): boolean {
-  if (row.severity !== 'critical') {
-    return true;
-  }
-  return (
-    row.readinessState === 'critical-multi-channel-manual-required' ||
-    row.readinessState === 'resolved-by-child-check-in'
-  );
+  return row.severity !== 'critical' || TrackingEscalationCriticalAllowedStates.includes(row.readinessState);
 }
 
 function trackingEscalationReadinessReadModelIsHonest(readModel: TrackingEscalationReadinessReadModelInput): boolean {
   return (
     readModel.rows.length > 0 &&
     readModel.readinessNonClaims.length === RequiredTrackingEscalationReadinessNonClaims.length &&
-    readModel.waitingCount === countRows(readModel.rows, ['waiting-for-parent', 'waiting-for-child']) &&
-    readModel.resolvedCount ===
-      countRows(readModel.rows, ['resolved-by-parent-acknowledgement', 'resolved-by-child-check-in']) &&
-    readModel.manualRequiredCount ===
-      countRows(readModel.rows, [
-        'second-guardian-required',
-        'critical-multi-channel-manual-required',
-        'manual-required',
-        'unavailable',
-      ]) &&
-    readModel.emergencyServicesAutoContactClaimed === false &&
-    readModel.providerDeliveryClaimed === false &&
-    readModel.childDeviceDeliveryClaimed === false &&
-    readModel.physicalDeviceProofClaimed === false &&
-    readModel.productClaimReady === false
+    readModel.waitingCount === countRows(readModel.rows, TrackingEscalationWaitingStates) &&
+    readModel.resolvedCount === countRows(readModel.rows, TrackingEscalationResolvedStates) &&
+    readModel.manualRequiredCount === countRows(readModel.rows, TrackingEscalationManualStates) &&
+    TrackingEscalationReadinessReadModelFalseClaims.every((claim) => readModel[claim] === false)
   );
+}
+
+function acknowledgementReadinessStateFor(input: {
+  readonly acknowledgement: TrackingAcknowledgement | null;
+  readonly alert: TrackingAlertIntent;
+  readonly generatedAt: string;
+}): TrackingEscalationReadinessState | null {
+  if (input.acknowledgement === null) {
+    return null;
+  }
+
+  return evaluateTrackingAcknowledgementImpact({
+    acknowledgement: input.acknowledgement,
+    alert: input.alert,
+    evaluatedAt: input.generatedAt,
+  }).suppressesParentAlert
+    ? 'resolved-by-parent-acknowledgement'
+    : null;
+}
+
+function childCheckInReadinessStateFor(input: {
+  readonly checkInRequest: TrackingChildCheckInRequest | null;
+  readonly checkInResponse: TrackingChildCheckInResponse | null;
+  readonly generatedAt: string;
+}): TrackingEscalationReadinessState | null {
+  if (input.checkInRequest === null) {
+    return null;
+  }
+
+  const checkInResolution = resolveTrackingChildCheckIn({
+    evaluatedAt: input.generatedAt,
+    request: input.checkInRequest,
+    response: input.checkInResponse,
+  });
+
+  return checkInResolution.escalates
+    ? null
+    : checkInResolution.state === 'answered'
+      ? 'resolved-by-child-check-in'
+      : 'waiting-for-child';
+}
+
+function severityReadinessStateFor(
+  alert: TrackingAlertIntent,
+  escalation: TrackingEscalationChain | null
+): TrackingEscalationReadinessState {
+  if (alert.severity === 'critical') {
+    return 'critical-multi-channel-manual-required';
+  }
+  if (alert.severity === 'urgent') {
+    return 'second-guardian-required';
+  }
+  return escalation?.state === 'manual-required' ? 'manual-required' : 'waiting-for-parent';
 }
