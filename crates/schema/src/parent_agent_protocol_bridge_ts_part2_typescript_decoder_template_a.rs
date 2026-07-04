@@ -25,7 +25,19 @@ export type __BROWSER_READ_MODEL_TYPE__ = __TAB_READ_MODEL_TYPE__<__BROWSER_ROW_
 export type __GAMES_READ_MODEL_TYPE__ = __TAB_READ_MODEL_TYPE__<__GAMES_ROW_TYPE__>;
 export type __NETWORK_READ_MODEL_TYPE__ = __TAB_READ_MODEL_TYPE__<__NETWORK_ROW_TYPE__>;
 export type __SURFACE_READ_MODEL_TYPE__ = __SCREEN_READ_MODEL_TYPE__ | __APP_USE_READ_MODEL_TYPE__ | __BROWSER_READ_MODEL_TYPE__ | __GAMES_READ_MODEL_TYPE__ | __NETWORK_READ_MODEL_TYPE__;
-function __HELPER_PREFIX__Schema<T>(decoder: (value: unknown) => T): __PARSER_TYPE__<T> { return { parse: decoder, safeParse(value: unknown): { readonly success: true; readonly data: T } | { readonly success: false } { try { return { success: true, data: decoder(value) }; } catch { return { success: false }; } } } as const; }
+function __HELPER_PREFIX__Schema<T>(decoder: (value: unknown) => T): __PARSER_TYPE__<T> {
+  const parse = decoder;
+  const safeParse = (
+    value: unknown
+  ): { readonly success: true; readonly data: T } | { readonly success: false } => {
+    try {
+      return { success: true, data: decoder(value) };
+    } catch {
+      return { success: false };
+    }
+  };
+  return { parse, safeParse } as const;
+}
 function __HELPER_PREFIX__IsRecord(value: unknown): value is Readonly<Record<string, unknown>> { return typeof value === 'object' && value !== null && !Array.isArray(value); }
 function __HELPER_PREFIX__ReadRecord(value: unknown, label: string): Readonly<Record<string, unknown>> { if (!__HELPER_PREFIX__IsRecord(value)) { throw new TypeError(`${label} must be an activity surface object`); } return value; }
 function __HELPER_PREFIX__ReadString(record: Readonly<Record<string, unknown>>, field: string): string { const value = record[field]; if (typeof value !== 'string' || value.length === 0) { throw new TypeError(`${field} must be a non-empty activity surface string`); } return value; }
