@@ -63,7 +63,7 @@ const KNOWN_GAP_MANIFEST_INTEGRITY_ONLY_CONTRACT_EVIDENCE: &str = "Manifest inte
 const KNOWN_GAP_TOMBSTONE_PROPAGATION_MODELED_SEPARATELY: &str = "Tombstone propagation is modeled separately from sync success so blocked or manual-required delete visibility stays explicit.";
 const KNOWN_GAP_OCENTRA_NOT_DEFAULT_EVIDENCE_STORE: &str = "Ocentra-hosted cloud metadata is not the default evidence store and no raw child evidence upload is claimed by default.";
 
-parent_owned_sync_string_enum!(ParentPlatform {
+parent_owned_sync_string_enums!(ParentPlatform {
     Windows,
     Linux,
     Macos,
@@ -71,19 +71,19 @@ parent_owned_sync_string_enum!(ParentPlatform {
     Ios,
 });
 
-parent_owned_sync_string_enum!(ParentActorRole {
+parent_owned_sync_string_enums!(ParentActorRole {
     Parent,
     Guardian,
     System,
 });
 
-parent_owned_sync_string_enum!(ParentEvidenceReferenceKind {
+parent_owned_sync_string_enums!(ParentEvidenceReferenceKind {
     JournalEvent,
     QueryStoreSummary,
     AuditTrail,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncExportDataClass {
+parent_owned_sync_string_enums!(ParentOwnedSyncExportDataClass {
     EncryptedJournalSegment,
     SqliteQueryRow,
     ParentRule,
@@ -94,26 +94,26 @@ parent_owned_sync_string_enum!(ParentOwnedSyncExportDataClass {
     GeneratedSummary,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncExportFormat {
+parent_owned_sync_string_enums!(ParentOwnedSyncExportFormat {
     EncryptedMachineReadable,
     EncryptedSupportBundle,
     HumanReadableParentReport,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncExportDestinationOwnership {
+parent_owned_sync_string_enums!(ParentOwnedSyncExportDestinationOwnership {
     ChildLocal,
     ParentDeviceLocal,
     ParentOwnedExternalStorage,
     OcentraHostedNonActivityMetadata,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncExportEncryptionState {
+parent_owned_sync_string_enums!(ParentOwnedSyncExportEncryptionState {
     EncryptedAtRest,
     HumanReadableParentAuthorized,
     NotApplicable,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncProviderMode {
+parent_owned_sync_string_enums!(ParentOwnedSyncProviderMode {
     GoogleDriveAppdata,
     GoogleDrivePickerFile,
     OnedriveApproot,
@@ -127,7 +127,7 @@ parent_owned_sync_string_enum!(ParentOwnedSyncProviderMode {
     Disabled,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncProviderStatus {
+parent_owned_sync_string_enums!(ParentOwnedSyncProviderStatus {
     Ready,
     ManualRequired,
     Revoked,
@@ -139,14 +139,14 @@ parent_owned_sync_string_enum!(ParentOwnedSyncProviderStatus {
     NotConfigured,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncManifestIntegrityState {
+parent_owned_sync_string_enums!(ParentOwnedSyncManifestIntegrityState {
     Verified,
     Mismatch,
     Corrupt,
     NotApplicable,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncState {
+parent_owned_sync_string_enums!(ParentOwnedSyncState {
     Synced,
     Stale,
     Missing,
@@ -157,7 +157,7 @@ parent_owned_sync_string_enum!(ParentOwnedSyncState {
     NotStarted,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncTombstonePropagationState {
+parent_owned_sync_string_enums!(ParentOwnedSyncTombstonePropagationState {
     NotRequested,
     Pending,
     Propagated,
@@ -165,13 +165,13 @@ parent_owned_sync_string_enum!(ParentOwnedSyncTombstonePropagationState {
     ManualRequired,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncDisconnectVisibilityState {
+parent_owned_sync_string_enums!(ParentOwnedSyncDisconnectVisibilityState {
     NotDisconnected,
     DisconnectVisible,
     ManualRequired,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncDeleteVisibilityState {
+parent_owned_sync_string_enums!(ParentOwnedSyncDeleteVisibilityState {
     NotRequested,
     DeleteVisible,
     DeleteConfirmed,
@@ -179,7 +179,7 @@ parent_owned_sync_string_enum!(ParentOwnedSyncDeleteVisibilityState {
     ManualRequired,
 });
 
-parent_owned_sync_string_enum!(ParentOwnedSyncExportNonClaim {
+parent_owned_sync_string_enums!(ParentOwnedSyncExportNonClaim {
     NoTransferRuntime,
     #[serde(rename = "no-connector-oauth")]
     NoConnectorOAuth,
@@ -189,32 +189,34 @@ parent_owned_sync_string_enum!(ParentOwnedSyncExportNonClaim {
     NoRawChildEvidenceUploadByDefault,
 });
 
-parent_owned_sync_text_identifier!(ParentContractSchemaVersion);
-parent_owned_sync_text_identifier!(FamilyId);
-parent_owned_sync_text_identifier!(ChildProfileId);
-parent_owned_sync_text_identifier!(ParentDeviceId);
-parent_owned_sync_text_identifier!(ParentDeviceLabel);
-parent_owned_sync_text_identifier!(ParentActorId);
-parent_owned_sync_text_identifier!(ParentPolicyVersion);
-parent_owned_sync_text_identifier!(ParentEvidenceReferenceId);
-parent_owned_sync_text_identifier!(ParentActionReferenceId);
-parent_owned_sync_text_identifier!(ParentTimestamp);
-parent_owned_sync_text_identifier!(ParentOwnedSyncManifestId);
-parent_owned_sync_text_identifier!(ParentOwnedSyncItemId);
-parent_owned_sync_text_identifier!(ParentOwnedSyncVersionLabel);
-parent_owned_sync_text_identifier!(ParentOwnedSyncPolicyRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncProviderId);
-parent_owned_sync_text_identifier!(ParentOwnedSyncProviderRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncStatusRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncCursorRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncBatchRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncConflictRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncChecksumRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncSignatureRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncTombstoneRef);
-parent_owned_sync_text_identifier!(ParentOwnedSyncDeleteRequestRef);
+parent_owned_sync_text_identifiers!(
+    ParentContractSchemaVersion,
+    FamilyId,
+    ChildProfileId,
+    ParentDeviceId,
+    ParentDeviceLabel,
+    ParentActorId,
+    ParentPolicyVersion,
+    ParentEvidenceReferenceId,
+    ParentActionReferenceId,
+    ParentTimestamp,
+    ParentOwnedSyncManifestId,
+    ParentOwnedSyncItemId,
+    ParentOwnedSyncVersionLabel,
+    ParentOwnedSyncPolicyRef,
+    ParentOwnedSyncProviderId,
+    ParentOwnedSyncProviderRef,
+    ParentOwnedSyncStatusRef,
+    ParentOwnedSyncCursorRef,
+    ParentOwnedSyncBatchRef,
+    ParentOwnedSyncConflictRef,
+    ParentOwnedSyncChecksumRef,
+    ParentOwnedSyncSignatureRef,
+    ParentOwnedSyncTombstoneRef,
+    ParentOwnedSyncDeleteRequestRef,
+);
 
-parent_owned_sync_string_enum_as_str!(ParentOwnedSyncProviderMode {
+parent_owned_sync_string_enum_as_strs!(ParentOwnedSyncProviderMode {
     GoogleDriveAppdata => PROVIDER_MODE_GOOGLE_DRIVE_APPDATA,
     GoogleDrivePickerFile => PROVIDER_MODE_GOOGLE_DRIVE_PICKER_FILE,
     OnedriveApproot => PROVIDER_MODE_ONEDRIVE_APPROOT,
@@ -228,7 +230,7 @@ parent_owned_sync_string_enum_as_str!(ParentOwnedSyncProviderMode {
     Disabled => PROVIDER_MODE_DISABLED,
 });
 
-parent_owned_sync_string_enum_as_str!(ParentOwnedSyncProviderStatus {
+parent_owned_sync_string_enum_as_strs!(ParentOwnedSyncProviderStatus {
     Ready => PROVIDER_STATUS_READY,
     ManualRequired => PROVIDER_STATUS_MANUAL_REQUIRED,
     Revoked => PROVIDER_STATUS_REVOKED,

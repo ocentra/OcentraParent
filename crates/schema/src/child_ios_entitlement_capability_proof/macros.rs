@@ -1,9 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-use serde::{
-    de::{self, Visitor},
-    Deserialize, Deserializer, Serialize, Serializer,
-};
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 macro_rules! ios_text_identifier {
     ($name:ident) => {
@@ -36,7 +33,8 @@ macro_rules! ios_text_identifier {
 
 macro_rules! ios_string_enum {
     ($name:ident { $($variant:ident => $const_ident:ident),+ $(,)? }) => {
-        #[derive(Clone, Debug, Eq, PartialEq)]
+        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+        #[repr(usize)]
         pub enum $name {
             $(
                 $variant,
@@ -50,11 +48,23 @@ macro_rules! ios_string_enum {
                     $const_ident,
                 )+
             ];
+            pub const VALUES: &'static [Self] = &[
+                $(
+                    Self::$variant,
+                )+
+            ];
 
             pub fn as_str(&self) -> &'static str {
-                match self {
-                    $(Self::$variant => $const_ident,)+
+                Self::VARIANTS[*self as usize]
+            }
+
+            pub fn parse(value: &str) -> Option<Self> {
+                for (index, candidate) in Self::VARIANTS.iter().enumerate() {
+                    if *candidate == value {
+                        return Some(Self::VALUES[index]);
+                    }
                 }
+                None
             }
         }
 
@@ -78,27 +88,11 @@ macro_rules! ios_string_enum {
             where
                 D: Deserializer<'de>,
             {
-                struct EnumVisitor;
-
-                impl<'de> Visitor<'de> for EnumVisitor {
-                    type Value = $name;
-
-                    fn expecting(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-                        formatter.write_str($name::TYPE_NAME)
-                    }
-
-                    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
-                    where
-                        E: de::Error,
-                    {
-                        match value {
-                            $($const_ident => Ok($name::$variant),)+
-                            _ => Err(E::unknown_variant(value, $name::VARIANTS)),
-                        }
-                    }
+                let value = String::deserialize(deserializer)?;
+                match $name::parse(value.as_str()) {
+                    Some(parsed) => Ok(parsed),
+                    None => Err(de::Error::unknown_variant(value.as_str(), $name::VARIANTS)),
                 }
-
-                deserializer.deserialize_str(EnumVisitor)
             }
         }
     };

@@ -138,8 +138,8 @@ pub fn module_specifiers<'a>(source: ContractText<'a>) -> ModuleSpecifiers<'a> {
     )
 }
 
-fn exported_name_from_line(line: &str) -> Option<String> {
-    let trimmed = line.trim_start();
+fn exported_name_from_line(line: ContractLine<'_>) -> Option<ContractString> {
+    let trimmed = line.0.trim_start();
     [
         "export const ",
         "export function ",
@@ -153,7 +153,7 @@ fn exported_name_from_line(line: &str) -> Option<String> {
             .split(|ch: char| ch.is_whitespace() || ch == '(' || ch == '=' || ch == '{')
             .next()
             .unwrap_or_default();
-        (!name.is_empty()).then(|| name.to_owned())
+        (!name.is_empty()).then(|| ContractString(name.to_owned()))
     })
 }
 
@@ -162,7 +162,9 @@ pub fn exported_names(source: ContractText<'_>) -> ContractNames {
         source
             .0
             .lines()
+            .map(ContractLine)
             .filter_map(exported_name_from_line)
+            .map(|name| name.0)
             .collect(),
     )
 }

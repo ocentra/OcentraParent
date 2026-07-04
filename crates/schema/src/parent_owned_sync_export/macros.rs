@@ -11,11 +11,7 @@ macro_rules! parent_owned_sync_text_identifier {
         impl $name {
             pub fn parse(value: impl Into<String>) -> Option<Self> {
                 let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
+                (!value.trim().is_empty()).then_some(Self(value))
             }
 
             pub fn as_str(&self) -> &str {
@@ -49,5 +45,23 @@ macro_rules! parent_owned_sync_string_enum_as_str {
                 VALUES[*self as usize]
             }
         }
+    };
+}
+
+macro_rules! parent_owned_sync_text_identifiers {
+    ($($name:ident),+ $(,)?) => {
+        $(parent_owned_sync_text_identifier!($name);)+
+    };
+}
+
+macro_rules! parent_owned_sync_string_enums {
+    ($($name:ident { $($(#[$variant_meta:meta])* $variant:ident),+ $(,)? }),+ $(,)?) => {
+        $(parent_owned_sync_string_enum!($name { $($(#[$variant_meta])* $variant,)+ });)+
+    };
+}
+
+macro_rules! parent_owned_sync_string_enum_as_strs {
+    ($($name:ident { $($variant:ident => $value:expr),+ $(,)? }),+ $(,)?) => {
+        $(parent_owned_sync_string_enum_as_str!($name { $($variant => $value,)+ });)+
     };
 }
