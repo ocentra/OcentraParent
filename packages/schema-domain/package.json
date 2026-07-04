@@ -965,14 +965,6 @@
       "import": "./dist/billing-support-admin-status-values.js",
       "types": "./dist/billing-support-admin-status-values.d.ts"
     },
-    "./browser-ai-analysis-queue-schemas": {
-      "import": "./dist/browser-ai-analysis-queue-schemas.js",
-      "types": "./dist/browser-ai-analysis-queue-schemas.d.ts"
-    },
-    "./browser-ai-analysis-queue-values": {
-      "import": "./dist/browser-ai-analysis-queue-values.js",
-      "types": "./dist/browser-ai-analysis-queue-values.d.ts"
-    },
     "./browser-ai-analysis-schemas": {
       "import": "./dist/browser-ai-analysis-schemas.js",
       "types": "./dist/browser-ai-analysis-schemas.d.ts"
@@ -980,18 +972,6 @@
     "./browser-ai-analysis-values": {
       "import": "./dist/browser-ai-analysis-values.js",
       "types": "./dist/browser-ai-analysis-values.d.ts"
-    },
-    "./browser-ai-child-ux-schemas": {
-      "import": "./dist/browser-ai-child-ux-schemas.js",
-      "types": "./dist/browser-ai-child-ux-schemas.d.ts"
-    },
-    "./browser-ai-child-ux-values": {
-      "import": "./dist/browser-ai-child-ux-values.js",
-      "types": "./dist/browser-ai-child-ux-values.d.ts"
-    },
-    "./browser-ai-family-hub-routing-schemas": {
-      "import": "./dist/browser-ai-family-hub-routing-schemas.js",
-      "types": "./dist/browser-ai-family-hub-routing-schemas.d.ts"
     },
     "./browser-ai-knowledge-graph-schemas": {
       "import": "./dist/browser-ai-knowledge-graph-schemas.js",
@@ -1009,14 +989,6 @@
       "import": "./dist/browser-ai-memory-cache-store-values.js",
       "types": "./dist/browser-ai-memory-cache-store-values.d.ts"
     },
-    "./browser-ai-parent-explanation-schemas": {
-      "import": "./dist/browser-ai-parent-explanation-schemas.js",
-      "types": "./dist/browser-ai-parent-explanation-schemas.d.ts"
-    },
-    "./browser-ai-parent-explanation-values": {
-      "import": "./dist/browser-ai-parent-explanation-values.js",
-      "types": "./dist/browser-ai-parent-explanation-values.d.ts"
-    },
     "./browser-ai-policy-evaluator-schemas": {
       "import": "./dist/browser-ai-policy-evaluator-schemas.js",
       "types": "./dist/browser-ai-policy-evaluator-schemas.d.ts"
@@ -1024,14 +996,6 @@
     "./browser-ai-policy-evaluator-values": {
       "import": "./dist/browser-ai-policy-evaluator-values.js",
       "types": "./dist/browser-ai-policy-evaluator-values.d.ts"
-    },
-    "./browser-ai-post-analysis-action-schemas": {
-      "import": "./dist/browser-ai-post-analysis-action-schemas.js",
-      "types": "./dist/browser-ai-post-analysis-action-schemas.d.ts"
-    },
-    "./browser-ai-post-analysis-action-values": {
-      "import": "./dist/browser-ai-post-analysis-action-values.js",
-      "types": "./dist/browser-ai-post-analysis-action-values.d.ts"
     },
     "./browser-ai-prompt-template-schemas": {
       "import": "./dist/browser-ai-prompt-template-schemas.js",
@@ -1041,14 +1005,6 @@
       "import": "./dist/browser-ai-prompt-template-values.js",
       "types": "./dist/browser-ai-prompt-template-values.d.ts"
     },
-    "./browser-ai-provider-fallback-schemas": {
-      "import": "./dist/browser-ai-provider-fallback-schemas.js",
-      "types": "./dist/browser-ai-provider-fallback-schemas.d.ts"
-    },
-    "./browser-ai-provider-routing-schemas": {
-      "import": "./dist/browser-ai-provider-routing-schemas.js",
-      "types": "./dist/browser-ai-provider-routing-schemas.d.ts"
-    },
     "./browser-ai-remote-boundary-schemas": {
       "import": "./dist/browser-ai-remote-boundary-schemas.js",
       "types": "./dist/browser-ai-remote-boundary-schemas.d.ts"
@@ -1056,14 +1012,6 @@
     "./browser-ai-remote-boundary-values": {
       "import": "./dist/browser-ai-remote-boundary-values.js",
       "types": "./dist/browser-ai-remote-boundary-values.d.ts"
-    },
-    "./browser-ai-riskbenefit-model-schemas": {
-      "import": "./dist/browser-ai-riskbenefit-model-schemas.js",
-      "types": "./dist/browser-ai-riskbenefit-model-schemas.d.ts"
-    },
-    "./browser-ai-riskbenefit-model-values": {
-      "import": "./dist/browser-ai-riskbenefit-model-values.js",
-      "types": "./dist/browser-ai-riskbenefit-model-values.d.ts"
     },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
@@ -2296,10 +2244,6 @@
     "./setup-readiness": {
       "import": "./dist/setup-readiness.js",
       "types": "./dist/setup-readiness.d.ts"
-    },
-    "./setup-registration-entry": {
-      "import": "./dist/setup-registration-entry.js",
-      "types": "./dist/setup-registration-entry.d.ts"
     },
     "./setup-state-machine": {
       "import": "./dist/setup-state-machine.js",

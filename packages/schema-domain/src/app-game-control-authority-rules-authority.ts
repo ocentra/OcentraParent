@@ -27,6 +27,8 @@ export interface AppGameControlApprovalRequestRuleInput {
   readonly childStatusReferences: readonly unknown[];
 }
 
+type AppGameControlApprovalRequestCandidate = NonNullable<AppGameControlApprovalRequestRuleInput['candidate']>;
+
 const authorityStateValidators: Record<
   AppGameControlApprovalAuthorityRuleInput['authorityState'],
   (authority: AppGameControlApprovalAuthorityRuleInput) => boolean
@@ -52,9 +54,7 @@ const childReasonStateValidators: Record<
   'manual-required': childReasonRefsAreAbsent,
 };
 
-const weakGameCandidateKinds = new Set<AppGameControlApprovalRequestRuleInput['candidate'] extends null
-  ? never
-  : AppGameControlApprovalRequestRuleInput['candidate']['candidateKind']>([
+const weakGameCandidateKinds = new Set<AppGameControlApprovalRequestCandidate['candidateKind']>([
   'launcher-game-candidate',
   'unknown-game-like-executable',
 ]);
@@ -85,7 +85,8 @@ export function approvalRequestCandidateRefsAreConsistent(request: AppGameContro
 }
 
 function approvalRequestCandidateHasSupportingRefs(request: AppGameControlApprovalRequestRuleInput): boolean {
-  return request.candidate.evidenceReferences.length > 0 && request.childStatusReferences.length > 0;
+  const candidate = request.candidate;
+  return candidate !== null && candidate.evidenceReferences.length > 0 && request.childStatusReferences.length > 0;
 }
 
 function childReasonRefsMatchState(request: AppGameControlApprovalRequestRuleInput): boolean {
