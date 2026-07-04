@@ -153,19 +153,62 @@ export type BrowserAiPromptTemplateVersionRecord = Infer<typeof BrowserAiPromptT
 export type BrowserAiPromptTemplateRegistry = Infer<typeof BrowserAiPromptTemplateRegistrySchema>;
 export type BrowserAiPromptTemplateSelection = Infer<typeof BrowserAiPromptTemplateSelectionSchema>;
 
+const browserAiPromptTemplateLifecycleValidators = {
+  draft: (
+    value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>
+  ) => value.validUntil === null && value.supersededByPromptTemplateVersion === null,
+  active: (
+    value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>
+  ) => value.validUntil === null && value.supersededByPromptTemplateVersion === null,
+  deprecated: (
+    value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>
+  ) => value.validUntil !== null && value.supersededByPromptTemplateVersion !== null,
+  retired: (
+    value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>
+  ) => value.validUntil !== null && value.supersededByPromptTemplateVersion !== null,
+  'manual-required': (
+    value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>
+  ) => value.validUntil !== null && value.supersededByPromptTemplateVersion !== null,
+} satisfies Record<
+  BrowserAiPromptTemplateStatus,
+  (value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>) => boolean
+>;
+
+const browserAiPromptTemplateSelectionValidators = {
+  selected: (value: Infer<typeof BrowserAiPromptTemplateSelectionBaseSchema>) =>
+    value.selectedPromptTemplate !== null && value.degradedStates.length === 0,
+  'manual-required': (value: Infer<typeof BrowserAiPromptTemplateSelectionBaseSchema>) =>
+    value.selectedPromptTemplate === null && value.degradedStates.length > 0 && !value.promptChangedInvalidatesMemory,
+  unavailable: (value: Infer<typeof BrowserAiPromptTemplateSelectionBaseSchema>) =>
+    value.selectedPromptTemplate === null && value.degradedStates.length > 0 && !value.promptChangedInvalidatesMemory,
+} satisfies Record<
+  Infer<typeof BrowserAiPromptTemplateSelectionStateSchema>,
+  (value: Infer<typeof BrowserAiPromptTemplateSelectionBaseSchema>) => boolean
+>;
+
+const promptTemplateSelectionDegradedStateResolvers = [
+  {
+    when: (activeByTask: BrowserAiPromptTemplateVersionRecord[]) => activeByTask.length === 0,
+    states: ['template-missing'] as const,
+  },
+  {
+    when: (
+      _activeByTask: BrowserAiPromptTemplateVersionRecord[],
+      activeByModel: BrowserAiPromptTemplateVersionRecord[]
+    ) => activeByModel.length === 0,
+    states: ['model-unsupported'] as const,
+  },
+  {
+    when: () => true,
+    states: ['policy-version-unsupported'] as const,
+  },
+] as const;
+
 function browserAiPromptTemplateVersionRecordIsConsistent(
   value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>
 ) {
-  if (!promptTemplateChangeIsMemoryAware(value)) {
-    return false;
-  }
-  if (value.status === 'active') {
-    return value.validUntil === null && value.supersededByPromptTemplateVersion === null;
-  }
-  return promptTemplateInactiveLifecycleIsConsistent(
-    value.status,
-    value.validUntil,
-    value.supersededByPromptTemplateVersion
+  return (
+    promptTemplateChangeIsMemoryAware(value) && browserAiPromptTemplateLifecycleValidators[value.status](value)
   );
 }
 
@@ -187,44 +230,23 @@ function browserAiPromptTemplateRegistryIsConsistent(value: Infer<typeof Browser
 }
 
 function browserAiPromptTemplateSelectionIsConsistent(value: Infer<typeof BrowserAiPromptTemplateSelectionBaseSchema>) {
-  if (value.selectionState === 'selected') {
-    return value.selectedPromptTemplate !== null && value.degradedStates.length === 0;
-  }
-  return (
-    value.selectedPromptTemplate === null && value.degradedStates.length > 0 && !value.promptChangedInvalidatesMemory
-  );
+  return browserAiPromptTemplateSelectionValidators[value.selectionState](value);
 }
 
 function promptTemplateChangeIsMemoryAware(value: Infer<typeof BrowserAiPromptTemplateVersionRecordBaseSchema>) {
-  if (value.previousPromptTemplateVersion !== null && !value.invalidatesMemory) {
-    return false;
-  }
-  if (value.inputFieldRefsChanged) {
-    return value.invalidatesMemory && value.changeReasons.includes('input-field-change');
-  }
-  return true;
-}
+  const previousVersionRequiresInvalidation =
+    value.previousPromptTemplateVersion === null || value.invalidatesMemory;
+  const inputFieldChangeIsTracked =
+    !value.inputFieldRefsChanged ||
+    (value.invalidatesMemory && value.changeReasons.includes('input-field-change'));
 
-function promptTemplateInactiveLifecycleIsConsistent(
-  status: BrowserAiPromptTemplateStatus,
-  validUntil: Infer<typeof OptionalPromptTimestampSchema>,
-  supersededByPromptTemplateVersion: Infer<typeof OptionalPromptTemplateVersionSchema>
-) {
-  if (status === 'draft') {
-    return validUntil === null && supersededByPromptTemplateVersion === null;
-  }
-  return validUntil !== null && supersededByPromptTemplateVersion !== null;
+  return previousVersionRequiresInvalidation && inputFieldChangeIsTracked;
 }
 
 function promptTemplateSelectionDegradedStates(
   activeByTask: BrowserAiPromptTemplateVersionRecord[],
   activeByModel: BrowserAiPromptTemplateVersionRecord[]
 ) {
-  if (activeByTask.length === 0) {
-    return ['template-missing'] as const;
-  }
-  if (activeByModel.length === 0) {
-    return ['model-unsupported'] as const;
-  }
-  return ['policy-version-unsupported'] as const;
+  return promptTemplateSelectionDegradedStateResolvers.find((resolver) => resolver.when(activeByTask, activeByModel))
+    ?.states as readonly ['template-missing'] | readonly ['model-unsupported'] | readonly ['policy-version-unsupported'];
 }
