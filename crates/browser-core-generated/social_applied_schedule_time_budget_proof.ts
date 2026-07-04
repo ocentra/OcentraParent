@@ -1,7 +1,6 @@
 /* generated from crates/browser-core/src/social_applied_schedule_time_budget_proof.rs */
 
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
-import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   socialAppliedScheduleTimeBudgetHasRequiredNonClaims,
   summarizeSocialAppliedScheduleTimeBudgetRows,
@@ -14,12 +13,13 @@ import {
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { SocialParentPolicyDecisionCandidateSchema } from './social_policy_compiler_contract';
 import {
+  PolicyCompilerCapabilityState,
   SocialParentPolicyDecisionCandidateIdSchema,
   SocialParentPolicyScheduleStateSchema,
   SocialParentPolicyTimeBudgetStateSchema,
   SocialPolicyScheduleRefsSchema,
   SocialPolicyTimeBudgetRefsSchema,
-} from '@ocentra-parent/schema-domain/social-policy-compiler-values';
+} from './social_applied_schedule_time_budget_proof_support';
 const SocialAppliedScheduleReferenceSchema = withParser(brandedNonEmptyStringSchema('SocialAppliedScheduleReference'));
 const SocialAppliedScheduleNonClaimsSchema = Schema.Array(SocialAppliedScheduleReferenceSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social applied schedule non-claim refs')
