@@ -9,12 +9,18 @@ impl BrowserInterventionTargetType {
 
 fn protocol_pairs() -> [(&'static str, BrowserInterventionTargetType); 20] {
     [
-        (constants::browser::INTERVENTION_TARGET_TYPE_SITE, BrowserInterventionTargetType::Site),
+        (
+            constants::browser::INTERVENTION_TARGET_TYPE_SITE,
+            BrowserInterventionTargetType::Site,
+        ),
         (
             constants::browser::INTERVENTION_TARGET_TYPE_DOMAIN,
             BrowserInterventionTargetType::Domain,
         ),
-        (constants::browser::INTERVENTION_TARGET_TYPE_URL, BrowserInterventionTargetType::Url),
+        (
+            constants::browser::INTERVENTION_TARGET_TYPE_URL,
+            BrowserInterventionTargetType::Url,
+        ),
         (
             constants::browser::INTERVENTION_TARGET_TYPE_VIDEO,
             BrowserInterventionTargetType::Video,

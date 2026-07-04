@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 
-use serde::{Deserialize, Serialize};
 use super::text_parse::parse_text_identifier;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -11,7 +11,6 @@ impl ParentActorId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentActorId {
@@ -28,7 +27,6 @@ impl ParentPolicyVersion {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentPolicyVersion {
@@ -45,7 +43,6 @@ impl ParentEvidenceReferenceId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentEvidenceReferenceId {
@@ -62,7 +59,6 @@ impl ParentActionReferenceId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentActionReferenceId {
@@ -79,7 +75,6 @@ impl ParentTimestamp {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentTimestamp {
@@ -96,7 +91,6 @@ impl ReportQueryCustodyRequestId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ReportQueryCustodyRequestId {

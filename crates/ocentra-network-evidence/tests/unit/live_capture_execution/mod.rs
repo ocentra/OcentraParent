@@ -1,10 +1,10 @@
+mod fixtures;
+
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::live_capture::*;
 use ocentra_network_evidence::live_capture_execution::*;
 
-use super::live_capture_execution_fixtures::{
-    executed_input, live_capture_with_state, proof_ready_live_capture,
-};
+use self::fixtures::{executed_input, live_capture_with_state, proof_ready_live_capture};
 
 #[test]
 fn live_capture_execution_accepts_bounded_driver_run_with_custody_refs() {

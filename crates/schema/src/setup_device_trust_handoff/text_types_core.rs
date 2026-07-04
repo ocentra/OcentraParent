@@ -8,4 +8,5 @@ pub type SetupDeviceTrustHandoffHouseholdRef = identity::SetupDeviceTrustHandoff
 pub type SetupDeviceTrustHandoffChildProfileRef = identity::SetupDeviceTrustHandoffChildProfileRef;
 pub type SetupDeviceTrustHandoffTargetDeviceRef = session::SetupDeviceTrustHandoffTargetDeviceRef;
 pub type SetupDeviceTrustHandoffSetupSessionRef = session::SetupDeviceTrustHandoffSetupSessionRef;
-pub type SetupDeviceTrustHandoffTrustBootstrapRef = session::SetupDeviceTrustHandoffTrustBootstrapRef;
+pub type SetupDeviceTrustHandoffTrustBootstrapRef =
+    session::SetupDeviceTrustHandoffTrustBootstrapRef;

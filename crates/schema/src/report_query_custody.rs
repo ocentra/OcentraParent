@@ -4,9 +4,9 @@ mod enum_context;
 mod enum_custody;
 mod identifiers;
 mod sample_rows;
+mod text_parse;
 mod text_types_actor;
 mod text_types_core;
-mod text_parse;
 mod text_types_query;
 
 pub const REPORT_QUERY_CUSTODY_SCHEMA_VERSION: &str = "report-query-custody-proof";

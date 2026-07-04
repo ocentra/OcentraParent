@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 
-use serde::{Deserialize, Serialize};
 use super::text_parse::parse_text_identifier;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -11,7 +11,6 @@ impl ParentContractSchemaVersion {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentContractSchemaVersion {
@@ -28,7 +27,6 @@ impl ParentAccountId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentAccountId {
@@ -45,7 +43,6 @@ impl FamilyId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for FamilyId {
@@ -62,7 +59,6 @@ impl ChildProfileId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ChildProfileId {
@@ -79,7 +75,6 @@ impl ParentDeviceId {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentDeviceId {
@@ -96,7 +91,6 @@ impl ParentDeviceLabel {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ParentDeviceLabel {

@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 
-use serde::{Deserialize, Serialize};
 use super::text_parse::parse_text_identifier;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -11,7 +11,6 @@ impl ReportQueryCustodyQueryCursor {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ReportQueryCustodyQueryCursor {
@@ -28,7 +27,6 @@ impl ReportQueryCustodyCursorRef {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ReportQueryCustodyCursorRef {
@@ -45,7 +43,6 @@ impl ReportQueryCustodySortKey {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ReportQueryCustodySortKey {
@@ -62,7 +59,6 @@ impl ReportQueryCustodySourceRef {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ReportQueryCustodySourceRef {
@@ -79,7 +75,6 @@ impl ReportQueryCustodyConflictRef {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         parse_text_identifier(value).map(Self)
     }
-
 }
 
 impl Display for ReportQueryCustodyConflictRef {

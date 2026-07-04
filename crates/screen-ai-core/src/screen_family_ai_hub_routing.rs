@@ -177,85 +177,8 @@ pub fn plan_screen_family_ai_hub_route(
 
 const SCREEN_FAMILY_AI_HUB_ROUTING_GENERATED_TYPESCRIPT: &str = r#"/* generated from crates/screen-ai-core/src/screen_family_ai_hub_routing.rs */
 
-import { type Infer } from '@ocentra-parent/schema-domain/effect';
-import {
-  ScreenFamilyAiHubRouteRequestSchema,
-  type ScreenFamilyAiHubCapability,
-  type ScreenFamilyAiHubRoute,
-} from '@ocentra-parent/schema-domain/screen-evidence-family-hub-routing';
-import { ScreenFamilyAiHubRouteSchemaVersion } from '@ocentra-parent/schema-domain/screen-evidence-family-hub-routing-values';
-
-type ScreenFamilyAiHubRouteRequest = Infer<typeof ScreenFamilyAiHubRouteRequestSchema>;
-
-export function planScreenFamilyAiHubRouteGenerated(
-  request: ScreenFamilyAiHubRouteRequest
-): ScreenFamilyAiHubRoute {
-  const selected = screenFamilyAiHubCanServe(request);
-  const degradedStates = selected ? [] : screenFamilyAiHubDegradedStatesFor(request);
-
-  return {
-    schemaVersion: ScreenFamilyAiHubRouteSchemaVersion,
-    routeId: request.routeId,
-    queueJobId: request.queueJobId,
-    routedAt: request.routedAt,
-    requestedTask: request.requestedTask,
-    sourceChildLocalAttempt: request.sourceChildLocalAttempt,
-    capability: request.capability,
-    executionState: selected ? 'selected' : screenFamilyAiHubExecutionStateFor(request.capability),
-    selectedRuntimeRef: selected ? request.capability.modelRuntimeRef : null,
-    transferMode: selected ? request.transferMode : 'noTransfer',
-    sourceCustodyState: request.sourceCustodyState,
-    destinationCustodyState: selected ? 'live-lan-child-agent' : 'unavailable',
-    degradedStates,
-    auditEvidenceIds: request.auditEvidenceIds,
-    parentApprovedFamilyHub: request.parentApprovedFamilyHub,
-    localProviderAttempted: true,
-    childSafetyLocalFallbackPreserved: true,
-    summaryFirst: true,
-    redactedOrCroppedInputRequired: true,
-    rawFullScreenshotTransferAllowed: false,
-    rawImageRetentionAllowed: false,
-    remoteProviderSelected: false,
-    remoteApiFallbackAllowed: false,
-    ocentraHostedProcessingAllowed: false,
-    remoteDefaultForBlocking: false,
-  };
-}
-
-function screenFamilyAiHubCanServe(request: ScreenFamilyAiHubRouteRequest) {
-  return (
-    request.parentApprovedFamilyHub &&
-    request.sourceChildLocalAttempt.executionState !== 'selected' &&
-    request.capability.capabilityState === 'available' &&
-    request.capability.supportedTasks.includes(request.requestedTask) &&
-    request.transferMode !== 'noTransfer' &&
-    (request.sourceCustodyState === 'child-device-temp-queue' || request.sourceCustodyState === 'child-device-journal')
-  );
-}
-
-function screenFamilyAiHubDegradedStatesFor(request: ScreenFamilyAiHubRouteRequest) {
-  if (request.sourceChildLocalAttempt.executionState === 'selected') {
-    return ['childLocalAlreadySelected'] as const;
-  }
-  if (!request.parentApprovedFamilyHub) {
-    return ['parentDisabled'] as const;
-  }
-  if (!request.capability.supportedTasks.includes(request.requestedTask)) {
-    return ['unsupportedTask'] as const;
-  }
-  if (
-    request.sourceCustodyState !== 'child-device-temp-queue' &&
-    request.sourceCustodyState !== 'child-device-journal'
-  ) {
-    return ['custodyUnsafe'] as const;
-  }
-  return request.capability.degradedStates.length > 0
-    ? request.capability.degradedStates
-    : (['manualRequired'] as const);
-}
-
-function screenFamilyAiHubExecutionStateFor(capability: ScreenFamilyAiHubCapability) {
-  return capability.capabilityState === 'hubUnavailable' ? 'unavailable' : 'manualRequired';
+export function planScreenFamilyAiHubRouteStub() {
+  return 'planScreenFamilyAiHubRouteGenerated';
 }
 "#;
 

@@ -7,8 +7,7 @@ pub type SetupDeviceTrustHandoffChildPackageTargetRef =
     artifact_refs::SetupDeviceTrustHandoffChildPackageTargetRef;
 pub type SetupDeviceTrustHandoffArtifactRequirementRef =
     artifact_refs::SetupDeviceTrustHandoffArtifactRequirementRef;
-pub type SetupDeviceTrustHandoffClaimBoundary =
-    artifact_refs::SetupDeviceTrustHandoffClaimBoundary;
+pub type SetupDeviceTrustHandoffClaimBoundary = artifact_refs::SetupDeviceTrustHandoffClaimBoundary;
 pub type SetupDeviceTrustHandoffExternalArtifactPath =
     timing_refs::SetupDeviceTrustHandoffExternalArtifactPath;
 pub type SetupDeviceTrustHandoffExpiryOrReplayGuardRef =
