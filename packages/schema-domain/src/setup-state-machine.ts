@@ -195,6 +195,18 @@ type SetupFirstRunStateDefinition = {
   readonly terminal: boolean;
 };
 
+const SetupFirstRunResolvedReadinessStates = {
+  [SetupReadinessOverallState.Degraded]: SetupFirstRunStateId.SetupDegraded,
+  [SetupReadinessOverallState.Blocked]: SetupFirstRunStateId.SetupBlocked,
+} as const satisfies Partial<Record<Infer<typeof SetupReadinessOverallStateSchema>, SetupFirstRunStateId>>;
+
+const SetupFirstRunCompletionEligibleStates = new Set<SetupFirstRunStateId>([
+  SetupFirstRunStateId.DataCustody,
+  SetupFirstRunStateId.SetupDegraded,
+  SetupFirstRunStateId.ManualRequired,
+  SetupFirstRunStateId.SetupBlocked,
+]);
+
 const SetupFirstRunStateGraph: { [StateId in SetupFirstRunStateId]: SetupFirstRunStateDefinition } = {
   welcome: {
     screenId: SetupFirstRunScreenId.Welcome,
@@ -422,20 +434,12 @@ function resolveSetupFirstRunStateId(
     return SetupFirstRunStateId.ManualRequired;
   }
 
-  if (readinessState === SetupReadinessOverallState.Degraded) {
-    return SetupFirstRunStateId.SetupDegraded;
+  const resolvedReadinessState = SetupFirstRunResolvedReadinessStates[readinessState];
+  if (resolvedReadinessState !== undefined) {
+    return resolvedReadinessState;
   }
 
-  if (readinessState === SetupReadinessOverallState.Blocked) {
-    return SetupFirstRunStateId.SetupBlocked;
-  }
-
-  if (
-    parsedStateId === SetupFirstRunStateId.DataCustody ||
-    parsedStateId === SetupFirstRunStateId.SetupDegraded ||
-    parsedStateId === SetupFirstRunStateId.ManualRequired ||
-    parsedStateId === SetupFirstRunStateId.SetupBlocked
-  ) {
+  if (SetupFirstRunCompletionEligibleStates.has(parsedStateId)) {
     return SetupFirstRunStateId.SetupComplete;
   }
 
