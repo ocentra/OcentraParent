@@ -112,6 +112,7 @@ export const ScreenChildDisclosureSnapshotSchema = withParser(
 export type ScreenChildDisclosureSnapshot = Infer<typeof ScreenChildDisclosureSnapshotSchema>;
 export type ScreenChildDisclosureState = Infer<typeof ScreenChildDisclosureStateSchema>;
 export type ScreenChildDisclosureTextToken = Infer<typeof ScreenChildDisclosureTextTokenSchema>;
+type ScreenChildDisclosureSnapshotInput = Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>;
 
 export const ScreenChildDisclosureTextToken = {
   Disabled: ScreenChildDisclosureTextTokenSchema.parse('screen.child.disabled.title'),
@@ -123,6 +124,28 @@ export const ScreenChildDisclosureTextToken = {
   Protected: ScreenChildDisclosureTextTokenSchema.parse('screen.child.protected.title'),
   Unavailable: ScreenChildDisclosureTextTokenSchema.parse('screen.child.unavailable.title'),
 } as const;
+
+const ScreenChildDisclosurePrimaryTokenByState = {
+  disabledByParent: ScreenChildDisclosureTextToken.Disabled,
+  pausedByParent: ScreenChildDisclosureTextToken.Paused,
+  captureActive: ScreenChildDisclosureTextToken.Capture,
+  localAnalysisRunning: ScreenChildDisclosureTextToken.Analysis,
+  deletedSummaryReady: ScreenChildDisclosureTextToken.Summary,
+  permissionRequired: ScreenChildDisclosureTextToken.Permission,
+  protectedSurface: ScreenChildDisclosureTextToken.Protected,
+  unavailable: ScreenChildDisclosureTextToken.Unavailable,
+} as const satisfies Record<ScreenChildDisclosureState, ScreenChildDisclosureTextToken>;
+
+const ScreenChildDisclosureStateValidators = {
+  disabledByParent: disabledStateDoesNotCapture,
+  pausedByParent: pausedStateKeepsCaptureInactive,
+  captureActive: activeCaptureStateIsVisibleAndReady,
+  localAnalysisRunning: captureRemainsInactive,
+  deletedSummaryReady: deletedSummaryStateHasDeletedCustody,
+  permissionRequired: permissionRequiredStateHasLimitedCapability,
+  protectedSurface: protectedSurfaceStateHasProtectedQueue,
+  unavailable: captureRemainsInactive,
+} as const satisfies Record<ScreenChildDisclosureState, (value: ScreenChildDisclosureSnapshotInput) => boolean>;
 
 export function screenChildDisclosureProofSnapshots(): ReadonlyArray<ScreenChildDisclosureSnapshot> {
   return [
@@ -167,32 +190,17 @@ export function screenChildDisclosureProofSnapshots(): ReadonlyArray<ScreenChild
   ];
 }
 
-function screenChildDisclosureSnapshotIsConsistent(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
+function screenChildDisclosureSnapshotIsConsistent(value: ScreenChildDisclosureSnapshotInput) {
   if (!stateMatchesPrimaryToken(value.state, value.primaryTextToken)) {
     return false;
   }
   if (value.screenAnalysisEnabled === false) {
     return disabledStateDoesNotCapture(value);
   }
-  if (value.captureActive) {
-    return activeCaptureStateIsVisibleAndReady(value);
-  }
-  if (value.state === 'protectedSurface') {
-    return value.capabilityStatus === 'protectedSurface' && value.queueStatus === 'protectedSurface';
-  }
-  if (value.state === 'permissionRequired') {
-    return value.capabilityStatus === 'permissionRequired' || value.capabilityStatus === 'permissionLimited';
-  }
-  if (value.state === 'deletedSummaryReady') {
-    return deletedSummaryStateHasDeletedCustody(value);
-  }
-  if (value.state === 'pausedByParent') {
-    return value.screenAnalysisEnabled && !value.captureActive;
-  }
-  return value.captureActive === false;
+  return ScreenChildDisclosureStateValidators[value.state](value);
 }
 
-function disabledStateDoesNotCapture(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
+function disabledStateDoesNotCapture(value: ScreenChildDisclosureSnapshotInput) {
   return (
     value.state === 'disabledByParent' &&
     !value.cadenceCaptureEnabled &&
@@ -202,7 +210,7 @@ function disabledStateDoesNotCapture(value: Infer<typeof ScreenChildDisclosureSn
   );
 }
 
-function activeCaptureStateIsVisibleAndReady(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
+function activeCaptureStateIsVisibleAndReady(value: ScreenChildDisclosureSnapshotInput) {
   return (
     value.state === 'captureActive' &&
     value.screenAnalysisEnabled &&
@@ -212,7 +220,25 @@ function activeCaptureStateIsVisibleAndReady(value: Infer<typeof ScreenChildDisc
   );
 }
 
-function deletedSummaryStateHasDeletedCustody(value: Infer<typeof ScreenChildDisclosureSnapshotBaseSchema>) {
+function captureRemainsInactive(value: ScreenChildDisclosureSnapshotInput) {
+  return value.captureActive === false;
+}
+
+function pausedStateKeepsCaptureInactive(value: ScreenChildDisclosureSnapshotInput) {
+  return value.state === 'pausedByParent' && value.screenAnalysisEnabled && captureRemainsInactive(value);
+}
+
+function permissionRequiredStateHasLimitedCapability(value: ScreenChildDisclosureSnapshotInput) {
+  return (
+    value.capabilityStatus === 'permissionRequired' || value.capabilityStatus === 'permissionLimited'
+  );
+}
+
+function protectedSurfaceStateHasProtectedQueue(value: ScreenChildDisclosureSnapshotInput) {
+  return value.capabilityStatus === 'protectedSurface' && value.queueStatus === 'protectedSurface';
+}
+
+function deletedSummaryStateHasDeletedCustody(value: ScreenChildDisclosureSnapshotInput) {
   return (
     (value.deletionState === 'deleted' || value.deletionState === 'expiredDeleted') &&
     (value.custodyState === 'child-device-query-store' || value.custodyState === 'child-device-journal') &&
@@ -225,24 +251,7 @@ function stateMatchesPrimaryToken(state: ScreenChildDisclosureState, token: Scre
 }
 
 function stateToPrimaryToken(state: ScreenChildDisclosureState): ScreenChildDisclosureTextToken {
-  switch (state) {
-    case 'disabledByParent':
-      return ScreenChildDisclosureTextToken.Disabled;
-    case 'pausedByParent':
-      return ScreenChildDisclosureTextToken.Paused;
-    case 'captureActive':
-      return ScreenChildDisclosureTextToken.Capture;
-    case 'localAnalysisRunning':
-      return ScreenChildDisclosureTextToken.Analysis;
-    case 'deletedSummaryReady':
-      return ScreenChildDisclosureTextToken.Summary;
-    case 'permissionRequired':
-      return ScreenChildDisclosureTextToken.Permission;
-    case 'protectedSurface':
-      return ScreenChildDisclosureTextToken.Protected;
-    case 'unavailable':
-      return ScreenChildDisclosureTextToken.Unavailable;
-  }
+  return ScreenChildDisclosurePrimaryTokenByState[state];
 }
 
 function baseDisclosureSnapshot(snapshotId: string, state: ScreenChildDisclosureState) {
