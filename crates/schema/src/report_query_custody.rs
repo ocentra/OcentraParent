@@ -1,9 +1,13 @@
-use std::fmt::{Display, Formatter};
-
 use serde::{Deserialize, Serialize};
 
+mod enum_context;
+mod enum_custody;
 mod identifiers;
 mod sample_rows;
+mod text_types_actor;
+mod text_types_core;
+mod text_parse;
+mod text_types_query;
 
 pub const REPORT_QUERY_CUSTODY_SCHEMA_VERSION: &str = "report-query-custody-proof";
 
@@ -118,162 +122,35 @@ const REPORT_QUERY_CUSTODY_EXPECT_SOURCE_REF: &str = "source ref";
 const REPORT_QUERY_CUSTODY_EXPECT_CONFLICT_REF: &str = "conflict ref";
 const REPORT_QUERY_CUSTODY_EXPECT_DELETED_SOURCE_REF: &str = "deleted source ref";
 
-macro_rules! report_query_text_identifier {
-    ($name:ident) => {
-        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-        #[serde(transparent)]
-        pub struct $name(String);
+pub type ParentPlatform = enum_context::ParentPlatform;
+pub type ParentActorRole = enum_context::ParentActorRole;
+pub type ParentEvidenceReferenceKind = enum_context::ParentEvidenceReferenceKind;
+pub type ReportQueryCustodyState = enum_context::ReportQueryCustodyState;
+pub type ReportQueryCustodySourceFreshness = enum_custody::ReportQueryCustodySourceFreshness;
+pub type ReportQueryCustodyBoundary = enum_custody::ReportQueryCustodyBoundary;
+pub type ReportQueryCustodyPayloadRedaction = enum_custody::ReportQueryCustodyPayloadRedaction;
+pub type ReportQueryCustodySourceDataClass = enum_custody::ReportQueryCustodySourceDataClass;
+pub type ReportQueryCustodyNonClaim = enum_custody::ReportQueryCustodyNonClaim;
+pub type ReportQueryCustodyTombstoneState = enum_custody::ReportQueryCustodyTombstoneState;
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Option<Self> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl Display for $name {
-            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
-}
-
-macro_rules! report_query_string_enum {
-    ($name:ident { $($variant:ident => $value:expr),+ $(,)? }) => {
-        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-        pub enum $name {
-            $($variant,)+
-        }
-
-        impl $name {
-            pub fn as_str(&self) -> &'static str {
-                match self {
-                    $(Self::$variant => $value,)+
-                }
-            }
-        }
-
-        impl Serialize for $name {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: serde::Serializer,
-            {
-                serializer.serialize_str(self.as_str())
-            }
-        }
-
-        impl<'de> Deserialize<'de> for $name {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                let value = String::deserialize(deserializer)?;
-                $(if value == $value { return Ok(Self::$variant); })+
-                Err(serde::de::Error::unknown_variant(value.as_str(), &[$($value,)+]))
-            }
-        }
-    };
-}
-
-report_query_string_enum!(ParentPlatform {
-    Windows => PARENT_PLATFORM_WINDOWS,
-    Linux => PARENT_PLATFORM_LINUX,
-    Macos => PARENT_PLATFORM_MACOS,
-    Android => PARENT_PLATFORM_ANDROID,
-    Ios => PARENT_PLATFORM_IOS,
-});
-
-report_query_string_enum!(ParentActorRole {
-    Parent => PARENT_ACTOR_ROLE_PARENT,
-    Guardian => PARENT_ACTOR_ROLE_GUARDIAN,
-    System => PARENT_ACTOR_ROLE_SYSTEM,
-});
-
-report_query_string_enum!(ParentEvidenceReferenceKind {
-    JournalEvent => PARENT_EVIDENCE_REFERENCE_KIND_JOURNAL_EVENT,
-    QueryStoreSummary => PARENT_EVIDENCE_REFERENCE_KIND_QUERY_STORE_SUMMARY,
-    ActivityEvent => PARENT_EVIDENCE_REFERENCE_KIND_ACTIVITY_EVENT,
-    PolicyDecision => PARENT_EVIDENCE_REFERENCE_KIND_POLICY_DECISION,
-    LocalAiResult => PARENT_EVIDENCE_REFERENCE_KIND_LOCAL_AI_RESULT,
-});
-
-report_query_string_enum!(ReportQueryCustodyState {
-    DerivedFresh => REPORT_QUERY_CUSTODY_STATE_DERIVED_FRESH,
-    DerivedStale => REPORT_QUERY_CUSTODY_STATE_DERIVED_STALE,
-    PartiallyRedacted => REPORT_QUERY_CUSTODY_STATE_PARTIALLY_REDACTED,
-    DeletedSource => REPORT_QUERY_CUSTODY_STATE_DELETED_SOURCE,
-    SyncConflict => REPORT_QUERY_CUSTODY_STATE_SYNC_CONFLICT,
-    CursorExpired => REPORT_QUERY_CUSTODY_STATE_CURSOR_EXPIRED,
-    RateLimited => REPORT_QUERY_CUSTODY_STATE_RATE_LIMITED,
-});
-
-report_query_string_enum!(ReportQueryCustodySourceFreshness {
-    Fresh => REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_FRESH,
-    Stale => REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_STALE,
-    Deleted => REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_DELETED,
-    Conflicted => REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_CONFLICTED,
-    Expired => REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_EXPIRED,
-    RateLimited => REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_RATE_LIMITED,
-});
-
-report_query_string_enum!(ReportQueryCustodyBoundary {
-    ParentOwnedCitationsOnly => REPORT_QUERY_CUSTODY_BOUNDARY_PARENT_OWNED_CITATIONS_ONLY,
-});
-
-report_query_string_enum!(ReportQueryCustodyPayloadRedaction {
-    FullyRedacted => REPORT_QUERY_CUSTODY_PAYLOAD_REDACTION_FULLY_REDACTED,
-    PartiallyRedacted => REPORT_QUERY_CUSTODY_PAYLOAD_REDACTION_PARTIALLY_REDACTED,
-});
-
-report_query_string_enum!(ReportQueryCustodySourceDataClass {
-    SqliteQueryRow => REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_SQLITE_QUERY_ROW,
-    NotificationHistory => REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_NOTIFICATION_HISTORY,
-    AuditEvent => REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_AUDIT_EVENT,
-    GeneratedSummary => REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_GENERATED_SUMMARY,
-});
-
-report_query_string_enum!(ReportQueryCustodyNonClaim {
-    NoSecondTruthStore => REPORT_QUERY_CUSTODY_NON_CLAIM_NO_SECOND_TRUTH_STORE,
-    NoPortalUi => REPORT_QUERY_CUSTODY_NON_CLAIM_NO_PORTAL_UI,
-    NoRawChildEvidence => REPORT_QUERY_CUSTODY_NON_CLAIM_NO_RAW_CHILD_EVIDENCE,
-    NoUnboundedPagination => REPORT_QUERY_CUSTODY_NON_CLAIM_NO_UNBOUNDED_PAGINATION,
-    NoProviderRouting => REPORT_QUERY_CUSTODY_NON_CLAIM_NO_PROVIDER_ROUTING,
-    NoOcentraHostedFamilyDataCustody =>
-        REPORT_QUERY_CUSTODY_NON_CLAIM_NO_OCENTRA_HOSTED_FAMILY_DATA_CUSTODY,
-});
-
-report_query_string_enum!(ReportQueryCustodyTombstoneState {
-    NotRequired => REPORT_QUERY_CUSTODY_TOMBSTONE_STATE_NOT_REQUIRED,
-    Written => REPORT_QUERY_CUSTODY_TOMBSTONE_STATE_WRITTEN,
-});
-
-report_query_text_identifier!(ParentContractSchemaVersion);
-report_query_text_identifier!(ParentAccountId);
-report_query_text_identifier!(FamilyId);
-report_query_text_identifier!(ChildProfileId);
-report_query_text_identifier!(ParentDeviceId);
-report_query_text_identifier!(ParentDeviceLabel);
-report_query_text_identifier!(ParentActorId);
-report_query_text_identifier!(ParentPolicyVersion);
-report_query_text_identifier!(ParentEvidenceReferenceId);
-report_query_text_identifier!(ParentActionReferenceId);
-report_query_text_identifier!(ParentTimestamp);
-report_query_text_identifier!(ReportQueryCustodyRequestId);
-report_query_text_identifier!(ReportQueryCustodyQueryCursor);
-report_query_text_identifier!(ReportQueryCustodyCursorRef);
-report_query_text_identifier!(ReportQueryCustodySortKey);
-report_query_text_identifier!(ReportQueryCustodySourceRef);
-report_query_text_identifier!(ReportQueryCustodyConflictRef);
-report_query_text_identifier!(ReportQueryCustodyDeletedSourceRef);
+pub type ParentContractSchemaVersion = text_types_core::ParentContractSchemaVersion;
+pub type ParentAccountId = text_types_core::ParentAccountId;
+pub type FamilyId = text_types_core::FamilyId;
+pub type ChildProfileId = text_types_core::ChildProfileId;
+pub type ParentDeviceId = text_types_core::ParentDeviceId;
+pub type ParentDeviceLabel = text_types_core::ParentDeviceLabel;
+pub type ParentActorId = text_types_actor::ParentActorId;
+pub type ParentPolicyVersion = text_types_actor::ParentPolicyVersion;
+pub type ParentEvidenceReferenceId = text_types_actor::ParentEvidenceReferenceId;
+pub type ParentActionReferenceId = text_types_actor::ParentActionReferenceId;
+pub type ParentTimestamp = text_types_actor::ParentTimestamp;
+pub type ReportQueryCustodyRequestId = text_types_actor::ReportQueryCustodyRequestId;
+pub type ReportQueryCustodyQueryCursor = text_types_query::ReportQueryCustodyQueryCursor;
+pub type ReportQueryCustodyCursorRef = text_types_query::ReportQueryCustodyCursorRef;
+pub type ReportQueryCustodySortKey = text_types_query::ReportQueryCustodySortKey;
+pub type ReportQueryCustodySourceRef = text_types_query::ReportQueryCustodySourceRef;
+pub type ReportQueryCustodyConflictRef = text_types_query::ReportQueryCustodyConflictRef;
+pub type ReportQueryCustodyDeletedSourceRef = text_types_query::ReportQueryCustodyDeletedSourceRef;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
